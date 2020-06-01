@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -203,7 +203,7 @@ class Items
         return false if newowner.nil?
         if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             node = newowner
-            GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, item["target"])
+            StarlightContents::issueClaimGivenNodeAndEntity(node, item["target"])
             return true
         end
         if newowner["catalystType"] == "catalyst-type:clique" then

@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -48,7 +48,7 @@ class NSXCatalystUI
 
             items << [
                 "navigate nodes", 
-                lambda { GlobalNavigationNetworkUserInterface::mainNavigation() }
+                lambda { StarlightUserInterface::mainNavigation() }
             ]
 
             items << [
@@ -61,9 +61,9 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
-                    GlobalNavigationNetworkUserInterface::nodeDive(node)
+                    StarlightUserInterface::nodeDive(node)
                 }
             ]
             items << [
@@ -221,15 +221,15 @@ class NSXCatalystUI
 
             items << [
                 "nodes management",
-                lambda { GlobalNavigationNetworkUserInterface::management() }
+                lambda { StarlightUserInterface::management() }
             ]
 
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
-                    GlobalNavigationNetworkUserInterface::nodeDive(node)
+                    StarlightUserInterface::nodeDive(node)
                 }
             ]
 
@@ -295,8 +295,8 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay()
-    def self.performLatestGlobalNavigationNetworkNodesDisplay()
+    # NSXCatalystUI::performLatestStarlightNodesDisplay()
+    def self.performLatestStarlightNodesDisplay()
         loop {
             system("clear")
             items = []
@@ -326,7 +326,7 @@ class NSXCatalystUI
             ]
             items << [
                 "Latest Global Navigation Network Nodes", 
-                lambda { NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay() }
+                lambda { NSXCatalystUI::performLatestStarlightNodesDisplay() }
             ]
             items << [
                 "Latest Cliques", 
@@ -385,9 +385,9 @@ class NSXCatalystUI
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Global Navigation Network Node" then
-                        node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                         return if node.nil?
-                        GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                        StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                     end
                 }
             ]

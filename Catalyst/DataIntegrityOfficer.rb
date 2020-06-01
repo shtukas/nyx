@@ -23,7 +23,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 # ------------------------------------------------------------------------
 
@@ -35,13 +35,13 @@ class DataIntegrityOfficer
         NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .each{|node|
                 next if node["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root node
-                next if !GlobalNavigationNetworkPaths::getParents(node).empty?
+                next if !StarlightPaths::getParents(node).empty?
                 puts "[DataIntegrityOfficer] Global Navigation Network Node '#{node["name"]}' doesn't have a parent, please make and/or select one".green
                 puts JSON.pretty_generate(node)
-                parent = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if parent.nil?
                 next if node["uuid"] == parent["uuid"]
-                object = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                object = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
                 next if object.nil?
                 puts JSON.pretty_generate(object)
             }
@@ -52,7 +52,7 @@ class DataIntegrityOfficer
         # Make sure that every Clique is on a node
         Cliques::cliques()
             .each{|clique|
-                next if !GlobalNavigationNetworkContents::getNodesForEntity(clique).empty?
+                next if !StarlightContents::getNodesForEntity(clique).empty?
 
                 system("clear")
                 puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Global Navigation Network parent, please make and/or select one".green
@@ -63,7 +63,7 @@ class DataIntegrityOfficer
                         puts "error: a6301551"
                         exit
                     end
-                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                     return
                 end
 
@@ -73,7 +73,7 @@ class DataIntegrityOfficer
                         puts "error: a6301551"
                         exit
                     end
-                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                     return
                 end
 
@@ -83,7 +83,7 @@ class DataIntegrityOfficer
                         puts "error: a6301551"
                         exit
                     end
-                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                     return
                 end
 
@@ -94,11 +94,11 @@ class DataIntegrityOfficer
                 # By now it could have been destroyed
                 next if Cliques::getOrNull(clique["uuid"]).nil?
                 # By now it also can have a parent node (since we dove)
-                next if !GlobalNavigationNetworkContents::getNodesForEntity(clique).empty?
+                next if !StarlightContents::getNodesForEntity(clique).empty?
 
-                node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if node.nil?
-                GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                 return
             }
     end

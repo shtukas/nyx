@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -22,9 +22,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.r
 
 # -----------------------------------------------------------------
 
-class GlobalNavigationNetworkNodes
+class StarlightNodes
 
-    # GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
+    # StarlightNodes::makeNodeInteractivelyOrNull()
     def self.makeNodeInteractivelyOrNull()
         puts "Making a new Starlight node..."
         node = {
@@ -39,42 +39,42 @@ class GlobalNavigationNetworkNodes
         node
     end
 
-    # GlobalNavigationNetworkNodes::nodeToString(node)
+    # StarlightNodes::nodeToString(node)
     def self.nodeToString(node)
         "[node] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
 end
 
-class GlobalNavigationNetworkPaths
+class StarlightPaths
 
-    # GlobalNavigationNetworkPaths::path()
+    # StarlightPaths::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Global-Navigation-Network/paths"
     end
 
-    # GlobalNavigationNetworkPaths::save(path)
+    # StarlightPaths::save(path)
     def self.save(path)
-        filepath = "#{GlobalNavigationNetworkPaths::path()}/#{path["uuid"]}.json"
+        filepath = "#{StarlightPaths::path()}/#{path["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(path)) }
     end
 
-    # GlobalNavigationNetworkPaths::getOrNull(uuid)
+    # StarlightPaths::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{GlobalNavigationNetworkPaths::path()}/#{uuid}.json"
+        filepath = "#{StarlightPaths::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # GlobalNavigationNetworkPaths::paths()
+    # StarlightPaths::paths()
     def self.paths()
-        Dir.entries(GlobalNavigationNetworkPaths::path())
+        Dir.entries(StarlightPaths::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{GlobalNavigationNetworkPaths::path()}/#{filename}" }
+            .map{|filename| "#{StarlightPaths::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # GlobalNavigationNetworkPaths::issuePathInteractivelyOrNull()
+    # StarlightPaths::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
             "catalystType"      => "catalyst-type:starlight-path",
@@ -84,11 +84,11 @@ class GlobalNavigationNetworkPaths
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
-        GlobalNavigationNetworkPaths::save(path)
+        StarlightPaths::save(path)
         path
     end
 
-    # GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+    # StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
@@ -98,72 +98,72 @@ class GlobalNavigationNetworkPaths
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
-        GlobalNavigationNetworkPaths::save(path)
+        StarlightPaths::save(path)
         path
     end
 
-    # GlobalNavigationNetworkPaths::getPathsWithGivenTarget(targetuuid)
+    # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        GlobalNavigationNetworkPaths::paths()
+        StarlightPaths::paths()
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
-    # GlobalNavigationNetworkPaths::getPathsWithGivenSource(sourceuuid)
+    # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        GlobalNavigationNetworkPaths::paths()
+        StarlightPaths::paths()
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
-    # GlobalNavigationNetworkPaths::pathToString(path)
+    # StarlightPaths::pathToString(path)
     def self.pathToString(path)
         "[stargate] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
     end
 
-    # GlobalNavigationNetworkPaths::getParents(node)
+    # StarlightPaths::getParents(node)
     def self.getParents(node)
-        GlobalNavigationNetworkPaths::getPathsWithGivenTarget(node["uuid"])
+        StarlightPaths::getPathsWithGivenTarget(node["uuid"])
             .map{|path| NyxNetwork::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
-    # GlobalNavigationNetworkPaths::getChildren(node)
+    # StarlightPaths::getChildren(node)
     def self.getChildren(node)
-        GlobalNavigationNetworkPaths::getPathsWithGivenSource(node["uuid"])
+        StarlightPaths::getPathsWithGivenSource(node["uuid"])
             .map{|path| NyxNetwork::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
 
-class GlobalNavigationNetworkContents
+class StarlightContents
 
-    # GlobalNavigationNetworkContents::path()
+    # StarlightContents::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Global-Navigation-Network/ownershipclaims"
     end
 
-    # GlobalNavigationNetworkContents::save(dataclaim)
+    # StarlightContents::save(dataclaim)
     def self.save(dataclaim)
-        filepath = "#{GlobalNavigationNetworkContents::path()}/#{dataclaim["uuid"]}.json"
+        filepath = "#{StarlightContents::path()}/#{dataclaim["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(dataclaim)) }
     end
 
-    # GlobalNavigationNetworkContents::getOrNull(uuid)
+    # StarlightContents::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{GlobalNavigationNetworkContents::path()}/#{uuid}.json"
+        filepath = "#{StarlightContents::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # GlobalNavigationNetworkContents::claims()
+    # StarlightContents::claims()
     def self.claims()
-        Dir.entries(GlobalNavigationNetworkContents::path())
+        Dir.entries(StarlightContents::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{GlobalNavigationNetworkContents::path()}/#{filename}" }
+            .map{|filename| "#{StarlightContents::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, something)
+    # StarlightContents::issueClaimGivenNodeAndEntity(node, something)
     def self.issueClaimGivenNodeAndEntity(node, something)
         claim = {
             "catalystType"      => "catalyst-type:time-ownership-claim",
@@ -173,80 +173,80 @@ class GlobalNavigationNetworkContents
             "nodeuuid"   => node["uuid"],
             "targetuuid" => something["uuid"]
         }
-        GlobalNavigationNetworkContents::save(claim)
+        StarlightContents::save(claim)
         claim
     end
 
-    # GlobalNavigationNetworkContents::claimToString(dataclaim)
+    # StarlightContents::claimToString(dataclaim)
     def self.claimToString(dataclaim)
         "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
     end
 
-    # GlobalNavigationNetworkContents::getNodeEntities(node)
+    # StarlightContents::getNodeEntities(node)
     def self.getNodeEntities(node)
-        GlobalNavigationNetworkContents::claims()
+        StarlightContents::claims()
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # GlobalNavigationNetworkContents::getNodesForEntity(clique)
+    # StarlightContents::getNodesForEntity(clique)
     def self.getNodesForEntity(clique)
-        GlobalNavigationNetworkContents::claims()
+        StarlightContents::claims()
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
             .map{|claim| NyxNetwork::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 end
 
-class GlobalNavigationNetworkUserInterface
+class StarlightUserInterface
 
-    # GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
+    # StarlightUserInterface::selectNodeFromExistingNodes()
     def self.selectNodeFromExistingNodes()
-        nodestrings = NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| GlobalNavigationNetworkNodes::nodeToString(node) }
+        nodestrings = NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
         node = NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
-                .select{|node| GlobalNavigationNetworkNodes::nodeToString(node) == nodestring }
+                .select{|node| StarlightNodes::nodeToString(node) == nodestring }
                 .first
     end
 
-    # GlobalNavigationNetworkUserInterface::nodeDive(node)
+    # StarlightUserInterface::nodeDive(node)
     def self.nodeDive(node)
         loop {
             puts ""
             puts JSON.pretty_generate(node)
             puts "uuid: #{node["uuid"]}"
-            puts GlobalNavigationNetworkNodes::nodeToString(node).green
+            puts StarlightNodes::nodeToString(node).green
             items = []
             items << ["rename", lambda{ 
                 node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
                 NyxNetwork::commitToDisk(node)
             }]
 
-            GlobalNavigationNetworkPaths::getParents(node)
+            StarlightPaths::getParents(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{GlobalNavigationNetworkNodes::nodeToString(n)}", lambda{ GlobalNavigationNetworkUserInterface::nodeDive(n) }] }
+                .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
 
-            GlobalNavigationNetworkContents::getNodeEntities(node)
+            StarlightContents::getNodeEntities(node)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
                 .each{|something| items << ["[something] #{PrimaryNetwork::somethingToString(something)}", lambda{ PrimaryNetworkNavigation::visit(something) }] }
 
-            GlobalNavigationNetworkPaths::getChildren(node)
+            StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{GlobalNavigationNetworkNodes::nodeToString(n)}", lambda{ GlobalNavigationNetworkUserInterface::nodeDive(n) }] }
+                .each{|n| items << ["[network child] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
 
             items << ["add parent node", lambda{ 
-                node0 = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                path = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
+                node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
                 puts JSON.pretty_generate(path)
-                GlobalNavigationNetworkPaths::save(path)
+                StarlightPaths::save(path)
             }]
 
             items << ["add child node", lambda{ 
-                node2 = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                path = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
+                node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
                 puts JSON.pretty_generate(path)
-                GlobalNavigationNetworkPaths::save(path)
+                StarlightPaths::save(path)
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -254,26 +254,26 @@ class GlobalNavigationNetworkUserInterface
         }
     end
 
-    # GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+    # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
     def self.selectNodeFromExistingOrCreateOneOrNull()
         puts "-> You are selecting a node (possibly will create one)"
         LucilleCore::pressEnterToContinue()
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
+        node = StarlightUserInterface::selectNodeFromExistingNodes()
         return node if node
         if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting a node but did not select any of the existing ones. Would you like to make a new node and return it ? ") then
-            return GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
+            return StarlightNodes::makeNodeInteractivelyOrNull()
         end
         nil
     end
 
-    # GlobalNavigationNetworkUserInterface::mainNavigation()
+    # StarlightUserInterface::mainNavigation()
     def self.mainNavigation()
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
+        node = StarlightUserInterface::selectNodeFromExistingNodes()
         return if node.nil?
-        GlobalNavigationNetworkUserInterface::nodeDive(node)
+        StarlightUserInterface::nodeDive(node)
     end
 
-    # GlobalNavigationNetworkUserInterface::management()
+    # StarlightUserInterface::management()
     def self.management()
         loop {
             system("clear")
@@ -285,35 +285,35 @@ class GlobalNavigationNetworkUserInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "make node" then
-                node = GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
+                node = StarlightNodes::makeNodeInteractivelyOrNull()
                 puts JSON.pretty_generate(node)
                 NyxNetwork::commitToDisk(node)
             end
             if operation == "make starlight path" then
-                node1 = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                node1 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if node1.nil?
-                node2 = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if node2.nil?
-                path = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
-                GlobalNavigationNetworkPaths::save(path)
+                StarlightPaths::save(path)
             end
         }
     end
 end
 
-class GlobalNavigationNetworkMakeAndOrSelectNodeQuest
+class StarlightMakeAndOrSelectNodeQuest
 
-    # GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+    # StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
     def self.makeAndOrSelectNodeOrNull()
         puts "-> You are on a selection Quest [selecting a node]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
+        node = StarlightUserInterface::selectNodeFromExistingNodes()
         return node if node
         puts "-> You are on a selection Quest [selecting a node]"
         if LucilleCore::askQuestionAnswerAsBoolean("-> ...but did not select anything. Do you want to create one ? ") then
-            node = GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
+            node = StarlightNodes::makeNodeInteractivelyOrNull()
             return nil if node.nil?
             puts "-> You are on a selection Quest [selecting a node]"
             puts "-> You have created '#{node["name"]}'"
@@ -325,7 +325,7 @@ class GlobalNavigationNetworkMakeAndOrSelectNodeQuest
                 return node
             end
             if option == option2 then
-                GlobalNavigationNetworkUserInterface::nodeDive(node)
+                StarlightUserInterface::nodeDive(node)
                 return node
             end
         end

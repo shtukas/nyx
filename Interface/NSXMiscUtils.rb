@@ -15,7 +15,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
@@ -168,48 +168,48 @@ class NSXMiscUtils
     # NSXMiscUtils::startlightNodeBuildAround(node)
     def self.startlightNodeBuildAround(node)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if parent.nil? then
-                    puts "Did not determine a parent for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting parent determination."
+                    puts "Did not determine a parent for '#{StarlightNodes::nodeToString(node)}'. Aborting parent determination."
                     break
                 end
-                GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
+                StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StarlightNodes::nodeToString(node)}' ? ")
             }
-            puts "Completed determining parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'"
+            puts "Completed determining parents for '#{StarlightNodes::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                child = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if child.nil? then
-                    puts "Did not make a child for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting child building."
+                    puts "Did not make a child for '#{StarlightNodes::nodeToString(node)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StarlightNodes::nodeToString(node)}' ? ")
             }
-            puts "Completed building children for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'"
+            puts "Completed building children for '#{StarlightNodes::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new clique..."
                 clique = Cliques::issueCliqueInteractivelyOrNull(false)
                 if clique.nil? then
-                    puts "Did not make a clique for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting clique building."
+                    puts "Did not make a clique for '#{StarlightNodes::nodeToString(node)}'. Aborting clique building."
                     break
                 end
                 puts JSON.pretty_generate(clique)
-                claim = GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                claim = StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{StarlightNodes::nodeToString(node)}' ? ")
             }
         end
 
@@ -218,7 +218,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+        node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -230,9 +230,9 @@ class NSXMiscUtils
     # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+        node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
         return if node.nil?
-        claim = GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, target)
+        claim = StarlightContents::issueClaimGivenNodeAndEntity(node, target)
         puts JSON.pretty_generate(claim)
     end
 

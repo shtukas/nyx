@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
@@ -135,9 +135,9 @@ class Cliques
         puts JSON.pretty_generate(clique)
         Cliques::save(clique)
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
-            node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+            node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
             if node then
-                GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
             end
         end
         clique
@@ -218,13 +218,13 @@ class Cliques
         end
         puts ""
 
-        nodes = GlobalNavigationNetworkContents::getNodesForEntity(clique)
+        nodes = StarlightContents::getNodesForEntity(clique)
         if nodes.empty? then
             puts "    nodes: (empty set)"
         else
             puts "    nodes"
             nodes.each{|node|
-                puts "        #{GlobalNavigationNetworkNodes::nodeToString(node)}"
+                puts "        #{StarlightNodes::nodeToString(node)}"
             }
         end
     end
@@ -312,9 +312,9 @@ class Cliques
             items << [
                 "add to Global Navigation Network Node", 
                 lambda{
-                    node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                    node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?
-                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
                 }]
             items << [
                 "register as open cycle", 
@@ -340,9 +340,9 @@ class Cliques
                     items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495Navigation::visit(target) }] 
                 }
 
-            GlobalNavigationNetworkContents::getNodesForEntity(clique)
+            StarlightContents::getNodesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|node| items << ["[node] #{GlobalNavigationNetworkNodes::nodeToString(node)}", lambda{ GlobalNavigationNetworkUserInterface::nodeDive(node) }] }
+                .each{|node| items << ["[node] #{StarlightNodes::nodeToString(node)}", lambda{ StarlightUserInterface::nodeDive(node) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

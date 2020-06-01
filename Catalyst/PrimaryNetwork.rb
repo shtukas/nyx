@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 # -----------------------------------------------------------------
 
@@ -45,7 +45,7 @@ class PrimaryNetwork
             return Cliques::cliqueToString(something)
         end
         if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            return GlobalNavigationNetworkNodes::nodeToString(something)
+            return StarlightNodes::nodeToString(something)
         end
         raise "PrimaryNetwork::somethingToString, Error: 056686f0"
     end
@@ -65,7 +65,7 @@ class PrimaryNetwork
         end
         if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
            node = something
-           GlobalNavigationNetworkUserInterface::nodeDive(node)
+           StarlightUserInterface::nodeDive(node)
            return
         end
         raise "PrimaryNetwork::somethingToString, Error: 2f28f27d"
@@ -82,7 +82,7 @@ class PrimaryNetwork
             return
         end
         if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            GlobalNavigationNetworkUserInterface::nodeDive(something)
+            StarlightUserInterface::nodeDive(something)
             return
         end
         raise "PrimaryNetwork::somethingToString, Error: cf25ea33"
@@ -101,7 +101,7 @@ class PrimaryNetworkNavigation
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             return if option.nil?
             if option == "navigate nodes" then
-                GlobalNavigationNetworkUserInterface::mainNavigation()
+                StarlightUserInterface::mainNavigation()
             end
             if option == "navigate cliques" then
                 CliquesNavigation::mainNavigation()
@@ -121,7 +121,7 @@ class PrimaryNetworkNavigation
         end
         if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             node = something
-            return GlobalNavigationNetworkUserInterface::nodeDive(node)
+            return StarlightUserInterface::nodeDive(node)
         end
         raise "PrimaryNetwork::somethingToString, Error: f17aba25"
     end
@@ -146,7 +146,7 @@ class PrimaryNetworkMakeAndOrSelectQuest
                 end
             end
             if option == "making and/or selecting a node" then
-                something = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                something = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if something then
                     return something
                 else 

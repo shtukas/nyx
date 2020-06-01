@@ -29,7 +29,7 @@ Stargate {
     "targetuuid"        : String # uuid of a Global Navigation Network Node
 }
 
-GlobalNavigationNetworkContentsClaim {
+StarlightContentsClaim {
     "uuid"              : String
     "catalystType"      : "catalyst-type:time-ownership-claim"
     "creationTimestamp" : Float # Unixtime with decimals
