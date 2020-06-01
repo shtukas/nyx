@@ -15,17 +15,3 @@ The A10495s represent pieces of data (six types at the time those lines are writ
 ### Navigation Network
 
 The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cliques.
-
-## Multiverse
-
-```
-
-StarlightContentsClaim {
-    "uuid"              : String
-    "catalystType"      : "catalyst-type:time-ownership-claim"
-    "creationTimestamp" : Float # Unixtime with decimals
-
-    "nodeuuid"          : String
-    "targetuuid"        : String # Clique uuid or a A10495 uuid
-}
-```

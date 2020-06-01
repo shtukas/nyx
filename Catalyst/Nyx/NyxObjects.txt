@@ -110,7 +110,15 @@ StarlightPath {
     "targetuuid"        : String # uuid of a Starlight Node
 }
 
+------------------------------------------------------
+StarlightContentClaim {
+    "uuid"             : String
+    "nyxType"          : "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+    "creationUnixtime" : Float # Unixtime with decimals
 
+    "nodeuuid"         : String
+    "targetuuid"       : String # Clique uuid or a A10495 uuid
+}
 
 
 

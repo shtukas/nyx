@@ -109,44 +109,17 @@ end
 
 class StarlightContents
 
-    # StarlightContents::path()
-    def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Global-Navigation-Network/ownershipclaims"
-    end
-
-    # StarlightContents::save(dataclaim)
-    def self.save(dataclaim)
-        filepath = "#{StarlightContents::path()}/#{dataclaim["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(dataclaim)) }
-    end
-
-    # StarlightContents::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{StarlightContents::path()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # StarlightContents::claims()
-    def self.claims()
-        Dir.entries(StarlightContents::path())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StarlightContents::path()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
-    end
-
     # StarlightContents::issueClaimGivenNodeAndEntity(node, something)
     def self.issueClaimGivenNodeAndEntity(node, something)
         claim = {
-            "catalystType"      => "catalyst-type:time-ownership-claim",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "nyxType"          => "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "creationUnixtime" => Time.new.to_f,
+            "uuid"             => SecureRandom.uuid,
 
             "nodeuuid"   => node["uuid"],
             "targetuuid" => something["uuid"]
         }
-        StarlightContents::save(claim)
+        NyxObjects::commitToDisk(claim)
         claim
     end
 
@@ -157,7 +130,7 @@ class StarlightContents
 
     # StarlightContents::getNodeEntities(node)
     def self.getNodeEntities(node)
-        StarlightContents::claims()
+        NyxObjects::getObjects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
@@ -165,7 +138,7 @@ class StarlightContents
 
     # StarlightContents::getNodesForEntity(clique)
     def self.getNodesForEntity(clique)
-        StarlightContents::claims()
+        NyxObjects::getObjects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
             .map{|claim| NyxObjects::getOrNull(claim["nodeuuid"]) }
             .compact
