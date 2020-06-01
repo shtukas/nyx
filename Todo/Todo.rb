@@ -180,8 +180,8 @@ class Items
         }
     end
 
-    # Items::recast(item)
-    def self.recast(item)
+    # Items::updateProject(item)
+    def self.updateProject(item)
         projectname = Items::selectProjectNameInteractivelyOrNull()
         projectuuid = nil
         if projectname.nil? then
@@ -197,8 +197,8 @@ class Items
         Nyx::commitToDisk(item)
     end
 
-    # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
-    def self.promote(item) # Boolean # Indicates whether a promotion was acheived
+    # Items::updateProjectOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
         newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
         if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
@@ -258,14 +258,14 @@ class Items
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Items::recast(item)
+                Items::updateProject(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
-                status = Items::promote(item)
+                status = Items::updateProjectOnNyxNetwork(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return

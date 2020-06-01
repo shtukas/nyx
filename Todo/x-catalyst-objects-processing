@@ -86,13 +86,13 @@ if ARGV[0] == "start" and ARGV[1] then
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         stop(uuid, item)
         puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
-        options = ["recast", "promote"]
+        options = ["update project", "recast on nyx network"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "recast" then
-            Items::recast(item)
+            Items::updateProject(item)
         end
-        if option == "promote" then
-            status = Items::promote(item)
+        if option == "recast on nyx network" then
+            status = Items::updateProjectOnNyxNetwork(item)
             exit if !status
             Nyx::destroy(item["uuid"])
         end
@@ -118,7 +118,7 @@ if ARGV[0] == "stop" and ARGV[1] then
 
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         puts "Item was not immediately done, we need to classify it."
-        Items::recast(item)
+        Items::updateProject(item)
     end
 end
 
@@ -143,14 +143,14 @@ if ARGV[0] == "description" and ARGV[1] then
     Nyx::commitToDisk(item)
 end
 
-if ARGV[0] == "change-project" and ARGV[1] then
+if ARGV[0] == "update-project" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
 
     stop(uuid, item)
-    Items::recast(item)
+    Items::updateProject(item)
 end
 
 if ARGV[0] == "recast-as-clique" and ARGV[1] then
@@ -160,7 +160,7 @@ if ARGV[0] == "recast-as-clique" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    status = Items::promote(item)
+    status = Items::updateProjectOnNyxNetwork(item)
     exit if !status
     Nyx::destroy(item["uuid"])
 end

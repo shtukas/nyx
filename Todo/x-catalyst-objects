@@ -100,7 +100,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "line" => Items::itemToString(item)
         },
         "metric"         => metric,
-        "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "re-project", ">nyx"],
+        "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">nyx"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
@@ -110,8 +110,8 @@ def itemToCatalystObject(item, basemetric, indx)
             "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing done '#{uuid}'",
             "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing description '#{uuid}'",
             "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing reset-reference-time '#{uuid}'",
-            "re-project"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing change-project '#{uuid}'",
-            ">nyx"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing recast-as-clique '#{uuid}'",
+            "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing update-project '#{uuid}'",
+            ">nyx"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing recast-as-clique '#{uuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
