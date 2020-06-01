@@ -98,7 +98,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "type" => "line",
             "line" => Items::itemToString(item)
         },
-        "metric"         => metric,
+        "metric"         => isRunning ? 1 : metric,
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">nyx"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,

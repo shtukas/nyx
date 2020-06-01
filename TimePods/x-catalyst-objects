@@ -104,6 +104,8 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
 objects = []
 
 Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+    .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+    .first(3)
     .each{|pod|
 
         defaultCommand = lambda {|isRunning|
@@ -121,7 +123,7 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
                 "type" => "line",
                 "line" => TimePods::toString(pod)
             },
-            "metric"         => TimePods::metric(pod), # 0.999 because it may have started something else
+            "metric"         => isRunning ? 1 : TimePods::metric(pod), # 0.999 because it may have started something else
             "commands"       => ["start", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
