@@ -87,6 +87,17 @@ class DataIntegrityOfficer
                     return
                 end
 
+                if clique["tags"].include?("Software Engineering") then
+                    node = Nyx::getOrNull("6c2744ac-52c7-4b64-9382-0d2d262387d7") # Software Engineering
+                    if node.nil? then
+                        puts "error: a6301551"
+                        exit
+                    end
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
+                    return
+                end
+
+
                 puts "First I am going to show it to you and then you will add it to a node"
 
                 Cliques::cliqueDive(clique)
