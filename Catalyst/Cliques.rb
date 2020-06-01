@@ -292,7 +292,7 @@ class Cliques
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495Navigation::visit(target) }] 
+                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::visitTarget(target) }] 
                 }
 
             StarlightContents::getNodesForEntity(clique)

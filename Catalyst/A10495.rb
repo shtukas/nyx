@@ -521,17 +521,3 @@ class A10495
     end
 
 end
-
-class A10495Navigation
-
-    # A10495Navigation::mainNavigation()
-    def self.mainNavigation()
-        puts "-> But there is no general navigation of A10495"
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # A10495Navigation::visit(target)
-    def self.visit(target)
-        A10495::visitTarget(target)
-    end
-end

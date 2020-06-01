@@ -113,7 +113,7 @@ class PrimaryNetworkNavigation
     def self.visit(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
             target = something
-            return A10495Navigation::visit(target)
+            return A10495::visitTarget(target)
         end
         if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = something
