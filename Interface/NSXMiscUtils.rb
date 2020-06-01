@@ -190,6 +190,7 @@ class NSXMiscUtils
                 end
                 puts JSON.pretty_generate(child)
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                next if path.nil?
                 puts JSON.pretty_generate(path)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StarlightNodes::nodeToString(node)}' ? ")
             }

@@ -195,7 +195,9 @@ class StarlightUserInterface
 
             items << ["add parent node", lambda{ 
                 node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                return if node0.nil?
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
+                return if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
             }]
@@ -203,6 +205,7 @@ class StarlightUserInterface
             items << ["add child node", lambda{ 
                 node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
+                return if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
             }]
@@ -241,6 +244,7 @@ class StarlightUserInterface
                 node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if node2.nil?
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                next if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
             end

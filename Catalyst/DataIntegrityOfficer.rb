@@ -97,6 +97,15 @@ class DataIntegrityOfficer
                     return
                 end
 
+                if clique["tags"].include?("Programming Languages") then
+                    node = Nyx::getOrNull("b5d0a136-58aa-4337-8d8b-797f75c6824b") # Prgramming Languages
+                    if node.nil? then
+                        puts "error: a6301551"
+                        exit
+                    end
+                    StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
+                    return
+                end
 
                 puts "First I am going to show it to you and then you will add it to a node"
 
