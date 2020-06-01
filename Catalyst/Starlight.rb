@@ -156,6 +156,18 @@ class StarlightUserInterface
                 .first
     end
 
+    # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+    def self.selectNodeFromExistingOrCreateOneOrNull()
+        puts "-> You are selecting a node (possibly will create one)"
+        LucilleCore::pressEnterToContinue()
+        node = StarlightUserInterface::selectNodeFromExistingNodes()
+        return node if node
+        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting a node but did not select any of the existing ones. Would you like to make a new node and return it ? ") then
+            return StarlightNodes::makeNodeInteractivelyOrNull()
+        end
+        nil
+    end
+
     # StarlightUserInterface::nodeDive(node)
     def self.nodeDive(node)
         loop {
@@ -200,20 +212,8 @@ class StarlightUserInterface
         }
     end
 
-    # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
-    def self.selectNodeFromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a node (possibly will create one)"
-        LucilleCore::pressEnterToContinue()
-        node = StarlightUserInterface::selectNodeFromExistingNodes()
-        return node if node
-        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting a node but did not select any of the existing ones. Would you like to make a new node and return it ? ") then
-            return StarlightNodes::makeNodeInteractivelyOrNull()
-        end
-        nil
-    end
-
-    # StarlightUserInterface::mainNavigation()
-    def self.mainNavigation()
+    # StarlightUserInterface::navigation()
+    def self.navigation()
         node = StarlightUserInterface::selectNodeFromExistingNodes()
         return if node.nil?
         StarlightUserInterface::nodeDive(node)

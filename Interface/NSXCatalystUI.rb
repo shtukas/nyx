@@ -48,7 +48,7 @@ class NSXCatalystUI
 
             items << [
                 "navigate nodes", 
-                lambda { StarlightUserInterface::mainNavigation() }
+                lambda { StarlightUserInterface::navigation() }
             ]
 
             items << [

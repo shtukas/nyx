@@ -101,7 +101,7 @@ class PrimaryNetworkNavigation
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             return if option.nil?
             if option == "navigate nodes" then
-                StarlightUserInterface::mainNavigation()
+                StarlightUserInterface::navigation()
             end
             if option == "navigate cliques" then
                 CliquesNavigation::mainNavigation()
