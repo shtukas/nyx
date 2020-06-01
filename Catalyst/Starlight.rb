@@ -109,15 +109,15 @@ end
 
 class StarlightContents
 
-    # StarlightContents::issueClaimGivenNodeAndEntity(node, something)
-    def self.issueClaimGivenNodeAndEntity(node, something)
+    # StarlightContents::issueClaimGivenNodeAndEntity(node, entity)
+    def self.issueClaimGivenNodeAndEntity(node, entity)
         claim = {
             "nyxType"          => "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
             "nodeuuid"   => node["uuid"],
-            "targetuuid" => something["uuid"]
+            "targetuuid" => entity["uuid"]
         }
         Nyx::commitToDisk(claim)
         claim
@@ -187,7 +187,7 @@ class StarlightUserInterface
 
             StarlightContents::getNodeEntities(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|something| items << ["[something] #{PrimaryNetwork::somethingToString(something)}", lambda{ PrimaryNetworkNavigation::visit(something) }] }
+                .each{|entity| items << ["[entity] #{PrimaryNetwork::entityToString(entity)}", lambda{ PrimaryNetworkNavigation::visit(entity) }] }
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }

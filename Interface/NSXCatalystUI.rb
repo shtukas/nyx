@@ -138,11 +138,11 @@ class NSXCatalystUI
             items = []
             Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
                 .each{|claim|
-                    something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
-                    next if something.nil?
+                    entity = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
+                    next if entity.nil?
                     items << [
-                        PrimaryNetwork::somethingToString(something).yellow, 
-                        lambda { PrimaryNetwork::visitSomething(something) }
+                        PrimaryNetwork::entityToString(entity).yellow, 
+                        lambda { PrimaryNetwork::visitSomething(entity) }
                     ]
                 }
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -286,7 +286,7 @@ class NSXCatalystUI
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [
-                        PrimaryNetwork::somethingToString(item),
+                        PrimaryNetwork::entityToString(item),
                         lambda { PrimaryNetwork::openSomething(item) }
                     ]
                 }
@@ -305,7 +305,7 @@ class NSXCatalystUI
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [
-                        PrimaryNetwork::somethingToString(item),
+                        PrimaryNetwork::entityToString(item),
                         lambda { PrimaryNetwork::openSomething(item) }
                     ]
                 }

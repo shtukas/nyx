@@ -38,40 +38,40 @@ class OpenCycles
 
     # OpenCycles::openDataPoint(opencycle)
     def self.openDataPoint(opencycle)
-        something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
-        return if something.nil?
-        PrimaryNetwork::openSomething(something)
+        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+        return if entity.nil?
+        PrimaryNetwork::openSomething(entity)
     end
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
-        something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
-        "[opencycle] #{something ? PrimaryNetwork::somethingToString(something) : "data entity not found"}"
+        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+        "[opencycle] #{entity ? PrimaryNetwork::entityToString(entity) : "data entity not found"}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
     def self.opencycleDive(opencycle)
         loop {
-            something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
-            if something.nil? then
-                puts "Could not determine something for opencycle #{opencycle}"
+            entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+            if entity.nil? then
+                puts "Could not determine entity for opencycle #{opencycle}"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             options = [
-                "access something",
+                "access target",
                 "destroy opencycle"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
-            if option == "access something" then
-                something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
-                if something.nil? then
-                    puts "I could not find a something for his: #{opencycle}"
+            if option == "access target" then
+                entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                if entity.nil? then
+                    puts "I could not find a entity for his: #{opencycle}"
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                PrimaryNetwork::visitSomething(something)
+                PrimaryNetwork::visitSomething(entity)
             end
             if option == "destroy opencycle" then
                 Nyx::destroy(opencycle["uuid"])

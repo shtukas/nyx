@@ -36,56 +36,56 @@ class PrimaryNetwork
         nil
     end
 
-    # PrimaryNetwork::somethingToString(something)
-    def self.somethingToString(something)
-        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            return DataPoint::dataPointToString(something)
+    # PrimaryNetwork::entityToString(entity)
+    def self.entityToString(entity)
+        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            return DataPoint::dataPointToString(entity)
         end
-        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            return Cliques::cliqueToString(something)
+        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            return Cliques::cliqueToString(entity)
         end
-        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            return StarlightNodes::nodeToString(something)
+        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            return StarlightNodes::nodeToString(entity)
         end
-        raise "PrimaryNetwork::somethingToString, Error: 056686f0"
+        raise "PrimaryNetwork::entityToString, Error: 056686f0"
     end
 
-    # PrimaryNetwork::openSomething(something)
+    # PrimaryNetwork::openSomething(entity)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
-    def self.openSomething(something)
-        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            target = something
+    def self.openSomething(entity)
+        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            target = entity
             DataPoint::openDataPoint(target)
             return
         end
-        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            clique = something
+        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            clique = entity
             Cliques::openClique(clique)
             return
         end
-        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-           node = something
+        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+           node = entity
            StarlightUserInterface::nodeDive(node)
            return
         end
-        raise "PrimaryNetwork::somethingToString, Error: 2f28f27d"
+        raise "PrimaryNetwork::entityToString, Error: 2f28f27d"
     end
 
-    # PrimaryNetwork::visitSomething(something)
-    def self.visitSomething(something)
-        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            DataPoint::diveDataPoint(something)
+    # PrimaryNetwork::visitSomething(entity)
+    def self.visitSomething(entity)
+        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            DataPoint::diveDataPoint(entity)
             return
         end
-        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            Cliques::cliqueDive(something)
+        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            Cliques::cliqueDive(entity)
             return
         end
-        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            StarlightUserInterface::nodeDive(something)
+        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            StarlightUserInterface::nodeDive(entity)
             return
         end
-        raise "PrimaryNetwork::somethingToString, Error: cf25ea33"
+        raise "PrimaryNetwork::entityToString, Error: cf25ea33"
     end
 end
 
@@ -109,21 +109,21 @@ class PrimaryNetworkNavigation
         }
     end
 
-    # PrimaryNetworkNavigation::visit(something)
-    def self.visit(something)
-        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            target = something
+    # PrimaryNetworkNavigation::visit(entity)
+    def self.visit(entity)
+        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            target = entity
             return DataPoint::diveDataPoint(target)
         end
-        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            clique = something
+        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            clique = entity
             return Cliques::cliqueDive(clique)
         end
-        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            node = something
+        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            node = entity
             return StarlightUserInterface::nodeDive(node)
         end
-        raise "PrimaryNetwork::somethingToString, Error: f17aba25"
+        raise "PrimaryNetwork::entityToString, Error: f17aba25"
     end
 end
 
@@ -139,16 +139,16 @@ class PrimaryNetworkMakeAndOrSelectQuest
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             if option.nil? then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to quit select something and return nothing ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to quit select entity and return nothing ? ") then
                     return nil
                 else
                     next
                 end
             end
             if option == "making and/or selecting a node" then
-                something = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                if something then
-                    return something
+                entity = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                if entity then
+                    return entity
                 else 
                     puts "You are on a selection Quest, and chose nodes, but didn't select any. back to square one (you can return null there)"
                     LucilleCore::pressEnterToContinue()
@@ -156,9 +156,9 @@ class PrimaryNetworkMakeAndOrSelectQuest
                 end
             end
             if option == "making and/or selecting a clique" then
-                something = CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
-                if something then
-                    return something
+                entity = CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
+                if entity then
+                    return entity
                 else 
                     puts "You are on a selection Quest, and chose cliques, but didn't select any. back to square one (you can return null there)"
                     LucilleCore::pressEnterToContinue()
