@@ -149,18 +149,16 @@ class NSXMiscUtils
             end
             target = A10495::locationToFileOrFolderTarget(location)
             item = {
-                "catalystType"  => "todo-item-827b58bb",
-                "uuid"          => SecureRandom.uuid,
-                "creationtime"  => Time.new.to_f,
-                "referencetime" => Time.new.to_f,
-                "projectname"   => "Inbox",
-                "projectuuid"   => "44caf74675ceb79ba5cc13bafa102509369c2b53",
-                "description"   => File.basename(location),
-                "target"        => target
+                "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+                "uuid"             => SecureRandom.uuid,
+                "creationUnixtime" => Time.new.to_f,
+                "projectname"      => "Inbox",
+                "projectuuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
+                "description"      => File.basename(location),
+                "target"           => target
             }
             puts JSON.pretty_generate(item)
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
-            File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
+            NyxObjects::commitToDisk(item)
             LucilleCore::removeFileSystemLocation(location)
         end
     end
@@ -235,5 +233,4 @@ class NSXMiscUtils
         claim = StarlightContents::issueClaimGivenNodeAndEntity(node, target)
         puts JSON.pretty_generate(claim)
     end
-
 end

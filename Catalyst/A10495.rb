@@ -519,5 +519,4 @@ class A10495
         return if target.nil?
         A10495::visitTarget(target)
     end
-
 end
