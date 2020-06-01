@@ -38,7 +38,12 @@ ContentItem
 {
     "type" : "line-and-body"
     "line" : String # carries a single line.
-    "body" : String
+    "body" : String # Multiline
+}
+
+{
+    "type" : "block"
+    "block" : String # Multiline
 }
 
 # Note that the block is displayed both in focus and unfocused mode, 

@@ -1,14 +1,14 @@
 
 🗓️                    Calendar Report
 
-🏃‍♀️      1.00          Running items (including items of a running project)
-
 🗓️
         0.95          Anniversaries
         0.93          Calendar [ack]
 
 📬
         0.85          Project "Inbox"
+
+        0.83          LucileTxt0
 
 💫
         0.82+         Wave sticky

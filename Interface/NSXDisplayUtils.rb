@@ -80,6 +80,22 @@ class NSXDisplayUtils
             end
         end
 
+        if contentItem["type"] == "block" then
+            strs = contentItem["block"]
+                        .lines
+                        .to_a
+                        .map
+                        .with_index{|line, indx|
+                            line = line.rstrip
+                            if indx == 0 then
+                                "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+                            else
+                                "              #{line[0, width]}"
+                            end
+                        }
+            return  (strs + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
+        end
+
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
