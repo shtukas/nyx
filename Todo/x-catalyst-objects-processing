@@ -67,7 +67,9 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if item.nil?
 
     Runner::start(uuid)
-    Quark::openQuark(item["target"])
+    quark = Nyx::getOrNull(item["contentuuid"])
+    exit if quark.nil?
+    Quark::openQuark(quark)
 
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
         stop(uuid, item)
@@ -101,8 +103,9 @@ if ARGV[0] == "open" and ARGV[1] then
     exit if uuid.nil?
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
-
-    Quark::openQuark(item["target"])
+    quark = Nyx::getOrNull(item["contentuuid"])
+    exit if quark.nil?
+    Quark::openQuark(quark)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then

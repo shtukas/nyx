@@ -147,7 +147,7 @@ class NSXMiscUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            target = Quark::locationToFileOrFolderQuark(location)
+            target = Quark::locationToFileOrFolderQuarkIssued(location)
             item = {
                 "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
                 "uuid"             => SecureRandom.uuid,
@@ -155,7 +155,7 @@ class NSXMiscUtils
                 "projectname"      => "Inbox",
                 "projectuuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
                 "description"      => File.basename(location),
-                "target"           => target
+                "contentuuid"      => target["uuid"]
             }
             puts JSON.pretty_generate(item)
             Nyx::commitToDisk(item)
@@ -200,7 +200,7 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new clique..."
-                clique = Cube::issueCliqueInteractivelyOrNull(false)
+                clique = Cube::issue2CubeInteractivelyOrNull(false)
                 if clique.nil? then
                     puts "Did not make a clique for '#{StarlightNodes::nodeToString(node)}'. Aborting clique building."
                     break

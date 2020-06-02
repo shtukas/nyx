@@ -60,7 +60,7 @@ class Items
             "projectname"      => projectname,
             "projectuuid"      => projectuuid,
             "description"      => description,
-            "target"           => target
+            "contentuuid"      => target["uuid"]
         }
         Nyx::commitToDisk(item)
         item
@@ -90,7 +90,7 @@ class Items
             "projectname"      => projectname,
             "projectuuid"      => projectuuid,
             "description"      => description,
-            "target"           => target
+            "contentuuid"      => target["uuid"]
         }
         Nyx::commitToDisk(item)
         item
@@ -98,20 +98,25 @@ class Items
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
-        item["description"] || Quark::quarkToString(item["target"])
+        quark = Nyx::getOrNull(item["contentuuid"])
+        return "#{JSON.generate(item)} -> null quark" if quark.nil?
+        item["description"] || Quark::quarkToString(quark)
     end
 
     # Items::openItem(item)
     def self.openItem(item)
-        Quark::openQuark(item["target"])
+        quark = Nyx::getOrNull(item["contentuuid"])
+        return if quark.nil?
+        Quark::openQuark(quark)
     end
 
     # Items::itemToString(item)
     def self.itemToString(item)
         itemuuid = item["uuid"]
+        quark = Nyx::getOrNull(item["contentuuid"])
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{item["target"]["type"]}] #{Items::itemBestDescription(item)}#{runningSuffix}"
+        "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Items::itemBestDescription(item)}#{runningSuffix}"
     end
 
     # Items::itemReceivesRunTimespan(item, timespan, verbose = false)
@@ -199,17 +204,20 @@ class Items
 
     # Items::recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+        quark = Nyx::getOrNull(item["contentuuid"])
+        return false if quark.nil?
         newowner = QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
         if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             node = newowner
-            StarlightContents::issueClaimGivenNodeAndEntity(node, item["target"])
+            cube = Cube::issue3Cube(quark)
+            StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
             return true
         end
         if newowner["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             clique = newowner
             clique = Nyx::getOrNull(clique["uuid"])
-            clique["targets"] << item["target"]
+            clique["targets"] << quark
             Nyx::commitToDisk(clique)
             return true
         end
@@ -247,7 +255,9 @@ class Items
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                Quark::openQuark(item["target"])
+                quark = Nyx::getOrNull(item["contentuuid"])
+                next if quark.nil?
+                Quark::openQuark(quark)
             end
             if option == "done" then
                 Nyx::destroy(item["uuid"])

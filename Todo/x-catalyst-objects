@@ -121,10 +121,14 @@ end
 # -------------------------------------------------------------------------
 
 while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
-    target = {
-        "type" => "url",
-        "url"  => link
+    quark = {
+        "uuid"             => SecureRandom.uuid,
+        "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+        "creationUnixtime" => Time.new.to_f,
+        "type"             => "url",
+        "url"              => link
     }
+    Nyx::commitToDisk(quark)
     item = {
         "uuid"             => SecureRandom.uuid,
         "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
@@ -132,7 +136,7 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "projectname"      => "Infinity",
         "projectuuid"      => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
         "description"      => link,
-        "target"           => target
+        "contentuuid"      => quark["uuid"]
     }
     Nyx::commitToDisk(item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")

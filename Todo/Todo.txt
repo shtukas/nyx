@@ -11,8 +11,6 @@ Special bank accounts
     "ed4a67ee-c205-4ea4-a135-f10ea7782a7f" : Entire todo application (partially drives the base metric)
 
 ------------------------------------------------------
-This is a copy of Nyx.txt
-------------------------------------------------------
 
 TodoItem {
     "uuid"             : String
@@ -21,5 +19,5 @@ TodoItem {
     "projectname"      : String
     "projectuuid"      : String
     "description"      : null | String
-    "target"           : Quark
+    "contentuuid"      : String # uuid of a Quark
 }

@@ -60,8 +60,8 @@ class Cube
         tags
     end
 
-    # Cube::issue1CliqueInteractivelyOrNull()
-    def self.issue1CliqueInteractivelyOrNull()
+    # Cube::issue1CubeInteractivelyOrNull()
+    def self.issue1CubeInteractivelyOrNull()
         clique = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
@@ -76,8 +76,8 @@ class Cube
         clique
     end
 
-    # Cube::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
-    def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
+    # Cube::issue2CubeInteractivelyOrNull(canStarlightNodeInvite)
+    def self.issue2CubeInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
@@ -98,6 +98,21 @@ class Cube
         clique
     end
 
+    # Cube::issue3Cube(quark)
+    def self.issue3Cube(quark)
+        cube = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "creationUnixtime" => Time.new.to_f,
+
+            "description"      => Quark::quarkToString(quark),
+            "targets"          => [quark],
+            "tags"             => []
+        }
+        Nyx::commitToDisk(cube)
+        cube
+    end
+
     # Cube::getCliquesByTag(tag)
     def self.getCliquesByTag(tag)
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
@@ -115,8 +130,8 @@ class Cube
 
     # ------------------------------------------------------------
 
-    # Cube::selectCliqueFromExistingOrNull()
-    def self.selectCliqueFromExistingOrNull()
+    # Cube::selectCubeFromExistingOrNull()
+    def self.selectCubeFromExistingOrNull()
         descriptionXp = lambda { |clique|
             "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
         }
@@ -372,7 +387,7 @@ class Cube
                 end
             end
             if operation == "make new clique" then
-                Cube::issueCliqueInteractivelyOrNull(true)
+                Cube::issue2CubeInteractivelyOrNull(true)
             end
             if operation == "show newly created cliques" then
                 cliques = Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
@@ -410,7 +425,7 @@ class CubesSearch
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNullPatternToCliquesDescriptions(searchPattern)
+    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCliquesDescriptions(searchPattern)
     def self.searchPatternToCliquesDescriptions(searchPattern)
         CubesSearch::searchPatternToCliques(searchPattern)
             .map{|clique| clique["description"] }
@@ -482,16 +497,16 @@ end
 
 class CubesMakeAndOrSelectQuest
 
-    # CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
-    def self.makeAndOrSelectCliqueOrNull()
+    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
+    def self.makeAndOrSelectCubeOrNull()
         puts "-> You are on a selection Quest [selecting a clique]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        clique = Cube::selectCliqueFromExistingOrNull()
+        clique = Cube::selectCubeFromExistingOrNull()
         return clique if clique
         puts "-> You are on a selection Quest [selecting a clique]"
         if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
-            clique = Cube::issue1CliqueInteractivelyOrNull()
+            clique = Cube::issue1CubeInteractivelyOrNull()
             return nil if clique.nil?
             puts "-> You are on a selection Quest [selecting a clique]"
             puts "-> You have created '#{node["description"]}'"

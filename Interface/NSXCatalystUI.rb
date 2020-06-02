@@ -219,7 +219,7 @@ class NSXCatalystUI
             items << [
                 "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
-                    clique = Cube::issueCliqueInteractivelyOrNull(false)
+                    clique = Cube::issue2CubeInteractivelyOrNull(false)
                     return if clique.nil?
 
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])

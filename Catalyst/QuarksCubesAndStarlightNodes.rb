@@ -156,7 +156,7 @@ class QuarksCubesAndStarlightNodesMakeAndOrSelectQuest
                 end
             end
             if option == "making and/or selecting a clique" then
-                entity = CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
+                entity = CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
                 if entity then
                     return entity
                 else 

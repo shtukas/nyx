@@ -223,8 +223,8 @@ class Quark
         end
     end
 
-    # Quark::locationToFileOrFolderQuark(location)
-    def self.locationToFileOrFolderQuark(location)
+    # Quark::locationToFileOrFolderQuarkIssued(location)
+    def self.locationToFileOrFolderQuarkIssued(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
             filepath1 = location
@@ -235,9 +235,9 @@ class Quark
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             point = {
-                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
-                "uuid"              => SecureRandom.uuid,
+                "uuid"             => SecureRandom.uuid,
 
                 "type"     => "file",
                 "filename" => filename2
@@ -253,9 +253,9 @@ class Quark
             CoreDataDirectory::copyFolderToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             point = {
-                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
-                "uuid"              => SecureRandom.uuid,
+                "uuid"             => SecureRandom.uuid,
 
                 "type"       => "folder",
                 "foldername" => foldername2
@@ -273,26 +273,26 @@ class Quark
         Nyx::getOrNull(uuid)
     end
 
-    # Quark::quarkToString(point)
-    def self.quarkToString(point)
-        return point["description"] if point["description"]
-        if point["type"] == "line" then
-            return "[data point] [line] #{point["line"]}"
+    # Quark::quarkToString(quark)
+    def self.quarkToString(quark)
+        return quark["description"] if quark["description"]
+        if quark["type"] == "line" then
+            return "[quark] [line] #{quark["line"]}"
         end
-        if point["type"] == "file" then
-            return "[data point] [file] #{point["filename"]}"
+        if quark["type"] == "file" then
+            return "[quark] [file] #{quark["filename"]}"
         end
-        if point["type"] == "url" then
-            return "[data point] [url] #{point["url"]}"
+        if quark["type"] == "url" then
+            return "[quark] [url] #{quark["url"]}"
         end
-        if point["type"] == "folder" then
-            return "[data point] [folder] #{point["foldername"]}"
+        if quark["type"] == "folder" then
+            return "[quark] [folder] #{quark["foldername"]}"
         end
-        if point["type"] == "unique-name" then
-            return "[data point] [unique name] #{point["name"]}"
+        if quark["type"] == "unique-name" then
+            return "[quark] [unique name] #{quark["name"]}"
         end
-        if point["type"] == "directory-mark" then
-            return "[data point] [directory mark] #{point["mark"]}"
+        if quark["type"] == "directory-mark" then
+            return "[quark] [directory mark] #{quark["mark"]}"
         end
         raise "Quark error 3c7968e4"
     end
