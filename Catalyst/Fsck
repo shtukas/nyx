@@ -40,10 +40,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "GlobalIntegrityChecker.rb"
+require_relative "Fsck.rb"
 
 # -------------------------------------------------------------------------
 
-GlobalIntegrityChecker::run()
+Fsck::run()
 exit
 

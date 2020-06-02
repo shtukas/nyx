@@ -63,9 +63,9 @@ def specialCircumstancesGetOrNull(uuid)
     JSON.parse(IO.read(filepath))
 end
 
-class GlobalIntegrityChecker
+class Fsck
 
-    # GlobalIntegrityChecker::checkOpenCycle(opencycle)
+    # Fsck::checkOpenCycle(opencycle)
     def self.checkOpenCycle(opencycle)
         puts "[checking open cycle] #{opencycle["uuid"]}"
         entityuuid = opencycle["entityuuid"]
@@ -100,7 +100,7 @@ class GlobalIntegrityChecker
         end
     end
 
-    # GlobalIntegrityChecker::run()
+    # Fsck::run()
     def self.run()
         puts "-> Starting Catalyst Integrity Check"
 
@@ -109,7 +109,7 @@ class GlobalIntegrityChecker
             puts "[info] I could not find open cycles"
         end
         opencycles.each{|opencycle|
-            GlobalIntegrityChecker::checkOpenCycle(opencycle)
+            Fsck::checkOpenCycle(opencycle)
         }
 
         puts "-> Completed Catalyst Integrity Check"
