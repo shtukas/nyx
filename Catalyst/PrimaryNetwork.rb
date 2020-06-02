@@ -17,7 +17,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -38,8 +38,8 @@ class PrimaryNetwork
 
     # PrimaryNetwork::entityToString(entity)
     def self.entityToString(entity)
-        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            return DataPoint::dataPointToString(entity)
+        if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            return Quark::dataPointToString(entity)
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cliques::cliqueToString(entity)
@@ -53,9 +53,9 @@ class PrimaryNetwork
     # PrimaryNetwork::openSomething(entity)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
     def self.openSomething(entity)
-        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = entity
-            DataPoint::openDataPoint(target)
+            Quark::openQuark(target)
             return
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
@@ -73,8 +73,8 @@ class PrimaryNetwork
 
     # PrimaryNetwork::visitSomething(entity)
     def self.visitSomething(entity)
-        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            DataPoint::diveDataPoint(entity)
+        if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            Quark::diveQuark(entity)
             return
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
@@ -111,9 +111,9 @@ class PrimaryNetworkNavigation
 
     # PrimaryNetworkNavigation::visit(entity)
     def self.visit(entity)
-        if entity["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = entity
-            return DataPoint::diveDataPoint(target)
+            return Quark::diveQuark(target)
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = entity

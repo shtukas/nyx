@@ -19,7 +19,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -185,7 +185,7 @@ class NSXCatalystUI
             items << [
                 "datapoint (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
-                    target = DataPoint::issueNewDataPointInteractivelyOrNull()
+                    target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
                     return if whereTo.nil?

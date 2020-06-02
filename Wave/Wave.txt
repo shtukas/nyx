@@ -1,0 +1,24 @@
+
+------------------------------------------------------
+This is a copy of Nyx.txt
+------------------------------------------------------
+
+Wave
+{
+    "uuid"             : String
+    "nyxType"          : "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
+    "creationUnixtime" : Float # Unixtime with decimals
+    "description"      : String
+    "schedule"         : Schedule
+}
+    Schedule
+    {
+        "uuid"         => SecureRandom.hex,
+        "@"            => "sticky"
+        "from-hour"    => fromHour
+    }
+    {
+        "uuid"         => SecureRandom.hex,
+        "@"            => type,
+        "repeat-value" => value
+    }

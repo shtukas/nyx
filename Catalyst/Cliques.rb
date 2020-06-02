@@ -17,7 +17,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -37,11 +37,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class Cliques
 
-    # Cliques::makeDataPointsInteractively()
-    def self.makeDataPointsInteractively()
+    # Cliques::makeQuarksInteractively()
+    def self.makeQuarksInteractively()
         targets = []
         loop {
-            target = DataPoint::issueNewDataPointInteractivelyOrNull()
+            target = Quark::issueNewQuarkInteractivelyOrNull()
             break if target.nil?
             puts JSON.pretty_generate(target)
             targets << target
@@ -68,7 +68,7 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeDataPointsInteractively(),
+            "targets"          => Cliques::makeQuarksInteractively(),
             "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -84,7 +84,7 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeDataPointsInteractively(),
+            "targets"          => Cliques::makeQuarksInteractively(),
             "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -159,7 +159,7 @@ class Cliques
         puts "    targets:"
         clique["targets"]
             .each{|target|
-                puts "        #{DataPoint::dataPointToString(target)}"
+                puts "        #{Quark::dataPointToString(target)}"
             }
         puts ""
 
@@ -198,7 +198,7 @@ class Cliques
             if clique["targets"].size == 1 then
                 clique["targets"].first
             else
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| DataPoint::dataPointToString(target) })
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| Quark::dataPointToString(target) })
             end
         if target.nil? then
             puts "No target was selected for this clique. Aborting opening."
@@ -206,7 +206,7 @@ class Cliques
             return
         end
         puts JSON.pretty_generate(target)
-        DataPoint::openDataPoint(target)
+        Quark::openQuark(target)
     end
 
     # Cliques::cliqueDive(clique)
@@ -234,17 +234,17 @@ class Cliques
                     Nyx::commitToDisk(clique)
                 }]
             items << [
-                "DataPoint (add new)", 
+                "Quark (add new)", 
                 lambda{
-                    target = DataPoint::issueNewDataPointInteractivelyOrNull()
+                    target = Quark::issueNewQuarkInteractivelyOrNull()
                     next if target.nil?
                     clique["targets"] << target
                     Nyx::commitToDisk(clique)
                 }]
             items << [
-                "DataPoint (select and remove)", 
+                "Quark (select and remove)", 
                 lambda{
-                    toStringLambda = lambda { |target| DataPoint::dataPointToString(target) }
+                    toStringLambda = lambda { |target| Quark::dataPointToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
                     next if target.nil?
                     clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
@@ -293,7 +293,7 @@ class Cliques
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[DataPoint] #{DataPoint::dataPointToString(target)}", lambda{ DataPoint::diveDataPoint(target) }] 
+                    items << ["[Quark] #{Quark::dataPointToString(target)}", lambda{ Quark::diveQuark(target) }] 
                 }
 
             StarlightContents::getNodesForEntity(clique)

@@ -36,8 +36,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class OpenCycles
 
-    # OpenCycles::openDataPoint(opencycle)
-    def self.openDataPoint(opencycle)
+    # OpenCycles::openQuark(opencycle)
+    def self.openQuark(opencycle)
         entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
         return if entity.nil?
         PrimaryNetwork::openSomething(entity)

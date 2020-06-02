@@ -53,11 +53,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 def arrowToCatalystObjectOrNull(arrow)
     uuid = arrow["uuid"]
-    datapoint = DataPoint::getOrNull(arrow["datapointuuid"])
+    datapoint = Quark::getOrNull(arrow["datapointuuid"])
     return nil if datapoint.nil?
     contentItem = {
         "type" => "line",
-        "line" => "[arrow] #{DataPoint::dataPointToString(datapoint)}"
+        "line" => "[arrow] #{Quark::dataPointToString(datapoint)}"
     }
     {
         "uuid" => uuid,

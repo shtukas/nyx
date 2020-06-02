@@ -1,0 +1,49 @@
+## Startlight
+
+Starlight is the nickname of Catalyst's global navigation network.
+
+### CoreData, Quarks and Cliques
+
+The data hierarchy of Catalyst goes as follows:
+
+At the bottom we have files and folders, they are managed through a simple interface by **CoreData**, which is integrated in **Quark**s.
+
+The Quarks represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
+
+**Cliques** are collections of Quarks with some metadata.
+
+### Navigation Network
+
+The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cliques.
+
+------------------------------------------------------
+This is a copy of Nyx.txt
+------------------------------------------------------
+
+------------------------------------------------------
+StarlightNode {
+    "uuid"              : String
+    "nyxType"           : "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+    "creationUnixtime"  : Float # Unixtime with decimals
+    "name"              : String
+}
+
+------------------------------------------------------
+StarlightPath {
+    "uuid"             : String
+    "nyxType"          : "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e"
+    "creationUnixtime" : Float # Unixtime with decimals
+
+    "sourceuuid"        : String # uuid of a Starlight Node
+    "targetuuid"        : String # uuid of a Starlight Node
+}
+
+------------------------------------------------------
+StarlightContentClaim {
+    "uuid"             : String
+    "nyxType"          : "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+    "creationUnixtime" : Float # Unixtime with decimals
+
+    "nodeuuid"         : String
+    "targetuuid"       : String # Clique uuid or a Quark uuid
+}

@@ -98,12 +98,12 @@ class Items
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
-        item["description"] || DataPoint::dataPointToString(item["target"])
+        item["description"] || Quark::dataPointToString(item["target"])
     end
 
     # Items::openItem(item)
     def self.openItem(item)
-        DataPoint::openDataPoint(item["target"])
+        Quark::openQuark(item["target"])
     end
 
     # Items::itemToString(item)
@@ -247,7 +247,7 @@ class Items
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                DataPoint::openDataPoint(item["target"])
+                Quark::openQuark(item["target"])
             end
             if option == "done" then
                 Nyx::destroy(item["uuid"])

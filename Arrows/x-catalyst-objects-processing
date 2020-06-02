@@ -28,9 +28,9 @@ if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     arrow = BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", uuid)
     exit if arrow.nil?
-    datapoint = DataPoint::getOrNull(arrow["datapointuuid"])
+    datapoint = Quark::getOrNull(arrow["datapointuuid"])
     exit if datapoint.nil?
-    DataPoint::openDataPoint(datapoint)
+    Quark::openQuark(datapoint)
 end
 
 if ARGV[0] == "done" and ARGV[1] then

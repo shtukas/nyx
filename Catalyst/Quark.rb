@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -23,12 +23,12 @@ require_relative "CoreData.rb"
 
 # -----------------------------------------------------------------
 
-class DataPoint
+class Quark
 
     # --------------------------------------------------
     # Makers
 
-    # DataPoint::selectOneFilepathOnTheDesktopOrNull()
+    # Quark::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -37,7 +37,7 @@ class DataPoint
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # DataPoint::selectOneFolderpathOnTheDesktopOrNull()
+    # Quark::selectOneFolderpathOnTheDesktopOrNull()
     def self.selectOneFolderpathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -46,11 +46,11 @@ class DataPoint
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # DataPoint::issueDataPointLineInteractively()
-    def self.issueDataPointLineInteractively()
+    # Quark::issueQuarkLineInteractively()
+    def self.issueQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         point = {
-            "nyxType"          => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
@@ -61,11 +61,11 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointUrlInteractively()
-    def self.issueDataPointUrlInteractively()
+    # Quark::issueQuarkUrlInteractively()
+    def self.issueQuarkUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         point = {
-            "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -76,9 +76,9 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointFileInteractivelyOrNull()
-    def self.issueDataPointFileInteractivelyOrNull()
-        filepath1 = DataPoint::selectOneFilepathOnTheDesktopOrNull()
+    # Quark::issueQuarkFileInteractivelyOrNull()
+    def self.issueQuarkFileInteractivelyOrNull()
+        filepath1 = Quark::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -86,7 +86,7 @@ class DataPoint
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         point = {
-            "nyxType"          => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
@@ -97,15 +97,15 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointFile(filepath)
-    def self.issueDataPointFile(filepath1)
+    # Quark::issueQuarkFile(filepath)
+    def self.issueQuarkFile(filepath1)
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         point = {
-            "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -116,9 +116,9 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointFolderInteractivelyOrNull()
-    def self.issueDataPointFolderInteractivelyOrNull()
-        folderpath1 = DataPoint::selectOneFolderpathOnTheDesktopOrNull()
+    # Quark::issueQuarkFolderInteractivelyOrNull()
+    def self.issueQuarkFolderInteractivelyOrNull()
+        folderpath1 = Quark::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -126,7 +126,7 @@ class DataPoint
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
         point = {
-            "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -137,11 +137,11 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointUniqueNameInteractively()
-    def self.issueDataPointUniqueNameInteractively()
+    # Quark::issueQuarkUniqueNameInteractively()
+    def self.issueQuarkUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         point = {
-            "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -152,15 +152,15 @@ class DataPoint
         point
     end
 
-    # DataPoint::issueDataPointDirectoryMarkInteractively()
-    def self.issueDataPointDirectoryMarkInteractively()
+    # Quark::issueQuarkDirectoryMarkInteractively()
+    def self.issueQuarkDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return nil if option.nil?
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             point = {
-                "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -185,7 +185,7 @@ class DataPoint
                 break
             }
             point = {
-                "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -197,34 +197,34 @@ class DataPoint
         end
     end
 
-    # DataPoint::issueNewDataPointInteractivelyOrNull()
-    def self.issueNewDataPointInteractivelyOrNull()
-        puts "Making a new DataPoint..."
+    # Quark::issueNewQuarkInteractivelyOrNull()
+    def self.issueNewQuarkInteractivelyOrNull()
+        puts "Making a new Quark..."
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return DataPoint::issueDataPointLineInteractively()
+            return Quark::issueQuarkLineInteractively()
         end
         if type == "url" then
-            return DataPoint::issueDataPointUrlInteractively()
+            return Quark::issueQuarkUrlInteractively()
         end
         if type == "file" then
-            return DataPoint::issueDataPointFileInteractivelyOrNull()
+            return Quark::issueQuarkFileInteractivelyOrNull()
         end
         if type == "folder" then
-            return DataPoint::issueDataPointFolderInteractivelyOrNull()
+            return Quark::issueQuarkFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return DataPoint::issueDataPointUniqueNameInteractively()
+            return Quark::issueQuarkUniqueNameInteractively()
         end
         if type == "directory-mark" then
-            return DataPoint::issueDataPointDirectoryMarkInteractively()
+            return Quark::issueQuarkDirectoryMarkInteractively()
         end
     end
 
-    # DataPoint::locationToFileOrFolderDataPoint(location)
-    def self.locationToFileOrFolderDataPoint(location)
+    # Quark::locationToFileOrFolderQuark(location)
+    def self.locationToFileOrFolderQuark(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
             filepath1 = location
@@ -235,7 +235,7 @@ class DataPoint
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             point = {
-                "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -253,7 +253,7 @@ class DataPoint
             CoreDataDirectory::copyFolderToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             point = {
-                "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "nyxType"           => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -268,12 +268,12 @@ class DataPoint
     # --------------------------------------------------
     # User Interface
 
-    # DataPoint::getOrNull(uuid)
+    # Quark::getOrNull(uuid)
     def self.getOrNull(uuid)
         Nyx::getOrNull(uuid)
     end
 
-    # DataPoint::dataPointToString(point)
+    # Quark::dataPointToString(point)
     def self.dataPointToString(point)
         return point["description"] if point["description"]
         if point["type"] == "line" then
@@ -294,11 +294,11 @@ class DataPoint
         if point["type"] == "directory-mark" then
             return "[data point] [directory mark] #{point["mark"]}"
         end
-        raise "DataPoint error 3c7968e4"
+        raise "Quark error 3c7968e4"
     end
 
-    # DataPoint::openDataPoint(point)
-    def self.openDataPoint(point)
+    # Quark::openQuark(point)
+    def self.openQuark(point)
         if point["type"] == "line" then
             puts point["line"]
             LucilleCore::pressEnterToContinue()
@@ -340,24 +340,24 @@ class DataPoint
             end
             return
         end
-        raise "DataPoint error 160050-490261"
+        raise "Quark error 160050-490261"
     end
 
-    # DataPoint::diveDataPoint(point)
-    def self.diveDataPoint(point)
+    # Quark::diveQuark(point)
+    def self.diveQuark(point)
         puts "-> point:"
         puts JSON.pretty_generate(point)
-        puts DataPoint::dataPointToString(point)
+        puts Quark::dataPointToString(point)
         if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-            DataPoint::openDataPoint(point)
+            Quark::openQuark(point)
         end
     end
 
-    # DataPoint::visitGivenDataPoints(points)
-    def self.visitGivenDataPoints(points)
-        toStringLambda = lambda { |point| DataPoint::dataPointToString(point) }
+    # Quark::visitGivenQuarks(points)
+    def self.visitGivenQuarks(points)
+        toStringLambda = lambda { |point| Quark::dataPointToString(point) }
         point = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose point", points, toStringLambda)
         return if point.nil?
-        DataPoint::diveDataPoint(point)
+        Quark::diveQuark(point)
     end
 end

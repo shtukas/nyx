@@ -89,7 +89,7 @@ class GlobalIntegrityChecker
         supportedTypes = [
             "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+            "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
         ]
         if !supportedTypes.include?(entity["nyxType"]) then
             puts "[error] open cycle".red

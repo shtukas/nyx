@@ -86,7 +86,7 @@ TodoItem {
     "projectname"      : String
     "projectuuid"      : String
     "description"      : null | String
-    "target"           : DataPoint
+    "target"           : Quark
 }
 
 ------------------------------------------------------
@@ -124,7 +124,7 @@ StarlightContentClaim {
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String
-    "targetuuid"       : String # Clique uuid or a DataPoint uuid
+    "targetuuid"       : String # Clique uuid or a Quark uuid
 }
 
 ------------------------------------------------------
@@ -134,19 +134,19 @@ Clique {
     creationUnixtime : Float # Unixtime with decimals
 
     description       : String
-    targets           : Array[DataPoint]
+    targets           : Array[Quark]
     tags              : Array[String]
 }
 
 ------------------------------------------------------
-DataPoint
+Quark
 
-A DataPoint is an immutable object. The current ones are listed below.
+A Quark is an immutable object. The current ones are listed below.
 
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String
@@ -157,7 +157,7 @@ A DataPoint is an immutable object. The current ones are listed below.
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String
@@ -168,7 +168,7 @@ A DataPoint is an immutable object. The current ones are listed below.
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String
@@ -179,7 +179,7 @@ A DataPoint is an immutable object. The current ones are listed below.
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String
@@ -190,7 +190,7 @@ A DataPoint is an immutable object. The current ones are listed below.
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String
@@ -201,7 +201,7 @@ A DataPoint is an immutable object. The current ones are listed below.
 
 {
     "uuid"             : String
-    "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "description" : nil | String

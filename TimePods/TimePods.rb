@@ -184,7 +184,7 @@ class TimePods
             }
         end
         if option == "datapoint" then
-            datapoint = DataPoint::issueNewDataPointInteractivelyOrNull()
+            datapoint = Quark::issueNewQuarkInteractivelyOrNull()
             return nil if datapoint.nil?
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return {
@@ -245,7 +245,7 @@ class TimePods
         if pod["passenger"]["type"] == "datapoint" then
             point = Nyx::getOrNull(pod["passenger"]["datapointuuid"])
             return if point.nil?
-            DataPoint::openDataPoint(point)
+            Quark::openQuark(point)
         end
     end
 
