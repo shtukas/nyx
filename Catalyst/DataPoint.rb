@@ -270,6 +270,7 @@ class DataPoint
 
     # DataPoint::dataPointToString(point)
     def self.dataPointToString(point)
+        return point["description"] if point["description"]
         if point["type"] == "line" then
             return "[data point] [line] #{point["line"]}"
         end

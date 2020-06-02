@@ -149,6 +149,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
+    "description" : nil | String
+
     "type" : "line"
     "line" : String
 }
@@ -157,6 +159,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "uuid"             : String
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
+
+    "description" : nil | String
 
     "type" : "url"
     "url"  : String
@@ -167,6 +171,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
+    "description" : nil | String
+
     "type"     : "file"
     "filename" : String (CoreData managed)
 }
@@ -175,6 +181,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "uuid"             : String
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
+
+    "description" : nil | String
 
     "type"       : "folder"
     "foldername" : String (CoreData managed)
@@ -185,6 +193,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
+    "description" : nil | String
+
     "type" : "unique-name"
     "name" : String # Use Atlas to find them
 }
@@ -193,6 +203,8 @@ A DataPoint is an immutable object. The current ones are listed below.
     "uuid"             : String
     "nyxType"          : "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
+
+    "description" : nil | String
 
     "type" : "directory-mark"
     "mark" : String # Use Atlas to find them.
