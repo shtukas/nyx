@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -35,9 +35,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -----------------------------------------------------------------
 
-class Cliques
+class Cube
 
-    # Cliques::makeQuarksInteractively()
+    # Cube::makeQuarksInteractively()
     def self.makeQuarksInteractively()
         targets = []
         loop {
@@ -49,7 +49,7 @@ class Cliques
         targets
     end
 
-    # Cliques::makeTagsInteractively()
+    # Cube::makeTagsInteractively()
     def self.makeTagsInteractively()
         tags = []
         loop {
@@ -60,7 +60,7 @@ class Cliques
         tags
     end
 
-    # Cliques::issue1CliqueInteractivelyOrNull()
+    # Cube::issue1CliqueInteractivelyOrNull()
     def self.issue1CliqueInteractivelyOrNull()
         clique = {
             "uuid"             => SecureRandom.uuid,
@@ -68,15 +68,15 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeQuarksInteractively(),
-            "tags"             => Cliques::makeTagsInteractively()
+            "targets"          => Cube::makeQuarksInteractively(),
+            "tags"             => Cube::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
         Nyx::commitToDisk(clique)
         clique
     end
 
-    # Cliques::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
+    # Cube::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
     def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
             "uuid"             => SecureRandom.uuid,
@@ -84,8 +84,8 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeQuarksInteractively(),
-            "tags"             => Cliques::makeTagsInteractively()
+            "targets"          => Cube::makeQuarksInteractively(),
+            "tags"             => Cube::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
         Nyx::commitToDisk(clique)
@@ -98,13 +98,13 @@ class Cliques
         clique
     end
 
-    # Cliques::getCliquesByTag(tag)
+    # Cube::getCliquesByTag(tag)
     def self.getCliquesByTag(tag)
         Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
     end
 
-    # Cliques::tags()
+    # Cube::tags()
     def self.tags()
         Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .map{|clique| clique["tags"] }
@@ -115,7 +115,7 @@ class Cliques
 
     # ------------------------------------------------------------
 
-    # Cliques::selectCliqueFromExistingOrNull()
+    # Cube::selectCliqueFromExistingOrNull()
     def self.selectCliqueFromExistingOrNull()
         descriptionXp = lambda { |clique|
             "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
@@ -127,7 +127,7 @@ class Cliques
         cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
     end
 
-    # Cliques::visitTag(tag)
+    # Cube::visitTag(tag)
     def self.visitTag(tag)
         loop {
             system('clear')
@@ -136,7 +136,7 @@ class Cliques
             Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
-                    items << [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
+                    items << [ Cube::cubeToString(clique) , lambda { Cube::cubeDive(clique) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -144,13 +144,13 @@ class Cliques
         }
     end
 
-    # Cliques::cliqueToString(clique)
-    def self.cliqueToString(clique)
+    # Cube::cubeToString(clique)
+    def self.cubeToString(clique)
         "[clique] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["targets"].size})"
     end
 
-    # Cliques::printCliqueDetails(clique)
-    def self.printCliqueDetails(clique)
+    # Cube::printCubeDetails(clique)
+    def self.printCubeDetails(clique)
         puts "Clique:"
         puts "    uuid: #{clique["uuid"]}"
         puts "    description: #{clique["description"]}"
@@ -184,13 +184,13 @@ class Cliques
         end
     end
 
-    # Cliques::openClique(clique)
-    def self.openClique(clique)
-        Cliques::printCliqueDetails(clique)
+    # Cube::openCube(clique)
+    def self.openCube(clique)
+        Cube::printCubeDetails(clique)
         puts "    -> Opening..."
         if clique["targets"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this clique. Dive? ") then
-                Cliques::cliqueDive(clique)
+                Cube::cubeDive(clique)
             end
             return
         end
@@ -209,18 +209,18 @@ class Cliques
         Quark::openQuark(target)
     end
 
-    # Cliques::cliqueDive(clique)
-    def self.cliqueDive(clique)
+    # Cube::cubeDive(clique)
+    def self.cubeDive(clique)
         loop {
             puts ""
             clique = Nyx::getOrNull(clique["uuid"]) # useful if we have modified it
             return if clique.nil? # useful if we have just destroyed it
 
-            Cliques::printCliqueDetails(clique)
+            Cube::printCubeDetails(clique)
 
             items = []
 
-            items << ["open", lambda{  Cliques::openClique(clique) }]
+            items << ["open", lambda{  Cube::openCube(clique) }]
             items << [
                 "edit description", 
                 lambda{
@@ -305,16 +305,16 @@ class Cliques
         }
     end
 
-    # Cliques::visitGivenCliques(cliques)
-    def self.visitGivenCliques(cliques)
+    # Cube::visitGivenCube(cliques)
+    def self.visitGivenCube(cliques)
         loop {
-            clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", cliques, lambda{|clique| Cliques::cliqueToString(clique) })
+            clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", cliques, lambda{|clique| Cube::cubeToString(clique) })
             break if clique.nil?
-            Cliques::cliqueDive(clique)
+            Cube::cubeDive(clique)
         }
     end
 
-    # Cliques::main()
+    # Cube::main()
     def self.main()
         loop {
             system("clear")
@@ -355,7 +355,7 @@ class Cliques
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 clique = Nyx::getOrNull(uuid)
                 if clique then
-                    Cliques::cliqueDive(clique)
+                    Cube::cubeDive(clique)
                 else
                     puts "Could not find clique for uuid (#{uuid})"
                 end
@@ -372,14 +372,14 @@ class Cliques
                 end
             end
             if operation == "make new clique" then
-                Cliques::issueCliqueInteractivelyOrNull(true)
+                Cube::issueCliqueInteractivelyOrNull(true)
             end
             if operation == "show newly created cliques" then
                 cliques = Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                             .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
                             .reverse
                             .first(20)
-                Cliques::visitGivenCliques(cliques)
+                Cube::visitGivenCube(cliques)
             end
             if operation == "clique destroy (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -396,29 +396,29 @@ class Cliques
 
 end
 
-class CliquesSearch
+class CubesSearch
 
-    # CliquesSearch::searchPatternToTags(searchPattern)
+    # CubesSearch::searchPatternToTags(searchPattern)
     def self.searchPatternToTags(searchPattern)
-        Cliques::tags()
+        Cube::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
 
-    # CliquesSearch::searchPatternToCliques(searchPattern)
+    # CubesSearch::searchPatternToCliques(searchPattern)
     def self.searchPatternToCliques(searchPattern)
         Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNullPatternToCliquesDescriptions(searchPattern)
+    # CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNullPatternToCliquesDescriptions(searchPattern)
     def self.searchPatternToCliquesDescriptions(searchPattern)
-        CliquesSearch::searchPatternToCliques(searchPattern)
+        CubesSearch::searchPatternToCliques(searchPattern)
             .map{|clique| clique["description"] }
             .uniq
             .sort
     end
 
-    # CliquesSearch::search(fragment)
+    # CubesSearch::search(fragment)
     # Objects returned by the function: they are essentially search results.
     # {
     #     "type" => "clique",
@@ -429,14 +429,14 @@ class CliquesSearch
     #     "tag" => tag
     # }
     def self.search(fragment)
-        objs1 = CliquesSearch::searchPatternToCliques(fragment)
+        objs1 = CubesSearch::searchPatternToCliques(fragment)
                     .map{|clique| 
                         {
                             "type" => "clique",
                             "clique" => clique
                         }
                     }
-        objs2 = CliquesSearch::searchPatternToTags(fragment)
+        objs2 = CubesSearch::searchPatternToTags(fragment)
                     .map{|tag|
                         {
                             "type" => "tag",
@@ -446,17 +446,17 @@ class CliquesSearch
         objs1 + objs2
     end
 
-    # CliquesSearch::diveSearchResults(items)
+    # CubesSearch::diveSearchResults(items)
     def self.diveSearchResults(items)
         loop {
             itemsObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "clique" then
                     clique = object["clique"]
-                    return [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
+                    return [ Cube::cubeToString(clique) , lambda { Cube::cubeDive(clique) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { Cliques::visitTag(tag) } ]
+                    return [ "tag: #{tag}" , lambda { Cube::visitTag(tag) } ]
                 end
                 nil
             }
@@ -469,29 +469,29 @@ class CliquesSearch
     end
 end
 
-class CliquesNavigation
+class CubesNavigation
 
-    # CliquesNavigation::mainNavigation()
+    # CubesNavigation::mainNavigation()
     def self.mainNavigation()
         fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
         return nil if fragment.nil?
-        items = CliquesSearch::search(fragment)
-        CliquesSearch::diveSearchResults(items)
+        items = CubesSearch::search(fragment)
+        CubesSearch::diveSearchResults(items)
     end
 end
 
-class CliquesMakeAndOrSelectQuest
+class CubesMakeAndOrSelectQuest
 
-    # CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
+    # CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
     def self.makeAndOrSelectCliqueOrNull()
         puts "-> You are on a selection Quest [selecting a clique]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        clique = Cliques::selectCliqueFromExistingOrNull()
+        clique = Cube::selectCliqueFromExistingOrNull()
         return clique if clique
         puts "-> You are on a selection Quest [selecting a clique]"
         if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
-            clique = Cliques::issue1CliqueInteractivelyOrNull()
+            clique = Cube::issue1CliqueInteractivelyOrNull()
             return nil if clique.nil?
             puts "-> You are on a selection Quest [selecting a clique]"
             puts "-> You have created '#{node["description"]}'"
@@ -503,7 +503,7 @@ class CliquesMakeAndOrSelectQuest
                 return clique
             end
             if option == option2 then
-                Cliques::cliqueDive(clique)
+                Cube::cubeDive(clique)
                 return clique
             end
         end

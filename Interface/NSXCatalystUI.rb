@@ -20,7 +20,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
@@ -122,20 +122,20 @@ class NSXCatalystUI
 
             items << [
                 "navigate cliques", 
-                lambda { CliquesNavigation::mainNavigation() }
+                lambda { CubesNavigation::mainNavigation() }
             ]
 
             items << [
                 "cliques search and visit", 
-                lambda { CliquesNavigation::mainNavigation() }
+                lambda { CubesNavigation::mainNavigation() }
             ]
 
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cube::cubeToString(clique) })
                     break if clique.nil?
-                    Cliques::cliqueDive(clique)
+                    Cube::cubeDive(clique)
                 }
             ]
 
@@ -145,7 +145,7 @@ class NSXCatalystUI
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                     clique = Nyx::getOrNull(uuid)
                     return if clique.nil?
-                    Cliques::cliqueDive(clique)
+                    Cube::cubeDive(clique)
                 }
             ]
 
@@ -219,7 +219,7 @@ class NSXCatalystUI
             items << [
                 "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
-                    clique = Cliques::issueCliqueInteractivelyOrNull(false)
+                    clique = Cube::issueCliqueInteractivelyOrNull(false)
                     return if clique.nil?
 
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])

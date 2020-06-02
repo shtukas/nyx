@@ -22,7 +22,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 # ------------------------------------------------------------------------
@@ -109,7 +109,7 @@ class DataIntegrityOfficer
 
                 puts "First I am going to show it to you and then you will add it to a node"
 
-                Cliques::cliqueDive(clique)
+                Cube::cubeDive(clique)
 
                 # By now it could have been destroyed
                 next if Nyx::getOrNull(clique["uuid"]).nil?

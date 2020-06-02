@@ -18,7 +18,7 @@ require 'securerandom'
 require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 # -----------------------------------------------------------------
@@ -42,7 +42,7 @@ class PrimaryNetwork
             return Quark::dataPointToString(entity)
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            return Cliques::cliqueToString(entity)
+            return Cube::cubeToString(entity)
         end
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             return StarlightNodes::nodeToString(entity)
@@ -60,7 +60,7 @@ class PrimaryNetwork
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = entity
-            Cliques::openClique(clique)
+            Cube::openCube(clique)
             return
         end
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -78,7 +78,7 @@ class PrimaryNetwork
             return
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            Cliques::cliqueDive(entity)
+            Cube::cubeDive(entity)
             return
         end
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -104,7 +104,7 @@ class PrimaryNetworkNavigation
                 StarlightUserInterface::navigation()
             end
             if option == "navigate cliques" then
-                CliquesNavigation::mainNavigation()
+                CubesNavigation::mainNavigation()
             end
         }
     end
@@ -117,7 +117,7 @@ class PrimaryNetworkNavigation
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = entity
-            return Cliques::cliqueDive(clique)
+            return Cube::cubeDive(clique)
         end
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             node = entity
@@ -156,7 +156,7 @@ class PrimaryNetworkMakeAndOrSelectQuest
                 end
             end
             if option == "making and/or selecting a clique" then
-                entity = CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
+                entity = CubesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
                 if entity then
                     return entity
                 else 

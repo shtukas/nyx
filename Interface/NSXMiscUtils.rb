@@ -14,7 +14,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
@@ -200,7 +200,7 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new clique..."
-                clique = Cliques::issueCliqueInteractivelyOrNull(false)
+                clique = Cube::issueCliqueInteractivelyOrNull(false)
                 if clique.nil? then
                     puts "Did not make a clique for '#{StarlightNodes::nodeToString(node)}'. Aborting clique building."
                     break
