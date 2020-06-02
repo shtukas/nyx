@@ -231,27 +231,30 @@ class TimePods
         nil
     end
 
-    # TimePods::startPod(uuid)
-    def self.startPod(uuid)
+    # TimePods::openPassenger(uuid)
+    def self.openPassenger(uuid)
         pod = Nyx::getOrNull(uuid)
         return if pod.nil?
-
-        Runner::start(uuid)
-
         if pod["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
             # LucilleTxt1
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start")
         end
-
         if pod["passenger"]["type"] == "todo-item" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
         end
-
         if pod["passenger"]["type"] == "datapoint" then
             point = Nyx::getOrNull(pod["passenger"]["datapointuuid"])
             return if point.nil?
             DataPoint::openDataPoint(point)
         end
+    end
+
+    # TimePods::startPod(uuid)
+    def self.startPod(uuid)
+        pod = Nyx::getOrNull(uuid)
+        return if pod.nil?
+        Runner::start(uuid)
+        TimePods::openPassenger(uuid)
     end
 
     # --------------------------------------------------------------------

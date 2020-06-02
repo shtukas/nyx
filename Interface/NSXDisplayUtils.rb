@@ -49,7 +49,7 @@ class NSXDisplayUtils
                 line = contentItem["line"]
                 line = object["isRunning"] ? line.green : line
                 return [
-                    "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line}",
+                    "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line}",
                     NSXDisplayUtils::objectInferfaceString(object)
                 ].join("\n")
             else
@@ -67,7 +67,7 @@ class NSXDisplayUtils
                             .with_index{|line, indx|
                                 line = line.rstrip
                                 if indx == 0 then
-                                    "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+                                    "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
                                 else
                                     "              #{line[0, width]}"
                                 end
@@ -88,7 +88,7 @@ class NSXDisplayUtils
                         .with_index{|line, indx|
                             line = line.rstrip
                             if indx == 0 then
-                                "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+                                "[#{isFocus ? "*" : " "}#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
                             else
                                 "              #{line[0, width]}"
                             end

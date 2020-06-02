@@ -123,12 +123,13 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
                 "line" => TimePods::toString(pod)
             },
             "metric"         => isRunning ? 1 : TimePods::metric(pod), # 0.999 because it may have started something else
-            "commands"       => ["start", "stop", "destroy"],
+            "commands"       => ["start", "open", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
             "shell-redirects" => {
                 "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
+                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing open '#{uuid}'",
                 "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
                 "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing destroy '#{uuid}'",
             },
