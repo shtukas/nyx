@@ -57,7 +57,7 @@ def arrowToCatalystObjectOrNull(arrow)
     return nil if datapoint.nil?
     contentItem = {
         "type" => "line",
-        "line" => "[arrow] #{Quark::dataPointToString(datapoint)}"
+        "line" => "[arrow] #{Quark::quarkToString(datapoint)}"
     }
     {
         "uuid" => uuid,

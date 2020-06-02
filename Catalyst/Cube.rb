@@ -159,7 +159,7 @@ class Cube
         puts "    targets:"
         clique["targets"]
             .each{|target|
-                puts "        #{Quark::dataPointToString(target)}"
+                puts "        #{Quark::quarkToString(target)}"
             }
         puts ""
 
@@ -198,7 +198,7 @@ class Cube
             if clique["targets"].size == 1 then
                 clique["targets"].first
             else
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| Quark::dataPointToString(target) })
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| Quark::quarkToString(target) })
             end
         if target.nil? then
             puts "No target was selected for this clique. Aborting opening."
@@ -244,7 +244,7 @@ class Cube
             items << [
                 "Quark (select and remove)", 
                 lambda{
-                    toStringLambda = lambda { |target| Quark::dataPointToString(target) }
+                    toStringLambda = lambda { |target| Quark::quarkToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
                     next if target.nil?
                     clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
@@ -293,7 +293,7 @@ class Cube
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[Quark] #{Quark::dataPointToString(target)}", lambda{ Quark::diveQuark(target) }] 
+                    items << ["[Quark] #{Quark::quarkToString(target)}", lambda{ Quark::diveQuark(target) }] 
                 }
 
             StarlightContents::getNodesForEntity(clique)

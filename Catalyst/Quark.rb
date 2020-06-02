@@ -273,8 +273,8 @@ class Quark
         Nyx::getOrNull(uuid)
     end
 
-    # Quark::dataPointToString(point)
-    def self.dataPointToString(point)
+    # Quark::quarkToString(point)
+    def self.quarkToString(point)
         return point["description"] if point["description"]
         if point["type"] == "line" then
             return "[data point] [line] #{point["line"]}"
@@ -347,7 +347,7 @@ class Quark
     def self.diveQuark(point)
         puts "-> point:"
         puts JSON.pretty_generate(point)
-        puts Quark::dataPointToString(point)
+        puts Quark::quarkToString(point)
         if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
             Quark::openQuark(point)
         end
@@ -355,7 +355,7 @@ class Quark
 
     # Quark::visitGivenQuarks(points)
     def self.visitGivenQuarks(points)
-        toStringLambda = lambda { |point| Quark::dataPointToString(point) }
+        toStringLambda = lambda { |point| Quark::quarkToString(point) }
         point = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose point", points, toStringLambda)
         return if point.nil?
         Quark::diveQuark(point)

@@ -98,7 +98,7 @@ class Items
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
-        item["description"] || Quark::dataPointToString(item["target"])
+        item["description"] || Quark::quarkToString(item["target"])
     end
 
     # Items::openItem(item)

@@ -39,7 +39,7 @@ class PrimaryNetwork
     # PrimaryNetwork::entityToString(entity)
     def self.entityToString(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            return Quark::dataPointToString(entity)
+            return Quark::quarkToString(entity)
         end
         if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cube::cubeToString(entity)
