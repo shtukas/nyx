@@ -180,8 +180,8 @@ class Items
         }
     end
 
-    # Items::updateProject(item)
-    def self.updateProject(item)
+    # Items::updateItemProjectName(item)
+    def self.updateItemProjectName(item)
         projectname = Items::selectProjectNameInteractivelyOrNull()
         projectuuid = nil
         if projectname.nil? then
@@ -258,7 +258,7 @@ class Items
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Items::updateProject(item)
+                Items::updateItemProjectName(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f

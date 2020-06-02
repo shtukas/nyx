@@ -86,7 +86,7 @@ if ARGV[0] == "start" and ARGV[1] then
         options = ["update project", "recast on nyx network"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "recast" then
-            Items::updateProject(item)
+            Items::updateItemProjectName(item)
         end
         if option == "recast on nyx network" then
             status = Items::recastOnNyxNetwork(item)
@@ -115,7 +115,7 @@ if ARGV[0] == "stop" and ARGV[1] then
 
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         puts "Item was not immediately done, we need to classify it."
-        Items::updateProject(item)
+        Items::updateItemProjectName(item)
     end
 end
 
@@ -147,7 +147,7 @@ if ARGV[0] == "update-project" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    Items::updateProject(item)
+    Items::updateItemProjectName(item)
 end
 
 if ARGV[0] == "recast-as-clique" and ARGV[1] then
