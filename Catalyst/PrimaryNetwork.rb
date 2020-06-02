@@ -41,7 +41,7 @@ class PrimaryNetwork
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             return Quark::quarkToString(entity)
         end
-        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cube::cubeToString(entity)
         end
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -58,7 +58,7 @@ class PrimaryNetwork
             Quark::openQuark(target)
             return
         end
-        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = entity
             Cube::openCube(clique)
             return
@@ -77,7 +77,7 @@ class PrimaryNetwork
             Quark::diveQuark(entity)
             return
         end
-        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cube::cubeDive(entity)
             return
         end
@@ -115,7 +115,7 @@ class PrimaryNetworkNavigation
             target = entity
             return Quark::diveQuark(target)
         end
-        if entity["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = entity
             return Cube::cubeDive(clique)
         end

@@ -72,7 +72,7 @@ class NSXCatalystUI
 
             items << nil
 
-            Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(10)
                 .each{|item|
@@ -133,7 +133,7 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cube::cubeToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cube::cubeToString(clique) })
                     break if clique.nil?
                     Cube::cubeDive(clique)
                 }
@@ -154,7 +154,7 @@ class NSXCatalystUI
                 lambda {
                     items = []
 
-                    Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                    Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                         .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                         .last(50)
                         .each{|item|
@@ -368,7 +368,7 @@ class NSXCatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .last(5)
             .each{|item|

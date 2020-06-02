@@ -4,7 +4,7 @@ This is a copy of Nyx.txt
 
 Clique {
     uuid             : String
-    nyxType          : "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"
+    nyxType          : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
     creationUnixtime : Float # Unixtime with decimals
 
     description       : String

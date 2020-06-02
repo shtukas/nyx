@@ -78,7 +78,7 @@ class GlobalIntegrityChecker
             #if remoteentity then
             #    puts "... but I have found this:"
             #    puts JSON.pretty_generate(remoteentity)
-            #    remoteentity["nyxType"] = "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"
+            #    remoteentity["nyxType"] = "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
             #    remoteentity["creationUnixtime"] = remoteentity["creationTimestamp"]
             #    puts JSON.pretty_generate(remoteentity)
             #    Nyx::commitToDisk(remoteentity)
@@ -88,7 +88,7 @@ class GlobalIntegrityChecker
         end
         supportedTypes = [
             "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
-            "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
         ]
         if !supportedTypes.include?(entity["nyxType"]) then

@@ -206,7 +206,7 @@ class Items
             StarlightContents::issueClaimGivenNodeAndEntity(node, item["target"])
             return true
         end
-        if newowner["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6" then
+        if newowner["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             clique = newowner
             clique = Nyx::getOrNull(clique["uuid"])
             clique["targets"] << item["target"]

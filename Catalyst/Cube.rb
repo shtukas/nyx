@@ -64,7 +64,7 @@ class Cube
     def self.issue1CliqueInteractivelyOrNull()
         clique = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
@@ -80,7 +80,7 @@ class Cube
     def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
@@ -100,13 +100,13 @@ class Cube
 
     # Cube::getCliquesByTag(tag)
     def self.getCliquesByTag(tag)
-        Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
     end
 
     # Cube::tags()
     def self.tags()
-        Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .map{|clique| clique["tags"] }
             .flatten
             .uniq
@@ -120,7 +120,7 @@ class Cube
         descriptionXp = lambda { |clique|
             "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
         }
-        cliques = Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        cliques = Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
         descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
@@ -133,7 +133,7 @@ class Cube
             system('clear')
             puts "Cliques: Tag Diving: #{tag}"
             items = []
-            Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
                     items << [ Cube::cubeToString(clique) , lambda { Cube::cubeDive(clique) } ]
@@ -340,7 +340,7 @@ class Cube
                     end
                     tag
                 }
-                Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                     .each{|clique|
                         uuid = clique["uuid"]
                         tags1 = clique["tags"]
@@ -375,7 +375,7 @@ class Cube
                 Cube::issueCliqueInteractivelyOrNull(true)
             end
             if operation == "show newly created cliques" then
-                cliques = Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                cliques = Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                             .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
                             .reverse
                             .first(20)
@@ -406,7 +406,7 @@ class CubesSearch
 
     # CubesSearch::searchPatternToCliques(searchPattern)
     def self.searchPatternToCliques(searchPattern)
-        Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
