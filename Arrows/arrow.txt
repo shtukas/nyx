@@ -1,0 +1,8 @@
+
+Arrow {
+    "uuid"          : String
+    "description"   : String
+    "startunixtime" : Int
+    "lengthInDays"  : Float
+    "datapointuuid" : String
+}

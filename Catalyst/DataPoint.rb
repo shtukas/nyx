@@ -268,6 +268,11 @@ class DataPoint
     # --------------------------------------------------
     # User Interface
 
+    # DataPoint::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        Nyx::getOrNull(uuid)
+    end
+
     # DataPoint::dataPointToString(point)
     def self.dataPointToString(point)
         return point["description"] if point["description"]
