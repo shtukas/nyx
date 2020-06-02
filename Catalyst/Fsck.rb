@@ -57,7 +57,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 # -------------------------------------------------------------------------
 
 def specialCircumstancesGetOrNull(uuid)
-    folderPath = "/Volumes/EnergyGrid/Data/Pascal/Snapshots/Lucille18-Galaxy/2020/20200528-091604-074494/Lucille18-Galaxy/DataBank/Catalyst/Cliques"
+    folderPath = "/Volumes/EnergyGrid/Data/Pascal/Snapshots/Lucille18-Galaxy/2020/20200528-091604-074494/Lucille18-Galaxy/DataBank/Catalyst/Cubes"
     filepath = "#{folderPath}/#{uuid}.json"
     return nil if !File.exists?(filepath)
     JSON.parse(IO.read(filepath))

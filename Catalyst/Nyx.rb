@@ -40,17 +40,6 @@ class Nyx
         "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx/objects"
     end
 
-    # Nyx::commitToDisk(object)
-    def self.commitToDisk(object)
-        raise "[02986280]" if object["nyxType"].nil?
-        raise "[222C74D4]" if object["uuid"].nil?
-        filepath = "#{Nyx::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkdir(File.dirname(filepath))
-        end
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
-    end
-
     # Nyx::getOrNullAtType(uuid, nyxtype)
     def self.getOrNullAtType(uuid, nyxtype)
         filepath = "#{Nyx::pathToRepository()}/#{nyxtype}/#{uuid}.json"
@@ -64,14 +53,6 @@ class Nyx
             .select{|filename| filename[0, 1] != "." }
     end
 
-    # Nyx::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        Nyx::getNyxTypes()
-            .map{|nyxtype| Nyx::getOrNullAtType(uuid, nyxtype) }
-            .compact
-            .first
-    end
-
     # Nyx::destroyAtType(uuid, nyxtype)
     def self.destroyAtType(uuid, nyxtype)
         filepath = "#{Nyx::pathToRepository()}/#{nyxtype}/#{uuid}.json"
@@ -79,11 +60,7 @@ class Nyx
         FileUtils.rm(filepath)
     end
 
-    # Nyx::destroy(uuid)
-    def self.destroy(uuid)
-        Nyx::getNyxTypes()
-            .map{|nyxtype| Nyx::destroyAtType(uuid, nyxtype) }
-    end
+    # -----------------------------------------------------------------------------------
 
     # Nyx::objects(nyxtype)
     def self.objects(nyxtype)
@@ -93,5 +70,30 @@ class Nyx
             .map{|filename| "#{folderpath}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+    end
+
+    # Nyx::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        Nyx::getNyxTypes()
+            .map{|nyxtype| Nyx::getOrNullAtType(uuid, nyxtype) }
+            .compact
+            .first
+    end
+
+    # Nyx::commitToDisk(object)
+    def self.commitToDisk(object)
+        raise "[02986280]" if object["nyxType"].nil?
+        raise "[222C74D4]" if object["uuid"].nil?
+        filepath = "#{Nyx::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
+    end
+
+    # Nyx::destroy(uuid)
+    def self.destroy(uuid)
+        Nyx::getNyxTypes()
+            .map{|nyxtype| Nyx::destroyAtType(uuid, nyxtype) }
     end
 end

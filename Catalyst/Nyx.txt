@@ -79,7 +79,8 @@ Wave
     }
 
 ------------------------------------------------------
-TodoItem # see Todo.txt
+
+TodoItem # See Todo.txt
 
 ------------------------------------------------------
 OpenCycle {
@@ -116,91 +117,13 @@ StarlightContentClaim {
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String
-    "targetuuid"       : String # Clique uuid or a Quark uuid
+    "targetuuid"       : String # Cube uuid or a Quark uuid
 }
 
 ------------------------------------------------------
-Clique {
-    uuid             : String
-    nyxType          : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
-    creationUnixtime : Float # Unixtime with decimals
 
-    description       : String
-    targets           : Array[Quark]
-    tags              : Array[String]
-}
+Cube # See Cube.txt
 
 ------------------------------------------------------
-Quark
 
-A Quark is an immutable object. The current ones are listed below.
-
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type" : "line"
-    "line" : String
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type" : "url"
-    "url"  : String
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type"     : "file"
-    "filename" : String (CoreData managed)
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type"       : "folder"
-    "foldername" : String (CoreData managed)
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type" : "unique-name"
-    "name" : String # Use Atlas to find them
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description" : nil | String
-
-    "type" : "directory-mark"
-    "mark" : String # Use Atlas to find them.
-                # Atlas also supports findind directory marks.
-                # `Nyx-Directory-Mark.txt` files with a unique name inside.
-}
-
+Quark # See Quark.txt

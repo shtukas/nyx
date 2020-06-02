@@ -39,14 +39,14 @@ class Cube
 
     # Cube::makeQuarksInteractively()
     def self.makeQuarksInteractively()
-        targets = []
+        quarks = []
         loop {
             target = Quark::issueNewQuarkInteractivelyOrNull()
             break if target.nil?
             puts JSON.pretty_generate(target)
-            targets << target
+            quarks << target
         }
-        targets
+        quarks
     end
 
     # Cube::makeTagsInteractively()
@@ -68,7 +68,7 @@ class Cube
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cube::makeQuarksInteractively(),
+            "quarksuuids"      => Cube::makeQuarksInteractively().map{|quark| quark["uuid"] },
             "tags"             => Cube::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -84,7 +84,7 @@ class Cube
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cube::makeQuarksInteractively(),
+            "quarksuuids"      => Cube::makeQuarksInteractively().map{|quark| quark["uuid"] },
             "tags"             => Cube::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -106,15 +106,15 @@ class Cube
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => Quark::quarkToString(quark),
-            "targets"          => [quark],
+            "quarksuuids"      => [quark["uuid"]],
             "tags"             => []
         }
         Nyx::commitToDisk(cube)
         cube
     end
 
-    # Cube::getCliquesByTag(tag)
-    def self.getCliquesByTag(tag)
+    # Cube::getCubesByTag(tag)
+    def self.getCubesByTag(tag)
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
     end
@@ -126,6 +126,11 @@ class Cube
             .flatten
             .uniq
             .sort
+    end
+
+    # Cube::getCubes()
+    def self.getCubes()
+        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
     end
 
     # ------------------------------------------------------------
@@ -146,7 +151,7 @@ class Cube
     def self.visitTag(tag)
         loop {
             system('clear')
-            puts "Cliques: Tag Diving: #{tag}"
+            puts "Cubes: Tag Diving: #{tag}"
             items = []
             Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
@@ -161,20 +166,21 @@ class Cube
 
     # Cube::cubeToString(clique)
     def self.cubeToString(clique)
-        "[clique] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["targets"].size})"
+        "[clique] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["quarksuuids"].size})"
     end
 
     # Cube::printCubeDetails(clique)
     def self.printCubeDetails(clique)
-        puts "Clique:"
+        puts "Cube:"
         puts "    uuid: #{clique["uuid"]}"
         puts "    description: #{clique["description"]}"
         puts ""
 
-        puts "    targets:"
-        clique["targets"]
-            .each{|target|
-                puts "        #{Quark::quarkToString(target)}"
+        puts "    quarks:"
+        clique["quarksuuids"]
+            .each{|quarkuuid|
+                quark = Nyx::getOrNull(quarkuuid)
+                puts "        #{Quark::quarkToString(quark)}"
             }
         puts ""
 
@@ -203,17 +209,22 @@ class Cube
     def self.openCube(clique)
         Cube::printCubeDetails(clique)
         puts "    -> Opening..."
-        if clique["targets"].size == 0 then
+        if clique["quarksuuids"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this clique. Dive? ") then
                 Cube::cubeDive(clique)
             end
             return
         end
         target = 
-            if clique["targets"].size == 1 then
-                clique["targets"].first
+            if clique["quarksuuids"].size == 1 then
+                Nyx::getOrNull(clique["quarksuuids"].first)
             else
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| Quark::quarkToString(target) })
+                toString = lambda{|quarkuuid|
+                    quark = Nyx::getOrNull(quarkuuid)
+                    return "[null quark]"
+                    Quark::quarkToString(quark)
+                }
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", clique["quarksuuids"], toString)
             end
         if target.nil? then
             puts "No target was selected for this clique. Aborting opening."
@@ -251,18 +262,18 @@ class Cube
             items << [
                 "Quark (add new)", 
                 lambda{
-                    target = Quark::issueNewQuarkInteractivelyOrNull()
-                    next if target.nil?
-                    clique["targets"] << target
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    next if quark.nil?
+                    clique["quarksuuids"] << quark["uuid"]
                     Nyx::commitToDisk(clique)
                 }]
             items << [
                 "Quark (select and remove)", 
                 lambda{
-                    toStringLambda = lambda { |target| Quark::quarkToString(target) }
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
-                    next if target.nil?
-                    clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
+                    toStringLambda = lambda { |quark| Quark::quarkToString(quark) }
+                    quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", clique["quarksuuids"], toStringLambda)
+                    next if quark.nil?
+                    clique["quarksuuids"] = clique["quarksuuids"].reject{|quarkuuid| quarkuuid == quark["uuid"] }
                     Nyx::commitToDisk(clique)
                 }]
             items << [
@@ -306,9 +317,11 @@ class Cube
                         return
                     end
                 }]
-            clique["targets"]
-                .each{|target| 
-                    items << ["[Quark] #{Quark::quarkToString(target)}", lambda{ Quark::diveQuark(target) }] 
+            clique["quarksuuids"]
+                .each{|quarkuuid| 
+                    quark = Nyx::getOrNull(quarkuuid)
+                    next if quark.nil?
+                    items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::diveQuark(quark) }]
                 }
 
             StarlightContents::getNodesForEntity(clique)
@@ -333,7 +346,7 @@ class Cube
     def self.main()
         loop {
             system("clear")
-            puts "Cliques"
+            puts "Cubes"
             operations = [
                 "show newly created cliques",
                 "clique dive (uuid)",
@@ -419,15 +432,15 @@ class CubesSearch
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
 
-    # CubesSearch::searchPatternToCliques(searchPattern)
-    def self.searchPatternToCliques(searchPattern)
+    # CubesSearch::searchPatternToCubes(searchPattern)
+    def self.searchPatternToCubes(searchPattern)
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCliquesDescriptions(searchPattern)
-    def self.searchPatternToCliquesDescriptions(searchPattern)
-        CubesSearch::searchPatternToCliques(searchPattern)
+    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCubesDescriptions(searchPattern)
+    def self.searchPatternToCubesDescriptions(searchPattern)
+        CubesSearch::searchPatternToCubes(searchPattern)
             .map{|clique| clique["description"] }
             .uniq
             .sort
@@ -444,7 +457,7 @@ class CubesSearch
     #     "tag" => tag
     # }
     def self.search(fragment)
-        objs1 = CubesSearch::searchPatternToCliques(fragment)
+        objs1 = CubesSearch::searchPatternToCubes(fragment)
                     .map{|clique| 
                         {
                             "type" => "clique",

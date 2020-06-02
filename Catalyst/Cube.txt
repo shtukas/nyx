@@ -1,13 +1,10 @@
-------------------------------------------------------
-This is a copy of Nyx.txt
-------------------------------------------------------
 
-Clique {
+Cube {
     uuid             : String
     nyxType          : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
     creationUnixtime : Float # Unixtime with decimals
 
-    description       : String
-    targets           : Array[Quark]
-    tags              : Array[String]
+    description      : String
+    quarksuuids      : Array[String]
+    tags             : Array[String]
 }

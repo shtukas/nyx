@@ -2,7 +2,7 @@
 
 Starlight is the nickname of Catalyst's global navigation network.
 
-### CoreData, Quarks and Cliques
+### CoreData, Quarks and Cubes
 
 The data hierarchy of Catalyst goes as follows:
 
@@ -10,11 +10,11 @@ At the bottom we have files and folders, they are managed through a simple inter
 
 The Quarks represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
 
-**Cliques** are collections of Quarks with some metadata.
+**Cubes** are collections of Quarks with some metadata.
 
 ### Navigation Network
 
-The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cliques.
+The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cubes.
 
 ------------------------------------------------------
 This is a copy of Nyx.txt
@@ -45,5 +45,5 @@ StarlightContentClaim {
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String
-    "targetuuid"       : String # Clique uuid or a Quark uuid
+    "targetuuid"       : String # Cube uuid or a Quark uuid
 }

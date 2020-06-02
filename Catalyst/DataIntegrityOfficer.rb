@@ -49,13 +49,13 @@ class DataIntegrityOfficer
 
     # DataIntegrityOfficer::interfaceLoopOperations()
     def self.interfaceLoopOperations()
-        # Make sure that every Clique is on a node
+        # Make sure that every Cube is on a node
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .each{|clique|
                 next if !StarlightContents::getNodesForEntity(clique).empty?
 
                 system("clear")
-                puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Starlight parent, please make and/or select one".green
+                puts "[DataIntegrityOfficer] Cube '#{clique["description"]}' doesn't have a Starlight parent, please make and/or select one".green
 
                 if clique["tags"].include?("Pascal Address Book Archives") then
                     node = Nyx::getOrNull("2ec5eda3-7d52-4b5f-8622-df3494280fd9") # Pascal Address Book Archives
