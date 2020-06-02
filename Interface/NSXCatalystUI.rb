@@ -55,13 +55,13 @@ class NSXCatalystUI
                             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                             return if operation.nil?
                             if operation == "visit target" then
-                                entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
                                 if entity.nil? then
                                     puts "I could not find a target for this open cycle"
                                     LucilleCore::pressEnterToContinue()
                                     return
                                 end
-                                PrimaryNetwork::visitSomething(entity)
+                                QuarksCubesAndStarlightNodes::visitSomething(entity)
                             end
                             if operation == "destroy open cycle" then
                                 Nyx::destroy(opencycle["uuid"])
@@ -77,8 +77,8 @@ class NSXCatalystUI
                 .last(10)
                 .each{|item|
                     items << [
-                        PrimaryNetwork::entityToString(item).yellow,
-                        lambda { PrimaryNetwork::openSomething(item) }
+                        QuarksCubesAndStarlightNodes::entityToString(item).yellow,
+                        lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
                     ]
                 }
 
@@ -108,8 +108,8 @@ class NSXCatalystUI
                         .last(50)
                         .each{|item|
                             items << [
-                                PrimaryNetwork::entityToString(item).yellow,
-                                lambda { PrimaryNetwork::openSomething(item) }
+                                QuarksCubesAndStarlightNodes::entityToString(item).yellow,
+                                lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
                             ]
                         }
 
@@ -159,8 +159,8 @@ class NSXCatalystUI
                         .last(50)
                         .each{|item|
                             items << [
-                                PrimaryNetwork::entityToString(item).yellow,
-                                lambda { PrimaryNetwork::openSomething(item) }
+                                QuarksCubesAndStarlightNodes::entityToString(item).yellow,
+                                lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
                             ]
                         }
 
@@ -172,9 +172,9 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
+                "QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
                 lambda {
-                    selectedEntity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+                    selectedEntity = QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
@@ -350,13 +350,13 @@ class NSXCatalystUI
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                     return if operation.nil?
                     if operation == "visit target" then
-                        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()
                             return
                         end
-                        PrimaryNetwork::visitSomething(entity)
+                        QuarksCubesAndStarlightNodes::visitSomething(entity)
                     end
                     if operation == "destroy open cycle" then
                         Nyx::destroy(opencycle["uuid"])
@@ -372,9 +372,9 @@ class NSXCatalystUI
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .last(5)
             .each{|item|
-                puts "[ #{"%2d" % position}] #{PrimaryNetwork::entityToString(item).yellow}"
+                puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::entityToString(item).yellow}"
                 executors[position] = lambda { 
-                    PrimaryNetwork::openSomething(item)
+                    QuarksCubesAndStarlightNodes::openSomething(item)
                 }
                 position = position + 1
                 verticalSpaceLeft = verticalSpaceLeft - 1

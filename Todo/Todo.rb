@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -197,9 +197,9 @@ class Items
         Nyx::commitToDisk(item)
     end
 
-    # Items::recastOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
-        newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+    # Items::recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+        newowner = QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
         if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             node = newowner
@@ -265,7 +265,7 @@ class Items
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
-                status = Items::recastOnNyxNetwork(item)
+                status = Items::recastAsStarlightNodeOrCubeContent(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return

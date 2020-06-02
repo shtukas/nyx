@@ -38,21 +38,21 @@ class OpenCycles
 
     # OpenCycles::openQuark(opencycle)
     def self.openQuark(opencycle)
-        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
         return if entity.nil?
-        PrimaryNetwork::openSomething(entity)
+        QuarksCubesAndStarlightNodes::openSomething(entity)
     end
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
-        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
-        "[opencycle] #{entity ? PrimaryNetwork::entityToString(entity) : "data entity not found"}"
+        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
+        "[opencycle] #{entity ? QuarksCubesAndStarlightNodes::entityToString(entity) : "data entity not found"}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
     def self.opencycleDive(opencycle)
         loop {
-            entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+            entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
             if entity.nil? then
                 puts "Could not determine entity for opencycle #{opencycle}"
                 LucilleCore::pressEnterToContinue()
@@ -65,13 +65,13 @@ class OpenCycles
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "access target" then
-                entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
                 if entity.nil? then
                     puts "I could not find a entity for his: #{opencycle}"
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                PrimaryNetwork::visitSomething(entity)
+                QuarksCubesAndStarlightNodes::visitSomething(entity)
             end
             if option == "destroy opencycle" then
                 Nyx::destroy(opencycle["uuid"])
@@ -95,7 +95,7 @@ class OpenCycles
                 }
             end
             if operation == "make new opencycle" then
-                entity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+                entity = QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
                 opencycle = {
                     "uuid"             => SecureRandom.uuid,
                     "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",

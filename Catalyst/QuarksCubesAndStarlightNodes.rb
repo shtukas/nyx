@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -23,9 +23,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight
 
 # -----------------------------------------------------------------
 
-class PrimaryNetwork
+class QuarksCubesAndStarlightNodes
 
-    # PrimaryNetwork::getSomethingByUuidOrNull(uuid)
+    # QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(uuid)
     def self.getSomethingByUuidOrNull(uuid)
         target = Nyx::getOrNull(uuid)
         return target if target
@@ -36,7 +36,7 @@ class PrimaryNetwork
         nil
     end
 
-    # PrimaryNetwork::entityToString(entity)
+    # QuarksCubesAndStarlightNodes::entityToString(entity)
     def self.entityToString(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             return Quark::quarkToString(entity)
@@ -47,10 +47,10 @@ class PrimaryNetwork
         if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             return StarlightNodes::nodeToString(entity)
         end
-        raise "PrimaryNetwork::entityToString, Error: 056686f0"
+        raise "QuarksCubesAndStarlightNodes::entityToString, Error: 056686f0"
     end
 
-    # PrimaryNetwork::openSomething(entity)
+    # QuarksCubesAndStarlightNodes::openSomething(entity)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
     def self.openSomething(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
@@ -68,10 +68,10 @@ class PrimaryNetwork
            StarlightUserInterface::nodeDive(node)
            return
         end
-        raise "PrimaryNetwork::entityToString, Error: 2f28f27d"
+        raise "QuarksCubesAndStarlightNodes::entityToString, Error: 2f28f27d"
     end
 
-    # PrimaryNetwork::visitSomething(entity)
+    # QuarksCubesAndStarlightNodes::visitSomething(entity)
     def self.visitSomething(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             Quark::diveQuark(entity)
@@ -85,13 +85,13 @@ class PrimaryNetwork
             StarlightUserInterface::nodeDive(entity)
             return
         end
-        raise "PrimaryNetwork::entityToString, Error: cf25ea33"
+        raise "QuarksCubesAndStarlightNodes::entityToString, Error: cf25ea33"
     end
 end
 
-class PrimaryNetworkNavigation
+class QuarksCubesAndStarlightNodesNavigation
 
-    # PrimaryNetworkNavigation::mainNavigation()
+    # QuarksCubesAndStarlightNodesNavigation::mainNavigation()
     def self.mainNavigation()
         loop {
             options = [
@@ -109,7 +109,7 @@ class PrimaryNetworkNavigation
         }
     end
 
-    # PrimaryNetworkNavigation::visit(entity)
+    # QuarksCubesAndStarlightNodesNavigation::visit(entity)
     def self.visit(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = entity
@@ -123,13 +123,13 @@ class PrimaryNetworkNavigation
             node = entity
             return StarlightUserInterface::nodeDive(node)
         end
-        raise "PrimaryNetwork::entityToString, Error: f17aba25"
+        raise "QuarksCubesAndStarlightNodes::entityToString, Error: f17aba25"
     end
 end
 
-class PrimaryNetworkMakeAndOrSelectQuest
+class QuarksCubesAndStarlightNodesMakeAndOrSelectQuest
 
-    # PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+    # QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
     def self.makeAndOrSelectSomethingOrNull()
         loop {
             puts "-> You are on a selection Quest [making and/or selecting a node or clique]"

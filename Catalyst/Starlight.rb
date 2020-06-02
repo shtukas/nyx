@@ -16,7 +16,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -132,7 +132,7 @@ class StarlightContents
     def self.getNodeEntities(node)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
+            .map{|claim| QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
@@ -187,7 +187,7 @@ class StarlightUserInterface
 
             StarlightContents::getNodeEntities(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|entity| items << ["[node content] #{PrimaryNetwork::entityToString(entity)}", lambda{ PrimaryNetworkNavigation::visit(entity) }] }
+                .each{|entity| items << ["[node content] #{QuarksCubesAndStarlightNodes::entityToString(entity)}", lambda{ QuarksCubesAndStarlightNodesNavigation::visit(entity) }] }
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
