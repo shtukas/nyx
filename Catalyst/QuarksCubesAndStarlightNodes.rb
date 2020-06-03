@@ -91,8 +91,8 @@ end
 
 class QuarksCubesAndStarlightNodesNavigation
 
-    # QuarksCubesAndStarlightNodesNavigation::mainNavigation()
-    def self.mainNavigation()
+    # QuarksCubesAndStarlightNodesNavigation::navigation()
+    def self.navigation()
         loop {
             options = [
                 "navigate nodes",
@@ -104,7 +104,7 @@ class QuarksCubesAndStarlightNodesNavigation
                 StarlightUserInterface::navigation()
             end
             if option == "navigate cubes" then
-                CubesNavigation::mainNavigation()
+                CubesNavigation::navigation()
             end
         }
     end

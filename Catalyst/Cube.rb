@@ -130,13 +130,13 @@ class Cube
 
     # Cube::cubesByTag(tag)
     def self.getCubesByTag(tag)
-        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Cube::cubes()
             .select{|cube| cube["tags"].include?(tag) }
     end
 
     # Cube::tags()
     def self.tags()
-        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Cube::cubes()
             .map{|cube| cube["tags"] }
             .flatten
             .uniq
@@ -146,6 +146,7 @@ class Cube
     # Cube::cubes()
     def self.cubes()
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
     # ------------------------------------------------------------
@@ -155,7 +156,7 @@ class Cube
         descriptionXp = lambda { |cube|
             "#{cube["description"]} (#{cube["uuid"][0,4]}) [#{cube["tags"].join(",")}]"
         }
-        cubes = Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        cubes = Cube::cubes()
         descriptionsxp = cubes.reverse.map{|cube| descriptionXp.call(cube) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select cube (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
@@ -168,7 +169,7 @@ class Cube
             system('clear')
             puts "Cubes: Tag Diving: #{tag}"
             items = []
-            Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            Cube::cubes()
                 .select{|cube| cube["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|cube|
                     items << [ Cube::cubeToString(cube) , lambda { Cube::cubeDive(cube) } ]
@@ -383,7 +384,7 @@ class Cube
                     end
                     tag
                 }
-                Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                Cube::cubes()
                     .each{|cube|
                         uuid = cube["uuid"]
                         tags1 = cube["tags"]
@@ -418,7 +419,7 @@ class Cube
                 Cube::issueCubeInteractivelyOrNull_v2(true)
             end
             if operation == "show newly created cubes" then
-                cubes = Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                cubes = Cube::cubes()
                             .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
                             .reverse
                             .first(20)
@@ -449,7 +450,7 @@ class CubesSearch
 
     # CubesSearch::searchPatternToCubes(searchPattern)
     def self.searchPatternToCubes(searchPattern)
-        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Cube::cubes()
             .select{|cube| cube["description"].downcase.include?(searchPattern.downcase) }
     end
 
@@ -513,9 +514,8 @@ class CubesSearch
 end
 
 class CubesNavigation
-
-    # CubesNavigation::mainNavigation()
-    def self.mainNavigation()
+    # CubesNavigation::navigation()
+    def self.navigation()
         fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
         return nil if fragment.nil?
         items = CubesSearch::search(fragment)

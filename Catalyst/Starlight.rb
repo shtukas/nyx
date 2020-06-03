@@ -43,6 +43,12 @@ class StarlightNodes
     def self.nodeToString(node)
         "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
+
+    # StarlightNodes::nodes()
+    def self.nodes()
+        Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+    end
 end
 
 class StarlightPaths

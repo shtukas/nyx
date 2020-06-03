@@ -46,41 +46,23 @@ class NSXCatalystUI
 
             items = []
 
-            OpenCycles::opencycles()
-                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                .each{|opencycle|
-                    items << [
-                        OpenCycles::opencycleToString(opencycle).yellow, 
-                        lambda {
-                            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
-                            return if operation.nil?
-                            if operation == "visit target" then
-                                entity = QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(opencycle["targetuuid"])
-                                if entity.nil? then
-                                    puts "I could not find a target for this open cycle"
-                                    LucilleCore::pressEnterToContinue()
-                                    return
-                                end
-                                QuarksCubesAndStarlightNodes::objectDive(entity)
-                            end
-                            if operation == "destroy open cycle" then
-                                Nyx::destroy(opencycle["uuid"])
-                            end
-                        }
-                    ]
+            items << [
+                "nodes listing", 
+                lambda {
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNodes::nodes(), lambda{|node| StarlightNodes::nodeToString(node) })
+                    return if node.nil?
+                    StarlightUserInterface::nodeDive(node)
                 }
+            ]
 
-            items << nil
-
-            Cube::cubes()
-                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                .last(10)
-                .each{|cube|
-                    items << [
-                        Cube::cubeToString(cube).yellow,
-                        lambda { Cube::cubeDive(cube) }
-                    ]
+            items << [
+                "cubes listing",
+                lambda {
+                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cubes", Cube::cubes(), lambda{|cube| Cube::cubeToString(cube) })
+                    break if cube.nil?
+                    Cube::cubeDive(cube)
                 }
+            ]
 
             items << nil
 
@@ -90,54 +72,11 @@ class NSXCatalystUI
             ]
 
             items << [
-                "nodes listing", 
-                lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
-                    return if node.nil?
-                    StarlightUserInterface::nodeDive(node)
-                }
-            ]
-
-            items << [
-                "latest nodes", 
-                lambda {
-                    items = []
-
-                    Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
-                        .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                        .last(50)
-                        .each{|item|
-                            items << [
-                                QuarksCubesAndStarlightNodes::objectToString(item).yellow,
-                                lambda { QuarksCubesAndStarlightNodes::openObject(item) }
-                            ]
-                        }
-
-                    status = LucilleCore::menuItemsWithLambdas(items)
-                    break if !status
-                }
+                "navigate cubes", 
+                lambda { CubesNavigation::navigation() }
             ]
 
             items << nil
-
-            items << [
-                "navigate cubes", 
-                lambda { CubesNavigation::mainNavigation() }
-            ]
-
-            items << [
-                "cubes search and visit", 
-                lambda { CubesNavigation::mainNavigation() }
-            ]
-
-            items << [
-                "cubes listing",
-                lambda {
-                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cubes", Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|cube| Cube::cubeToString(cube) })
-                    break if cube.nil?
-                    Cube::cubeDive(cube)
-                }
-            ]
 
             items << [
                 "cube visit (uuid)", 
@@ -146,26 +85,6 @@ class NSXCatalystUI
                     cube = Nyx::getOrNull(uuid)
                     return if cube.nil?
                     Cube::cubeDive(cube)
-                }
-            ]
-
-            items << [
-                "latest cubes", 
-                lambda {
-                    items = []
-
-                    Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
-                        .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                        .last(50)
-                        .each{|item|
-                            items << [
-                                QuarksCubesAndStarlightNodes::objectToString(item).yellow,
-                                lambda { QuarksCubesAndStarlightNodes::openObject(item) }
-                            ]
-                        }
-
-                    status = LucilleCore::menuItemsWithLambdas(items)
-                    break if !status
                 }
             ]
 
@@ -181,25 +100,6 @@ class NSXCatalystUI
             ]
 
             items << nil
-
-            items << [
-                "timepod (new)", 
-                lambda { 
-                    passenger = TimePods::makePassengerInteractivelyOrNull()
-                    next if passenger.nil?
-                    engine = TimePods::makeEngineInteractivelyOrNull()
-                    next if engine.nil?
-                    timepod = {
-                        "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
-                        "creationUnixtime" => Time.new.to_f,
-                        "passenger"        => passenger,
-                        "engine"           => engine
-                    }
-                    puts JSON.pretty_generate(timepod)
-                    Nyx::commitToDisk(timepod)
-                }
-            ]
 
             items << [
                 "arrow (description only)", 
@@ -234,6 +134,25 @@ class NSXCatalystUI
             ]
 
             items << [
+                "timepod (new)", 
+                lambda { 
+                    passenger = TimePods::makePassengerInteractivelyOrNull()
+                    next if passenger.nil?
+                    engine = TimePods::makeEngineInteractivelyOrNull()
+                    next if engine.nil?
+                    timepod = {
+                        "uuid"             => SecureRandom.uuid,
+                        "nyxType"          => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
+                        "creationUnixtime" => Time.new.to_f,
+                        "passenger"        => passenger,
+                        "engine"           => engine
+                    }
+                    puts JSON.pretty_generate(timepod)
+                    Nyx::commitToDisk(timepod)
+                }
+            ]
+
+            items << [
                 "todo item (with new quark)", 
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
@@ -251,6 +170,7 @@ class NSXCatalystUI
                     Todo::issueNewItem(projectname, projectuuid, description, target)
                 }
             ]
+
 
             items << [
                 "opencycle (with new quark)", 
@@ -305,8 +225,6 @@ class NSXCatalystUI
                     StarlightContents::issueClaimGivenNodeAndEntity(starlightnode, cube)
                 }
             ]
-
-            items << nil
 
             items << [
                 "starlight node (existing or new) + build around",
