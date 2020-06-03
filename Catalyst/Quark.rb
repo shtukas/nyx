@@ -359,12 +359,4 @@ class Quark
             Quark::openQuark(point)
         end
     end
-
-    # Quark::visitGivenQuarks(points)
-    def self.visitGivenQuarks(points)
-        toStringLambda = lambda { |point| Quark::quarkToString(point) }
-        point = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose point", points, toStringLambda)
-        return if point.nil?
-        Quark::quarkDive(point)
-    end
 end
