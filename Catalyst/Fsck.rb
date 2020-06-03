@@ -68,13 +68,13 @@ class Fsck
     # Fsck::checkOpenCycle(opencycle)
     def self.checkOpenCycle(opencycle)
         puts "[checking open cycle] #{opencycle["uuid"]}"
-        entityuuid = opencycle["entityuuid"]
-        entity = Nyx::getOrNull(entityuuid)
+        quarkuuid = opencycle["quarkuuid"]
+        entity = Nyx::getOrNull(quarkuuid)
         if entity.nil? then
             puts "[error] open cycle".red
             puts JSON.pretty_generate(opencycle)
             puts "... points as an unkown entity".red
-            #remoteentity = specialCircumstancesGetOrNull(entityuuid)
+            #remoteentity = specialCircumstancesGetOrNull(quarkuuid)
             #if remoteentity then
             #    puts "... but I have found this:"
             #    puts JSON.pretty_generate(remoteentity)

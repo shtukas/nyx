@@ -24,9 +24,9 @@ TimePod
                         # todo item gets more than one hour in the bank
         }
         {
-            "type"          : "datapoint"
+            "type"          : "quark"
             "description"   : String
-            "datapointuuid" : String
+            "quarkuuid"     : String
         }
 
     TimePodEngine

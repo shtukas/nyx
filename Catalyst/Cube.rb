@@ -304,7 +304,7 @@ class Cube
                         "uuid"             => SecureRandom.uuid,
                         "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
                         "creationUnixtime" => Time.new.to_f,
-                        "entityuuid"       => clique["uuid"],
+                        "quarkuuid"       => clique["uuid"],
                     }
                     puts JSON.pretty_generate(claim)
                     Nyx::commitToDisk(claim)

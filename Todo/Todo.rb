@@ -217,7 +217,7 @@ class Items
         if newowner["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             clique = newowner
             clique = Nyx::getOrNull(clique["uuid"])
-            clique["targets"] << quark
+            clique["quarksuuids"] << quark["uuid"]
             Nyx::commitToDisk(clique)
             return true
         end

@@ -9,53 +9,8 @@ The two required keys that a NyxObject must have are:
     creationUnixtime : Float # unixtime with decimals
 
 ------------------------------------------------------
-TimePod
-{
-    "uuid"             : String
-    "nyxType"          : "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "passenger"        : TimePodPassenger
-    "engine"           : TimePodEngine
-}
 
-    TimePodPassenger
-        {
-            "type"        : "description"
-            "description" : String
-        }
-        {
-            "type" : "todo-item"
-            "uuid" : String
-                        # automatically created when a 
-                        # todo item gets more than one hour in the bank
-        }
-        {
-            "type"          : "datapoint"
-            "description"   : String
-            "datapointuuid" : String
-        }
-
-    TimePodEngine
-        {
-            "type"                  : "time-commitment-on-curve"
-            "startUnixtime"         : Unixtime
-            "periodInDays"          : Float
-            "timeCommitmentInHours" : Float
-        }
-        {
-            "type"                         : "on-going-project"
-            "referencetUnixtime"           : Unixtime
-            "timeCommitmentInHoursPerWeek" : Float
-        }
-        {
-            "type" : "bank-account"
-        }
-        {
-            "type" : "bank-account-special-circumstances" 
-                                    # LucilleTxt and Gwork
-                                    # Totally exceptional
-                                    # Created by hand
-        }
+TimePod # See TimePod.txt
 
 ------------------------------------------------------
 Wave
@@ -83,14 +38,8 @@ Wave
 TodoItem # See Todo.txt
 
 ------------------------------------------------------
-OpenCycle {
-    "uuid"             : String
-    "nyxType"          : "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"
-    "creationUnixtime" : Float
-    "entityuuid"       : String,
-}
 
-Open Cycles point at startlight nodes, cliques and datapoints
+OpenCycle # See OpenCycles.txt
 
 ------------------------------------------------------
 StarlightNode {

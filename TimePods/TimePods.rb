@@ -113,8 +113,8 @@ class TimePods
         if passenger["type"] == "todo-item" then
             return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
         end
-        if passenger["type"] == "datapoint" then
-            return "[timepod] [datapoint] #{passenger["description"]}"
+        if passenger["type"] == "quark" then
+            return "[timepod] [quark] #{passenger["description"]}"
         end
         raise "[TimePods] error: CE8497BB"
     end
@@ -172,7 +172,7 @@ class TimePods
     def self.makePassengerInteractivelyOrNull()
         options = [
             "description",
-            "datapoint"
+            "quark"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("passenger type", options)
         return nil if option.nil?
@@ -183,14 +183,14 @@ class TimePods
                 "description" => description
             }
         end
-        if option == "datapoint" then
-            datapoint = Quark::issueNewQuarkInteractivelyOrNull()
-            return nil if datapoint.nil?
+        if option == "quark" then
+            quark = Quark::issueNewQuarkInteractivelyOrNull()
+            return nil if quark.nil?
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return {
-                "type"          => "datapoint",
+                "type"          => "quark",
                 "description"   => description,
-                "datapointuuid" => datapoint["uuid"]
+                "quarkuuid"     => quark["uuid"]
             }
         end
         nil
@@ -242,8 +242,8 @@ class TimePods
         if pod["passenger"]["type"] == "todo-item" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
         end
-        if pod["passenger"]["type"] == "datapoint" then
-            point = Nyx::getOrNull(pod["passenger"]["datapointuuid"])
+        if pod["passenger"]["type"] == "quark" then
+            point = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
             return if point.nil?
             Quark::openQuark(point)
         end

@@ -55,7 +55,7 @@ class NSXCatalystUI
                             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                             return if operation.nil?
                             if operation == "visit target" then
-                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["quarkuuid"])
                                 if entity.nil? then
                                     puts "I could not find a target for this open cycle"
                                     LucilleCore::pressEnterToContinue()
@@ -183,69 +183,6 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "datapoint (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
-                lambda {
-                    target = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if target.nil?
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
-                    return if whereTo.nil?
-                    if whereTo == "Todo" then
-                        projectname = Items::selectProjectNameInteractivelyOrNull()
-                        projectuuid = nil
-                        if projectname.nil? then
-                            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-                            projectuuid = SecureRandom.uuid
-                        else
-                            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
-                            return if projectuuid.nil?
-                        end
-                        description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-                        Items::issueNewItem(projectname, projectuuid, description, target)
-                    end
-                    if whereTo == "OpenCycle" then
-                        claim = {
-                            "uuid"              => SecureRandom.uuid,
-                            "creationUnixtime" => Time.new.to_f,
-                            "entityuuid"        => target["uuid"]
-                        }
-                        Nyx::commitToDisk(claim)
-                    end
-                    if whereTo == "Starlight Node" then
-                        NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
-                    end
-                }
-            ]
-
-            items << [
-                "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
-                lambda {
-                    clique = Cube::issue2CubeInteractivelyOrNull(false)
-                    return if clique.nil?
-
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
-                    return if whereTo.nil?
-                    if whereTo == "OpenCycle" then
-                        object = {
-                            "uuid"              => SecureRandom.uuid,
-                            "creationUnixtime" => Time.new.to_f,
-                            "entityuuid"        => clique["uuid"]
-                        }
-                        Nyx::commitToDisk(object)
-                    end
-                    if whereTo == "Starlight Node" then
-                        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                        return if node.nil?
-                        StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
-                    end
-                }
-            ]
-
-            items << [
-                "node (existing or new) + build around",
-                lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
-            ]
-
-            items << [
                 "timepod (new)", 
                 lambda { 
                     passenger = TimePods::makePassengerInteractivelyOrNull()
@@ -262,6 +199,70 @@ class NSXCatalystUI
                     puts JSON.pretty_generate(timepod)
                     Nyx::commitToDisk(timepod)
                 }
+            ]
+
+            items << [
+                "arrow (new)", 
+                lambda {
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    arrow = {
+                        "uuid"          => SecureRandom.uuid,
+                        "description"   => LucilleCore::askQuestionAnswerAsString("description: "),
+                        "startunixtime" => Time.new.to_i,
+                        "lengthInDays"  => LucilleCore::askQuestionAnswerAsString("length in days: ").to_f,
+                        "quarkuuid"     => quark["uuid"]
+                    }
+                    puts JSON.pretty_generate(arrow)
+                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
+                }
+            ]
+
+            items << [
+                "todo item (new)", 
+                lambda {
+                    target = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if target.nil?
+                    projectname = Items::selectProjectNameInteractivelyOrNull()
+                    projectuuid = nil
+                    if projectname.nil? then
+                        projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
+                        projectuuid = SecureRandom.uuid
+                    else
+                        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+                        return if projectuuid.nil?
+                    end
+                    description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
+                    Items::issueNewItem(projectname, projectuuid, description, target)
+                }
+            ]
+
+            items << [
+                "opencycle (new with quark)", 
+                lambda {
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    claim = {
+                        "uuid"             => SecureRandom.uuid,
+                        "creationUnixtime" => Time.new.to_f,
+                        "quarkuuid"       => quark["uuid"]
+                    }
+                    Nyx::commitToDisk(claim)
+                }
+            ]
+
+            items << [
+                "Starlight Node (new with quark)", 
+                lambda {
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(quark)
+                }
+            ]
+
+            items << [
+                "node (existing or new) + build around",
+                lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
             items << nil
@@ -350,7 +351,7 @@ class NSXCatalystUI
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                     return if operation.nil?
                     if operation == "visit target" then
-                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["quarkuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()

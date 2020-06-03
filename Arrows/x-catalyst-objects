@@ -48,22 +48,24 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-# -------------------------------------------------------------------------
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
+# -------------------------------------------------------------------------
 
 def arrowToCatalystObjectOrNull(arrow)
     uuid = arrow["uuid"]
-    datapoint = Quark::getOrNull(arrow["datapointuuid"])
-    return nil if datapoint.nil?
+    quark = Quark::getOrNull(arrow["quarkuuid"])
+    return nil if quark.nil?
     contentItem = {
         "type" => "line",
-        "line" => "[arrow] #{Quark::quarkToString(datapoint)}"
+        "line" => "[arrow] #{Quark::quarkToString(quark)}"
     }
+    metric = 0.20 + 0.80*((Time.new.to_i - arrow["startunixtime"]).to_f/86400).to_f/(0.90*arrow["lengthInDays"])
     {
         "uuid" => uuid,
         "application" => "Arrows",
         "contentItem" => contentItem,
-        "metric" => 0.90,
+        "metric" => metric,
         "commands" => ["open", "done"],
         "shell-redirects" => {
             "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing open '#{uuid}'",

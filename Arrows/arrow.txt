@@ -4,5 +4,5 @@ Arrow {
     "description"   : String
     "startunixtime" : Int
     "lengthInDays"  : Float
-    "datapointuuid" : String
+    "quarkuuid"     : String
 }

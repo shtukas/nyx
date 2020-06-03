@@ -1,12 +1,9 @@
-------------------------------------------------------
-This is a copy of Nyx.txt
-------------------------------------------------------
 
 OpenCycle {
     "uuid"             : String
     "nyxType"          : "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"
     "creationUnixtime" : Float
-    "entityuuid"       : String,
+    "quarkuuid"       : String,
 }
 
 Open Cycles point at startlight nodes, cliques and datapoints
