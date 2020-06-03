@@ -27,9 +27,6 @@ require_relative "CoreData.rb"
 
 class Quark
 
-    # --------------------------------------------------
-    # Makers
-
     # Quark::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
@@ -48,13 +45,16 @@ class Quark
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
+    # --------------------------------------------------
+    # Issuers
+
     # Quark::issueQuarkLineInteractively()
     def self.issueQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "description"      => line,
             "type"             => "line",
             "line"             => line
@@ -68,9 +68,9 @@ class Quark
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "description"      => description,
             "type"             => "url",
             "url"              => url
@@ -90,9 +90,9 @@ class Quark
         CoreDataFile::copyFileToRepository(filepath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "description"      => description,
             "type"             => "file",
             "filename"         => filename2
@@ -109,9 +109,9 @@ class Quark
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "type"             => "file",
             "filename"         => filename2
         }
@@ -130,9 +130,9 @@ class Quark
         CoreDataDirectory::copyFolderToRepository(folderpath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "description"      => description,
             "type"             => "folder",
             "foldername"       => foldername2
@@ -141,14 +141,54 @@ class Quark
         point
     end
 
+    # Quark::locationToFileOrFolderQuarkIssued(location)
+    def self.locationToFileOrFolderQuarkIssued(location)
+        raise "f8e3b314" if !File.exists?(location)
+        if File.file?(location) then
+            filepath1 = location
+            filename1 = File.basename(filepath1)
+            filename2 = "#{CatalystCommon::l22()}-#{filename1}"
+            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+            FileUtils.mv(filepath1, filepath2)
+            CoreDataFile::copyFileToRepository(filepath2)
+            FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
+            point = {
+                "uuid"             => SecureRandom.uuid,
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "creationUnixtime" => Time.new.to_f,
+                "type"             => "file",
+                "filename"         => filename2
+            }
+            Nyx::commitToDisk(point)
+            point
+        else
+            folderpath1 = location
+            foldername1 = File.basename(folderpath1)
+            foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
+            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+            FileUtils.mv(folderpath1, folderpath2)
+            CoreDataDirectory::copyFolderToRepository(folderpath2)
+            FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
+            point = {
+                "uuid"             => SecureRandom.uuid,
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "creationUnixtime" => Time.new.to_f,
+                "type"             => "folder",
+                "foldername"       => foldername2
+            }
+            Nyx::commitToDisk(point)
+            point
+        end
+    end
+
     # Quark::issueQuarkUniqueNameInteractively()
     def self.issueQuarkUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         point = {
+            "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
             "description"      => description,
             "type"             => "unique-name",
             "name"             => uniquename
@@ -166,9 +206,9 @@ class Quark
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             description = LucilleCore::askQuestionAnswerAsString("quark description: ")
             point = {
+                "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
-                "uuid"             => SecureRandom.uuid,
                 "description"      => description,
                 "type"             => "directory-mark",
                 "mark"             => mark
@@ -192,9 +232,9 @@ class Quark
             }
             description = LucilleCore::askQuestionAnswerAsString("quark description: ")
             point = {
+                "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
-                "uuid"             => SecureRandom.uuid,
                 "description"      => description,
                 "type"             => "directory-mark",
                 "mark"             => mark
@@ -207,7 +247,7 @@ class Quark
     # Quark::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
-        types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
+        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -219,6 +259,18 @@ class Quark
         if type == "file" then
             return Quark::issueQuarkFileInteractivelyOrNull()
         end
+        if type == "new text file" then
+            filename = CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
+            point = {
+                "uuid"             => SecureRandom.uuid,
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "creationUnixtime" => Time.new.to_f,
+                "type"             => "file",
+                "filename"         => filename
+            }
+            Nyx::commitToDisk(point)
+            return point
+        end
         if type == "folder" then
             return Quark::issueQuarkFolderInteractivelyOrNull()
         end
@@ -227,48 +279,6 @@ class Quark
         end
         if type == "directory-mark" then
             return Quark::issueQuarkDirectoryMarkInteractively()
-        end
-    end
-
-    # Quark::locationToFileOrFolderQuarkIssued(location)
-    def self.locationToFileOrFolderQuarkIssued(location)
-        raise "f8e3b314" if !File.exists?(location)
-        if File.file?(location) then
-            filepath1 = location
-            filename1 = File.basename(filepath1)
-            filename2 = "#{CatalystCommon::l22()}-#{filename1}"
-            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-            FileUtils.mv(filepath1, filepath2)
-            CoreDataFile::copyFileToRepository(filepath2)
-            FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            point = {
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "uuid"             => SecureRandom.uuid,
-
-                "type"             => "file",
-                "filename"         => filename2
-            }
-            Nyx::commitToDisk(point)
-            point
-        else
-            folderpath1 = location
-            foldername1 = File.basename(folderpath1)
-            foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
-            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
-            FileUtils.mv(folderpath1, folderpath2)
-            CoreDataDirectory::copyFolderToRepository(folderpath2)
-            FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            point = {
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "uuid"             => SecureRandom.uuid,
-
-                "type"             => "folder",
-                "foldername"       => foldername2
-            }
-            Nyx::commitToDisk(point)
-            point
         end
     end
 

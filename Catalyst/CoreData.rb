@@ -91,6 +91,16 @@ class CoreDataFile
             LucilleCore::pressEnterToContinue()
         end
     end
+
+    # CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
+    def self.makeNewTextFileInteractivelyReturnCoreDataFilename()
+        filename = "#{CatalystCommon::l22()}.txt"
+        filepath = CoreDataFile::filenameToFilepath(filename)
+        FileUtils.touch(filepath)
+        system("open '#{filepath}'")
+        LucilleCore::pressEnterToContinue()
+        filename
+    end
 end
 
 class CoreDataDirectory
