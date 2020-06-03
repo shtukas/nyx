@@ -54,11 +54,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
 def arrowToCatalystObjectOrNull(arrow)
     uuid = arrow["uuid"]
-    quark = Quark::getOrNull(arrow["quarkuuid"])
-    return nil if quark.nil?
     contentItem = {
         "type" => "line",
-        "line" => "[arrow] #{Quark::quarkToString(quark)}"
+        "line" => "[arrow] #{arrow["description"]}"
     }
     metric = 0.20 + 0.80*((Time.new.to_i - arrow["startunixtime"]).to_f/86400).to_f/(0.90*arrow["lengthInDays"])
     {
@@ -66,7 +64,7 @@ def arrowToCatalystObjectOrNull(arrow)
         "application" => "Arrows",
         "contentItem" => contentItem,
         "metric" => metric,
-        "commands" => ["open", "done"],
+        "commands" => [arrow["quarkuuid"] ? "open" : nil, "done"].compact,
         "shell-redirects" => {
             "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing open '#{uuid}'",
             "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing done '#{uuid}'",

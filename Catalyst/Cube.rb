@@ -113,7 +113,7 @@ class Cube
         cube
     end
 
-    # Cube::getCubesByTag(tag)
+    # Cube::cubesByTag(tag)
     def self.getCubesByTag(tag)
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
@@ -128,8 +128,8 @@ class Cube
             .sort
     end
 
-    # Cube::getCubes()
-    def self.getCubes()
+    # Cube::cubes()
+    def self.cubes()
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
     end
 

@@ -4,5 +4,5 @@ Arrow {
     "description"   : String
     "startunixtime" : Int
     "lengthInDays"  : Float
-    "quarkuuid"     : String
+    "quarkuuid"     : nil | String # nil when the description is enough
 }

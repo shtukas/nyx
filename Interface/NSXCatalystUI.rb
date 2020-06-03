@@ -202,6 +202,21 @@ class NSXCatalystUI
             ]
 
             items << [
+                "arrow (description only)", 
+                lambda {
+                    arrow = {
+                        "uuid"          => SecureRandom.uuid,
+                        "description"   => LucilleCore::askQuestionAnswerAsString("description: "),
+                        "startunixtime" => Time.new.to_i,
+                        "lengthInDays"  => LucilleCore::askQuestionAnswerAsString("length in days: ").to_f,
+                        "quarkuuid"     => nil
+                    }
+                    puts JSON.pretty_generate(arrow)
+                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
+                }
+            ]
+
+            items << [
                 "arrow (with new quark)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -357,6 +372,29 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         executors = []
 
+        calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
+        if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
+            puts ""
+            puts calendarreport
+            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
+        end
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        displayObjects.each_with_index{|object, indx|
+            break if object.nil?
+            break if verticalSpaceLeft <= 0
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, indx == 0, position)
+            puts displayStr
+            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
+            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
+            position = position + 1
+            break if displayObjects[indx+1].nil?
+            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::objectDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
+        }
+
+
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
         OpenCycles::opencycles()
@@ -385,7 +423,7 @@ class NSXCatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        Cube::cubes()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .last(5)
             .each{|item|
@@ -396,28 +434,6 @@ class NSXCatalystUI
                 position = position + 1
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
-
-        calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
-        if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
-            puts ""
-            puts calendarreport
-            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
-        end
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        displayObjects.each_with_index{|object, indx|
-            break if object.nil?
-            break if verticalSpaceLeft <= 0
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, indx == 0, position)
-            puts displayStr
-            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
-            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
-            position = position + 1
-            break if displayObjects[indx+1].nil?
-            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::objectDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
-        }
 
         puts ""
         print "--> "
