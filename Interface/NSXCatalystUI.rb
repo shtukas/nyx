@@ -449,7 +449,7 @@ class NSXCatalystUI
         verticalSpaceLeft = verticalSpaceLeft - 1
         Cube::cubes()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .last(5)
+            .last(verticalSpaceLeft)
             .each{|item|
                 puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::objectToString(item).yellow}"
                 executors[position] = lambda { 
