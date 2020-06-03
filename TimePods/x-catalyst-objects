@@ -130,7 +130,8 @@ TimePods::timepods()
                 "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
                 "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing destroy '#{uuid}'",
             },
-            "x-running-for:" => Runner::runTimeInSecondsOrNull(uuid)
+            "x-running-for" => Runner::runTimeInSecondsOrNull(uuid),
+            "x-timepod" => pod
         }
     }
 
