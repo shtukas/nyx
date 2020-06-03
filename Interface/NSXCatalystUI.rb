@@ -55,7 +55,7 @@ class NSXCatalystUI
                             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                             return if operation.nil?
                             if operation == "visit target" then
-                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["quarkuuid"])
+                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
                                 if entity.nil? then
                                     puts "I could not find a target for this open cycle"
                                     LucilleCore::pressEnterToContinue()
@@ -202,7 +202,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "arrow (new)", 
+                "arrow (with new quark)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -219,7 +219,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "todo item (new)", 
+                "todo item (with new quark)", 
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
@@ -238,7 +238,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "opencycle (new with quark)", 
+                "opencycle (with new quark)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -268,7 +268,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "Starlight Node (new with quark)", 
+                "Starlight Node (with new quark)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -367,7 +367,7 @@ class NSXCatalystUI
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                     return if operation.nil?
                     if operation == "visit target" then
-                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["quarkuuid"])
+                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()

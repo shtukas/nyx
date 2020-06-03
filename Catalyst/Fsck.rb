@@ -68,22 +68,12 @@ class Fsck
     # Fsck::checkOpenCycle(opencycle)
     def self.checkOpenCycle(opencycle)
         puts "[checking open cycle] #{opencycle["uuid"]}"
-        quarkuuid = opencycle["quarkuuid"]
-        entity = Nyx::getOrNull(quarkuuid)
+        targetuuid = opencycle["targetuuid"]
+        entity = Nyx::getOrNull(targetuuid)
         if entity.nil? then
             puts "[error] open cycle".red
             puts JSON.pretty_generate(opencycle)
             puts "... points as an unkown entity".red
-            #remoteentity = specialCircumstancesGetOrNull(quarkuuid)
-            #if remoteentity then
-            #    puts "... but I have found this:"
-            #    puts JSON.pretty_generate(remoteentity)
-            #    remoteentity["nyxType"] = "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
-            #    remoteentity["creationUnixtime"] = remoteentity["creationTimestamp"]
-            #    puts JSON.pretty_generate(remoteentity)
-            #    Nyx::commitToDisk(remoteentity)
-            #    return
-            #end
             exit
         end
         supportedTypes = [

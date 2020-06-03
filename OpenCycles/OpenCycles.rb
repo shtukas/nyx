@@ -52,6 +52,7 @@ class OpenCycles
     # OpenCycles::opencycleDive(opencycle)
     def self.opencycleDive(opencycle)
         loop {
+            puts JSON.pretty_generate(opencycle)
             entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
             if entity.nil? then
                 puts "Could not determine entity for opencycle #{opencycle}"
