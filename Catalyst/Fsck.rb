@@ -48,8 +48,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataIntegrityOfficer.rb"
-
 # -----------------------------------------------------------------
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
