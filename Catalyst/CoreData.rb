@@ -43,7 +43,19 @@ class CoreDataFile
 
     # CoreDataFile::filenameToFilepath(filename)
     def self.filenameToFilepath(filename)
-        "#{CoreDataUtils::pathToCoreData()}/Files/#{filename}"
+        filepath1 = "#{CoreDataUtils::pathToCoreData()}/Files/#{filename}"
+        filepath2 = "#{CoreDataUtils::pathToCoreData()}/Files2/2020-06/#{filename}"
+        if !File.exists?(File.dirname(filepath2)) then
+            FileUtils.mkdir(File.dirname(filepath2))
+        end
+        if File.exists?(filepath2) then
+            return filepath2
+        end
+        if File.exists?(filepath1) then
+            FileUtils.mv(filepath1, filepath2)
+            return filepath2
+        end
+        filepath2
     end
 
     # CoreDataFile::copyFileToRepository(filepath)
@@ -85,7 +97,19 @@ class CoreDataDirectory
 
     # CoreDataDirectory::foldernameToFolderpath(foldername)
     def self.foldernameToFolderpath(foldername)
-        "#{CoreDataUtils::pathToCoreData()}/Directories/#{foldername}"
+        folderpath1 = "#{CoreDataUtils::pathToCoreData()}/Directories/#{foldername}"
+        folderpath2 = "#{CoreDataUtils::pathToCoreData()}/Directories2/2020-06/#{foldername}"
+        if !File.exists?(File.dirname(folderpath2)) then
+            FileUtils.mkdir(File.dirname(folderpath2))
+        end
+        if File.exists?(folderpath2) then
+            return folderpath2
+        end
+        if File.exists?(folderpath1) then
+            FileUtils.mv(folderpath1, folderpath2)
+            return folderpath2
+        end
+        folderpath2
     end
 
     # CoreDataDirectory::exists?(foldername)
