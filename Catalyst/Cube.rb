@@ -166,7 +166,7 @@ class Cube
 
     # Cube::cubeToString(clique)
     def self.cubeToString(clique)
-        "[clique] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["quarksuuids"].size})"
+        "[cube] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["quarksuuids"].size})"
     end
 
     # Cube::printCubeDetails(clique)
