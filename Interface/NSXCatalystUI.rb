@@ -242,12 +242,28 @@ class NSXCatalystUI
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    claim = {
+                    opencycle = {
                         "uuid"             => SecureRandom.uuid,
+                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
                         "creationUnixtime" => Time.new.to_f,
-                        "quarkuuid"       => quark["uuid"]
+                        "targetuuid"       => quark["uuid"]
                     }
-                    Nyx::commitToDisk(claim)
+                    Nyx::commitToDisk(opencycle)
+                }
+            ]
+
+            items << [
+                "opencycle (new with existing cube)", 
+                lambda {
+                    cube = Cube::selectCubeFromExistingOrNull()
+                    return if cube.nil?
+                    opencycle = {
+                        "uuid"             => SecureRandom.uuid,
+                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+                        "creationUnixtime" => Time.new.to_f,
+                        "targetuuid"       => cube["uuid"]
+                    }
+                    Nyx::commitToDisk(opencycle)
                 }
             ]
 

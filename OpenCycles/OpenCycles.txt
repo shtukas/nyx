@@ -3,7 +3,7 @@ OpenCycle {
     "uuid"             : String
     "nyxType"          : "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"
     "creationUnixtime" : Float
-    "quarkuuid"       : String,
+    "targetuuid"       : String,
 }
 
-Open Cycles point at startlight nodes, cliques and datapoints
+Open Cycles point at startlight nodes, cubes and quarks
