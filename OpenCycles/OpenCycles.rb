@@ -91,11 +91,11 @@ class OpenCycles
         loop {
             system("clear")
             puts "OpenCycles 🗃️"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", ["dive collection", "make new opencycle"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", ["dive opencycles", "make new opencycle"])
             return if operation.nil?
-            if operation == "dive collection" then
+            if operation == "dive opencycles" then
                 loop {
-                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", OpenCycles::opencycles(), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", OpenCycles::opencycles(), lambda {|opencycle| "[#{opencycle["uuid"][0, 4]}] #{OpenCycles::opencycleToString(opencycle)}" })
                     break if opencycle.nil?
                     OpenCycles::opencycleDive(opencycle)
                 }
