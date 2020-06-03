@@ -314,6 +314,10 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         executors = []
 
+        opencycles = OpenCycles::opencycles()
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+        verticalSpaceLeft = verticalSpaceLeft - (opencycles.size + 1) # space and opencycles
+
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
@@ -338,9 +342,7 @@ class NSXCatalystUI
 
 
         puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        OpenCycles::opencycles()
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+        opencycles
             .each{|opencycle|
                 puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
                 executors[position] = lambda { 
@@ -360,22 +362,25 @@ class NSXCatalystUI
                     end
                 }
                 position = position + 1
-                verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        Cube::cubes()
+        cubes = Cube::cubes()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .last(verticalSpaceLeft)
-            .each{|item|
-                puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::objectToString(item).yellow}"
-                executors[position] = lambda { 
-                    QuarksCubesAndStarlightNodes::openObject(item)
+
+        if verticalSpaceLeft > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            cubes
+                .last( [cubes.size, verticalSpaceLeft].min )
+                .each{|item|
+                    puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::objectToString(item).yellow}"
+                    executors[position] = lambda { 
+                        QuarksCubesAndStarlightNodes::openObject(item)
+                    }
+                    position = position + 1
+                    verticalSpaceLeft = verticalSpaceLeft - 1
                 }
-                position = position + 1
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            }
+        end
 
         puts ""
         print "--> "
