@@ -322,7 +322,7 @@ class Quark
             return
         end
         if point["type"] == "file" then
-            CoreDataFile::openOrCopyToDesktop(point["filename"])
+            CoreDataFile::openAndOrCopyToDesktop(point["filename"])
             return
         end
         if point["type"] == "url" then

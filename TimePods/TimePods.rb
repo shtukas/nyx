@@ -114,7 +114,8 @@ class TimePods
             return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
         end
         if passenger["type"] == "quark" then
-            return "[timepod] [quark] #{passenger["description"]}"
+            quark = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
+            return "[timepod] #{passenger["description"]} #{quark ? Quark::quarkToString(quark) : "[could not find quark]"}"
         end
         raise "[TimePods] error: CE8497BB"
     end
@@ -186,7 +187,7 @@ class TimePods
         if option == "quark" then
             quark = Quark::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = LucilleCore::askQuestionAnswerAsString("timepod passenger description: ")
             return {
                 "type"          => "quark",
                 "description"   => description,
@@ -243,9 +244,9 @@ class TimePods
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
         end
         if pod["passenger"]["type"] == "quark" then
-            point = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
-            return if point.nil?
-            Quark::openQuark(point)
+            quark = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
+            return if quark.nil?
+            Quark::openQuark(quark)
         end
     end
 
