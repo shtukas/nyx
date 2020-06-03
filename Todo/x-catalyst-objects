@@ -120,6 +120,7 @@ end
 
 # -------------------------------------------------------------------------
 
+=begin
 while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
     quark = {
         "uuid"             => SecureRandom.uuid,
@@ -139,6 +140,27 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "contentuuid"      => quark["uuid"]
     }
     Nyx::commitToDisk(item)
+    Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
+end
+=end
+
+while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
+    quark = {
+        "uuid"             => SecureRandom.uuid,
+        "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+        "creationUnixtime" => Time.new.to_f,
+        "type"             => "url",
+        "url"              => link
+    }
+    Nyx::commitToDisk(quark)
+    arrow = {
+        "uuid"          => SecureRandom.uuid,
+        "description"   => link,
+        "startunixtime" => Time.new.to_i,
+        "lengthInDays"  => 2,
+        "quarkuuid"     => quark["uuid"]
+    }
+    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
