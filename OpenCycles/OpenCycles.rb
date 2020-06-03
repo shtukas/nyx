@@ -36,6 +36,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class OpenCycles
 
+    # OpenCycles::opencycles()
+    def self.opencycles()
+        Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+    end
+
     # OpenCycles::openQuark(opencycle)
     def self.openQuark(opencycle)
         entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
@@ -90,7 +95,7 @@ class OpenCycles
             return if operation.nil?
             if operation == "dive collection" then
                 loop {
-                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", OpenCycles::opencycles(), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
                     break if opencycle.nil?
                     OpenCycles::opencycleDive(opencycle)
                 }

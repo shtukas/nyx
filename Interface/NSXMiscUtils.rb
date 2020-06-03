@@ -149,7 +149,7 @@ class NSXMiscUtils
             end
             target = Quark::locationToFileOrFolderQuarkIssued(location)
             item = {
-                "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+                "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
                 "uuid"             => SecureRandom.uuid,
                 "creationUnixtime" => Time.new.to_f,
                 "projectname"      => "Inbox",

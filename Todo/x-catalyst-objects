@@ -88,7 +88,7 @@ def itemToCatalystObject(item, basemetric, indx)
 
     metric = basemetric - indx.to_f/1000
 
-    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Items::itemToString(item))
+    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Todo::itemToString(item))
         # Used by TimePods
 
     {
@@ -96,7 +96,7 @@ def itemToCatalystObject(item, basemetric, indx)
         "application"    => "Todo",
         "contentItem"    => {
             "type" => "line",
-            "line" => Items::itemToString(item)
+            "line" => Todo::itemToString(item)
         },
         "metric"         => isRunning ? 1 : metric,
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data"],
@@ -132,7 +132,7 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     Nyx::commitToDisk(quark)
     item = {
         "uuid"             => SecureRandom.uuid,
-        "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+        "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
         "creationUnixtime" => Time.new.to_f,
         "projectname"      => "Infinity",
         "projectuuid"      => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
@@ -172,7 +172,7 @@ objects = []
 
 # First, we display all the Inbox items in order.
 
-Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+Todo::todoitems()
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
     .sort{|i1, i2| 
         i1["creationUnixtime"] <=> i2["creationUnixtime"] }
@@ -190,7 +190,7 @@ def getFocus()
     if focus then
         return JSON.parse(focus)
     end
-    focus = Items::projectsTimeDistribution()
+    focus = Todo::projectsTimeDistribution()
                 .sort{|i1, i2|
                     i1["timeInHours"] <=> i2["timeInHours"]
                 }
@@ -207,8 +207,8 @@ focus = getFocus()
 #     "timeInHours" : Float
 # }
 
-items1 = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| Runner::isRunning(item["uuid"]) }
-items2 = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+items1 = Todo::todoitems().select{|item| Runner::isRunning(item["uuid"]) }
+items2 = Todo::todoitems()
             .select{|item| item["projectuuid"] == focus["projectuuid"] }
             .select{|item| !Runner::isRunning(item["uuid"]) } # running object have already been taken in items1
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }

@@ -64,36 +64,36 @@ loop {
     if option == "create new item" then
         target = Quark::issueNewQuarkInteractivelyOrNull()
         next if target.nil?
-        projectname = Items::selectProjectNameInteractivelyOrNull()
+        projectname = Todo::selectProjectNameInteractivelyOrNull()
         projectuuid = nil
         if projectname.nil? then
             projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
             projectuuid = SecureRandom.uuid
         else
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
             # We are not considering the case null
         end
         description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-        item = Items::issueNewItem(projectname, projectuuid, description, target)
+        item = Todo::issueNewItem(projectname, projectuuid, description, target)
         puts JSON.pretty_generate(item)
     end
     if option == "projects dive" then
         loop {
             puts "-> Todo items dive"
-            projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Items::projectNames())
+            projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Todo::projectNames())
             break if projectname.nil?
             loop {
                 puts "-> Visiting project '#{projectname}'"
-                items = Items::itemsForProjectName(projectname)
+                items = Todo::itemsForProjectName(projectname)
                 break if items.empty? # happens when we loop bacl if the one item of the project was deleted
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Todo::itemToString(item) })
                 break if item.nil?
-                Items::diveItem(item)
+                Todo::diveItem(item)
             }
         }
     end
     if option == "time report" then
-        items = Items::projectsTimeDistribution()
+        items = Todo::projectsTimeDistribution()
         d = items.map{|item| item["projectname"].size }.max
         items
             .sort{|i1, i2| i1["timeInHours"] <=> i2["timeInHours"] }

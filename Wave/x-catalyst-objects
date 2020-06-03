@@ -44,7 +44,7 @@ require_relative "Wave.rb"
 
 # -------------------------------------------------------------------------
 
-objects = Nyx::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+objects = Wave::waves()
             .select{|obj| DoNotShowUntil::isVisible(obj["uuid"]) }
             .map{|obj| Wave::makeCatalystObject(obj) }
 

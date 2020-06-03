@@ -54,7 +54,7 @@ require_relative "TimePods.rb"
 loop {
     system("clear")
     puts "TimePods:"
-    Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc").each{|pod|
+    TimePods::timepods().each{|pod|
         puts "- #{TimePods::toString(pod)}"
     }
     puts ""
@@ -81,12 +81,12 @@ loop {
         Nyx::commitToDisk(timepod)
     end
     if option == "select and destroy" then
-        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc"), lambda{|pod| TimePods::toString(pod) })
+        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::timepods(), lambda{|pod| TimePods::toString(pod) })
         next if timepod.nil?
         Nyx::destroy(timepod["uuid"])
     end
     if option == "select and start" then
-        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc"), lambda{|pod| TimePods::toString(pod) })
+        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::timepods(), lambda{|pod| TimePods::toString(pod) })
         next if timepod.nil?
         TimePods::startPod(timepod["uuid"])
     end

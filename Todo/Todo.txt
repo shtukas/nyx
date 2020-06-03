@@ -14,10 +14,10 @@ Special bank accounts
 
 TodoItem {
     "uuid"             : String
-    "nyxType"          : "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
+    "nyxType"          : "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
     "creationUnixtime" : Float # Unixtime with decimals
+    "description"      : null | String
     "projectname"      : String
     "projectuuid"      : String
-    "description"      : null | String
     "contentuuid"      : String # uuid of a Quark
 }

@@ -77,7 +77,7 @@ require_relative "TimePods.rb"
 # -------------------------------------------------------------------------
 
 # Garbage Collection
-Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+TimePods::timepods()
     .each{|pod|
         if !TimePods::timePodIsStillRelevant(pod) then
             Nyx::destroy(pod["uuid"])
@@ -88,7 +88,7 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
 # TimePod bank managed
-Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+TimePods::timepods()
     .select{|pod| ["bank-account"].include?(pod["engine"]["type"]) }
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .first(3)
@@ -100,7 +100,7 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
 
 objects = []
 
-Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+TimePods::timepods()
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .each{|pod|
 

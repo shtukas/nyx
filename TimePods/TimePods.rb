@@ -257,6 +257,11 @@ class TimePods
         TimePods::openPassenger(uuid)
     end
 
+    # TimePods::timepods()
+    def self.timepods()
+        Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+    end
+
     # --------------------------------------------------------------------
 
     # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)

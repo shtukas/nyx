@@ -253,6 +253,11 @@ class Wave
         Nyx::commitToDisk(obj)
         obj
     end
+
+    # Wave::waves()
+    def self.waves()
+        Nyx::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+    end
 end
 
 

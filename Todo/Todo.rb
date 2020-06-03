@@ -49,12 +49,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------------
 
-class Items
+class Todo
 
-    # Items::issueNewItem(projectname, projectuuid, description, target)
+    # Todo::issueNewItem(projectname, projectuuid, description, target)
     def self.issueNewItem(projectname, projectuuid, description, target)
         item = {
-            "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "uuid"             => SecureRandom.uuid,
             "creationUnixtime" => Time.new.to_f,
             "projectname"      => projectname,
@@ -66,25 +66,25 @@ class Items
         item
     end
 
-    # Items::selectProjectNameUuidPair()
+    # Todo::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        projectname = Items::selectProjectNameInteractivelyOrNull()
+        projectname = Todo::selectProjectNameInteractivelyOrNull()
         projectuuid = nil
         if projectname.nil? then
             projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
             projectuuid = SecureRandom.uuid
         else
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
             # We are not considering the case null
         end
         [projectname, projectuuid]
     end
 
-    # Items::issueNewItemInteractivelyX1(description, target)
+    # Todo::issueNewItemInteractivelyX1(description, target)
     def self.issueNewItemInteractivelyX1(description, target)
-        projectname, projectuuid = Items::selectProjectNameUuidPair()
+        projectname, projectuuid = Todo::selectProjectNameUuidPair()
         item = {
-            "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "uuid"             => SecureRandom.uuid,
             "creationUnixtime" => Time.new.to_f,
             "projectname"      => projectname,
@@ -96,30 +96,30 @@ class Items
         item
     end
 
-    # Items::itemBestDescription(item)
+    # Todo::itemBestDescription(item)
     def self.itemBestDescription(item)
         quark = Nyx::getOrNull(item["contentuuid"])
         return "#{JSON.generate(item)} -> null quark" if quark.nil?
         item["description"] || Quark::quarkToString(quark)
     end
 
-    # Items::openItem(item)
+    # Todo::openItem(item)
     def self.openItem(item)
         quark = Nyx::getOrNull(item["contentuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
     end
 
-    # Items::itemToString(item)
+    # Todo::itemToString(item)
     def self.itemToString(item)
         itemuuid = item["uuid"]
         quark = Nyx::getOrNull(item["contentuuid"])
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Items::itemBestDescription(item)}#{runningSuffix}"
+        "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Todo::itemBestDescription(item)}#{runningSuffix}"
     end
 
-    # Items::itemReceivesRunTimespan(item, timespan, verbose = false)
+    # Todo::itemReceivesRunTimespan(item, timespan, verbose = false)
     def self.itemReceivesRunTimespan(item, timespan, verbose = false)
         itemuuid = item["uuid"]
         projectuuid = item["projectuuid"]
@@ -140,43 +140,43 @@ class Items
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
-    # Items::projectNames()
+    # Todo::projectNames()
     def self.projectNames()
-        Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        Todo::todoitems()
             .map{|item| item["projectname"] }
             .uniq
             .sort
     end
 
-    # Items::projectname2projectuuidOrNUll(projectname)
+    # Todo::projectname2projectuuidOrNUll(projectname)
     def self.projectname2projectuuidOrNUll(projectname)
         projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
         return projectuuid if !projectuuid.nil?
-        projectuuid = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
+        projectuuid = Todo::todoitems().select{|item| item["projectname"] == projectname }.first["projectuuid"]
         if !projectuuid.nil? then
             KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
         end
         projectuuid
     end
 
-    # Items::selectProjectNameInteractivelyOrNull()
+    # Todo::selectProjectNameInteractivelyOrNull()
     def self.selectProjectNameInteractivelyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Items::projectNames().sort)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Todo::projectNames().sort)
     end
 
-    # Items::itemsForProjectName(projectname)
+    # Todo::itemsForProjectName(projectname)
     def self.itemsForProjectName(projectname)
-        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+        projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        Todo::todoitems()
             .select{|item| item["projectuuid"] == projectuuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
 
-    # Items::projectsTimeDistribution()
+    # Todo::projectsTimeDistribution()
     def self.projectsTimeDistribution()
-        Items::projectNames().map{|projectname|
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+        Todo::projectNames().map{|projectname|
+            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
             {
                 "projectname" => projectname,
                 "projectuuid" => projectuuid,
@@ -185,16 +185,16 @@ class Items
         }
     end
 
-    # Items::updateItemProjectName(item)
+    # Todo::updateItemProjectName(item)
     def self.updateItemProjectName(item)
-        projectname = Items::selectProjectNameInteractivelyOrNull()
+        projectname = Todo::selectProjectNameInteractivelyOrNull()
         projectuuid = nil
         if projectname.nil? then
             projectname = LucilleCore::askQuestionAnswerAsString("project name? ")
             return if projectname == ""
             projectuuid = SecureRandom.uuid
         else
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
             return if projectuuid.nil?
         end
         item["projectname"] = projectname
@@ -202,7 +202,7 @@ class Items
         Nyx::commitToDisk(item)
     end
 
-    # Items::recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    # Todo::recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
         quark = Nyx::getOrNull(item["contentuuid"])
         return false if quark.nil?
@@ -225,12 +225,12 @@ class Items
         raise "Todo: error: d089decd"
     end
 
-    # Items::diveItem(item)
+    # Todo::diveItem(item)
     def self.diveItem(item)
         loop {
             puts ""
             puts "uuid: #{item["uuid"]}"
-            puts Items::itemToString(item).green
+            puts Todo::itemToString(item).green
             puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
             options = [
                 "start",
@@ -268,18 +268,23 @@ class Items
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Items::updateItemProjectName(item)
+                Todo::updateItemProjectName(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
-                status = Items::recastAsStarlightNodeOrCubeContent(item)
+                status = Todo::recastAsStarlightNodeOrCubeContent(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return
             end
         }
+    end
+
+    # Todo::todoitems()
+    def self.todoitems()
+        Nyx::objects("todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 end

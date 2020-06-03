@@ -44,7 +44,7 @@ class Dispatch
 
             # Make Todo item
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            item = Items::issueNewItemInteractivelyX1(description, target)
+            item = Todo::issueNewItemInteractivelyX1(description, target)
             puts JSON.pretty_generate(item)
         end
     end

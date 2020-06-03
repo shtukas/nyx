@@ -46,7 +46,7 @@ class NSXCatalystUI
 
             items = []
 
-            Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+            OpenCycles::opencycles()
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .each{|opencycle|
                     items << [
@@ -223,17 +223,17 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    projectname = Items::selectProjectNameInteractivelyOrNull()
+                    projectname = Todo::selectProjectNameInteractivelyOrNull()
                     projectuuid = nil
                     if projectname.nil? then
                         projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
                         projectuuid = SecureRandom.uuid
                     else
-                        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+                        projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
                         return if projectuuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-                    Items::issueNewItem(projectname, projectuuid, description, target)
+                    Todo::issueNewItem(projectname, projectuuid, description, target)
                 }
             ]
 
@@ -359,7 +359,7 @@ class NSXCatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+        OpenCycles::opencycles()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .each{|opencycle|
                 puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"

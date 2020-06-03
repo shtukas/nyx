@@ -50,6 +50,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 # -----------------------------------------------------------------
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystFsck.rb"
+
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
 require_relative "NSXDisplayUtils.rb"
@@ -69,6 +71,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 
 NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
+CatalystFsck::run()
 
 if ARGV[0] and ARGV[0] == "data" then
     NSXCatalystUI::operations()

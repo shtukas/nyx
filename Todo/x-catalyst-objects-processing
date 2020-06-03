@@ -57,7 +57,7 @@ def stop(uuid, item)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Items::itemReceivesRunTimespan(item, timespan, true)
+    Todo::itemReceivesRunTimespan(item, timespan, true)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
@@ -88,10 +88,10 @@ if ARGV[0] == "start" and ARGV[1] then
         options = ["update project", "recast on nyx network"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "recast" then
-            Items::updateItemProjectName(item)
+            Todo::updateItemProjectName(item)
         end
         if option == "recast on nyx network" then
-            status = Items::recastAsStarlightNodeOrCubeContent(item)
+            status = Todo::recastAsStarlightNodeOrCubeContent(item)
             exit if !status
             Nyx::destroy(item["uuid"])
         end
@@ -118,7 +118,7 @@ if ARGV[0] == "stop" and ARGV[1] then
 
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         puts "Item was not immediately done, we need to classify it."
-        Items::updateItemProjectName(item)
+        Todo::updateItemProjectName(item)
     end
 end
 
@@ -150,7 +150,7 @@ if ARGV[0] == "update-project" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    Items::updateItemProjectName(item)
+    Todo::updateItemProjectName(item)
 end
 
 if ARGV[0] == "recastAsStarlightNodeOrCubeContent" and ARGV[1] then
@@ -160,7 +160,7 @@ if ARGV[0] == "recastAsStarlightNodeOrCubeContent" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    status = Items::recastAsStarlightNodeOrCubeContent(item)
+    status = Todo::recastAsStarlightNodeOrCubeContent(item)
     exit if !status
     Nyx::destroy(item["uuid"])
 end
@@ -182,5 +182,5 @@ if ARGV[0] == "dive" and ARGV[1] then
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
 
-    Items::diveItem(item)
+    Todo::diveItem(item)
 end
