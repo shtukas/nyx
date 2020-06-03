@@ -51,6 +51,33 @@ require_relative "TimePods.rb"
 
 # --------------------------------------------------------------------
 
+def divePod(pod)
+    loop {
+        system("clear")
+        puts TimePods::toString(pod).green
+        options = [
+            "start",
+            "re-passenger",
+            "destroy",
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return if option.nil?
+        if option == "start" then
+            TimePods::startPod(pod["uuid"])
+        end
+        if option == "re-passenger" then
+            passenger = TimePods::makePassengerInteractivelyOrNull()
+            next if passenger.nil?
+            pod["passenger"] = passenger
+            puts JSON.pretty_generate(pod)
+            Nyx::commitToDisk(pod)
+        end
+        if option == "start" then
+            Nyx::destroy(pod["uuid"])
+        end
+    }
+end
+
 loop {
     system("clear")
     puts "TimePods:"
@@ -60,8 +87,7 @@ loop {
     puts ""
     options = [
         "make new pod",
-        "select and destroy",
-        "select and start"
+        "dive pods"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
@@ -80,14 +106,9 @@ loop {
         puts JSON.pretty_generate(timepod)
         Nyx::commitToDisk(timepod)
     end
-    if option == "select and destroy" then
+    if option == "dive pods" then
         timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::timepods(), lambda{|pod| TimePods::toString(pod) })
         next if timepod.nil?
-        Nyx::destroy(timepod["uuid"])
-    end
-    if option == "select and start" then
-        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::timepods(), lambda{|pod| TimePods::toString(pod) })
-        next if timepod.nil?
-        TimePods::startPod(timepod["uuid"])
+        divePod(timepod)
     end
 }
