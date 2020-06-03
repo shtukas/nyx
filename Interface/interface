@@ -71,7 +71,6 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 
 NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
-CatalystFsck::run()
 
 if ARGV[0] and ARGV[0] == "data" then
     NSXCatalystUI::operations()

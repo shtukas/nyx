@@ -32,7 +32,7 @@ class StarlightNodes
             "nyxType"          => "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "creationUnixtime" => Time.new.to_f,
 
-            "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
+            "name"             => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
         Nyx::commitToDisk(node)
         puts JSON.pretty_generate(node)
@@ -54,8 +54,8 @@ class StarlightPaths
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
-            "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
-            "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
+            "sourceuuid"       => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
+            "targetuuid"       => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
         Nyx::commitToDisk(path)
         path
@@ -68,8 +68,8 @@ class StarlightPaths
             "nyxType"          => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
-            "sourceuuid" => node1["uuid"],
-            "targetuuid" => node2["uuid"]
+            "sourceuuid"       => node1["uuid"],
+            "targetuuid"       => node2["uuid"]
         }
         Nyx::commitToDisk(path)
         path
@@ -116,8 +116,8 @@ class StarlightContents
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
-            "nodeuuid"   => node["uuid"],
-            "targetuuid" => entity["uuid"]
+            "nodeuuid"         => node["uuid"],
+            "targetuuid"       => entity["uuid"]
         }
         Nyx::commitToDisk(claim)
         claim
@@ -132,14 +132,14 @@ class StarlightContents
     def self.getNodeEntities(node)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(claim["targetuuid"]) }
+            .map{|claim| QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # StarlightContents::getNodesForEntity(clique)
-    def self.getNodesForEntity(clique)
+    # StarlightContents::getNodesForEntity(cube)
+    def self.getNodesForEntity(cube)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["targetuuid"] == clique["uuid"] }
+            .select{|claim| claim["targetuuid"] == cube["uuid"] }
             .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
             .compact
     end
@@ -158,7 +158,7 @@ class StarlightUserInterface
 
     # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
     def self.selectNodeFromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a node (possibly will create one)"
+        puts "-> You are selecting a starlight node (possibly will create one)"
         LucilleCore::pressEnterToContinue()
         node = StarlightUserInterface::selectNodeFromExistingNodes()
         return node if node
@@ -187,7 +187,7 @@ class StarlightUserInterface
 
             StarlightContents::getNodeEntities(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|entity| items << ["[node content] #{QuarksCubesAndStarlightNodes::entityToString(entity)}", lambda{ QuarksCubesAndStarlightNodesNavigation::visit(entity) }] }
+                .each{|entity| items << ["[node content] #{QuarksCubesAndStarlightNodes::objectToString(entity)}", lambda{ QuarksCubesAndStarlightNodesNavigation::visit(entity) }] }
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }

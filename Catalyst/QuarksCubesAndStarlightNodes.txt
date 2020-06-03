@@ -5,7 +5,7 @@ A Primary Network Element is any of:
 
 But note that 
     QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-only select a node or a clique
+only select a node or a cube
 
 All Primary Network Elements carry
     "nyxType"           : String

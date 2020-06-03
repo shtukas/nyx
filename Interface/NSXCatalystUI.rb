@@ -55,13 +55,13 @@ class NSXCatalystUI
                             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                             return if operation.nil?
                             if operation == "visit target" then
-                                entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
+                                entity = QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(opencycle["targetuuid"])
                                 if entity.nil? then
                                     puts "I could not find a target for this open cycle"
                                     LucilleCore::pressEnterToContinue()
                                     return
                                 end
-                                QuarksCubesAndStarlightNodes::visitSomething(entity)
+                                QuarksCubesAndStarlightNodes::objectDive(entity)
                             end
                             if operation == "destroy open cycle" then
                                 Nyx::destroy(opencycle["uuid"])
@@ -72,13 +72,13 @@ class NSXCatalystUI
 
             items << nil
 
-            Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            Cube::cubes()
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(10)
-                .each{|item|
+                .each{|cube|
                     items << [
-                        QuarksCubesAndStarlightNodes::entityToString(item).yellow,
-                        lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
+                        Cube::cubeToString(cube).yellow,
+                        lambda { Cube::cubeDive(cube) }
                     ]
                 }
 
@@ -108,8 +108,8 @@ class NSXCatalystUI
                         .last(50)
                         .each{|item|
                             items << [
-                                QuarksCubesAndStarlightNodes::entityToString(item).yellow,
-                                lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
+                                QuarksCubesAndStarlightNodes::objectToString(item).yellow,
+                                lambda { QuarksCubesAndStarlightNodes::openObject(item) }
                             ]
                         }
 
@@ -121,36 +121,36 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "navigate cliques", 
+                "navigate cubes", 
                 lambda { CubesNavigation::mainNavigation() }
             ]
 
             items << [
-                "cliques search and visit", 
+                "cubes search and visit", 
                 lambda { CubesNavigation::mainNavigation() }
             ]
 
             items << [
-                "cliques listing",
+                "cubes listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cube::cubeToString(clique) })
-                    break if clique.nil?
-                    Cube::cubeDive(clique)
+                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cubes", Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|cube| Cube::cubeToString(cube) })
+                    break if cube.nil?
+                    Cube::cubeDive(cube)
                 }
             ]
 
             items << [
-                "clique visit (uuid)", 
+                "cube visit (uuid)", 
                 lambda {
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    clique = Nyx::getOrNull(uuid)
-                    return if clique.nil?
-                    Cube::cubeDive(clique)
+                    cube = Nyx::getOrNull(uuid)
+                    return if cube.nil?
+                    Cube::cubeDive(cube)
                 }
             ]
 
             items << [
-                "latest cliques", 
+                "latest cubes", 
                 lambda {
                     items = []
 
@@ -159,8 +159,8 @@ class NSXCatalystUI
                         .last(50)
                         .each{|item|
                             items << [
-                                QuarksCubesAndStarlightNodes::entityToString(item).yellow,
-                                lambda { QuarksCubesAndStarlightNodes::openSomething(item) }
+                                QuarksCubesAndStarlightNodes::objectToString(item).yellow,
+                                lambda { QuarksCubesAndStarlightNodes::openObject(item) }
                             ]
                         }
 
@@ -282,8 +282,10 @@ class NSXCatalystUI
                 }
             ]
 
+            items << nil
+
             items << [
-                "Starlight Node (with new quark)", 
+                "new quark ; attached to starlight node (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -292,7 +294,22 @@ class NSXCatalystUI
             ]
 
             items << [
-                "node (existing or new) + build around",
+                "new quark ; attached to new cube ; attached to starlight node (existing or new)", 
+                lambda {
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    description = LucilleCore::askQuestionAnswerAsString("cube description: ")
+                    cube = Cube::issueCube_v2(description, quark)
+                    starlightnode = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+                    return if starlightnode.nil?
+                    StarlightContents::issueClaimGivenNodeAndEntity(starlightnode, cube)
+                }
+            ]
+
+            items << nil
+
+            items << [
+                "starlight node (existing or new) + build around",
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
@@ -355,6 +372,13 @@ class NSXCatalystUI
                     LucilleCore::pressEnterToContinue()
                 }
             ]
+            items << [
+                "Run Data Integrity Check", 
+                lambda { 
+                    CatalystFsck::run()
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
 
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
@@ -405,13 +429,13 @@ class NSXCatalystUI
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                     return if operation.nil?
                     if operation == "visit target" then
-                        entity = QuarksCubesAndStarlightNodes::getSomethingByUuidOrNull(opencycle["targetuuid"])
+                        entity = QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()
                             return
                         end
-                        QuarksCubesAndStarlightNodes::visitSomething(entity)
+                        QuarksCubesAndStarlightNodes::objectDive(entity)
                     end
                     if operation == "destroy open cycle" then
                         Nyx::destroy(opencycle["uuid"])
@@ -427,9 +451,9 @@ class NSXCatalystUI
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .last(5)
             .each{|item|
-                puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::entityToString(item).yellow}"
+                puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::objectToString(item).yellow}"
                 executors[position] = lambda { 
-                    QuarksCubesAndStarlightNodes::openSomething(item)
+                    QuarksCubesAndStarlightNodes::openObject(item)
                 }
                 position = position + 1
                 verticalSpaceLeft = verticalSpaceLeft - 1

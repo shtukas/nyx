@@ -197,18 +197,18 @@ class NSXMiscUtils
             puts "Completed building children for '#{StarlightNodes::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{StarlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cubes for '#{StarlightNodes::nodeToString(node)}' ? ") then
             loop {
-                puts "Making new clique..."
-                clique = Cube::issue2CubeInteractivelyOrNull(false)
-                if clique.nil? then
-                    puts "Did not make a clique for '#{StarlightNodes::nodeToString(node)}'. Aborting clique building."
+                puts "Making new cube..."
+                cube = Cube::issueCubeInteractivelyOrNull_v2(false)
+                if cube.nil? then
+                    puts "Did not make a cube for '#{StarlightNodes::nodeToString(node)}'. Aborting cube building."
                     break
                 end
-                puts JSON.pretty_generate(clique)
-                claim = StarlightContents::issueClaimGivenNodeAndEntity(node, clique)
+                puts JSON.pretty_generate(cube)
+                claim = StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{StarlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{StarlightNodes::nodeToString(node)}' ? ")
             }
         end
 

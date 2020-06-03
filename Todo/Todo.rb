@@ -210,15 +210,15 @@ class Todo
         return false if newowner.nil?
         if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             node = newowner
-            cube = Cube::issue3Cube(quark)
+            cube = Cube::issueCube_v1(quark)
             StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
             return true
         end
         if newowner["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
-            clique = newowner
-            clique = Nyx::getOrNull(clique["uuid"])
-            clique["quarksuuids"] << quark["uuid"]
-            Nyx::commitToDisk(clique)
+            cube = newowner
+            cube = Nyx::getOrNull(cube["uuid"])
+            cube["quarksuuids"] << quark["uuid"]
+            Nyx::commitToDisk(cube)
             return true
         end
         puts newowner
