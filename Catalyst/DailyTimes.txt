@@ -4,9 +4,4 @@ Guardian Work : 6 hours Mon-Fri
         uuid: "5c81927e-c4fb-4f8d-adae-228c346c8c7d"
         engine: "bank-account-special-circumstances"
 
-LucilleTxt1 : 2 hours Mon-Sat 
-    TimePod
-        uuid: "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
-        engine: "bank-account-special-circumstances"
-
 TimePods ("bank-account") (top 3) : 2 hours (2/3 hours each) Mon-Sat

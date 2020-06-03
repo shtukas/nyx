@@ -90,7 +90,7 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
     def self.getCatalystListingObjectsOrderedFast()
         NSXCatalystObjectsCommon::applicationNames()
-            .select{|appname| $CE605907[appname].nil? or ["LucilleTxt", "LucilleTxt1"].include?(appname) }
+            .select{|appname| $CE605907[appname].nil? or ["LucilleTxt"].include?(appname) }
             .each{|appname| 
                 scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
                 $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)

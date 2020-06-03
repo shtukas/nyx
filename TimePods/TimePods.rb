@@ -236,8 +236,8 @@ class TimePods
         pod = Nyx::getOrNull(uuid)
         return if pod.nil?
         if pod["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
-            # LucilleTxt1
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start")
+            # LucilleTxt
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
         end
         if pod["passenger"]["type"] == "todo-item" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")

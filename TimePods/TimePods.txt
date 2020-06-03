@@ -46,7 +46,7 @@ TimePod
         }
         {
             "type" : "bank-account-special-circumstances" 
-                                    # LucilleTxt and Gwork
+                                    # Gwork
                                     # Totally exceptional
                                     # Created by hand
         }
