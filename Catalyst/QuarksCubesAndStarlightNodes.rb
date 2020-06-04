@@ -104,7 +104,7 @@ class QuarksCubesAndStarlightNodesNavigation
                 StarlightUserInterface::navigation()
             end
             if option == "navigate cubes" then
-                CubesNavigation::navigation()
+                CubeUserInterface::navigation()
             end
         }
     end
@@ -156,7 +156,7 @@ class QuarksCubesAndStarlightNodesMakeAndOrSelectQuest
                 end
             end
             if option == "making and/or selecting a cube" then
-                entity = CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
+                entity = CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
                 if entity then
                     return entity
                 else 

@@ -206,7 +206,7 @@ class Todo
     def self.recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
         quark = Nyx::getOrNull(item["contentuuid"])
         return false if quark.nil?
-        cube = CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
+        cube = CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
         return false if cube.nil?
         cube["quarksuuids"] << quark["uuid"]
         puts JSON.pretty_generate(cube)

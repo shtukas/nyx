@@ -41,7 +41,7 @@ class StarlightNodes
 
     # StarlightNodes::nodeToString(node)
     def self.nodeToString(node)
-        "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
+        "[starlight node] [#{node["uuid"][0, 4]}] #{node["name"]}"
     end
 
     # StarlightNodes::getOrNull(uuid)
@@ -170,9 +170,9 @@ class StarlightUserInterface
     def self.selectNodeFromExistingNodes()
         nodestrings = StarlightNodes::nodes().map{|node| StarlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = StarlightNodes::nodes()
-                .select{|node| StarlightNodes::nodeToString(node) == nodestring }
-                .first
+        StarlightNodes::nodes()
+            .select{|node| StarlightNodes::nodeToString(node) == nodestring }
+            .first
     end
 
     # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
@@ -234,15 +234,22 @@ class StarlightUserInterface
         }
     end
 
-    # StarlightUserInterface::navigation()
-    def self.navigation()
+    # StarlightUserInterface::listingAndSelection()
+    def self.listingAndSelection()
         node = StarlightUserInterface::selectNodeFromExistingNodes()
         return if node.nil?
         StarlightUserInterface::nodeDive(node)
     end
 
-    # StarlightUserInterface::management()
-    def self.management()
+    # StarlightUserInterface::navigation()
+    def self.navigation()
+        # For the moment the same
+        # Todo: surf the paths
+        StarlightUserInterface::listingAndSelection()
+    end
+
+    # StarlightUserInterface::main()
+    def self.main()
         loop {
             system("clear")
             puts "Starlight Management (root)"

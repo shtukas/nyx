@@ -187,7 +187,7 @@ class Cube
 
     # Cube::cubeToString(cube)
     def self.cubeToString(cube)
-        "[cube] #{cube["description"]} [#{cube["uuid"][0, 4]}] (#{cube["quarksuuids"].size})"
+        "[cube] [#{cube["uuid"][0, 4]}] #{cube["description"]} (#{cube["quarksuuids"].size})"
     end
 
     # Cube::printCubeDetails(cube)
@@ -354,16 +354,116 @@ class Cube
         }
     end
 
-    # Cube::visitGivenCube(cubes)
-    def self.visitGivenCube(cubes)
+    # Cube::visitGivenCubes(cubes)
+    def self.visitGivenCubes(cubes)
         loop {
             cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| Cube::cubeToString(cube) })
             break if cube.nil?
             Cube::cubeDive(cube)
         }
     end
+end
 
-    # Cube::main()
+class CubeSearch
+
+    # CubeSearch::searchPatternToTags(searchPattern)
+    def self.searchPatternToTags(searchPattern)
+        Cube::tags()
+            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+    end
+
+    # CubeSearch::searchPatternToCubes(searchPattern)
+    def self.searchPatternToCubes(searchPattern)
+        Cube::cubes()
+            .select{|cube| cube["description"].downcase.include?(searchPattern.downcase) }
+    end
+
+    # CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCubesDescriptions(searchPattern)
+    def self.searchPatternToCubesDescriptions(searchPattern)
+        CubeSearch::searchPatternToCubes(searchPattern)
+            .map{|cube| cube["description"] }
+            .uniq
+            .sort
+    end
+
+    # CubeSearch::search(fragment)
+    # Objects returned by the function: they are essentially search results.
+    # {
+    #     "type" => "cube",
+    #     "cube" => cube
+    # }
+    # {
+    #     "type" => "tag",
+    #     "tag" => tag
+    # }
+    def self.search(fragment)
+        objs1 = CubeSearch::searchPatternToCubes(fragment)
+                    .map{|cube| 
+                        {
+                            "type" => "cube",
+                            "cube" => cube
+                        }
+                    }
+        objs2 = CubeSearch::searchPatternToTags(fragment)
+                    .map{|tag|
+                        {
+                            "type" => "tag",
+                            "tag" => tag
+                        }
+                    }
+        objs1 + objs2
+    end
+
+    # CubeSearch::diveSearchResults(items)
+    def self.diveSearchResults(items)
+        loop {
+            itemsObjectToMenuItemOrNull = lambda {|object|
+                if object["type"] == "cube" then
+                    cube = object["cube"]
+                    return [ Cube::cubeToString(cube) , lambda { Cube::cubeDive(cube) } ]
+                end
+                if object["type"] == "tag" then
+                    tag = object["tag"]
+                    return [ "tag: #{tag}" , lambda { Cube::visitTag(tag) } ]
+                end
+                nil
+            }
+            items2 = items
+                        .map{|object| itemsObjectToMenuItemOrNull.call(object) }
+                        .compact
+            status = LucilleCore::menuItemsWithLambdas(items2)
+            break if !status
+        }
+    end
+end
+
+class CubeUserInterface
+
+    # CubeUserInterface::selectCubeFromExistingCubes()
+    def self.selectCubeFromExistingCubes()
+        cubestrings = Cube::cubes().map{|cube| Cube::cubeToString(cube) }
+        cubestring = CatalystCommon::chooseALinePecoStyle("cube:", [""]+cubestrings)
+        Cube::cubes()
+            .select{|cube| Cube::cubeToString(cube) == cubestring }
+            .first
+    end
+
+    # CubeUserInterface::listingAndSelection()
+    def self.listingAndSelection()
+        cube = CubeUserInterface::selectCubeFromExistingCubes()
+        return if cube.nil?
+        Cube::cubeDive(cube)
+    end
+
+    # CubeUserInterface::navigation()
+    def self.navigation()
+        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
+        return nil if fragment.nil?
+        items = CubeSearch::search(fragment)
+        CubeSearch::diveSearchResults(items)
+    end
+
+    # CubeUserInterface::main()
     def self.main()
         loop {
             system("clear")
@@ -428,7 +528,7 @@ class Cube
                             .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
                             .reverse
                             .first(20)
-                Cube::visitGivenCube(cubes)
+                Cube::visitGivenCubes(cubes)
             end
             if operation == "cube destroy (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -442,95 +542,11 @@ class Cube
             end
         }
     end
-
 end
 
-class CubesSearch
+class CubeMakeAndOrSelectQuest
 
-    # CubesSearch::searchPatternToTags(searchPattern)
-    def self.searchPatternToTags(searchPattern)
-        Cube::tags()
-            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
-    end
-
-    # CubesSearch::searchPatternToCubes(searchPattern)
-    def self.searchPatternToCubes(searchPattern)
-        Cube::cubes()
-            .select{|cube| cube["description"].downcase.include?(searchPattern.downcase) }
-    end
-
-    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCubesDescriptions(searchPattern)
-    def self.searchPatternToCubesDescriptions(searchPattern)
-        CubesSearch::searchPatternToCubes(searchPattern)
-            .map{|cube| cube["description"] }
-            .uniq
-            .sort
-    end
-
-    # CubesSearch::search(fragment)
-    # Objects returned by the function: they are essentially search results.
-    # {
-    #     "type" => "cube",
-    #     "cube" => cube
-    # }
-    # {
-    #     "type" => "tag",
-    #     "tag" => tag
-    # }
-    def self.search(fragment)
-        objs1 = CubesSearch::searchPatternToCubes(fragment)
-                    .map{|cube| 
-                        {
-                            "type" => "cube",
-                            "cube" => cube
-                        }
-                    }
-        objs2 = CubesSearch::searchPatternToTags(fragment)
-                    .map{|tag|
-                        {
-                            "type" => "tag",
-                            "tag" => tag
-                        }
-                    }
-        objs1 + objs2
-    end
-
-    # CubesSearch::diveSearchResults(items)
-    def self.diveSearchResults(items)
-        loop {
-            itemsObjectToMenuItemOrNull = lambda {|object|
-                if object["type"] == "cube" then
-                    cube = object["cube"]
-                    return [ Cube::cubeToString(cube) , lambda { Cube::cubeDive(cube) } ]
-                end
-                if object["type"] == "tag" then
-                    tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { Cube::visitTag(tag) } ]
-                end
-                nil
-            }
-            items2 = items
-                        .map{|object| itemsObjectToMenuItemOrNull.call(object) }
-                        .compact
-            status = LucilleCore::menuItemsWithLambdas(items2)
-            break if !status
-        }
-    end
-end
-
-class CubesNavigation
-    # CubesNavigation::navigation()
-    def self.navigation()
-        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
-        return nil if fragment.nil?
-        items = CubesSearch::search(fragment)
-        CubesSearch::diveSearchResults(items)
-    end
-end
-
-class CubesMakeAndOrSelectQuest
-
-    # CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
+    # CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
     def self.makeAndOrSelectCubeOrNull()
         puts "-> You are on a selection Quest [selecting a cube]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"

@@ -47,45 +47,13 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "nodes listing", 
-                lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNodes::nodes(), lambda{|node| StarlightNodes::nodeToString(node) })
-                    return if node.nil?
-                    StarlightUserInterface::nodeDive(node)
-                }
+                "nodes listing and selection", 
+                lambda { StarlightUserInterface::listingAndSelection() }
             ]
 
             items << [
-                "cubes listing",
-                lambda {
-                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cubes", Cube::cubes(), lambda{|cube| Cube::cubeToString(cube) })
-                    break if cube.nil?
-                    Cube::cubeDive(cube)
-                }
-            ]
-
-            items << nil
-
-            items << [
-                "navigate nodes", 
-                lambda { StarlightUserInterface::navigation() }
-            ]
-
-            items << [
-                "navigate cubes", 
-                lambda { CubesNavigation::navigation() }
-            ]
-
-            items << nil
-
-            items << [
-                "cube visit (uuid)", 
-                lambda {
-                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    cube = Nyx::getOrNull(uuid)
-                    return if cube.nil?
-                    Cube::cubeDive(cube)
-                }
+                "cubes listing and selection", 
+                lambda { CubeUserInterface::listingAndSelection() }
             ]
 
             items << nil
