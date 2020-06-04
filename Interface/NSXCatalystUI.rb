@@ -284,7 +284,7 @@ class NSXCatalystUI
                 lambda { 
                     t1 = Time.new.to_f
                     NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                        .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                        .each{|object| NSXDisplayUtils::makeDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
                     t2 = Time.new.to_f
                     puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                     LucilleCore::pressEnterToContinue()
@@ -331,13 +331,13 @@ class NSXCatalystUI
         displayObjects.each_with_index{|object, indx|
             break if object.nil?
             break if verticalSpaceLeft <= 0
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, indx == 0, position)
+            displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
             puts displayStr
             executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
             position = position + 1
             break if displayObjects[indx+1].nil?
-            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::objectDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
+            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::makeDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
         }
 
 

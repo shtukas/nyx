@@ -13,7 +13,10 @@ class NSXDisplayUtils
         if item["type"] == "line-and-body" then
             return item["line"]
         end
-        "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
+        if item["type"] == "block" then
+            return "[block]"
+        end
+        "[8f854b3a] I don't know how to announce: #{item["type"]}"
     end
 
     # NSXDisplayUtils::defaultCatalystObjectCommands()
@@ -21,8 +24,8 @@ class NSXDisplayUtils
         ["expose"]
     end
 
-    # NSXDisplayUtils::objectInferfaceString(object)
-    def self.objectInferfaceString(object)
+    # NSXDisplayUtils::makeInferfaceString(object)
+    def self.makeInferfaceString(object)
         defaultCommand = object["defaultCommand"]
         commands = object["commands"]
         if defaultCommand then
@@ -36,8 +39,8 @@ class NSXDisplayUtils
         ].compact.reject{|command| command=='' }.join(" ")
     end
 
-    # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
-    def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
+    # NSXDisplayUtils::makeDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
+    def self.makeDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
         # NSXMiscUtils::screenWidth()
 
         width = NSXMiscUtils::screenWidth()-15
@@ -50,7 +53,7 @@ class NSXDisplayUtils
                 line = object["isRunning"] ? line.green : line
                 return [
                     "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line}",
-                    NSXDisplayUtils::objectInferfaceString(object)
+                    NSXDisplayUtils::makeInferfaceString(object)
                 ].join("\n")
             else
                 line = contentItem["line"]
@@ -72,7 +75,7 @@ class NSXDisplayUtils
                                     "              #{line[0, width]}"
                                 end
                             }
-                return  (strs + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
+                return  (strs + [ NSXDisplayUtils::makeInferfaceString(object) ]).join("\n")
             else
                 line = contentItem["line"]
                 line = object["isRunning"] ? line.green : line
@@ -93,15 +96,14 @@ class NSXDisplayUtils
                                 "              #{line[0, width]}"
                             end
                         }
-            return  (strs + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
+            return  (strs + [ NSXDisplayUtils::makeInferfaceString(object) ]).join("\n")
         end
-
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
+        puts NSXDisplayUtils::makeDisplayStringForCatalystListing(object, true, 1)
         print "--> "
         command = STDIN.gets().strip
 
