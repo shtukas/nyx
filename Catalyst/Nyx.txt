@@ -13,6 +13,7 @@ The two required keys that a NyxObject must have are:
 TimePod # See TimePod.txt
 
 ------------------------------------------------------
+
 Wave
 {
     "uuid"             : String
@@ -42,32 +43,11 @@ TodoItem # See Todo.txt
 OpenCycle # See OpenCycles.txt
 
 ------------------------------------------------------
-StarlightNode {
-    "uuid"              : String
-    "nyxType"           : "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
-    "creationUnixtime"  : Float # Unixtime with decimals
-    "name"              : String
-}
 
-------------------------------------------------------
-StarlightPath {
-    "uuid"             : String
-    "nyxType"          : "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "sourceuuid"        : String # uuid of a Starlight Node
-    "targetuuid"        : String # uuid of a Starlight Node
-}
-
-------------------------------------------------------
-StarlightContentClaim {
-    "uuid"             : String
-    "nyxType"          : "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "nodeuuid"         : String
-    "targetuuid"       : String # Cube uuid or a Quark uuid
-}
+Starlight # See Starlight.txt
+    StarlightNode 
+    StarlightPath 
+    StarlightContentClaim 
 
 ------------------------------------------------------
 

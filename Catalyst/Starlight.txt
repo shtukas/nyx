@@ -17,10 +17,6 @@ The Quarks represent pieces of data (six types at the time those lines are writt
 The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cubes.
 
 ------------------------------------------------------
-This is a copy of Nyx.txt
-------------------------------------------------------
-
-------------------------------------------------------
 StarlightNode {
     "uuid"              : String
     "nyxType"           : "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"

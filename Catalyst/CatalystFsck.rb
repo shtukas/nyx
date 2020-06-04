@@ -307,7 +307,36 @@ class CatalystFsck
             puts JSON.pretty_generate(timepod).red
             exit
         end
+    end
 
+    # CatalystFsck::starlightNode(node)
+    def self.starlightNode(node)
+        puts JSON.pretty_generate(node)
+        if node["uuid"].nil? then
+            puts "[error] starlight node has no uuid".red
+            puts JSON.pretty_generate(node).red
+            exit
+        end
+        if node["nyxType"].nil? then
+            puts "[error] starlight node has no nyxType".red
+            puts JSON.pretty_generate(node).red
+            exit
+        end
+        if node["nyxType"] != "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+            puts "[error] starlight node has incorrect nyxType".red
+            puts JSON.pretty_generate(node).red
+            exit
+        end
+        if node["name"].nil? then
+            puts "[error] starlight node has no name".red
+            puts JSON.pretty_generate(node).red
+            exit
+        end
+        if node["name"].strip.size == 0 then
+            puts "[error] starlight node has empty name".red
+            puts JSON.pretty_generate(node).red
+            exit
+        end
     end
 
     # CatalystFsck::run()
@@ -323,6 +352,9 @@ class CatalystFsck
         }
         TimePods::timepods().each{|timepod|
             CatalystFsck::checkTimePod(timepod)
+        }
+        StarlightNodes::nodes().each{|node|
+            CatalystFsck::starlightNode(node)
         }
         puts "-> Completed Catalyst Integrity Check".green
     end
