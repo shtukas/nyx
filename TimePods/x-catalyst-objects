@@ -76,14 +76,6 @@ require_relative "TimePods.rb"
 
 # -------------------------------------------------------------------------
 
-# Garbage Collection
-TimePods::timepods()
-    .each{|pod|
-        if !TimePods::timePodIsStillRelevant(pod) then
-            Nyx::destroy(pod["uuid"])
-        end
-    }
-
 # Guardian Work
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
