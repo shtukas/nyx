@@ -309,8 +309,8 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::starlightNode(node)
-    def self.starlightNode(node)
+    # CatalystFsck::checkStarlightNode(node)
+    def self.checkStarlightNode(node)
         puts JSON.pretty_generate(node)
         if node["uuid"].nil? then
             puts "[error] starlight node has no uuid".red
@@ -339,6 +339,50 @@ class CatalystFsck
         end
     end
 
+    # CatalystFsck::checkCube(cube)
+    def self.checkCube(cube)
+        puts JSON.pretty_generate(cube)
+        if cube["uuid"].nil? then
+            puts "[error] starlight cube has no uuid".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+        if cube["nyxType"].nil? then
+            puts "[error] starlight cube has no nyxType".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+        if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
+            puts "[error] starlight cube has incorrect nyxType".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+        if cube["description"].nil? then
+            puts "[error] starlight node has no description".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+        if cube["quarksuuids"].nil? then
+            puts "[error] starlight quarksuuids has empty name".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+        cube["quarksuuids"].each{|quarkuuid|
+            quark = Quark::getOrNull(quarkuuid)
+            if quark.nil? then
+                puts "[error] starlight points as a null quark".red
+                puts JSON.pretty_generate(cube).red
+                puts "quarkuuid: #{quarkuuid}".red
+                exit
+            end
+        }
+        if cube["tags"].nil? then
+            puts "[error] starlight tags has empty name".red
+            puts JSON.pretty_generate(cube).red
+            exit
+        end
+    end
+
     # CatalystFsck::run()
     def self.run()
         OpenCycles::opencycles().each{|opencycle|
@@ -354,7 +398,10 @@ class CatalystFsck
             CatalystFsck::checkTimePod(timepod)
         }
         StarlightNodes::nodes().each{|node|
-            CatalystFsck::starlightNode(node)
+            CatalystFsck::checkStarlightNode(node)
+        }
+        Cube::cubes().each{|cube|
+            CatalystFsck::checkCube(cube)
         }
         puts "-> Completed Catalyst Integrity Check".green
     end
