@@ -44,6 +44,11 @@ class StarlightNodes
         "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
 
+    # StarlightNodes::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        Nyx::getOrNull(uuid)
+    end
+
     # StarlightNodes::nodes()
     def self.nodes()
         Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
@@ -115,15 +120,17 @@ end
 
 class StarlightContents
 
-    # StarlightContents::issueClaimGivenNodeAndEntity(node, entity)
-    def self.issueClaimGivenNodeAndEntity(node, entity)
+    # StarlightContents::issueClaim(node, cube)
+    def self.issueClaim(node, cube)
+        raise "0dc59394" if node["nyxType"] != "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+        raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
         claim = {
             "nyxType"          => "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
             "nodeuuid"         => node["uuid"],
-            "targetuuid"       => entity["uuid"]
+            "targetuuid"       => cube["uuid"]
         }
         Nyx::commitToDisk(claim)
         claim
@@ -134,20 +141,26 @@ class StarlightContents
         "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
     end
 
-    # StarlightContents::getNodeEntities(node)
-    def self.getNodeEntities(node)
+    # StarlightContents::getNodeCubes(node)
+    def self.getNodeCubes(node)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(claim["targetuuid"]) }
+            .map{|claim| Cube::getOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # StarlightContents::getNodesForEntity(cube)
-    def self.getNodesForEntity(cube)
+    # StarlightContents::getNodesForCube(cube)
+    def self.getNodesForCube(cube)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["targetuuid"] == cube["uuid"] }
             .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
             .compact
+    end
+
+    # StarlightContents::claims()
+    def self.claims()
+        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
 
@@ -155,9 +168,9 @@ class StarlightUserInterface
 
     # StarlightUserInterface::selectNodeFromExistingNodes()
     def self.selectNodeFromExistingNodes()
-        nodestrings = Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
+        nodestrings = StarlightNodes::nodes().map{|node| StarlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        node = StarlightNodes::nodes()
                 .select{|node| StarlightNodes::nodeToString(node) == nodestring }
                 .first
     end
@@ -191,9 +204,9 @@ class StarlightUserInterface
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
 
-            StarlightContents::getNodeEntities(node)
+            StarlightContents::getNodeCubes(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|entity| items << ["[node content] #{QuarksCubesAndStarlightNodes::objectToString(entity)}", lambda{ QuarksCubesAndStarlightNodesNavigation::visit(entity) }] }
+                .each{|cube| items << [Cube::cubeToString(cube), lambda{ Cube::cubeDive(cube) }] }
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }

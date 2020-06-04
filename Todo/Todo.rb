@@ -202,27 +202,16 @@ class Todo
         Nyx::commitToDisk(item)
     end
 
-    # Todo::recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastAsStarlightNodeOrCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    # Todo::recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
         quark = Nyx::getOrNull(item["contentuuid"])
         return false if quark.nil?
-        newowner = QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-        return false if newowner.nil?
-        if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            node = newowner
-            cube = Cube::issueCube_v1(quark)
-            StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
-            return true
-        end
-        if newowner["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
-            cube = newowner
-            cube = Nyx::getOrNull(cube["uuid"])
-            cube["quarksuuids"] << quark["uuid"]
-            Nyx::commitToDisk(cube)
-            return true
-        end
-        puts newowner
-        raise "Todo: error: d089decd"
+        cube = CubesMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
+        return false if cube.nil?
+        cube["quarksuuids"] << quark["uuid"]
+        puts JSON.pretty_generate(cube)
+        Nyx::commitToDisk(cube)
+        return true
     end
 
     # Todo::diveItem(item)
@@ -275,7 +264,7 @@ class Todo
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
-                status = Todo::recastAsStarlightNodeOrCubeContent(item)
+                status = Todo::recastAsCubeContent(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return

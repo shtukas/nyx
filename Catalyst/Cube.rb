@@ -92,7 +92,7 @@ class Cube
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to a Starlight node ? ") then
             node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
             if node then
-                StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
+                StarlightContents::issueClaim(node, cube)
             end
         end
         cube
@@ -105,7 +105,7 @@ class Cube
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
 
-            "description"      => Quark::quarkToString(quark),
+            "description"      => quark["description"] ? quark["description"] : "[cube default name / #{SecureRandom.hex(2)}]",
             "quarksuuids"      => [quark["uuid"]],
             "tags"             => []
         }
@@ -147,6 +147,11 @@ class Cube
     def self.cubes()
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+    end
+
+    # Cube::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        Nyx::getOrNull(uuid)
     end
 
     # ------------------------------------------------------------
@@ -210,7 +215,7 @@ class Cube
         end
         puts ""
 
-        nodes = StarlightContents::getNodesForEntity(cube)
+        nodes = StarlightContents::getNodesForCube(cube)
         if nodes.empty? then
             puts "    nodes: (empty set)"
         else
@@ -311,7 +316,7 @@ class Cube
                 lambda{
                     node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?
-                    StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
+                    StarlightContents::issueClaim(node, cube)
                 }]
             items << [
                 "register as open cycle", 
@@ -340,9 +345,9 @@ class Cube
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
                 }
 
-            StarlightContents::getNodesForEntity(cube)
+            StarlightContents::getNodesForCube(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|node| items << ["[starlight node] #{StarlightNodes::nodeToString(node)}", lambda{ StarlightUserInterface::nodeDive(node) }] }
+                .each{|node| items << [StarlightNodes::nodeToString(node), lambda{ StarlightUserInterface::nodeDive(node) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

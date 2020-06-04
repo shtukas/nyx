@@ -8,51 +8,19 @@ The two required keys that a NyxObject must have are:
     nyxType          : String
     creationUnixtime : Float # unixtime with decimals
 
-------------------------------------------------------
-
 TimePod # See TimePod.txt
 
-------------------------------------------------------
-
-Wave
-{
-    "uuid"             : String
-    "nyxType"          : "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "description"      : String
-    "schedule"         : Schedule
-}
-    Schedule
-    {
-        "uuid"         => SecureRandom.hex,
-        "@"            => "sticky"
-        "from-hour"    => fromHour
-    }
-    {
-        "uuid"         => SecureRandom.hex,
-        "@"            => type,
-        "repeat-value" => value
-    }
-
-------------------------------------------------------
+Wave # See Wave.txt
 
 TodoItem # See Todo.txt
 
-------------------------------------------------------
-
 OpenCycle # See OpenCycles.txt
-
-------------------------------------------------------
 
 Starlight # See Starlight.txt
     StarlightNode 
     StarlightPath 
     StarlightContentClaim 
 
-------------------------------------------------------
-
 Cube # See Cube.txt
-
-------------------------------------------------------
 
 Quark # See Quark.txt

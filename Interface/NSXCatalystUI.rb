@@ -205,15 +205,6 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "new quark ; attached to starlight node (existing or new)", 
-                lambda {
-                    quark = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(quark)
-                }
-            ]
-
-            items << [
                 "new quark ; attached to new cube ; attached to starlight node (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -222,7 +213,7 @@ class NSXCatalystUI
                     cube = Cube::issueCube_v2(description, quark)
                     starlightnode = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
                     return if starlightnode.nil?
-                    StarlightContents::issueClaimGivenNodeAndEntity(starlightnode, cube)
+                    StarlightContents::issueClaim(starlightnode, cube)
                 }
             ]
 

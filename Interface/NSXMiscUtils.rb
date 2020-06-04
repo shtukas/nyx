@@ -206,7 +206,7 @@ class NSXMiscUtils
                     break
                 end
                 puts JSON.pretty_generate(cube)
-                claim = StarlightContents::issueClaimGivenNodeAndEntity(node, cube)
+                claim = StarlightContents::issueClaim(node, cube)
                 puts JSON.pretty_generate(claim)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{StarlightNodes::nodeToString(node)}' ? ")
             }
@@ -224,14 +224,5 @@ class NSXMiscUtils
         end
         node = NSXMiscUtils::startlightNodeBuildAround(node)
         node
-    end
-
-    # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
-    def self.attachTargetToStarlightNodeExistingOrNew(target)
-        return if target.nil?
-        node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
-        return if node.nil?
-        claim = StarlightContents::issueClaimGivenNodeAndEntity(node, target)
-        puts JSON.pretty_generate(claim)
     end
 end
