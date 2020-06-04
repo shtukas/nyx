@@ -78,13 +78,15 @@ class NSXCatalystObjectsOperator
         NSXCatalystObjectsCommon::processing(objects)
     end
 
-    # NSXCatalystObjectsOperator::cacheUpdate()
-    def self.cacheUpdate()
+    # NSXCatalystObjectsOperator::getAllCatalystObjectsOrdered()
+    def self.getAllCatalystObjectsOrdered()
         NSXCatalystObjectsCommon::applicationNames()
-            .each{|appname| 
-                scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
-                $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
-            }
+                .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
+                .map{|scriptfilepath|
+                    NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
+                }
+                .flatten
+                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
@@ -97,6 +99,15 @@ class NSXCatalystObjectsOperator
             }
         objects = $CE605907.values.flatten.map{|object| object.clone }
         NSXCatalystObjectsCommon::processing(objects)
+    end
+
+    # NSXCatalystObjectsOperator::cacheUpdate()
+    def self.cacheUpdate()
+        NSXCatalystObjectsCommon::applicationNames()
+            .each{|appname| 
+                scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
+                $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
+            }
     end
 end
 

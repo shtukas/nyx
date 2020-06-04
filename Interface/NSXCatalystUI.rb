@@ -294,10 +294,43 @@ class NSXCatalystUI
         }
     end
 
+    # NSXCatalystUI::performAllDisplay(displayObjects)
+    def self.performAllDisplay(displayObjects)
+
+        system("clear")
+
+        position = 0
+        executors = []
+
+        puts ""
+
+        displayObjects.each_with_index{|object, indx|
+            break if object.nil?
+            displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
+            puts displayStr
+            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
+            position = position + 1
+            break if displayObjects[indx+1].nil?
+        }
+
+        puts ""
+        print "[*] --> "
+        command = STDIN.gets().strip
+        if command=='' then
+            return
+        end
+
+        if NSXMiscUtils::isInteger(command) then
+            position = command.to_i
+            executors[position].call()
+            return
+        end
+
+        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
+    end
+
     # NSXCatalystUI::performStandardDisplay(displayObjects)
     def self.performStandardDisplay(displayObjects)
-
-        displayTime = Time.new.to_f
 
         system("clear")
 
@@ -377,6 +410,12 @@ class NSXCatalystUI
         print "--> "
         command = STDIN.gets().strip
         if command=='' then
+            return
+        end
+
+        if command == '*' then
+            objects = NSXCatalystObjectsOperator::getAllCatalystObjectsOrdered()
+            NSXCatalystUI::performAllDisplay(objects)
             return
         end
 
