@@ -84,11 +84,12 @@ class CoreDataFile
         if CoreDataFile::fileByFilenameIsSafelyOpenable(filename) then
             filepath = CoreDataFile::filenameToFilepath(filename)
             system("open '#{filepath}'")
+        else
+            filepath = CoreDataFile::filenameToFilepath(filename)
+            FileUtils.cp(filepath, "/Users/pascal/Desktop/Quarks-Drop")
+            puts "File copied to Quarks-Drop {#{File.basename(filepath)}}"
+            LucilleCore::pressEnterToContinue()
         end
-        filepath = CoreDataFile::filenameToFilepath(filename)
-        FileUtils.cp(filepath, "/Users/pascal/Desktop/")
-        puts "File copied to Desktop {#{File.basename(filepath)}}"
-        LucilleCore::pressEnterToContinue()
     end
 
     # CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()

@@ -138,7 +138,6 @@ if ARGV[0] == "description" and ARGV[1] then
     exit if uuid.nil?
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
-
     item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
     Nyx::commitToDisk(item)
 end
