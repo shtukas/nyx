@@ -72,7 +72,7 @@ def divePod(pod)
             puts JSON.pretty_generate(pod)
             Nyx::commitToDisk(pod)
         end
-        if option == "start" then
+        if option == "destroy" then
             Nyx::destroy(pod["uuid"])
         end
     }
