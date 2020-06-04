@@ -130,7 +130,7 @@ class StarlightContents
             "uuid"             => SecureRandom.uuid,
 
             "nodeuuid"         => node["uuid"],
-            "targetuuid"       => cube["uuid"]
+            "cubeuuid"         => cube["uuid"]
         }
         Nyx::commitToDisk(claim)
         claim
@@ -138,21 +138,21 @@ class StarlightContents
 
     # StarlightContents::claimToString(dataclaim)
     def self.claimToString(dataclaim)
-        "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
+        "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["cubeuuid"]}"
     end
 
     # StarlightContents::getNodeCubes(node)
     def self.getNodeCubes(node)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| Cube::getOrNull(claim["targetuuid"]) }
+            .map{|claim| Cube::getOrNull(claim["cubeuuid"]) }
             .compact
     end
 
     # StarlightContents::getNodesForCube(cube)
     def self.getNodesForCube(cube)
         Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["targetuuid"] == cube["uuid"] }
+            .select{|claim| claim["cubeuuid"] == cube["uuid"] }
             .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
             .compact
     end

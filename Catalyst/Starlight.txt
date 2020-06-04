@@ -41,5 +41,5 @@ StarlightContentClaim {
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String
-    "targetuuid"       : String # Cube uuid or a Quark uuid
+    "cubeuuid"         : String # Cube uuid or a Quark uuid
 }
