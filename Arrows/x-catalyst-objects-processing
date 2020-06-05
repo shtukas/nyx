@@ -40,3 +40,14 @@ if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", uuid)
 end
+
+if ARGV[0] == "open+done" and ARGV[1] then
+    uuid = ARGV[1]
+    arrow = BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", uuid)
+    exit if arrow.nil?
+    exit if arrow["quarkuuid"].nil?
+    quark = Quark::getOrNull(arrow["quarkuuid"])
+    exit if quark.nil?
+    Quark::openQuark(quark)
+    BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", uuid)
+end

@@ -64,10 +64,12 @@ def arrowToCatalystObjectOrNull(arrow)
         "application" => "Arrows",
         "contentItem" => contentItem,
         "metric" => metric,
-        "commands" => [arrow["quarkuuid"] ? "open" : nil, "done"].compact,
+        "commands" => arrow["quarkuuid"] ? ["open", "open+done", "done"] : ["done"],
+        "defaultCommand" => arrow["quarkuuid"] ? "open+done" : nil,
         "shell-redirects" => {
             "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing open '#{uuid}'",
             "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing done '#{uuid}'",
+            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Arrows/x-catalyst-objects-processing open+done '#{uuid}'",
         }
     }
 end
