@@ -190,15 +190,12 @@ class StarlightUserInterface
     # StarlightUserInterface::nodeDive(node)
     def self.nodeDive(node)
         loop {
+            system("clear")
             puts ""
             puts JSON.pretty_generate(node)
             puts "uuid: #{node["uuid"]}"
             puts StarlightNodes::nodeToString(node).green
             items = []
-            items << ["rename", lambda{ 
-                node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
-                Nyx::commitToDisk(node)
-            }]
 
             StarlightPaths::getParents(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
@@ -211,6 +208,13 @@ class StarlightUserInterface
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network child] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
+
+            items << nil
+
+            items << ["rename", lambda{ 
+                node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
+                Nyx::commitToDisk(node)
+            }]
 
             items << ["add parent node", lambda{ 
                 node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
@@ -227,6 +231,22 @@ class StarlightUserInterface
                 return if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
+            }]
+
+            items << ["-> cube (new) -> quark (new)", lambda{ 
+                puts "Let's make a cube"
+                description = LucilleCore::askQuestionAnswerAsString("cube description: ")
+                cube = Cube::issueCube_v3(description)
+                puts JSON.pretty_generate(cube)
+                puts "Let's attach the cube to the node"
+                claim = StarlightContents::issueClaim(node, cube)
+                puts JSON.pretty_generate(claim)
+                puts "Let's make a quark"
+                quark = Quark::issueNewQuarkInteractivelyOrNull()
+                cube["quarksuuids"] << quark["uuid"]
+                puts JSON.pretty_generate(cube)
+                Nyx::commitToDisk(cube)
+                LucilleCore::pressEnterToContinue()
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen

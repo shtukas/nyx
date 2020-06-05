@@ -128,6 +128,20 @@ class Cube
         cube
     end
 
+    # Cube::issueCube_v3(description)
+    def self.issueCube_v3(description)
+        cube = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "creationUnixtime" => Time.new.to_f,
+            "description"      => description,
+            "quarksuuids"      => [],
+            "tags"             => []
+        }
+        Nyx::commitToDisk(cube)
+        cube
+    end
+
     # Cube::cubesByTag(tag)
     def self.getCubesByTag(tag)
         Cube::cubes()
@@ -259,6 +273,7 @@ class Cube
     # Cube::cubeDive(cube)
     def self.cubeDive(cube)
         loop {
+            system("clear")
             puts ""
             cube = Nyx::getOrNull(cube["uuid"]) # useful if we have modified it
             return if cube.nil? # useful if we have just destroyed it

@@ -244,6 +244,9 @@ class Quark
         end
     end
 
+    # --------------------------------------------------
+    # User Interface
+
     # Quark::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
@@ -281,9 +284,6 @@ class Quark
             return Quark::issueQuarkDirectoryMarkInteractively()
         end
     end
-
-    # --------------------------------------------------
-    # User Interface
 
     # Quark::getOrNull(uuid)
     def self.getOrNull(uuid)
