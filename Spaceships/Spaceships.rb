@@ -48,58 +48,50 @@ class Spaceships
         spaceship
     end
 
-    # Spaceships::toStringPassengerFragment(spaceship)
-    def self.toStringPassengerFragment(spaceship)
-        passenger = spaceship["passenger"]
-        if passenger["type"] == "description" then
-            return "[spaceship] #{passenger["description"]}"
-        end
-        if passenger["type"] == "asteroid" then
-            return "[spaceship] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
-        end
-        if passenger["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
-            return "[spaceship] #{passenger["description"]} #{quark ? Quark::quarkToString(quark) : "[could not find quark]"}"
-        end
-        raise "[Spaceships] error: CE8497BB"
-    end
-
-    # Spaceships::toStringEngineFragment(spaceship)
-    def self.toStringEngineFragment(spaceship)
-
-        uuid = spaceship["uuid"]
-
-        engine = spaceship["engine"]
-
-        if engine["type"] == "time-commitment-on-curve" then
-            return "[time-commitment-on-curve] (completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours, ideal: #{(Spaceships::timeCommitmentOnCurve_idealTime(spaceship).to_f/3600).round(2)} hours)"
-        end
-
-        if engine["type"] == "bank-account" then
-            return "[bank-account] (bank account: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
-        end
-
-        if engine["type"] == "bank-account-special-circumstances" then
-            return "[bank-account-special-circumstances] (bank account: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
-        end
-
-        if engine["type"] == "time-commitment-indefinitely" then
-            return "[time-commitment-indefinitely] (bank account (adapted): #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
-        end
-
-        if engine["type"] == "arrow" then
-            timeSinceStart = Time.new.to_f - engine["startunixtime"]
-            arrowTime = engine["lengthInDays"] * 86400
-            ratio = timeSinceStart.to_f/arrowTime
-            percentage = 100*ratio
-            return "[arrow] (#{"%.2f" % percentage.round(2)}%)"
-        end
-
-        raise "[Spaceships] error: 46b84bdb"
-    end
-
     # Spaceships::toString(spaceship)
     def self.toString(spaceship)
+        passengerFragment = lambda{|spaceship|
+            passenger = spaceship["passenger"]
+            if passenger["type"] == "description" then
+                return passenger["description"]
+            end
+            if passenger["type"] == "asteroid" then
+                return KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}")
+            end
+            if passenger["type"] == "quark" then
+                quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
+                return quark ? Quark::quarkToString(quark) : "[could not find quark]"
+            end
+            raise "[Spaceships] error: CE8497BB"
+        }
+        engineFragment = lambda{|spaceship|
+            uuid = spaceship["uuid"]
+
+            engine = spaceship["engine"]
+
+            if engine["type"] == "time-commitment-on-curve" then
+                return "(completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %)"
+            end
+
+            if engine["type"] == "bank-account" then
+                return "(bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+            end
+
+            if engine["type"] == "bank-account-special-circumstances" then
+                return "(bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+            end
+
+            if engine["type"] == "time-commitment-indefinitely" then
+                return "(bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
+            end
+
+            if engine["type"] == "arrow" then
+                return "(#{"%.2f" % Spaceships::arrowPercentage(spaceship).round(2)}%)"
+            end
+
+            raise "[Spaceships] error: 46b84bdb"
+        }
+
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningString = 
@@ -108,7 +100,7 @@ class Spaceships
             else
                 ""
             end
-        "#{Spaceships::toStringPassengerFragment(spaceship)} #{Spaceships::toStringEngineFragment(spaceship)}#{runningString}"
+        "[spaceship] [#{spaceship["engine"]["type"]}] #{passengerFragment.call(spaceship)} #{engineFragment.call(spaceship)}"
     end
 
     # Spaceships::makePassengerInteractivelyOrNull()
@@ -333,5 +325,16 @@ class Spaceships
         Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
     end 
 
+    # --------------------------------------------------------------------
+    # arrow percentage
+
+    # Spaceships::arrowPercentage(spaceship)
+    def self.arrowPercentage(spaceship)
+        engine = spaceship["engine"]
+        timeSinceStart = Time.new.to_f - engine["startunixtime"]
+        arrowTime = engine["lengthInDays"] * 86400
+        ratio = timeSinceStart.to_f/arrowTime
+        100*ratio
+    end
 end
 
