@@ -61,7 +61,7 @@ class StarlightPaths
     # StarlightPaths::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
-            "nyxType"          => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "nyxType"          => "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
@@ -76,7 +76,7 @@ class StarlightPaths
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
-            "nyxType"          => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "nyxType"          => "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
             "sourceuuid"       => node1["uuid"],
@@ -88,13 +88,13 @@ class StarlightPaths
 
     # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        Nyx::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
     # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        Nyx::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
@@ -118,14 +118,14 @@ class StarlightPaths
     end
 end
 
-class StarlightContents
+class StarlightInventory
 
-    # StarlightContents::issueClaim(node, cube)
+    # StarlightInventory::issueClaim(node, cube)
     def self.issueClaim(node, cube)
         raise "0dc59394" if node["nyxType"] != "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
         raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
         claim = {
-            "nyxType"          => "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "nyxType"          => "starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
@@ -136,30 +136,30 @@ class StarlightContents
         claim
     end
 
-    # StarlightContents::claimToString(dataclaim)
+    # StarlightInventory::claimToString(dataclaim)
     def self.claimToString(dataclaim)
         "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["cubeuuid"]}"
     end
 
-    # StarlightContents::getNodeCubes(node)
+    # StarlightInventory::getNodeCubes(node)
     def self.getNodeCubes(node)
-        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| Cube::getOrNull(claim["cubeuuid"]) }
             .compact
     end
 
-    # StarlightContents::getNodesForCube(cube)
+    # StarlightInventory::getNodesForCube(cube)
     def self.getNodesForCube(cube)
-        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["cubeuuid"] == cube["uuid"] }
             .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 
-    # StarlightContents::claims()
+    # StarlightInventory::claims()
     def self.claims()
-        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
@@ -203,7 +203,7 @@ class StarlightUserInterface
 
             items << nil
 
-            StarlightContents::getNodeCubes(node)
+            StarlightInventory::getNodeCubes(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|cube| items << [Cube::cubeToString(cube), lambda{ Cube::cubeDive(cube) }] }
 
@@ -243,7 +243,7 @@ class StarlightUserInterface
                 cube = Cube::issueCube_v3(description)
                 puts JSON.pretty_generate(cube)
                 puts "Let's attach the cube to the node"
-                claim = StarlightContents::issueClaim(node, cube)
+                claim = StarlightInventory::issueClaim(node, cube)
                 puts JSON.pretty_generate(claim)
                 puts "Let's make a quark"
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -267,8 +267,6 @@ class StarlightUserInterface
 
     # StarlightUserInterface::navigation()
     def self.navigation()
-        # For the moment the same
-        # Todo: surf the paths
         StarlightUserInterface::listingAndSelection()
     end
 

@@ -72,7 +72,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "Todo.rb"
+require_relative "Asteroids.rb"
 
 # -------------------------------------------------------------------------
 
@@ -88,30 +88,30 @@ def itemToCatalystObject(item, basemetric, indx)
 
     metric = basemetric - indx.to_f/1000
 
-    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Todo::itemToString(item))
-        # Used by TimePods
+    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Asteroids::asteroidToString(item))
+        # Used by Spaceships
 
     {
         "uuid"           => uuid,
-        "application"    => "Todo",
+        "application"    => "Asteroids",
         "contentItem"    => {
             "type" => "line",
-            "line" => Todo::itemToString(item)
+            "line" => Asteroids::asteroidToString(item)
         },
         "metric"         => metric,
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
-            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{uuid}'",
-            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing open '#{uuid}'",
-            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing stop '#{uuid}'",
-            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing done '#{uuid}'",
-            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing description '#{uuid}'",
-            "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing reset-reference-time '#{uuid}'",
-            "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing update-project '#{uuid}'",
-            ">data"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing recastAsCubeContent '#{uuid}'",
-            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{uuid}'"
+            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{uuid}'",
+            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing open '#{uuid}'",
+            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing stop '#{uuid}'",
+            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing done '#{uuid}'",
+            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing description '#{uuid}'",
+            "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing reset-reference-time '#{uuid}'",
+            "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing update-project '#{uuid}'",
+            ">data"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing recastAsCubeContent '#{uuid}'",
+            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
         "x-todo:item" => item
@@ -132,12 +132,12 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     Nyx::commitToDisk(quark)
     item = {
         "uuid"             => SecureRandom.uuid,
-        "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+        "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
         "creationUnixtime" => Time.new.to_f,
-        "projectname"      => "Infinity",
-        "projectuuid"      => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
+        "orbitalname"      => "Infinity",
+        "orbitaluuid"      => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
         "description"      => link,
-        "contentuuid"      => quark["uuid"]
+        "quarkuuid"      => quark["uuid"]
     }
     Nyx::commitToDisk(item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
@@ -153,7 +153,7 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "url"              => link
     }
     Nyx::commitToDisk(quark)
-    Todo::issueNewItem("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
+    Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
@@ -165,8 +165,8 @@ objects = []
 
 # First, we display all the Inbox items in order.
 
-Todo::todoitems()
-    .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
+Asteroids::asteroids()
+    .select{|item| item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
     .sort{|i1, i2| 
         i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .each_with_index {|item, indx|
@@ -183,7 +183,7 @@ def getFocus()
     if focus then
         return JSON.parse(focus)
     end
-    focus = Todo::projectsTimeDistribution()
+    focus = Asteroids::projectsTimeDistribution()
                 .sort{|i1, i2|
                     i1["timeInHours"] <=> i2["timeInHours"]
                 }
@@ -195,14 +195,14 @@ end
 focus = getFocus()
 
 # focus : {
-#     "projectname" : String,
-#     "projectuuid" : String,
+#     "orbitalname" : String,
+#     "orbitaluuid" : String,
 #     "timeInHours" : Float
 # }
 
-items1 = Todo::todoitems().select{|item| Runner::isRunning(item["uuid"]) }
-items2 = Todo::todoitems()
-            .select{|item| item["projectuuid"] == focus["projectuuid"] }
+items1 = Asteroids::asteroids().select{|item| Runner::isRunning(item["uuid"]) }
+items2 = Asteroids::asteroids()
+            .select{|item| item["orbitaluuid"] == focus["orbitaluuid"] }
             .select{|item| !Runner::isRunning(item["uuid"]) } # running object have already been taken in items1
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .first(3)

@@ -214,7 +214,7 @@ class Wave
         announce = Wave::announce(obj["description"], schedule)
         contentItem = {
             "type" => "line",
-            "line" => "💫 "+announce
+            "line" => "[wave] "+announce
         }
         object = {}
         object['uuid'] = uuid

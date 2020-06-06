@@ -47,58 +47,58 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "Todo.rb"
+require_relative "Asteroids.rb"
 
 # --------------------------------------------------------------------
 
 loop {
     system("clear")
-    puts "Todo 👩‍💻"
+    puts "Asteroids 👩‍💻"
     options = [
-        "create new item",
+        "create new asteroid",
         "projects dive",
         "time report"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "create new item" then
+    if option == "create new asteroid" then
         target = Quark::issueNewQuarkInteractivelyOrNull()
         next if target.nil?
-        projectname = Todo::selectProjectNameInteractivelyOrNull()
-        projectuuid = nil
-        if projectname.nil? then
-            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-            projectuuid = SecureRandom.uuid
+        orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+        orbitaluuid = nil
+        if orbitalname.nil? then
+            orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
+            orbitaluuid = SecureRandom.uuid
         else
-            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             # We are not considering the case null
         end
         description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-        item = Todo::issueNewItem(projectname, projectuuid, description, target)
+        item = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
         puts JSON.pretty_generate(item)
     end
     if option == "projects dive" then
         loop {
-            puts "-> Todo items dive"
-            projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Todo::projectNames())
-            break if projectname.nil?
+            puts "-> Asteroids dive"
+            orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Asteroids::projectNames())
+            break if orbitalname.nil?
             loop {
-                puts "-> Visiting project '#{projectname}'"
-                items = Todo::itemsForProjectName(projectname)
+                puts "-> Visiting project '#{orbitalname}'"
+                items = Asteroids::asteroidsForProjectName(orbitalname)
                 break if items.empty? # happens when we loop bacl if the one item of the project was deleted
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Todo::itemToString(item) })
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Asteroids::asteroidToString(item) })
                 break if item.nil?
-                Todo::diveItem(item)
+                Asteroids::asteroidDive(item)
             }
         }
     end
     if option == "time report" then
-        items = Todo::projectsTimeDistribution()
-        d = items.map{|item| item["projectname"].size }.max
+        items = Asteroids::projectsTimeDistribution()
+        d = items.map{|item| item["orbitalname"].size }.max
         items
             .sort{|i1, i2| i1["timeInHours"] <=> i2["timeInHours"] }
             .each{|item|
-                puts "#{item["projectname"].ljust(d+1)} #{"%8.2f" % item["timeInHours"]} hours"
+                puts "#{item["orbitalname"].ljust(d+1)} #{"%8.2f" % item["timeInHours"]} hours"
             }
         LucilleCore::pressEnterToContinue()
     end

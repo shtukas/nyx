@@ -27,7 +27,7 @@ StarlightNode {
 ------------------------------------------------------
 StarlightPath {
     "uuid"             : String
-    "nyxType"          : "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e"
+    "nyxType"          : "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "sourceuuid"        : String # uuid of a Starlight Node
@@ -37,7 +37,7 @@ StarlightPath {
 ------------------------------------------------------
 StarlightContentClaim {
     "uuid"             : String
-    "nyxType"          : "starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+    "nyxType"          : "starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String

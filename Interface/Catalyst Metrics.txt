@@ -15,12 +15,12 @@
         0.80+         Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Wave every-n-hours / every-n-days
 
-        0.76  ->      TimePods (time-commitment-on-curve)
+        0.76  ->      Spaceships (time-commitment-on-curve)
 
-        0.70+ -> 0.20 TimePods (bank-account, on-going-project)
+        0.70+ -> 0.20 Spaceships (bank-account, time-commitment-indefinitely)
 
 👩‍💻 🛩
-        0.66  -> 0.26 Todo
+        0.66  -> 0.26 Asteroids
         0.50          Backups Monitor
 
         0.40          LucileTxt [bottom] # for the moment

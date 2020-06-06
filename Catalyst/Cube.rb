@@ -92,7 +92,7 @@ class Cube
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to a Starlight node ? ") then
             node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
             if node then
-                StarlightContents::issueClaim(node, cube)
+                StarlightInventory::issueClaim(node, cube)
             end
         end
         cube
@@ -229,7 +229,7 @@ class Cube
         end
         puts ""
 
-        nodes = StarlightContents::getNodesForCube(cube)
+        nodes = StarlightInventory::getNodesForCube(cube)
         if nodes.empty? then
             puts "    nodes: (empty set)"
         else
@@ -331,7 +331,7 @@ class Cube
                 lambda{
                     node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?
-                    StarlightContents::issueClaim(node, cube)
+                    StarlightInventory::issueClaim(node, cube)
                 }]
             items << [
                 "register as open cycle", 
@@ -360,7 +360,7 @@ class Cube
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
                 }
 
-            StarlightContents::getNodesForCube(cube)
+            StarlightInventory::getNodesForCube(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|node| items << [StarlightNodes::nodeToString(node), lambda{ StarlightUserInterface::nodeDive(node) }] }
 

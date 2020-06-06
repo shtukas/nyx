@@ -49,7 +49,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "Todo.rb"
+require_relative "Asteroids.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ def stop(uuid, item)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Todo::itemReceivesRunTimespan(item, timespan, true)
+    Asteroids::asteroidReceivesRunTimespan(item, timespan, true)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
@@ -67,7 +67,7 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if item.nil?
 
     Runner::start(uuid)
-    quark = Nyx::getOrNull(item["contentuuid"])
+    quark = Nyx::getOrNull(item["quarkuuid"])
     exit if quark.nil?
     Quark::openQuark(quark)
 
@@ -82,16 +82,16 @@ if ARGV[0] == "start" and ARGV[1] then
         Nyx::commitToDisk(item)
     end
 
-    if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+    if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         stop(uuid, item)
         puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
         options = ["update project", "recast on nyx network"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "recast" then
-            Todo::updateItemProjectName(item)
+            Asteroids::updateAsteroidProjectName(item)
         end
         if option == "recast on nyx network" then
-            status = Todo::recastAsCubeContent(item)
+            status = Asteroids::recastAsCubeContent(item)
             exit if !status
             Nyx::destroy(item["uuid"])
         end
@@ -103,7 +103,7 @@ if ARGV[0] == "open" and ARGV[1] then
     exit if uuid.nil?
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
-    quark = Nyx::getOrNull(item["contentuuid"])
+    quark = Nyx::getOrNull(item["quarkuuid"])
     exit if quark.nil?
     Quark::openQuark(quark)
 end
@@ -116,9 +116,9 @@ if ARGV[0] == "stop" and ARGV[1] then
 
     stop(uuid, item)
 
-    if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+    if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         puts "Item was not immediately done, we need to classify it."
-        Todo::updateItemProjectName(item)
+        Asteroids::updateAsteroidProjectName(item)
     end
 end
 
@@ -149,7 +149,7 @@ if ARGV[0] == "update-project" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    Todo::updateItemProjectName(item)
+    Asteroids::updateAsteroidProjectName(item)
 end
 
 if ARGV[0] == "recastAsCubeContent" and ARGV[1] then
@@ -159,7 +159,7 @@ if ARGV[0] == "recastAsCubeContent" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
-    status = Todo::recastAsCubeContent(item)
+    status = Asteroids::recastAsCubeContent(item)
     exit if !status
     Nyx::destroy(item["uuid"])
 end
@@ -181,5 +181,5 @@ if ARGV[0] == "dive" and ARGV[1] then
     item = Nyx::getOrNull(uuid)
     exit if item.nil?
 
-    Todo::diveItem(item)
+    Asteroids::asteroidDive(item)
 end

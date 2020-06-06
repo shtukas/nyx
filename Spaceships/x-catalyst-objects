@@ -72,60 +72,60 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "TimePods.rb"
+require_relative "Spaceships.rb"
 
 # -------------------------------------------------------------------------
 
 # Guardian Work
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
-# TimePod bank managed
-TimePods::timepods()
-    .select{|pod| ["bank-account"].include?(pod["engine"]["type"]) }
+# Spaceship bank managed
+Spaceships::spaceships()
+    .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .first(3)
-    .each{|pod|
-        DailyTimes::putTimeToBankNoOftenThanOnceADay(pod["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
+    .each{|spaceship|
+        DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
     }
 
 # -------------------------------------------------------------------------
 
 objects = []
 
-TimePods::timepods()
+Spaceships::spaceships()
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-    .each{|pod|
+    .each{|spaceship|
 
         defaultCommand = lambda {|isRunning|
             isRunning ? "stop" : "start"
         }
 
-        uuid = pod["uuid"]
+        uuid = spaceship["uuid"]
         isRunning = Runner::isRunning(uuid)
-        isRunningForLong = (TimePods::liveRunTimeIfAny(pod) > 3600)
+        isRunningForLong = (Spaceships::liveRunTimeIfAny(spaceship) > 3600)
 
         objects << {
             "uuid"           => uuid,
-            "application"    => "TimePods",
+            "application"    => "Spaceships",
             "contentItem"    => {
                 "type" => "line",
-                "line" => TimePods::toString(pod)
+                "line" => Spaceships::toString(spaceship)
             },
-            "metric"         => TimePods::metric(pod),
+            "metric"         => Spaceships::metric(spaceship),
             "commands"       => ["start", "open", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
-            "isDone" => TimePods::isDone?(pod),
+            "isDone" => Spaceships::isDone?(spaceship),
             "shell-redirects" => {
-                "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
-                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing open '#{uuid}'",
-                "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
-                "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing destroy '#{uuid}'",
+                "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing start '#{uuid}'",
+                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing open '#{uuid}'",
+                "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing stop '#{uuid}'",
+                "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing destroy '#{uuid}'",
             },
-            "x-timepod"         => pod,
+            "x-spaceship"         => spaceship,
             "x-running-for"     => Runner::runTimeInSecondsOrNull(uuid),
-            "x-total-live-time" => TimePods::liveTotalTime(pod),
+            "x-total-live-time" => Spaceships::liveTotalTime(spaceship),
         }
     }
 

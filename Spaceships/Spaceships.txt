@@ -3,25 +3,25 @@
 This is a copy of Nyx.txt
 ------------------------------------------------------
 
-TimePod
+Spaceship
 {
     "uuid"             : String
-    "nyxType"          : "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc"
+    "nyxType"          : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
     "creationUnixtime" : Float # Unixtime with decimals
-    "passenger"        : TimePodPassenger
-    "engine"           : TimePodEngine
+    "passenger"        : SpaceshipPassenger
+    "engine"           : SpaceshipEngine
 }
 
-    TimePodPassenger
+    SpaceshipPassenger
         {
             "type"        : "description"
             "description" : String
         }
         {
-            "type" : "todo-item"
+            "type" : "asteroid"
             "uuid" : String
                         # automatically created when a 
-                        # todo item gets more than one hour in the bank
+                        # asteroid gets more than one hour in the bank
         }
         {
             "type"          : "quark"
@@ -29,7 +29,7 @@ TimePod
             "quarkuuid"     : String
         }
 
-    TimePodEngine
+    SpaceshipEngine
         {
             "type" : "bank-account"
         }
@@ -46,7 +46,7 @@ TimePod
             "timeCommitmentInHours" : Float
         }
         {
-            "type"                         : "on-going-project"
+            "type"                         : "time-commitment-indefinitely"
             "referencetUnixtime"           : Unixtime
             "timeCommitmentInHoursPerWeek" : Float
         }

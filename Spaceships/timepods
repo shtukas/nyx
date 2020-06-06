@@ -47,14 +47,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "TimePods.rb"
+require_relative "Spaceships.rb"
 
 # --------------------------------------------------------------------
 
-def divePod(pod)
+def diveSpaceship(spaceship)
     loop {
         system("clear")
-        puts TimePods::toString(pod).green
+        puts Spaceships::toString(spaceship).green
         options = [
             "start",
             "re-passenger",
@@ -63,52 +63,52 @@ def divePod(pod)
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
-            TimePods::startPod(pod["uuid"])
+            Spaceships::startSpaceship(spaceship["uuid"])
         end
         if option == "re-passenger" then
-            passenger = TimePods::makePassengerInteractivelyOrNull()
+            passenger = Spaceships::makePassengerInteractivelyOrNull()
             next if passenger.nil?
-            pod["passenger"] = passenger
-            puts JSON.pretty_generate(pod)
-            Nyx::commitToDisk(pod)
+            spaceship["passenger"] = passenger
+            puts JSON.pretty_generate(spaceship)
+            Nyx::commitToDisk(spaceship)
         end
         if option == "destroy" then
-            Nyx::destroy(pod["uuid"])
+            Nyx::destroy(spaceship["uuid"])
         end
     }
 end
 
 loop {
     system("clear")
-    puts "TimePods:"
-    TimePods::timepods().each{|pod|
-        puts "- #{TimePods::toString(pod)}"
+    puts "Spaceships:"
+    Spaceships::spaceships().each{|spaceship|
+        puts "- #{Spaceships::toString(spaceship)}"
     }
     puts ""
     options = [
-        "make new pod",
-        "dive pods"
+        "make new spaceship",
+        "dive spaceships"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "make new pod" then
-        passenger = TimePods::makePassengerInteractivelyOrNull()
+    if option == "make new spaceship" then
+        passenger = Spaceships::makePassengerInteractivelyOrNull()
         next if passenger.nil?
-        engine = TimePods::makeEngineInteractivelyOrNull()
+        engine = Spaceships::makeEngineInteractivelyOrNull()
         next if engine.nil?
-        timepod = {
+        spaceship = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "passenger"        => passenger,
             "engine"           => engine
         }
-        puts JSON.pretty_generate(timepod)
-        Nyx::commitToDisk(timepod)
+        puts JSON.pretty_generate(spaceship)
+        Nyx::commitToDisk(spaceship)
     end
-    if option == "dive pods" then
-        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::timepods(), lambda{|pod| TimePods::toString(pod) })
-        next if timepod.nil?
-        divePod(timepod)
+    if option == "dive spaceships" then
+        spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::toString(spaceship) })
+        next if spaceship.nil?
+        diveSpaceship(spaceship)
     end
 }

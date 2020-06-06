@@ -4,20 +4,20 @@ Special Circumstances ProjectUUIDs
     "0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
 Mercury Channels
-    "F771D7FE-1802-409D-B009-5EB95BA89D86" : Where vienna posts links for Todo
+    "F771D7FE-1802-409D-B009-5EB95BA89D86" : Where vienna posts links for Asteroids
         String
 
 Special bank accounts
-    "ed4a67ee-c205-4ea4-a135-f10ea7782a7f" : Entire todo application (partially drives the base metric)
+    "ed4a67ee-c205-4ea4-a135-f10ea7782a7f" : Entire fleet (partially drives the base metric)
 
 ------------------------------------------------------
 
-TodoItem {
+Asteroid {
     "uuid"             : String
-    "nyxType"          : "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
+    "nyxType"          : "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
     "creationUnixtime" : Float # Unixtime with decimals
     "description"      : null | String
-    "projectname"      : String
-    "projectuuid"      : String
-    "contentuuid"      : String # uuid of a Quark
+    "orbitalname"      : String
+    "orbitaluuid"      : String
+    "quarkuuid"        : String # uuid of a Quark
 }

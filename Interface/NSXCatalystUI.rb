@@ -30,8 +30,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 require_relative "../OpenCycles/OpenCycles.rb"
 
@@ -85,15 +85,15 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    timepod = TimePods::issue(passenger, engine)
-                    Nyx::commitToDisk(timepod)
+                    spaceship = Spaceships::issue(passenger, engine)
+                    Nyx::commitToDisk(spaceship)
                 }
             ]
 
             items << [
                 "arrow (with new quark)", 
                 lambda {
-                    passenger = TimePods::makePassengerInteractivelyOrNull()
+                    passenger = Spaceships::makePassengerInteractivelyOrNull()
                     next if passenger.nil?
 
                     lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
@@ -103,27 +103,27 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    timepod = TimePods::issue(passenger, engine)
-                    puts JSON.pretty_generate(timepod)
+                    spaceship = Spaceships::issue(passenger, engine)
+                    puts JSON.pretty_generate(spaceship)
                 }
             ]
 
             items << [
-                "timepod (new)", 
+                "spaceship (new)", 
                 lambda { 
-                    passenger = TimePods::makePassengerInteractivelyOrNull()
+                    passenger = Spaceships::makePassengerInteractivelyOrNull()
                     next if passenger.nil?
-                    engine = TimePods::makeEngineInteractivelyOrNull()
+                    engine = Spaceships::makeEngineInteractivelyOrNull()
                     next if engine.nil?
-                    timepod = {
+                    spaceship = {
                         "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
+                        "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
                         "creationUnixtime" => Time.new.to_f,
                         "passenger"        => passenger,
                         "engine"           => engine
                     }
-                    puts JSON.pretty_generate(timepod)
-                    Nyx::commitToDisk(timepod)
+                    puts JSON.pretty_generate(spaceship)
+                    Nyx::commitToDisk(spaceship)
                 }
             ]
 
@@ -132,17 +132,17 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    projectname = Todo::selectProjectNameInteractivelyOrNull()
-                    projectuuid = nil
-                    if projectname.nil? then
-                        projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-                        projectuuid = SecureRandom.uuid
+                    orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+                    orbitaluuid = nil
+                    if orbitalname.nil? then
+                        orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
+                        orbitaluuid = SecureRandom.uuid
                     else
-                        projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
-                        return if projectuuid.nil?
+                        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+                        return if orbitaluuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-                    Todo::issueNewItem(projectname, projectuuid, description, target)
+                    Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
                 }
             ]
 
@@ -188,7 +188,7 @@ class NSXCatalystUI
                     cube = Cube::issueCube_v2(description, quark)
                     starlightnode = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
                     return if starlightnode.nil?
-                    StarlightContents::issueClaim(starlightnode, cube)
+                    StarlightInventory::issueClaim(starlightnode, cube)
                 }
             ]
 
@@ -200,12 +200,12 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "TimePods", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+                "Spaceships", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/spaceships") }
             ]
             items << [
-                "Todo", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+                "Asteroids", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/fleet") }
             ]
             items << [
                 "OpenCycles", 

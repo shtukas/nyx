@@ -33,46 +33,46 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
-class TimePods
+class Spaceships
 
-    # TimePods::issue(passenger, engine)
+    # Spaceships::issue(passenger, engine)
     def self.issue(passenger, engine)
-        pod = {
+        spaceship = {
             "uuid"      => SecureRandom.uuid,
-            "nyxType"   => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "nyxType"   => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "passenger" => passenger,
             "engine"    => engine
         }
-        Nyx::commitToDisk(pod)
-        pod
+        Nyx::commitToDisk(spaceship)
+        spaceship
     end
 
-    # TimePods::toStringPassengerFragment(pod)
-    def self.toStringPassengerFragment(pod)
-        passenger = pod["passenger"]
+    # Spaceships::toStringPassengerFragment(spaceship)
+    def self.toStringPassengerFragment(spaceship)
+        passenger = spaceship["passenger"]
         if passenger["type"] == "description" then
-            return "[timepod] #{passenger["description"]}"
+            return "[spaceship] #{passenger["description"]}"
         end
-        if passenger["type"] == "todo-item" then
-            return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
+        if passenger["type"] == "asteroid" then
+            return "[spaceship] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
         end
         if passenger["type"] == "quark" then
-            quark = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
-            return "[timepod] #{passenger["description"]} #{quark ? Quark::quarkToString(quark) : "[could not find quark]"}"
+            quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
+            return "[spaceship] #{passenger["description"]} #{quark ? Quark::quarkToString(quark) : "[could not find quark]"}"
         end
-        raise "[TimePods] error: CE8497BB"
+        raise "[Spaceships] error: CE8497BB"
     end
 
-    # TimePods::toStringEngineFragment(pod)
-    def self.toStringEngineFragment(pod)
+    # Spaceships::toStringEngineFragment(spaceship)
+    def self.toStringEngineFragment(spaceship)
 
-        uuid = pod["uuid"]
+        uuid = spaceship["uuid"]
 
-        engine = pod["engine"]
+        engine = spaceship["engine"]
 
         if engine["type"] == "time-commitment-on-curve" then
-            return "[time-commitment-on-curve] (completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTotalTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
+            return "[time-commitment-on-curve] (completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours, ideal: #{(Spaceships::timeCommitmentOnCurve_idealTime(spaceship).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "bank-account" then
@@ -83,8 +83,8 @@ class TimePods
             return "[bank-account-special-circumstances] (bank account: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
         end
 
-        if engine["type"] == "on-going-project" then
-            return "[on-going-project] (bank account (adapted): #{(TimePods::onGoingProjectAdaptedBankTime(pod).to_f/3600).round(2)} hours)"
+        if engine["type"] == "time-commitment-indefinitely" then
+            return "[time-commitment-indefinitely] (bank account (adapted): #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "arrow" then
@@ -95,12 +95,12 @@ class TimePods
             return "[arrow] (#{"%.2f" % percentage.round(2)}%)"
         end
 
-        raise "[TimePods] error: 46b84bdb"
+        raise "[Spaceships] error: 46b84bdb"
     end
 
-    # TimePods::toString(pod)
-    def self.toString(pod)
-        uuid = pod["uuid"]
+    # Spaceships::toString(spaceship)
+    def self.toString(spaceship)
+        uuid = spaceship["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningString = 
             if isRunning then
@@ -108,10 +108,10 @@ class TimePods
             else
                 ""
             end
-        "#{TimePods::toStringPassengerFragment(pod)} #{TimePods::toStringEngineFragment(pod)}#{runningString}"
+        "#{Spaceships::toStringPassengerFragment(spaceship)} #{Spaceships::toStringEngineFragment(spaceship)}#{runningString}"
     end
 
-    # TimePods::makePassengerInteractivelyOrNull()
+    # Spaceships::makePassengerInteractivelyOrNull()
     def self.makePassengerInteractivelyOrNull()
         options = [
             "description",
@@ -129,7 +129,7 @@ class TimePods
         if option == "quark" then
             quark = Quark::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("timepod passenger description: ")
+            description = LucilleCore::askQuestionAnswerAsString("spaceship passenger description: ")
             return {
                 "type"          => "quark",
                 "description"   => description,
@@ -139,11 +139,11 @@ class TimePods
         nil
     end
 
-    # TimePods::makeEngineInteractivelyOrNull()
+    # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
         opt1 = "Bank managed until completion             ( bank-account )"
         opt2 = "Time commitment with deadline             ( time-commitment-on-curve )"
-        opt3 = "On-going time commitment without deadline ( on-going-project )"
+        opt3 = "On-going time commitment without deadline ( time-commitment-indefinitely )"
         opt4 = "Arrow                                     ( arrow )"
         options = [
             opt1,
@@ -166,7 +166,7 @@ class TimePods
         if option == opt3 then
             timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
             return {
-                "type"                         => "on-going-project",
+                "type"                         => "time-commitment-indefinitely",
                 "referencetUnixtime"           => Time.new.to_i,
                 "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
             }
@@ -187,55 +187,55 @@ class TimePods
         nil
     end
 
-    # TimePods::openPassenger(uuid)
+    # Spaceships::openPassenger(uuid)
     def self.openPassenger(uuid)
-        pod = Nyx::getOrNull(uuid)
-        return if pod.nil?
-        if pod["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
+        spaceship = Nyx::getOrNull(uuid)
+        return if spaceship.nil?
+        if spaceship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
             # LucilleTxt
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
         end
-        if pod["passenger"]["type"] == "todo-item" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
+        if spaceship["passenger"]["type"] == "asteroid" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{spaceship["passenger"]["uuid"]}'")
         end
-        if pod["passenger"]["type"] == "quark" then
-            quark = Nyx::getOrNull(pod["passenger"]["quarkuuid"])
+        if spaceship["passenger"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end
     end
 
-    # TimePods::startPod(uuid)
-    def self.startPod(uuid)
-        pod = Nyx::getOrNull(uuid)
-        return if pod.nil?
+    # Spaceships::startSpaceship(uuid)
+    def self.startSpaceship(uuid)
+        spaceship = Nyx::getOrNull(uuid)
+        return if spaceship.nil?
         Runner::start(uuid)
-        TimePods::openPassenger(uuid)
+        Spaceships::openPassenger(uuid)
     end
 
-    # TimePods::timepods()
-    def self.timepods()
-        Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+    # Spaceships::spaceships()
+    def self.spaceships()
+        Nyx::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
     end
 
     # --------------------------------------------------------------------
     # Catalyst Object support
 
-    # TimePods::metric(pod)
-    def self.metric(pod)
-        uuid = pod["uuid"]
+    # Spaceships::metric(spaceship)
+    def self.metric(spaceship)
+        uuid = spaceship["uuid"]
 
         return 0.999 if Runner::isRunning(uuid)
 
-        engine = pod["engine"]
+        engine = spaceship["engine"]
 
         if engine["type"] == "time-commitment-on-curve" then
             timeBank = Bank::value(uuid)
-            return -1 if (timeBank >= 3600*pod["engine"]["timeCommitmentInHours"])
-            if TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) < TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) then
-                return 0.76 + 0.001*(TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).to_f
+            return -1 if (timeBank >= 3600*spaceship["engine"]["timeCommitmentInHours"])
+            if Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) < Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship) then
+                return 0.76 + 0.001*(Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship) - Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).to_f
             else
-                return 0.60 - 0.01*(TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)).to_f
+                return 0.60 - 0.01*(Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) - Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)).to_f
             end
         end
 
@@ -257,8 +257,8 @@ class TimePods
             end
         end
 
-        if engine["type"] == "on-going-project" then
-            timeBank = TimePods::onGoingProjectAdaptedBankTime(pod)
+        if engine["type"] == "time-commitment-indefinitely" then
+            timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
             if timeBank >= 0 then
                 return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
             else
@@ -270,67 +270,67 @@ class TimePods
             return 0.20 + 0.80*((Time.new.to_i - engine["startunixtime"]).to_f/86400).to_f/(0.90*engine["lengthInDays"])
         end
 
-        raise "[TimePods] error: 46b84bdb"
+        raise "[Spaceships] error: 46b84bdb"
     end
 
-    # TimePods::liveRunTimeIfAny(pod)
-    def self.liveRunTimeIfAny(pod)
-        uuid = pod["uuid"]
+    # Spaceships::liveRunTimeIfAny(spaceship)
+    def self.liveRunTimeIfAny(spaceship)
+        uuid = spaceship["uuid"]
         Runner::runTimeInSecondsOrNull(uuid) || 0
     end
 
-    # TimePods::liveTotalTime(pod)
-    def self.liveTotalTime(pod)
-        uuid = pod["uuid"]
-        Bank::value(uuid) + TimePods::liveRunTimeIfAny(pod)
+    # Spaceships::liveTotalTime(spaceship)
+    def self.liveTotalTime(spaceship)
+        uuid = spaceship["uuid"]
+        Bank::value(uuid) + Spaceships::liveRunTimeIfAny(spaceship)
     end
 
-    # TimePods::isDone?
-    def self.isDone?(pod)
-        uuid = pod["uuid"]
-        engine = pod["engine"]
+    # Spaceships::isDone?
+    def self.isDone?(spaceship)
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
         if engine["type"] == "time-commitment-on-curve" then
-            return (TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) > TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod))
+            return (Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) > Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship))
         end 
-        if engine["type"] == "on-going-project" then
-            return TimePods::onGoingProjectAdaptedBankTime(pod)
+        if engine["type"] == "time-commitment-indefinitely" then
+            return Spaceships::onGoingProjectAdaptedBankTime(spaceship)
         end 
-        isDone = TimePods::liveTotalTime(pod) > 0
+        isDone = Spaceships::liveTotalTime(spaceship) > 0
     end
 
     # --------------------------------------------------------------------
     # time-commitment-on-curve
 
-    # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)
-    def self.timeCommitmentOnCurve_idealCompletionRatio(pod)
-        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
-        periodInSeconds = 0.9*pod["engine"]["periodInDays"]*86400
+    # Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)
+    def self.timeCommitmentOnCurve_idealCompletionRatio(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        periodInSeconds = 0.9*spaceship["engine"]["periodInDays"]*86400
                                         # We compute on the basis of completing in 90%% of the allocated time
-        timeSinceStart = Time.new.to_i - pod["engine"]["startUnixtime"]
+        timeSinceStart = Time.new.to_i - spaceship["engine"]["startUnixtime"]
         [timeSinceStart.to_f/periodInSeconds, 1].min
     end
 
-    # TimePods::timeCommitmentOnCurve_idealTime(pod)
-    def self.timeCommitmentOnCurve_idealTime(pod)
-        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
-        TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)*(3600*pod["engine"]["timeCommitmentInHours"])
+    # Spaceships::timeCommitmentOnCurve_idealTime(spaceship)
+    def self.timeCommitmentOnCurve_idealTime(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)*(3600*spaceship["engine"]["timeCommitmentInHours"])
     end
 
-    # TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)
-    def self.timeCommitmentOnCurve_actualCompletionRatio(pod)
-        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
-        TimePods::liveTotalTime(pod).to_f/(3600*pod["engine"]["timeCommitmentInHours"])
+    # Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)
+    def self.timeCommitmentOnCurve_actualCompletionRatio(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        Spaceships::liveTotalTime(spaceship).to_f/(3600*spaceship["engine"]["timeCommitmentInHours"])
     end
 
     # --------------------------------------------------------------------
-    # on-going-project
+    # time-commitment-indefinitely
 
-    # TimePods::onGoingProjectAdaptedBankTime(pod)
-    def self.onGoingProjectAdaptedBankTime(pod)
-        uuid = pod["uuid"]
-        engine = pod["engine"]
+    # Spaceships::onGoingProjectAdaptedBankTime(spaceship)
+    def self.onGoingProjectAdaptedBankTime(spaceship)
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
         idealTimeInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
-        TimePods::liveTotalTime(pod) - idealTimeInSecond
+        Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
     end 
 
 end

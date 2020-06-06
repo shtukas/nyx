@@ -16,8 +16,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -149,13 +149,13 @@ class NSXMiscUtils
             end
             target = Quark::locationToFileOrFolderQuarkIssued(location)
             item = {
-                "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+                "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
                 "uuid"             => SecureRandom.uuid,
                 "creationUnixtime" => Time.new.to_f,
-                "projectname"      => "Inbox",
-                "projectuuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
+                "orbitalname"      => "Inbox",
+                "orbitaluuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
                 "description"      => File.basename(location),
-                "contentuuid"      => target["uuid"]
+                "quarkuuid"      => target["uuid"]
             }
             puts JSON.pretty_generate(item)
             Nyx::commitToDisk(item)
@@ -206,7 +206,7 @@ class NSXMiscUtils
                     break
                 end
                 puts JSON.pretty_generate(cube)
-                claim = StarlightContents::issueClaim(node, cube)
+                claim = StarlightInventory::issueClaim(node, cube)
                 puts JSON.pretty_generate(claim)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{StarlightNodes::nodeToString(node)}' ? ")
             }

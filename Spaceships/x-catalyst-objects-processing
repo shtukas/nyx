@@ -51,7 +51,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "TimePods.rb"
+require_relative "Spaceships.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -59,27 +59,27 @@ def stop(uuid)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    puts "[timepod] Bank: putting #{timespan.round(2)} secs into pod (#{uuid})"
+    puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{uuid})"
     Bank::put(uuid, timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    TimePods::startPod(uuid)
+    Spaceships::startSpaceship(uuid)
 end
 
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    TimePods::openPassenger(uuid)
+    Spaceships::openPassenger(uuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = Nyx::getOrNull(uuid)
-    exit if pod.nil?
+    spaceship = Nyx::getOrNull(uuid)
+    exit if spaceship.nil?
 
     stop(uuid)
 end
@@ -87,8 +87,8 @@ end
 if ARGV[0] == "destroy" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = Nyx::getOrNull(uuid)
-    exit if pod.nil?
+    spaceship = Nyx::getOrNull(uuid)
+    exit if spaceship.nil?
 
     stop(uuid)
     Nyx::destroy(uuid)

@@ -1,4 +1,4 @@
 
 Mercury Channels
-    F771D7FE-1802-409D-B009-5EB95BA89D86 : Where vienna posts links for Todo
+    F771D7FE-1802-409D-B009-5EB95BA89D86 : Where vienna posts links for Asteroids
         String

@@ -49,80 +49,64 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------------
 
-class Todo
+class Asteroids
 
-    # Todo::issueNewItem(projectname, projectuuid, description, quark)
-    def self.issueNewItem(projectname, projectuuid, description, quark)
+    # Asteroids::issueNew(orbitalname, orbitaluuid, description, quark)
+    def self.issueNew(orbitalname, orbitaluuid, description, quark)
         item = {
-            "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "uuid"             => SecureRandom.uuid,
             "creationUnixtime" => Time.new.to_f,
-            "projectname"      => projectname,
-            "projectuuid"      => projectuuid,
+            "orbitalname"      => orbitalname,
+            "orbitaluuid"      => orbitaluuid,
             "description"      => description,
-            "contentuuid"      => quark["uuid"]
+            "quarkuuid"        => quark["uuid"]
         }
         Nyx::commitToDisk(item)
         item
     end
 
-    # Todo::selectProjectNameUuidPair()
+    # Asteroids::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        projectname = Todo::selectProjectNameInteractivelyOrNull()
-        projectuuid = nil
-        if projectname.nil? then
-            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-            projectuuid = SecureRandom.uuid
+        orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+        orbitaluuid = nil
+        if orbitalname.nil? then
+            orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
+            orbitaluuid = SecureRandom.uuid
         else
-            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             # We are not considering the case null
         end
-        [projectname, projectuuid]
+        [orbitalname, orbitaluuid]
     end
 
-    # Todo::issueNewItemInteractivelyX1(description, target)
-    def self.issueNewItemInteractivelyX1(description, target)
-        projectname, projectuuid = Todo::selectProjectNameUuidPair()
-        item = {
-            "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
-            "uuid"             => SecureRandom.uuid,
-            "creationUnixtime" => Time.new.to_f,
-            "projectname"      => projectname,
-            "projectuuid"      => projectuuid,
-            "description"      => description,
-            "contentuuid"      => target["uuid"]
-        }
-        Nyx::commitToDisk(item)
-        item
-    end
-
-    # Todo::itemBestDescription(item)
-    def self.itemBestDescription(item)
-        quark = Nyx::getOrNull(item["contentuuid"])
+    # Asteroids::asteroidBestDescription(item)
+    def self.asteroidBestDescription(item)
+        quark = Nyx::getOrNull(item["quarkuuid"])
         return "#{JSON.generate(item)} -> null quark" if quark.nil?
         item["description"] || Quark::quarkToString(quark)
     end
 
-    # Todo::openItem(item)
-    def self.openItem(item)
-        quark = Nyx::getOrNull(item["contentuuid"])
+    # Asteroids::asteroidOpen(item)
+    def self.asteroidOpen(item)
+        quark = Nyx::getOrNull(item["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
     end
 
-    # Todo::itemToString(item)
-    def self.itemToString(item)
+    # Asteroids::asteroidToString(item)
+    def self.asteroidToString(item)
         itemuuid = item["uuid"]
-        quark = Nyx::getOrNull(item["contentuuid"])
+        quark = Nyx::getOrNull(item["quarkuuid"])
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[todo item] (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Todo::itemBestDescription(item)}#{runningSuffix}"
+        "[todo item] (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) [#{item["orbitalname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Asteroids::asteroidBestDescription(item)}#{runningSuffix}"
     end
 
-    # Todo::itemReceivesRunTimespan(item, timespan, verbose = false)
-    def self.itemReceivesRunTimespan(item, timespan, verbose = false)
+    # Asteroids::asteroidReceivesRunTimespan(item, timespan, verbose = false)
+    def self.asteroidReceivesRunTimespan(item, timespan, verbose = false)
         itemuuid = item["uuid"]
-        projectuuid = item["projectuuid"]
+        orbitaluuid = item["orbitaluuid"]
 
         if verbose then
             puts "Bank: putting #{timespan.round(2)} secs into itemuuid: #{itemuuid}"
@@ -130,81 +114,81 @@ class Todo
         Bank::put(itemuuid, timespan)
 
         if verbose then
-            puts "Bank: putting #{timespan.round(2)} secs into projectuuid: #{projectuuid}"
+            puts "Bank: putting #{timespan.round(2)} secs into orbitaluuid: #{orbitaluuid}"
         end
-        Bank::put(projectuuid, timespan)
+        Bank::put(orbitaluuid, timespan)
 
         if verbose then
-            puts "Ping: putting #{timespan.round(2)} secs into Todo application [uuid: ed4a67ee-c205-4ea4-a135-f10ea7782a7f]"
+            puts "Ping: putting #{timespan.round(2)} secs into Asteroids [uuid: ed4a67ee-c205-4ea4-a135-f10ea7782a7f]"
         end
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
-    # Todo::projectNames()
+    # Asteroids::projectNames()
     def self.projectNames()
-        Todo::todoitems()
-            .map{|item| item["projectname"] }
+        Asteroids::asteroids()
+            .map{|item| item["orbitalname"] }
             .uniq
             .sort
     end
 
-    # Todo::projectname2projectuuidOrNUll(projectname)
-    def self.projectname2projectuuidOrNUll(projectname)
-        projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
-        return projectuuid if !projectuuid.nil?
-        projectuuid = Todo::todoitems().select{|item| item["projectname"] == projectname }.first["projectuuid"]
-        if !projectuuid.nil? then
-            KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
+    # Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+    def self.orbitalname2orbitaluuidOrNUll(orbitalname)
+        orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
+        return orbitaluuid if !orbitaluuid.nil?
+        orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
+        if !orbitaluuid.nil? then
+            KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}", orbitaluuid)
         end
-        projectuuid
+        orbitaluuid
     end
 
-    # Todo::selectProjectNameInteractivelyOrNull()
+    # Asteroids::selectProjectNameInteractivelyOrNull()
     def self.selectProjectNameInteractivelyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Todo::projectNames().sort)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::projectNames().sort)
     end
 
-    # Todo::itemsForProjectName(projectname)
-    def self.itemsForProjectName(projectname)
-        projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
-        return [] if projectuuid.nil?
-        Todo::todoitems()
-            .select{|item| item["projectuuid"] == projectuuid }
+    # Asteroids::asteroidsForProjectName(orbitalname)
+    def self.asteroidsForProjectName(orbitalname)
+        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+        return [] if orbitaluuid.nil?
+        Asteroids::asteroids()
+            .select{|item| item["orbitaluuid"] == orbitaluuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
 
-    # Todo::projectsTimeDistribution()
+    # Asteroids::projectsTimeDistribution()
     def self.projectsTimeDistribution()
-        Todo::projectNames().map{|projectname|
-            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
+        Asteroids::projectNames().map{|orbitalname|
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             {
-                "projectname" => projectname,
-                "projectuuid" => projectuuid,
-                "timeInHours" => Bank::value(projectuuid).to_f/3600
+                "orbitalname" => orbitalname,
+                "orbitaluuid" => orbitaluuid,
+                "timeInHours" => Bank::value(orbitaluuid).to_f/3600
             }
         }
     end
 
-    # Todo::updateItemProjectName(item)
-    def self.updateItemProjectName(item)
-        projectname = Todo::selectProjectNameInteractivelyOrNull()
-        projectuuid = nil
-        if projectname.nil? then
-            projectname = LucilleCore::askQuestionAnswerAsString("project name? ")
-            return if projectname == ""
-            projectuuid = SecureRandom.uuid
+    # Asteroids::updateAsteroidProjectName(item)
+    def self.updateAsteroidProjectName(item)
+        orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+        orbitaluuid = nil
+        if orbitalname.nil? then
+            orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
+            return if orbitalname == ""
+            orbitaluuid = SecureRandom.uuid
         else
-            projectuuid = Todo::projectname2projectuuidOrNUll(projectname)
-            return if projectuuid.nil?
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            return if orbitaluuid.nil?
         end
-        item["projectname"] = projectname
-        item["projectuuid"] = projectuuid
+        item["orbitalname"] = orbitalname
+        item["orbitaluuid"] = orbitaluuid
         Nyx::commitToDisk(item)
     end
 
-    # Todo::recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    # Asteroids::recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
-        quark = Nyx::getOrNull(item["contentuuid"])
+        quark = Nyx::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         cube = CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
         return false if cube.nil?
@@ -214,13 +198,13 @@ class Todo
         return true
     end
 
-    # Todo::diveItem(item)
-    def self.diveItem(item)
+    # Asteroids::asteroidDive(item)
+    def self.asteroidDive(item)
         loop {
             puts ""
             puts "uuid: #{item["uuid"]}"
-            puts Todo::itemToString(item).green
-            puts "project time: #{Bank::value(item["projectuuid"].to_f/3600)} hours".green
+            puts Asteroids::asteroidToString(item).green
+            puts "project time: #{Bank::value(item["orbitaluuid"].to_f/3600)} hours".green
             options = [
                 "start",
                 "open",
@@ -228,7 +212,7 @@ class Todo
                 "set description",
                 "recast",
                 "push",
-                "promote from Todo to Data"
+                "promote from Asteroid to Data"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -244,7 +228,7 @@ class Todo
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                quark = Nyx::getOrNull(item["contentuuid"])
+                quark = Nyx::getOrNull(item["quarkuuid"])
                 next if quark.nil?
                 Quark::openQuark(quark)
             end
@@ -257,14 +241,14 @@ class Todo
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Todo::updateItemProjectName(item)
+                Asteroids::updateAsteroidProjectName(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
                 Nyx::commitToDisk(item)
             end
-            if option == "promote from Todo to Data" then
-                status = Todo::recastAsCubeContent(item)
+            if option == "promote from Asteroid to Data" then
+                status = Asteroids::recastAsCubeContent(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return
@@ -272,8 +256,8 @@ class Todo
         }
     end
 
-    # Todo::todoitems()
-    def self.todoitems()
-        Nyx::objects("todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+    # Asteroids::asteroids()
+    def self.asteroids()
+        Nyx::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 end

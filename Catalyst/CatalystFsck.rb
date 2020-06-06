@@ -53,8 +53,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/Wave.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
@@ -210,8 +210,8 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkTodoItem(todoitem)
-    def self.checkTodoItem(todoitem)
+    # CatalystFsck::checkAsteroid(todoitem)
+    def self.checkAsteroid(todoitem)
         puts JSON.pretty_generate(todoitem)
         if todoitem["uuid"].nil? then
             puts "[error] todoitem has no uuid".red
@@ -229,82 +229,82 @@ class CatalystFsck
             exit
         end
         # todoitem["description"]
-        if todoitem["projectname"].nil? then
-            puts "[error] todoitem has no projectname".red
+        if todoitem["orbitalname"].nil? then
+            puts "[error] todoitem has no orbitalname".red
             puts JSON.pretty_generate(todoitem).red
             exit
         end
-        if todoitem["projectuuid"].nil? then
-            puts "[error] todoitem has no projectuuid".red
+        if todoitem["orbitaluuid"].nil? then
+            puts "[error] todoitem has no orbitaluuid".red
             puts JSON.pretty_generate(todoitem).red
             exit
         end
-        if todoitem["contentuuid"].nil? then
-            puts "[error] todoitem has no contentuuid".red
+        if todoitem["quarkuuid"].nil? then
+            puts "[error] todoitem has no quarkuuid".red
             puts JSON.pretty_generate(todoitem).red
             exit
         end
-        contentuuid = todoitem["contentuuid"] # We are targetting Quark
-        quark = Nyx::getOrNull(contentuuid)
+        quarkuuid = todoitem["quarkuuid"] # We are targetting Quark
+        quark = Nyx::getOrNull(quarkuuid)
         if quark.nil? then
-            puts "[error] Todo item has not known target quark".red
+            puts "[error] Asteroid has not known target quark".red
             puts JSON.pretty_generate(todoitem).red
             exit
         end
         CatalystFsck::checkQuark(quark)
     end
 
-    # CatalystFsck::checkTimePod(timepod)
-    def self.checkTimePod(timepod)
-        puts JSON.pretty_generate(timepod)
-        if timepod["uuid"].nil? then
-            puts "[error] timepod has no uuid".red
-            puts JSON.pretty_generate(timepod).red
+    # CatalystFsck::checkSpaceship(spaceship)
+    def self.checkSpaceship(spaceship)
+        puts JSON.pretty_generate(spaceship)
+        if spaceship["uuid"].nil? then
+            puts "[error] spaceship has no uuid".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
-        if timepod["nyxType"].nil? then
-            puts "[error] timepod has no nyxType".red
-            puts JSON.pretty_generate(timepod).red
+        if spaceship["nyxType"].nil? then
+            puts "[error] spaceship has no nyxType".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
-        if timepod["nyxType"] != "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc" then
-            puts "[error] timepod has incorrect nyxType".red
-            puts JSON.pretty_generate(timepod).red
+        if spaceship["nyxType"] != "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc" then
+            puts "[error] spaceship has incorrect nyxType".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
-        if timepod["passenger"].nil? then
-            puts "[error] timepod has no passenger".red
-            puts JSON.pretty_generate(timepod).red
-            exit
-        end
-
-        passengerTypes = ["description", "todo-item", "quark"]
-        if !passengerTypes.include?(timepod["passenger"]["type"]) then
-            puts "[error] timepod has incorrect passenger type".red
-            puts JSON.pretty_generate(timepod).red
+        if spaceship["passenger"].nil? then
+            puts "[error] spaceship has no passenger".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
 
-        if timepod["passenger"]["type"] == "quark" then
-            quark = Nyx::getOrNull(timepod["passenger"]["quarkuuid"])
+        passengerTypes = ["description", "asteroid", "quark"]
+        if !passengerTypes.include?(spaceship["passenger"]["type"]) then
+            puts "[error] spaceship has incorrect passenger type".red
+            puts JSON.pretty_generate(spaceship).red
+            exit
+        end
+
+        if spaceship["passenger"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
             if quark.nil? then
-                puts "[error] TimePod item has not known target quark".red
-                puts JSON.pretty_generate(timepod).red
+                puts "[error] Spaceship item has not known target quark".red
+                puts JSON.pretty_generate(spaceship).red
                 exit
             end
             CatalystFsck::checkQuark(quark)
         end
 
-        if timepod["engine"].nil? then
-            puts "[error] timepod has no engine".red
-            puts JSON.pretty_generate(timepod).red
+        if spaceship["engine"].nil? then
+            puts "[error] spaceship has no engine".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
 
-        engineTypes = ["time-commitment-on-curve", "on-going-project", "bank-account", "bank-account-special-circumstances"]
-        if !engineTypes.include?(timepod["engine"]["type"]) then
-            puts "[error] timepod has incorrect engine type".red
-            puts JSON.pretty_generate(timepod).red
+        engineTypes = ["time-commitment-on-curve", "time-commitment-indefinitely", "bank-account", "bank-account-special-circumstances"]
+        if !engineTypes.include?(spaceship["engine"]["type"]) then
+            puts "[error] spaceship has incorrect engine type".red
+            puts JSON.pretty_generate(spaceship).red
             exit
         end
     end
@@ -391,11 +391,11 @@ class CatalystFsck
         Wave::waves().each{|wave|
             CatalystFsck::checkWave(wave)
         }
-        Todo::todoitems().each{|todoitem|
-            CatalystFsck::checkTodoItem(todoitem)
+        Asteroids::asteroids().each{|todoitem|
+            CatalystFsck::checkAsteroid(todoitem)
         }
-        TimePods::timepods().each{|timepod|
-            CatalystFsck::checkTimePod(timepod)
+        Spaceships::spaceships().each{|spaceship|
+            CatalystFsck::checkSpaceship(spaceship)
         }
         StarlightNodes::nodes().each{|node|
             CatalystFsck::checkStarlightNode(node)
