@@ -74,11 +74,11 @@ class Spaceships
             end
 
             if engine["type"] == "bank-account" then
-                return "(bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+                return "(bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "bank-account-special-circumstances" then
-                return "(bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+                return "(bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "time-commitment-indefinitely" then
