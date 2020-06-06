@@ -87,6 +87,14 @@ class TimePods
             return "[on-going-project] (bank account (adapted): #{(TimePods::onGoingProjectAdaptedBankTime(pod).to_f/3600).round(2)} hours)"
         end
 
+        if engine["type"] == "arrow" then
+            timeSinceStart = Time.new.to_f - engine["startunixtime"]
+            arrowTime = engine["lengthInDays"] * 86400
+            ratio = timeSinceStart.to_f/arrowTime
+            percentage = 100*ratio
+            return "[arrow] (#{"%.2f" % percentage.round(2)}%)"
+        end
+
         raise "[TimePods] error: 46b84bdb"
     end
 
@@ -101,16 +109,6 @@ class TimePods
                 ""
             end
         "#{TimePods::toStringPassengerFragment(pod)} #{TimePods::toStringEngineFragment(pod)}#{runningString}"
-    end
-
-    # TimePods::timePodIsStillRelevant(pod)
-    def self.timePodIsStillRelevant(pod)
-        uuid = pod["uuid"]
-        engine = pod["engine"]
-        if engine["type"] == "time-commitment-on-curve" then
-            return false if (Bank::value(uuid) >= 3600*pod["engine"]["timeCommitmentInHours"])
-        end
-        true
     end
 
     # TimePods::makePassengerInteractivelyOrNull()
@@ -143,14 +141,19 @@ class TimePods
 
     # TimePods::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
+        opt1 = "Bank managed until completion             ( bank-account )"
+        opt2 = "Time commitment with deadline             ( time-commitment-on-curve )"
+        opt3 = "On-going time commitment without deadline ( on-going-project )"
+        opt4 = "Arrow                                     ( arrow )"
         options = [
-            "time commitment with deadline",
-            "bank managed until completion",
-            "on-going time commitment without deadline"
+            opt1,
+            opt2,
+            opt3,
+            opt4,
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
         return nil if option.nil?
-        if option == "time commitment with deadline" then
+        if option == opt2 then
             periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
@@ -160,7 +163,7 @@ class TimePods
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
-        if option == "on-going time commitment without deadline" then
+        if option == opt3 then
             timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
             return {
                 "type"                         => "on-going-project",
@@ -168,9 +171,17 @@ class TimePods
                 "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
             }
         end
-        if option == "bank managed until completion" then
+        if option == opt1 then
             return {
                 "type" => "bank-account"
+            }
+        end
+        if option == opt4 then
+            lengthInDays = LucilleCore::askQuestionAnswerAsString("length in days: ").to_f
+            return {
+                "type"          => "arrow",
+                "startunixtime" => Time.new.to_f,
+                "lengthInDays"  => lengthInDays
             }
         end
         nil
@@ -253,6 +264,10 @@ class TimePods
             else
                 return 0.70 + 0.1*(-timeBank.to_f/86400)
             end
+        end
+
+        if engine["type"] == "arrow" then
+            return 0.20 + 0.80*((Time.new.to_i - engine["startunixtime"]).to_f/86400).to_f/(0.90*engine["lengthInDays"])
         end
 
         raise "[TimePods] error: 46b84bdb"

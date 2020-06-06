@@ -1,8 +1,0 @@
-
-Arrow {
-    "uuid"          : String
-    "description"   : String
-    "startunixtime" : Int
-    "lengthInDays"  : Float
-    "quarkuuid"     : nil | String # nil when the description is enough
-}

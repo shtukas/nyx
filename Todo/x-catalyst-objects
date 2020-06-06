@@ -153,14 +153,7 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "url"              => link
     }
     Nyx::commitToDisk(quark)
-    arrow = {
-        "uuid"          => SecureRandom.uuid,
-        "description"   => link,
-        "startunixtime" => Time.new.to_i,
-        "lengthInDays"  => 2,
-        "quarkuuid"     => quark["uuid"]
-    }
-    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
+    Todo::issueNewItem("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 

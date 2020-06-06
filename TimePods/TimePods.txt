@@ -31,6 +31,15 @@ TimePod
 
     TimePodEngine
         {
+            "type" : "bank-account"
+        }
+        {
+            "type" : "bank-account-special-circumstances" 
+                                    # Gwork
+                                    # Totally exceptional
+                                    # Created by hand
+        }
+        {
             "type"                  : "time-commitment-on-curve"
             "startUnixtime"         : Unixtime
             "periodInDays"          : Float
@@ -42,11 +51,7 @@ TimePod
             "timeCommitmentInHoursPerWeek" : Float
         }
         {
-            "type" : "bank-account"
-        }
-        {
-            "type" : "bank-account-special-circumstances" 
-                                    # Gwork
-                                    # Totally exceptional
-                                    # Created by hand
+            "type"          : "arrow"
+            "startunixtime" : Int
+            "lengthInDays"  : Float
         }

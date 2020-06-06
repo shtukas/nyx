@@ -51,8 +51,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class Todo
 
-    # Todo::issueNewItem(projectname, projectuuid, description, target)
-    def self.issueNewItem(projectname, projectuuid, description, target)
+    # Todo::issueNewItem(projectname, projectuuid, description, quark)
+    def self.issueNewItem(projectname, projectuuid, description, quark)
         item = {
             "nyxType"          => "todo-item-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "uuid"             => SecureRandom.uuid,
@@ -60,7 +60,7 @@ class Todo
             "projectname"      => projectname,
             "projectuuid"      => projectuuid,
             "description"      => description,
-            "contentuuid"      => target["uuid"]
+            "contentuuid"      => quark["uuid"]
         }
         Nyx::commitToDisk(item)
         item

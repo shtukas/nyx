@@ -70,34 +70,41 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "arrow (description only)", 
+                "arrow (description)", 
                 lambda {
-                    arrow = {
-                        "uuid"          => SecureRandom.uuid,
-                        "description"   => LucilleCore::askQuestionAnswerAsString("description: "),
-                        "startunixtime" => Time.new.to_i,
-                        "lengthInDays"  => LucilleCore::askQuestionAnswerAsString("length in days: ").to_f,
-                        "quarkuuid"     => nil
+                    description = LucilleCore::askQuestionAnswerAsString("arrow description: ")
+                    passenger = {
+                        "type"        => "description",
+                        "description" => description
                     }
-                    puts JSON.pretty_generate(arrow)
-                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
+
+                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
+                    engine = {
+                        "type"          => "arrow",
+                        "startunixtime" => Time.new.to_f,
+                        "lengthInDays"  => lengthInDays
+                    }
+
+                    timepod = TimePods::issue(passenger, engine)
+                    Nyx::commitToDisk(timepod)
                 }
             ]
 
             items << [
                 "arrow (with new quark)", 
                 lambda {
-                    quark = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    arrow = {
-                        "uuid"          => SecureRandom.uuid,
-                        "description"   => LucilleCore::askQuestionAnswerAsString("description: "),
-                        "startunixtime" => Time.new.to_i,
-                        "lengthInDays"  => LucilleCore::askQuestionAnswerAsString("length in days: ").to_f,
-                        "quarkuuid"     => quark["uuid"]
+                    passenger = TimePods::makePassengerInteractivelyOrNull()
+                    next if passenger.nil?
+
+                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
+                    engine = {
+                        "type"          => "arrow",
+                        "startunixtime" => Time.new.to_f,
+                        "lengthInDays"  => lengthInDays
                     }
-                    puts JSON.pretty_generate(arrow)
-                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Arrows", "", arrow["uuid"], arrow)
+
+                    timepod = TimePods::issue(passenger, engine)
+                    puts JSON.pretty_generate(timepod)
                 }
             ]
 
