@@ -57,7 +57,9 @@ class NSXDisplayUtils
                 ].join("\n")
             else
                 line = contentItem["line"]
-                return "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+                line = line[0, width]
+                line = object["isRunning"] ? line.green : line
+                return "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line}"
             end
         end
 

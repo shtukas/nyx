@@ -87,6 +87,7 @@ class NSXCatalystObjectsOperator
                 }
                 .flatten
                 .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                .reverse
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()

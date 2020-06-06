@@ -201,9 +201,13 @@ class StarlightUserInterface
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
 
+            items << nil
+
             StarlightContents::getNodeCubes(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|cube| items << [Cube::cubeToString(cube), lambda{ Cube::cubeDive(cube) }] }
+
+            items << nil
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }

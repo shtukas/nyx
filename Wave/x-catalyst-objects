@@ -45,7 +45,6 @@ require_relative "Wave.rb"
 # -------------------------------------------------------------------------
 
 objects = Wave::waves()
-            .select{|obj| DoNotShowUntil::isVisible(obj["uuid"]) }
             .map{|obj| Wave::makeCatalystObject(obj) }
 
 puts JSON.generate(objects)

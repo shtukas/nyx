@@ -119,6 +119,20 @@ class Quark
         point
     end
 
+    # Quark::issueQuarkFromText(text)
+    def self.issueQuarkFromText(text)
+        filename = CoreDataFile::textToFilename(text)
+        point = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "creationUnixtime" => Time.new.to_f,
+            "type"             => "file",
+            "filename"         => filename
+        }
+        Nyx::commitToDisk(point)
+        point
+    end
+
     # Quark::issueQuarkFolderInteractivelyOrNull()
     def self.issueQuarkFolderInteractivelyOrNull()
         folderpath1 = Quark::selectOneFolderpathOnTheDesktopOrNull()

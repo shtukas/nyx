@@ -86,8 +86,8 @@ class CoreDataFile
             system("open '#{filepath}'")
         else
             filepath = CoreDataFile::filenameToFilepath(filename)
-            FileUtils.cp(filepath, "/Users/pascal/Desktop/Quarks-Drop")
-            puts "File copied to Quarks-Drop {#{File.basename(filepath)}}"
+            FileUtils.cp(filepath, "/Users/pascal/Desktop")
+            puts "File copied to Desktop {#{File.basename(filepath)}}"
             LucilleCore::pressEnterToContinue()
         end
     end
@@ -99,6 +99,14 @@ class CoreDataFile
         FileUtils.touch(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
+        filename
+    end
+
+    # CoreDataFile::textToFilename(text)
+    def self.textToFilename(text)
+        filename = "#{CatalystCommon::l22()}.txt"
+        filepath = CoreDataFile::filenameToFilepath(filename)
+        File.open(filepath, "w"){|f| f.puts(text) }
         filename
     end
 end

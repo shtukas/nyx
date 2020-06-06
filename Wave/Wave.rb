@@ -142,8 +142,9 @@ class Wave
         end
     end
 
-    # Wave::scheduleToMetric(schedule)
-    def self.scheduleToMetric(schedule)
+    # Wave::scheduleToMetric(object, schedule)
+    def self.scheduleToMetric(object, schedule)
+        return 0 if !DoNotShowUntil::isVisible(object["uuid"])
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
             if schedule['from-hour'].nil? then
@@ -219,7 +220,7 @@ class Wave
         object['uuid'] = uuid
         object["application"] = "Wave"
         object["contentItem"] = contentItem
-        object["metric"] = Wave::scheduleToMetric(schedule)
+        object["metric"] = Wave::scheduleToMetric(obj, schedule)
         object["commands"] = ["start", "open", "edit", "done", "description", "recast", "destroy"]
         object["defaultCommand"] = Wave::defaultCommand(announce)
         object['schedule'] = schedule
