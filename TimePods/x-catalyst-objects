@@ -111,7 +111,7 @@ TimePods::timepods()
                 "type" => "line",
                 "line" => TimePods::toString(pod)
             },
-            "metric"         => isRunning ? 1 : TimePods::metric(pod), # 0.999 because it may have started something else
+            "metric"         => TimePods::metric(pod),
             "commands"       => ["start", "open", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,

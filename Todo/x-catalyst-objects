@@ -98,7 +98,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "type" => "line",
             "line" => Todo::itemToString(item)
         },
-        "metric"         => isRunning ? 1 : metric,
+        "metric"         => metric,
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
