@@ -84,7 +84,7 @@ class CoreDataFile
         if CoreDataFile::fileByFilenameIsSafelyOpenable(filename) then
             filepath = CoreDataFile::filenameToFilepath(filename)
             system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ", false) then
                 FileUtils.cp(filepath, "/Users/pascal/Desktop")
                 puts "File copied to Desktop {#{File.basename(filepath)}}"
                 LucilleCore::pressEnterToContinue()
