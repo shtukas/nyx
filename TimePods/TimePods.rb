@@ -48,62 +48,6 @@ class TimePods
         pod
     end
 
-    # TimePods::liveTime(pod)
-    def self.liveTime(pod)
-        uuid = pod["uuid"]
-        x1 = Bank::total(uuid)
-        x2 = Runner::runTimeInSecondsOrNull(uuid) || 0
-        x1+x2
-    end
-
-    # TimePods::metric(pod)
-    def self.metric(pod)
-        uuid = pod["uuid"]
-
-        return 0.999 if Runner::isRunning(uuid)
-
-        engine = pod["engine"]
-
-        if engine["type"] == "time-commitment-on-curve" then
-            timeBank = Bank::total(uuid)
-            return -1 if (timeBank >= 3600*pod["engine"]["timeCommitmentInHours"])
-            if TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) < TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) then
-                return 0.76 + 0.001*(TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).to_f
-            else
-                return 0.60 - 0.01*(TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)).to_f
-            end
-        end
-
-        if engine["type"] == "bank-account" then
-            timeBank = Bank::total(uuid)
-            if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
-            else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
-            end
-        end
-
-        if engine["type"] == "bank-account-special-circumstances" then
-            timeBank = Bank::total(uuid)
-            if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
-            else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
-            end
-        end
-
-        if engine["type"] == "on-going-project" then
-            timeBank = TimePods::onGoingProjectAdaptedBankTime(pod)
-            if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
-            else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
-            end
-        end
-
-        raise "[TimePods] error: 46b84bdb"
-    end
-
     # TimePods::toStringPassengerFragment(pod)
     def self.toStringPassengerFragment(pod)
         passenger = pod["passenger"]
@@ -128,15 +72,15 @@ class TimePods
         engine = pod["engine"]
 
         if engine["type"] == "time-commitment-on-curve" then
-            return "[time-commitment-on-curve] (completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
+            return "[time-commitment-on-curve] (completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTotalTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "bank-account" then
-            return "[bank-account] (bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+            return "[bank-account] (bank account: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "bank-account-special-circumstances" then
-            return "[bank-account-special-circumstances] (bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+            return "[bank-account-special-circumstances] (bank account: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "on-going-project" then
@@ -164,7 +108,7 @@ class TimePods
         uuid = pod["uuid"]
         engine = pod["engine"]
         if engine["type"] == "time-commitment-on-curve" then
-            return false if (Bank::total(uuid) >= 3600*pod["engine"]["timeCommitmentInHours"])
+            return false if (Bank::value(uuid) >= 3600*pod["engine"]["timeCommitmentInHours"])
         end
         true
     end
@@ -264,6 +208,83 @@ class TimePods
     end
 
     # --------------------------------------------------------------------
+    # Catalyst Object support
+
+    # TimePods::metric(pod)
+    def self.metric(pod)
+        uuid = pod["uuid"]
+
+        return 0.999 if Runner::isRunning(uuid)
+
+        engine = pod["engine"]
+
+        if engine["type"] == "time-commitment-on-curve" then
+            timeBank = Bank::value(uuid)
+            return -1 if (timeBank >= 3600*pod["engine"]["timeCommitmentInHours"])
+            if TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) < TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) then
+                return 0.76 + 0.001*(TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).to_f
+            else
+                return 0.60 - 0.01*(TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)).to_f
+            end
+        end
+
+        if engine["type"] == "bank-account" then
+            timeBank = Bank::value(uuid)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
+
+        if engine["type"] == "bank-account-special-circumstances" then
+            timeBank = Bank::value(uuid)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
+
+        if engine["type"] == "on-going-project" then
+            timeBank = TimePods::onGoingProjectAdaptedBankTime(pod)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
+
+        raise "[TimePods] error: 46b84bdb"
+    end
+
+    # TimePods::liveRunTimeIfAny(pod)
+    def self.liveRunTimeIfAny(pod)
+        uuid = pod["uuid"]
+        Runner::runTimeInSecondsOrNull(uuid) || 0
+    end
+
+    # TimePods::liveTotalTime(pod)
+    def self.liveTotalTime(pod)
+        uuid = pod["uuid"]
+        Bank::value(uuid) + TimePods::liveRunTimeIfAny(pod)
+    end
+
+    # TimePods::isDone?
+    def self.isDone?(pod)
+        uuid = pod["uuid"]
+        engine = pod["engine"]
+        if engine["type"] == "time-commitment-on-curve" then
+            return (TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) > TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod))
+        end 
+        if engine["type"] == "on-going-project" then
+            return TimePods::onGoingProjectAdaptedBankTime(pod)
+        end 
+        isDone = TimePods::liveTotalTime(pod) > 0
+    end
+
+    # --------------------------------------------------------------------
+    # time-commitment-on-curve
 
     # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)
     def self.timeCommitmentOnCurve_idealCompletionRatio(pod)
@@ -283,18 +304,18 @@ class TimePods
     # TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)
     def self.timeCommitmentOnCurve_actualCompletionRatio(pod)
         raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
-        TimePods::liveTime(pod).to_f/(3600*pod["engine"]["timeCommitmentInHours"])
+        TimePods::liveTotalTime(pod).to_f/(3600*pod["engine"]["timeCommitmentInHours"])
     end
 
     # --------------------------------------------------------------------
+    # on-going-project
 
     # TimePods::onGoingProjectAdaptedBankTime(pod)
     def self.onGoingProjectAdaptedBankTime(pod)
         uuid = pod["uuid"]
         engine = pod["engine"]
-        timeBank = Bank::total(uuid)
-        timeIdealInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
-        timeBank - timeIdealInSecond
+        idealTimeInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
+        TimePods::liveTotalTime(pod) - idealTimeInSecond
     end 
 
 end

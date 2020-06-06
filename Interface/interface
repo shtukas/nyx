@@ -81,7 +81,7 @@ if ARGV[0] and ARGV[0] == "todo" then
             NSXCatalystObjectsOperator::cacheUpdate()
 
             NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
-                .select{|object| object["isDone"] }
+                .select{|object| object["isRunning"] and object["isDone"] }
                 .first(1)
                 .each{|object|
                     NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is done: #{NSXDisplayUtils::contentItemToAnnounce(object["contentItem"])}")

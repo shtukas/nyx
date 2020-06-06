@@ -69,7 +69,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
-    Bank::total(uuid)
+    Bank::value(uuid)
 =end
 
 require_relative "TimePods.rb"
@@ -102,7 +102,7 @@ TimePods::timepods()
 
         uuid = pod["uuid"]
         isRunning = Runner::isRunning(uuid)
-        isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
+        isRunningForLong = (TimePods::liveRunTimeIfAny(pod) > 3600)
 
         objects << {
             "uuid"           => uuid,
@@ -116,14 +116,16 @@ TimePods::timepods()
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
+            "isDone" => TimePods::isDone?(pod),
             "shell-redirects" => {
                 "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
                 "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing open '#{uuid}'",
                 "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
                 "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing destroy '#{uuid}'",
             },
-            "x-running-for" => Runner::runTimeInSecondsOrNull(uuid),
-            "x-timepod" => pod
+            "x-timepod"         => pod,
+            "x-running-for"     => Runner::runTimeInSecondsOrNull(uuid),
+            "x-total-live-time" => TimePods::liveTotalTime(pod),
         }
     }
 

@@ -4,7 +4,7 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
-    Bank::total(uuid)
+    Bank::value(uuid)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
@@ -29,8 +29,8 @@ class Bank
         BTreeSets::set(nil, "3621f4d3:#{setuuid}", uuid, packet)
     end
 
-    # Bank::total(setuuid)
-    def self.total(setuuid)
+    # Bank::value(setuuid)
+    def self.value(setuuid)
         BTreeSets::values(nil, "3621f4d3:#{setuuid}")
             .map{|packet| packet["weight"] }
             .inject(0, :+)

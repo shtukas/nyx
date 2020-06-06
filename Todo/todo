@@ -44,7 +44,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
-    Bank::total(uuid)
+    Bank::value(uuid)
 =end
 
 require_relative "Todo.rb"

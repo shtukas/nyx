@@ -22,7 +22,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
-    Bank::total(uuid)
+    Bank::value(uuid)
 =end
 
 # -----------------------------------------------------------------
@@ -33,7 +33,7 @@ class DailyTimes
     def self.putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
         return if !allowedDayIndices.include?(Time.new.wday)
-        if Bank::total(uuid) < -3600 then 
+        if Bank::value(uuid) < -3600 then 
             # This value allows small targets to get some time and the big ones not to become overwelming
             KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             return

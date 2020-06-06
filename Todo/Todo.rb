@@ -40,7 +40,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
-    Bank::total(uuid)
+    Bank::value(uuid)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
@@ -116,7 +116,7 @@ class Todo
         quark = Nyx::getOrNull(item["contentuuid"])
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Todo::itemBestDescription(item)}#{runningSuffix}"
+        "[todo item] (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Todo::itemBestDescription(item)}#{runningSuffix}"
     end
 
     # Todo::itemReceivesRunTimespan(item, timespan, verbose = false)
@@ -180,7 +180,7 @@ class Todo
             {
                 "projectname" => projectname,
                 "projectuuid" => projectuuid,
-                "timeInHours" => Bank::total(projectuuid).to_f/3600
+                "timeInHours" => Bank::value(projectuuid).to_f/3600
             }
         }
     end
@@ -220,7 +220,7 @@ class Todo
             puts ""
             puts "uuid: #{item["uuid"]}"
             puts Todo::itemToString(item).green
-            puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
+            puts "project time: #{Bank::value(item["projectuuid"].to_f/3600)} hours".green
             options = [
                 "start",
                 "open",
