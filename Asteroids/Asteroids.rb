@@ -68,13 +68,13 @@ class Asteroids
 
     # Asteroids::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
             # We are not considering the case null
         end
         [orbitalname, orbitaluuid]
@@ -132,8 +132,8 @@ class Asteroids
             .sort
     end
 
-    # Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
-    def self.orbitalname2orbitaluuidOrNUll(orbitalname)
+    # Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+    def self.orbitalName2orbitalUuidOrNUll(orbitalname)
         orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
         return orbitaluuid if !orbitaluuid.nil?
         orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
@@ -143,14 +143,14 @@ class Asteroids
         orbitaluuid
     end
 
-    # Asteroids::selectProjectNameInteractivelyOrNull()
-    def self.selectProjectNameInteractivelyOrNull()
+    # Asteroids::selectOrbitalNameInteractivelyOrNull()
+    def self.selectOrbitalNameInteractivelyOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::projectNames().sort)
     end
 
-    # Asteroids::asteroidsForProjectName(orbitalname)
-    def self.asteroidsForProjectName(orbitalname)
-        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+    # Asteroids::asteroidsForOrbitalName(orbitalname)
+    def self.asteroidsForOrbitalName(orbitalname)
+        orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
         return [] if orbitaluuid.nil?
         Asteroids::asteroids()
             .select{|item| item["orbitaluuid"] == orbitaluuid }
@@ -160,7 +160,7 @@ class Asteroids
     # Asteroids::projectsTimeDistribution()
     def self.projectsTimeDistribution()
         Asteroids::projectNames().map{|orbitalname|
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
@@ -169,16 +169,16 @@ class Asteroids
         }
     end
 
-    # Asteroids::updateAsteroidProjectName(item)
-    def self.updateAsteroidProjectName(item)
-        orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+    # Asteroids::updateAsteroidOrbitalName(item)
+    def self.updateAsteroidOrbitalName(item)
+        orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
             return if orbitalname == ""
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
             return if orbitaluuid.nil?
         end
         item["orbitalname"] = orbitalname
@@ -241,7 +241,7 @@ class Asteroids
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Asteroids::updateAsteroidProjectName(item)
+                Asteroids::updateAsteroidOrbitalName(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f

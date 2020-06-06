@@ -132,13 +132,13 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    orbitalname = Asteroids::selectProjectNameInteractivelyOrNull()
+                    orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
                     orbitaluuid = nil
                     if orbitalname.nil? then
                         orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
                         orbitaluuid = SecureRandom.uuid
                     else
-                        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+                        orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
                         return if orbitaluuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
