@@ -79,11 +79,16 @@ class CoreDataFile
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
-    # CoreDataFile::openAndOrCopyToDesktop(filename)
-    def self.openAndOrCopyToDesktop(filename)
+    # CoreDataFile::accessFile(filename)
+    def self.accessFile(filename)
         if CoreDataFile::fileByFilenameIsSafelyOpenable(filename) then
             filepath = CoreDataFile::filenameToFilepath(filename)
             system("open '#{filepath}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ") then
+                FileUtils.cp(filepath, "/Users/pascal/Desktop")
+                puts "File copied to Desktop {#{File.basename(filepath)}}"
+                LucilleCore::pressEnterToContinue()
+            end
         else
             filepath = CoreDataFile::filenameToFilepath(filename)
             FileUtils.cp(filepath, "/Users/pascal/Desktop")
