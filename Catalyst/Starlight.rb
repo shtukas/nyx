@@ -122,7 +122,6 @@ class StarlightInventory
 
     # StarlightInventory::issueClaim(node, cube)
     def self.issueClaim(node, cube)
-        raise "0dc59394" if node["nyxType"] != "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
         raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
         claim = {
             "nyxType"          => "starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80",

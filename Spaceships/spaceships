@@ -57,7 +57,7 @@ def diveSpaceship(spaceship)
         puts Spaceships::toString(spaceship).green
         options = [
             "start",
-            "re-passenger",
+            "re-cargo",
             "destroy",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -65,10 +65,10 @@ def diveSpaceship(spaceship)
         if option == "start" then
             Spaceships::startSpaceship(spaceship["uuid"])
         end
-        if option == "re-passenger" then
-            passenger = Spaceships::makePassengerInteractivelyOrNull()
-            next if passenger.nil?
-            spaceship["passenger"] = passenger
+        if option == "re-cargo" then
+            cargo = Spaceships::makeCargoInteractivelyOrNull()
+            next if cargo.nil?
+            spaceship["cargo"] = cargo
             puts JSON.pretty_generate(spaceship)
             Nyx::commitToDisk(spaceship)
         end
@@ -92,15 +92,15 @@ loop {
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
     if option == "make new spaceship" then
-        passenger = Spaceships::makePassengerInteractivelyOrNull()
-        next if passenger.nil?
+        cargo = Spaceships::makeCargoInteractivelyOrNull()
+        next if cargo.nil?
         engine = Spaceships::makeEngineInteractivelyOrNull()
         next if engine.nil?
         spaceship = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
-            "passenger"        => passenger,
+            "cargo"            => cargo,
             "engine"           => engine
         }
         puts JSON.pretty_generate(spaceship)

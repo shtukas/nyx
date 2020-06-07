@@ -73,7 +73,7 @@ class NSXCatalystUI
                 "arrow (description)", 
                 lambda {
                     description = LucilleCore::askQuestionAnswerAsString("arrow description: ")
-                    passenger = {
+                    cargo = {
                         "type"        => "description",
                         "description" => description
                     }
@@ -85,16 +85,17 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    spaceship = Spaceships::issue(passenger, engine)
-                    Nyx::commitToDisk(spaceship)
+                    spaceship = Spaceships::issue(cargo, engine)
+                    puts JSON.pretty_generate(spaceship)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 
             items << [
                 "arrow (with new quark)", 
                 lambda {
-                    passenger = Spaceships::makePassengerInteractivelyOrNull()
-                    next if passenger.nil?
+                    cargo = Spaceships::makeCargoInteractivelyOrNull()
+                    next if cargo.nil?
 
                     lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
                     engine = {
@@ -103,27 +104,22 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    spaceship = Spaceships::issue(passenger, engine)
+                    spaceship = Spaceships::issue(cargo, engine)
                     puts JSON.pretty_generate(spaceship)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 
             items << [
                 "spaceship (new)", 
                 lambda { 
-                    passenger = Spaceships::makePassengerInteractivelyOrNull()
-                    next if passenger.nil?
+                    cargo = Spaceships::makeCargoInteractivelyOrNull()
+                    next if cargo.nil?
                     engine = Spaceships::makeEngineInteractivelyOrNull()
                     next if engine.nil?
-                    spaceship = {
-                        "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
-                        "creationUnixtime" => Time.new.to_f,
-                        "passenger"        => passenger,
-                        "engine"           => engine
-                    }
+                    spaceship = Spaceships::issue(cargo, engine)
                     puts JSON.pretty_generate(spaceship)
-                    Nyx::commitToDisk(spaceship)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 
@@ -142,7 +138,9 @@ class NSXCatalystUI
                         return if orbitaluuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-                    Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
+                    asteroid = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
+                    puts JSON.pretty_generate(asteroid)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 
@@ -152,13 +150,9 @@ class NSXCatalystUI
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    opencycle = {
-                        "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
-                        "creationUnixtime" => Time.new.to_f,
-                        "targetuuid"       => quark["uuid"]
-                    }
-                    Nyx::commitToDisk(opencycle)
+                    opencycle = OpenCycles::issueFromQuark(quark)
+                    puts JSON.pretty_generate(opencycle)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 
@@ -167,13 +161,9 @@ class NSXCatalystUI
                 lambda {
                     cube = Cube::selectCubeFromExistingOrNull()
                     return if cube.nil?
-                    opencycle = {
-                        "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
-                        "creationUnixtime" => Time.new.to_f,
-                        "targetuuid"       => cube["uuid"]
-                    }
-                    Nyx::commitToDisk(opencycle)
+                    opencycle = OpenCycles::issueFromCube(cube)
+                    puts JSON.pretty_generate(opencycle)
+                    LucilleCore::pressEnterToContinue()
                 }
             ]
 

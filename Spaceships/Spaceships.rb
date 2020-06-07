@@ -35,13 +35,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class Spaceships
 
-    # Spaceships::issue(passenger, engine)
-    def self.issue(passenger, engine)
+    # Spaceships::issue(cargo, engine)
+    def self.issue(cargo, engine)
         spaceship = {
             "uuid"      => SecureRandom.uuid,
             "nyxType"   => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
-            "passenger" => passenger,
+            "cargo" => cargo,
             "engine"    => engine
         }
         Nyx::commitToDisk(spaceship)
@@ -50,16 +50,16 @@ class Spaceships
 
     # Spaceships::toString(spaceship)
     def self.toString(spaceship)
-        passengerFragment = lambda{|spaceship|
-            passenger = spaceship["passenger"]
-            if passenger["type"] == "description" then
-                return passenger["description"]
+        cargoFragment = lambda{|spaceship|
+            cargo = spaceship["cargo"]
+            if cargo["type"] == "description" then
+                return cargo["description"]
             end
-            if passenger["type"] == "asteroid" then
-                return KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}")
+            if cargo["type"] == "asteroid" then
+                return KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{cargo["uuid"]}")
             end
-            if passenger["type"] == "quark" then
-                quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
+            if cargo["type"] == "quark" then
+                quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
                 return quark ? Quark::quarkToString(quark) : "[could not find quark]"
             end
             raise "[Spaceships] error: CE8497BB"
@@ -100,16 +100,16 @@ class Spaceships
             else
                 ""
             end
-        "[spaceship] [#{spaceship["engine"]["type"]}] #{passengerFragment.call(spaceship)} #{engineFragment.call(spaceship)}"
+        "[spaceship] [#{spaceship["engine"]["type"]}] #{cargoFragment.call(spaceship)} #{engineFragment.call(spaceship)}"
     end
 
-    # Spaceships::makePassengerInteractivelyOrNull()
-    def self.makePassengerInteractivelyOrNull()
+    # Spaceships::makeCargoInteractivelyOrNull()
+    def self.makeCargoInteractivelyOrNull()
         options = [
             "description",
             "quark"
         ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("passenger type", options)
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("cargo type", options)
         return nil if option.nil?
         if option == "description" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -121,7 +121,7 @@ class Spaceships
         if option == "quark" then
             quark = Quark::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("spaceship passenger description: ")
+            description = LucilleCore::askQuestionAnswerAsString("spaceship cargo description: ")
             return {
                 "type"          => "quark",
                 "description"   => description,
@@ -179,19 +179,19 @@ class Spaceships
         nil
     end
 
-    # Spaceships::openPassenger(uuid)
-    def self.openPassenger(uuid)
+    # Spaceships::openCargo(uuid)
+    def self.openCargo(uuid)
         spaceship = Nyx::getOrNull(uuid)
         return if spaceship.nil?
         if spaceship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
             # LucilleTxt
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
         end
-        if spaceship["passenger"]["type"] == "asteroid" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{spaceship["passenger"]["uuid"]}'")
+        if spaceship["cargo"]["type"] == "asteroid" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{spaceship["cargo"]["uuid"]}'")
         end
-        if spaceship["passenger"]["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["passenger"]["quarkuuid"])
+        if spaceship["cargo"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end
@@ -202,7 +202,7 @@ class Spaceships
         spaceship = Nyx::getOrNull(uuid)
         return if spaceship.nil?
         Runner::start(uuid)
-        Spaceships::openPassenger(uuid)
+        Spaceships::openCargo(uuid)
     end
 
     # Spaceships::spaceships()

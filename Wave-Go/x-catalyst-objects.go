@@ -2,8 +2,11 @@ package main
 
 import "fmt"
 
-func main() {
-	fmt.Println("[]")
+type catalystObject struct {
+	name string
 }
 
-
+func main() {
+	var obj = catalystObject{name: "Pascal"}
+	fmt.Println("[]")
+}

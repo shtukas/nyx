@@ -36,6 +36,30 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class OpenCycles
 
+    # OpenCycles::issueFromQuark(quark)
+    def self.issueFromQuark(quark)
+        opencycle = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+            "creationUnixtime" => Time.new.to_f,
+            "targetuuid"       => quark["uuid"]
+        }
+        Nyx::commitToDisk(opencycle)
+        opencycle
+    end
+
+    # OpenCycles::issueFromCube(cube)
+    def self.issueFromCube(cube)
+        opencycle = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+            "creationUnixtime" => Time.new.to_f,
+            "targetuuid"       => cube["uuid"]
+        }
+        Nyx::commitToDisk(opencycle)
+        opencycle
+    end
+
     # OpenCycles::opencycles()
     def self.opencycles()
         Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")

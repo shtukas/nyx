@@ -72,7 +72,7 @@ end
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    Spaceships::openPassenger(uuid)
+    Spaceships::openCargo(uuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
