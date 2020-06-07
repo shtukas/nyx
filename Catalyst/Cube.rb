@@ -295,7 +295,10 @@ class Cube
 
             items << nil
 
-            items << ["open", lambda{  Cube::openCube(cube) }]
+            if !cube["quarksuuids"].empty? then
+                items << ["open", lambda{  Cube::openCube(cube) }]
+            end
+            
             items << [
                 "edit description", 
                 lambda{
