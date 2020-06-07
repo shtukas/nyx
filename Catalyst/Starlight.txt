@@ -27,7 +27,7 @@ StarlightNode {
 ------------------------------------------------------
 StarlightPath {
     "uuid"             : String
-    "nyxType"          : "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e"
+    "nyxType"          : "starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e"
     "creationUnixtime" : Float # Unixtime with decimals
 
     "sourceuuid"        : String # uuid of a Starlight Node

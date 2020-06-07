@@ -61,7 +61,7 @@ class StarlightPaths
     # StarlightPaths::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
-            "nyxType"          => "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "nyxType"          => "starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
@@ -76,7 +76,7 @@ class StarlightPaths
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
-            "nyxType"          => "starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "nyxType"          => "starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
             "sourceuuid"       => node1["uuid"],
@@ -88,13 +88,13 @@ class StarlightPaths
 
     # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        Nyx::objects("starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
     # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        Nyx::objects("starlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 

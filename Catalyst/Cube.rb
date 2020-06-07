@@ -207,37 +207,22 @@ class Cube
     # Cube::printCubeDetails(cube)
     def self.printCubeDetails(cube)
         puts "Cube:"
-        puts "    uuid: #{cube["uuid"]}"
-        puts "    description: #{cube["description"]}"
-        puts ""
+        puts "    - uuid: #{cube["uuid"]}"
+        puts "    - description: #{cube["description"]}"
 
-        puts "    quarks:"
         cube["quarksuuids"]
             .each{|quarkuuid|
                 quark = Nyx::getOrNull(quarkuuid)
-                puts "        #{Quark::quarkToString(quark)}"
+                puts "    - #{Quark::quarkToString(quark)}"
             }
-        puts ""
-
-        if cube["tags"].empty? then
-            puts "    tags: (empty set)"
-        else
-            puts "    tags"
-            cube["tags"].each{|item|
-                puts "        #{item}"
-            }
-        end
-        puts ""
+        cube["tags"].each{|item|
+            puts "    - [tag] #{item}"
+        }
 
         nodes = StarlightInventory::getNodesForCube(cube)
-        if nodes.empty? then
-            puts "    nodes: (empty set)"
-        else
-            puts "    nodes"
-            nodes.each{|node|
-                puts "        #{StarlightNodes::nodeToString(node)}"
-            }
-        end
+        nodes.each{|node|
+            puts "    - #{StarlightNodes::nodeToString(node)}"
+        }
     end
 
     # Cube::openCube(cube)
@@ -281,6 +266,19 @@ class Cube
             Cube::printCubeDetails(cube)
 
             items = []
+
+            cube["quarksuuids"]
+                .each{|quarkuuid| 
+                    quark = Nyx::getOrNull(quarkuuid)
+                    next if quark.nil?
+                    items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
+                }
+
+            StarlightInventory::getNodesForCube(cube)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|node| items << [StarlightNodes::nodeToString(node), lambda{ StarlightUserInterface::nodeDive(node) }] }
+
+            items << nil
 
             items << ["open", lambda{  Cube::openCube(cube) }]
             items << [
@@ -353,16 +351,6 @@ class Cube
                         return
                     end
                 }]
-            cube["quarksuuids"]
-                .each{|quarkuuid| 
-                    quark = Nyx::getOrNull(quarkuuid)
-                    next if quark.nil?
-                    items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
-                }
-
-            StarlightInventory::getNodesForCube(cube)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|node| items << [StarlightNodes::nodeToString(node), lambda{ StarlightUserInterface::nodeDive(node) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
