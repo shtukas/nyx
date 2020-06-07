@@ -53,14 +53,15 @@ class Spaceships
         cargoFragment = lambda{|spaceship|
             cargo = spaceship["cargo"]
             if cargo["type"] == "description" then
-                return cargo["description"]
+                return " " + cargo["description"]
             end
             if cargo["type"] == "asteroid" then
-                return KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{cargo["uuid"]}")
+                return " " + KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{cargo["uuid"]}")
             end
             if cargo["type"] == "quark" then
+                return (" " + spaceship["description"]) if spaceship["description"]
                 quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
-                return quark ? Quark::quarkToString(quark) : "[could not find quark]"
+                return quark ? (" " + Quark::quarkToString(quark)) : " [could not find quark]"
             end
             raise "[Spaceships] error: CE8497BB"
         }
@@ -70,23 +71,23 @@ class Spaceships
             engine = spaceship["engine"]
 
             if engine["type"] == "time-commitment-on-curve" then
-                return "(completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %)"
+                return " (completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %)"
             end
 
             if engine["type"] == "bank-account" then
-                return "(bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
+                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "bank-account-special-circumstances" then
-                return "(bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
+                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "time-commitment-indefinitely" then
-                return "(bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
+                return " (bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "arrow" then
-                return "(#{"%.2f" % Spaceships::arrowPercentage(spaceship).round(2)}%)"
+                return " (#{"%.2f" % Spaceships::arrowPercentage(spaceship).round(2)}%)"
             end
 
             raise "[Spaceships] error: 46b84bdb"
@@ -100,7 +101,7 @@ class Spaceships
             else
                 ""
             end
-        "[spaceship] [#{spaceship["engine"]["type"]}] #{cargoFragment.call(spaceship)} #{engineFragment.call(spaceship)}"
+        "[spaceship] [#{spaceship["engine"]["type"]}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}"
     end
 
     # Spaceships::makeCargoInteractivelyOrNull()

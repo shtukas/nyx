@@ -1,4 +1,4 @@
-#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # encoding: UTF-8
 

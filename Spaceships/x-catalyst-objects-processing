@@ -73,6 +73,13 @@ if ARGV[0] == "start" and ARGV[1] then
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
             stop(uuid)
             Nyx::destroy(uuid)
+            exit
+        end
+    end
+    if spaceship["cargo"]["type"] == "quark"
+        if spaceship["description"].nil? then
+            spaceship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
+            Nyx::commitToDisk(spaceship)
         end
     end
 end

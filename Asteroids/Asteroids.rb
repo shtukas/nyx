@@ -47,6 +47,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCub
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
+
 # -----------------------------------------------------------------------
 
 class Asteroids
@@ -98,9 +100,10 @@ class Asteroids
     def self.asteroidToString(item)
         itemuuid = item["uuid"]
         quark = Nyx::getOrNull(item["quarkuuid"])
+        quarkType = quark ? quark["type"] : "[null]"
         isRunning = Runner::isRunning(itemuuid)
-        runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[todo item] (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) [#{item["orbitalname"].yellow}] [#{quark ? quark["type"] : "[null quark]"}] #{Asteroids::asteroidBestDescription(item)}#{runningSuffix}"
+        runningSuffix = isRunning ? "(running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
+        "[asteroid] [#{item["orbitalname"].yellow}] [#{quarkType}] #{Asteroids::asteroidBestDescription(item)} (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) #{runningSuffix}"
     end
 
     # Asteroids::asteroidReceivesRunTimespan(item, timespan, verbose = false)
@@ -194,8 +197,37 @@ class Asteroids
         tags = Cube::makeTagsInteractively()
         cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
+        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+        if node then
+            puts JSON.pretty_generate(node)
+            claim = StarlightInventory::issueClaim(node, cube)
+            puts JSON.pretty_generate(claim)
+        end
+        LucilleCore::pressEnterToContinue()
         return true
     end
+
+    # Asteroids::recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
+        # First we need a cube and opencycle that
+        quark = Nyx::getOrNull(item["quarkuuid"])
+        return false if quark.nil?
+        description = LucilleCore::askQuestionAnswerAsString("cube description: ")
+        tags = Cube::makeTagsInteractively()
+        cube = Cube::issueCube_v4(description, quark, tags)
+        puts JSON.pretty_generate(cube)
+        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+        if node then
+            puts JSON.pretty_generate(node)
+            claim = StarlightInventory::issueClaim(node, cube)
+            puts JSON.pretty_generate(claim)
+        end
+        opencycle = OpenCycles::issueFromCube(cube)
+        puts JSON.pretty_generate(opencycle)
+        LucilleCore::pressEnterToContinue()
+        return true
+    end
+
 
     # Asteroids::asteroidDive(item)
     def self.asteroidDive(item)
@@ -211,7 +243,8 @@ class Asteroids
                 "set description",
                 "recast",
                 "push",
-                "promote from Asteroid to Data"
+                "promote from Asteroid to Cube",
+                "promote from Asteroid to Open Cycle"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -246,8 +279,14 @@ class Asteroids
                 item["creationUnixtime"] = Time.new.to_f
                 Nyx::commitToDisk(item)
             end
-            if option == "promote from Asteroid to Data" then
+            if option == "promote from Asteroid to Cube" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
+                next if !status
+                Nyx::destroy(item["uuid"])
+                return
+            end
+            if option == "promote from Asteroid to Open Cycle" then
+                status = Asteroids::recastAsOpenCycle(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return

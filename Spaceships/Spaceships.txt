@@ -8,6 +8,7 @@ Spaceship
     "uuid"             : String
     "nyxType"          : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
     "creationUnixtime" : Float # Unixtime with decimals
+    "description"      : nil | String
     "cargo"            : SpaceshipCargo
     "engine"           : SpaceshipEngine
 }

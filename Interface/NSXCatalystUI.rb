@@ -134,7 +134,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "todo item (with new quark)", 
+                "asteroid (with new quark)", 
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
@@ -147,7 +147,7 @@ class NSXCatalystUI
                         orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
                         return if orbitaluuid.nil?
                     end
-                    description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
                     asteroid = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()

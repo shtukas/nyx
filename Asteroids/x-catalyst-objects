@@ -99,7 +99,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "line" => Asteroids::asteroidToString(item)
         },
         "metric"         => metric,
-        "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data"],
+        "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data", ">opencycle"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
@@ -111,6 +111,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing reset-reference-time '#{uuid}'",
             "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing update-project '#{uuid}'",
             ">data"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing recastAsCubeContentInteractive '#{uuid}'",
+            ">opencycle"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing recastAsOpenCycle '#{uuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
