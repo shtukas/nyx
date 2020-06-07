@@ -226,6 +226,13 @@ class CatalystFsck
                 puts JSON.pretty_generate(quark).red
                 exit
             end
+            mark = quark["mark"]
+            location = AtlasCore::uniqueStringToLocationOrNull(mark)
+            if location.nil? then
+                puts "[error] could not identify target location for this quark mark".red
+                puts JSON.pretty_generate(quark).red
+                #exit
+            end
         end
     end
 

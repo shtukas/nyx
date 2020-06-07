@@ -66,7 +66,15 @@ end
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
+    spaceship = Nyx::getOrNull(uuid)
+    exit if spaceship.nil?
     Spaceships::startSpaceship(uuid)
+    if spaceship["engine"]["type"] == "arrow" then
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
+            stop(uuid)
+            Nyx::destroy(uuid)
+        end
+    end
 end
 
 if ARGV[0] == "open" and ARGV[1] then

@@ -315,10 +315,35 @@ class NSXCatalystUI
 
         opencycles = OpenCycles::opencycles()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-        verticalSpaceLeft = verticalSpaceLeft - (opencycles.size + 1) # space and opencycles
+        if !opencycles.empty? then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            opencycles
+                .each{|opencycle|
+                    puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
+                    executors[position] = lambda { 
+                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
+                        return if operation.nil?
+                        if operation == "visit target" then
+                            entity = QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(opencycle["targetuuid"])
+                            if entity.nil? then
+                                puts "I could not find a target for this open cycle"
+                                LucilleCore::pressEnterToContinue()
+                                return
+                            end
+                            QuarksCubesAndStarlightNodes::objectDive(entity)
+                        end
+                        if operation == "destroy open cycle" then
+                            Nyx::destroy(opencycle["uuid"])
+                        end
+                    }
+                    position = position + 1
+                    verticalSpaceLeft = verticalSpaceLeft - 1
+                }
+        end
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
-        if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
+        if calendarreport.size > 0 then
             puts ""
             puts calendarreport
             verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
@@ -327,7 +352,7 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        displayObjects.each_with_index{|object, indx|
+        displayObjects.take([[verticalSpaceLeft, 0].max, 10].min).each_with_index{|object, indx|
             break if object.nil?
             break if verticalSpaceLeft <= 0
             displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
@@ -339,45 +364,20 @@ class NSXCatalystUI
             break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::makeDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
         }
 
-
-        puts ""
-        opencycles
-            .each{|opencycle|
-                puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
-                executors[position] = lambda { 
-                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
-                    return if operation.nil?
-                    if operation == "visit target" then
-                        entity = QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(opencycle["targetuuid"])
-                        if entity.nil? then
-                            puts "I could not find a target for this open cycle"
-                            LucilleCore::pressEnterToContinue()
-                            return
-                        end
-                        QuarksCubesAndStarlightNodes::objectDive(entity)
-                    end
-                    if operation == "destroy open cycle" then
-                        Nyx::destroy(opencycle["uuid"])
-                    end
-                }
-                position = position + 1
-            }
-
         cubes = Cube::cubes()
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                    .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                    .last([verticalSpaceLeft-1, 0].max)
 
-        if verticalSpaceLeft > 0 then
+        if !cubes.empty? then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
             cubes
-                .last( [cubes.size, verticalSpaceLeft].min )
                 .each{|item|
                     puts "[ #{"%2d" % position}] #{QuarksCubesAndStarlightNodes::objectToString(item).yellow}"
-                    executors[position] = lambda { 
-                        QuarksCubesAndStarlightNodes::openObject(item)
-                    }
+                    executors[position] = lambda { Cube::cubeDive(item) }
                     position = position + 1
                     verticalSpaceLeft = verticalSpaceLeft - 1
+                    break if verticalSpaceLeft <= 0
                 }
         end
 
