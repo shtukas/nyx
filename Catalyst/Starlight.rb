@@ -191,7 +191,6 @@ class StarlightUserInterface
         loop {
             system("clear")
             puts ""
-            puts JSON.pretty_generate(node)
             puts "uuid: #{node["uuid"]}"
             puts StarlightNodes::nodeToString(node).green
             items = []
@@ -264,9 +263,47 @@ class StarlightUserInterface
         StarlightUserInterface::nodeDive(node)
     end
 
+    # StarlightUserInterface::starlightNavigationAtNode(node)
+    def self.starlightNavigationAtNode(node)
+        loop {
+            system("clear")
+            puts ""
+            puts "uuid: #{node["uuid"]}"
+            puts StarlightNodes::nodeToString(node).green
+            items = []
+
+            StarlightPaths::getParents(node)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtNode(n) }] }
+
+            items << nil
+
+            StarlightPaths::getChildren(node)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network child] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtNode(n) }] }
+
+            items << nil
+
+            items << ["dive node", lambda{ 
+                StarlightUserInterface::nodeDive(node)
+            }]
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
+        }
+    end
+
     # StarlightUserInterface::navigation()
     def self.navigation()
-        StarlightUserInterface::listingAndSelection()
+        loop {
+            system("clear")
+            puts ""
+            nodes = StarlightNodes::nodes()
+                        .select{|node| StarlightPaths::getPathsWithGivenTarget(node["uuid"]).empty? }
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| StarlightNodes::nodeToString(node) })
+            return if node.nil?
+            StarlightUserInterface::starlightNavigationAtNode(node)
+        }
     end
 
     # StarlightUserInterface::main()

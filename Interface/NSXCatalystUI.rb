@@ -47,6 +47,16 @@ class NSXCatalystUI
             items = []
 
             items << [
+                "general search", 
+                lambda { NSXGeneralSearch::searchAndDive() }
+            ]
+
+            items << [
+                "starlight navigation", 
+                lambda { StarlightUserInterface::navigation() }
+            ]
+
+            items << [
                 "nodes listing and selection", 
                 lambda { StarlightUserInterface::listingAndSelection() }
             ]
