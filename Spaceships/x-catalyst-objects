@@ -112,7 +112,7 @@ Spaceships::spaceships()
                 "line" => Spaceships::toString(spaceship)
             },
             "metric"         => Spaceships::metric(spaceship),
-            "commands"       => ["start", "open", "stop", "destroy"],
+            "commands"       => ["start", "open", "stop", "description", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
@@ -121,6 +121,7 @@ Spaceships::spaceships()
                 "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing start '#{uuid}'",
                 "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing open '#{uuid}'",
                 "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing stop '#{uuid}'",
+                "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing description '#{uuid}'",
                 "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing destroy '#{uuid}'",
             },
             "x-spaceship"         => spaceship,
