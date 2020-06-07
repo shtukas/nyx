@@ -142,6 +142,21 @@ class Cube
         cube
     end
 
+    # Cube::issueCube_v4(description, quark, tags)
+    def self.issueCube_v4(description, quark, tags)
+        cube = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "creationUnixtime" => Time.new.to_f,
+
+            "description"      => description,
+            "quarksuuids"      => [quark["uuid"]],
+            "tags"             => tags
+        }
+        Nyx::commitToDisk(cube)
+        cube
+    end
+
     # Cube::cubesByTag(tag)
     def self.getCubesByTag(tag)
         Cube::cubes()

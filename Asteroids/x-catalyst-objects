@@ -110,7 +110,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing description '#{uuid}'",
             "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing reset-reference-time '#{uuid}'",
             "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing update-project '#{uuid}'",
-            ">data"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing recastAsCubeContent '#{uuid}'",
+            ">data"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing recastAsCubeContentInteractive '#{uuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,

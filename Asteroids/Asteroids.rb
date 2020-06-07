@@ -186,15 +186,14 @@ class Asteroids
         Nyx::commitToDisk(item)
     end
 
-    # Asteroids::recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastAsCubeContent(item) # Boolean # Indicates whether a promotion was acheived
+    # Asteroids::recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
         quark = Nyx::getOrNull(item["quarkuuid"])
         return false if quark.nil?
-        cube = CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
-        return false if cube.nil?
-        cube["quarksuuids"] << quark["uuid"]
+        description = LucilleCore::askQuestionAnswerAsString("cube description: ")
+        tags = Cube::makeTagsInteractively()
+        cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        Nyx::commitToDisk(cube)
         return true
     end
 
@@ -248,7 +247,7 @@ class Asteroids
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Asteroid to Data" then
-                status = Asteroids::recastAsCubeContent(item)
+                status = Asteroids::recastAsCubeContentInteractive(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return
