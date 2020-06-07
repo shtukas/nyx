@@ -3,17 +3,17 @@
 This is a copy of Nyx.txt
 ------------------------------------------------------
 
-Spaceship
+MiningShip
 {
     "uuid"             : String
-    "nyxType"          : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
+    "nyxType"          : "miningship-99a06996-dcad-49f5-a0ce-02365629e4fc"
     "creationUnixtime" : Float # Unixtime with decimals
     "description"      : nil | String
-    "cargo"            : SpaceshipCargo
-    "engine"           : SpaceshipEngine
+    "cargo"            : MiningShipCargo
+    "engine"           : MiningShipEngine
 }
 
-    SpaceshipCargo
+    MiningShipCargo
         {
             "type"        : "description"
             "description" : String
@@ -30,7 +30,7 @@ Spaceship
             "quarkuuid"     : String
         }
 
-    SpaceshipEngine
+    MiningShipEngine
         {
             "type" : "bank-account"
         }

@@ -19,7 +19,7 @@ class NSXCatalystObjectsCommon
 
     # NSXCatalystObjectsCommon::applicationNames()
     def self.applicationNames()
-        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "Spaceships", "Asteroids", "Vienna", "Wave", "Wave-Go", "VideoStream"]
+        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "MiningShips", "Asteroids", "Vienna", "Wave", "Wave-Go", "VideoStream"]
     end
 
     # NSXCatalystObjectsCommon::processing(objects)

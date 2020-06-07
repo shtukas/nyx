@@ -30,7 +30,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/MiningShips.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 require_relative "../OpenCycles/OpenCycles.rb"
@@ -95,8 +95,8 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
+                    miningship = MiningShips::issue(cargo, engine)
+                    puts JSON.pretty_generate(miningship)
                     LucilleCore::pressEnterToContinue()
                 }
             ]
@@ -104,7 +104,7 @@ class NSXCatalystUI
             items << [
                 "arrow (with new quark)", 
                 lambda {
-                    cargo = Spaceships::makeCargoInteractivelyOrNull()
+                    cargo = MiningShips::makeCargoInteractivelyOrNull()
                     next if cargo.nil?
 
                     lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
@@ -114,21 +114,21 @@ class NSXCatalystUI
                         "lengthInDays"  => lengthInDays
                     }
 
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
+                    miningship = MiningShips::issue(cargo, engine)
+                    puts JSON.pretty_generate(miningship)
                     LucilleCore::pressEnterToContinue()
                 }
             ]
 
             items << [
-                "spaceship (new)", 
+                "miningship (new)", 
                 lambda { 
-                    cargo = Spaceships::makeCargoInteractivelyOrNull()
+                    cargo = MiningShips::makeCargoInteractivelyOrNull()
                     next if cargo.nil?
-                    engine = Spaceships::makeEngineInteractivelyOrNull()
+                    engine = MiningShips::makeEngineInteractivelyOrNull()
                     next if engine.nil?
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
+                    miningship = MiningShips::issue(cargo, engine)
+                    puts JSON.pretty_generate(miningship)
                     LucilleCore::pressEnterToContinue()
                 }
             ]
@@ -200,8 +200,8 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "Spaceships", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/spaceships") }
+                "MiningShips", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/miningships") }
             ]
             items << [
                 "Asteroids", 

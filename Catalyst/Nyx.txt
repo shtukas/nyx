@@ -8,7 +8,7 @@ The two required keys that a NyxObject must have are:
     nyxType          : String
     creationUnixtime : Float # unixtime with decimals
 
-Spaceship # See Spaceship.txt
+MiningShip # See MiningShip.txt
 
 Wave # See Wave.txt
 

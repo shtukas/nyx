@@ -47,14 +47,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "Spaceships.rb"
+require_relative "MiningShips.rb"
 
 # --------------------------------------------------------------------
 
-def diveSpaceship(spaceship)
+def diveMiningShip(miningship)
     loop {
         system("clear")
-        puts Spaceships::toString(spaceship).green
+        puts MiningShips::toString(miningship).green
         options = [
             "start",
             "re-cargo",
@@ -63,52 +63,52 @@ def diveSpaceship(spaceship)
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
-            Spaceships::startSpaceship(spaceship["uuid"])
+            MiningShips::startMiningShip(miningship["uuid"])
         end
         if option == "re-cargo" then
-            cargo = Spaceships::makeCargoInteractivelyOrNull()
+            cargo = MiningShips::makeCargoInteractivelyOrNull()
             next if cargo.nil?
-            spaceship["cargo"] = cargo
-            puts JSON.pretty_generate(spaceship)
-            Nyx::commitToDisk(spaceship)
+            miningship["cargo"] = cargo
+            puts JSON.pretty_generate(miningship)
+            Nyx::commitToDisk(miningship)
         end
         if option == "destroy" then
-            Nyx::destroy(spaceship["uuid"])
+            Nyx::destroy(miningship["uuid"])
         end
     }
 end
 
 loop {
     system("clear")
-    puts "Spaceships:"
-    Spaceships::spaceships().each{|spaceship|
-        puts "- #{Spaceships::toString(spaceship)}"
+    puts "MiningShips:"
+    MiningShips::miningships().each{|miningship|
+        puts "- #{MiningShips::toString(miningship)}"
     }
     puts ""
     options = [
-        "make new spaceship",
-        "dive spaceships"
+        "make new miningship",
+        "dive miningships"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "make new spaceship" then
-        cargo = Spaceships::makeCargoInteractivelyOrNull()
+    if option == "make new miningship" then
+        cargo = MiningShips::makeCargoInteractivelyOrNull()
         next if cargo.nil?
-        engine = Spaceships::makeEngineInteractivelyOrNull()
+        engine = MiningShips::makeEngineInteractivelyOrNull()
         next if engine.nil?
-        spaceship = {
+        miningship = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "nyxType"          => "miningship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "cargo"            => cargo,
             "engine"           => engine
         }
-        puts JSON.pretty_generate(spaceship)
-        Nyx::commitToDisk(spaceship)
+        puts JSON.pretty_generate(miningship)
+        Nyx::commitToDisk(miningship)
     end
-    if option == "dive spaceships" then
-        spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::toString(spaceship) })
-        next if spaceship.nil?
-        diveSpaceship(spaceship)
+    if option == "dive miningships" then
+        miningship = LucilleCore::selectEntityFromListOfEntitiesOrNull("miningship", MiningShips::miningships(), lambda{|miningship| MiningShips::toString(miningship) })
+        next if miningship.nil?
+        diveMiningShip(miningship)
     end
 }

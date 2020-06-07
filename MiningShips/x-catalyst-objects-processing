@@ -51,7 +51,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "Spaceships.rb"
+require_relative "MiningShips.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -59,27 +59,27 @@ def stop(uuid)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{uuid})"
+    puts "[miningship] Bank: putting #{timespan.round(2)} secs into miningship (#{uuid})"
     Bank::put(uuid, timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    spaceship = Nyx::getOrNull(uuid)
-    exit if spaceship.nil?
-    Spaceships::startSpaceship(uuid)
-    if spaceship["engine"]["type"] == "arrow" then
+    miningship = Nyx::getOrNull(uuid)
+    exit if miningship.nil?
+    MiningShips::startMiningShip(uuid)
+    if miningship["engine"]["type"] == "arrow" then
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
             stop(uuid)
             Nyx::destroy(uuid)
             exit
         end
     end
-    if spaceship["cargo"]["type"] == "quark"
-        if spaceship["description"].nil? then
-            spaceship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
-            Nyx::commitToDisk(spaceship)
+    if miningship["cargo"]["type"] == "quark"
+        if miningship["description"].nil? then
+            miningship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
+            Nyx::commitToDisk(miningship)
         end
     end
 end
@@ -87,23 +87,23 @@ end
 if ARGV[0] == "description" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    spaceship = Nyx::getOrNull(uuid)
-    exit if spaceship.nil?
-    spaceship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
-    Nyx::commitToDisk(spaceship)
+    miningship = Nyx::getOrNull(uuid)
+    exit if miningship.nil?
+    miningship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
+    Nyx::commitToDisk(miningship)
 end
 
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    Spaceships::openCargo(uuid)
+    MiningShips::openCargo(uuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    spaceship = Nyx::getOrNull(uuid)
-    exit if spaceship.nil?
+    miningship = Nyx::getOrNull(uuid)
+    exit if miningship.nil?
 
     stop(uuid)
 end
@@ -111,8 +111,8 @@ end
 if ARGV[0] == "destroy" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    spaceship = Nyx::getOrNull(uuid)
-    exit if spaceship.nil?
+    miningship = Nyx::getOrNull(uuid)
+    exit if miningship.nil?
 
     stop(uuid)
     Nyx::destroy(uuid)

@@ -72,61 +72,61 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "Spaceships.rb"
+require_relative "MiningShips.rb"
 
 # -------------------------------------------------------------------------
 
 # Guardian Work
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
-# Spaceship bank managed
-Spaceships::spaceships()
-    .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
+# MiningShip bank managed
+MiningShips::miningships()
+    .select{|miningship| ["bank-account"].include?(miningship["engine"]["type"]) }
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .first(3)
-    .each{|spaceship|
-        DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
+    .each{|miningship|
+        DailyTimes::putTimeToBankNoOftenThanOnceADay(miningship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
     }
 
 # -------------------------------------------------------------------------
 
 objects = []
 
-Spaceships::spaceships()
+MiningShips::miningships()
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-    .each{|spaceship|
+    .each{|miningship|
 
         defaultCommand = lambda {|isRunning|
             isRunning ? "stop" : "start"
         }
 
-        uuid = spaceship["uuid"]
+        uuid = miningship["uuid"]
         isRunning = Runner::isRunning(uuid)
-        isRunningForLong = (Spaceships::liveRunTimeIfAny(spaceship) > 3600)
+        isRunningForLong = (MiningShips::liveRunTimeIfAny(miningship) > 3600)
 
         objects << {
             "uuid"           => uuid,
-            "application"    => "Spaceships",
+            "application"    => "MiningShips",
             "contentItem"    => {
                 "type" => "line",
-                "line" => Spaceships::toString(spaceship)
+                "line" => MiningShips::toString(miningship)
             },
-            "metric"         => Spaceships::metric(spaceship),
+            "metric"         => MiningShips::metric(miningship),
             "commands"       => ["start", "open", "stop", "description", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
-            "isDone" => Spaceships::isDone?(spaceship),
+            "isDone" => MiningShips::isDone?(miningship),
             "shell-redirects" => {
-                "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing start '#{uuid}'",
-                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing open '#{uuid}'",
-                "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing stop '#{uuid}'",
-                "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing description '#{uuid}'",
-                "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/x-catalyst-objects-processing destroy '#{uuid}'",
+                "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/x-catalyst-objects-processing start '#{uuid}'",
+                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/x-catalyst-objects-processing open '#{uuid}'",
+                "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/x-catalyst-objects-processing stop '#{uuid}'",
+                "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/x-catalyst-objects-processing description '#{uuid}'",
+                "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/MiningShips/x-catalyst-objects-processing destroy '#{uuid}'",
             },
-            "x-spaceship"         => spaceship,
+            "x-miningship"         => miningship,
             "x-running-for"     => Runner::runTimeInSecondsOrNull(uuid),
-            "x-total-live-time" => Spaceships::liveTotalTime(spaceship),
+            "x-total-live-time" => MiningShips::liveTotalTime(miningship),
         }
     }
 
