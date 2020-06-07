@@ -14,12 +14,12 @@ The Quarks represent pieces of data (six types at the time those lines are writt
 
 ### Navigation Network
 
-The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cubes.
+The navigation network is a semantic network of orbitals and the paths between them. Each orbital carries a collection of Cubes.
 
 ------------------------------------------------------
 StarlightNode {
     "uuid"              : String
-    "nyxType"           : "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+    "nyxType"           : "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721"
     "creationUnixtime"  : Float # Unixtime with decimals
     "name"              : String
 }
@@ -37,9 +37,9 @@ StarlightPath {
 ------------------------------------------------------
 StarlightContentClaim {
     "uuid"             : String
-    "nyxType"          : "starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+    "nyxType"          : "orbital-inventory-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80"
     "creationUnixtime" : Float # Unixtime with decimals
 
-    "nodeuuid"         : String
+    "orbitaluuid"         : String
     "cubeuuid"         : String # Cube uuid or a Quark uuid
 }

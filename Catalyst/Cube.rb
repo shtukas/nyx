@@ -89,10 +89,10 @@ class Cube
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
-        if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to a Starlight node ? ") then
-            node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
-            if node then
-                StarlightInventory::issueClaim(node, cube)
+        if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an orbital ? ") then
+            orbital = StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
+            if orbital then
+                OrbitalInventory::issueClaim(orbital, cube)
             end
         end
         cube
@@ -234,9 +234,9 @@ class Cube
             puts "    - [tag] #{item}"
         }
 
-        nodes = StarlightInventory::getNodesForCube(cube)
-        nodes.each{|node|
-            puts "    - #{StarlightNodes::nodeToString(node)}"
+        orbitals = OrbitalInventory::getOrbitals(cube)
+        orbitals.each{|orbital|
+            puts "    - #{Orbitals::orbitalToString(orbital)}"
         }
     end
 
@@ -289,9 +289,9 @@ class Cube
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
                 }
 
-            StarlightInventory::getNodesForCube(cube)
+            OrbitalInventory::getOrbitals(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|node| items << [StarlightNodes::nodeToString(node), lambda{ StarlightUserInterface::nodeDive(node) }] }
+                .each{|orbital| items << [Orbitals::orbitalToString(orbital), lambda{ StarlightUserInterface::orbitalDive(orbital) }] }
 
             items << nil
 
@@ -345,9 +345,9 @@ class Cube
             items << [
                 "add to Starlight Node", 
                 lambda{
-                    node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                    next if node.nil?
-                    StarlightInventory::issueClaim(node, cube)
+                    orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                    next if orbital.nil?
+                    OrbitalInventory::issueClaim(orbital, cube)
                 }]
             items << [
                 "register as open cycle", 
@@ -579,8 +579,8 @@ class CubeMakeAndOrSelectQuest
             cube = Cube::issueCubeInteractivelyOrNull_v1()
             return nil if cube.nil?
             puts "-> You are on a selection Quest [selecting a cube]"
-            puts "-> You have created '#{node["description"]}'"
-            option1 = "quest: return '#{node["description"]}' immediately"
+            puts "-> You have created '#{orbital["description"]}'"
+            option1 = "quest: return '#{orbital["description"]}' immediately"
             option2 = "quest: dive first"
             options = [ option1, option2 ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)

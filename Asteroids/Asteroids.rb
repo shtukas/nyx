@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndOrbitals.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -197,10 +197,10 @@ class Asteroids
         tags = Cube::makeTagsInteractively()
         cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-        if node then
-            puts JSON.pretty_generate(node)
-            claim = StarlightInventory::issueClaim(node, cube)
+        orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+        if orbital then
+            puts JSON.pretty_generate(orbital)
+            claim = OrbitalInventory::issueClaim(orbital, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -216,10 +216,10 @@ class Asteroids
         tags = Cube::makeTagsInteractively()
         cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-        if node then
-            puts JSON.pretty_generate(node)
-            claim = StarlightInventory::issueClaim(node, cube)
+        orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+        if orbital then
+            puts JSON.pretty_generate(orbital)
+            claim = OrbitalInventory::issueClaim(orbital, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)

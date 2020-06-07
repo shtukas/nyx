@@ -66,7 +66,7 @@ class CatalystFsck
 
     # CatalystFsck::entity(entity)
     def self.entity(entity)
-        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             CatalystFsck::checkStarlightNode(entity)
             return
         end
@@ -94,7 +94,7 @@ class CatalystFsck
         end
         puts JSON.pretty_generate(entity)
         supportedTypes = [
-            "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
         ]
@@ -335,32 +335,32 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkStarlightNode(node)
-    def self.checkStarlightNode(node)
-        puts JSON.pretty_generate(node)
-        if node["uuid"].nil? then
-            puts "[error] starlight node has no uuid".red
-            puts JSON.pretty_generate(node).red
+    # CatalystFsck::checkStarlightNode(orbital)
+    def self.checkStarlightNode(orbital)
+        puts JSON.pretty_generate(orbital)
+        if orbital["uuid"].nil? then
+            puts "[error] starlight orbital has no uuid".red
+            puts JSON.pretty_generate(orbital).red
             exit
         end
-        if node["nyxType"].nil? then
-            puts "[error] starlight node has no nyxType".red
-            puts JSON.pretty_generate(node).red
+        if orbital["nyxType"].nil? then
+            puts "[error] starlight orbital has no nyxType".red
+            puts JSON.pretty_generate(orbital).red
             exit
         end
-        if node["nyxType"] != "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            puts "[error] starlight node has incorrect nyxType".red
-            puts JSON.pretty_generate(node).red
+        if orbital["nyxType"] != "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+            puts "[error] starlight orbital has incorrect nyxType".red
+            puts JSON.pretty_generate(orbital).red
             exit
         end
-        if node["name"].nil? then
-            puts "[error] starlight node has no name".red
-            puts JSON.pretty_generate(node).red
+        if orbital["name"].nil? then
+            puts "[error] starlight orbital has no name".red
+            puts JSON.pretty_generate(orbital).red
             exit
         end
-        if node["name"].strip.size == 0 then
-            puts "[error] starlight node has empty name".red
-            puts JSON.pretty_generate(node).red
+        if orbital["name"].strip.size == 0 then
+            puts "[error] starlight orbital has empty name".red
+            puts JSON.pretty_generate(orbital).red
             exit
         end
     end
@@ -384,7 +384,7 @@ class CatalystFsck
             exit
         end
         if cube["description"].nil? then
-            puts "[error] starlight node has no description".red
+            puts "[error] starlight orbital has no description".red
             puts JSON.pretty_generate(cube).red
             exit
         end
@@ -424,8 +424,8 @@ class CatalystFsck
         MiningShips::miningships().each{|miningship|
             CatalystFsck::checkMiningShip(miningship)
         }
-        StarlightNodes::nodes().each{|node|
-            CatalystFsck::checkStarlightNode(node)
+        Orbitals::orbitals().each{|orbital|
+            CatalystFsck::checkStarlightNode(orbital)
         }
         Cube::cubes().each{|cube|
             CatalystFsck::checkCube(cube)

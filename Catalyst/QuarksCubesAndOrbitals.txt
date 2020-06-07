@@ -1,11 +1,11 @@
 A Primary Network Element is any of:
      1. Quark          ( "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" )
      2. Cube           ( "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" )
-     3. Starlight Node ( "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" )
+     3. Starlight Node ( "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" )
 
 But note that 
-    QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-only select a node or a cube
+    QuarksCubesAndOrbitalsMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+only select an orbital or a cube
 
 All Primary Network Elements carry
     "nyxType"           : String

@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndOrbitals.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -23,20 +23,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight
 
 # -----------------------------------------------------------------
 
-class QuarksCubesAndStarlightNodes
+class QuarksCubesAndOrbitals
 
-    # QuarksCubesAndStarlightNodes::getObjectByUuidOrNull(uuid)
+    # QuarksCubesAndOrbitals::getObjectByUuidOrNull(uuid)
     def self.getObjectByUuidOrNull(uuid)
         target = Nyx::getOrNull(uuid)
         return target if target
         cube = Nyx::getOrNull(uuid)
         return cube if cube
-        starlightnode = Nyx::getOrNull(uuid)
-        return starlightnode if starlightnode
+        orbital = Nyx::getOrNull(uuid)
+        return orbital if orbital
         nil
     end
 
-    # QuarksCubesAndStarlightNodes::objectToString(entity)
+    # QuarksCubesAndOrbitals::objectToString(entity)
     def self.objectToString(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             return Quark::quarkToString(entity)
@@ -44,13 +44,13 @@ class QuarksCubesAndStarlightNodes
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cube::cubeToString(entity)
         end
-        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            return StarlightNodes::nodeToString(entity)
+        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            return Orbitals::orbitalToString(entity)
         end
-        raise "QuarksCubesAndStarlightNodes::objectToString, Error: 056686f0"
+        raise "QuarksCubesAndOrbitals::objectToString, Error: 056686f0"
     end
 
-    # QuarksCubesAndStarlightNodes::openObject(entity)
+    # QuarksCubesAndOrbitals::openObject(entity)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
     def self.openObject(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
@@ -63,15 +63,15 @@ class QuarksCubesAndStarlightNodes
             Cube::openCube(cube)
             return
         end
-        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-           node = entity
-           StarlightUserInterface::nodeDive(node)
+        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+           orbital = entity
+           StarlightUserInterface::orbitalDive(orbital)
            return
         end
-        raise "QuarksCubesAndStarlightNodes::objectToString, Error: 2f28f27d"
+        raise "QuarksCubesAndOrbitals::objectToString, Error: 2f28f27d"
     end
 
-    # QuarksCubesAndStarlightNodes::objectDive(entity)
+    # QuarksCubesAndOrbitals::objectDive(entity)
     def self.objectDive(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             Quark::quarkDive(entity)
@@ -81,26 +81,26 @@ class QuarksCubesAndStarlightNodes
             Cube::cubeDive(entity)
             return
         end
-        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            StarlightUserInterface::nodeDive(entity)
+        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            StarlightUserInterface::orbitalDive(entity)
             return
         end
-        raise "QuarksCubesAndStarlightNodes::objectToString, Error: cf25ea33"
+        raise "QuarksCubesAndOrbitals::objectToString, Error: cf25ea33"
     end
 end
 
-class QuarksCubesAndStarlightNodesNavigation
+class QuarksCubesAndOrbitalsNavigation
 
-    # QuarksCubesAndStarlightNodesNavigation::navigation()
+    # QuarksCubesAndOrbitalsNavigation::navigation()
     def self.navigation()
         loop {
             options = [
-                "navigate nodes",
+                "navigate orbitals",
                 "navigate cubes",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             return if option.nil?
-            if option == "navigate nodes" then
+            if option == "navigate orbitals" then
                 StarlightUserInterface::navigation()
             end
             if option == "navigate cubes" then
@@ -109,7 +109,7 @@ class QuarksCubesAndStarlightNodesNavigation
         }
     end
 
-    # QuarksCubesAndStarlightNodesNavigation::visit(entity)
+    # QuarksCubesAndOrbitalsNavigation::visit(entity)
     def self.visit(entity)
         if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = entity
@@ -119,22 +119,22 @@ class QuarksCubesAndStarlightNodesNavigation
             cube = entity
             return Cube::cubeDive(cube)
         end
-        if entity["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            node = entity
-            return StarlightUserInterface::nodeDive(node)
+        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            orbital = entity
+            return StarlightUserInterface::orbitalDive(orbital)
         end
-        raise "QuarksCubesAndStarlightNodes::objectToString, Error: f17aba25"
+        raise "QuarksCubesAndOrbitals::objectToString, Error: f17aba25"
     end
 end
 
-class QuarksCubesAndStarlightNodesMakeAndOrSelectQuest
+class QuarksCubesAndOrbitalsMakeAndOrSelectQuest
 
-    # QuarksCubesAndStarlightNodesMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+    # QuarksCubesAndOrbitalsMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
     def self.makeAndOrSelectSomethingOrNull()
         loop {
-            puts "-> You are on a selection Quest [making and/or selecting a node or cube]"
+            puts "-> You are on a selection Quest [making and/or selecting an orbital or cube]"
             options = [
-                "making and/or selecting a node",
+                "making and/or selecting an orbital",
                 "making and/or selecting a cube",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
@@ -145,12 +145,12 @@ class QuarksCubesAndStarlightNodesMakeAndOrSelectQuest
                     next
                 end
             end
-            if option == "making and/or selecting a node" then
-                entity = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+            if option == "making and/or selecting an orbital" then
+                entity = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
                 if entity then
                     return entity
                 else 
-                    puts "You are on a selection Quest, and chose nodes, but didn't select any. back to square one (you can return null there)"
+                    puts "You are on a selection Quest, and chose orbitals, but didn't select any. back to square one (you can return null there)"
                     LucilleCore::pressEnterToContinue()
                     next
                 end

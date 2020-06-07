@@ -163,66 +163,66 @@ class NSXMiscUtils
         end
     end
 
-    # NSXMiscUtils::startlightNodeBuildAround(node)
-    def self.startlightNodeBuildAround(node)
+    # NSXMiscUtils::startlightNodeBuildAround(orbital)
+    def self.startlightNodeBuildAround(orbital)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StarlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Orbitals::orbitalToString(orbital)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
                 if parent.nil? then
-                    puts "Did not determine a parent for '#{StarlightNodes::nodeToString(node)}'. Aborting parent determination."
+                    puts "Did not determine a parent for '#{Orbitals::orbitalToString(orbital)}'. Aborting parent determination."
                     break
                 end
-                StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StarlightNodes::nodeToString(node)}' ? ")
+                StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, orbital)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Orbitals::orbitalToString(orbital)}' ? ")
             }
-            puts "Completed determining parents for '#{StarlightNodes::nodeToString(node)}'"
+            puts "Completed determining parents for '#{Orbitals::orbitalToString(orbital)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{StarlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Orbitals::orbitalToString(orbital)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
+                child = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
                 if child.nil? then
-                    puts "Did not make a child for '#{StarlightNodes::nodeToString(node)}'. Aborting child building."
+                    puts "Did not make a child for '#{Orbitals::orbitalToString(orbital)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital, child)
                 next if path.nil?
                 puts JSON.pretty_generate(path)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StarlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Orbitals::orbitalToString(orbital)}' ? ")
             }
-            puts "Completed building children for '#{StarlightNodes::nodeToString(node)}'"
+            puts "Completed building children for '#{Orbitals::orbitalToString(orbital)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cubes for '#{StarlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cubes for '#{Orbitals::orbitalToString(orbital)}' ? ") then
             loop {
                 puts "Making new cube..."
                 cube = Cube::issueCubeInteractivelyOrNull_v2(false)
                 if cube.nil? then
-                    puts "Did not make a cube for '#{StarlightNodes::nodeToString(node)}'. Aborting cube building."
+                    puts "Did not make a cube for '#{Orbitals::orbitalToString(orbital)}'. Aborting cube building."
                     break
                 end
                 puts JSON.pretty_generate(cube)
-                claim = StarlightInventory::issueClaim(node, cube)
+                claim = OrbitalInventory::issueClaim(orbital, cube)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{StarlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{Orbitals::orbitalToString(orbital)}' ? ")
             }
         end
 
-        node
+        orbital
     end
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
-        if node.nil? then
-            puts "Could not determine a Startlight node. Aborting build sequence."
+        orbital = StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
+        if orbital.nil? then
+            puts "Could not determine an orbital. Aborting build sequence."
             return
         end
-        node = NSXMiscUtils::startlightNodeBuildAround(node)
-        node
+        orbital = NSXMiscUtils::startlightNodeBuildAround(orbital)
+        orbital
     end
 end

@@ -16,42 +16,42 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndStarlightNodes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndOrbitals.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------
 
-class StarlightNodes
+class Orbitals
 
-    # StarlightNodes::makeNodeInteractivelyOrNull()
-    def self.makeNodeInteractivelyOrNull()
-        puts "Making a new Starlight node..."
-        node = {
+    # Orbitals::makeOrbitalInteractivelyOrNull()
+    def self.makeOrbitalInteractivelyOrNull()
+        puts "Making a new Orbital..."
+        orbital = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "nyxType"          => "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "creationUnixtime" => Time.new.to_f,
 
-            "name"             => LucilleCore::askQuestionAnswerAsString("nodename: ")
+            "name"             => LucilleCore::askQuestionAnswerAsString("orbitalname: ")
         }
-        Nyx::commitToDisk(node)
-        puts JSON.pretty_generate(node)
-        node
+        Nyx::commitToDisk(orbital)
+        puts JSON.pretty_generate(orbital)
+        orbital
     end
 
-    # StarlightNodes::nodeToString(node)
-    def self.nodeToString(node)
-        "[starlight node] [#{node["uuid"][0, 4]}] #{node["name"]}"
+    # Orbitals::orbitalToString(orbital)
+    def self.orbitalToString(orbital)
+        "[starlight orbital] [#{orbital["uuid"][0, 4]}] #{orbital["name"]}"
     end
 
-    # StarlightNodes::getOrNull(uuid)
+    # Orbitals::getOrNull(uuid)
     def self.getOrNull(uuid)
         Nyx::getOrNull(uuid)
     end
 
-    # StarlightNodes::nodes()
-    def self.nodes()
-        Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+    # Orbitals::orbitals()
+    def self.orbitals()
+        Nyx::objects("orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
@@ -72,15 +72,15 @@ class StarlightPaths
         path
     end
 
-    # StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
-    def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
-        return nil if node1["uuid"] == node2["uuid"]
+    # StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital1, orbital2)
+    def self.issuePathFromFirstNodeToSecondNodeOrNull(orbital1, orbital2)
+        return nil if orbital1["uuid"] == orbital2["uuid"]
         path = {
             "nyxType"          => "starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
-            "sourceuuid"       => node1["uuid"],
-            "targetuuid"       => node2["uuid"]
+            "sourceuuid"       => orbital1["uuid"],
+            "targetuuid"       => orbital2["uuid"]
         }
         Nyx::commitToDisk(path)
         path
@@ -103,133 +103,133 @@ class StarlightPaths
         "[stargate] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
     end
 
-    # StarlightPaths::getParents(node)
-    def self.getParents(node)
-        StarlightPaths::getPathsWithGivenTarget(node["uuid"])
+    # StarlightPaths::getParents(orbital)
+    def self.getParents(orbital)
+        StarlightPaths::getPathsWithGivenTarget(orbital["uuid"])
             .map{|path| Nyx::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
-    # StarlightPaths::getChildren(node)
-    def self.getChildren(node)
-        StarlightPaths::getPathsWithGivenSource(node["uuid"])
+    # StarlightPaths::getChildren(orbital)
+    def self.getChildren(orbital)
+        StarlightPaths::getPathsWithGivenSource(orbital["uuid"])
             .map{|path| Nyx::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
 
-class StarlightInventory
+class OrbitalInventory
 
-    # StarlightInventory::issueClaim(node, cube)
-    def self.issueClaim(node, cube)
+    # OrbitalInventory::issueClaim(orbital, cube)
+    def self.issueClaim(orbital, cube)
         raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
         claim = {
-            "nyxType"          => "starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "nyxType"          => "orbital-inventory-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
-            "nodeuuid"         => node["uuid"],
+            "orbitaluuid"         => orbital["uuid"],
             "cubeuuid"         => cube["uuid"]
         }
         Nyx::commitToDisk(claim)
         claim
     end
 
-    # StarlightInventory::claimToString(dataclaim)
+    # OrbitalInventory::claimToString(dataclaim)
     def self.claimToString(dataclaim)
-        "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["cubeuuid"]}"
+        "[starlight ownership claim] #{dataclaim["orbitaluuid"]} -> #{dataclaim["cubeuuid"]}"
     end
 
-    # StarlightInventory::getNodeCubes(node)
-    def self.getNodeCubes(node)
-        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["nodeuuid"] == node["uuid"] }
+    # OrbitalInventory::getCubes(orbital)
+    def self.getCubes(orbital)
+        Nyx::objects("orbital-inventory-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+            .select{|claim| claim["orbitaluuid"] == orbital["uuid"] }
             .map{|claim| Cube::getOrNull(claim["cubeuuid"]) }
             .compact
     end
 
-    # StarlightInventory::getNodesForCube(cube)
-    def self.getNodesForCube(cube)
-        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+    # OrbitalInventory::getOrbitals(cube)
+    def self.getOrbitals(cube)
+        Nyx::objects("orbital-inventory-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["cubeuuid"] == cube["uuid"] }
-            .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
+            .map{|claim| Nyx::getOrNull(claim["orbitaluuid"]) }
             .compact
     end
 
-    # StarlightInventory::claims()
+    # OrbitalInventory::claims()
     def self.claims()
-        Nyx::objects("starlight-inventory-item-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("orbital-inventory-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
 
 class StarlightUserInterface
 
-    # StarlightUserInterface::selectNodeFromExistingNodes()
-    def self.selectNodeFromExistingNodes()
-        nodestrings = StarlightNodes::nodes().map{|node| StarlightNodes::nodeToString(node) }
-        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        StarlightNodes::nodes()
-            .select{|node| StarlightNodes::nodeToString(node) == nodestring }
+    # StarlightUserInterface::selectOrbitalFromExistingOrbitals()
+    def self.selectOrbitalFromExistingOrbitals()
+        orbitalstrings = Orbitals::orbitals().map{|orbital| Orbitals::orbitalToString(orbital) }
+        orbitalstring = CatalystCommon::chooseALinePecoStyle("orbital:", [""]+orbitalstrings)
+        Orbitals::orbitals()
+            .select{|orbital| Orbitals::orbitalToString(orbital) == orbitalstring }
             .first
     end
 
-    # StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
-    def self.selectNodeFromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a starlight node (possibly will create one)"
+    # StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
+    def self.selectOrbitalFromExistingOrCreateOneOrNull()
+        puts "-> You are selecting a starlight orbital (possibly will create one)"
         LucilleCore::pressEnterToContinue()
-        node = StarlightUserInterface::selectNodeFromExistingNodes()
-        return node if node
-        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting a node but did not select any of the existing ones. Would you like to make a new node and return it ? ") then
-            return StarlightNodes::makeNodeInteractivelyOrNull()
+        orbital = StarlightUserInterface::selectOrbitalFromExistingOrbitals()
+        return orbital if orbital
+        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting an orbital but did not select any of the existing ones. Would you like to make a new orbital and return it ? ") then
+            return Orbitals::makeOrbitalInteractivelyOrNull()
         end
         nil
     end
 
-    # StarlightUserInterface::nodeDive(node)
-    def self.nodeDive(node)
+    # StarlightUserInterface::orbitalDive(orbital)
+    def self.orbitalDive(orbital)
         loop {
             system("clear")
             puts ""
-            puts "uuid: #{node["uuid"]}"
-            puts StarlightNodes::nodeToString(node).green
+            puts "uuid: #{orbital["uuid"]}"
+            puts Orbitals::orbitalToString(orbital).green
             items = []
 
-            StarlightPaths::getParents(node)
+            StarlightPaths::getParents(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
+                .each{|n| items << ["[network parent] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
 
             items << nil
 
-            StarlightPaths::getChildren(node)
+            StarlightPaths::getChildren(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
+                .each{|n| items << ["[network child] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
 
             items << nil
 
-            StarlightInventory::getNodeCubes(node)
+            OrbitalInventory::getCubes(orbital)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|cube| items << [Cube::cubeToString(cube), lambda{ Cube::cubeDive(cube) }] }
 
             items << nil
 
             items << ["rename", lambda{ 
-                node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
-                Nyx::commitToDisk(node)
+                orbital["name"] = CatalystCommon::editTextUsingTextmate(orbital["name"]).strip
+                Nyx::commitToDisk(orbital)
             }]
 
-            items << ["add parent node", lambda{ 
-                node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                return if node0.nil?
-                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
+            items << ["add parent orbital", lambda{ 
+                orbital0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                return if orbital0.nil?
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital0, orbital)
                 return if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
             }]
 
-            items << ["add child node", lambda{ 
-                node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
+            items << ["add child orbital", lambda{ 
+                orbital2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital, orbital2)
                 return if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
@@ -238,7 +238,7 @@ class StarlightUserInterface
             items << ["add cube (from existing)", lambda{ 
                 cube = Cube::selectCubeFromExistingOrNull()
                 return if cube.nil?
-                StarlightInventory::issueClaim(node, cube)
+                OrbitalInventory::issueClaim(orbital, cube)
             }]
 
             items << ["-> cube (new) -> quark (new)", lambda{ 
@@ -246,8 +246,8 @@ class StarlightUserInterface
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                 cube = Cube::issueCube_v3(description)
                 puts JSON.pretty_generate(cube)
-                puts "Let's attach the cube to the node"
-                claim = StarlightInventory::issueClaim(node, cube)
+                puts "Let's attach the cube to the orbital"
+                claim = OrbitalInventory::issueClaim(orbital, cube)
                 puts JSON.pretty_generate(claim)
                 puts "Let's make a quark"
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -264,34 +264,34 @@ class StarlightUserInterface
 
     # StarlightUserInterface::listingAndSelection()
     def self.listingAndSelection()
-        node = StarlightUserInterface::selectNodeFromExistingNodes()
-        return if node.nil?
-        StarlightUserInterface::nodeDive(node)
+        orbital = StarlightUserInterface::selectOrbitalFromExistingOrbitals()
+        return if orbital.nil?
+        StarlightUserInterface::orbitalDive(orbital)
     end
 
-    # StarlightUserInterface::starlightNavigationAtNode(node)
-    def self.starlightNavigationAtNode(node)
+    # StarlightUserInterface::starlightNavigationAtOrbital(orbital)
+    def self.starlightNavigationAtOrbital(orbital)
         loop {
             system("clear")
             puts ""
-            puts "uuid: #{node["uuid"]}"
-            puts StarlightNodes::nodeToString(node).green
+            puts "uuid: #{orbital["uuid"]}"
+            puts Orbitals::orbitalToString(orbital).green
             items = []
 
-            StarlightPaths::getParents(node)
+            StarlightPaths::getParents(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtNode(n) }] }
+                .each{|n| items << ["[network parent] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
 
             items << nil
 
-            StarlightPaths::getChildren(node)
+            StarlightPaths::getChildren(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtNode(n) }] }
+                .each{|n| items << ["[network child] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
 
             items << nil
 
-            items << ["dive node", lambda{ 
-                StarlightUserInterface::nodeDive(node)
+            items << ["dive orbital", lambda{ 
+                StarlightUserInterface::orbitalDive(orbital)
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -304,11 +304,11 @@ class StarlightUserInterface
         loop {
             system("clear")
             puts ""
-            nodes = StarlightNodes::nodes()
-                        .select{|node| StarlightPaths::getPathsWithGivenTarget(node["uuid"]).empty? }
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| StarlightNodes::nodeToString(node) })
-            return if node.nil?
-            StarlightUserInterface::starlightNavigationAtNode(node)
+            orbitals = Orbitals::orbitals()
+                        .select{|orbital| StarlightPaths::getPathsWithGivenTarget(orbital["uuid"]).empty? }
+            orbital = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals, lambda{|orbital| Orbitals::orbitalToString(orbital) })
+            return if orbital.nil?
+            StarlightUserInterface::starlightNavigationAtOrbital(orbital)
         }
     end
 
@@ -318,22 +318,22 @@ class StarlightUserInterface
             system("clear")
             puts "Starlight Management (root)"
             operations = [
-                "make node",
+                "make orbital",
                 "make starlight path"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "make node" then
-                node = StarlightNodes::makeNodeInteractivelyOrNull()
-                puts JSON.pretty_generate(node)
-                Nyx::commitToDisk(node)
+            if operation == "make orbital" then
+                orbital = Orbitals::makeOrbitalInteractivelyOrNull()
+                puts JSON.pretty_generate(orbital)
+                Nyx::commitToDisk(orbital)
             end
             if operation == "make starlight path" then
-                node1 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                next if node1.nil?
-                node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-                next if node2.nil?
-                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                orbital1 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                next if orbital1.nil?
+                orbital2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                next if orbital2.nil?
+                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital1, orbital2)
                 next if path.nil?
                 puts JSON.pretty_generate(path)
                 Nyx::commitToDisk(path)
@@ -344,29 +344,29 @@ end
 
 class StarlightMakeAndOrSelectNodeQuest
 
-    # StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
-    def self.makeAndOrSelectNodeOrNull()
-        puts "-> You are on a selection Quest [selecting a node]"
+    # StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+    def self.makeAndOrSelectOrbitalOrNull()
+        puts "-> You are on a selection Quest [selecting an orbital]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        node = StarlightUserInterface::selectNodeFromExistingNodes()
-        return node if node
-        puts "-> You are on a selection Quest [selecting a node]"
+        orbital = StarlightUserInterface::selectOrbitalFromExistingOrbitals()
+        return orbital if orbital
+        puts "-> You are on a selection Quest [selecting an orbital]"
         if LucilleCore::askQuestionAnswerAsBoolean("-> ...but did not select anything. Do you want to create one ? ") then
-            node = StarlightNodes::makeNodeInteractivelyOrNull()
-            return nil if node.nil?
-            puts "-> You are on a selection Quest [selecting a node]"
-            puts "-> You have created '#{node["name"]}'"
+            orbital = Orbitals::makeOrbitalInteractivelyOrNull()
+            return nil if orbital.nil?
+            puts "-> You are on a selection Quest [selecting an orbital]"
+            puts "-> You have created '#{orbital["name"]}'"
             loop {
-                option1 = "quest: return '#{node["name"]}' immediately"
+                option1 = "quest: return '#{orbital["name"]}' immediately"
                 option2 = "quest: dive first"
                 options = [ option1, option2 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
                 if option == option1 then
-                    return node
+                    return orbital
                 end
                 if option == option2 then
-                    StarlightUserInterface::nodeDive(node)
+                    StarlightUserInterface::orbitalDive(orbital)
                 end
             }
         end
