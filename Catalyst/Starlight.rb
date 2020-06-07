@@ -235,6 +235,12 @@ class StarlightUserInterface
                 Nyx::commitToDisk(path)
             }]
 
+            items << ["add cube (from existing)", lambda{ 
+                cube = Cube::selectCubeFromExistingOrNull()
+                return if cube.nil?
+                StarlightInventory::issueClaim(node, cube)
+            }]
+
             items << ["-> cube (new) -> quark (new)", lambda{ 
                 puts "Let's make a cube"
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
