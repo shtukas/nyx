@@ -103,8 +103,7 @@ class Quark
 
     # Quark::issueQuarkFile(filepath)
     def self.issueQuarkFile(filepath1)
-        filename1 = File.basename(filepath1)
-        filename2 = "#{CatalystCommon::l22()}-#{filename1}"
+        filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
@@ -141,7 +140,7 @@ class Quark
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
         folderpath2 = "#{File.dirname(folderpath1)}/#{foldername2}"
         FileUtils.mv(folderpath1, folderpath2)
-        CoreDataDirectory::copyFolderToRepository(folderpath2)
+        CoreDataDirectory::copyDirectoryToRepository(folderpath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         point = {
             "uuid"             => SecureRandom.uuid,
@@ -181,7 +180,7 @@ class Quark
             foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
             folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
             FileUtils.mv(folderpath1, folderpath2)
-            CoreDataDirectory::copyFolderToRepository(folderpath2)
+            CoreDataDirectory::copyDirectoryToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             point = {
                 "uuid"             => SecureRandom.uuid,

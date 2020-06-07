@@ -37,39 +37,59 @@ class CoreDataUtils
         FileUtils.mkdir(folder3)
         LucilleCore::copyFileSystemLocation(location, folder3)
     end
+
+    # CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth(folderpath)
+    def self.getSubfoldersMonthsNotIncludingThisMonth(folderpath)
+        months = Dir.entries(folderpath)
+                    .select{|filename| filename[0, 1] != '.' }
+        months - [ Time.new.strftime("%Y-%m") ]
+    end
 end
 
 class CoreDataFile
 
-    # CoreDataFile::filenameToFilepath(filename)
-    def self.filenameToFilepath(filename)
-        filepath1 = "#{CoreDataUtils::pathToCoreData()}/Files/#{filename}"
-        filepath2 = "#{CoreDataUtils::pathToCoreData()}/Files2/2020-06/#{filename}"
-        if !File.exists?(File.dirname(filepath2)) then
-            FileUtils.mkdir(File.dirname(filepath2))
+
+
+    # CoreDataFile::filenameToRepositoryFilepath(filename)
+    def self.filenameToRepositoryFilepath(filename)
+
+        thisMonthFolderPath = "#{CoreDataUtils::pathToCoreData()}/Files2/#{Time.new.strftime("%Y-%m")}"
+
+        if !File.exists?(thisMonthFolderPath) then
+            FileUtils.mkdir(thisMonthFolderPath)
         end
-        if File.exists?(filepath2) then
-            return filepath2
+
+        filepath1 = "#{thisMonthFolderPath}/#{filename}"
+
+        return filepath1 if File.exists?(filepath1)
+
+        filepath2 = CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth("#{CoreDataUtils::pathToCoreData()}/Files2")
+                        .map{|month| "#{CoreDataUtils::pathToCoreData()}/Files2/#{month}/#{filename}" }
+                        .select{|fpath| File.exists?(fpath) }
+                        .first
+
+        if filepath2 then
+            FileUtils.mv(filepath2, filepath1)
+            return filepath1
         end
-        if File.exists?(filepath1) then
-            FileUtils.mv(filepath1, filepath2)
-            return filepath2
-        end
-        filepath2
+
+        filepath1
     end
 
-    # CoreDataFile::copyFileToRepository(filepath)
-    def self.copyFileToRepository(filepath)
-        raise "CoreData error 3afc90f9e9bb" if !File.exists?(filepath)
-        raise "CoreData error 860270278181" if File.basename(filepath).include?("'")
-        filepath2 = "#{CoreDataUtils::pathToCoreData()}/Files/#{File.basename(filepath)}"
-        raise "CoreData error 08abbfa63965" if File.exists?(filepath2)
-        FileUtils.cp(filepath, filepath2)
+    # CoreDataFile::copyFileToRepository(filepath1)
+    def self.copyFileToRepository(filepath1)
+        raise "CoreData Error 655ACBBD" if !File.exists?(filepath1)
+        raise "CoreData Error 7755B7DB" if File.basename(filepath1).include?("'") 
+                # We could make the correction here but we want the clients (which manage the file) 
+                # to make the renaming themselves if needed
+        filepath2 = CoreDataFile::filenameToRepositoryFilepath(File.basename(filepath1))
+        raise "CoreData Error 909222C9" if File.exists?(filepath2)
+        FileUtils.cp(filepath1, filepath2)
     end
 
     # CoreDataFile::exists?(filename)
     def self.exists?(filename)
-        filepath = CoreDataFile::filenameToFilepath(filename)
+        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
         File.exists?(filepath)
     end
 
@@ -82,7 +102,7 @@ class CoreDataFile
     # CoreDataFile::accessFile(filename)
     def self.accessFile(filename)
         if CoreDataFile::fileByFilenameIsSafelyOpenable(filename) then
-            filepath = CoreDataFile::filenameToFilepath(filename)
+            filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
             system("open '#{filepath}'")
             if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ", false) then
                 FileUtils.cp(filepath, "/Users/pascal/Desktop")
@@ -90,7 +110,7 @@ class CoreDataFile
                 LucilleCore::pressEnterToContinue()
             end
         else
-            filepath = CoreDataFile::filenameToFilepath(filename)
+            filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
             FileUtils.cp(filepath, "/Users/pascal/Desktop")
             puts "File copied to Desktop {#{File.basename(filepath)}}"
             LucilleCore::pressEnterToContinue()
@@ -100,7 +120,7 @@ class CoreDataFile
     # CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
     def self.makeNewTextFileInteractivelyReturnCoreDataFilename()
         filename = "#{CatalystCommon::l22()}.txt"
-        filepath = CoreDataFile::filenameToFilepath(filename)
+        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
         FileUtils.touch(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
@@ -110,7 +130,7 @@ class CoreDataFile
     # CoreDataFile::textToFilename(text)
     def self.textToFilename(text)
         filename = "#{CatalystCommon::l22()}.txt"
-        filepath = CoreDataFile::filenameToFilepath(filename)
+        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
         File.open(filepath, "w"){|f| f.puts(text) }
         filename
     end
@@ -120,19 +140,28 @@ class CoreDataDirectory
 
     # CoreDataDirectory::foldernameToFolderpath(foldername)
     def self.foldernameToFolderpath(foldername)
-        folderpath1 = "#{CoreDataUtils::pathToCoreData()}/Directories/#{foldername}"
-        folderpath2 = "#{CoreDataUtils::pathToCoreData()}/Directories2/2020-06/#{foldername}"
-        if !File.exists?(File.dirname(folderpath2)) then
-            FileUtils.mkdir(File.dirname(folderpath2))
+
+        thisMonthFolderPath = "#{CoreDataUtils::pathToCoreData()}/Directories2/#{Time.new.strftime("%Y-%m")}"
+
+        if !File.exists?(thisMonthFolderPath) then
+            FileUtils.mkdir(thisMonthFolderPath)
         end
-        if File.exists?(folderpath2) then
-            return folderpath2
+
+        folderpath1 = "#{thisMonthFolderPath}/#{foldername}"
+
+        return folderpath1 if File.exists?(folderpath1)
+
+        folderpath2 = CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth("#{CoreDataUtils::pathToCoreData()}/Directories2")
+                        .map{|month| "#{CoreDataUtils::pathToCoreData()}/Directories2/#{month}/#{foldername}" }
+                        .select{|fpath| File.exists?(fpath) }
+                        .first
+
+        if folderpath2 then
+            FileUtils.mv(folderpath2, folderpath1)
+            return folderpath1
         end
-        if File.exists?(folderpath1) then
-            FileUtils.mv(folderpath1, folderpath2)
-            return folderpath2
-        end
-        folderpath2
+
+        folderpath1
     end
 
     # CoreDataDirectory::exists?(foldername)
@@ -141,13 +170,15 @@ class CoreDataDirectory
         File.exists?(folderpath)
     end
 
-    # CoreDataDirectory::copyFolderToRepository(folderpath)
-    def self.copyFolderToRepository(folderpath)
-        raise "CoreData error 0c51bcb0a97d" if !File.exists?(folderpath)
-        raise "CoreData error a54826bb1621" if File.basename(folderpath).include?("'")
-        folderpath2 = "#{CoreDataUtils::pathToCoreData()}/Directories/#{File.basename(folderpath)}"
-        raise "CoreData error d4d6143b3d7d" if File.exists?(folderpath2)
-        LucilleCore::copyFileSystemLocation(folderpath, "#{CoreDataUtils::pathToCoreData()}/Directories")
+    # CoreDataDirectory::copyDirectoryToRepository(folderpath1)
+    def self.copyDirectoryToRepository(folderpath1)
+        raise "CoreData Error 9F5F3754" if !File.exists?(folderpath1)
+        raise "CoreData Error D6D2099B" if File.basename(folderpath1).include?("'")
+                # We could make the correction here but we want the clients (which manage the directory) 
+                # to make the renaming themselves if needed
+        folderpath2 = CoreDataDirectory::foldernameToFolderpath(File.basename(folderpath1))
+        raise "CoreData Error 58A61FB9" if File.exists?(folderpath2)
+        LucilleCore::copyFileSystemLocation(folderpath1, folderpath2)
     end
 
     # CoreDataDirectory::openFolder(foldername)

@@ -142,7 +142,7 @@ class NSXMiscUtils
         }
         while (location = getNextLocationAtTheInboxOrNull.call()) do
             if File.basename(location).include?("'") then
-                basename2 = File.basename(location).gsub("'", ",")
+                basename2 = File.basename(location).gsub("'", "-")
                 location2 = "#{File.dirname(location)}/#{basename2}"
                 FileUtils.mv(location, location2)
                 next

@@ -394,6 +394,7 @@ class CatalystFsck
                 puts "quarkuuid: #{quarkuuid}".red
                 exit
             end
+            CatalystFsck::checkQuark(quark)
         }
         if cube["tags"].nil? then
             puts "[error] starlight tags has empty name".red
