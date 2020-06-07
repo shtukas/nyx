@@ -257,13 +257,28 @@ class Quark
         end
     end
 
+    # Quark::issueQuarkDataPodInteractively()
+    def self.issueQuarkDataPodInteractively()
+        podname = LucilleCore::askQuestionAnswerAsString("podname: ")
+        point = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "creationUnixtime" => Time.new.to_f,
+            "description"      => description,
+            "type"             => "datapod",
+            "podname"          => podname
+        }
+        Nyx::commitToDisk(point)
+        point
+    end
+
     # --------------------------------------------------
     # User Interface
 
     # Quark::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
-        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark"]
+        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark", "datapod"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -296,6 +311,9 @@ class Quark
         if type == "directory-mark" then
             return Quark::issueQuarkDirectoryMarkInteractively()
         end
+        if type == "datapod" then
+            return Quark::issueQuarkDataPodInteractively()
+        end
     end
 
     # Quark::getOrNull(uuid)
@@ -323,6 +341,9 @@ class Quark
         end
         if quark["type"] == "directory-mark" then
             return "[quark] [directory mark] #{quark["mark"]}"
+        end
+        if quark["type"] == "datapod" then
+            return "[quark] [datapod] #{quark["podname"]}"
         end
         raise "Quark error 3c7968e4"
     end
@@ -368,6 +389,13 @@ class Quark
                 puts "I could not determine the location of mark: #{mark}"
                 LucilleCore::pressEnterToContinue()
             end
+            return
+        end
+        if point["type"] == "datapod" then
+            podname = point["podname"]
+            puts "#{podname}"
+            puts "I do not yet know how to open/access/browse DataPods"
+            LucilleCore::pressEnterToContinue()
             return
         end
         raise "Quark error 160050-490261"

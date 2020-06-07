@@ -142,28 +142,33 @@ class CatalystFsck
     # CatalystFsck::checkQuark(quark)
     def self.checkQuark(quark)
         puts JSON.pretty_generate(quark)
+
         if quark["uuid"].nil? then
             puts "[error] quark has no uuid".red
             puts JSON.pretty_generate(quark).red
             exit
         end
+
         if quark["nyxType"].nil? then
             puts "[error] quark has no nyxType".red
             puts JSON.pretty_generate(quark).red
             exit
         end
+
         if quark["nyxType"] != "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             puts "[error] quark has incorrected nyxType".red
             puts JSON.pretty_generate(quark).red
             exit
         end
+
         # quark["description"]
         if quark["type"].nil? then
             puts "[error] quark has no type".red
             puts JSON.pretty_generate(quark).red
             exit
         end
-        types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
+
+        types = ["line", "url", "file", "folder", "unique-name", "directory-mark", "datapod"]
         if !types.include?(quark["type"]) then
             puts "[error] quark has incorrect type".red
             puts JSON.pretty_generate(quark).red
@@ -232,6 +237,14 @@ class CatalystFsck
                 puts "[error] could not identify target location for this quark mark".red
                 puts JSON.pretty_generate(quark).red
                 #exit
+            end
+        end
+
+        if quark["type"] == "datapod" then
+            if quark["podname"].nil? then
+                puts "[error] quark has no podname".red
+                puts JSON.pretty_generate(quark).red
+                exit
             end
         end
     end
