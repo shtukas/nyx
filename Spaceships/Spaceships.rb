@@ -287,6 +287,9 @@ class Spaceships
         if engine["type"] == "time-commitment-indefinitely" then
             return Spaceships::onGoingProjectAdaptedBankTime(spaceship)
         end 
+        if engine["type"] == "arrow" then
+            return false
+        end 
         isDone = Spaceships::liveTotalTime(spaceship) > 0
     end
 
