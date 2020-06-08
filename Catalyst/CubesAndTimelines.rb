@@ -18,8 +18,8 @@ require 'securerandom'
 require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
 
 # -----------------------------------------------------------------
 
@@ -28,7 +28,7 @@ class CubesAndTimelines
     # CubesAndTimelines::objectToString(entity)
     def self.objectToString(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            return Cube::cubeToString(entity)
+            return Cubes::cubeToString(entity)
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             return Timelines::timelineToString(entity)
@@ -40,7 +40,7 @@ class CubesAndTimelines
     def self.openObject(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             cube = entity
-            Cube::openCube(cube)
+            Cubes::openCube(cube)
             return
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -54,7 +54,7 @@ class CubesAndTimelines
     # CubesAndTimelines::objectDive(entity)
     def self.objectDive(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            Cube::cubeDive(entity)
+            Cubes::cubeDive(entity)
             return
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then

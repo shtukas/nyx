@@ -55,8 +55,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/Wave.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 
@@ -446,7 +446,7 @@ class CatalystFsck
         Timelines::timelines().each{|timeline|
             CatalystFsck::checkTimeline(timeline)
         }
-        Cube::cubes().each{|cube|
+        Cubes::cubes().each{|cube|
             CatalystFsck::checkCube(cube)
         }
         puts "-> Completed Catalyst Integrity Check".green

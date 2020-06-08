@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -194,8 +194,8 @@ class Asteroids
         quark = Nyx::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        tags = Cube::makeTagsInteractively()
-        cube = Cube::issueCube_v4(description, quark, tags)
+        tags = Cubes::makeTagsInteractively()
+        cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
         timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
         if timeline then
@@ -213,8 +213,8 @@ class Asteroids
         quark = Nyx::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        tags = Cube::makeTagsInteractively()
-        cube = Cube::issueCube_v4(description, quark, tags)
+        tags = Cubes::makeTagsInteractively()
+        cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
         timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
         if timeline then

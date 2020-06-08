@@ -20,8 +20,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -58,12 +58,12 @@ class NSXCatalystUI
 
             items << [
                 "cubes listing and selection", 
-                lambda { CubeUserInterface::selectFromExistingCubedAndDive() }
+                lambda { Cubes::selectFromExistingCubedAndDive() }
             ]
 
             items << [
                 "tags listing and selection", 
-                lambda { CubeUserInterface::tagsThenCubesThenCubeThenDive() }
+                lambda { Cubes::tagsThenCubesThenCubeThenDive() }
             ]
 
             items << nil
@@ -154,7 +154,7 @@ class NSXCatalystUI
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                    cube = Cube::issueCube_v2(description, quark)
+                    cube = Cubes::issueCube_v2(description, quark)
                     timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
                     return if timeline.nil?
                     TimelineContent::issueClaim(timeline, cube)

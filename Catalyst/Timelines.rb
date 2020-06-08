@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -88,7 +88,7 @@ class Timelines
 
             TimelineContent::getCubes(timeline)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|cube| items << [Cube::cubeToString(cube), lambda{ Cube::cubeDive(cube) }] }
+                .each{|cube| items << [Cubes::cubeToString(cube), lambda{ Cubes::cubeDive(cube) }] }
 
             items << nil
 
@@ -98,7 +98,7 @@ class Timelines
             }]
 
             items << ["add cube (from existing)", lambda{ 
-                cube = Cube::selectCubeFromExistingOrNull()
+                cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
                 TimelineContent::issueClaim(timeline, cube)
             }]
@@ -106,7 +106,7 @@ class Timelines
             items << ["-> cube (new) -> quark (new)", lambda{ 
                 puts "Let's make a cube"
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                cube = Cube::issueCube_v3(description)
+                cube = Cubes::issueCube_v3(description)
                 puts JSON.pretty_generate(cube)
                 puts "Let's attach the cube to the timeline"
                 claim = TimelineContent::issueClaim(timeline, cube)
@@ -168,7 +168,7 @@ class TimelineContent
     def self.getCubes(timeline)
         Nyx::objects("timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["timelineuuid"] == timeline["uuid"] }
-            .map{|claim| Cube::getOrNull(claim["cubeuuid"]) }
+            .map{|claim| Cubes::getOrNull(claim["cubeuuid"]) }
             .compact
     end
 

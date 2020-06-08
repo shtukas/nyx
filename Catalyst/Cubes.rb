@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
@@ -35,9 +35,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -----------------------------------------------------------------
 
-class Cube
+class Cubes
 
-    # Cube::makeQuarksInteractively()
+    # Cubes::makeQuarksInteractively()
     def self.makeQuarksInteractively()
         quarks = []
         loop {
@@ -49,7 +49,7 @@ class Cube
         quarks
     end
 
-    # Cube::makeTagsInteractively()
+    # Cubes::makeTagsInteractively()
     def self.makeTagsInteractively()
         tags = []
         loop {
@@ -60,7 +60,7 @@ class Cube
         tags
     end
 
-    # Cube::issueCubeInteractivelyOrNull_v1()
+    # Cubes::issueCubeInteractivelyOrNull_v1()
     def self.issueCubeInteractivelyOrNull_v1()
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -68,15 +68,15 @@ class Cube
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "quarksuuids"      => Cube::makeQuarksInteractively().map{|quark| quark["uuid"] },
-            "tags"             => Cube::makeTagsInteractively()
+            "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] },
+            "tags"             => Cubes::makeTagsInteractively()
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
         cube
     end
 
-    # Cube::issueCubeInteractivelyOrNull_v2(canTimelineInvite)
+    # Cubes::issueCubeInteractivelyOrNull_v2(canTimelineInvite)
     def self.issueCubeInteractivelyOrNull_v2(canTimelineInvite)
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -84,8 +84,8 @@ class Cube
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "quarksuuids"      => Cube::makeQuarksInteractively().map{|quark| quark["uuid"] },
-            "tags"             => Cube::makeTagsInteractively()
+            "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] },
+            "tags"             => Cubes::makeTagsInteractively()
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
@@ -98,7 +98,7 @@ class Cube
         cube
     end
 
-    # Cube::issueCube_v1(quark)
+    # Cubes::issueCube_v1(quark)
     def self.issueCube_v1(quark)
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -113,7 +113,7 @@ class Cube
         cube
     end
 
-    # Cube::issueCube_v2(description, quark)
+    # Cubes::issueCube_v2(description, quark)
     def self.issueCube_v2(description, quark)
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -128,7 +128,7 @@ class Cube
         cube
     end
 
-    # Cube::issueCube_v3(description)
+    # Cubes::issueCube_v3(description)
     def self.issueCube_v3(description)
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -142,7 +142,7 @@ class Cube
         cube
     end
 
-    # Cube::issueCube_v4(description, quark, tags)
+    # Cubes::issueCube_v4(description, quark, tags)
     def self.issueCube_v4(description, quark, tags)
         cube = {
             "uuid"             => SecureRandom.uuid,
@@ -157,56 +157,56 @@ class Cube
         cube
     end
 
-    # Cube::getCubesByTag(tag)
+    # Cubes::getCubesByTag(tag)
     def self.getCubesByTag(tag)
-        Cube::cubes()
+        Cubes::cubes()
             .select{|cube| cube["tags"].include?(tag) }
     end
 
-    # Cube::tags()
+    # Cubes::tags()
     def self.tags()
-        Cube::cubes()
+        Cubes::cubes()
             .map{|cube| cube["tags"] }
             .flatten
             .uniq
             .sort
     end
 
-    # Cube::cubes()
+    # Cubes::cubes()
     def self.cubes()
         Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Cube::getOrNull(uuid)
+    # Cubes::getOrNull(uuid)
     def self.getOrNull(uuid)
         Nyx::getOrNull(uuid)
     end
 
     # ------------------------------------------------------------
 
-    # Cube::selectCubeFromExistingOrNull()
+    # Cubes::selectCubeFromExistingOrNull()
     def self.selectCubeFromExistingOrNull()
         descriptionXp = lambda { |cube|
             "#{cube["description"]} (#{cube["uuid"][0,4]}) [#{cube["tags"].join(",")}]"
         }
-        cubes = Cube::cubes()
+        cubes = Cubes::cubes()
         descriptionsxp = cubes.reverse.map{|cube| descriptionXp.call(cube) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select cube (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
         cubes.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
     end
 
-    # Cube::visitTag(tag)
+    # Cubes::visitTag(tag)
     def self.visitTag(tag)
         loop {
             system('clear')
             puts "Cubes: Tag Diving: #{tag}"
             items = []
-            Cube::cubes()
+            Cubes::cubes()
                 .select{|cube| cube["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|cube|
-                    items << [ Cube::cubeToString(cube) , lambda { Cube::cubeDive(cube) } ]
+                    items << [ Cubes::cubeToString(cube) , lambda { Cubes::cubeDive(cube) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -214,12 +214,12 @@ class Cube
         }
     end
 
-    # Cube::cubeToString(cube)
+    # Cubes::cubeToString(cube)
     def self.cubeToString(cube)
         "[cube] [#{cube["uuid"][0, 4]}] #{cube["description"]} (#{cube["quarksuuids"].size})"
     end
 
-    # Cube::printCubeDetails(cube)
+    # Cubes::printCubeDetails(cube)
     def self.printCubeDetails(cube)
         puts "Cube:"
         puts "    - uuid: #{cube["uuid"]}"
@@ -240,13 +240,13 @@ class Cube
         }
     end
 
-    # Cube::openCube(cube)
+    # Cubes::openCube(cube)
     def self.openCube(cube)
-        Cube::printCubeDetails(cube)
+        Cubes::printCubeDetails(cube)
         puts "    -> Opening..."
         if cube["quarksuuids"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this cube. Dive? ") then
-                Cube::cubeDive(cube)
+                Cubes::cubeDive(cube)
             end
             return
         end
@@ -270,7 +270,7 @@ class Cube
         Quark::openQuark(target)
     end
 
-    # Cube::cubeDive(cube)
+    # Cubes::cubeDive(cube)
     def self.cubeDive(cube)
         loop {
             system("clear")
@@ -278,7 +278,7 @@ class Cube
             cube = Nyx::getOrNull(cube["uuid"]) # useful if we have modified it
             return if cube.nil? # useful if we have just destroyed it
 
-            Cube::printCubeDetails(cube)
+            Cubes::printCubeDetails(cube)
 
             items = []
 
@@ -296,7 +296,7 @@ class Cube
             items << nil
 
             if !cube["quarksuuids"].empty? then
-                items << ["open", lambda{  Cube::openCube(cube) }]
+                items << ["open", lambda{  Cubes::openCube(cube) }]
             end
             
             items << [
@@ -375,12 +375,132 @@ class Cube
         }
     end
 
-    # Cube::visitGivenCubes(cubes)
+    # Cubes::visitGivenCubes(cubes)
     def self.visitGivenCubes(cubes)
         loop {
-            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| Cube::cubeToString(cube) })
+            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| Cubes::cubeToString(cube) })
             break if cube.nil?
-            Cube::cubeDive(cube)
+            Cubes::cubeDive(cube)
+        }
+    end
+
+    # Cubes::selectCubeFromGivenCubes(cubes)
+    def self.selectCubeFromGivenCubes(cubes)
+        cubestrings = cubes.map{|cube| Cubes::cubeToString(cube) }
+        cubestring = CatalystCommon::chooseALinePecoStyle("cube:", [""]+cubestrings)
+        Cubes::cubes()
+            .select{|cube| Cubes::cubeToString(cube) == cubestring }
+            .first
+    end
+
+    # Cubes::selectFromExistingCubedAndDive()
+    def self.selectFromExistingCubedAndDive()
+        cube = Cubes::selectCubeFromGivenCubes(Cubes::cubes())
+        return if cube.nil?
+        Cubes::cubeDive(cube)
+    end
+
+    # Cubes::tagsThenCubesThenCubeThenDive()
+    def self.tagsThenCubesThenCubeThenDive()
+        loop {
+            tags = Cubes::tags().sort.map{|tag| tag }
+            tag = CatalystCommon::chooseALinePecoStyle("cube:", [""]+tags)
+            break if tag == ""
+            loop {
+                system("system")
+                cubes = Cubes::getCubesByTag(tag)
+                cube = Cubes::selectCubeFromGivenCubes(cubes)
+                break if cube.nil?
+                Cubes::cubeDive(cube)
+            }
+        }
+    end
+
+    # Cubes::navigation()
+    def self.navigation()
+        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
+        return nil if fragment.nil?
+        items = CubeSearch::search(fragment)
+        CubeSearch::diveSearchResults(items)
+    end
+
+    # Cubes::main()
+    def self.main()
+        loop {
+            system("clear")
+            puts "Cubes"
+            operations = [
+                "show newly created cubes",
+                "cube dive (uuid)",
+                "make new cube",
+                "rename tag",
+                "repair json (uuid)",
+                "cube destroy (uuid)",
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            break if operation.nil?
+            if operation == "rename tag" then
+                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
+                next if oldname.size == 0
+                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
+                next if newname.size == 0
+                renameTagIfNeeded = lambda {|tag, oldname, newname|
+                    if tag.downcase == oldname.downcase then
+                        tag = newname
+                    end
+                    tag
+                }
+                Cubes::cubes()
+                    .each{|cube|
+                        uuid = cube["uuid"]
+                        tags1 = cube["tags"]
+                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
+                        if tags1.join(':') != tags2.join(':') then
+                            cube["tags"] = tags2
+                            Nyx::commitToDisk(cube)
+                        end
+                    }
+            end
+            if operation == "cube dive (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                cube = Nyx::getOrNull(uuid)
+                if cube then
+                    Cubes::cubeDive(cube)
+                else
+                    puts "Could not find cube for uuid (#{uuid})"
+                end
+            end
+            if operation == "repair json (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                cube = Nyx::getOrNull(uuid)
+                if cube then
+                    cubejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(cube))
+                    cube = JSON.parse(cubejson)
+                    Nyx::commitToDisk(cube)
+                else
+                    puts "Could not find cube for uuid (#{uuid})"
+                end
+            end
+            if operation == "make new cube" then
+                Cubes::issueCubeInteractivelyOrNull_v2(true)
+            end
+            if operation == "show newly created cubes" then
+                cubes = Cubes::cubes()
+                            .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
+                            .reverse
+                            .first(20)
+                Cubes::visitGivenCubes(cubes)
+            end
+            if operation == "cube destroy (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                cube = Nyx::getOrNull(uuid)
+                next if cube.nil?
+                if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
+                    puts "Well, this operation has not been implemented yet"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+            end
         }
     end
 end
@@ -389,22 +509,14 @@ class CubeSearch
 
     # CubeSearch::searchPatternToTags(searchPattern)
     def self.searchPatternToTags(searchPattern)
-        Cube::tags()
+        Cubes::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
 
     # CubeSearch::searchPatternToCubes(searchPattern)
     def self.searchPatternToCubes(searchPattern)
-        Cube::cubes()
+        Cubes::cubes()
             .select{|cube| cube["description"].downcase.include?(searchPattern.downcase) }
-    end
-
-    # CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNullPatternToCubesDescriptions(searchPattern)
-    def self.searchPatternToCubesDescriptions(searchPattern)
-        CubeSearch::searchPatternToCubes(searchPattern)
-            .map{|cube| cube["description"] }
-            .uniq
-            .sort
     end
 
     # CubeSearch::search(fragment)
@@ -441,11 +553,11 @@ class CubeSearch
             itemsObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "cube" then
                     cube = object["cube"]
-                    return [ Cube::cubeToString(cube) , lambda { Cube::cubeDive(cube) } ]
+                    return [ Cubes::cubeToString(cube) , lambda { Cubes::cubeDive(cube) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { Cube::visitTag(tag) } ]
+                    return [ "tag: #{tag}" , lambda { Cubes::visitTag(tag) } ]
                 end
                 nil
             }
@@ -455,158 +567,5 @@ class CubeSearch
             status = LucilleCore::menuItemsWithLambdas(items2)
             break if !status
         }
-    end
-end
-
-class CubeUserInterface
-
-    # CubeUserInterface::selectCubeFromGivenCubes(cubes)
-    def self.selectCubeFromGivenCubes(cubes)
-        cubestrings = cubes.map{|cube| Cube::cubeToString(cube) }
-        cubestring = CatalystCommon::chooseALinePecoStyle("cube:", [""]+cubestrings)
-        Cube::cubes()
-            .select{|cube| Cube::cubeToString(cube) == cubestring }
-            .first
-    end
-
-    # CubeUserInterface::selectFromExistingCubedAndDive()
-    def self.selectFromExistingCubedAndDive()
-        cube = CubeUserInterface::selectCubeFromGivenCubes(Cube::cubes())
-        return if cube.nil?
-        Cube::cubeDive(cube)
-    end
-
-    # CubeUserInterface::tagsThenCubesThenCubeThenDive()
-    def self.tagsThenCubesThenCubeThenDive()
-        loop {
-            tags = Cube::tags().sort.map{|tag| tag }
-            tag = CatalystCommon::chooseALinePecoStyle("cube:", [""]+tags)
-            break if tag == ""
-            loop {
-                system("system")
-                cubes = Cube::getCubesByTag(tag)
-                cube = CubeUserInterface::selectCubeFromGivenCubes(cubes)
-                break if cube.nil?
-                Cube::cubeDive(cube)
-            }
-        }
-    end
-
-    # CubeUserInterface::navigation()
-    def self.navigation()
-        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
-        return nil if fragment.nil?
-        items = CubeSearch::search(fragment)
-        CubeSearch::diveSearchResults(items)
-    end
-
-    # CubeUserInterface::main()
-    def self.main()
-        loop {
-            system("clear")
-            puts "Cubes"
-            operations = [
-                "show newly created cubes",
-                "cube dive (uuid)",
-                "make new cube",
-                "rename tag",
-                "repair json (uuid)",
-                "cube destroy (uuid)",
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            break if operation.nil?
-            if operation == "rename tag" then
-                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
-                next if oldname.size == 0
-                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
-                next if newname.size == 0
-                renameTagIfNeeded = lambda {|tag, oldname, newname|
-                    if tag.downcase == oldname.downcase then
-                        tag = newname
-                    end
-                    tag
-                }
-                Cube::cubes()
-                    .each{|cube|
-                        uuid = cube["uuid"]
-                        tags1 = cube["tags"]
-                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                        if tags1.join(':') != tags2.join(':') then
-                            cube["tags"] = tags2
-                            Nyx::commitToDisk(cube)
-                        end
-                    }
-            end
-            if operation == "cube dive (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
-                if cube then
-                    Cube::cubeDive(cube)
-                else
-                    puts "Could not find cube for uuid (#{uuid})"
-                end
-            end
-            if operation == "repair json (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
-                if cube then
-                    cubejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(cube))
-                    cube = JSON.parse(cubejson)
-                    Nyx::commitToDisk(cube)
-                else
-                    puts "Could not find cube for uuid (#{uuid})"
-                end
-            end
-            if operation == "make new cube" then
-                Cube::issueCubeInteractivelyOrNull_v2(true)
-            end
-            if operation == "show newly created cubes" then
-                cubes = Cube::cubes()
-                            .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
-                            .reverse
-                            .first(20)
-                Cube::visitGivenCubes(cubes)
-            end
-            if operation == "cube destroy (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
-                next if cube.nil?
-                if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                    puts "Well, this operation has not been implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-            end
-        }
-    end
-end
-
-class CubeMakeAndOrSelectQuest
-
-    # CubeMakeAndOrSelectQuest::makeAndOrSelectCubeOrNull()
-    def self.makeAndOrSelectCubeOrNull()
-        puts "-> You are on a selection Quest [selecting a cube]"
-        puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
-        LucilleCore::pressEnterToContinue()
-        cube = Cube::selectCubeFromExistingOrNull()
-        return cube if cube
-        puts "-> You are on a selection Quest [selecting a cube]"
-        if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
-            cube = Cube::issueCubeInteractivelyOrNull_v1()
-            return nil if cube.nil?
-            puts "-> You are on a selection Quest [selecting a cube]"
-            puts "-> You have created '#{timeline["description"]}'"
-            option1 = "quest: return '#{timeline["description"]}' immediately"
-            option2 = "quest: dive first"
-            options = [ option1, option2 ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
-            if option == option1 then
-                return cube
-            end
-            if option == option2 then
-                Cube::cubeDive(cube)
-                return cube
-            end
-        end
     end
 end
