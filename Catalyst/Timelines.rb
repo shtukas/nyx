@@ -71,7 +71,7 @@ class Timelines
         LucilleCore::pressEnterToContinue()
         timeline = Timelines::selectTimelineFromExistingTimelinesOrNull()
         return timeline if timeline
-        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting an timeline but did not select any of the existing ones. Would you like to make a new timeline and return it ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to make a new timeline and return it ? ") then
             return Timelines::makeTimelineInteractivelyOrNull()
         end
         nil

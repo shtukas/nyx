@@ -400,14 +400,4 @@ class Quark
         end
         raise "Quark error 160050-490261"
     end
-
-    # Quark::quarkDive(point)
-    def self.quarkDive(point)
-        puts "-> point:"
-        puts JSON.pretty_generate(point)
-        puts Quark::quarkToString(point)
-        if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-            Quark::openQuark(point)
-        end
-    end
 end

@@ -107,13 +107,11 @@ class CoreDataFile
             if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ", false) then
                 FileUtils.cp(filepath, "/Users/pascal/Desktop")
                 puts "File copied to Desktop {#{File.basename(filepath)}}"
-                LucilleCore::pressEnterToContinue()
             end
         else
             filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
             FileUtils.cp(filepath, "/Users/pascal/Desktop")
             puts "File copied to Desktop {#{File.basename(filepath)}}"
-            LucilleCore::pressEnterToContinue()
         end
     end
 
