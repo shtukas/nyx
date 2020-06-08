@@ -352,7 +352,7 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        displayObjects.take([[verticalSpaceLeft, 0].max, 10].min).each_with_index{|object, indx|
+        displayObjects.each_with_index{|object, indx|
             break if object.nil?
             break if verticalSpaceLeft <= 0
             displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
@@ -363,23 +363,6 @@ class NSXCatalystUI
             break if displayObjects[indx+1].nil?
             break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::makeDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
         }
-
-        cubes = Cube::cubes()
-                    .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                    .last([verticalSpaceLeft-1, 0].max)
-
-        if !cubes.empty? then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            cubes
-                .each{|item|
-                    puts "[ #{"%2d" % position}] #{QuarksCubesAndOrbitals::objectToString(item).yellow}"
-                    executors[position] = lambda { Cube::cubeDive(item) }
-                    position = position + 1
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                    break if verticalSpaceLeft <= 0
-                }
-        end
 
         puts ""
         print "--> "
