@@ -278,13 +278,13 @@ class StarlightUserInterface
 
             StarlightPaths::getParents(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
+                .each{|n| items << ["[-> *] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
 
             items << nil
 
             StarlightPaths::getChildren(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
+                .each{|n| items << ["[* ->] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::starlightNavigationAtOrbital(n) }] }
 
             items << nil
 

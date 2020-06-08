@@ -312,7 +312,7 @@ class Cube
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "Quark (add new)", 
+                "quark (add new)", 
                 lambda{
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     next if quark.nil?
@@ -320,7 +320,7 @@ class Cube
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "Quark (select and remove)", 
+                "quark (select and remove)", 
                 lambda{
                     toStringLambda = lambda { |quark| Quark::quarkToString(quark) }
                     quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", cube["quarksuuids"], toStringLambda)
