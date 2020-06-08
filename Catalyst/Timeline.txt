@@ -1,0 +1,17 @@
+
+------------------------------------------------------
+Timeline {
+    "uuid"              : String
+    "nyxType"           : "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+    "creationUnixtime"  : Float # Unixtime with decimals
+    "name"              : String
+}
+
+------------------------------------------------------
+TimelineCubeLink {
+    "uuid"             : String
+    "nyxType"          : "timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+    "creationUnixtime" : Float # Unixtime with decimals
+    "timelineuuid"     : String
+    "cubeuuid"         : String # Cube uuid or a Quark uuid
+}

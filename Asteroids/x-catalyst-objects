@@ -173,7 +173,7 @@ focus = getFocus()
 
 # focus : {
 #     "orbitalname" : String,
-#     "orbitaluuid" : String,
+#     "orbitaluuid  : String,
 #     "timeInHours" : Float
 # }
 

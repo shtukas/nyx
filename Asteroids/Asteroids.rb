@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/QuarksCubesAndOrbitals.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndTimelines.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -70,13 +70,13 @@ class Asteroids
 
     # Asteroids::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
             # We are not considering the case null
         end
         [orbitalname, orbitaluuid]
@@ -135,8 +135,8 @@ class Asteroids
             .sort
     end
 
-    # Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
-    def self.orbitalName2orbitalUuidOrNUll(orbitalname)
+    # Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+    def self.timelineName2timelineUuidOrNUll(orbitalname)
         orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
         return orbitaluuid if !orbitaluuid.nil?
         orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
@@ -146,14 +146,14 @@ class Asteroids
         orbitaluuid
     end
 
-    # Asteroids::selectOrbitalNameInteractivelyOrNull()
-    def self.selectOrbitalNameInteractivelyOrNull()
+    # Asteroids::selectTimelineNameInteractivelyOrNull()
+    def self.selectTimelineNameInteractivelyOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::projectNames().sort)
     end
 
-    # Asteroids::asteroidsForOrbitalName(orbitalname)
-    def self.asteroidsForOrbitalName(orbitalname)
-        orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+    # Asteroids::asteroidsForTimelineName(orbitalname)
+    def self.asteroidsForTimelineName(orbitalname)
+        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
         return [] if orbitaluuid.nil?
         Asteroids::asteroids()
             .select{|item| item["orbitaluuid"] == orbitaluuid }
@@ -163,7 +163,7 @@ class Asteroids
     # Asteroids::projectsTimeDistribution()
     def self.projectsTimeDistribution()
         Asteroids::projectNames().map{|orbitalname|
-            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
@@ -172,16 +172,16 @@ class Asteroids
         }
     end
 
-    # Asteroids::updateAsteroidOrbitalName(item)
-    def self.updateAsteroidOrbitalName(item)
-        orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
+    # Asteroids::updateAsteroidTimelineName(item)
+    def self.updateAsteroidTimelineName(item)
+        orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
             return if orbitalname == ""
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
             return if orbitaluuid.nil?
         end
         item["orbitalname"] = orbitalname
@@ -197,10 +197,10 @@ class Asteroids
         tags = Cube::makeTagsInteractively()
         cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
-        if orbital then
-            puts JSON.pretty_generate(orbital)
-            claim = OrbitalInventory::issueClaim(orbital, cube)
+        timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+        if timeline then
+            puts JSON.pretty_generate(timeline)
+            claim = TimelineContent::issueClaim(timeline, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -216,10 +216,10 @@ class Asteroids
         tags = Cube::makeTagsInteractively()
         cube = Cube::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
-        if orbital then
-            puts JSON.pretty_generate(orbital)
-            claim = OrbitalInventory::issueClaim(orbital, cube)
+        timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+        if timeline then
+            puts JSON.pretty_generate(timeline)
+            claim = TimelineContent::issueClaim(timeline, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)
@@ -273,7 +273,7 @@ class Asteroids
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Asteroids::updateAsteroidOrbitalName(item)
+                Asteroids::updateAsteroidTimelineName(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f

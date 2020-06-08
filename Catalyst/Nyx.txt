@@ -16,10 +16,10 @@ Asteroid # See Asteroids.txt
 
 OpenCycle # See OpenCycles.txt
 
-Starlight # See Starlight.txt
-    StarlightNode 
-    StarlightPath 
-    StarlightContentClaim 
+Timeline # See Timeline.txt
+    Timeline 
+    TimelinePath 
+    TimelineCubeLink 
 
 Cube # See Cube.txt
 

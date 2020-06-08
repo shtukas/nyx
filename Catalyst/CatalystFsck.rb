@@ -55,7 +55,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/Wave.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
@@ -66,8 +66,8 @@ class CatalystFsck
 
     # CatalystFsck::entity(entity)
     def self.entity(entity)
-        if entity["nyxType"] == "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            CatalystFsck::checkStarlightNode(entity)
+        if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+            CatalystFsck::checkTimeline(entity)
             return
         end
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
@@ -94,7 +94,7 @@ class CatalystFsck
         end
         puts JSON.pretty_generate(entity)
         supportedTypes = [
-            "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
         ]
@@ -348,32 +348,32 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkStarlightNode(orbital)
-    def self.checkStarlightNode(orbital)
-        puts JSON.pretty_generate(orbital)
-        if orbital["uuid"].nil? then
-            puts "[error] orbital has no uuid".red
-            puts JSON.pretty_generate(orbital).red
+    # CatalystFsck::checkTimeline(timeline)
+    def self.checkTimeline(timeline)
+        puts JSON.pretty_generate(timeline)
+        if timeline["uuid"].nil? then
+            puts "[error] timeline has no uuid".red
+            puts JSON.pretty_generate(timeline).red
             exit
         end
-        if orbital["nyxType"].nil? then
-            puts "[error] orbital has no nyxType".red
-            puts JSON.pretty_generate(orbital).red
+        if timeline["nyxType"].nil? then
+            puts "[error] timeline has no nyxType".red
+            puts JSON.pretty_generate(timeline).red
             exit
         end
-        if orbital["nyxType"] != "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            puts "[error] orbital has incorrect nyxType".red
-            puts JSON.pretty_generate(orbital).red
+        if timeline["nyxType"] != "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+            puts "[error] timeline has incorrect nyxType".red
+            puts JSON.pretty_generate(timeline).red
             exit
         end
-        if orbital["name"].nil? then
-            puts "[error] orbital has no name".red
-            puts JSON.pretty_generate(orbital).red
+        if timeline["name"].nil? then
+            puts "[error] timeline has no name".red
+            puts JSON.pretty_generate(timeline).red
             exit
         end
-        if orbital["name"].strip.size == 0 then
-            puts "[error] orbital has empty name".red
-            puts JSON.pretty_generate(orbital).red
+        if timeline["name"].strip.size == 0 then
+            puts "[error] timeline has empty name".red
+            puts JSON.pretty_generate(timeline).red
             exit
         end
     end
@@ -397,7 +397,7 @@ class CatalystFsck
             exit
         end
         if cube["description"].nil? then
-            puts "[error] orbital has no description".red
+            puts "[error] timeline has no description".red
             puts JSON.pretty_generate(cube).red
             exit
         end
@@ -437,8 +437,8 @@ class CatalystFsck
         Spaceships::spaceships().each{|spaceship|
             CatalystFsck::checkSpaceship(spaceship)
         }
-        Orbitals::orbitals().each{|orbital|
-            CatalystFsck::checkStarlightNode(orbital)
+        Timelines::timelines().each{|timeline|
+            CatalystFsck::checkTimeline(timeline)
         }
         Cube::cubes().each{|cube|
             CatalystFsck::checkCube(cube)

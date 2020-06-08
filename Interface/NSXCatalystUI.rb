@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -52,34 +52,18 @@ class NSXCatalystUI
             ]
 
             items << [
-                "starlight navigation", 
-                lambda { StarlightUserInterface::navigation() }
-            ]
-
-            items << [
-                "orbitals listing and selection", 
-                lambda { StarlightUserInterface::listingAndSelection() }
+                "timelines listing and selection", 
+                lambda { Timelines::selectFromExistingTimelinesAndDive() }
             ]
 
             items << [
                 "cubes listing and selection", 
-                lambda { CubeUserInterface::selectCubeForDive() }
+                lambda { CubeUserInterface::selectFromExistingCubedAndDive() }
             ]
 
             items << [
                 "tags listing and selection", 
-                lambda { CubeUserInterface::tagsThenCubeThenCubeThenDive() }
-            ]
-
-            items << nil
-
-            items << [
-                "QuarksCubesAndOrbitalsMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
-                lambda {
-                    selectedEntity = QuarksCubesAndOrbitalsMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-                    puts JSON.pretty_generate([selectedEntity])
-                    LucilleCore::pressEnterToContinue()
-                }
+                lambda { CubeUserInterface::tagsThenCubesThenCubeThenDive() }
             ]
 
             items << nil
@@ -143,13 +127,13 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    orbitalname = Asteroids::selectOrbitalNameInteractivelyOrNull()
+                    orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
                     orbitaluuid = nil
                     if orbitalname.nil? then
-                        orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
+                        orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
                         orbitaluuid = SecureRandom.uuid
                     else
-                        orbitaluuid = Asteroids::orbitalName2orbitalUuidOrNUll(orbitalname)
+                        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
                         return if orbitaluuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
@@ -185,20 +169,20 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "new quark ; attached to new cube ; attached to orbital (existing or new)", 
+                "new quark ; attached to new cube ; attached to timeline (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                     cube = Cube::issueCube_v2(description, quark)
-                    orbital = StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
-                    return if orbital.nil?
-                    OrbitalInventory::issueClaim(orbital, cube)
+                    timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
+                    return if timeline.nil?
+                    TimelineContent::issueClaim(timeline, cube)
                 }
             ]
 
             items << [
-                "orbital (existing or new) + build around",
+                "timeline (existing or new) + build around",
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
@@ -330,13 +314,13 @@ class NSXCatalystUI
                         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
                         return if operation.nil?
                         if operation == "visit target" then
-                            entity = QuarksCubesAndOrbitals::getObjectByUuidOrNull(opencycle["targetuuid"])
+                            entity = Nyx::getOrNull(opencycle["targetuuid"])
                             if entity.nil? then
                                 puts "I could not find a target for this open cycle"
                                 LucilleCore::pressEnterToContinue()
                                 return
                             end
-                            QuarksCubesAndOrbitals::objectDive(entity)
+                            CubesAndTimelines::objectDive(entity)
                         end
                         if operation == "destroy open cycle" then
                             Nyx::destroy(opencycle["uuid"])

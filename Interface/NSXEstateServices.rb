@@ -70,7 +70,7 @@ class NSXEstateServices
     end
 
     # -------------------------------------------
-    # Starlight Node management
+    # Timeline Node management
 
     # NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()
     def self.getArchiveT1mel1neSizeInMegaBytes()

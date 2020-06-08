@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
@@ -76,8 +76,8 @@ class Cube
         cube
     end
 
-    # Cube::issueCubeInteractivelyOrNull_v2(canStarlightNodeInvite)
-    def self.issueCubeInteractivelyOrNull_v2(canStarlightNodeInvite)
+    # Cube::issueCubeInteractivelyOrNull_v2(canTimelineInvite)
+    def self.issueCubeInteractivelyOrNull_v2(canTimelineInvite)
         cube = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
@@ -89,10 +89,10 @@ class Cube
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
-        if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an orbital ? ") then
-            orbital = StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
-            if orbital then
-                OrbitalInventory::issueClaim(orbital, cube)
+        if canTimelineInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an timeline ? ") then
+            timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
+            if timeline then
+                TimelineContent::issueClaim(timeline, cube)
             end
         end
         cube
@@ -234,9 +234,9 @@ class Cube
             puts "    - [tag] #{item}"
         }
 
-        orbitals = OrbitalInventory::getOrbitals(cube)
-        orbitals.each{|orbital|
-            puts "    - #{Orbitals::orbitalToString(orbital)}"
+        timelines = TimelineContent::getTimelines(cube)
+        timelines.each{|timeline|
+            puts "    - #{Timelines::timelineToString(timeline)}"
         }
     end
 
@@ -289,9 +289,9 @@ class Cube
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::quarkDive(quark) }]
                 }
 
-            OrbitalInventory::getOrbitals(cube)
+            TimelineContent::getTimelines(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|orbital| items << [Orbitals::orbitalToString(orbital), lambda{ StarlightUserInterface::orbitalDive(orbital) }] }
+                .each{|timeline| items << [Timelines::timelineToString(timeline), lambda{ Timelines::timelineDive(timeline) }] }
 
             items << nil
 
@@ -343,11 +343,11 @@ class Cube
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "add to Orbital", 
+                "add to Timeline", 
                 lambda{
-                    orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
-                    next if orbital.nil?
-                    OrbitalInventory::issueClaim(orbital, cube)
+                    timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+                    next if timeline.nil?
+                    TimelineContent::issueClaim(timeline, cube)
                 }]
             items << [
                 "register as open cycle", 
@@ -469,15 +469,15 @@ class CubeUserInterface
             .first
     end
 
-    # CubeUserInterface::selectCubeForDive()
-    def self.selectCubeForDive()
+    # CubeUserInterface::selectFromExistingCubedAndDive()
+    def self.selectFromExistingCubedAndDive()
         cube = CubeUserInterface::selectCubeFromGivenCubes(Cube::cubes())
         return if cube.nil?
         Cube::cubeDive(cube)
     end
 
-    # CubeUserInterface::tagsThenCubeThenCubeThenDive()
-    def self.tagsThenCubeThenCubeThenDive()
+    # CubeUserInterface::tagsThenCubesThenCubeThenDive()
+    def self.tagsThenCubesThenCubeThenDive()
         loop {
             tags = Cube::tags().sort.map{|tag| tag }
             tag = CatalystCommon::chooseALinePecoStyle("cube:", [""]+tags)
@@ -595,8 +595,8 @@ class CubeMakeAndOrSelectQuest
             cube = Cube::issueCubeInteractivelyOrNull_v1()
             return nil if cube.nil?
             puts "-> You are on a selection Quest [selecting a cube]"
-            puts "-> You have created '#{orbital["description"]}'"
-            option1 = "quest: return '#{orbital["description"]}' immediately"
+            puts "-> You have created '#{timeline["description"]}'"
+            option1 = "quest: return '#{timeline["description"]}' immediately"
             option2 = "quest: dive first"
             options = [ option1, option2 ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)

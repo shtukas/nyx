@@ -15,7 +15,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cube.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timeline.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
@@ -155,7 +155,7 @@ class NSXMiscUtils
                 "orbitalname"      => "Inbox",
                 "orbitaluuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
                 "description"      => File.basename(location),
-                "quarkuuid"      => target["uuid"]
+                "quarkuuid"        => target["uuid"]
             }
             puts JSON.pretty_generate(item)
             Nyx::commitToDisk(item)
@@ -163,66 +163,66 @@ class NSXMiscUtils
         end
     end
 
-    # NSXMiscUtils::startlightNodeBuildAround(orbital)
-    def self.startlightNodeBuildAround(orbital)
+    # NSXMiscUtils::startlightNodeBuildAround(timeline)
+    def self.startlightNodeBuildAround(timeline)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Orbitals::orbitalToString(orbital)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::timelineToString(timeline)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                parent = Timelines::selectTimelineOrMakeNewOneOrNull()
                 if parent.nil? then
-                    puts "Did not determine a parent for '#{Orbitals::orbitalToString(orbital)}'. Aborting parent determination."
+                    puts "Did not determine a parent for '#{Timelines::timelineToString(timeline)}'. Aborting parent determination."
                     break
                 end
-                StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, orbital)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Orbitals::orbitalToString(orbital)}' ? ")
+                TimelinePaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, timeline)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Timelines::timelineToString(timeline)}' ? ")
             }
-            puts "Completed determining parents for '#{Orbitals::orbitalToString(orbital)}'"
+            puts "Completed determining parents for '#{Timelines::timelineToString(timeline)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Orbitals::orbitalToString(orbital)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Timelines::timelineToString(timeline)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
+                child = Timelines::selectTimelineOrMakeNewOneOrNull()
                 if child.nil? then
-                    puts "Did not make a child for '#{Orbitals::orbitalToString(orbital)}'. Aborting child building."
+                    puts "Did not make a child for '#{Timelines::timelineToString(timeline)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(orbital, child)
+                path = TimelinePaths::issuePathFromFirstNodeToSecondNodeOrNull(timeline, child)
                 next if path.nil?
                 puts JSON.pretty_generate(path)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Orbitals::orbitalToString(orbital)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Timelines::timelineToString(timeline)}' ? ")
             }
-            puts "Completed building children for '#{Orbitals::orbitalToString(orbital)}'"
+            puts "Completed building children for '#{Timelines::timelineToString(timeline)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cubes for '#{Orbitals::orbitalToString(orbital)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cubes for '#{Timelines::timelineToString(timeline)}' ? ") then
             loop {
                 puts "Making new cube..."
                 cube = Cube::issueCubeInteractivelyOrNull_v2(false)
                 if cube.nil? then
-                    puts "Did not make a cube for '#{Orbitals::orbitalToString(orbital)}'. Aborting cube building."
+                    puts "Did not make a cube for '#{Timelines::timelineToString(timeline)}'. Aborting cube building."
                     break
                 end
                 puts JSON.pretty_generate(cube)
-                claim = OrbitalInventory::issueClaim(orbital, cube)
+                claim = TimelineContent::issueClaim(timeline, cube)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{Orbitals::orbitalToString(orbital)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new cube for '#{Timelines::timelineToString(timeline)}' ? ")
             }
         end
 
-        orbital
+        timeline
     end
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        orbital = StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
-        if orbital.nil? then
-            puts "Could not determine an orbital. Aborting build sequence."
+        timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
+        if timeline.nil? then
+            puts "Could not determine an timeline. Aborting build sequence."
             return
         end
-        orbital = NSXMiscUtils::startlightNodeBuildAround(orbital)
-        orbital
+        timeline = NSXMiscUtils::startlightNodeBuildAround(timeline)
+        timeline
     end
 end
