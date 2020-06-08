@@ -63,7 +63,12 @@ class NSXCatalystUI
 
             items << [
                 "cubes listing and selection", 
-                lambda { CubeUserInterface::listingAndSelection() }
+                lambda { CubeUserInterface::selectCubeForDive() }
+            ]
+
+            items << [
+                "tags listing and selection", 
+                lambda { CubeUserInterface::tagsThenCubeThenCubeThenDive() }
             ]
 
             items << nil

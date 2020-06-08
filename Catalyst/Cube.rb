@@ -157,7 +157,7 @@ class Cube
         cube
     end
 
-    # Cube::cubesByTag(tag)
+    # Cube::getCubesByTag(tag)
     def self.getCubesByTag(tag)
         Cube::cubes()
             .select{|cube| cube["tags"].include?(tag) }
@@ -460,20 +460,36 @@ end
 
 class CubeUserInterface
 
-    # CubeUserInterface::selectCubeFromExistingCubes()
-    def self.selectCubeFromExistingCubes()
-        cubestrings = Cube::cubes().map{|cube| Cube::cubeToString(cube) }
+    # CubeUserInterface::selectCubeFromGivenCubes(cubes)
+    def self.selectCubeFromGivenCubes(cubes)
+        cubestrings = cubes.map{|cube| Cube::cubeToString(cube) }
         cubestring = CatalystCommon::chooseALinePecoStyle("cube:", [""]+cubestrings)
         Cube::cubes()
             .select{|cube| Cube::cubeToString(cube) == cubestring }
             .first
     end
 
-    # CubeUserInterface::listingAndSelection()
-    def self.listingAndSelection()
-        cube = CubeUserInterface::selectCubeFromExistingCubes()
+    # CubeUserInterface::selectCubeForDive()
+    def self.selectCubeForDive()
+        cube = CubeUserInterface::selectCubeFromGivenCubes(Cube::cubes())
         return if cube.nil?
         Cube::cubeDive(cube)
+    end
+
+    # CubeUserInterface::tagsThenCubeThenCubeThenDive()
+    def self.tagsThenCubeThenCubeThenDive()
+        loop {
+            tags = Cube::tags().sort.map{|tag| tag }
+            tag = CatalystCommon::chooseALinePecoStyle("cube:", [""]+tags)
+            break if tag == ""
+            loop {
+                system("system")
+                cubes = Cube::getCubesByTag(tag)
+                cube = CubeUserInterface::selectCubeFromGivenCubes(cubes)
+                break if cube.nil?
+                Cube::cubeDive(cube)
+            }
+        }
     end
 
     # CubeUserInterface::navigation()
