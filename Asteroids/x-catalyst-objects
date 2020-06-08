@@ -88,9 +88,6 @@ def itemToCatalystObject(item, basemetric, indx)
 
     metric = basemetric - indx.to_f/1000
 
-    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Asteroids::asteroidToString(item))
-        # Used by Spaceships
-
     {
         "uuid"           => uuid,
         "application"    => "Asteroids",

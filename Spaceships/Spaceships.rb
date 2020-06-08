@@ -55,9 +55,6 @@ class Spaceships
             if cargo["type"] == "description" then
                 return " " + cargo["description"]
             end
-            if cargo["type"] == "asteroid" then
-                return " " + KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{cargo["uuid"]}")
-            end
             if cargo["type"] == "quark" then
                 return (" " + spaceship["description"]) if spaceship["description"]
                 quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
@@ -187,9 +184,6 @@ class Spaceships
         if spaceship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
             # LucilleTxt
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
-        end
-        if spaceship["cargo"]["type"] == "asteroid" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{spaceship["cargo"]["uuid"]}'")
         end
         if spaceship["cargo"]["type"] == "quark" then
             quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])

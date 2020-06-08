@@ -19,12 +19,6 @@ Spaceship
             "description" : String
         }
         {
-            "type" : "asteroid"
-            "uuid" : String
-                        # automatically created when a 
-                        # asteroid gets more than one hour in the bank
-        }
-        {
             "type"          : "quark"
             "description"   : String
             "quarkuuid"     : String
