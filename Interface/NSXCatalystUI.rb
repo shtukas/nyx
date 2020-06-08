@@ -205,7 +205,7 @@ class NSXCatalystUI
             ]
             items << [
                 "Asteroids", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/fleet") }
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
             ]
             items << [
                 "OpenCycles", 
