@@ -352,27 +352,27 @@ class CatalystFsck
     def self.checkStarlightNode(orbital)
         puts JSON.pretty_generate(orbital)
         if orbital["uuid"].nil? then
-            puts "[error] starlight orbital has no uuid".red
+            puts "[error] orbital has no uuid".red
             puts JSON.pretty_generate(orbital).red
             exit
         end
         if orbital["nyxType"].nil? then
-            puts "[error] starlight orbital has no nyxType".red
+            puts "[error] orbital has no nyxType".red
             puts JSON.pretty_generate(orbital).red
             exit
         end
         if orbital["nyxType"] != "orbital-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            puts "[error] starlight orbital has incorrect nyxType".red
+            puts "[error] orbital has incorrect nyxType".red
             puts JSON.pretty_generate(orbital).red
             exit
         end
         if orbital["name"].nil? then
-            puts "[error] starlight orbital has no name".red
+            puts "[error] orbital has no name".red
             puts JSON.pretty_generate(orbital).red
             exit
         end
         if orbital["name"].strip.size == 0 then
-            puts "[error] starlight orbital has empty name".red
+            puts "[error] orbital has empty name".red
             puts JSON.pretty_generate(orbital).red
             exit
         end
@@ -397,7 +397,7 @@ class CatalystFsck
             exit
         end
         if cube["description"].nil? then
-            puts "[error] starlight orbital has no description".red
+            puts "[error] orbital has no description".red
             puts JSON.pretty_generate(cube).red
             exit
         end

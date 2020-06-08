@@ -41,7 +41,7 @@ class Orbitals
 
     # Orbitals::orbitalToString(orbital)
     def self.orbitalToString(orbital)
-        "[starlight orbital] [#{orbital["uuid"][0, 4]}] #{orbital["name"]}"
+        "[orbital] [#{orbital["uuid"][0, 4]}] #{orbital["name"]}"
     end
 
     # Orbitals::getOrNull(uuid)
@@ -176,7 +176,7 @@ class StarlightUserInterface
 
     # StarlightUserInterface::selectOrbitalFromExistingOrCreateOneOrNull()
     def self.selectOrbitalFromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a starlight orbital (possibly will create one)"
+        puts "-> You are selecting a orbital (possibly will create one)"
         LucilleCore::pressEnterToContinue()
         orbital = StarlightUserInterface::selectOrbitalFromExistingOrbitals()
         return orbital if orbital

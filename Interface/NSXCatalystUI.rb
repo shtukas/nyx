@@ -180,7 +180,7 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "new quark ; attached to new cube ; attached to starlight orbital (existing or new)", 
+                "new quark ; attached to new cube ; attached to orbital (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -193,7 +193,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "starlight orbital (existing or new) + build around",
+                "orbital (existing or new) + build around",
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
