@@ -30,8 +30,8 @@ StarlightPath {
     "nyxType"          : "starlight-vector-3d68c8f4-57ba-4678-a85b-9de995f8667e"
     "creationUnixtime" : Float # Unixtime with decimals
 
-    "sourceuuid"        : String # uuid of a Starlight Node
-    "targetuuid"        : String # uuid of a Starlight Node
+    "sourceuuid"        : String # uuid of an Orbital
+    "targetuuid"        : String # uuid of an Orbital
 }
 
 ------------------------------------------------------

@@ -343,7 +343,7 @@ class Cube
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "add to Starlight Node", 
+                "add to Orbital", 
                 lambda{
                     orbital = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectOrbitalOrNull()
                     next if orbital.nil?
