@@ -33,25 +33,25 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
-class MiningShips
+class Spaceships
 
-    # MiningShips::issue(cargo, engine)
+    # Spaceships::issue(cargo, engine)
     def self.issue(cargo, engine)
-        miningship = {
+        spaceship = {
             "uuid"      => SecureRandom.uuid,
-            "nyxType"   => "miningship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "nyxType"   => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "cargo" => cargo,
             "engine"    => engine
         }
-        Nyx::commitToDisk(miningship)
-        miningship
+        Nyx::commitToDisk(spaceship)
+        spaceship
     end
 
-    # MiningShips::toString(miningship)
-    def self.toString(miningship)
-        cargoFragment = lambda{|miningship|
-            cargo = miningship["cargo"]
+    # Spaceships::toString(spaceship)
+    def self.toString(spaceship)
+        cargoFragment = lambda{|spaceship|
+            cargo = spaceship["cargo"]
             if cargo["type"] == "description" then
                 return " " + cargo["description"]
             end
@@ -59,41 +59,41 @@ class MiningShips
                 return " " + KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{cargo["uuid"]}")
             end
             if cargo["type"] == "quark" then
-                return (" " + miningship["description"]) if miningship["description"]
-                quark = Nyx::getOrNull(miningship["cargo"]["quarkuuid"])
+                return (" " + spaceship["description"]) if spaceship["description"]
+                quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
                 return quark ? (" " + Quark::quarkToString(quark)) : " [could not find quark]"
             end
-            raise "[MiningShips] error: CE8497BB"
+            raise "[Spaceships] error: CE8497BB"
         }
-        engineFragment = lambda{|miningship|
-            uuid = miningship["uuid"]
+        engineFragment = lambda{|spaceship|
+            uuid = spaceship["uuid"]
 
-            engine = miningship["engine"]
+            engine = spaceship["engine"]
 
             if engine["type"] == "time-commitment-on-curve" then
-                return " (completion: #{(100*MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship)).round(2)} %)"
+                return " (completion: #{(100*Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).round(2)} %)"
             end
 
             if engine["type"] == "bank-account" then
-                return " (bank: #{(MiningShips::liveTotalTime(miningship).to_f/3600).round(2)} hours)"
+                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "bank-account-special-circumstances" then
-                return " (bank: #{(MiningShips::liveTotalTime(miningship).to_f/3600).round(2)} hours)"
+                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "time-commitment-indefinitely" then
-                return " (bank account: #{(MiningShips::onGoingProjectAdaptedBankTime(miningship).to_f/3600).round(2)} hours)"
+                return " (bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "arrow" then
-                return " (#{"%.2f" % MiningShips::arrowPercentage(miningship).round(2)}%)"
+                return " (#{"%.2f" % Spaceships::arrowPercentage(spaceship).round(2)}%)"
             end
 
-            raise "[MiningShips] error: 46b84bdb"
+            raise "[Spaceships] error: 46b84bdb"
         }
 
-        uuid = miningship["uuid"]
+        uuid = spaceship["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningString = 
             if isRunning then
@@ -101,10 +101,10 @@ class MiningShips
             else
                 ""
             end
-        "[miningship] [#{miningship["engine"]["type"]}]#{cargoFragment.call(miningship)}#{engineFragment.call(miningship)}"
+        "[spaceship] [#{spaceship["engine"]["type"]}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}"
     end
 
-    # MiningShips::makeCargoInteractivelyOrNull()
+    # Spaceships::makeCargoInteractivelyOrNull()
     def self.makeCargoInteractivelyOrNull()
         options = [
             "description",
@@ -122,7 +122,7 @@ class MiningShips
         if option == "quark" then
             quark = Quark::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("miningship cargo description: ")
+            description = LucilleCore::askQuestionAnswerAsString("spaceship cargo description: ")
             return {
                 "type"          => "quark",
                 "description"   => description,
@@ -132,7 +132,7 @@ class MiningShips
         nil
     end
 
-    # MiningShips::makeEngineInteractivelyOrNull()
+    # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
         opt1 = "Bank managed until completion             ( bank-account )"
         opt2 = "Time commitment with deadline             ( time-commitment-on-curve )"
@@ -180,55 +180,55 @@ class MiningShips
         nil
     end
 
-    # MiningShips::openCargo(uuid)
+    # Spaceships::openCargo(uuid)
     def self.openCargo(uuid)
-        miningship = Nyx::getOrNull(uuid)
-        return if miningship.nil?
-        if miningship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
+        spaceship = Nyx::getOrNull(uuid)
+        return if spaceship.nil?
+        if spaceship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
             # LucilleTxt
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
         end
-        if miningship["cargo"]["type"] == "asteroid" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{miningship["cargo"]["uuid"]}'")
+        if spaceship["cargo"]["type"] == "asteroid" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/x-catalyst-objects-processing start '#{spaceship["cargo"]["uuid"]}'")
         end
-        if miningship["cargo"]["type"] == "quark" then
-            quark = Nyx::getOrNull(miningship["cargo"]["quarkuuid"])
+        if spaceship["cargo"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end
     end
 
-    # MiningShips::startMiningShip(uuid)
-    def self.startMiningShip(uuid)
-        miningship = Nyx::getOrNull(uuid)
-        return if miningship.nil?
+    # Spaceships::startSpaceship(uuid)
+    def self.startSpaceship(uuid)
+        spaceship = Nyx::getOrNull(uuid)
+        return if spaceship.nil?
         Runner::start(uuid)
-        MiningShips::openCargo(uuid)
+        Spaceships::openCargo(uuid)
     end
 
-    # MiningShips::miningships()
-    def self.miningships()
-        Nyx::objects("miningship-99a06996-dcad-49f5-a0ce-02365629e4fc")
+    # Spaceships::spaceships()
+    def self.spaceships()
+        Nyx::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
     end
 
     # --------------------------------------------------------------------
     # Catalyst Object support
 
-    # MiningShips::metric(miningship)
-    def self.metric(miningship)
-        uuid = miningship["uuid"]
+    # Spaceships::metric(spaceship)
+    def self.metric(spaceship)
+        uuid = spaceship["uuid"]
 
         return 0.999 if Runner::isRunning(uuid)
 
-        engine = miningship["engine"]
+        engine = spaceship["engine"]
 
         if engine["type"] == "time-commitment-on-curve" then
             timeBank = Bank::value(uuid)
-            return -1 if (timeBank >= 3600*miningship["engine"]["timeCommitmentInHours"])
-            if MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship) < MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship) then
-                return 0.76 + 0.001*(MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship) - MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship)).to_f
+            return -1 if (timeBank >= 3600*spaceship["engine"]["timeCommitmentInHours"])
+            if Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) < Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship) then
+                return 0.76 + 0.001*(Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship) - Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)).to_f
             else
-                return 0.60 - 0.01*(MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship) - MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship)).to_f
+                return 0.60 - 0.01*(Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) - Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)).to_f
             end
         end
 
@@ -251,7 +251,7 @@ class MiningShips
         end
 
         if engine["type"] == "time-commitment-indefinitely" then
-            timeBank = MiningShips::onGoingProjectAdaptedBankTime(miningship)
+            timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
             if timeBank >= 0 then
                 return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
             else
@@ -263,78 +263,78 @@ class MiningShips
             return 0.20 + 0.80*((Time.new.to_i - engine["startunixtime"]).to_f/86400).to_f/(0.90*engine["lengthInDays"])
         end
 
-        raise "[MiningShips] error: 46b84bdb"
+        raise "[Spaceships] error: 46b84bdb"
     end
 
-    # MiningShips::liveRunTimeIfAny(miningship)
-    def self.liveRunTimeIfAny(miningship)
-        uuid = miningship["uuid"]
+    # Spaceships::liveRunTimeIfAny(spaceship)
+    def self.liveRunTimeIfAny(spaceship)
+        uuid = spaceship["uuid"]
         Runner::runTimeInSecondsOrNull(uuid) || 0
     end
 
-    # MiningShips::liveTotalTime(miningship)
-    def self.liveTotalTime(miningship)
-        uuid = miningship["uuid"]
-        Bank::value(uuid) + MiningShips::liveRunTimeIfAny(miningship)
+    # Spaceships::liveTotalTime(spaceship)
+    def self.liveTotalTime(spaceship)
+        uuid = spaceship["uuid"]
+        Bank::value(uuid) + Spaceships::liveRunTimeIfAny(spaceship)
     end
 
-    # MiningShips::isDone?
-    def self.isDone?(miningship)
-        uuid = miningship["uuid"]
-        engine = miningship["engine"]
+    # Spaceships::isDone?
+    def self.isDone?(spaceship)
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
         if engine["type"] == "time-commitment-on-curve" then
-            return (MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship) > MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship))
+            return (Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship) > Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship))
         end 
         if engine["type"] == "time-commitment-indefinitely" then
-            return MiningShips::onGoingProjectAdaptedBankTime(miningship)
+            return Spaceships::onGoingProjectAdaptedBankTime(spaceship)
         end 
         if engine["type"] == "arrow" then
             return false
         end 
-        isDone = MiningShips::liveTotalTime(miningship) > 0
+        isDone = Spaceships::liveTotalTime(spaceship) > 0
     end
 
     # --------------------------------------------------------------------
     # time-commitment-on-curve
 
-    # MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship)
-    def self.timeCommitmentOnCurve_idealCompletionRatio(miningship)
-        raise "[error c2cb9a0f]" if miningship["engine"]["type"] != "time-commitment-on-curve"
-        periodInSeconds = 0.9*miningship["engine"]["periodInDays"]*86400
+    # Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)
+    def self.timeCommitmentOnCurve_idealCompletionRatio(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        periodInSeconds = 0.9*spaceship["engine"]["periodInDays"]*86400
                                         # We compute on the basis of completing in 90%% of the allocated time
-        timeSinceStart = Time.new.to_i - miningship["engine"]["startUnixtime"]
+        timeSinceStart = Time.new.to_i - spaceship["engine"]["startUnixtime"]
         [timeSinceStart.to_f/periodInSeconds, 1].min
     end
 
-    # MiningShips::timeCommitmentOnCurve_idealTime(miningship)
-    def self.timeCommitmentOnCurve_idealTime(miningship)
-        raise "[error c2cb9a0f]" if miningship["engine"]["type"] != "time-commitment-on-curve"
-        MiningShips::timeCommitmentOnCurve_idealCompletionRatio(miningship)*(3600*miningship["engine"]["timeCommitmentInHours"])
+    # Spaceships::timeCommitmentOnCurve_idealTime(spaceship)
+    def self.timeCommitmentOnCurve_idealTime(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        Spaceships::timeCommitmentOnCurve_idealCompletionRatio(spaceship)*(3600*spaceship["engine"]["timeCommitmentInHours"])
     end
 
-    # MiningShips::timeCommitmentOnCurve_actualCompletionRatio(miningship)
-    def self.timeCommitmentOnCurve_actualCompletionRatio(miningship)
-        raise "[error c2cb9a0f]" if miningship["engine"]["type"] != "time-commitment-on-curve"
-        MiningShips::liveTotalTime(miningship).to_f/(3600*miningship["engine"]["timeCommitmentInHours"])
+    # Spaceships::timeCommitmentOnCurve_actualCompletionRatio(spaceship)
+    def self.timeCommitmentOnCurve_actualCompletionRatio(spaceship)
+        raise "[error c2cb9a0f]" if spaceship["engine"]["type"] != "time-commitment-on-curve"
+        Spaceships::liveTotalTime(spaceship).to_f/(3600*spaceship["engine"]["timeCommitmentInHours"])
     end
 
     # --------------------------------------------------------------------
     # time-commitment-indefinitely
 
-    # MiningShips::onGoingProjectAdaptedBankTime(miningship)
-    def self.onGoingProjectAdaptedBankTime(miningship)
-        uuid = miningship["uuid"]
-        engine = miningship["engine"]
+    # Spaceships::onGoingProjectAdaptedBankTime(spaceship)
+    def self.onGoingProjectAdaptedBankTime(spaceship)
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
         idealTimeInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
-        MiningShips::liveTotalTime(miningship) - idealTimeInSecond
+        Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
     end 
 
     # --------------------------------------------------------------------
     # arrow percentage
 
-    # MiningShips::arrowPercentage(miningship)
-    def self.arrowPercentage(miningship)
-        engine = miningship["engine"]
+    # Spaceships::arrowPercentage(spaceship)
+    def self.arrowPercentage(spaceship)
+        engine = spaceship["engine"]
         timeSinceStart = Time.new.to_f - engine["startunixtime"]
         arrowTime = engine["lengthInDays"] * 86400
         ratio = timeSinceStart.to_f/arrowTime

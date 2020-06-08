@@ -15,9 +15,9 @@
         0.80+         Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Wave every-n-hours / every-n-days
 
-        0.76  ->      MiningShips (time-commitment-on-curve)
+        0.76  ->      Spaceships (time-commitment-on-curve)
 
-        0.70+ -> 0.20 MiningShips (bank-account, time-commitment-indefinitely)
+        0.70+ -> 0.20 Spaceships (bank-account, time-commitment-indefinitely)
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids

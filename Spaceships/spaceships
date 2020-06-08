@@ -47,14 +47,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "MiningShips.rb"
+require_relative "Spaceships.rb"
 
 # --------------------------------------------------------------------
 
-def diveMiningShip(miningship)
+def diveSpaceship(spaceship)
     loop {
         system("clear")
-        puts MiningShips::toString(miningship).green
+        puts Spaceships::toString(spaceship).green
         options = [
             "open",
             "start",
@@ -65,59 +65,59 @@ def diveMiningShip(miningship)
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "open" then
-            MiningShips::openCargo(miningship["uuid"])
+            Spaceships::openCargo(spaceship["uuid"])
         end
         if option == "update description" then
-            miningship["description"] = CatalystCommon::editTextUsingTextmate(miningship["description"])
-            Nyx::commitToDisk(miningship)
+            spaceship["description"] = CatalystCommon::editTextUsingTextmate(spaceship["description"])
+            Nyx::commitToDisk(spaceship)
         end
         if option == "start" then
-            MiningShips::startMiningShip(miningship["uuid"])
+            Spaceships::startSpaceship(spaceship["uuid"])
         end
         if option == "re-cargo" then
-            cargo = MiningShips::makeCargoInteractivelyOrNull()
+            cargo = Spaceships::makeCargoInteractivelyOrNull()
             next if cargo.nil?
-            miningship["cargo"] = cargo
-            puts JSON.pretty_generate(miningship)
-            Nyx::commitToDisk(miningship)
+            spaceship["cargo"] = cargo
+            puts JSON.pretty_generate(spaceship)
+            Nyx::commitToDisk(spaceship)
         end
         if option == "destroy" then
-            Nyx::destroy(miningship["uuid"])
+            Nyx::destroy(spaceship["uuid"])
         end
     }
 end
 
 loop {
     system("clear")
-    puts "MiningShips:"
-    MiningShips::miningships().each{|miningship|
-        puts "- #{MiningShips::toString(miningship)}"
+    puts "Spaceships:"
+    Spaceships::spaceships().each{|spaceship|
+        puts "- #{Spaceships::toString(spaceship)}"
     }
     puts ""
     options = [
-        "make new miningship",
-        "dive miningships"
+        "make new spaceship",
+        "dive spaceships"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "make new miningship" then
-        cargo = MiningShips::makeCargoInteractivelyOrNull()
+    if option == "make new spaceship" then
+        cargo = Spaceships::makeCargoInteractivelyOrNull()
         next if cargo.nil?
-        engine = MiningShips::makeEngineInteractivelyOrNull()
+        engine = Spaceships::makeEngineInteractivelyOrNull()
         next if engine.nil?
-        miningship = {
+        spaceship = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "miningship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "cargo"            => cargo,
             "engine"           => engine
         }
-        puts JSON.pretty_generate(miningship)
-        Nyx::commitToDisk(miningship)
+        puts JSON.pretty_generate(spaceship)
+        Nyx::commitToDisk(spaceship)
     end
-    if option == "dive miningships" then
-        miningship = LucilleCore::selectEntityFromListOfEntitiesOrNull("miningship", MiningShips::miningships(), lambda{|miningship| MiningShips::toString(miningship) })
-        next if miningship.nil?
-        diveMiningShip(miningship)
+    if option == "dive spaceships" then
+        spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::toString(spaceship) })
+        next if spaceship.nil?
+        diveSpaceship(spaceship)
     end
 }
