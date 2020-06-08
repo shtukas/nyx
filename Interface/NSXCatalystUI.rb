@@ -106,18 +106,20 @@ class NSXCatalystUI
                 "arrow (description)", 
                 lambda {
                     description = LucilleCore::askQuestionAnswerAsString("arrow description: ")
+                    return if description == ""
                     cargo = {
                         "type"        => "description",
                         "description" => description
                     }
-
-                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
+                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ")
+                    return if lengthInDays == ""
+                    lengthInDays = lengthInDays.to_f
+                    return if lengthInDays == 0
                     engine = {
                         "type"          => "arrow",
                         "startunixtime" => Time.new.to_f,
                         "lengthInDays"  => lengthInDays
                     }
-
                     spaceship = Spaceships::issue(cargo, engine)
                     puts JSON.pretty_generate(spaceship)
                     LucilleCore::pressEnterToContinue()
@@ -129,14 +131,15 @@ class NSXCatalystUI
                 lambda {
                     cargo = Spaceships::makeCargoInteractivelyOrNull()
                     next if cargo.nil?
-
-                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ").to_f
+                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ")
+                    return if lengthInDays == ""
+                    lengthInDays = lengthInDays.to_f
+                    return if lengthInDays == 0
                     engine = {
                         "type"          => "arrow",
                         "startunixtime" => Time.new.to_f,
                         "lengthInDays"  => lengthInDays
                     }
-
                     spaceship = Spaceships::issue(cargo, engine)
                     puts JSON.pretty_generate(spaceship)
                     LucilleCore::pressEnterToContinue()

@@ -161,6 +161,12 @@ class CatalystFsck
             exit
         end
 
+        if quark["creationUnixtime"].nil? then
+            puts "[error] quark has no creationUnixtime".red
+            puts JSON.pretty_generate(quark).red
+            exit
+        end
+
         # quark["description"]
         if quark["type"].nil? then
             puts "[error] quark has no type".red
