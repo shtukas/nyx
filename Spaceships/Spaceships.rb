@@ -98,7 +98,7 @@ class Spaceships
             else
                 ""
             end
-        "[spaceship] [#{spaceship["engine"]["type"]}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}"
+        "[spaceship] [#{spaceship["engine"]["type"]}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
     end
 
     # Spaceships::makeCargoInteractivelyOrNull()
