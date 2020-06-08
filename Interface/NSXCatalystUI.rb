@@ -69,6 +69,40 @@ class NSXCatalystUI
             items << nil
 
             items << [
+                "asteroid (with new quark)", 
+                lambda {
+                    target = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if target.nil?
+                    orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
+                    orbitaluuid = nil
+                    if orbitalname.nil? then
+                        orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
+                        orbitaluuid = SecureRandom.uuid
+                    else
+                        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+                        return if orbitaluuid.nil?
+                    end
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                    asteroid = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
+                    puts JSON.pretty_generate(asteroid)
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
+            items << [
+                "spaceship (new)", 
+                lambda { 
+                    cargo = Spaceships::makeCargoInteractivelyOrNull()
+                    next if cargo.nil?
+                    engine = Spaceships::makeEngineInteractivelyOrNull()
+                    next if engine.nil?
+                    spaceship = Spaceships::issue(cargo, engine)
+                    puts JSON.pretty_generate(spaceship)
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
+            items << [
                 "arrow (description)", 
                 lambda {
                     description = LucilleCore::askQuestionAnswerAsString("arrow description: ")
@@ -91,7 +125,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "arrow (with new quark)", 
+                "arrow (new passenger quark)", 
                 lambda {
                     cargo = Spaceships::makeCargoInteractivelyOrNull()
                     next if cargo.nil?
@@ -109,67 +143,10 @@ class NSXCatalystUI
                 }
             ]
 
-            items << [
-                "spaceship (new)", 
-                lambda { 
-                    cargo = Spaceships::makeCargoInteractivelyOrNull()
-                    next if cargo.nil?
-                    engine = Spaceships::makeEngineInteractivelyOrNull()
-                    next if engine.nil?
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
-                "asteroid (with new quark)", 
-                lambda {
-                    target = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if target.nil?
-                    orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
-                    orbitaluuid = nil
-                    if orbitalname.nil? then
-                        orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
-                        orbitaluuid = SecureRandom.uuid
-                    else
-                        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
-                        return if orbitaluuid.nil?
-                    end
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                    asteroid = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-
-            items << [
-                "opencycle (with new quark)", 
-                lambda {
-                    quark = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    opencycle = OpenCycles::issueFromQuark(quark)
-                    puts JSON.pretty_generate(opencycle)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
-                "opencycle (new with existing cube)", 
-                lambda {
-                    cube = Cube::selectCubeFromExistingOrNull()
-                    return if cube.nil?
-                    opencycle = OpenCycles::issueFromCube(cube)
-                    puts JSON.pretty_generate(opencycle)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
             items << nil
 
             items << [
-                "new quark ; attached to new cube ; attached to timeline (existing or new)", 
+                "quark (new) ; attached to new cube ; attached to timeline (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
@@ -179,11 +156,6 @@ class NSXCatalystUI
                     return if timeline.nil?
                     TimelineContent::issueClaim(timeline, cube)
                 }
-            ]
-
-            items << [
-                "timeline (existing or new) + build around",
-                lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
             items << nil
