@@ -56,12 +56,21 @@ def diveMiningShip(miningship)
         system("clear")
         puts MiningShips::toString(miningship).green
         options = [
+            "open",
             "start",
+            "update description",
             "re-cargo",
             "destroy",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
+        if option == "open" then
+            MiningShips::openCargo(miningship["uuid"])
+        end
+        if option == "update description" then
+            miningship["description"] = CatalystCommon::editTextUsingTextmate(miningship["description"])
+            Nyx::commitToDisk(miningship)
+        end
         if option == "start" then
             MiningShips::startMiningShip(miningship["uuid"])
         end

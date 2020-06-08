@@ -197,13 +197,11 @@ class StarlightUserInterface
 
             StarlightPaths::getParents(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
-
-            items << nil
+                .each{|n| items << ["[-> *] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
 
             StarlightPaths::getChildren(orbital)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
+                .each{|n| items << ["[* ->] #{Orbitals::orbitalToString(n)}", lambda{ StarlightUserInterface::orbitalDive(n) }] }
 
             items << nil
 
