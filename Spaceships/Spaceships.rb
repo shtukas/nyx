@@ -310,6 +310,16 @@ class Spaceships
         Bank::value(uuid) + Spaceships::liveRunTimeIfAny(spaceship)
     end
 
+    # Spaceships::isRunning?(spaceship)
+    def self.isRunning?(spaceship)
+        Runner::isRunning?(spaceship["uuid"])
+    end
+
+    # Spaceships::isRunningForLong?(spaceship)
+    def self.isRunningForLong?(spaceship)
+        ( Runner::runTimeInSecondsOrNull(spaceship["uuid"]) || 0 ) > 3600
+    end
+
     # Spaceships::spaceshipToCalalystObject(spaceship)
     def self.spaceshipToCalalystObject(spaceship)
         uuid = spaceship["uuid"]
@@ -319,7 +329,10 @@ class Spaceships
             "metric"    => Spaceships::metric(spaceship),
             "execute"   => lambda { Spaceships::execute(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
-            "isRunning" => Runner::isRunning?(uuid)
+            "isRunning" => Spaceships::isRunning?(spaceship),
+            "isRunningForLong" => Spaceships::isRunningForLong?(spaceship),
+            "x-is-spaceship"   => true,
+            "x-spaceship"      => spaceship
         }
     end
 
@@ -329,13 +342,41 @@ class Spaceships
             .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
     end
 
-    # Spaceships::stopSpaceship(spaceship)
-    def self.stopSpaceship(spaceship)
+    # Spaceships::spaceshipStartSequence(spaceship)
+    def self.spaceshipStartSequence(spaceship)
+        return if Spaceships::isRunning?(spaceship)
+        Spaceships::openCargo(spaceship)
+        if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
+            Runner::start(spaceship["uuid"])
+        else
+            if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
+                Spaceships::spaceshipDestroySequence(spaceship)
+            else
+                puts "Hidding this item by one hour"
+                DoNotShowUntil::setUnixtime(spaceship["uuid"], Time.new.to_i+3600)
+            end
+        end
+    end
+
+    # Spaceships::spaceshipStopSequence(spaceship)
+    def self.spaceshipStopSequence(spaceship)
+        return if !Spaceships::isRunning?(spaceship)
         timespan = Runner::stop(spaceship["uuid"])
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
         Bank::put(spaceship["uuid"], timespan)
+    end
+
+    # Spaceships::spaceshipDestroySequence(spaceship)
+    def self.spaceshipDestroySequence(spaceship)
+        if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
+            puts "You cannot destroy this one (Guardian Work)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        Spaceships::spaceshipStopSequence(spaceship)
+        Nyx::destroy(spaceship["uuid"])
     end
 
     # Spaceships::execute(spaceship)
@@ -345,26 +386,22 @@ class Spaceships
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
-            Runner::start(spaceship["uuid"])
-            Spaceships::openCargo(spaceship)
+            Spaceships::spaceshipStartSequence(spaceship)
         end
         if option == "open" then
             Spaceships::openCargo(spaceship)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
+                Runner::start(spaceship["uuid"])
+            end
         end
         if option == "stop" then
-            Spaceships::stopSpaceship(spaceship)
+            Spaceships::spaceshipStopSequence(spaceship)
         end
         if option == "dive" then
             Spaceships::spaceshipDive(spaceship)
         end
         if option == "destroy" then
-            if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
-                puts "You cannot destroy this one (Guardian Work)"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            Spaceships::stopSpaceship(spaceship)
-            Nyx::destroy(spaceship["uuid"])
+            Spaceships::spaceshipDestroySequence(spaceship)
         end
     end
 

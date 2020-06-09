@@ -182,6 +182,21 @@ class NSXCatalystUI
         }
     end
 
+    # NSXCatalystUI::doTheObviousThingWithThis(object)
+    def self.doTheObviousThingWithThis(object)
+        if object["x-is-spaceship"] and !object["isRunning"] then
+            Spaceships::spaceshipStartSequence(object["x-spaceship"])
+            return
+        end
+        if object["x-is-spaceship"] and object["isRunning"] then
+            Spaceships::spaceshipStopSequence(object["x-spaceship"])
+            return
+        end
+        puts "I could not determine the obvious thing to to do with this"
+        puts JSON.pretty_generate(object)
+        LucilleCore::pressEnterToContinue()
+    end
+
     # NSXCatalystUI::performStandardDisplay(catalystObjects)
     def self.performStandardDisplay(catalystObjects)
 
@@ -281,8 +296,10 @@ class NSXCatalystUI
             return
         end
 
-        if command == "/" then
-            NSXCatalystUI::operations()
+        if command == ".." then
+            object = catalystObjects.select{|object| object["isFocus"]}.first
+            return if object.nil?
+            NSXCatalystUI::doTheObviousThingWithThis(object)
             return
         end
 
@@ -301,13 +318,11 @@ class NSXCatalystUI
             return
         end
 
-        if command=='' then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
-            return if object.nil?
-            puts NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-            object["execute"].call()
+        if command == "/" then
+            NSXCatalystUI::operations()
             return
         end
+
     end
 
     # NSXCatalystUI::standardUILoop()
