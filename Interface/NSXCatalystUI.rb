@@ -192,6 +192,10 @@ class NSXCatalystUI
             Spaceships::spaceshipStopSequence(object["x-spaceship"])
             return
         end
+        if object["x-is-calendar"] then
+            Calendar::setDateAsReviewed(object["x-calendar-date"])
+            return
+        end
         puts "I could not determine the obvious thing to to do with this"
         puts JSON.pretty_generate(object)
         LucilleCore::pressEnterToContinue()
@@ -320,6 +324,13 @@ class NSXCatalystUI
 
         if command == "/" then
             NSXCatalystUI::operations()
+            return
+        end
+
+        if command == "" then
+            object = catalystObjects.select{|object| object["isFocus"]}.first
+            return if object.nil?
+            object["execute"].call()
             return
         end
 

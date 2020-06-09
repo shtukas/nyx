@@ -10,7 +10,6 @@ CatalystObject
 
     "isRunning"        : Boolean             # Optional [2]
     "isRunningForLong" : Boolean             # Optional [3]
-    "isDone"           : Boolean             # Optional [4]
 }
 
 [0] Name of the application which needs to be recontacted if that object is executed.
@@ -18,8 +17,6 @@ CatalystObject
 [2] If present and true, displays in green
 
 [3] If present cause an on-screen notification, those are checked on a thread.
-
-[4] If present cause an on-screen notification, those are checked on a thread.
 
 # ------------------------------------------------------------------
 

@@ -17,7 +17,7 @@ class NSXDisplayUtils
             "(#{"%5.3f" % object["metric"]}) #{lines.first}"
         else
             first = lines.shift
-            "(#{"%5.3f" % object["metric"]}) #{first}\n" + lines.map{|line|  "         #{line}"}.join()
+            "(#{"%5.3f" % object["metric"]}) #{first}" + lines.map{|line|  "              #{line}"}.join()
         end
     end
 

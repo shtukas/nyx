@@ -77,15 +77,6 @@ Thread.new {
         sleep 5
 
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            .select{|object| object["isRunning"] and object["isDone"] }
-            .first(1)
-            .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is done")
-            }
-
-        sleep 5
-
-        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|

@@ -30,10 +30,12 @@ class Calendar
         content = IO.read(filepath).strip
         uuid = "8413-9d175a593282-#{date}"
         {
-            "uuid"            => uuid,
-            "body"            => "🗓️  " + date + "\n" + content,
-            "metric"          => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
-            "execute" => lambda { Calendar::execute(date) }
+            "uuid"    => uuid,
+            "body"    => "🗓️  " + date + "\n" + content,
+            "metric"  => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
+            "execute" => lambda { Calendar::execute(date) },
+            "x-is-calendar"   => true,
+            "x-calendar-date" => date
         }
     end
 
@@ -53,13 +55,18 @@ class Calendar
             .with_index{|date, indx| Calendar::filePathToCatalystObject(date, indx) }
     end
 
+    # Calendar::setDateAsReviewed(date)
+    def self.setDateAsReviewed(date)
+        KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
+    end
+
     # Calendar::execute(date)
     def self.execute(date)
         options = ["reviewed", "open"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return option.nil?
+        return if option.nil?
         if option == "reviewed" then
-            KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
+            Calendar::setDateAsReviewed(date)
         end
         if option == "open" then
             filepath = Calendar::dateToFilepath(date)
