@@ -52,7 +52,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 # -----------------------------------------------------------------
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/Wave.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
@@ -108,8 +108,8 @@ class CatalystFsck
         CatalystFsck::entity(entity)
     end
 
-    # CatalystFsck::checkWave(wave)
-    def self.checkWave(wave)
+    # CatalystFsck::checkWaves(wave)
+    def self.checkWaves(wave)
         puts JSON.pretty_generate(wave)
         if wave["uuid"].nil? then
             puts "[error] wave has no uuid".red
@@ -435,8 +435,8 @@ class CatalystFsck
         OpenCycles::opencycles().each{|opencycle|
             CatalystFsck::checkOpenCycle(opencycle)
         }
-        Wave::waves().each{|wave|
-            CatalystFsck::checkWave(wave)
+        Waves::waves().each{|wave|
+            CatalystFsck::checkWaves(wave)
         }
         Asteroids::asteroids().each{|asteroid|
             CatalystFsck::checkAsteroid(asteroid)

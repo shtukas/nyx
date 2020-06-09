@@ -47,24 +47,24 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # ----------------------------------------------------------------------
 
-class Wave
+class Waves
 
-    # Wave::traceToRealInUnitInterval(trace)
+    # Waves::traceToRealInUnitInterval(trace)
     def self.traceToRealInUnitInterval(trace)
         ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
     end
 
-    # Wave::traceToMetricShift(trace)
+    # Waves::traceToMetricShift(trace)
     def self.traceToMetricShift(trace)
-        0.001*Wave::traceToRealInUnitInterval(trace)
+        0.001*Waves::traceToRealInUnitInterval(trace)
     end
 
-    # Wave::isLucille18()
+    # Waves::isLucille18()
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"] == "Lucille18"
     end
 
-    # Wave::makeScheduleObjectInteractivelyOrNull()
+    # Waves::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
@@ -109,15 +109,15 @@ class Wave
         schedule
     end
 
-    # Wave::unixtimeAtComingMidnight()
+    # Waves::unixtimeAtComingMidnight()
     def self.unixtimeAtComingMidnight()
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
     end
 
-    # Wave::scheduleToDoNotShowUnixtime(uuid, schedule)
+    # Waves::scheduleToDoNotShowUnixtime(uuid, schedule)
     def self.scheduleToDoNotShowUnixtime(uuid, schedule)
         if schedule['@'] == 'sticky' then
-            return Wave::unixtimeAtComingMidnight() + 6*3600
+            return Waves::unixtimeAtComingMidnight() + 6*3600
         end
         if schedule['@'] == 'every-n-hours' then
             return Time.new.to_i+3600*schedule['repeat-value'].to_f
@@ -142,7 +142,7 @@ class Wave
         end
     end
 
-    # Wave::scheduleToMetric(object, schedule)
+    # Waves::scheduleToMetric(object, schedule)
     def self.scheduleToMetric(object, schedule)
         return 0 if !DoNotShowUntil::isVisible(object["uuid"])
         if schedule['@'] == 'sticky' then # shows up once a day
@@ -150,35 +150,35 @@ class Wave
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? ( 0.82 + Wave::traceToMetricShift(schedule["uuid"]) ) : 0
+            return Time.new.hour >= schedule['from-hour'] ? ( 0.82 + Waves::traceToMetricShift(schedule["uuid"]) ) : 0
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.80 + Wave::traceToMetricShift(schedule["uuid"])
+            return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.80 + Wave::traceToMetricShift(schedule["uuid"])
+            return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.78 + Wave::traceToMetricShift(schedule["uuid"])
+            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.78 + Wave::traceToMetricShift(schedule["uuid"])
+            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
         end
         1
     end
 
-    # Wave::extractFirstLineFromText(text)
+    # Waves::extractFirstLineFromText(text)
     def self.extractFirstLineFromText(text)
         return "" if text.size==0
         text.lines.first
     end
 
-    # Wave::announce(text, schedule)
+    # Waves::announce(text, schedule)
     def self.announce(text, schedule)
-        "[#{Wave::scheduleToAnnounce(schedule)}] #{Wave::extractFirstLineFromText(text)}"
+        "[#{Waves::scheduleToAnnounce(schedule)}] #{Waves::extractFirstLineFromText(text)}"
     end
 
-    # Wave::scheduleToAnnounce(schedule)
+    # Waves::scheduleToAnnounce(schedule)
     def self.scheduleToAnnounce(schedule)
         if schedule['@'] == 'sticky' then
             # Backward compatibility
@@ -202,44 +202,30 @@ class Wave
         JSON.generate(schedule)
     end
 
-    # Wave::defaultCommand(announce)
-    def self.defaultCommand(announce)
-        "start"
-    end
-
-    # Wave::makeCatalystObject(obj)
-    def self.makeCatalystObject(obj)
-        uuid = obj["uuid"]
-        schedule = obj["schedule"]
-        announce = Wave::announce(obj["description"], schedule)
+    # Waves::makeCatalystObject(wave)
+    def self.makeCatalystObject(wave)
+        uuid = wave["uuid"]
+        schedule = wave["schedule"]
+        announce = Waves::announce(wave["description"], schedule)
         object = {}
         object['uuid'] = uuid
-        object["application"] = "Wave"
+        object["application"] = "Waves"
         object["body"] = "[wave] "+announce
-        object["metric"] = Wave::scheduleToMetric(obj, schedule)
-        object["commands"] = ["start", "open", "edit", "done", "description", "recast", "destroy"]
-        object["defaultCommand"] = Wave::defaultCommand(announce)
+        object["metric"] = Waves::scheduleToMetric(wave, schedule)
         object['schedule'] = schedule
-        object["shell-redirects"] = {
-            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing start '#{uuid}'",
-            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing open '#{uuid}'",
-            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing done '#{uuid}'",
-            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing description '#{uuid}'",
-            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing recast '#{uuid}'",
-            "destroy"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing destroy '#{uuid}'"
-        }
-        object["x-interface:isWave"] = true
+        object["execute"] = lambda { Waves::execute(wave) }
+        object["x-interface:isWaves"] = true
         object
     end
 
-    # Wave::performDone2(obj)
+    # Waves::performDone2(obj)
     def self.performDone2(obj)
-        unixtime = Wave::scheduleToDoNotShowUnixtime(obj["uuid"], obj['schedule'])
+        unixtime = Waves::scheduleToDoNotShowUnixtime(obj["uuid"], obj['schedule'])
         DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
 
-    # Wave::issueWave(uuid, description, schedule)
-    def self.issueWave(uuid, description, schedule)
+    # Waves::issueWaves(uuid, description, schedule)
+    def self.issueWaves(uuid, description, schedule)
         obj = {
             "uuid"             => uuid,
             "nyxType"          => "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58",
@@ -251,10 +237,80 @@ class Wave
         obj
     end
 
-    # Wave::waves()
+    # Waves::waves()
     def self.waves()
         Nyx::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
     end
+
+    # Waves::catalystObjects()
+    def self.catalystObjects()
+        Waves::waves()
+            .map{|obj| Waves::makeCatalystObject(obj) }
+    end
+
+    # Waves::openItem(wave)
+    def self.openItem(wave)
+        text = wave["description"]
+        puts text
+        if text.lines.to_a.size == 1 and text.start_with?("http") then
+            url = text
+            if Waves::isLucille18() then
+                system("open '#{url}'")
+            else
+                system("open -na 'Google Chrome' --args --new-window '#{url}'")
+            end
+            return
+        end
+        if text.lines.to_a.size > 1 then
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+    end
+
+    # Waves::execute(wave)
+    def self.execute(wave)
+        uuid = wave["uuid"]
+        options = ['start', 'open', 'done', 'recast', 'description', 'destroy']
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        if option == 'start' then
+            Waves::openItem(wave)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+                Waves::performDone2(wave)
+            end
+            return
+        end
+        if option == 'open' then
+            Waves::openItem(wave)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+                Waves::performDone2(wave)
+            end
+            return
+        end
+        if option == 'done' then
+            Waves::performDone2(wave)
+            return
+        end
+        if option == 'recast' then
+            schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+            return if schedule.nil?
+            wave["schedule"] = schedule
+            Nyx::commitToDisk(wave)
+            return
+        end
+        if option == 'description' then
+            wave["description"] = CatalystCommon::editTextUsingTextmate(wave["description"])
+            Nyx::commitToDisk(wave)
+            return
+        end
+        if option == 'destroy' then
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
+                Nyx::destroy(wave["uuid"])
+                return
+            end
+            return
+        end
+    end
+
 end
 
 

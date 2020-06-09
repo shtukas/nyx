@@ -40,11 +40,39 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Wave.rb"
+require_relative "Waves.rb"
 
 # -------------------------------------------------------------------------
 
-objects = Wave::waves()
-            .map{|obj| Wave::makeCatalystObject(obj) }
-
-puts JSON.generate(objects)
+puts "Waves 🌊"
+loop {
+    options = [
+        "new wave",
+        "waves dive"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+    break if option.nil?
+    if option == "new wave" then
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+        next if schedule.nil?
+        Waves::issueWaves(LucilleCore::timeStringL22(), line, schedule)
+    end
+    if option == "waves dive" then
+        obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| wave["description"] })
+        next if obj.nil?
+        ops = ["edit description", "recast"]
+        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+        next if op.nil?
+        if op == "edit description" then
+            obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
+            Nyx::commitToDisk(obj)
+        end
+        if op == "recast" then
+            schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+            next if schedule.nil?
+            obj["schedule"] = schedule
+            Nyx::commitToDisk(obj)
+        end
+    end
+}

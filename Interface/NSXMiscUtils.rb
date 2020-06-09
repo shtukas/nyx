@@ -135,9 +135,9 @@ class NSXMiscUtils
     # NSXMiscUtils::importFromLucilleInbox()
     def self.importFromLucilleInbox()
         getNextLocationAtTheInboxOrNull = lambda {
-            Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
+            Dir.entries("/Users/pascal/Desktop/Todo-Inbox")
                 .reject{|filename| filename[0, 1] == '.' }
-                .map{|filename| "/Users/pascal/Desktop/Lucille-Inbox/#{filename}" }
+                .map{|filename| "/Users/pascal/Desktop/Todo-Inbox/#{filename}" }
                 .first
         }
         while (location = getNextLocationAtTheInboxOrNull.call()) do

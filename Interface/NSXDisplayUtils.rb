@@ -8,20 +8,6 @@ class NSXDisplayUtils
         ["expose"]
     end
 
-    # NSXDisplayUtils::makeInferfaceString(object)
-    def self.makeInferfaceString(object)
-        defaultCommand = object["defaultCommand"]
-        commands = object["commands"]
-        if defaultCommand then
-            commands = commands.reject{|c| c == defaultCommand }
-        end
-        [
-            defaultCommand ? "#{defaultCommand.green}" : nil,
-            commands.join(" "),
-            NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
-        ].compact.reject{|command| command=='' }.join(" ")
-    end
-
     # NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
     def self.makeDisplayStringForCatalystListing(object)
         # NSXMiscUtils::screenWidth()

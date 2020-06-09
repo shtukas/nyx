@@ -13,7 +13,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTime
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
 =begin 
-    Runner::isRunning(uuid)
+    Runner::isRunning?(uuid)
     Runner::runTimeInSecondsOrNull(uuid) # null | Float
     Runner::start(uuid)
     Runner::stop(uuid) # null | Float
@@ -35,14 +35,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class Spaceships
 
+    # Spaceships::issueSpaceShipInteractivelyOrNull()
+    def self.issueSpaceShipInteractivelyOrNull()
+        cargo = Spaceships::makeCargoInteractivelyOrNull()
+        return if cargo.nil?
+        engine = Spaceships::makeEngineInteractivelyOrNull()
+        return if engine.nil?
+        Spaceships::issue(cargo, engine)
+    end
+
     # Spaceships::issue(cargo, engine)
     def self.issue(cargo, engine)
         spaceship = {
-            "uuid"      => SecureRandom.uuid,
-            "nyxType"   => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "uuid"        => SecureRandom.uuid,
+            "nyxType"     => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
-            "cargo" => cargo,
-            "engine"    => engine
+            "cargo"       => cargo,
+            "engine"      => engine
         }
         Nyx::commitToDisk(spaceship)
         spaceship
@@ -56,7 +65,6 @@ class Spaceships
                 return " " + cargo["description"]
             end
             if cargo["type"] == "quark" then
-                return (" " + spaceship["description"]) if spaceship["description"]
                 quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
                 return quark ? (" " + Quark::quarkToString(quark)) : " [could not find quark]"
             end
@@ -85,14 +93,14 @@ class Spaceships
             end
 
             if engine["type"] == "asap-managed" then
-                return " (adjusted time: #{"%.2f" % Spaceships::asapTimeBankAdjusted(spaceship)}%)"
+                return " (#{Spaceships::timeRatio(spaceship)})"
             end
 
             raise "[Spaceships] error: 46b84bdb"
         }
 
         uuid = spaceship["uuid"]
-        isRunning = Runner::isRunning(uuid)
+        isRunning = Runner::isRunning?(uuid)
         runningString = 
             if isRunning then
                 " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
@@ -144,7 +152,6 @@ class Spaceships
         options = [
             opt1,
             opt3,
-            opt4,
             opt5,
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
@@ -164,16 +171,6 @@ class Spaceships
             }
         end
 
-        # Todo: decommission at first opportunity
-        if option == opt4 then
-            lengthInDays = LucilleCore::askQuestionAnswerAsString("length in days: ").to_f
-            return {
-                "type"          => "arrow",
-                "startunixtime" => Time.new.to_f,
-                "lengthInDays"  => lengthInDays
-            }
-        end
-
         if option == opt5 then
             return {
                 "type"          => "asap-managed",
@@ -187,10 +184,6 @@ class Spaceships
     def self.openCargo(uuid)
         spaceship = Nyx::getOrNull(uuid)
         return if spaceship.nil?
-        if spaceship["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
-            # LucilleTxt
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
-        end
         if spaceship["cargo"]["type"] == "quark" then
             quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
@@ -228,7 +221,6 @@ class Spaceships
             options = [
                 "open",
                 "start",
-                "update description",
                 "re-cargo",
                 "destroy",
             ]
@@ -236,10 +228,6 @@ class Spaceships
             return if option.nil?
             if option == "open" then
                 Spaceships::openCargo(spaceship["uuid"])
-            end
-            if option == "update description" then
-                spaceship["description"] = CatalystCommon::editTextUsingTextmate(spaceship["description"])
-                Nyx::commitToDisk(spaceship)
             end
             if option == "start" then
                 Spaceships::startSpaceship(spaceship["uuid"])
@@ -299,8 +287,8 @@ class Spaceships
         end
 
         if engine["type"] == "asap-managed" then
-            timeBankAdjusted = Spaceships::asapTimeBankAdjusted(spaceship)
-            return 0.80 + Math.exp(-timeBankAdjusted).to_f/10
+            timeBankAdjusted = Spaceships::timeRatio(spaceship)
+            return 0.80 + Math.exp(-timeBankAdjusted).to_f/100
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -349,6 +337,54 @@ class Spaceships
         Bank::value(uuid) + Spaceships::liveRunTimeIfAny(spaceship)
     end
 
+    # Spaceships::spaceshipToCalalystObject(spaceship)
+    def self.spaceshipToCalalystObject(spaceship)
+        uuid = spaceship["uuid"]
+        {
+            "uuid"      => uuid,
+            "body"      => Spaceships::toString(spaceship),
+            "metric"    => Spaceships::metric(spaceship),
+            "execute"   => lambda { Spaceships::execute(spaceship) },
+            "isFocus"   => Spaceships::isLate?(spaceship),
+            "isRunning" => Runner::isRunning?(uuid)
+        }
+    end
+
+    # Spaceships::catalystObjects()
+    def self.catalystObjects()
+        Spaceships::spaceships()
+            .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
+    end
+
+    # Spaceships::execute(spaceship)
+    def self.execute(spaceship)
+        puts Spaceships::toString(spaceship)
+        options = ["start", "open", "stop", "dive", "destroy"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return if option.nil?
+        if option == "start" then
+            Spaceships::startSpaceship(spaceship["uuid"])
+        end
+        if option == "open" then
+            Spaceships::openCargo(spaceship["uuid"])
+        end
+        if option == "stop" then
+            Spaceships::stopSpaceship(spaceship)
+        end
+        if option == "dive" then
+            Spaceships::spaceshipDive(spaceship)
+        end
+        if option == "destroy" then
+            if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
+                puts "You cannot destroy this one (Guardian Work)"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            Spaceships::stopSpaceship(spaceship)
+            Nyx::destroy(spaceship["uuid"])
+        end
+    end
+
     # --------------------------------------------------------------------
     # time-commitment-indefinitely
 
@@ -375,13 +411,12 @@ class Spaceships
     # --------------------------------------------------------------------
     # asap-managed
 
-    # Spaceships::asapTimeBankAdjusted(spaceship)
-    def self.asapTimeBankAdjusted(spaceship)
+    # Spaceships::timeRatio(spaceship)
+    def self.timeRatio(spaceship)
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
         timeBank = Bank::value(uuid)
-        timeBankAdjusted = timeBank.to_f/(Time.new.to_i - engine["startunixtime"])
-        timeBankAdjusted
+        timeBank.to_f/(Time.new.to_i - engine["startunixtime"])
     end
 end
 

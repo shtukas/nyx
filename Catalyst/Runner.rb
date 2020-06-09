@@ -3,7 +3,7 @@
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
 =begin 
-    Runner::isRunning(uuid)
+    Runner::isRunning?(uuid)
     Runner::runTimeInSecondsOrNull(uuid) # null | Float
     Runner::start(uuid)
     Runner::stop(uuid) # null | Float
@@ -25,8 +25,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class Runner
 
-    # Runner::isRunning(uuid)
-    def self.isRunning(uuid)
+    # Runner::isRunning?(uuid)
+    def self.isRunning?(uuid)
         !KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}").nil?
     end
 
@@ -39,13 +39,13 @@ class Runner
 
     # Runner::start(uuid)
     def self.start(uuid)
-        return if Runner::isRunning(uuid)
+        return if Runner::isRunning?(uuid)
         KeyValueStore::set(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}", Time.new.to_i)
     end
 
     # Runner::stop(uuid)
     def self.stop(uuid)
-        return nil if !Runner::isRunning(uuid)
+        return nil if !Runner::isRunning?(uuid)
         unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}").to_i
         unixtime = unixtime.to_f
         timespan = Time.new.to_f - unixtime

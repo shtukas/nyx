@@ -141,7 +141,34 @@ class Anniversaries
         .compact
     end
 
+    # Anniversaries::markAnniversaryAsProcessed(event, anniversary)
     def self.markAnniversaryAsProcessed(event, anniversary)
         KeyValueStore::setFlagTrue("#{CatalystCommon::catalystFolderpath()}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
+
+    # Anniversaries::catalystObjects()
+    def self.catalystObjects()
+        if Anniversaries::getNs1203WithOutstandingSequenceElements().empty? then
+            []
+        else
+            [
+                {
+                    "uuid"           => "eace4480-b93c-4b2f-bfb4-600f300812d3",
+                    "body"           => "anniversaries",
+                    "metric"         => 0.95,
+                    "execute" => lambda {
+                        Anniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
+                            ns1203["anniversaries"].each{|anniversary|
+                                puts ns1203["description"]
+                                puts JSON.pretty_generate(anniversary)
+                                LucilleCore::pressEnterToContinue()
+                                Anniversaries::markAnniversaryAsProcessed(ns1203, anniversary)
+                            }
+                        }
+                    }
+                }
+            ]
+        end
+    end
+
 end

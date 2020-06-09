@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 require 'securerandom'
@@ -46,16 +45,15 @@ class BackupsMonitor
         return nil if !BackupsMonitor::scriptNameToIsDueFlag(scriptname)
         uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
         {
-            "uuid"         => uuid,
-            "application"  => "BackupsMonitor",
-            "body"         => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
-            "metric"       => 0.50,
-            "commands"     => []
+            "uuid"    => uuid,
+            "body"    => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
+            "metric"  => 0.50,
+            "execute" => lambda{}
         }
     end
 
-    # BackupsMonitor::getCatalystObjects()
-    def self.getCatalystObjects()
+    # BackupsMonitor::catalystObjects()
+    def self.catalystObjects()
         BackupsMonitor::scriptnames()
             .map{|scriptname|
                 BackupsMonitor::scriptNameToCatalystObjectOrNull(scriptname)

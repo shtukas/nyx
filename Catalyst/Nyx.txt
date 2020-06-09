@@ -10,7 +10,7 @@ The two required keys that a NyxObject must have are:
 
 Spaceship # See Spaceship.txt
 
-Wave # See Wave.txt
+Waves # See Waves.txt
 
 Asteroid # See Asteroids.txt
 

@@ -11,9 +11,14 @@
         0.83          LucileTxt [top]
 
 💫
-        0.82+         Wave sticky
-        0.80+         Wave every-this-day-of-the-month / every-this-day-of-the-week
-        0.78+         Wave every-n-hours / every-n-days
+        0.82+         Waves sticky
+        0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
+        0.78+         Waves every-n-hours / every-n-days
+
+        0.70+ -> 0.20 Spaceships (
+                          bank-account, 
+                          bank-account-special-circumstances, 
+                          time-commitment-indefinitely)
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids
