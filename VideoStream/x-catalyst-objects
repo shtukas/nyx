@@ -80,10 +80,7 @@ VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
     objects << {
         "uuid"           => uuid,
         "application"    => "VideoStream",
-        "contentItem"    => {
-            "type" => "line",
-            "line" => "[VideoStream] #{File.basename(filepath)}"
-        },
+        "body"           => "[VideoStream] #{File.basename(filepath)}",
         "metric"         => metric(indx),
         "commands"       => ["completed"],
         "defaultCommand" => "play",

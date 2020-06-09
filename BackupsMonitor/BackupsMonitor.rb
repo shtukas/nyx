@@ -48,10 +48,7 @@ class BackupsMonitor
         {
             "uuid"         => uuid,
             "application"  => "BackupsMonitor",
-            "contentItem"  => {
-                "type" => "line",
-                "line" => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}"
-            },
+            "body"         => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
             "metric"       => 0.50,
             "commands"     => []
         }

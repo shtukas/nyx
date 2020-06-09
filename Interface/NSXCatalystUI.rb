@@ -197,23 +197,6 @@ class NSXCatalystUI
     # NSXCatalystUI::performStandardDisplay(displayObjects)
     def self.performStandardDisplay(displayObjects)
 
-        # --------------------------------------------------------------------------
-        # Starship Management
-
-        # Guardian Work
-        DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
-
-        # Spaceship bank managed
-        Spaceships::spaceships()
-            .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .first(3)
-            .each{|spaceship|
-                DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
-            }
-
-        # --------------------------------------------------------------------------
-
         system("clear")
 
         executors = [] # Array([ announce, isFocus, isRunning, lambda ])
@@ -371,6 +354,12 @@ class NSXCatalystUI
         puts ""
         print "--> "
         command = STDIN.gets().strip
+
+        if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
+            puts "Code change detected. Exiting."
+            exit
+        end
+
         if command=='' then
             item = executors.select{|item| item[1]}.first
             return if item.nil?
@@ -394,13 +383,21 @@ class NSXCatalystUI
     # NSXCatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
-            if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-                puts "Code change detected. Exiting."
-                return
-            end
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
+
+            # Guardian Work
+            DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
+
+            # Spaceship bank managed
+            Spaceships::spaceships()
+                .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
+                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                .first(3)
+                .each{|spaceship|
+                    DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
+                }
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()

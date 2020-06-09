@@ -4,7 +4,7 @@ CatalystObject
 {
     "uuid"            : UUID
     "application"     : String               # [0]
-    "contentItem"     : ContentItem
+    "body"            : String # Single or multiline
     "metric"          : Float
 
     "commands"        : Array[String]

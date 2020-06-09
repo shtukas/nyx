@@ -85,7 +85,7 @@ if ARGV[0] and ARGV[0] == "todo" then
                 .select{|object| object["isRunning"] and object["isDone"] }
                 .first(1)
                 .each{|object|
-                    NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is done: #{NSXDisplayUtils::contentItemToAnnounce(object["contentItem"])}")
+                    NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is done")
                 }
 
             sleep 5
@@ -94,7 +94,7 @@ if ARGV[0] and ARGV[0] == "todo" then
                 .select{|object| object["isRunningForLong"] }
                 .first(1)
                 .each{|object|
-                    NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is running for long: #{NSXDisplayUtils::contentItemToAnnounce(object["contentItem"])}")
+                    NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
                 }
 
             sleep 5

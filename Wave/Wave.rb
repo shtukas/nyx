@@ -212,14 +212,10 @@ class Wave
         uuid = obj["uuid"]
         schedule = obj["schedule"]
         announce = Wave::announce(obj["description"], schedule)
-        contentItem = {
-            "type" => "line",
-            "line" => "[wave] "+announce
-        }
         object = {}
         object['uuid'] = uuid
         object["application"] = "Wave"
-        object["contentItem"] = contentItem
+        object["body"] = "[wave] "+announce
         object["metric"] = Wave::scheduleToMetric(obj, schedule)
         object["commands"] = ["start", "open", "edit", "done", "description", "recast", "destroy"]
         object["defaultCommand"] = Wave::defaultCommand(announce)

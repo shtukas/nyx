@@ -51,10 +51,7 @@ class NSXCatalystObjectsCommon
                 {
                     "uuid"            => SecureRandom.hex,
                     "application"     => "Interface",
-                    "contentItem"     => {
-                        "type" => "line",
-                        "line" => "Problems extracting catalyst objects at '#{scriptfilepath}'"
-                    },
+                    "body"            => "Problems extracting catalyst objects at '#{scriptfilepath}'",
                     "metric"          => 1.1,
                     "commands"        => []
                 }

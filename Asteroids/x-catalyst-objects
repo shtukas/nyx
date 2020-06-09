@@ -91,10 +91,7 @@ def itemToCatalystObject(item, basemetric, indx)
     {
         "uuid"           => uuid,
         "application"    => "Asteroids",
-        "contentItem"    => {
-            "type" => "line",
-            "line" => Asteroids::asteroidToString(item)
-        },
+        "body"           => Asteroids::asteroidToString(item),
         "metric"         => metric,
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "push", "project", ">data", ">opencycle"],
         "defaultCommand" => defaultCommand.call(isRunning),

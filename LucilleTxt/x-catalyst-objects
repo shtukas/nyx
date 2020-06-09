@@ -80,18 +80,13 @@ end
 
 uuid = Digest::SHA1.hexdigest(lucilletext)
 
-contentItem =         {
-    "type" => "multiline",
-    "text" => "[top]\n" + lucilletext.lines.map{|line| "     #{line}"}.join()
-}
-
 object = {
-    "uuid" => uuid,
-    "application" => "LucilleTxt",
-    "contentItem" => contentItem,
-    "metric" => 0.83,
-    "commands" => [],
-    "defaultCommand" => "[]",
+    "uuid"            => uuid,
+    "application"     => "LucilleTxt",
+    "body"            => "[top]\n" + lucilletext.lines.map{|line| "     #{line}"}.join(),
+    "metric"          => 0.83,
+    "commands"        => [],
+    "defaultCommand"  => "[]",
     "shell-redirects" => {
         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing sections-type-0141-done-deep-task",
     }
