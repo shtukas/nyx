@@ -7,6 +7,11 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
@@ -19,19 +24,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
     Ping::put(uuid, weight)
     Ping::totalOverTimespan(uuid, timespanInSeconds)
     Ping::totalToday(uuid)
 =end
-
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.rb"
 =begin
@@ -46,12 +44,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.r
     Mercury::getAllValues(channel)
 =end
 
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+# SectionsType0141::applyNextTransformationToContent(content)
 
-require_relative "../OpenCycles/OpenCycles.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # ------------------------------------------------------------------------
 
@@ -185,6 +187,17 @@ class NSXCatalystUI
 
         system("clear")
 
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+
+        filecontents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+        if filecontents.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            filecontents = filecontents.lines.first(10).join()
+            puts filecontents
+            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(filecontents)
+        end
+
         Calendar::dates()
             .each{|date|
                 next if date > Time.new.to_s[0, 10]
@@ -222,7 +235,6 @@ class NSXCatalystUI
         # Print
 
         puts ""
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         position = -1
         catalystObjects.each{|object| 
             position = position + 1
@@ -271,6 +283,14 @@ class NSXCatalystUI
 
         if command == "/" then
             NSXCatalystUI::operations()
+            return
+        end
+
+        if command == "[]" then
+            CatalystCommon::copyLocationToCatalystBin("/Users/pascal/Desktop/Lucille.txt")
+            content = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+            content = SectionsType0141::applyNextTransformationToContent(content)
+            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
             return
         end
 
