@@ -180,34 +180,6 @@ class Spaceships
         nil
     end
 
-    # Spaceships::openCargo(uuid)
-    def self.openCargo(uuid)
-        spaceship = Nyx::getOrNull(uuid)
-        return if spaceship.nil?
-        if spaceship["cargo"]["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
-            return if quark.nil?
-            Quark::openQuark(quark)
-        end
-    end
-
-    # Spaceships::startSpaceship(uuid)
-    def self.startSpaceship(uuid)
-        spaceship = Nyx::getOrNull(uuid)
-        return if spaceship.nil?
-        Runner::start(uuid)
-        Spaceships::openCargo(uuid)
-    end
-
-    # Spaceships::stopSpaceship(spaceship)
-    def self.stopSpaceship(spaceship)
-        timespan = Runner::stop(spaceship["uuid"])
-        return if timespan.nil?
-        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
-        Bank::put(spaceship["uuid"], timespan)
-    end
-
     # Spaceships::spaceships()
     def self.spaceships()
         Nyx::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
@@ -227,10 +199,11 @@ class Spaceships
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                Spaceships::openCargo(spaceship["uuid"])
+                Spaceships::openCargo(spaceship)
             end
             if option == "start" then
-                Spaceships::startSpaceship(spaceship["uuid"])
+                Runner::start(spaceship["uuid"])
+                Spaceships::openCargo(spaceship)
             end
             if option == "re-cargo" then
                 cargo = Spaceships::makeCargoInteractivelyOrNull()
@@ -356,6 +329,15 @@ class Spaceships
             .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
     end
 
+    # Spaceships::stopSpaceship(spaceship)
+    def self.stopSpaceship(spaceship)
+        timespan = Runner::stop(spaceship["uuid"])
+        return if timespan.nil?
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
+        Bank::put(spaceship["uuid"], timespan)
+    end
+
     # Spaceships::execute(spaceship)
     def self.execute(spaceship)
         puts Spaceships::toString(spaceship)
@@ -363,10 +345,11 @@ class Spaceships
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
-            Spaceships::startSpaceship(spaceship["uuid"])
+            Runner::start(spaceship["uuid"])
+            Spaceships::openCargo(spaceship)
         end
         if option == "open" then
-            Spaceships::openCargo(spaceship["uuid"])
+            Spaceships::openCargo(spaceship)
         end
         if option == "stop" then
             Spaceships::stopSpaceship(spaceship)
@@ -382,6 +365,15 @@ class Spaceships
             end
             Spaceships::stopSpaceship(spaceship)
             Nyx::destroy(spaceship["uuid"])
+        end
+    end
+
+    # Spaceships::openCargo(spaceship)
+    def self.openCargo(spaceship)
+        if spaceship["cargo"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
+            return if quark.nil?
+            Quark::openQuark(quark)
         end
     end
 
