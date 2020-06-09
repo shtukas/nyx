@@ -286,20 +286,13 @@ class NSXCatalystUI
                 .each{|opencycle|
                     puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
                     executors[position] = lambda { 
-                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
-                        return if operation.nil?
-                        if operation == "visit target" then
-                            entity = Nyx::getOrNull(opencycle["targetuuid"])
-                            if entity.nil? then
-                                puts "I could not find a target for this open cycle"
-                                LucilleCore::pressEnterToContinue()
-                                return
-                            end
-                            CubesAndTimelines::objectDive(entity)
+                        entity = Nyx::getOrNull(opencycle["targetuuid"])
+                        if entity.nil? then
+                            puts "I could not find a target for this open cycle"
+                            LucilleCore::pressEnterToContinue()
+                            return
                         end
-                        if operation == "destroy open cycle" then
-                            Nyx::destroy(opencycle["uuid"])
-                        end
+                        CubesAndTimelines::objectDive(entity)
                     }
                     position = position + 1
                     verticalSpaceLeft = verticalSpaceLeft - 1
