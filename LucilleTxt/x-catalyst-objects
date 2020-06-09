@@ -81,8 +81,8 @@ end
 uuid = Digest::SHA1.hexdigest(lucilletext)
 
 contentItem =         {
-    "type" => "block",
-    "block" => "[top]\n" + lucilletext.lines.map{|line| "     #{line}"}.join()
+    "type" => "multiline",
+    "text" => "[top]\n" + lucilletext.lines.map{|line| "     #{line}"}.join()
 }
 
 object = {

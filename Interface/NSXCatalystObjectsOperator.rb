@@ -17,9 +17,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 class NSXCatalystObjectsCommon
 
-    # NSXCatalystObjectsCommon::applicationNames()
-    def self.applicationNames()
-        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "Spaceships", "Asteroids", "Vienna", "Wave", "Wave-Go", "VideoStream"]
+    # NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
+    def self.catalystObjectsApplicationNames()
+        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "Asteroids", "Vienna", "Wave", "Wave-Go", "VideoStream"]
     end
 
     # NSXCatalystObjectsCommon::processing(objects)
@@ -69,7 +69,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsCommon::applicationNames()
+        objects = NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
                     .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                     .map{|scriptfilepath|
                         NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
@@ -80,7 +80,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getAllCatalystObjectsOrdered()
     def self.getAllCatalystObjectsOrdered()
-        NSXCatalystObjectsCommon::applicationNames()
+        NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
                 .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                 .map{|scriptfilepath|
                     NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
@@ -92,7 +92,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
     def self.getCatalystListingObjectsOrderedFast()
-        NSXCatalystObjectsCommon::applicationNames()
+        NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
             .select{|appname| $CE605907[appname].nil? or ["LucilleTxt"].include?(appname) }
             .each{|appname| 
                 scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
@@ -104,7 +104,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::cacheUpdate()
     def self.cacheUpdate()
-        NSXCatalystObjectsCommon::applicationNames()
+        NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
             .each{|appname| 
                 scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
                 $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)

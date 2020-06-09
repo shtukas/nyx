@@ -36,15 +36,6 @@ ContentItem
 }
 
 {
-    "type" : "line-and-body"
-    "line" : String # carries a single line.
-    "body" : String # Multiline
+    "type" : "multiline"
+    "text" : String # Multiline
 }
-
-{
-    "type" : "block"
-    "block" : String # Multiline
-}
-
-# Note that the block is displayed both in focus and unfocused mode, 
-# That's the difference with type: lines.

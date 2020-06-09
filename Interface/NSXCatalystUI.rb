@@ -39,6 +39,22 @@ require_relative "../OpenCycles/OpenCycles.rb"
 
 class NSXCatalystUI
 
+    # NSXCatalystUI::objectFocus(object)
+    def self.objectFocus(object)
+        return if object.nil?
+        loop { 
+            puts NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+            puts NSXDisplayUtils::makeInferfaceString(object)
+            print "--> "
+            command = STDIN.gets().strip
+            return if command == ''
+            if command == '..' and object["defaultCommand"] then
+                command = object["defaultCommand"]
+            end
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
+        }
+    end
+
     # NSXCatalystUI::operations()
     def self.operations()
         loop {
@@ -102,50 +118,6 @@ class NSXCatalystUI
                 }
             ]
 
-            items << [
-                "arrow (description)", 
-                lambda {
-                    description = LucilleCore::askQuestionAnswerAsString("arrow description: ")
-                    return if description == ""
-                    cargo = {
-                        "type"        => "description",
-                        "description" => description
-                    }
-                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ")
-                    return if lengthInDays == ""
-                    lengthInDays = lengthInDays.to_f
-                    return if lengthInDays == 0
-                    engine = {
-                        "type"          => "arrow",
-                        "startunixtime" => Time.new.to_f,
-                        "lengthInDays"  => lengthInDays
-                    }
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
-                "arrow (new passenger quark)", 
-                lambda {
-                    cargo = Spaceships::makeCargoInteractivelyOrNull()
-                    next if cargo.nil?
-                    lengthInDays = LucilleCore::askQuestionAnswerAsString("arrow length in days: ")
-                    return if lengthInDays == ""
-                    lengthInDays = lengthInDays.to_f
-                    return if lengthInDays == 0
-                    engine = {
-                        "type"          => "arrow",
-                        "startunixtime" => Time.new.to_f,
-                        "lengthInDays"  => lengthInDays
-                    }
-                    spaceship = Spaceships::issue(cargo, engine)
-                    puts JSON.pretty_generate(spaceship)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
             items << nil
 
             items << [
@@ -190,7 +162,7 @@ class NSXCatalystUI
                 "Applications generation speed", 
                 lambda { 
                     puts "Applications generation speed report"
-                    NSXCatalystObjectsCommon::applicationNames()
+                    NSXCatalystObjectsCommon::catalystObjectsApplicationNames()
                         .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                         .map{|source|
                             t1 = Time.new.to_f
@@ -210,17 +182,6 @@ class NSXCatalystUI
                 }
             ]
             items << [
-                "UI generation speed", 
-                lambda { 
-                    t1 = Time.new.to_f
-                    NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                        .each{|object| NSXDisplayUtils::makeDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
-                    t2 = Time.new.to_f
-                    puts "UI generation speed: #{(t2-t1).round(3)} seconds"
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-            items << [
                 "Run Data Integrity Check", 
                 lambda { 
                     CatalystFsck::run()
@@ -233,59 +194,38 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::performAllDisplay(displayObjects)
-    def self.performAllDisplay(displayObjects)
-
-        system("clear")
-
-        position = 0
-        executors = []
-
-        puts ""
-
-        displayObjects.each_with_index{|object, indx|
-            break if object.nil?
-            displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
-            puts displayStr
-            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
-            position = position + 1
-            break if displayObjects[indx+1].nil?
-        }
-
-        puts ""
-        print "[*] --> "
-        command = STDIN.gets().strip
-        if command=='' then
-            return
-        end
-
-        if NSXMiscUtils::isInteger(command) then
-            position = command.to_i
-            executors[position].call()
-            return
-        end
-
-        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
-    end
-
     # NSXCatalystUI::performStandardDisplay(displayObjects)
     def self.performStandardDisplay(displayObjects)
 
+        # --------------------------------------------------------------------------
+        # Starship Management
+
+        # Guardian Work
+        DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
+
+        # Spaceship bank managed
+        Spaceships::spaceships()
+            .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .first(3)
+            .each{|spaceship|
+                DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
+            }
+
+        # --------------------------------------------------------------------------
+
         system("clear")
 
-        position = 0
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
-        executors = []
+        executors = [] # Array([ announce, isFocus, isRunning, lambda ])
 
         opencycles = OpenCycles::opencycles()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-        if !opencycles.empty? then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            opencycles
-                .each{|opencycle|
-                    puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
-                    executors[position] = lambda { 
+            .each{|opencycle|
+                executors << [
+                    OpenCycles::opencycleToString(opencycle).yellow,
+                    false,
+                    false,
+                    lambda { 
                         entity = Nyx::getOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
@@ -294,49 +234,154 @@ class NSXCatalystUI
                         end
                         CubesAndTimelines::objectDive(entity)
                     }
-                    position = position + 1
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                }
-        end
+                ]
+            }
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 then
-            puts ""
-            puts calendarreport
-            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
+            executors << [
+                calendarreport,
+                false,
+                false,
+                lambda {}
+            ]
         end
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        displayMatrix = {}
+        displayMatrix["battlefield"] = (Time.new.min >= 15) or Spaceships::spaceships().any?{|spaceship| Runner::isRunning(spaceship["uuid"])}
+        displayMatrix["standard"] = true
 
-        displayObjects.each_with_index{|object, indx|
-            break if object.nil?
-            break if verticalSpaceLeft <= 0
-            displayStr = NSXDisplayUtils::makeDisplayStringForCatalystListing(object, indx == 0, position)
-            puts displayStr
-            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
-            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
+        # --------------------------------------------------------------------------
+        # Starship Display
+
+        if displayMatrix["battlefield"] then
+
+            spaceships = Spaceships::spaceships()
+                .sort{|s1, s2| Spaceships::metric(s1) <=> Spaceships::metric(s2) }
+                .reverse
+
+            selectSpaceShips = lambda{|selected, awaiting|
+                return selected if awaiting.empty?
+                if awaiting.any?{|spaceship| Runner::isRunning(spaceship["uuid"]) } then
+                    selected << awaiting.shift
+                    return selectSpaceShips.call(selected, awaiting)
+                end
+                if selected.size >= 10 then
+                    return selected
+                end
+                selected << awaiting.shift
+                selectSpaceShips.call(selected, awaiting)
+            }
+
+            selectSpaceShips.call([], spaceships)
+                .each_with_index{|spaceship, indx|
+                    announce = Spaceships::toString(spaceship)
+                    if Runner::isRunning(spaceship["uuid"]) then
+                        announce = announce.green
+                    else
+                        announce = announce.red
+                    end
+                    executors << [
+                        announce,
+                        Spaceships::isLate?(spaceship),
+                        Runner::isRunning(spaceship["uuid"]),
+                        lambda { 
+                            loop {
+                                puts Spaceships::toString(spaceship)
+                                options = ["start", "open", "stop", "dive", "destroy"]
+                                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+                                return if option.nil?
+                                if option == "start" then
+                                    Spaceships::startSpaceship(spaceship["uuid"])
+                                    if spaceship["cargo"]["type"] == "quark"
+                                        if spaceship["description"].nil? then
+                                            spaceship["description"] = LucilleCore::askQuestionAnswerAsString("starship description: ")
+                                            Nyx::commitToDisk(spaceship)
+                                        end
+                                    end
+                                end
+                                if option == "open" then
+                                    Spaceships::openCargo(spaceship["uuid"])
+                                end
+                                if option == "stop" then
+                                    Spaceships::stopSpaceship(spaceship)
+                                end
+                                if option == "dive" then
+                                    Spaceships::spaceshipDive(spaceship)
+                                end
+                                if option == "destroy" then
+                                    if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
+                                        puts "You cannot destroy this one (Guardian Work)"
+                                        LucilleCore::pressEnterToContinue()
+                                        return
+                                    end
+                                    Spaceships::stopSpaceship(spaceship)
+                                    Nyx::destroy(spaceship["uuid"])
+                                end
+                            }
+                        }
+
+                    ]
+                }
+        else
+            executors << [
+                "Battlefield in standby",
+                false,
+                false,
+                lambda {}
+            ]
+        end
+
+        # --------------------------------------------------------------------------
+        # Regular Items
+
+        if displayMatrix["standard"] then
+            displayObjects.each_with_index{|object, indx|
+                break if object.nil?
+                executors << [
+                    NSXDisplayUtils::makeDisplayStringForCatalystListing(object),
+                    indx == 0,
+                    object["isRunning"],
+                    lambda { NSXCatalystUI::objectFocus(object) }
+                ]
+            }
+        end
+
+        # --------------------------------------------------------------------------
+        # Print
+
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        itemsForDisplay = executors.map{|item| item.clone }
+        puts ""
+        position = -1
+        loop {
             position = position + 1
-            break if displayObjects[indx+1].nil?
-            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::makeDisplayStringForCatalystListing(displayObjects[indx+1], indx == 0, position)) ) < 0
+            item = itemsForDisplay.shift
+            prefix = item[1] ? "[*#{"%2d" % position}]" : "[ #{"%2d" % position}]"
+            str = "#{prefix} #{item[0]}"
+            puts str
+            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
+            next if itemsForDisplay.any?{|item| item[2] }
+            break if verticalSpaceLeft < 2
         }
+
+        # --------------------------------------------------------------------------
+        # Prompt
 
         puts ""
         print "--> "
         command = STDIN.gets().strip
         if command=='' then
-            return
-        end
-
-        if command == '*' then
-            objects = NSXCatalystObjectsOperator::getAllCatalystObjectsOrdered()
-            NSXCatalystUI::performAllDisplay(objects)
+            item = executors.select{|item| item[1]}.first
+            return if item.nil?
+            item[3].call()
             return
         end
 
         if NSXMiscUtils::isInteger(command) then
             position = command.to_i
-            executors[position].call()
+            return if executors[position].nil?
+            executors[position][3].call()
             return
         end
 
@@ -344,8 +389,6 @@ class NSXCatalystUI
             NSXCatalystUI::operations()
             return
         end
-
-        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
     end
 
     # NSXCatalystUI::standardUILoop()

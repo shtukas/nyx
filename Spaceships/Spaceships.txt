@@ -35,12 +35,6 @@ Spaceship
                                     # Created by hand
         }
         {
-            "type"                  : "time-commitment-on-curve"
-            "startUnixtime"         : Unixtime
-            "periodInDays"          : Float
-            "timeCommitmentInHours" : Float
-        }
-        {
             "type"                         : "time-commitment-indefinitely"
             "referencetUnixtime"           : Unixtime
             "timeCommitmentInHoursPerWeek" : Float
@@ -49,4 +43,8 @@ Spaceship
             "type"          : "arrow"
             "startunixtime" : Int
             "lengthInDays"  : Float
+        }
+        {
+            "type"          : "asap-managed"
+            "startunixtime" : Float
         }

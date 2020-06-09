@@ -51,48 +51,8 @@ require_relative "Spaceships.rb"
 
 # --------------------------------------------------------------------
 
-def diveSpaceship(spaceship)
-    loop {
-        system("clear")
-        puts Spaceships::toString(spaceship).green
-        options = [
-            "open",
-            "start",
-            "update description",
-            "re-cargo",
-            "destroy",
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return if option.nil?
-        if option == "open" then
-            Spaceships::openCargo(spaceship["uuid"])
-        end
-        if option == "update description" then
-            spaceship["description"] = CatalystCommon::editTextUsingTextmate(spaceship["description"])
-            Nyx::commitToDisk(spaceship)
-        end
-        if option == "start" then
-            Spaceships::startSpaceship(spaceship["uuid"])
-        end
-        if option == "re-cargo" then
-            cargo = Spaceships::makeCargoInteractivelyOrNull()
-            next if cargo.nil?
-            spaceship["cargo"] = cargo
-            puts JSON.pretty_generate(spaceship)
-            Nyx::commitToDisk(spaceship)
-        end
-        if option == "destroy" then
-            Nyx::destroy(spaceship["uuid"])
-        end
-    }
-end
-
 loop {
     system("clear")
-    puts "Spaceships:"
-    Spaceships::spaceships().each{|spaceship|
-        puts "- #{Spaceships::toString(spaceship)}"
-    }
     puts ""
     options = [
         "make new spaceship",
@@ -116,8 +76,10 @@ loop {
         Nyx::commitToDisk(spaceship)
     end
     if option == "dive spaceships" then
-        spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::toString(spaceship) })
-        next if spaceship.nil?
-        diveSpaceship(spaceship)
+        loop {
+            spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::toString(spaceship) })
+            break if spaceship.nil?
+            Spaceships::spaceshipDive(spaceship)
+        }
     end
 }
