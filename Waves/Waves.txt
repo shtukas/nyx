@@ -15,6 +15,10 @@ Waves
     }
     {
         "uuid"         => SecureRandom.hex,
-        "@"            => type,
+        "@"            => type
+                            # every-n-hours
+                            # every-n-days
+                            # every-this-day-of-the-week
+                            # every-this-day-of-the-month
         "repeat-value" => value
     }
