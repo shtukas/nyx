@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
@@ -131,19 +130,14 @@ class Spaceships
 
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt1 = "Bank managed until completion             ( bank-account )"
-
+        opt1 = "bank managed until completion             ( bank-account )"
+        opt5 = "asap managed                              ( asap-managed )"
         opt3 = "On-going time commitment without deadline ( on-going-indefinite )"
 
-        # Todo: decommission at first opportunity
-        opt4 = "Arrow                                     ( arrow )"
-
-        opt5 = "asap managed                              ( asap-managed )"
-        
         options = [
             opt1,
-            opt3,
             opt5,
+            opt3,
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
         return nil if option.nil?
@@ -176,6 +170,24 @@ class Spaceships
         Nyx::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
     end
 
+    # Spaceships::recargo(spaceship)
+    def self.recargo(spaceship)
+        cargo = Spaceships::makeCargoInteractivelyOrNull()
+        return if cargo.nil?
+        spaceship["cargo"] = cargo
+        puts JSON.pretty_generate(spaceship)
+        Nyx::commitToDisk(spaceship)
+    end
+
+    # Spaceships::reengine(spaceship)
+    def self.reengine(spaceship)
+        engine = Spaceships::makeEngineInteractivelyOrNull()
+        return if engine.nil?
+        spaceship["engine"] = engine
+        puts JSON.pretty_generate(spaceship)
+        Nyx::commitToDisk(spaceship)
+    end
+
     # Spaceships::spaceshipDive(spaceship)
     def self.spaceshipDive(spaceship)
         loop {
@@ -184,7 +196,7 @@ class Spaceships
             options = [
                 "open",
                 "start",
-                "re-cargo",
+                "recargo",
                 "destroy",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -196,12 +208,8 @@ class Spaceships
                 Runner::start(spaceship["uuid"])
                 Spaceships::openCargo(spaceship)
             end
-            if option == "re-cargo" then
-                cargo = Spaceships::makeCargoInteractivelyOrNull()
-                next if cargo.nil?
-                spaceship["cargo"] = cargo
-                puts JSON.pretty_generate(spaceship)
-                Nyx::commitToDisk(spaceship)
+            if option == "recargo" then
+                Spaceships::recargo(spaceship)
             end
             if option == "destroy" then
                 Nyx::destroy(spaceship["uuid"])
@@ -351,10 +359,19 @@ class Spaceships
         Nyx::destroy(spaceship["uuid"])
     end
 
+    # Spaceships::openCargo(spaceship)
+    def self.openCargo(spaceship)
+        if spaceship["cargo"]["type"] == "quark" then
+            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
+            return if quark.nil?
+            Quark::openQuark(quark)
+        end
+    end
+
     # Spaceships::execute(spaceship)
     def self.execute(spaceship)
         puts Spaceships::toString(spaceship)
-        options = ["start", "open", "stop", "dive", "destroy"]
+        options = ["start", "open", "stop", "reengine", "dive", "destroy"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
@@ -369,21 +386,15 @@ class Spaceships
         if option == "stop" then
             Spaceships::spaceshipStopSequence(spaceship)
         end
+        if option == "reengine" then
+            Spaceships::reengine(spaceship)
+        end
         if option == "dive" then
             Spaceships::spaceshipDive(spaceship)
         end
         if option == "destroy" then
             Spaceships::spaceshipStopSequence(spaceship)
             Spaceships::spaceshipDestroySequence(spaceship)
-        end
-    end
-
-    # Spaceships::openCargo(spaceship)
-    def self.openCargo(spaceship)
-        if spaceship["cargo"]["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
-            return if quark.nil?
-            Quark::openQuark(quark)
         end
     end
 
@@ -397,18 +408,6 @@ class Spaceships
         idealTimeInSecond = ((Time.new.to_i - engine["referenceunixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
         Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
     end 
-
-    # --------------------------------------------------------------------
-    # arrow
-
-    # Spaceships::arrowPercentage(spaceship)
-    def self.arrowPercentage(spaceship)
-        engine = spaceship["engine"]
-        timeSinceStart = Time.new.to_f - engine["referenceunixtime"]
-        arrowTime = engine["lengthInDays"] * 86400
-        ratio = timeSinceStart.to_f/arrowTime
-        100*ratio
-    end
 
     # --------------------------------------------------------------------
     # asap-managed
