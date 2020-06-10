@@ -428,12 +428,12 @@ class Asteroids
         if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
             Asteroids::stop(uuid, item)
             puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
-            options = ["update project", "recast on nyx network"]
+            options = ["update orbital", "recast on knowledge network"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             if option == "recast" then
                 Asteroids::updateAsteroidOrbitalname(item)
             end
-            if option == "recast on nyx network" then
+            if option == "recast on knowledge network" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 return if !status
                 Nyx::destroy(item["uuid"])
@@ -454,7 +454,7 @@ class Asteroids
     # Asteroids::execute(item)
     def self.execute(item)
         uuid = item["uuid"]
-        options = ["start", "open", "stop", "done", "description", "update-project", "recastAsCubeContentInteractive", "recastAsOpenCycle", "reset-reference-time", "dive"]
+        options = ["start", "open", "stop", "done", "description", "update orbital", "recastAsCubeContentInteractive", "recastAsOpenCycle", "reset-reference-time", "dive"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "start" then
             Asteroids::startProcedure(item)
@@ -480,7 +480,7 @@ class Asteroids
             Nyx::commitToDisk(item)
         end
 
-        if option == "update-project" then
+        if option == "update orbital" then
             Asteroids::stop(uuid, item)
             Asteroids::updateAsteroidOrbitalname(item)
         end
