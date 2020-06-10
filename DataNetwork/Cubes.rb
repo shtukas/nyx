@@ -219,8 +219,8 @@ class Cubes
         "[cube] [#{cube["uuid"][0, 4]}] #{cube["description"]} (#{cube["quarksuuids"].size})"
     end
 
-    # Cubes::printCubeDetails(cube)
-    def self.printCubeDetails(cube)
+    # Cubes::openCube(cube)
+    def self.openCube(cube)
         puts "Cube:"
         puts "    - uuid: #{cube["uuid"]}"
         puts "    - description: #{cube["description"]}"
@@ -238,11 +238,6 @@ class Cubes
         cliques.each{|clique|
             puts "    - #{Cliques::cliqueToString(clique)}"
         }
-    end
-
-    # Cubes::openCube(cube)
-    def self.openCube(cube)
-        Cubes::printCubeDetails(cube)
         puts "    -> Opening..."
         if cube["quarksuuids"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this cube. Dive? ") then
@@ -278,9 +273,20 @@ class Cubes
             cube = Nyx::getOrNull(cube["uuid"]) # useful if we have modified it
             return if cube.nil? # useful if we have just destroyed it
 
-            Cubes::printCubeDetails(cube)
+            puts "Cube:"
+            puts "    uuid: #{cube["uuid"]}"
+            puts "    description: #{cube["description"]}".green
 
             items = []
+
+            Links::getLinkedObjects(cube)
+                .each{|clique|
+                    items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
+                }
+
+            Links::getLinkedObjects(cube)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|clique| items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }] }
 
             cube["quarksuuids"]
                 .each{|quarkuuid| 
@@ -289,9 +295,10 @@ class Cubes
                     items << [Quark::quarkToString(quark), lambda{ Quark::openQuark(quark) }]
                 }
 
-            Links::getLinkedObjects(cube)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|clique| items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }] }
+            cube["tags"]
+                .each{|tag| 
+                    items << ["[tag] #{tag}", lambda{ Cubes::visitTag(tag) }]
+                }
 
             items << nil
 
@@ -343,7 +350,7 @@ class Cubes
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "add to Clique", 
+                "clique (select and add to)", 
                 lambda{
                     clique = Cliques::selectCliqueOrMakeNewOneOrNull()
                     next if clique.nil?
@@ -362,7 +369,7 @@ class Cubes
                     Nyx::commitToDisk(claim)
                 }]
             items << [
-                "destroy cube", 
+                "cube (destroy)", 
                 lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
                         Nyx::destroy(cube["uuid"])

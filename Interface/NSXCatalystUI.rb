@@ -82,17 +82,17 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cliques search", 
+                "cliques", 
                 lambda { Cliques::selectFromExistingCliquesAndDive() }
             ]
 
             items << [
-                "cubes search", 
+                "cubes", 
                 lambda { Cubes::selectFromExistingCubedAndDive() }
             ]
 
             items << [
-                "tags search", 
+                "tags", 
                 lambda { Cubes::tagsThenCubesThenCubeThenDive() }
             ]
 
@@ -111,7 +111,7 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "asteroid (with new quark)", 
+                "asteroid (new)", 
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?

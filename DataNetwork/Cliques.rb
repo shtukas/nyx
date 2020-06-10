@@ -97,13 +97,13 @@ class Cliques
                 Nyx::commitToDisk(clique)
             }]
 
-            items << ["add cube (from existing)", lambda{ 
+            items << ["cube (add from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
                 Links::issue(clique, cube)
             }]
 
-            items << ["-> cube (new) -> quark (new)", lambda{ 
+            items << ["cube (create new)", lambda{ 
                 puts "Let's make a cube"
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                 cube = Cubes::issueCube_v3(description)
