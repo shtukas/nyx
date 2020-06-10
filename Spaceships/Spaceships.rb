@@ -390,7 +390,7 @@ class Spaceships
         end
         if option == "open" then
             Spaceships::openCargo(spaceship)
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
+            if !Spaceships::isRunning?(spaceship) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
                 Runner::start(spaceship["uuid"])
             end
         end
