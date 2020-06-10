@@ -37,6 +37,7 @@ Spaceship
 Special Circumstances
 ------------------------------------------------------
 
+
 Shows the contents of the Lucille.txt file
 
 {
@@ -51,4 +52,21 @@ Shows the contents of the Lucille.txt file
       "type": "asap-managed",
       "referenceunixtime": 1591794457.183676
     }
-  }
+}
+
+
+When is in first position and active, prevents the display of any asap-managed
+
+{
+    "uuid": "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9",
+    "nyxType": "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+    "creationUnixtime": 1591794498.205375,
+    "cargo": {
+      "type": "description",
+      "description": "asap-managed-killer"
+    },
+    "engine": {
+      "type": "asap-managed",
+      "referenceunixtime": 1591794498.2052941
+    }
+}

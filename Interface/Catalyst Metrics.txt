@@ -15,7 +15,8 @@
         0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Waves every-n-hours / every-n-days
 
-        0.70+ -> 0.20 Spaceships: [bank account]
+        0.76+ -> 0.20 Spaceships: (asap-managed)
+        0.70+ -> 0.20 Spaceships: (bank-account)
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids

@@ -32,6 +32,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::value(uuid)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::totalOverTimespan(uuid, timespanInSeconds)
+    Ping::totalToday(uuid)
+=end
+
+# -----------------------------------------------------------------------------
+
 class Spaceships
 
     # Spaceships::issueSpaceShipInteractivelyOrNull()
@@ -250,7 +265,7 @@ class Spaceships
 
         if engine["type"] == "asap-managed" then
             timeBankAdjusted = Spaceships::timeRatio(spaceship)
-            return 0.80 + Math.exp(-timeBankAdjusted).to_f/100
+            return 0.75 + Math.exp(-timeBankAdjusted).to_f/100 - 0.3*Ping::totalToday(uuid).to_f/(5*3600)
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -329,16 +344,37 @@ class Spaceships
 
     # Spaceships::catalystObjects()
     def self.catalystObjects()
-        Spaceships::spaceships()
-            .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
+        objects = Spaceships::spaceships()
+                    .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
+        return [] if objects.empty?
+        if objects[0]["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
+            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "asap-managed" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
+        end
+        objects
     end
 
     # Spaceships::spaceshipStartSequence(spaceship)
     def self.spaceshipStartSequence(spaceship)
         return if Spaceships::isRunning?(spaceship)
-        Spaceships::openCargo(spaceship)
 
-        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # We don't do the rest for Lucille.txt
+        if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then # Guardian Work
+            Runner::start(spaceship["uuid"])
+            return
+        end
+
+        if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then # Lucille.txt
+            Runner::start(spaceship["uuid"])
+            return
+        end
+
+        if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then # asap-managed-killer
+            Runner::start(spaceship["uuid"])
+            return
+        end
+
+        Spaceships::openCargo(spaceship)
 
         if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
             Runner::start(spaceship["uuid"])
@@ -361,8 +397,12 @@ class Spaceships
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
         Bank::put(spaceship["uuid"], timespan)
+        puts "[spaceship] Ping putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
+        Ping::put(spaceship["uuid"], timespan)
 
-        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # We do not do the rest for Lucille.txt
+        return if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" # Guardian Work
+        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # Lucille.txt
+        return if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" # asap-managed-killer
 
         if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
             Nyx::destroy(spaceship["uuid"])
@@ -381,6 +421,12 @@ class Spaceships
             LucilleCore::pressEnterToContinue()
             return
         end
+        if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
+            puts "You cannot destroy this one (asap-managed-killer)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         Nyx::destroy(spaceship["uuid"])
     end
 
