@@ -52,7 +52,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spacesh
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # ------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class NSXCatalystUI
 
             items << [
                 "timelines listing and selection", 
-                lambda { Timelines::selectFromExistingTimelinesAndDive() }
+                lambda { Cliques::selectFromExistingCliquesAndDive() }
             ]
 
             items << [
@@ -105,9 +105,9 @@ class NSXCatalystUI
                     return if quark.nil?
                     description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                     cube = Cubes::issueCube_v2(description, quark)
-                    timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
+                    timeline = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if timeline.nil?
-                    TimelineContent::issueClaim(timeline, cube)
+                    CliqueContent::issueClaim(timeline, cube)
                 }
             ]
 
@@ -118,7 +118,7 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
+                    orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
                     orbitaluuid = nil
                     if orbitalname.nil? then
                         orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
@@ -242,7 +242,7 @@ class NSXCatalystUI
                             LucilleCore::pressEnterToContinue()
                             return
                         end
-                        CubesAndTimelines::objectDive(entity)
+                        CubesAndCliques::objectDive(entity)
                     },
                     "isFocus" => false
                 }

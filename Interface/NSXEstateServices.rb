@@ -70,7 +70,7 @@ class NSXEstateServices
     end
 
     # -------------------------------------------
-    # Timeline Node management
+    # Clique Node management
 
     # NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()
     def self.getArchiveT1mel1neSizeInMegaBytes()

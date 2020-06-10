@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndTimelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndCliques.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -70,7 +70,7 @@ class Asteroids
 
     # Asteroids::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
@@ -146,13 +146,13 @@ class Asteroids
         orbitaluuid
     end
 
-    # Asteroids::selectTimelineNameInteractivelyOrNull()
-    def self.selectTimelineNameInteractivelyOrNull()
+    # Asteroids::selectCliqueNameInteractivelyOrNull()
+    def self.selectCliqueNameInteractivelyOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::projectNames().sort)
     end
 
-    # Asteroids::asteroidsForTimelineName(orbitalname)
-    def self.asteroidsForTimelineName(orbitalname)
+    # Asteroids::asteroidsForCliqueName(orbitalname)
+    def self.asteroidsForCliqueName(orbitalname)
         orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
         return [] if orbitaluuid.nil?
         Asteroids::asteroids()
@@ -174,7 +174,7 @@ class Asteroids
 
     # Asteroids::updateAsteroidOrbitalName(item)
     def self.updateAsteroidOrbitalName(item)
-        orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
@@ -197,10 +197,10 @@ class Asteroids
         tags = Cubes::makeTagsInteractively()
         cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+        timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
         if timeline then
             puts JSON.pretty_generate(timeline)
-            claim = TimelineContent::issueClaim(timeline, cube)
+            claim = CliqueContent::issueClaim(timeline, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -216,10 +216,10 @@ class Asteroids
         tags = Cubes::makeTagsInteractively()
         cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+        timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
         if timeline then
             puts JSON.pretty_generate(timeline)
-            claim = TimelineContent::issueClaim(timeline, cube)
+            claim = CliqueContent::issueClaim(timeline, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)

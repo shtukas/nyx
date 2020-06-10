@@ -64,7 +64,7 @@ loop {
     if option == "create new asteroid" then
         target = Quark::issueNewQuarkInteractivelyOrNull()
         next if target.nil?
-        orbitalname = Asteroids::selectTimelineNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name: ")
@@ -84,7 +84,7 @@ loop {
             break if orbitalname.nil?
             loop {
                 puts "-> Visiting project '#{orbitalname}'"
-                items = Asteroids::asteroidsForTimelineName(orbitalname)
+                items = Asteroids::asteroidsForCliqueName(orbitalname)
                 break if items.empty? # happens when we loop bacl if the one item of the project was deleted
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Asteroids::asteroidToString(item) })
                 break if item.nil?

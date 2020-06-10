@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndTimelines.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndCliques.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -19,24 +19,24 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
 # -----------------------------------------------------------------
 
-class CubesAndTimelines
+class CubesAndCliques
 
-    # CubesAndTimelines::objectToString(entity)
+    # CubesAndCliques::objectToString(entity)
     def self.objectToString(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cubes::cubeToString(entity)
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            return Timelines::timelineToString(entity)
+            return Cliques::timelineToString(entity)
         end
         raise "Error: 056686f0"
     end
 
-    # CubesAndTimelines::openObject(entity)
+    # CubesAndCliques::openObject(entity)
     def self.openObject(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             cube = entity
@@ -45,20 +45,20 @@ class CubesAndTimelines
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
            timeline = entity
-           Timelines::timelineDive(timeline)
+           Cliques::timelineDive(timeline)
            return
         end
         raise "Error: 2f28f27d"
     end
 
-    # CubesAndTimelines::objectDive(entity)
+    # CubesAndCliques::objectDive(entity)
     def self.objectDive(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cubes::cubeDive(entity)
             return
         end
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            Timelines::timelineDive(entity)
+            Cliques::timelineDive(entity)
             return
         end
         raise "Error: cf25ea33"

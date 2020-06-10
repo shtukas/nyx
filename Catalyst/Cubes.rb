@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
@@ -76,8 +76,8 @@ class Cubes
         cube
     end
 
-    # Cubes::issueCubeInteractivelyOrNull_v2(canTimelineInvite)
-    def self.issueCubeInteractivelyOrNull_v2(canTimelineInvite)
+    # Cubes::issueCubeInteractivelyOrNull_v2(canCliqueInvite)
+    def self.issueCubeInteractivelyOrNull_v2(canCliqueInvite)
         cube = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
@@ -89,10 +89,10 @@ class Cubes
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
-        if canTimelineInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an timeline ? ") then
-            timeline = Timelines::selectTimelineFromExistingOrCreateOneOrNull()
+        if canCliqueInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an timeline ? ") then
+            timeline = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
             if timeline then
-                TimelineContent::issueClaim(timeline, cube)
+                CliqueContent::issueClaim(timeline, cube)
             end
         end
         cube
@@ -234,9 +234,9 @@ class Cubes
             puts "    - [tag] #{item}"
         }
 
-        timelines = TimelineContent::getTimelines(cube)
+        timelines = CliqueContent::getCliques(cube)
         timelines.each{|timeline|
-            puts "    - #{Timelines::timelineToString(timeline)}"
+            puts "    - #{Cliques::timelineToString(timeline)}"
         }
     end
 
@@ -289,9 +289,9 @@ class Cubes
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::openQuark(quark) }]
                 }
 
-            TimelineContent::getTimelines(cube)
+            CliqueContent::getCliques(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|timeline| items << [Timelines::timelineToString(timeline), lambda{ Timelines::timelineDive(timeline) }] }
+                .each{|timeline| items << [Cliques::timelineToString(timeline), lambda{ Cliques::timelineDive(timeline) }] }
 
             items << nil
 
@@ -343,11 +343,11 @@ class Cubes
                     Nyx::commitToDisk(cube)
                 }]
             items << [
-                "add to Timeline", 
+                "add to Clique", 
                 lambda{
-                    timeline = Timelines::selectTimelineOrMakeNewOneOrNull()
+                    timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
                     next if timeline.nil?
-                    TimelineContent::issueClaim(timeline, cube)
+                    CliqueContent::issueClaim(timeline, cube)
                 }]
             items << [
                 "register as open cycle", 

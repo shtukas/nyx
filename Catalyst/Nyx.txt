@@ -16,10 +16,10 @@ Asteroid # See Asteroids.txt
 
 OpenCycle # See OpenCycles.txt
 
-Timeline # See Timeline.txt
-    Timeline 
-    TimelinePath 
-    TimelineCubeLink 
+Clique # See Clique.txt
+    Clique 
+    CliquePath 
+    CliqueCubeLink 
 
 Cube # See Cube.txt
 

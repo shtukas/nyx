@@ -55,7 +55,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Timelines.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
@@ -67,7 +67,7 @@ class CatalystFsck
     # CatalystFsck::entity(entity)
     def self.entity(entity)
         if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            CatalystFsck::checkTimeline(entity)
+            CatalystFsck::checkClique(entity)
             return
         end
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
@@ -355,8 +355,8 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkTimeline(timeline)
-    def self.checkTimeline(timeline)
+    # CatalystFsck::checkClique(timeline)
+    def self.checkClique(timeline)
         puts JSON.pretty_generate(timeline)
         if timeline["uuid"].nil? then
             puts "[error] timeline has no uuid".red
@@ -444,8 +444,8 @@ class CatalystFsck
         Spaceships::spaceships().each{|spaceship|
             CatalystFsck::checkSpaceship(spaceship)
         }
-        Timelines::timelines().each{|timeline|
-            CatalystFsck::checkTimeline(timeline)
+        Cliques::timelines().each{|timeline|
+            CatalystFsck::checkClique(timeline)
         }
         Cubes::cubes().each{|cube|
             CatalystFsck::checkCube(cube)
