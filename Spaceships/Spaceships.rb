@@ -227,6 +227,8 @@ class Spaceships
 
         engine = spaceship["engine"]
 
+        return 1 if Spaceships::isRunning?(spaceship)
+
         if engine["type"] == "bank-account" then
             timeBank = Bank::value(uuid)
             if timeBank >= 0 then
@@ -350,6 +352,7 @@ class Spaceships
             Runner::start(spaceship["uuid"])
         else
             if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
+                Spaceships::spaceshipStopSequence(spaceship)
                 Spaceships::spaceshipDestroySequence(spaceship)
             else
                 puts "Hidding this item by one hour"
@@ -366,6 +369,9 @@ class Spaceships
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
         Bank::put(spaceship["uuid"], timespan)
+        if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
+            Nyx::destroy(spaceship["uuid"])
+        end
     end
 
     # Spaceships::spaceshipDestroySequence(spaceship)
@@ -375,7 +381,6 @@ class Spaceships
             LucilleCore::pressEnterToContinue()
             return
         end
-        Spaceships::spaceshipStopSequence(spaceship)
         Nyx::destroy(spaceship["uuid"])
     end
 
@@ -401,6 +406,7 @@ class Spaceships
             Spaceships::spaceshipDive(spaceship)
         end
         if option == "destroy" then
+            Spaceships::spaceshipStopSequence(spaceship)
             Spaceships::spaceshipDestroySequence(spaceship)
         end
     end
