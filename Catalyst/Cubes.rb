@@ -286,7 +286,7 @@ class Cubes
                 .each{|quarkuuid| 
                     quark = Nyx::getOrNull(quarkuuid)
                     next if quark.nil?
-                    items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::openQuark(quark) }]
+                    items << [Quark::quarkToString(quark), lambda{ Quark::openQuark(quark) }]
                 }
 
             Links::getLinkedObjects(cube)

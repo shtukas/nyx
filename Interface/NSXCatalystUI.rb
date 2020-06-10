@@ -82,32 +82,29 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cliques listing and selection", 
+                "cliques search", 
                 lambda { Cliques::selectFromExistingCliquesAndDive() }
             ]
 
             items << [
-                "cubes listing and selection", 
+                "cubes search", 
                 lambda { Cubes::selectFromExistingCubedAndDive() }
             ]
 
             items << [
-                "tags listing and selection", 
+                "tags search", 
                 lambda { Cubes::tagsThenCubesThenCubeThenDive() }
             ]
 
             items << nil
 
             items << [
-                "quark (new) ; attached to new cube ; attached to clique (existing or new)", 
+                "cube (new)", 
                 lambda {
-                    quark = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
                     description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                    cube = Cubes::issueCube_v2(description, quark)
-                    clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                    return if clique.nil?
-                    Links::issue(clique, cube)
+                    return if description.size == 0
+                    cube = Cubes::issueCube_v3(description)
+                    Cubes::cubeDive(cube)
                 }
             ]
 

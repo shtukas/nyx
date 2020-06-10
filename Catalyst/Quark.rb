@@ -323,7 +323,7 @@ class Quark
 
     # Quark::quarkToString(quark)
     def self.quarkToString(quark)
-        return quark["description"] if quark["description"]
+        return "[#{quark["type"]}] #{quark["description"]}" if quark["description"]
         if quark["type"] == "line" then
             return "[quark] [line] #{quark["line"]}"
         end

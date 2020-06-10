@@ -322,9 +322,9 @@ class Spaceships
         getBody = lambda{|spaceship|
             if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
                 if Spaceships::isRunning?(spaceship) then
-                    return "Lucille.txt\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
+                    return "#{Spaceships::toString(spaceship)}\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
                 else
-                    return "Lucille.txt"
+                    return Spaceships::toString(spaceship)
                 end
             end
             Spaceships::toString(spaceship)
