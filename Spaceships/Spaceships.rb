@@ -79,17 +79,8 @@ class Spaceships
                 return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
-            if engine["type"] == "bank-account-special-circumstances" then
-                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
-            end
-
-            if engine["type"] == "time-commitment-indefinitely" then
+            if engine["type"] == "on-going-indefinite" then
                 return " (bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
-            end
-
-            # Todo: decommission at first opportunity
-            if engine["type"] == "arrow" then
-                return " (#{"%.2f" % Spaceships::arrowPercentage(spaceship)}%)"
             end
 
             if engine["type"] == "asap-managed" then
@@ -142,7 +133,7 @@ class Spaceships
     def self.makeEngineInteractivelyOrNull()
         opt1 = "Bank managed until completion             ( bank-account )"
 
-        opt3 = "On-going time commitment without deadline ( time-commitment-indefinitely )"
+        opt3 = "On-going time commitment without deadline ( on-going-indefinite )"
 
         # Todo: decommission at first opportunity
         opt4 = "Arrow                                     ( arrow )"
@@ -160,8 +151,8 @@ class Spaceships
         if option == opt3 then
             timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
             return {
-                "type"                         => "time-commitment-indefinitely",
-                "referencetUnixtime"           => Time.new.to_i,
+                "type"                         => "on-going-indefinite",
+                "referenceunixtime"           => Time.new.to_i,
                 "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
             }
         end
@@ -174,7 +165,7 @@ class Spaceships
         if option == opt5 then
             return {
                 "type"          => "asap-managed",
-                "startunixtime" => Time.new.to_f
+                "referenceunixtime" => Time.new.to_f
             }
         end
         nil
@@ -238,27 +229,13 @@ class Spaceships
             end
         end
 
-        if engine["type"] == "bank-account-special-circumstances" then
-            timeBank = Bank::value(uuid)
-            if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
-            else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
-            end
-        end
-
-        if engine["type"] == "time-commitment-indefinitely" then
+        if engine["type"] == "on-going-indefinite" then
             timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
             if timeBank >= 0 then
                 return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
             else
                 return 0.70 + 0.1*(-timeBank.to_f/86400)
             end
-        end
-
-        # Todo: decommission at first opportunity
-        if engine["type"] == "arrow" then
-            return 0.20 + 0.80*((Time.new.to_i - engine["startunixtime"]).to_f/86400).to_f/(0.90*engine["lengthInDays"])
         end
 
         if engine["type"] == "asap-managed" then
@@ -279,18 +256,9 @@ class Spaceships
             return Bank::value(uuid) < 0
         end
 
-        if engine["type"] == "bank-account-special-circumstances" then
-            return Bank::value(uuid) < 0
-        end
-
-        if engine["type"] == "time-commitment-indefinitely" then
+        if engine["type"] == "on-going-indefinite" then
             timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
             return (timeBank < 0)
-        end
-
-        # Todo: decommission at first opportunity
-        if engine["type"] == "arrow" then
-            return true
         end
 
         if engine["type"] == "asap-managed" then
@@ -421,13 +389,13 @@ class Spaceships
     end
 
     # --------------------------------------------------------------------
-    # time-commitment-indefinitely
+    # on-going-indefinite
 
     # Spaceships::onGoingProjectAdaptedBankTime(spaceship)
     def self.onGoingProjectAdaptedBankTime(spaceship)
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
-        idealTimeInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
+        idealTimeInSecond = ((Time.new.to_i - engine["referenceunixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
         Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
     end 
 
@@ -437,7 +405,7 @@ class Spaceships
     # Spaceships::arrowPercentage(spaceship)
     def self.arrowPercentage(spaceship)
         engine = spaceship["engine"]
-        timeSinceStart = Time.new.to_f - engine["startunixtime"]
+        timeSinceStart = Time.new.to_f - engine["referenceunixtime"]
         arrowTime = engine["lengthInDays"] * 86400
         ratio = timeSinceStart.to_f/arrowTime
         100*ratio
@@ -451,7 +419,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
         timeBank = Bank::value(uuid)
-        timeBank.to_f/(Time.new.to_i - engine["startunixtime"])
+        timeBank.to_f/(Time.new.to_i - engine["referenceunixtime"])
     end
 end
 

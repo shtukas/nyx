@@ -208,15 +208,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        filecontents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        if filecontents.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            filecontents = filecontents.lines.first(10).join()
-            puts filecontents
-            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(filecontents)
-        end
-
         Calendar::dates()
             .each{|date|
                 next if date > Time.new.to_s[0, 10]
@@ -346,7 +337,7 @@ class NSXCatalystUI
 
             # Spaceship bank managed
             Spaceships::spaceships()
-                .select{|spaceship| ["bank-account"].include?(spaceship["engine"]["type"]) }
+                .select{|spaceship| spaceship["engine"]["type"] == "bank-account" }
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .first(3)
                 .each{|spaceship|

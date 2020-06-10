@@ -18,9 +18,9 @@ Spaceship
             "description" : String
         }
         {
-            "type"          : "quark"
-            "description"   : String
-            "quarkuuid"     : String
+            "type"        : "quark"
+            "description" : String
+            "quarkuuid"   : String
         }
 
     SpaceshipEngine
@@ -28,22 +28,11 @@ Spaceship
             "type" : "bank-account"
         }
         {
-            "type" : "bank-account-special-circumstances" 
-                                    # Gwork
-                                    # Totally exceptional
-                                    # Created by hand
-        }
-        {
-            "type"                         : "time-commitment-indefinitely"
-            "referencetUnixtime"           : Unixtime
+            "type"                         : "on-going-indefinite"
+            "referenceunixtime"            : Unixtime
             "timeCommitmentInHoursPerWeek" : Float
         }
         {
-            "type"          : "arrow"
-            "startunixtime" : Int
-            "lengthInDays"  : Float
-        }
-        {
-            "type"          : "asap-managed"
-            "startunixtime" : Float
+            "type"              : "asap-managed"
+            "referenceunixtime" : Float
         }

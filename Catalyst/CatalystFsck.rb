@@ -347,7 +347,7 @@ class CatalystFsck
         end
 
         # Todo: decommission at first opportunity ( arrow )
-        engineTypes = ["time-commitment-indefinitely", "bank-account", "bank-account-special-circumstances", "arrow"]
+        engineTypes = ["on-going-indefinite", "bank-account"]
         if !engineTypes.include?(spaceship["engine"]["type"]) then
             puts "[error] spaceship has incorrect engine type".red
             puts JSON.pretty_generate(spaceship).red

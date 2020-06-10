@@ -83,15 +83,6 @@ Thread.new {
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
             }
 
-        sleep 5
-
-        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-        hasRunningGuardianWork = objects.any?{|object| object["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" and object["isRunning"] }
-        hasWavesItems = objects.any?{|object| object["x-interface:isWaves"] }
-        if hasRunningGuardianWork and hasWavesItems then
-            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Waves items during Guardian Work")
-        end
-
         sleep 120
 
     }
