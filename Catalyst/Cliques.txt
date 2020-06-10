@@ -6,12 +6,3 @@ Clique {
     "creationUnixtime"  : Float # Unixtime with decimals
     "name"              : String
 }
-
-------------------------------------------------------
-CliqueCubeLink {
-    "uuid"             : String
-    "nyxType"          : "clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "cliqueuuid"     : String
-    "cubeuuid"         : String # Cube uuid or a Quark uuid
-}

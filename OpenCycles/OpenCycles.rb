@@ -69,13 +69,13 @@ class OpenCycles
     def self.openQuark(opencycle)
         entity = Nyx::getOrNull(opencycle["targetuuid"])
         return if entity.nil?
-        CubesAndCliques::openObject(entity)
+        KnowledgeObjects::openObject(entity)
     end
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
         entity = Nyx::getOrNull(opencycle["targetuuid"])
-        "[opencycle] #{entity ? CubesAndCliques::objectToString(entity) : "data entity not found"}"
+        "[opencycle] #{entity ? KnowledgeObjects::objectToString(entity) : "data entity not found"}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
@@ -101,7 +101,7 @@ class OpenCycles
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                CubesAndCliques::objectDive(entity)
+                KnowledgeObjects::objectDive(entity)
             end
             if option == "destroy opencycle" then
                 Nyx::destroy(opencycle["uuid"])

@@ -107,7 +107,7 @@ class NSXCatalystUI
                     cube = Cubes::issueCube_v2(description, quark)
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
-                    CliqueContent::issueClaim(clique, cube)
+                    Links::issue(clique, cube)
                 }
             ]
 
@@ -242,7 +242,7 @@ class NSXCatalystUI
                             LucilleCore::pressEnterToContinue()
                             return
                         end
-                        CubesAndCliques::objectDive(entity)
+                        KnowledgeObjects::objectDive(entity)
                     },
                     "isFocus" => false
                 }

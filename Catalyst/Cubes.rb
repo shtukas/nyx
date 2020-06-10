@@ -92,7 +92,7 @@ class Cubes
         if canCliqueInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an clique ? ") then
             clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
             if clique then
-                CliqueContent::issueClaim(clique, cube)
+                Links::issue(clique, cube)
             end
         end
         cube
@@ -234,7 +234,7 @@ class Cubes
             puts "    - [tag] #{item}"
         }
 
-        cliques = CliqueContent::getCliques(cube)
+        cliques = Links::getLinkedObjects(cube)
         cliques.each{|clique|
             puts "    - #{Cliques::cliqueToString(clique)}"
         }
@@ -289,7 +289,7 @@ class Cubes
                     items << ["[quark] #{Quark::quarkToString(quark)}", lambda{ Quark::openQuark(quark) }]
                 }
 
-            CliqueContent::getCliques(cube)
+            Links::getLinkedObjects(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|clique| items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }] }
 
@@ -347,7 +347,7 @@ class Cubes
                 lambda{
                     clique = Cliques::selectCliqueOrMakeNewOneOrNull()
                     next if clique.nil?
-                    CliqueContent::issueClaim(clique, cube)
+                    Links::issue(clique, cube)
                 }]
             items << [
                 "register as open cycle", 

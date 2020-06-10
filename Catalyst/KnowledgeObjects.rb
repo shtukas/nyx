@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndCliques.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/KnowledgeObjects.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -23,9 +23,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.r
 
 # -----------------------------------------------------------------
 
-class CubesAndCliques
+class KnowledgeObjects
 
-    # CubesAndCliques::objectToString(entity)
+    # KnowledgeObjects::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        [ Cubes::getOrNull(uuid), Cliques::getOrNull(uuid) ].compact.first
+    end
+
+    # KnowledgeObjects::objectToString(entity)
     def self.objectToString(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cubes::cubeToString(entity)
@@ -36,7 +41,7 @@ class CubesAndCliques
         raise "Error: 056686f0"
     end
 
-    # CubesAndCliques::openObject(entity)
+    # KnowledgeObjects::openObject(entity)
     def self.openObject(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             cube = entity
@@ -51,7 +56,7 @@ class CubesAndCliques
         raise "Error: 2f28f27d"
     end
 
-    # CubesAndCliques::objectDive(entity)
+    # KnowledgeObjects::objectDive(entity)
     def self.objectDive(entity)
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cubes::cubeDive(entity)

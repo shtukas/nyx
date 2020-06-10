@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndCliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/KnowledgeObjects.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -200,7 +200,7 @@ class Asteroids
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = CliqueContent::issueClaim(clique, cube)
+            claim = Links::issue(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -219,7 +219,7 @@ class Asteroids
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = CliqueContent::issueClaim(clique, cube)
+            claim = Links::issue(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)

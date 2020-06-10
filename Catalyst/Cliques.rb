@@ -16,7 +16,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CubesAndCliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/KnowledgeObjects.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
@@ -86,7 +86,7 @@ class Cliques
             puts Cliques::cliqueToString(clique).green
             items = []
 
-            CliqueContent::getCubes(clique)
+            Links::getLinkedObjects(clique)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|cube| items << [Cubes::cubeToString(cube), lambda{ Cubes::cubeDive(cube) }] }
 
@@ -100,7 +100,7 @@ class Cliques
             items << ["add cube (from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
-                CliqueContent::issueClaim(clique, cube)
+                Links::issue(clique, cube)
             }]
 
             items << ["-> cube (new) -> quark (new)", lambda{ 
@@ -109,7 +109,7 @@ class Cliques
                 cube = Cubes::issueCube_v3(description)
                 puts JSON.pretty_generate(cube)
                 puts "Let's attach the cube to the clique"
-                claim = CliqueContent::issueClaim(clique, cube)
+                claim = Links::issue(clique, cube)
                 puts JSON.pretty_generate(claim)
                 puts "Let's make a quark"
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -141,49 +141,3 @@ class Cliques
         Cliques::makeCliqueInteractivelyOrNull()
     end
 end
-
-class CliqueContent
-
-    # CliqueContent::issueClaim(clique, cube)
-    def self.issueClaim(clique, cube)
-        raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
-        claim = {
-            "nyxType"          => "clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80",
-            "creationUnixtime" => Time.new.to_f,
-            "uuid"             => SecureRandom.uuid,
-
-            "cliqueuuid"     => clique["uuid"],
-            "cubeuuid"         => cube["uuid"]
-        }
-        Nyx::commitToDisk(claim)
-        claim
-    end
-
-    # CliqueContent::claimToString(claim)
-    def self.claimToString(claim)
-        "[clique-cube-link] #{claim["cliqueuuid"]} -> #{claim["cubeuuid"]}"
-    end
-
-    # CliqueContent::getCubes(clique)
-    def self.getCubes(clique)
-        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["cliqueuuid"] == clique["uuid"] }
-            .map{|claim| Cubes::getOrNull(claim["cubeuuid"]) }
-            .compact
-    end
-
-    # CliqueContent::getCliques(cube)
-    def self.getCliques(cube)
-        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["cubeuuid"] == cube["uuid"] }
-            .map{|claim| Nyx::getOrNull(claim["cliqueuuid"]) }
-            .compact
-    end
-
-    # CliqueContent::claims()
-    def self.claims()
-        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
-    end
-end
-
