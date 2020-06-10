@@ -125,7 +125,7 @@ class OpenCycles
                 }
             end
             if operation == "make new opencycle" then
-                puts "You can't make an opencycle, but you can opencycle a cube or a timeline."
+                puts "You can't make an opencycle, but you can opencycle a cube or a clique."
                 LucilleCore::pressEnterToContinue()
             end
         }

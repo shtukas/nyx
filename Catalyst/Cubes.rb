@@ -89,10 +89,10 @@ class Cubes
         }
         puts JSON.pretty_generate(cube)
         Nyx::commitToDisk(cube)
-        if canCliqueInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an timeline ? ") then
-            timeline = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-            if timeline then
-                CliqueContent::issueClaim(timeline, cube)
+        if canCliqueInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an clique ? ") then
+            clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+            if clique then
+                CliqueContent::issueClaim(clique, cube)
             end
         end
         cube
@@ -234,9 +234,9 @@ class Cubes
             puts "    - [tag] #{item}"
         }
 
-        timelines = CliqueContent::getCliques(cube)
-        timelines.each{|timeline|
-            puts "    - #{Cliques::timelineToString(timeline)}"
+        cliques = CliqueContent::getCliques(cube)
+        cliques.each{|clique|
+            puts "    - #{Cliques::cliqueToString(clique)}"
         }
     end
 
@@ -291,7 +291,7 @@ class Cubes
 
             CliqueContent::getCliques(cube)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|timeline| items << [Cliques::timelineToString(timeline), lambda{ Cliques::timelineDive(timeline) }] }
+                .each{|clique| items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }] }
 
             items << nil
 
@@ -345,9 +345,9 @@ class Cubes
             items << [
                 "add to Clique", 
                 lambda{
-                    timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
-                    next if timeline.nil?
-                    CliqueContent::issueClaim(timeline, cube)
+                    clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+                    next if clique.nil?
+                    CliqueContent::issueClaim(clique, cube)
                 }]
             items << [
                 "register as open cycle", 

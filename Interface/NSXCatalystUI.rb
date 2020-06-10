@@ -82,7 +82,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "timelines listing and selection", 
+                "cliques listing and selection", 
                 lambda { Cliques::selectFromExistingCliquesAndDive() }
             ]
 
@@ -99,15 +99,15 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "quark (new) ; attached to new cube ; attached to timeline (existing or new)", 
+                "quark (new) ; attached to new cube ; attached to clique (existing or new)", 
                 lambda {
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                     cube = Cubes::issueCube_v2(description, quark)
-                    timeline = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                    return if timeline.nil?
-                    CliqueContent::issueClaim(timeline, cube)
+                    clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+                    return if clique.nil?
+                    CliqueContent::issueClaim(clique, cube)
                 }
             ]
 
@@ -118,13 +118,13 @@ class NSXCatalystUI
                 lambda {
                     target = Quark::issueNewQuarkInteractivelyOrNull()
                     return if target.nil?
-                    orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
+                    orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
                     orbitaluuid = nil
                     if orbitalname.nil? then
                         orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
                         orbitaluuid = SecureRandom.uuid
                     else
-                        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+                        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
                         return if orbitaluuid.nil?
                     end
                     description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")

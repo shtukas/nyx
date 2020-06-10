@@ -66,7 +66,7 @@ class CatalystFsck
 
     # CatalystFsck::entity(entity)
     def self.entity(entity)
-        if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+        if entity["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             CatalystFsck::checkClique(entity)
             return
         end
@@ -94,7 +94,7 @@ class CatalystFsck
         end
         puts JSON.pretty_generate(entity)
         supportedTypes = [
-            "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
         ]
@@ -355,32 +355,32 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkClique(timeline)
-    def self.checkClique(timeline)
-        puts JSON.pretty_generate(timeline)
-        if timeline["uuid"].nil? then
-            puts "[error] timeline has no uuid".red
-            puts JSON.pretty_generate(timeline).red
+    # CatalystFsck::checkClique(clique)
+    def self.checkClique(clique)
+        puts JSON.pretty_generate(clique)
+        if clique["uuid"].nil? then
+            puts "[error] clique has no uuid".red
+            puts JSON.pretty_generate(clique).red
             exit
         end
-        if timeline["nyxType"].nil? then
-            puts "[error] timeline has no nyxType".red
-            puts JSON.pretty_generate(timeline).red
+        if clique["nyxType"].nil? then
+            puts "[error] clique has no nyxType".red
+            puts JSON.pretty_generate(clique).red
             exit
         end
-        if timeline["nyxType"] != "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
-            puts "[error] timeline has incorrect nyxType".red
-            puts JSON.pretty_generate(timeline).red
+        if clique["nyxType"] != "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+            puts "[error] clique has incorrect nyxType".red
+            puts JSON.pretty_generate(clique).red
             exit
         end
-        if timeline["name"].nil? then
-            puts "[error] timeline has no name".red
-            puts JSON.pretty_generate(timeline).red
+        if clique["name"].nil? then
+            puts "[error] clique has no name".red
+            puts JSON.pretty_generate(clique).red
             exit
         end
-        if timeline["name"].strip.size == 0 then
-            puts "[error] timeline has empty name".red
-            puts JSON.pretty_generate(timeline).red
+        if clique["name"].strip.size == 0 then
+            puts "[error] clique has empty name".red
+            puts JSON.pretty_generate(clique).red
             exit
         end
     end
@@ -404,7 +404,7 @@ class CatalystFsck
             exit
         end
         if cube["description"].nil? then
-            puts "[error] timeline has no description".red
+            puts "[error] clique has no description".red
             puts JSON.pretty_generate(cube).red
             exit
         end
@@ -444,8 +444,8 @@ class CatalystFsck
         Spaceships::spaceships().each{|spaceship|
             CatalystFsck::checkSpaceship(spaceship)
         }
-        Cliques::timelines().each{|timeline|
-            CatalystFsck::checkClique(timeline)
+        Cliques::cliques().each{|clique|
+            CatalystFsck::checkClique(clique)
         }
         Cubes::cubes().each{|cube|
             CatalystFsck::checkCube(cube)

@@ -70,13 +70,13 @@ class Asteroids
 
     # Asteroids::selectProjectNameUuidPair()
     def self.selectProjectNameUuidPair()
-        orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
+        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             # We are not considering the case null
         end
         [orbitalname, orbitaluuid]
@@ -127,16 +127,16 @@ class Asteroids
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
-    # Asteroids::projectNames()
-    def self.projectNames()
+    # Asteroids::orbitalnames()
+    def self.orbitalnames()
         Asteroids::asteroids()
             .map{|item| item["orbitalname"] }
             .uniq
             .sort
     end
 
-    # Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
-    def self.timelineName2timelineUuidOrNUll(orbitalname)
+    # Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+    def self.orbitalname2orbitaluuidOrNUll(orbitalname)
         orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
         return orbitaluuid if !orbitaluuid.nil?
         orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
@@ -146,14 +146,14 @@ class Asteroids
         orbitaluuid
     end
 
-    # Asteroids::selectCliqueNameInteractivelyOrNull()
-    def self.selectCliqueNameInteractivelyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::projectNames().sort)
+    # Asteroids::selectOrbitalnameInteractivelyOrNull()
+    def self.selectOrbitalnameInteractivelyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::orbitalnames().sort)
     end
 
-    # Asteroids::asteroidsForCliqueName(orbitalname)
-    def self.asteroidsForCliqueName(orbitalname)
-        orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+    # Asteroids::asteroidsForOrbitalname(orbitalname)
+    def self.asteroidsForOrbitalname(orbitalname)
+        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
         return [] if orbitaluuid.nil?
         Asteroids::asteroids()
             .select{|item| item["orbitaluuid"] == orbitaluuid }
@@ -162,8 +162,8 @@ class Asteroids
 
     # Asteroids::projectsTimeDistribution()
     def self.projectsTimeDistribution()
-        Asteroids::projectNames().map{|orbitalname|
-            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+        Asteroids::orbitalnames().map{|orbitalname|
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
@@ -172,16 +172,16 @@ class Asteroids
         }
     end
 
-    # Asteroids::updateAsteroidOrbitalName(item)
-    def self.updateAsteroidOrbitalName(item)
-        orbitalname = Asteroids::selectCliqueNameInteractivelyOrNull()
+    # Asteroids::updateAsteroidOrbitalname(item)
+    def self.updateAsteroidOrbitalname(item)
+        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
             orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
             return if orbitalname == ""
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::timelineName2timelineUuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
             return if orbitaluuid.nil?
         end
         item["orbitalname"] = orbitalname
@@ -197,10 +197,10 @@ class Asteroids
         tags = Cubes::makeTagsInteractively()
         cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
-        if timeline then
-            puts JSON.pretty_generate(timeline)
-            claim = CliqueContent::issueClaim(timeline, cube)
+        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+        if clique then
+            puts JSON.pretty_generate(clique)
+            claim = CliqueContent::issueClaim(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -216,10 +216,10 @@ class Asteroids
         tags = Cubes::makeTagsInteractively()
         cube = Cubes::issueCube_v4(description, quark, tags)
         puts JSON.pretty_generate(cube)
-        timeline = Cliques::selectCliqueOrMakeNewOneOrNull()
-        if timeline then
-            puts JSON.pretty_generate(timeline)
-            claim = CliqueContent::issueClaim(timeline, cube)
+        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+        if clique then
+            puts JSON.pretty_generate(clique)
+            claim = CliqueContent::issueClaim(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)
@@ -272,7 +272,7 @@ class Asteroids
                 Nyx::commitToDisk(item)
             end
             if option == "recast" then
-                Asteroids::updateAsteroidOrbitalName(item)
+                Asteroids::updateAsteroidOrbitalname(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
@@ -434,7 +434,7 @@ class Asteroids
                 options = ["update project", "recast on nyx network"]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
                 if option == "recast" then
-                    Asteroids::updateAsteroidOrbitalName(item)
+                    Asteroids::updateAsteroidOrbitalname(item)
                 end
                 if option == "recast on nyx network" then
                     status = Asteroids::recastAsCubeContentInteractive(item)
@@ -454,7 +454,7 @@ class Asteroids
             Asteroids::stop(uuid, item)
             if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
                 puts "Item was not immediately done, we need to classify it."
-                Asteroids::updateAsteroidOrbitalName(item)
+                Asteroids::updateAsteroidOrbitalname(item)
             end
         end
 
@@ -470,7 +470,7 @@ class Asteroids
 
         if option == "update-project" then
             Asteroids::stop(uuid, item)
-            Asteroids::updateAsteroidOrbitalName(item)
+            Asteroids::updateAsteroidOrbitalname(item)
         end
 
         if option == "recastAsCubeContentInteractive" then

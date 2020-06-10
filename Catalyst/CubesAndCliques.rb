@@ -30,8 +30,8 @@ class CubesAndCliques
         if entity["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cubes::cubeToString(entity)
         end
-        if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            return Cliques::timelineToString(entity)
+        if entity["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            return Cliques::cliqueToString(entity)
         end
         raise "Error: 056686f0"
     end
@@ -43,9 +43,9 @@ class CubesAndCliques
             Cubes::openCube(cube)
             return
         end
-        if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-           timeline = entity
-           Cliques::timelineDive(timeline)
+        if entity["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+           clique = entity
+           Cliques::cliqueDive(clique)
            return
         end
         raise "Error: 2f28f27d"
@@ -57,8 +57,8 @@ class CubesAndCliques
             Cubes::cubeDive(entity)
             return
         end
-        if entity["nyxType"] == "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
-            Cliques::timelineDive(entity)
+        if entity["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            Cliques::cliqueDive(entity)
             return
         end
         raise "Error: cf25ea33"

@@ -26,22 +26,22 @@ class Cliques
 
     # Cliques::makeCliqueInteractivelyOrNull()
     def self.makeCliqueInteractivelyOrNull()
-        puts "making a new timeline:"
-        timeline = {
+        puts "making a new clique:"
+        clique = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "nyxType"          => "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "creationUnixtime" => Time.new.to_f,
 
-            "name"             => LucilleCore::askQuestionAnswerAsString("timeline name: ")
+            "name"             => LucilleCore::askQuestionAnswerAsString("clique name: ")
         }
-        Nyx::commitToDisk(timeline)
-        puts JSON.pretty_generate(timeline)
-        timeline
+        Nyx::commitToDisk(clique)
+        puts JSON.pretty_generate(clique)
+        clique
     end
 
-    # Cliques::timelineToString(timeline)
-    def self.timelineToString(timeline)
-        "[timeline] [#{timeline["uuid"][0, 4]}] #{timeline["name"]}"
+    # Cliques::cliqueToString(clique)
+    def self.cliqueToString(clique)
+        "[clique] [#{clique["uuid"][0, 4]}] #{clique["name"]}"
     end
 
     # Cliques::getOrNull(uuid)
@@ -49,58 +49,58 @@ class Cliques
         Nyx::getOrNull(uuid)
     end
 
-    # Cliques::timelines()
-    def self.timelines()
-        Nyx::objects("timeline-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+    # Cliques::cliques()
+    def self.cliques()
+        Nyx::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
     # Cliques::selectCliqueFromExistingCliquesOrNull()
     def self.selectCliqueFromExistingCliquesOrNull()
-        timelinestrings = Cliques::timelines().map{|timeline| Cliques::timelineToString(timeline) }
-        timelinestring = CatalystCommon::chooseALinePecoStyle("timeline:", [""]+timelinestrings)
-        return nil if timelinestring == ""
-        Cliques::timelines()
-            .select{|timeline| Cliques::timelineToString(timeline) == timelinestring }
+        cliquestrings = Cliques::cliques().map{|clique| Cliques::cliqueToString(clique) }
+        cliquestring = CatalystCommon::chooseALinePecoStyle("clique:", [""]+cliquestrings)
+        return nil if cliquestring == ""
+        Cliques::cliques()
+            .select{|clique| Cliques::cliqueToString(clique) == cliquestring }
             .first
     end
 
     # Cliques::selectCliqueFromExistingOrCreateOneOrNull()
     def self.selectCliqueFromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a timeline (possibly will create one)"
+        puts "-> You are selecting a clique (possibly will create one)"
         LucilleCore::pressEnterToContinue()
-        timeline = Cliques::selectCliqueFromExistingCliquesOrNull()
-        return timeline if timeline
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to make a new timeline and return it ? ") then
+        clique = Cliques::selectCliqueFromExistingCliquesOrNull()
+        return clique if clique
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to make a new clique and return it ? ") then
             return Cliques::makeCliqueInteractivelyOrNull()
         end
         nil
     end
 
-    # Cliques::timelineDive(timeline)
-    def self.timelineDive(timeline)
+    # Cliques::cliqueDive(clique)
+    def self.cliqueDive(clique)
         loop {
             system("clear")
             puts ""
-            puts "uuid: #{timeline["uuid"]}"
-            puts Cliques::timelineToString(timeline).green
+            puts "uuid: #{clique["uuid"]}"
+            puts Cliques::cliqueToString(clique).green
             items = []
 
-            CliqueContent::getCubes(timeline)
+            CliqueContent::getCubes(clique)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|cube| items << [Cubes::cubeToString(cube), lambda{ Cubes::cubeDive(cube) }] }
 
             items << nil
 
             items << ["rename", lambda{ 
-                timeline["name"] = CatalystCommon::editTextUsingTextmate(timeline["name"]).strip
-                Nyx::commitToDisk(timeline)
+                clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
+                Nyx::commitToDisk(clique)
             }]
 
             items << ["add cube (from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
-                CliqueContent::issueClaim(timeline, cube)
+                CliqueContent::issueClaim(clique, cube)
             }]
 
             items << ["-> cube (new) -> quark (new)", lambda{ 
@@ -108,8 +108,8 @@ class Cliques
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                 cube = Cubes::issueCube_v3(description)
                 puts JSON.pretty_generate(cube)
-                puts "Let's attach the cube to the timeline"
-                claim = CliqueContent::issueClaim(timeline, cube)
+                puts "Let's attach the cube to the clique"
+                claim = CliqueContent::issueClaim(clique, cube)
                 puts JSON.pretty_generate(claim)
                 puts "Let's make a quark"
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
@@ -126,33 +126,33 @@ class Cliques
 
     # Cliques::selectFromExistingCliquesAndDive()
     def self.selectFromExistingCliquesAndDive()
-        timeline = Cliques::selectCliqueFromExistingCliquesOrNull()
-        return if timeline.nil?
-        Cliques::timelineDive(timeline)
+        clique = Cliques::selectCliqueFromExistingCliquesOrNull()
+        return if clique.nil?
+        Cliques::cliqueDive(clique)
     end
 
     # Cliques::selectCliqueOrMakeNewOneOrNull()
     def self.selectCliqueOrMakeNewOneOrNull()
-        puts "-> You are on a selection Quest [selecting an timeline]"
+        puts "-> You are on a selection Quest [selecting an clique]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        timeline = Cliques::selectCliqueFromExistingCliquesOrNull()
-        return timeline if timeline
+        clique = Cliques::selectCliqueFromExistingCliquesOrNull()
+        return clique if clique
         Cliques::makeCliqueInteractivelyOrNull()
     end
 end
 
 class CliqueContent
 
-    # CliqueContent::issueClaim(timeline, cube)
-    def self.issueClaim(timeline, cube)
+    # CliqueContent::issueClaim(clique, cube)
+    def self.issueClaim(clique, cube)
         raise "6df08321" if cube["nyxType"] != "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
         claim = {
-            "nyxType"          => "timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "nyxType"          => "clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid"             => SecureRandom.uuid,
 
-            "timelineuuid"     => timeline["uuid"],
+            "cliqueuuid"     => clique["uuid"],
             "cubeuuid"         => cube["uuid"]
         }
         Nyx::commitToDisk(claim)
@@ -161,28 +161,28 @@ class CliqueContent
 
     # CliqueContent::claimToString(claim)
     def self.claimToString(claim)
-        "[timeline-cube-link] #{claim["timelineuuid"]} -> #{claim["cubeuuid"]}"
+        "[clique-cube-link] #{claim["cliqueuuid"]} -> #{claim["cubeuuid"]}"
     end
 
-    # CliqueContent::getCubes(timeline)
-    def self.getCubes(timeline)
-        Nyx::objects("timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .select{|claim| claim["timelineuuid"] == timeline["uuid"] }
+    # CliqueContent::getCubes(clique)
+    def self.getCubes(clique)
+        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+            .select{|claim| claim["cliqueuuid"] == clique["uuid"] }
             .map{|claim| Cubes::getOrNull(claim["cubeuuid"]) }
             .compact
     end
 
     # CliqueContent::getCliques(cube)
     def self.getCliques(cube)
-        Nyx::objects("timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["cubeuuid"] == cube["uuid"] }
-            .map{|claim| Nyx::getOrNull(claim["timelineuuid"]) }
+            .map{|claim| Nyx::getOrNull(claim["cliqueuuid"]) }
             .compact
     end
 
     # CliqueContent::claims()
     def self.claims()
-        Nyx::objects("timeline-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("clique-cube-link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
