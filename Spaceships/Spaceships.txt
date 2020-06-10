@@ -1,8 +1,4 @@
 
-------------------------------------------------------
-This is a copy of Nyx.txt
-------------------------------------------------------
-
 Spaceship
 {
     "uuid"             : String
@@ -36,3 +32,23 @@ Spaceship
             "type"              : "asap-managed"
             "referenceunixtime" : Float
         }
+
+------------------------------------------------------
+Special Circumstances
+------------------------------------------------------
+
+Shows the contents of the Lucille.txt file
+
+{
+    "uuid": "90b4de62-664a-484c-9b8f-459dcab551d4",
+    "nyxType": "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+    "creationUnixtime": 1591794457.1838899,
+    "cargo": {
+      "type": "description",
+      "description": "Lucille.txt"
+    },
+    "engine": {
+      "type": "asap-managed",
+      "referenceunixtime": 1591794457.183676
+    }
+  }

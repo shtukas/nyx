@@ -228,6 +228,8 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
+        return 0 if (spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" and IO.read("/Users/pascal/Desktop/Lucille.txt").strip.size == 0)
+ 
         if engine["type"] == "bank-account" then
             timeBank = Bank::value(uuid)
             if timeBank >= 0 then
@@ -301,9 +303,21 @@ class Spaceships
     # Spaceships::spaceshipToCalalystObject(spaceship)
     def self.spaceshipToCalalystObject(spaceship)
         uuid = spaceship["uuid"]
+
+        getBody = lambda{|spaceship|
+            if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
+                if Spaceships::isRunning?(spaceship) then
+                    return "Lucille.txt\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
+                else
+                    return "Lucille.txt"
+                end
+            end
+            Spaceships::toString(spaceship)
+        }
+
         {
             "uuid"      => uuid,
-            "body"      => Spaceships::toString(spaceship),
+            "body"      => getBody.call(spaceship),
             "metric"    => Spaceships::metric(spaceship),
             "execute"   => lambda { Spaceships::execute(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
@@ -323,6 +337,9 @@ class Spaceships
     def self.spaceshipStartSequence(spaceship)
         return if Spaceships::isRunning?(spaceship)
         Spaceships::openCargo(spaceship)
+
+        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # We don't do the rest for Lucille.txt
+
         if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
             Runner::start(spaceship["uuid"])
         else
@@ -344,6 +361,9 @@ class Spaceships
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
         Bank::put(spaceship["uuid"], timespan)
+
+        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # We do not do the rest for Lucille.txt
+
         if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
             Nyx::destroy(spaceship["uuid"])
         end
@@ -353,6 +373,11 @@ class Spaceships
     def self.spaceshipDestroySequence(spaceship)
         if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
             puts "You cannot destroy this one (Guardian Work)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
+            puts "You cannot destroy this one (Lucille.txt)"
             LucilleCore::pressEnterToContinue()
             return
         end
