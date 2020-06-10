@@ -347,7 +347,7 @@ class NSXCatalystUI
 
             # Spaceship bank managed
             Spaceships::spaceships()
-                .select{|spaceship| spaceship["engine"]["type"] == "bank-account" }
+                .select{|spaceship| spaceship["engine"]["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" }
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .first(3)
                 .each{|spaceship|

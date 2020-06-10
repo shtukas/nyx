@@ -89,16 +89,16 @@ class Spaceships
 
             engine = spaceship["engine"]
 
-            if engine["type"] == "bank-account" then
+            if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
                 return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
             end
 
-            if engine["type"] == "on-going-indefinite" then
-                return " (bank account: #{(Spaceships::onGoingProjectAdaptedBankTime(spaceship).to_f/3600).round(2)} hours)"
+            if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+                return " (ratio: #{Spaceships::onGoingTimeRatio(spaceship)})"
             end
 
-            if engine["type"] == "asap-managed" then
-                return " (#{Spaceships::timeRatio(spaceship)})"
+            if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
+                return " (#{Spaceships::asapManagedBestTimeRatio(spaceship)})"
             end
 
             raise "[Spaceships] error: 46b84bdb"
@@ -145,9 +145,9 @@ class Spaceships
 
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt1 = "bank managed until completion             ( bank-account )"
-        opt5 = "asap managed                              ( asap-managed )"
-        opt3 = "On-going time commitment without deadline ( on-going-indefinite )"
+        opt1 = "bank managed until completion             ( bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38 )"
+        opt5 = "asap managed                              ( asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad )"
+        opt3 = "On-going time commitment without deadline ( on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada )"
 
         options = [
             opt1,
@@ -160,21 +160,20 @@ class Spaceships
         if option == opt3 then
             timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
             return {
-                "type"                         => "on-going-indefinite",
+                "type"                         => "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
                 "referenceunixtime"           => Time.new.to_i,
                 "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
             }
         end
         if option == opt1 then
             return {
-                "type" => "bank-account"
+                "type" => "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
             }
         end
 
         if option == opt5 then
             return {
-                "type"          => "asap-managed",
-                "referenceunixtime" => Time.new.to_f
+                "type" => "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad"
             }
         end
         nil
@@ -243,9 +242,10 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
+        # Lucille.txt
         return 0 if (spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" and IO.read("/Users/pascal/Desktop/Lucille.txt").strip.size == 0)
  
-        if engine["type"] == "bank-account" then
+        if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
             timeBank = Bank::value(uuid)
             if timeBank >= 0 then
                 return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
@@ -254,18 +254,16 @@ class Spaceships
             end
         end
 
-        if engine["type"] == "on-going-indefinite" then
-            timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
-            if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+        if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+            if Ping::totalOverTimespan(uuid, 86400*7) >= engine["timeCommitmentInHoursPerWeek"]*86400 then
+                return 0.30 - Spaceships::onGoingTimeRatio(spaceship)
             else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
+                return 0.70 - Spaceships::onGoingTimeRatio(spaceship)
             end
         end
 
-        if engine["type"] == "asap-managed" then
-            timeBankAdjusted = Spaceships::timeRatio(spaceship)
-            return 0.75 + Math.exp(-timeBankAdjusted).to_f/100 - 0.3*Ping::totalToday(uuid).to_f/(5*3600)
+        if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
+            return 0.75 - 0.1*Spaceships::asapManagedBestTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -277,16 +275,15 @@ class Spaceships
 
         engine = spaceship["engine"]
 
-        if engine["type"] == "bank-account" then
+        if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
             return Bank::value(uuid) < 0
         end
 
-        if engine["type"] == "on-going-indefinite" then
-            timeBank = Spaceships::onGoingProjectAdaptedBankTime(spaceship)
-            return (timeBank < 0)
+        if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+            return Ping::totalOverTimespan(uuid, 86400*7) < engine["timeCommitmentInHoursPerWeek"]*86400
         end
 
-        if engine["type"] == "asap-managed" then
+        if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
             return true
         end
 
@@ -350,7 +347,7 @@ class Spaceships
                     .reverse
         return [] if objects.empty?
         if objects[0]["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
-            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "asap-managed" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
+            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
         end
         objects
     end
@@ -395,9 +392,9 @@ class Spaceships
         timespan = Runner::stop(spaceship["uuid"])
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        puts "[spaceship] Bank: putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
+        puts "[spaceship] Putting #{timespan.round(2)} secs into Bank (#{spaceship["uuid"]})"
         Bank::put(spaceship["uuid"], timespan)
-        puts "[spaceship] Ping putting #{timespan.round(2)} secs into spaceship (#{spaceship["uuid"]})"
+        puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
         Ping::put(spaceship["uuid"], timespan)
 
         return if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" # Guardian Work
@@ -470,25 +467,29 @@ class Spaceships
     end
 
     # --------------------------------------------------------------------
-    # on-going-indefinite
+    # on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada
 
-    # Spaceships::onGoingProjectAdaptedBankTime(spaceship)
-    def self.onGoingProjectAdaptedBankTime(spaceship)
+    # Spaceships::onGoingTimeRatio(spaceship)
+    def self.onGoingTimeRatio(spaceship)
         uuid = spaceship["uuid"]
-        engine = spaceship["engine"]
-        idealTimeInSecond = ((Time.new.to_i - engine["referenceunixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
-        Spaceships::liveTotalTime(spaceship) - idealTimeInSecond
-    end 
+        timedone = Ping::totalOverTimespan(uuid, 7*86400)
+        trueTime = 7*86400
+        timedone.to_f/trueTime
+    end
 
     # --------------------------------------------------------------------
-    # asap-managed
+    # asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad
 
-    # Spaceships::timeRatio(spaceship)
-    def self.timeRatio(spaceship)
+    # Spaceships::asapManagedBestTimeRatio(spaceship)
+    def self.asapManagedBestTimeRatio(spaceship)
         uuid = spaceship["uuid"]
-        engine = spaceship["engine"]
-        timeBank = Bank::value(uuid)
-        timeBank.to_f/(Time.new.to_i - engine["referenceunixtime"])
+        (1..7)
+            .map{|i|
+                timedone = Ping::totalOverTimespan(uuid, i*86400)
+                trueTime = i*86400
+                timedone.to_f/trueTime
+            }
+            .max
     end
 end
 

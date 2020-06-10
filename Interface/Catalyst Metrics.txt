@@ -15,13 +15,11 @@
         0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Waves every-n-hours / every-n-days
 
-        0.76+ -> 0.20 Spaceships: (asap-managed)
-        0.70+ -> 0.20 Spaceships: (bank-account)
+        0.76+ -> 0.20 Spaceships: (asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad)
+        0.70+ -> 0.20 Spaceships: (bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38)
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids
         0.50          Backups Monitor
-
-        0.40          LucileTxt [bottom] # for the moment
 
         0.20 -------- Water level ------------------------------
