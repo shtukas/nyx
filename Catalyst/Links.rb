@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Links.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'

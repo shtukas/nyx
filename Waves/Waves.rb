@@ -214,7 +214,7 @@ class Waves
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
         object['schedule'] = schedule
         object["execute"] = lambda { Waves::execute(wave) }
-        object["x-interface:isWaves"] = true
+        object["x-wave"] = wave
         object
     end
 
@@ -267,6 +267,14 @@ class Waves
         end
     end
 
+    # Waves::openProcedure(wave)
+    def self.openProcedure(wave)
+        Waves::openItem(wave)
+        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+            Waves::performDone2(wave)
+        end
+    end
+
     # Waves::execute(wave)
     def self.execute(wave)
         uuid = wave["uuid"]
@@ -280,10 +288,7 @@ class Waves
             return
         end
         if option == 'open' then
-            Waves::openItem(wave)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                Waves::performDone2(wave)
-            end
+            Waves::openProcedure(wave)
             return
         end
         if option == 'done' then

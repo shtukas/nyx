@@ -17,10 +17,6 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
-
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
@@ -32,6 +28,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Quark.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Links.rb"
 
 # -----------------------------------------------------------------
 
