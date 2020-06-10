@@ -327,13 +327,6 @@ class NSXCatalystUI
             return
         end
 
-        if command == "" then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
-            return if object.nil?
-            object["execute"].call()
-            return
-        end
-
     end
 
     # NSXCatalystUI::standardUILoop()
