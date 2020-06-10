@@ -76,7 +76,6 @@ Thread.new {
     loop {
 
         if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-            puts "Code change detected. Exiting."
             exit
         end
 
