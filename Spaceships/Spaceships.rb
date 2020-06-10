@@ -103,7 +103,11 @@ class Spaceships
 
             raise "[Spaceships] error: 46b84bdb"
         }
-
+        typeAsUserFriendly = lambda {|type|
+            return "bank-account" if type == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
+            return "on-going-weekly-commitment" if type == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "asap-managed" if type == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad"
+        }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
         runningString = 
@@ -112,7 +116,7 @@ class Spaceships
             else
                 ""
             end
-        "[spaceship] [#{spaceship["engine"]["type"]}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
+        "[spaceship] [#{typeAsUserFriendly.call(spaceship["engine"]["type"])}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
     end
 
     # Spaceships::makeCargoInteractivelyOrNull()
@@ -248,9 +252,9 @@ class Spaceships
         if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
             timeBank = Bank::value(uuid)
             if timeBank >= 0 then
-                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+                return 0.20 + 0.2*Math.exp(-timeBank.to_f/3600)
             else
-                return 0.70 + 0.1*(-timeBank.to_f/86400)
+                return 0.70 + 0.1*(-timeBank).to_f/3600
             end
         end
 
