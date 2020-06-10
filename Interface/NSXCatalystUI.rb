@@ -184,18 +184,29 @@ class NSXCatalystUI
 
     # NSXCatalystUI::doTheObviousThingWithThis(object)
     def self.doTheObviousThingWithThis(object)
-        if object["x-is-spaceship"] and !object["isRunning"] then
+        if object["x-spaceship"] and !object["isRunning"] then
             Spaceships::spaceshipStartSequence(object["x-spaceship"])
             return
         end
-        if object["x-is-spaceship"] and object["isRunning"] then
+        if object["x-spaceship"] and object["isRunning"] then
             Spaceships::spaceshipStopSequence(object["x-spaceship"])
             return
         end
-        if object["x-is-calendar"] then
+        if object["x-calendar-date"] then
             Calendar::setDateAsReviewed(object["x-calendar-date"])
             return
         end
+
+        if object["x-todo-item"] and !object["isRunning"] then
+            Asteroids::startProcedure(object["x-todo-item"])
+            return
+        end
+
+        if object["x-todo-item"] and object["isRunning"] then
+            Asteroids::stopProcedure(object["x-todo-item"])
+            return
+        end
+
         puts "I could not determine the obvious thing to to do with this"
         puts JSON.pretty_generate(object)
         LucilleCore::pressEnterToContinue()

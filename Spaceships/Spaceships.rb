@@ -301,7 +301,6 @@ class Spaceships
             "isFocus"   => Spaceships::isLate?(spaceship),
             "isRunning" => Spaceships::isRunning?(spaceship),
             "isRunningForLong" => Spaceships::isRunningForLong?(spaceship),
-            "x-is-spaceship"   => true,
             "x-spaceship"      => spaceship
         }
     end
