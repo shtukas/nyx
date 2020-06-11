@@ -267,7 +267,7 @@ class Spaceships
         end
 
         if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
-            return 0.75 - 0.1*Spaceships::asapManagedBestTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
+            return 0.74 - 0.1*Spaceships::asapManagedBestTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -334,7 +334,7 @@ class Spaceships
         {
             "uuid"      => uuid,
             "body"      => getBody.call(spaceship),
-            "metric"    => Spaceships::metric(spaceship),
+            "metric"    => Spaceships::metric(spaceship) + (uuid == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" ? 0.06 : 0), # Bumping Guardian Work by 0.06 to match interface metric specification.
             "execute"   => lambda { Spaceships::execute(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
             "isRunning" => Spaceships::isRunning?(spaceship),

@@ -1,22 +1,24 @@
-
-🗓️                    Calendar Report
-
 🗓️
         0.95          Anniversaries
-        0.93          Calendar [ack]
+        0.93          Calendar
 
 📬
         0.85          Project "Inbox"
-
-        0.83          LucileTxt [top]
 
 💫
         0.82+         Waves sticky
         0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Waves every-n-hours / every-n-days
 
-        0.76+ -> 0.20 Spaceships: (asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad)
-        0.70+ -> 0.20 Spaceships: (bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38)
+        0.76  ->      Spaceships
+                        Guardian Work (special case of bank-account)
+
+        0.74  ->      Spaceships
+                        asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad
+
+        0.70+ ->      Spaceships
+                        bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38
+                        on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids
