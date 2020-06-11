@@ -158,7 +158,7 @@ class NSXMiscUtils
                 "quarkuuid"        => target["uuid"]
             }
             puts JSON.pretty_generate(item)
-            DataNetwork::commitToDisk(item)
+            DataNetworkCoreFunctions::commitToDisk(item)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

@@ -16,8 +16,6 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/KnowledgeObjects.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------
@@ -34,7 +32,7 @@ class Cliques
 
             "name"             => LucilleCore::askQuestionAnswerAsString("clique name: ")
         }
-        DataNetwork::commitToDisk(clique)
+        DataNetworkCoreFunctions::commitToDisk(clique)
         puts JSON.pretty_generate(clique)
         clique
     end
@@ -46,12 +44,12 @@ class Cliques
 
     # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetwork::getOrNull(uuid)
+        DataNetworkCoreFunctions::getOrNull(uuid)
     end
 
     # Cliques::cliques()
     def self.cliques()
-        DataNetwork::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        DataNetworkCoreFunctions::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -86,14 +84,14 @@ class Cliques
             items = []
 
             Links::getLinkedObjects(clique)
-                .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|cube| items << [Cubes::cubeToString(cube), lambda{ Cubes::cubeDive(cube) }] }
+                .sort{|o1, o2| DataNetworkInterfaces::objectLastActivityUnixtime(o1) <=> DataNetworkInterfaces::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .each{|object| items << [DataNetworkInterfaces::objectToString(object), lambda{ DataNetworkInterfaces::objectDive(object) }] }
 
             items << nil
 
             items << ["rename", lambda{ 
                 clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                DataNetwork::commitToDisk(clique)
+                DataNetworkCoreFunctions::commitToDisk(clique)
             }]
 
             items << ["add cube (from existing)", lambda{ 
@@ -114,7 +112,7 @@ class Cliques
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
                 cube["quarksuuids"] << quark["uuid"]
                 puts JSON.pretty_generate(cube)
-                DataNetwork::commitToDisk(cube)
+                DataNetworkCoreFunctions::commitToDisk(cube)
                 LucilleCore::pressEnterToContinue()
             }]
 

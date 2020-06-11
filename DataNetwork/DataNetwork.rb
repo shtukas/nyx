@@ -35,38 +35,38 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -----------------------------------------------------------------
 
-class DataNetwork
+class DataNetworkCoreFunctions
 
-    # DataNetwork::pathToRepository()
+    # DataNetworkCoreFunctions::pathToRepository()
     def self.pathToRepository()
         "/Users/pascal/Galaxy/DataBank/Catalyst/DataNetwork/objects"
     end
 
-    # DataNetwork::getOrNullAtType(uuid, nyxtype)
+    # DataNetworkCoreFunctions::getOrNullAtType(uuid, nyxtype)
     def self.getOrNullAtType(uuid, nyxtype)
-        filepath = "#{DataNetwork::pathToRepository()}/#{nyxtype}/#{uuid}.json"
+        filepath = "#{DataNetworkCoreFunctions::pathToRepository()}/#{nyxtype}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # DataNetwork::getDataNetworkTypes()
+    # DataNetworkCoreFunctions::getDataNetworkTypes()
     def self.getDataNetworkTypes()
-        Dir.entries(DataNetwork::pathToRepository())
+        Dir.entries(DataNetworkCoreFunctions::pathToRepository())
             .select{|filename| filename[0, 1] != "." }
     end
 
-    # DataNetwork::destroyAtType(uuid, nyxtype)
+    # DataNetworkCoreFunctions::destroyAtType(uuid, nyxtype)
     def self.destroyAtType(uuid, nyxtype)
-        filepath = "#{DataNetwork::pathToRepository()}/#{nyxtype}/#{uuid}.json"
+        filepath = "#{DataNetworkCoreFunctions::pathToRepository()}/#{nyxtype}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
     # -----------------------------------------------------------------------------------
 
-    # DataNetwork::objects(nyxtype)
+    # DataNetworkCoreFunctions::objects(nyxtype)
     def self.objects(nyxtype)
-        folderpath = "#{DataNetwork::pathToRepository()}/#{nyxtype}"
+        folderpath = "#{DataNetworkCoreFunctions::pathToRepository()}/#{nyxtype}"
         Dir.entries(folderpath)
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{folderpath}/#{filename}" }
@@ -74,28 +74,88 @@ class DataNetwork
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     end
 
-    # DataNetwork::getOrNull(uuid)
+    # DataNetworkCoreFunctions::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetwork::getDataNetworkTypes()
-            .map{|nyxtype| DataNetwork::getOrNullAtType(uuid, nyxtype) }
+        DataNetworkCoreFunctions::getDataNetworkTypes()
+            .map{|nyxtype| DataNetworkCoreFunctions::getOrNullAtType(uuid, nyxtype) }
             .compact
             .first
     end
 
-    # DataNetwork::commitToDisk(object)
+    # DataNetworkCoreFunctions::commitToDisk(object)
     def self.commitToDisk(object)
         raise "[02986280]" if object["nyxType"].nil?
         raise "[222C74D4]" if object["uuid"].nil?
-        filepath = "#{DataNetwork::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
+        filepath = "#{DataNetworkCoreFunctions::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
     end
 
-    # DataNetwork::destroy(uuid)
+    # DataNetworkCoreFunctions::destroy(uuid)
     def self.destroy(uuid)
-        DataNetwork::getDataNetworkTypes()
-            .map{|nyxtype| DataNetwork::destroyAtType(uuid, nyxtype) }
+        DataNetworkCoreFunctions::getDataNetworkTypes()
+            .map{|nyxtype| DataNetworkCoreFunctions::destroyAtType(uuid, nyxtype) }
+    end
+end
+
+class DataNetworkInterfaces
+
+    # DataNetworkInterfaces::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        [ Cubes::getOrNull(uuid), Cliques::getOrNull(uuid) ].compact.first
+    end
+
+    # DataNetworkInterfaces::objectToString(object)
+    def self.objectToString(object)
+        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            return Cubes::cubeToString(object)
+        end
+        if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            return Cliques::cliqueToString(object)
+        end
+        raise "Error: 056686f0"
+    end
+
+    # DataNetworkInterfaces::openObject(object)
+    def self.openObject(object)
+        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            cube = object
+            Cubes::openCube(cube)
+            return
+        end
+        if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+           clique = object
+           Cliques::cliqueDive(clique)
+           return
+        end
+        raise "Error: 2f28f27d"
+    end
+
+    # DataNetworkInterfaces::objectDive(object)
+    def self.objectDive(object)
+        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            Cubes::cubeDive(object)
+            return
+        end
+        if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            Cliques::cliqueDive(object)
+            return
+        end
+        raise "Error: cf25ea33"
+    end
+
+    # DataNetworkInterfaces::objectLastActivityUnixtime(object)
+    def self.objectLastActivityUnixtime(object)
+        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+            Cubes::getLastActivityUnixtime(object)
+            return
+        end
+        if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
+            Cliques::getLastActivityUnixtime(object)
+            return
+        end
+        raise "Error: d66bdffa"
     end
 end

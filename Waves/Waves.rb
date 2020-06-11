@@ -233,13 +233,13 @@ class Waves
             "description"      => description,
             "schedule"         => schedule
         }
-        DataNetwork::commitToDisk(obj)
+        DataNetworkCoreFunctions::commitToDisk(obj)
         obj
     end
 
     # Waves::waves()
     def self.waves()
-        DataNetwork::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+        DataNetworkCoreFunctions::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
     end
 
     # Waves::catalystObjects()
@@ -299,17 +299,17 @@ class Waves
             schedule = Waves::makeScheduleObjectInteractivelyOrNull()
             return if schedule.nil?
             wave["schedule"] = schedule
-            DataNetwork::commitToDisk(wave)
+            DataNetworkCoreFunctions::commitToDisk(wave)
             return
         end
         if option == 'description' then
             wave["description"] = CatalystCommon::editTextUsingTextmate(wave["description"])
-            DataNetwork::commitToDisk(wave)
+            DataNetworkCoreFunctions::commitToDisk(wave)
             return
         end
         if option == 'destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                DataNetwork::destroy(wave["uuid"])
+                DataNetworkCoreFunctions::destroy(wave["uuid"])
                 return
             end
             return

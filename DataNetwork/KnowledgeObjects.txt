@@ -1,1 +1,0 @@
-KnowledgeObjects refers to Cubes and Cliques. Links link any two of them.

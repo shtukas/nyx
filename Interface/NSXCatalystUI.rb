@@ -237,14 +237,14 @@ class NSXCatalystUI
                     "body"    => OpenCycles::opencycleToString(opencycle).yellow,
                     "metric"  => 1.414,
                     "execute" => lambda { 
-                        entity = DataNetwork::getOrNull(opencycle["targetuuid"])
+                        entity = DataNetworkCoreFunctions::getOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()
                             OpenCycles::opencycleDive(opencycle)
                             return
                         end
-                        KnowledgeObjects::objectDive(entity)
+                        DataNetworkInterfaces::objectDive(entity)
                     },
                     "isFocus" => false
                 }

@@ -66,13 +66,13 @@ loop {
         next if op.nil?
         if op == "edit description" then
             obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
-            DataNetwork::commitToDisk(obj)
+            DataNetworkCoreFunctions::commitToDisk(obj)
         end
         if op == "recast" then
             schedule = Waves::makeScheduleObjectInteractivelyOrNull()
             next if schedule.nil?
             obj["schedule"] = schedule
-            DataNetwork::commitToDisk(obj)
+            DataNetworkCoreFunctions::commitToDisk(obj)
         end
     end
 }

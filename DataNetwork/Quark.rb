@@ -59,7 +59,7 @@ class Quark
             "type"             => "line",
             "line"             => line
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -75,7 +75,7 @@ class Quark
             "type"             => "url",
             "url"              => url
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -97,7 +97,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -114,7 +114,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -128,7 +128,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -150,7 +150,7 @@ class Quark
             "type"             => "folder",
             "foldername"       => foldername2
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -172,7 +172,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename2
             }
-            DataNetwork::commitToDisk(quark)
+            DataNetworkCoreFunctions::commitToDisk(quark)
             quark
         else
             folderpath1 = location
@@ -189,7 +189,7 @@ class Quark
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
-            DataNetwork::commitToDisk(quark)
+            DataNetworkCoreFunctions::commitToDisk(quark)
             quark
         end
     end
@@ -206,7 +206,7 @@ class Quark
             "type"             => "unique-name",
             "name"             => uniquename
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -226,7 +226,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetwork::commitToDisk(quark)
+            DataNetworkCoreFunctions::commitToDisk(quark)
             return quark
         end
         if option == "mark file should be created" then
@@ -252,7 +252,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetwork::commitToDisk(quark)
+            DataNetworkCoreFunctions::commitToDisk(quark)
             return quark
         end
     end
@@ -268,7 +268,7 @@ class Quark
             "type"             => "datapod",
             "podname"          => podname
         }
-        DataNetwork::commitToDisk(quark)
+        DataNetworkCoreFunctions::commitToDisk(quark)
         quark
     end
 
@@ -299,7 +299,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename
             }
-            DataNetwork::commitToDisk(quark)
+            DataNetworkCoreFunctions::commitToDisk(quark)
             return quark
         end
         if type == "folder" then
@@ -318,7 +318,7 @@ class Quark
 
     # Quark::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetwork::getOrNull(uuid)
+        DataNetworkCoreFunctions::getOrNull(uuid)
     end
 
     # Quark::quarkToString(quark)
@@ -422,7 +422,7 @@ class Quark
                 description = LucilleCore::askQuestionAnswerAsString("quark description: ")
                 next if description == ""
                 quark["description"] = description
-                DataNetwork::commitToDisk(quark)
+                DataNetworkCoreFunctions::commitToDisk(quark)
             end
         }
     end

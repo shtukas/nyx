@@ -16,8 +16,6 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/KnowledgeObjects.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------
@@ -34,7 +32,7 @@ class Links
             "uuid1"            => object1["uuid"],
             "uuid2"            => object2["uuid"]
         }
-        DataNetwork::commitToDisk(link)
+        DataNetworkCoreFunctions::commitToDisk(link)
         link
     end
 
@@ -45,20 +43,20 @@ class Links
 
     # Links::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        obj1s = DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj1s = DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid1"] == object["uuid"] }
-                    .map{|link| KnowledgeObjects::getObjectOrNull(link["uuid2"]) }
+                    .map{|link| DataNetworkInterfaces::getObjectOrNull(link["uuid2"]) }
                     .compact
-        obj2s = DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj2s = DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid2"] == object["uuid"] }
-                    .map{|link| KnowledgeObjects::getObjectOrNull(link["uuid1"]) }
+                    .map{|link| DataNetworkInterfaces::getObjectOrNull(link["uuid1"]) }
                     .compact
         obj1s + obj2s
     end
 
     # Links::links()
     def self.links()
-        DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
