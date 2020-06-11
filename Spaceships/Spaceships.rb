@@ -98,7 +98,7 @@ class Spaceships
             end
 
             if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
-                return " (#{Spaceships::asapManagedBestTimeRatio(spaceship)})"
+                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::asapManagedBestTimeRatio(spaceship)})"
             end
 
             raise "[Spaceships] error: 46b84bdb"
