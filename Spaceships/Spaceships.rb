@@ -214,23 +214,34 @@ class Spaceships
             options = [
                 "open",
                 "start",
+                "stop",
                 "recargo",
+                "reengine",
                 "destroy",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
                 Spaceships::openCargo(spaceship)
+                if !Spaceships::isRunning?(spaceship) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
+                    Runner::start(spaceship["uuid"])
+                end
             end
             if option == "start" then
-                Runner::start(spaceship["uuid"])
-                Spaceships::openCargo(spaceship)
+                Spaceships::spaceshipStartSequence(spaceship)
+            end
+            if option == "stop" then
+                Spaceships::spaceshipStopSequence(spaceship)
             end
             if option == "recargo" then
                 Spaceships::recargo(spaceship)
             end
+            if option == "reengine" then
+                Spaceships::reengine(spaceship)
+            end
             if option == "destroy" then
-                DataNetwork::destroy(spaceship["uuid"])
+                Spaceships::spaceshipStopSequence(spaceship)
+                Spaceships::spaceshipDestroySequence(spaceship)
             end
         }
     end
@@ -335,7 +346,7 @@ class Spaceships
             "uuid"      => uuid,
             "body"      => getBody.call(spaceship),
             "metric"    => Spaceships::metric(spaceship) + (uuid == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" ? 0.06 : 0), # Bumping Guardian Work by 0.06 to match interface metric specification.
-            "execute"   => lambda { Spaceships::execute(spaceship) },
+            "execute"   => lambda { Spaceships::spaceshipDive(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
             "isRunning" => Spaceships::isRunning?(spaceship),
             "isRunningForLong" => Spaceships::isRunningForLong?(spaceship),
@@ -437,36 +448,6 @@ class Spaceships
             quark = DataNetwork::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
-        end
-    end
-
-    # Spaceships::execute(spaceship)
-    def self.execute(spaceship)
-        puts Spaceships::toString(spaceship)
-        options = ["start", "open", "stop", "reengine", "dive", "destroy"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return if option.nil?
-        if option == "start" then
-            Spaceships::spaceshipStartSequence(spaceship)
-        end
-        if option == "open" then
-            Spaceships::openCargo(spaceship)
-            if !Spaceships::isRunning?(spaceship) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
-                Runner::start(spaceship["uuid"])
-            end
-        end
-        if option == "stop" then
-            Spaceships::spaceshipStopSequence(spaceship)
-        end
-        if option == "reengine" then
-            Spaceships::reengine(spaceship)
-        end
-        if option == "dive" then
-            Spaceships::spaceshipDive(spaceship)
-        end
-        if option == "destroy" then
-            Spaceships::spaceshipStopSequence(spaceship)
-            Spaceships::spaceshipDestroySequence(spaceship)
         end
     end
 
