@@ -265,7 +265,7 @@ class Spaceships
             if timeBank >= 0 then
                 return 0.20 + 0.2*Math.exp(-timeBank.to_f/3600)
             else
-                return 0.70 + 0.1*(-timeBank).to_f/3600
+                return 0.70 + (1 - Math.exp(-timeBank.to_f/3600)).to_f/100
             end
         end
 
