@@ -141,8 +141,8 @@ class Cubes
         cube["quarksuuids"].map{|uuid| Quark::getOrNull(uuid) }.compact.first
     end
 
-    # Cubes::getLastActivityUnixTime(cube)
-    def self.getLastActivityUnixTime(cube)
+    # Cubes::getLastActivityUnixtime(cube)
+    def self.getLastActivityUnixtime(cube)
         times = [ cube["creationUnixtime"] ] + cube["quarksuuids"].map{|uuid| Quark::getOrNull(uuid) }.compact.map{|quark| quark["creationUnixtime"] }
         times.max
     end

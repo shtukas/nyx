@@ -139,4 +139,10 @@ class Cliques
         return clique if clique
         Cliques::makeCliqueInteractivelyOrNull()
     end
+
+    # Cliques::getLastActivityUnixtime(clique)
+    def self.getLastActivityUnixtime(clique)
+        times = [ clique["creationUnixtime"] ] + Links::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
+        times.max
+    end
 end
