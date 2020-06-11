@@ -90,7 +90,7 @@ class Spaceships
             engine = spaceship["engine"]
 
             if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
-                return " (bank: #{(Spaceships::liveTotalTime(spaceship).to_f/3600).round(2)} hours)"
+                return " (bank: #{(Spaceships::bankValueLive(spaceship).to_f/3600).round(2)} hours)"
             end
 
             if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
@@ -305,16 +305,16 @@ class Spaceships
         raise "[Spaceships] error: 46b84bdb"
     end
 
-    # Spaceships::liveRunTimeIfAny(spaceship)
-    def self.liveRunTimeIfAny(spaceship)
+    # Spaceships::runTimeIfAny(spaceship)
+    def self.runTimeIfAny(spaceship)
         uuid = spaceship["uuid"]
         Runner::runTimeInSecondsOrNull(uuid) || 0
     end
 
-    # Spaceships::liveTotalTime(spaceship)
-    def self.liveTotalTime(spaceship)
+    # Spaceships::bankValueLive(spaceship)
+    def self.bankValueLive(spaceship)
         uuid = spaceship["uuid"]
-        Bank::value(uuid) + Spaceships::liveRunTimeIfAny(spaceship)
+        Bank::value(uuid) + Spaceships::runTimeIfAny(spaceship)
     end
 
     # Spaceships::isRunning?(spaceship)
@@ -457,7 +457,7 @@ class Spaceships
     # Spaceships::onGoingTimeRatio(spaceship)
     def self.onGoingTimeRatio(spaceship)
         uuid = spaceship["uuid"]
-        timedone = Ping::totalOverTimespan(uuid, 7*86400)
+        timedone = Ping::totalOverTimespan(uuid, 7*86400) + Spaceships::runTimeIfAny(spaceship)
         trueTime = 7*86400
         timedone.to_f/trueTime
     end
@@ -470,7 +470,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         (1..7)
             .map{|i|
-                timedone = Ping::totalOverTimespan(uuid, i*86400)
+                timedone = Ping::totalOverTimespan(uuid, i*86400) # + Spaceships::runTimeIfAny(spaceship)
                 trueTime = i*86400
                 timedone.to_f/trueTime
             }

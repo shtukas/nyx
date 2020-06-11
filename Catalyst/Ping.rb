@@ -22,7 +22,6 @@ class Ping
 
     # Ping::put(uuid, weight: Float)
     def self.put(uuid, weight)
-        uuid = Time.new.to_f.to_s
         packet = {
             "uuid" => uuid,
             "weight" => weight,

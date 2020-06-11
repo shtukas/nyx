@@ -35,14 +35,16 @@ class NSXCatalystObjectsOperator
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
 
-        return [] if objects.empty?
+        return objects if objects.size < 2
 
-        while objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-wave"] } do
+        # Making sure that a running asap-managed-killer is not the first element
+        loop {
+            break if ( objects[0]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" or !objects[0]["isRunning"] )
             objects[0]["metric"] = objects[0]["metric"] - 0.0001
             objects = objects
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
-        end
+        }
 
         objects
     end
