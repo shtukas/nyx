@@ -1,7 +1,7 @@
 
-Nyx
+DataNetwork
 
-The three required keys that a NyxObject must have are:
+The three required keys that a DataNetwork objects must have are:
     uuid             : String
     nyxType          : String
     creationUnixtime : Float # unixtime with decimals

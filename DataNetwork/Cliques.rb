@@ -18,7 +18,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/KnowledgeObjects.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class Cliques
 
             "name"             => LucilleCore::askQuestionAnswerAsString("clique name: ")
         }
-        Nyx::commitToDisk(clique)
+        DataNetwork::commitToDisk(clique)
         puts JSON.pretty_generate(clique)
         clique
     end
@@ -46,12 +46,12 @@ class Cliques
 
     # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Nyx::getOrNull(uuid)
+        DataNetwork::getOrNull(uuid)
     end
 
     # Cliques::cliques()
     def self.cliques()
-        Nyx::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        DataNetwork::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -94,7 +94,7 @@ class Cliques
 
             items << ["rename", lambda{ 
                 clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                Nyx::commitToDisk(clique)
+                DataNetwork::commitToDisk(clique)
             }]
 
             items << ["cube (add from existing)", lambda{ 
@@ -115,7 +115,7 @@ class Cliques
                 quark = Quark::issueNewQuarkInteractivelyOrNull()
                 cube["quarksuuids"] << quark["uuid"]
                 puts JSON.pretty_generate(cube)
-                Nyx::commitToDisk(cube)
+                DataNetwork::commitToDisk(cube)
                 LucilleCore::pressEnterToContinue()
             }]
 

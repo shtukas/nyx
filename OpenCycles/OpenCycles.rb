@@ -30,7 +30,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Cubes.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ class OpenCycles
             "creationUnixtime" => Time.new.to_f,
             "targetuuid"       => quark["uuid"]
         }
-        Nyx::commitToDisk(opencycle)
+        DataNetwork::commitToDisk(opencycle)
         opencycle
     end
 
@@ -56,37 +56,37 @@ class OpenCycles
             "creationUnixtime" => Time.new.to_f,
             "targetuuid"       => cube["uuid"]
         }
-        Nyx::commitToDisk(opencycle)
+        DataNetwork::commitToDisk(opencycle)
         opencycle
     end
 
     # OpenCycles::opencycles()
     def self.opencycles()
-        Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+        DataNetwork::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
     end
 
     # OpenCycles::openQuark(opencycle)
     def self.openQuark(opencycle)
-        entity = Nyx::getOrNull(opencycle["targetuuid"])
+        entity = DataNetwork::getOrNull(opencycle["targetuuid"])
         return if entity.nil?
         KnowledgeObjects::openObject(entity)
     end
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
-        entity = Nyx::getOrNull(opencycle["targetuuid"])
+        entity = DataNetwork::getOrNull(opencycle["targetuuid"])
         "[opencycle] #{entity ? KnowledgeObjects::objectToString(entity) : "data entity not found"}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
     def self.opencycleDive(opencycle)
         loop {
-            puts JSON.pretty_generate(opencycle)
-            entity = Nyx::getOrNull(opencycle["targetuuid"])
+            system("clear")
+            puts OpenCycles::opencycleToString(opencycle)
+            entity = DataNetwork::getOrNull(opencycle["targetuuid"])
             if entity.nil? then
-                puts "Could not determine entity for opencycle #{opencycle}"
-                LucilleCore::pressEnterToContinue()
-                return
+                puts "Could not determine entity for opencycle:"
+                puts JSON.pretty_generate(opencycle)
             end
             options = [
                 "access target",
@@ -95,7 +95,7 @@ class OpenCycles
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "access target" then
-                entity = Nyx::getOrNull(opencycle["targetuuid"])
+                entity = DataNetwork::getOrNull(opencycle["targetuuid"])
                 if entity.nil? then
                     puts "I could not find a entity for his: #{opencycle}"
                     LucilleCore::pressEnterToContinue()
@@ -104,7 +104,7 @@ class OpenCycles
                 KnowledgeObjects::objectDive(entity)
             end
             if option == "destroy opencycle" then
-                Nyx::destroy(opencycle["uuid"])
+                DataNetwork::destroy(opencycle["uuid"])
                 return
             end
         }

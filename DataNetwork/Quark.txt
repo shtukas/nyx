@@ -67,7 +67,7 @@ Quark
     "type"             : "directory-mark"
     "mark"             : String # Use Atlas to find them.
                            # Atlas also supports findind directory marks.
-                           # `Nyx-Directory-Mark.txt` files with a unique name inside.
+                           # `DataNetwork-Directory-Mark.txt` files with a unique name inside.
 }
 
 {

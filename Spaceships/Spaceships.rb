@@ -30,7 +30,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
@@ -67,7 +67,7 @@ class Spaceships
             "cargo"       => cargo,
             "engine"      => engine
         }
-        Nyx::commitToDisk(spaceship)
+        DataNetwork::commitToDisk(spaceship)
         spaceship
     end
 
@@ -79,7 +79,7 @@ class Spaceships
                 return " " + cargo["description"]
             end
             if cargo["type"] == "quark" then
-                quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
+                quark = DataNetwork::getOrNull(spaceship["cargo"]["quarkuuid"])
                 return quark ? (" " + Quark::quarkToString(quark)) : " [could not find quark]"
             end
             raise "[Spaceships] error: CE8497BB"
@@ -185,7 +185,7 @@ class Spaceships
 
     # Spaceships::spaceships()
     def self.spaceships()
-        Nyx::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
+        DataNetwork::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
     end
 
     # Spaceships::recargo(spaceship)
@@ -194,7 +194,7 @@ class Spaceships
         return if cargo.nil?
         spaceship["cargo"] = cargo
         puts JSON.pretty_generate(spaceship)
-        Nyx::commitToDisk(spaceship)
+        DataNetwork::commitToDisk(spaceship)
     end
 
     # Spaceships::reengine(spaceship)
@@ -203,7 +203,7 @@ class Spaceships
         return if engine.nil?
         spaceship["engine"] = engine
         puts JSON.pretty_generate(spaceship)
-        Nyx::commitToDisk(spaceship)
+        DataNetwork::commitToDisk(spaceship)
     end
 
     # Spaceships::spaceshipDive(spaceship)
@@ -230,7 +230,7 @@ class Spaceships
                 Spaceships::recargo(spaceship)
             end
             if option == "destroy" then
-                Nyx::destroy(spaceship["uuid"])
+                DataNetwork::destroy(spaceship["uuid"])
             end
         }
     end
@@ -406,7 +406,7 @@ class Spaceships
         return if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" # asap-managed-killer
 
         if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
-            Nyx::destroy(spaceship["uuid"])
+            DataNetwork::destroy(spaceship["uuid"])
         end
     end
 
@@ -428,13 +428,13 @@ class Spaceships
             return
         end
 
-        Nyx::destroy(spaceship["uuid"])
+        DataNetwork::destroy(spaceship["uuid"])
     end
 
     # Spaceships::openCargo(spaceship)
     def self.openCargo(spaceship)
         if spaceship["cargo"]["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
+            quark = DataNetwork::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end

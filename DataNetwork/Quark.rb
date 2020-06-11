@@ -19,7 +19,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 require_relative "CoreData.rb"
 
@@ -59,7 +59,7 @@ class Quark
             "type"             => "line",
             "line"             => line
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -75,7 +75,7 @@ class Quark
             "type"             => "url",
             "url"              => url
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -97,7 +97,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -114,7 +114,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -128,7 +128,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -150,7 +150,7 @@ class Quark
             "type"             => "folder",
             "foldername"       => foldername2
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -172,7 +172,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename2
             }
-            Nyx::commitToDisk(point)
+            DataNetwork::commitToDisk(point)
             point
         else
             folderpath1 = location
@@ -189,7 +189,7 @@ class Quark
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
-            Nyx::commitToDisk(point)
+            DataNetwork::commitToDisk(point)
             point
         end
     end
@@ -206,7 +206,7 @@ class Quark
             "type"             => "unique-name",
             "name"             => uniquename
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -226,7 +226,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            Nyx::commitToDisk(point)
+            DataNetwork::commitToDisk(point)
             return point
         end
         if option == "mark file should be created" then
@@ -239,7 +239,7 @@ class Quark
                     next
                 end
                 mark = SecureRandom.uuid
-                markFilepath = "#{pointFolderLocation}/Nyx-Directory-Mark.txt"
+                markFilepath = "#{pointFolderLocation}/DataNetwork-Directory-Mark.txt"
                 File.open(markFilepath, "w"){|f| f.write(mark) }
                 break
             }
@@ -252,7 +252,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            Nyx::commitToDisk(point)
+            DataNetwork::commitToDisk(point)
             return point
         end
     end
@@ -268,7 +268,7 @@ class Quark
             "type"             => "datapod",
             "podname"          => podname
         }
-        Nyx::commitToDisk(point)
+        DataNetwork::commitToDisk(point)
         point
     end
 
@@ -299,7 +299,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename
             }
-            Nyx::commitToDisk(point)
+            DataNetwork::commitToDisk(point)
             return point
         end
         if type == "folder" then
@@ -318,7 +318,7 @@ class Quark
 
     # Quark::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Nyx::getOrNull(uuid)
+        DataNetwork::getOrNull(uuid)
     end
 
     # Quark::quarkToString(quark)
@@ -348,27 +348,27 @@ class Quark
         raise "Quark error 3c7968e4"
     end
 
-    # Quark::openQuark(point)
-    def self.openQuark(point)
-        if point["type"] == "line" then
-            puts point["line"]
+    # Quark::openQuark(quark)
+    def self.openQuark(quark)
+        if quark["type"] == "line" then
+            puts quark["line"]
             LucilleCore::pressEnterToContinue()
             return
         end
-        if point["type"] == "file" then
-            CoreDataFile::accessFile(point["filename"])
+        if quark["type"] == "file" then
+            CoreDataFile::accessFile(quark["filename"])
             return
         end
-        if point["type"] == "url" then
-            system("open '#{point["url"]}'")
+        if quark["type"] == "url" then
+            system("open '#{quark["url"]}'")
             return
         end
-        if point["type"] == "folder" then
-            CoreDataDirectory::openFolder(point["foldername"])
+        if quark["type"] == "folder" then
+            CoreDataDirectory::openFolder(quark["foldername"])
             return
         end
-        if point["type"] == "unique-name" then
-            uniquename = point["name"]
+        if quark["type"] == "unique-name" then
+            uniquename = quark["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 puts "opening: #{location}"
@@ -379,8 +379,8 @@ class Quark
             end
             return
         end
-        if point["type"] == "directory-mark" then
-            mark = point["mark"]
+        if quark["type"] == "directory-mark" then
+            mark = quark["mark"]
             location = AtlasCore::uniqueStringToLocationOrNull(mark)
             if location then
                 puts "opening: #{File.dirname(location)}"
@@ -391,13 +391,30 @@ class Quark
             end
             return
         end
-        if point["type"] == "datapod" then
-            podname = point["podname"]
+        if quark["type"] == "datapod" then
+            podname = quark["podname"]
             puts "#{podname}"
             puts "I do not yet know how to open/access/browse DataPods"
             LucilleCore::pressEnterToContinue()
             return
         end
         raise "Quark error 160050-490261"
+    end
+
+    # Quark::diveQuark(quark)
+    def self.diveQuark(quark)
+        loop {
+            puts Quark::quarkToString(quark)
+            operations = ["open", "set description"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", operations)
+            return if operation.nil?
+            if operation == "open" then
+                Quark::openQuark(quark)
+            end
+            if operation == "set description" then
+                quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
+                DataNetwork::commitToDisk(point)
+            end
+        }
     end
 end

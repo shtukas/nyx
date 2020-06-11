@@ -85,7 +85,7 @@ class CatalystFsck
     def self.checkOpenCycle(opencycle)
         puts JSON.pretty_generate(opencycle)
         targetuuid = opencycle["targetuuid"]
-        entity = Nyx::getOrNull(targetuuid)
+        entity = DataNetwork::getOrNull(targetuuid)
         if entity.nil? then
             puts "[error] open cycle".red
             puts JSON.pretty_generate(opencycle).red
@@ -290,7 +290,7 @@ class CatalystFsck
             exit
         end
         quarkuuid = asteroid["quarkuuid"] # We are targetting Quarks
-        quark = Nyx::getOrNull(quarkuuid)
+        quark = DataNetwork::getOrNull(quarkuuid)
         if quark.nil? then
             puts "[error] Asteroid has not known target quark".red
             puts JSON.pretty_generate(asteroid).red
@@ -331,7 +331,7 @@ class CatalystFsck
         end
 
         if spaceship["cargo"]["type"] == "quark" then
-            quark = Nyx::getOrNull(spaceship["cargo"]["quarkuuid"])
+            quark = DataNetwork::getOrNull(spaceship["cargo"]["quarkuuid"])
             if quark.nil? then
                 puts "[error] Spaceship item has not known target quark".red
                 puts JSON.pretty_generate(spaceship).red

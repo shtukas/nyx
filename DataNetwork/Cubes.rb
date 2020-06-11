@@ -72,7 +72,7 @@ class Cubes
             "tags"             => Cubes::makeTagsInteractively()
         }
         puts JSON.pretty_generate(cube)
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -88,7 +88,7 @@ class Cubes
             "tags"             => Cubes::makeTagsInteractively()
         }
         puts JSON.pretty_generate(cube)
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         if canCliqueInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this cube to an clique ? ") then
             clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
             if clique then
@@ -109,7 +109,7 @@ class Cubes
             "quarksuuids"      => [quark["uuid"]],
             "tags"             => []
         }
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -124,7 +124,7 @@ class Cubes
             "quarksuuids"      => [quark["uuid"]],
             "tags"             => []
         }
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -138,7 +138,7 @@ class Cubes
             "quarksuuids"      => [],
             "tags"             => []
         }
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -153,7 +153,7 @@ class Cubes
             "quarksuuids"      => [quark["uuid"]],
             "tags"             => tags
         }
-        Nyx::commitToDisk(cube)
+        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -174,13 +174,13 @@ class Cubes
 
     # Cubes::cubes()
     def self.cubes()
-        Nyx::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        DataNetwork::objects("cube-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
     # Cubes::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Nyx::getOrNull(uuid)
+        DataNetwork::getOrNull(uuid)
     end
 
     # ------------------------------------------------------------
@@ -227,7 +227,7 @@ class Cubes
 
         cube["quarksuuids"]
             .each{|quarkuuid|
-                quark = Nyx::getOrNull(quarkuuid)
+                quark = DataNetwork::getOrNull(quarkuuid)
                 puts "    - #{Quark::quarkToString(quark)}"
             }
         cube["tags"].each{|item|
@@ -247,10 +247,10 @@ class Cubes
         end
         target = 
             if cube["quarksuuids"].size == 1 then
-                Nyx::getOrNull(cube["quarksuuids"].first)
+                DataNetwork::getOrNull(cube["quarksuuids"].first)
             else
                 toString = lambda{|quarkuuid|
-                    quark = Nyx::getOrNull(quarkuuid)
+                    quark = DataNetwork::getOrNull(quarkuuid)
                     return "[null quark]"
                     Quark::quarkToString(quark)
                 }
@@ -270,7 +270,7 @@ class Cubes
         loop {
             system("clear")
             puts ""
-            cube = Nyx::getOrNull(cube["uuid"]) # useful if we have modified it
+            cube = DataNetwork::getOrNull(cube["uuid"]) # useful if we have modified it
             return if cube.nil? # useful if we have just destroyed it
 
             puts "Cube:"
@@ -284,15 +284,11 @@ class Cubes
                     items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
                 }
 
-            Links::getLinkedObjects(cube)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|clique| items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }] }
-
             cube["quarksuuids"]
                 .each{|quarkuuid| 
-                    quark = Nyx::getOrNull(quarkuuid)
+                    quark = DataNetwork::getOrNull(quarkuuid)
                     next if quark.nil?
-                    items << [Quark::quarkToString(quark), lambda{ Quark::openQuark(quark) }]
+                    items << [Quark::quarkToString(quark), lambda{ Quark::diveQuark(quark) }]
                 }
 
             cube["tags"]
@@ -316,7 +312,7 @@ class Cubes
                         return
                     end
                     cube["description"] = description
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 }]
             items << [
                 "quark (add new)", 
@@ -324,7 +320,7 @@ class Cubes
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     next if quark.nil?
                     cube["quarksuuids"] << quark["uuid"]
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 }]
             items << [
                 "quark (select and remove)", 
@@ -333,13 +329,13 @@ class Cubes
                     quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", cube["quarksuuids"], toStringLambda)
                     next if quark.nil?
                     cube["quarksuuids"] = cube["quarksuuids"].reject{|quarkuuid| quarkuuid == quark["uuid"] }
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 }]
             items << [
                 "tags (add new)", 
                 lambda{
                     cube["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 }]
             items << [
                 "tags (remove)", 
@@ -347,7 +343,7 @@ class Cubes
                     tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", cube["tags"])
                     next if tag.nil?
                     cube["tags"] = cube["tags"].reject{|t| t == tag }
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 }]
             items << [
                 "clique (select and add to)", 
@@ -366,14 +362,13 @@ class Cubes
                         "quarkuuid"       => cube["uuid"],
                     }
                     puts JSON.pretty_generate(claim)
-                    Nyx::commitToDisk(claim)
+                    DataNetwork::commitToDisk(claim)
                 }]
             items << [
                 "cube (destroy)", 
                 lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                        Nyx::destroy(cube["uuid"])
-                        return
+                        DataNetwork::destroy(cube["uuid"])
                     end
                 }]
 
@@ -464,13 +459,13 @@ class Cubes
                         tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
                         if tags1.join(':') != tags2.join(':') then
                             cube["tags"] = tags2
-                            Nyx::commitToDisk(cube)
+                            DataNetwork::commitToDisk(cube)
                         end
                     }
             end
             if operation == "cube dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
+                cube = DataNetwork::getOrNull(uuid)
                 if cube then
                     Cubes::cubeDive(cube)
                 else
@@ -479,11 +474,11 @@ class Cubes
             end
             if operation == "repair json (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
+                cube = DataNetwork::getOrNull(uuid)
                 if cube then
                     cubejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(cube))
                     cube = JSON.parse(cubejson)
-                    Nyx::commitToDisk(cube)
+                    DataNetwork::commitToDisk(cube)
                 else
                     puts "Could not find cube for uuid (#{uuid})"
                 end
@@ -500,7 +495,7 @@ class Cubes
             end
             if operation == "cube destroy (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                cube = Nyx::getOrNull(uuid)
+                cube = DataNetwork::getOrNull(uuid)
                 next if cube.nil?
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
                     puts "Well, this operation has not been implemented yet"

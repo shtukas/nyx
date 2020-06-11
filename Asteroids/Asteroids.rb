@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/KnowledgeObjects.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
@@ -64,7 +64,7 @@ class Asteroids
             "description"      => description,
             "quarkuuid"        => quark["uuid"]
         }
-        Nyx::commitToDisk(item)
+        DataNetwork::commitToDisk(item)
         item
     end
 
@@ -84,14 +84,14 @@ class Asteroids
 
     # Asteroids::asteroidBestDescription(item)
     def self.asteroidBestDescription(item)
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         return "#{JSON.generate(item)} -> null quark" if quark.nil?
         item["description"] || Quark::quarkToString(quark)
     end
 
     # Asteroids::asteroidOpen(item)
     def self.asteroidOpen(item)
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
     end
@@ -99,7 +99,7 @@ class Asteroids
     # Asteroids::asteroidToString(item)
     def self.asteroidToString(item)
         itemuuid = item["uuid"]
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         quarkType = quark ? quark["type"] : "[null]"
         isRunning = Runner::isRunning?(itemuuid)
         runningSuffix = isRunning ? "(running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
@@ -186,12 +186,12 @@ class Asteroids
         end
         item["orbitalname"] = orbitalname
         item["orbitaluuid"] = orbitaluuid
-        Nyx::commitToDisk(item)
+        DataNetwork::commitToDisk(item)
     end
 
     # Asteroids::recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
         tags = Cubes::makeTagsInteractively()
@@ -210,7 +210,7 @@ class Asteroids
     # Asteroids::recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
         # First we need a cube and opencycle that
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
         tags = Cubes::makeTagsInteractively()
@@ -259,35 +259,35 @@ class Asteroids
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                quark = Nyx::getOrNull(item["quarkuuid"])
+                quark = DataNetwork::getOrNull(item["quarkuuid"])
                 next if quark.nil?
                 Quark::openQuark(quark)
             end
             if option == "done" then
-                Nyx::destroy(item["uuid"])
+                DataNetwork::destroy(item["uuid"])
                 return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                Nyx::commitToDisk(item)
+                DataNetwork::commitToDisk(item)
             end
             if option == "recast" then
                 Asteroids::updateAsteroidOrbitalname(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
-                Nyx::commitToDisk(item)
+                DataNetwork::commitToDisk(item)
             end
             if option == "promote from Asteroid to Cube" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 next if !status
-                Nyx::destroy(item["uuid"])
+                DataNetwork::destroy(item["uuid"])
                 return
             end
             if option == "promote from Asteroid to Open Cycle" then
                 status = Asteroids::recastAsOpenCycle(item)
                 next if !status
-                Nyx::destroy(item["uuid"])
+                DataNetwork::destroy(item["uuid"])
                 return
             end
         }
@@ -295,7 +295,7 @@ class Asteroids
 
     # Asteroids::asteroids()
     def self.asteroids()
-        Nyx::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        DataNetwork::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 
     # Asteroids::getFocus()
@@ -342,7 +342,7 @@ class Asteroids
                 "type"             => "url",
                 "url"              => link
             }
-            Nyx::commitToDisk(quark)
+            DataNetwork::commitToDisk(quark)
             Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
             Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
         end
@@ -410,19 +410,19 @@ class Asteroids
     def self.startProcedure(item)
         uuid = item["uuid"]
         Runner::start(uuid)
-        quark = Nyx::getOrNull(item["quarkuuid"])
+        quark = DataNetwork::getOrNull(item["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
 
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
             Asteroids::stop(uuid, item)
-            Nyx::destroy(item["uuid"])
+            DataNetwork::destroy(item["uuid"])
             return
         end
 
         if item["description"].nil? then
             item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            Nyx::commitToDisk(item)
+            DataNetwork::commitToDisk(item)
         end
 
         if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
@@ -436,7 +436,7 @@ class Asteroids
             if option == "recast on knowledge network" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 return if !status
-                Nyx::destroy(item["uuid"])
+                DataNetwork::destroy(item["uuid"])
             end
         end
     end
@@ -461,7 +461,7 @@ class Asteroids
         end
 
         if option == "open" then
-            quark = Nyx::getOrNull(item["quarkuuid"])
+            quark = DataNetwork::getOrNull(item["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end
@@ -472,12 +472,12 @@ class Asteroids
 
         if option == "done" then
             Asteroids::stop(uuid, item)
-            Nyx::destroy(item["uuid"])
+            DataNetwork::destroy(item["uuid"])
         end
 
         if option == "description" then
             item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-            Nyx::commitToDisk(item)
+            DataNetwork::commitToDisk(item)
         end
 
         if option == "update orbital" then
@@ -489,20 +489,20 @@ class Asteroids
             Asteroids::stop(uuid, item)
             status = Asteroids::recastAsCubeContentInteractive(item)
             return if !status
-            Nyx::destroy(item["uuid"])
+            DataNetwork::destroy(item["uuid"])
         end
 
         if option == "recastAsOpenCycle" then
             Asteroids::stop(uuid, item)
             status = Asteroids::recastAsOpenCycle(item)
             return if !status
-            Nyx::destroy(item["uuid"])
+            DataNetwork::destroy(item["uuid"])
         end
 
         if option == "reset-reference-time" then
             Asteroids::stop(uuid, item)
             item["creationUnixtime"] = Time.new.to_f
-            Nyx::commitToDisk(item)
+            DataNetwork::commitToDisk(item)
         end
 
         if option == "dive" then

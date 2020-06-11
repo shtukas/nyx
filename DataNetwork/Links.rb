@@ -18,7 +18,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/KnowledgeObjects.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class Links
             "uuid1"            => object1["uuid"],
             "uuid2"            => object2["uuid"]
         }
-        Nyx::commitToDisk(link)
+        DataNetwork::commitToDisk(link)
         link
     end
 
@@ -45,11 +45,11 @@ class Links
 
     # Links::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        obj1s = Nyx::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj1s = DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid1"] == object["uuid"] }
                     .map{|link| KnowledgeObjects::getObjectOrNull(link["uuid2"]) }
                     .compact
-        obj2s = Nyx::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj2s = DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid2"] == object["uuid"] }
                     .map{|link| KnowledgeObjects::getObjectOrNull(link["uuid1"]) }
                     .compact
@@ -58,7 +58,7 @@ class Links
 
     # Links::links()
     def self.links()
-        Nyx::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        DataNetwork::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end
