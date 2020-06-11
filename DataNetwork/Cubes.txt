@@ -4,7 +4,7 @@ Cube {
     nyxType          : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
     creationUnixtime : Float # Unixtime with decimals
 
-    description      : String
+    description      : String # Optional
     quarksuuids      : Array[String]
     tags             : Array[String]
 }

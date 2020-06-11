@@ -402,11 +402,6 @@ class CatalystFsck
             puts JSON.pretty_generate(cube).red
             exit
         end
-        if cube["description"].nil? then
-            puts "[error] clique has no description".red
-            puts JSON.pretty_generate(cube).red
-            exit
-        end
         if cube["quarksuuids"].nil? then
             puts "[error] starlight quarksuuids has empty name".red
             puts JSON.pretty_generate(cube).red

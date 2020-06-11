@@ -60,29 +60,12 @@ class Cubes
         tags
     end
 
-    # Cubes::issueCubeInteractivelyOrNull_v1()
-    def self.issueCubeInteractivelyOrNull_v1()
-        cube = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "creationUnixtime" => Time.new.to_f,
-
-            "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] },
-            "tags"             => Cubes::makeTagsInteractively()
-        }
-        puts JSON.pretty_generate(cube)
-        DataNetwork::commitToDisk(cube)
-        cube
-    end
-
     # Cubes::issueCubeInteractivelyOrNull_v2(canCliqueInvite)
     def self.issueCubeInteractivelyOrNull_v2(canCliqueInvite)
         cube = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
-
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
             "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] },
             "tags"             => Cubes::makeTagsInteractively()
@@ -95,36 +78,6 @@ class Cubes
                 Links::issue(clique, cube)
             end
         end
-        cube
-    end
-
-    # Cubes::issueCube_v1(quark)
-    def self.issueCube_v1(quark)
-        cube = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "creationUnixtime" => Time.new.to_f,
-
-            "description"      => quark["description"] ? quark["description"] : "[cube default name / #{SecureRandom.hex(2)}]",
-            "quarksuuids"      => [quark["uuid"]],
-            "tags"             => []
-        }
-        DataNetwork::commitToDisk(cube)
-        cube
-    end
-
-    # Cubes::issueCube_v2(description, quark)
-    def self.issueCube_v2(description, quark)
-        cube = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "creationUnixtime" => Time.new.to_f,
-
-            "description"      => description,
-            "quarksuuids"      => [quark["uuid"]],
-            "tags"             => []
-        }
-        DataNetwork::commitToDisk(cube)
         cube
     end
 
@@ -183,12 +136,17 @@ class Cubes
         DataNetwork::getOrNull(uuid)
     end
 
+    # Cubes::getCubeFirstQuarkOrNull(cube)
+    def self.getCubeFirstQuarkOrNull(cube)
+        cube["quarksuuids"].map{|uuid| Quark::getOrNull(uuid) }.compact.first
+    end
+
     # ------------------------------------------------------------
 
     # Cubes::selectCubeFromExistingOrNull()
     def self.selectCubeFromExistingOrNull()
         descriptionXp = lambda { |cube|
-            "#{cube["description"]} (#{cube["uuid"][0,4]}) [#{cube["tags"].join(",")}]"
+            "#{Cubes::cubeToString(cube)} [#{cube["tags"].join(",")}]"
         }
         cubes = Cubes::cubes()
         descriptionsxp = cubes.reverse.map{|cube| descriptionXp.call(cube) }
@@ -214,16 +172,30 @@ class Cubes
         }
     end
 
+    # Cubes::getCubeDescriptionOrFirstQuarkToString(cube)
+    def self.getCubeDescriptionOrFirstQuarkToString(cube)
+        if cube["description"] then
+            cube["description"]
+        else
+            quark = Cubes::getCubeFirstQuarkOrNull(cube)
+            if quark then
+                Quark::quarkToString(quark)
+            else
+                "[cube with no description and no quark]"
+            end
+        end
+    end
+
     # Cubes::cubeToString(cube)
     def self.cubeToString(cube)
-        "[cube] [#{cube["uuid"][0, 4]}] #{cube["description"]} (#{cube["quarksuuids"].size})"
+        "[cube] [#{cube["uuid"][0, 4]}] #{Cubes::getCubeDescriptionOrFirstQuarkToString(cube)} (#{cube["quarksuuids"].size})"
     end
 
     # Cubes::openCube(cube)
     def self.openCube(cube)
         puts "Cube:"
         puts "    - uuid: #{cube["uuid"]}"
-        puts "    - description: #{cube["description"]}"
+        puts "    - description: #{Cubes::getCubeDescriptionOrFirstQuarkToString(cube)}"
 
         cube["quarksuuids"]
             .each{|quarkuuid|
@@ -269,20 +241,14 @@ class Cubes
     def self.cubeDive(cube)
         loop {
             system("clear")
-            puts ""
             cube = DataNetwork::getOrNull(cube["uuid"]) # useful if we have modified it
             return if cube.nil? # useful if we have just destroyed it
 
             puts "Cube:"
+            puts "    description: #{Cubes::getCubeDescriptionOrFirstQuarkToString(cube)}".green
             puts "    uuid: #{cube["uuid"]}"
-            puts "    description: #{cube["description"]}".green
 
             items = []
-
-            Links::getLinkedObjects(cube)
-                .each{|clique|
-                    items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
-                }
 
             cube["quarksuuids"]
                 .each{|quarkuuid| 
@@ -298,12 +264,15 @@ class Cubes
 
             items << nil
 
-            if !cube["quarksuuids"].empty? then
-                items << ["open", lambda{  Cubes::openCube(cube) }]
-            end
+            Links::getLinkedObjects(cube)
+                .each{|clique|
+                    items << [Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
+                }
+
+            items << nil
             
             items << [
-                "edit description", 
+                "cube (edit description)", 
                 lambda{
                     description = CatalystCommon::editTextUsingTextmate(cube["description"]).strip
                     if description == "" or description.lines.to_a.size != 1 then
@@ -312,6 +281,12 @@ class Cubes
                         return
                     end
                     cube["description"] = description
+                    DataNetwork::commitToDisk(cube)
+                }]
+            items << [
+                "unset description", 
+                lambda{
+                    cube.delete("description")
                     DataNetwork::commitToDisk(cube)
                 }]
             items << [
@@ -367,7 +342,7 @@ class Cubes
             items << [
                 "cube (destroy)", 
                 lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of this thing ? ") then
                         DataNetwork::destroy(cube["uuid"])
                     end
                 }]
@@ -518,7 +493,7 @@ class CubeSearch
     # CubeSearch::searchPatternToCubes(searchPattern)
     def self.searchPatternToCubes(searchPattern)
         Cubes::cubes()
-            .select{|cube| cube["description"].downcase.include?(searchPattern.downcase) }
+            .select{|cube| Cubes::getCubeDescriptionOrFirstQuarkToString(cube).downcase.include?(searchPattern.downcase) }
     end
 
     # CubeSearch::search(fragment)

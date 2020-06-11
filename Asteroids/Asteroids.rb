@@ -231,7 +231,6 @@ class Asteroids
     # Asteroids::asteroidDive(item)
     def self.asteroidDive(item)
         loop {
-            puts ""
             puts "uuid: #{item["uuid"]}"
             puts Asteroids::asteroidToString(item).green
             puts "project time: #{Bank::value(item["orbitaluuid"].to_f/3600)} hours".green

@@ -51,7 +51,7 @@ class Quark
     # Quark::issueQuarkLineInteractively()
     def self.issueQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -59,15 +59,15 @@ class Quark
             "type"             => "line",
             "line"             => line
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkUrlInteractively()
     def self.issueQuarkUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -75,8 +75,8 @@ class Quark
             "type"             => "url",
             "url"              => url
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkFileInteractivelyOrNull()
@@ -89,7 +89,7 @@ class Quark
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -97,8 +97,8 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkFile(filepath)
@@ -107,29 +107,29 @@ class Quark
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkFromText(text)
     def self.issueQuarkFromText(text)
         filename = CoreDataFile::textToFilename(text)
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "type"             => "file",
             "filename"         => filename
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkFolderInteractivelyOrNull()
@@ -142,7 +142,7 @@ class Quark
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyDirectoryToRepository(folderpath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -150,8 +150,8 @@ class Quark
             "type"             => "folder",
             "foldername"       => foldername2
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::locationToFileOrFolderQuarkIssued(location)
@@ -165,15 +165,15 @@ class Quark
             FileUtils.mv(filepath1, filepath2)
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            point = {
+            quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "file",
                 "filename"         => filename2
             }
-            DataNetwork::commitToDisk(point)
-            point
+            DataNetwork::commitToDisk(quark)
+            quark
         else
             folderpath1 = location
             foldername1 = File.basename(folderpath1)
@@ -182,15 +182,15 @@ class Quark
             FileUtils.mv(folderpath1, folderpath2)
             CoreDataDirectory::copyDirectoryToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            point = {
+            quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
-            DataNetwork::commitToDisk(point)
-            point
+            DataNetwork::commitToDisk(quark)
+            quark
         end
     end
 
@@ -198,7 +198,7 @@ class Quark
     def self.issueQuarkUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -206,8 +206,8 @@ class Quark
             "type"             => "unique-name",
             "name"             => uniquename
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # Quark::issueQuarkDirectoryMarkInteractively()
@@ -218,7 +218,7 @@ class Quark
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            point = {
+            quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
@@ -226,25 +226,25 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetwork::commitToDisk(point)
-            return point
+            DataNetwork::commitToDisk(quark)
+            return quark
         end
         if option == "mark file should be created" then
             mark = nil
             loop {
-                pointFolderLocation = LucilleCore::askQuestionAnswerAsString("Location to the point folder: ")
-                if !File.exists?(pointFolderLocation) then
-                    puts "I can't see location '#{pointFolderLocation}'"
+                quarkFolderLocation = LucilleCore::askQuestionAnswerAsString("Location to the quark folder: ")
+                if !File.exists?(quarkFolderLocation) then
+                    puts "I can't see location '#{quarkFolderLocation}'"
                     puts "Let's try that again..."
                     next
                 end
                 mark = SecureRandom.uuid
-                markFilepath = "#{pointFolderLocation}/DataNetwork-Directory-Mark.txt"
+                markFilepath = "#{quarkFolderLocation}/DataNetwork-Directory-Mark.txt"
                 File.open(markFilepath, "w"){|f| f.write(mark) }
                 break
             }
             description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            point = {
+            quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
@@ -252,15 +252,15 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetwork::commitToDisk(point)
-            return point
+            DataNetwork::commitToDisk(quark)
+            return quark
         end
     end
 
     # Quark::issueQuarkDataPodInteractively()
     def self.issueQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
-        point = {
+        quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -268,8 +268,8 @@ class Quark
             "type"             => "datapod",
             "podname"          => podname
         }
-        DataNetwork::commitToDisk(point)
-        point
+        DataNetwork::commitToDisk(quark)
+        quark
     end
 
     # --------------------------------------------------
@@ -292,15 +292,15 @@ class Quark
         end
         if type == "new text file" then
             filename = CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
-            point = {
+            quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "file",
                 "filename"         => filename
             }
-            DataNetwork::commitToDisk(point)
-            return point
+            DataNetwork::commitToDisk(quark)
+            return quark
         end
         if type == "folder" then
             return Quark::issueQuarkFolderInteractivelyOrNull()
@@ -323,7 +323,13 @@ class Quark
 
     # Quark::quarkToString(quark)
     def self.quarkToString(quark)
-        return "[#{quark["type"]}] #{quark["description"]}" if quark["description"]
+        if quark["description"] then
+            if quark["type"] == "file" then
+                return "[quark] [#{quark["type"]}] (#{File.extname(quark["filename"])}) #{quark["description"]}"
+            else
+                return "[quark] [#{quark["type"]}] #{quark["description"]}"
+            end
+        end
         if quark["type"] == "line" then
             return "[quark] [line] #{quark["line"]}"
         end
@@ -404,7 +410,8 @@ class Quark
     # Quark::diveQuark(quark)
     def self.diveQuark(quark)
         loop {
-            puts Quark::quarkToString(quark)
+            system("clear")
+            puts Quark::quarkToString(quark).green
             operations = ["open", "set description"]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", operations)
             return if operation.nil?
@@ -412,8 +419,10 @@ class Quark
                 Quark::openQuark(quark)
             end
             if operation == "set description" then
-                quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-                DataNetwork::commitToDisk(point)
+                description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+                next if description == ""
+                quark["description"] = description
+                DataNetwork::commitToDisk(quark)
             end
         }
     end

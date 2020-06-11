@@ -81,9 +81,8 @@ class Cliques
     def self.cliqueDive(clique)
         loop {
             system("clear")
-            puts ""
-            puts "uuid: #{clique["uuid"]}"
             puts Cliques::cliqueToString(clique).green
+            puts "uuid: #{clique["uuid"]}"
             items = []
 
             Links::getLinkedObjects(clique)
