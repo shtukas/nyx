@@ -72,25 +72,24 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
 
-Thread.new {
+def objectsMonitoringForOnScreenNotifications()
     loop {
-
         if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-            exit
+            return
         end
-
         sleep 5
-
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
             }
-
         sleep 120
-
     }
+end
+
+Thread.new {
+    objectsMonitoringForOnScreenNotifications()
 }
 
 NSXCatalystUI::standardUILoop()

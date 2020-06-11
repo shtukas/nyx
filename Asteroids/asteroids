@@ -80,7 +80,7 @@ loop {
     if option == "projects dive" then
         loop {
             puts "-> Asteroids dive"
-            orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Asteroids::orbitalnames())
+            orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital name ", Asteroids::orbitalnames())
             break if orbitalname.nil?
             loop {
                 puts "-> Visiting project '#{orbitalname}'"

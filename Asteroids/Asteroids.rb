@@ -73,7 +73,7 @@ class Asteroids
         orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
-            orbitalname = LucilleCore::askQuestionAnswerAsString("project name: ")
+            orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name : ")
             orbitaluuid = SecureRandom.uuid
         else
             orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
@@ -177,7 +177,7 @@ class Asteroids
         orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
         orbitaluuid = nil
         if orbitalname.nil? then
-            orbitalname = LucilleCore::askQuestionAnswerAsString("project name? ")
+            orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name ? ")
             return if orbitalname == ""
             orbitaluuid = SecureRandom.uuid
         else

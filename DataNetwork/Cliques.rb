@@ -96,13 +96,13 @@ class Cliques
                 DataNetwork::commitToDisk(clique)
             }]
 
-            items << ["cube (add from existing)", lambda{ 
+            items << ["add cube (from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
                 Links::issue(clique, cube)
             }]
 
-            items << ["cube (create new)", lambda{ 
+            items << ["add cube (create new)", lambda{ 
                 puts "Let's make a cube"
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                 cube = Cubes::issueCube_v3(description)

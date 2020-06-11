@@ -257,6 +257,8 @@ class Cubes
                     items << [Quark::quarkToString(quark), lambda{ Quark::diveQuark(quark) }]
                 }
 
+            items << nil
+
             cube["tags"]
                 .each{|tag| 
                     items << ["[tag] #{tag}", lambda{ Cubes::visitTag(tag) }]
