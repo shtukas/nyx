@@ -22,8 +22,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNe
 
 class Tags
 
-    # Tags::makeTagInteractivelyOrNull()
-    def self.makeTagInteractivelyOrNull()
+    # Tags::issueTag(payload)
+    def self.issueTag(payload)
+        tag = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "tag-57c7eced-24a8-466d-a6fe-588142afd53b",
+            "creationUnixtime" => Time.new.to_f,
+            "payload"          => payload
+        }
+        DataNetworkCoreFunctions::commitToDisk(tag)
+        tag
+    end
+
+    # Tags::issueTagInteractivelyOrNull()
+    def self.issueTagInteractivelyOrNull()
         puts "making a new Tag:"
         payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to abort): ")
         return nil if payload.size == 0
@@ -52,5 +64,16 @@ class Tags
     def self.tags()
         DataNetworkCoreFunctions::objects("tag-57c7eced-24a8-466d-a6fe-588142afd53b")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+    end
+
+    # Tags::getTagsByExactPayload(payload)
+    def self.getTagsByExactPayload(payload)
+        Tags::tags().select{|tag| tag["payload"] == payload }
+    end
+
+    # Tags::tagDive(tagPayload)
+    def self.tagDive(tagPayload)
+        puts "Tags::tagDive(tagPayload) is not implemented yet"
+        LucilleCore::pressEnterToContinue()
     end
 end

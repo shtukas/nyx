@@ -192,8 +192,7 @@ class Asteroids
         quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        tags = Cubes::makeTagsInteractively()
-        cube = Cubes::issueCube_v4(description, quark, tags)
+        cube = Cubes::issueCube_v4(description, quark)
         puts JSON.pretty_generate(cube)
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
@@ -211,8 +210,7 @@ class Asteroids
         quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        tags = Cubes::makeTagsInteractively()
-        cube = Cubes::issueCube_v4(description, quark, tags)
+        cube = Cubes::issueCube_v4(description, quark)
         puts JSON.pretty_generate(cube)
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then

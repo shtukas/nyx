@@ -417,11 +417,6 @@ class CatalystFsck
             end
             CatalystFsck::checkQuark(quark)
         }
-        if cube["tags"].nil? then
-            puts "[error] starlight tags has empty name".red
-            puts JSON.pretty_generate(cube).red
-            exit
-        end
     end
 
     # CatalystFsck::run()

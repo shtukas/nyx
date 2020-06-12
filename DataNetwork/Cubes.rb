@@ -31,7 +31,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Quark.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
 # -----------------------------------------------------------------
 
@@ -49,17 +49,6 @@ class Cubes
         quarks
     end
 
-    # Cubes::makeTagsInteractively()
-    def self.makeTagsInteractively()
-        tags = []
-        loop {
-            tag = LucilleCore::askQuestionAnswerAsString("tag (empty to exit): ")
-            break if tag == ""
-            tags << tag
-        }
-        tags
-    end
-
     # Cubes::issueCubeInteractivelyOrNull_v2(canCliqueInvite)
     def self.issueCubeInteractivelyOrNull_v2(canCliqueInvite)
         cube = {
@@ -67,8 +56,7 @@ class Cubes
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] },
-            "tags"             => Cubes::makeTagsInteractively()
+            "quarksuuids"      => Cubes::makeQuarksInteractively().map{|quark| quark["uuid"] }
         }
         puts JSON.pretty_generate(cube)
         DataNetworkCoreFunctions::commitToDisk(cube)
@@ -88,15 +76,14 @@ class Cubes
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
-            "quarksuuids"      => [],
-            "tags"             => []
+            "quarksuuids"      => []
         }
         DataNetworkCoreFunctions::commitToDisk(cube)
         cube
     end
 
-    # Cubes::issueCube_v4(description, quark, tags)
-    def self.issueCube_v4(description, quark, tags)
+    # Cubes::issueCube_v4(description, quark)
+    def self.issueCube_v4(description, quark)
         cube = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
@@ -104,25 +91,17 @@ class Cubes
 
             "description"      => description,
             "quarksuuids"      => [quark["uuid"]],
-            "tags"             => tags
         }
         DataNetworkCoreFunctions::commitToDisk(cube)
         cube
     end
 
-    # Cubes::getCubesByTag(tag)
-    def self.getCubesByTag(tag)
-        Cubes::cubes()
-            .select{|cube| cube["tags"].include?(tag) }
-    end
-
-    # Cubes::tags()
-    def self.tags()
-        Cubes::cubes()
-            .map{|cube| cube["tags"] }
+    # Cubes::getCubesByTag(tagPayload)
+    def self.getCubesByTag(tagPayload)
+        Tags::getTagsByExactPayload(tagPayload)
+            .map{|tag| Links::getLinkedObjects(tag) }
             .flatten
-            .uniq
-            .sort
+            .select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }
     end
 
     # Cubes::cubes()
@@ -151,31 +130,10 @@ class Cubes
 
     # Cubes::selectCubeFromExistingOrNull()
     def self.selectCubeFromExistingOrNull()
-        descriptionXp = lambda { |cube|
-            "#{Cubes::cubeToString(cube)} [#{cube["tags"].join(",")}]"
-        }
         cubes = Cubes::cubes()
-        descriptionsxp = cubes.reverse.map{|cube| descriptionXp.call(cube) }
-        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select cube (empty for null)", [""] + descriptionsxp)
-        return nil if selectedDescriptionxp == ""
-        cubes.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
-    end
-
-    # Cubes::visitTag(tag)
-    def self.visitTag(tag)
-        loop {
-            system('clear')
-            puts "Cubes: Tag Diving: #{tag}"
-            items = []
-            Cubes::cubes()
-                .select{|cube| cube["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
-                .each{|cube|
-                    items << [ Cubes::cubeToString(cube) , lambda { Cubes::cubeDive(cube) } ]
-                }
-            break if items.empty?
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
+        selected = CatalystCommon::chooseALinePecoStyle("select cube (empty for null)", [""] + cubes.reverse.map{|cube| Cubes::cubeToString(cube) })
+        return nil if selected == ""
+        cubes.select{|c| selected == Cubes::cubeToString(c) }.first
     end
 
     # Cubes::getCubeDescriptionOrFirstQuarkToString(cube)
@@ -208,21 +166,21 @@ class Cubes
                 quark = DataNetworkCoreFunctions::getOrNull(quarkuuid)
                 puts "    - #{Quark::quarkToString(quark)}"
             }
-        cube["tags"].each{|item|
-            puts "    - [tag] #{item}"
-        }
 
-        cliques = Links::getLinkedObjects(cube)
-        cliques.each{|clique|
-            puts "    - #{Cliques::cliqueToString(clique)}"
-        }
+        Links::getLinkedObjects(cube)
+            .each{|object|
+                puts "    - #{Cliques::cliqueToString(clique)}"
+            }
+
         puts "    -> Opening..."
+
         if cube["quarksuuids"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this cube. Dive? ") then
                 Cubes::cubeDive(cube)
             end
             return
         end
+
         target = 
             if cube["quarksuuids"].size == 1 then
                 DataNetworkCoreFunctions::getOrNull(cube["quarksuuids"].first)
@@ -265,16 +223,9 @@ class Cubes
 
             items << nil
 
-            cube["tags"]
-                .each{|tag| 
-                    items << ["[tag] #{tag}", lambda{ Cubes::visitTag(tag) }]
-                }
-
-            items << nil
-
             Links::getLinkedObjects(cube)
-                .sort{|o1, o2| DataNetworkInterfaces::objectLastActivityUnixtime(o1) <=> DataNetworkInterfaces::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
-                .each{|object| items << [DataNetworkInterfaces::objectToString(object), lambda{ DataNetworkInterfaces::objectDive(object) }] }
+                .sort{|o1, o2| DataNetworkDataObjects::objectLastActivityUnixtime(o1) <=> DataNetworkDataObjects::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .each{|object| items << [DataNetworkDataObjects::objectToString(object), lambda{ DataNetworkDataObjects::objectDive(object) }] }
 
             items << nil
             
@@ -316,19 +267,17 @@ class Cubes
             items << [
                 "tags (add new)", 
                 lambda{
-                    cube["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
-                    DataNetworkCoreFunctions::commitToDisk(cube)
+                    puts "TODO: This function is not implemented yet"
+                    LucilleCore::pressEnterToContinue()
                 }]
             items << [
                 "tags (remove)", 
                 lambda{
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", cube["tags"])
-                    next if tag.nil?
-                    cube["tags"] = cube["tags"].reject{|t| t == tag }
-                    DataNetworkCoreFunctions::commitToDisk(cube)
+                    puts "TODO: This function is not implemented yet"
+                    LucilleCore::pressEnterToContinue()
                 }]
             items << [
-                "clique (select and add to)", 
+                "clique (select and link to)", 
                 lambda{
                     clique = Cliques::selectCliqueOrMakeNewOneOrNull()
                     next if clique.nil?
@@ -384,22 +333,6 @@ class Cubes
         Cubes::cubeDive(cube)
     end
 
-    # Cubes::tagsThenCubesThenCubeThenDive()
-    def self.tagsThenCubesThenCubeThenDive()
-        loop {
-            tags = Cubes::tags().sort.map{|tag| tag }
-            tag = CatalystCommon::chooseALinePecoStyle("cube:", [""]+tags)
-            break if tag == ""
-            loop {
-                system("system")
-                cubes = Cubes::getCubesByTag(tag)
-                cube = Cubes::selectCubeFromGivenCubes(cubes)
-                break if cube.nil?
-                Cubes::cubeDive(cube)
-            }
-        }
-    end
-
     # Cubes::navigation()
     def self.navigation()
         fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
@@ -424,26 +357,13 @@ class Cubes
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "rename tag" then
+                puts "TODO: This case is not yet implemented"
+                LucilleCore::pressEnterToContinue()
+                next
                 oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
                 next if oldname.size == 0
                 newname = LucilleCore::askQuestionAnswerAsString("new name: ")
                 next if newname.size == 0
-                renameTagIfNeeded = lambda {|tag, oldname, newname|
-                    if tag.downcase == oldname.downcase then
-                        tag = newname
-                    end
-                    tag
-                }
-                Cubes::cubes()
-                    .each{|cube|
-                        uuid = cube["uuid"]
-                        tags1 = cube["tags"]
-                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                        if tags1.join(':') != tags2.join(':') then
-                            cube["tags"] = tags2
-                            DataNetworkCoreFunctions::commitToDisk(cube)
-                        end
-                    }
             end
             if operation == "cube dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -493,8 +413,9 @@ class CubeSearch
 
     # CubeSearch::searchPatternToTags(searchPattern)
     def self.searchPatternToTags(searchPattern)
-        Cubes::tags()
-            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+        Tags::tags()
+            .select{|tag| tag["payload"].downcase.include?(searchPattern.downcase)}
+            .map{|tag| tag["payload"] }
     end
 
     # CubeSearch::searchPatternToCubes(searchPattern)
@@ -540,8 +461,8 @@ class CubeSearch
                     return [ Cubes::cubeToString(cube) , lambda { Cubes::cubeDive(cube) } ]
                 end
                 if object["type"] == "tag" then
-                    tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { Cubes::visitTag(tag) } ]
+                    tagPayload = object["tag"]
+                    return [ "tag: #{tagPayload}" , lambda { Tags::tagDive(tagPayload) } ]
                 end
                 nil
             }

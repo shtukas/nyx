@@ -84,8 +84,8 @@ class Cliques
             items = []
 
             Links::getLinkedObjects(clique)
-                .sort{|o1, o2| DataNetworkInterfaces::objectLastActivityUnixtime(o1) <=> DataNetworkInterfaces::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
-                .each{|object| items << [DataNetworkInterfaces::objectToString(object), lambda{ DataNetworkInterfaces::objectDive(object) }] }
+                .sort{|o1, o2| DataNetworkDataObjects::objectLastActivityUnixtime(o1) <=> DataNetworkDataObjects::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .each{|object| items << [DataNetworkDataObjects::objectToString(object), lambda{ DataNetworkDataObjects::objectDive(object) }] }
 
             items << nil
 

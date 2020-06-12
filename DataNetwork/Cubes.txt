@@ -6,5 +6,4 @@ Cube {
 
     description      : String # Optional
     quarksuuids      : Array[String]
-    tags             : Array[String]
 }

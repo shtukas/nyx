@@ -69,13 +69,13 @@ class OpenCycles
     def self.openQuark(opencycle)
         entity = DataNetworkCoreFunctions::getOrNull(opencycle["targetuuid"])
         return if entity.nil?
-        DataNetworkInterfaces::openObject(entity)
+        DataNetworkDataObjects::openObject(entity)
     end
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
         entity = DataNetworkCoreFunctions::getOrNull(opencycle["targetuuid"])
-        "[opencycle] #{entity ? DataNetworkInterfaces::objectToString(entity) : "data entity not found"}"
+        "[opencycle] #{entity ? DataNetworkDataObjects::objectToString(entity) : "data entity not found"}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
@@ -101,7 +101,7 @@ class OpenCycles
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                DataNetworkInterfaces::objectDive(entity)
+                DataNetworkDataObjects::objectDive(entity)
             end
             if option == "destroy opencycle" then
                 DataNetworkCoreFunctions::destroy(opencycle["uuid"])

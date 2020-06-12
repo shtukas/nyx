@@ -98,16 +98,35 @@ class DataNetworkCoreFunctions
         DataNetworkCoreFunctions::getDataNetworkTypes()
             .map{|nyxtype| DataNetworkCoreFunctions::destroyAtType(uuid, nyxtype) }
     end
-end
 
-class DataNetworkInterfaces
+    # -----------------------------------------------------------------------------------
 
-    # DataNetworkInterfaces::getObjectOrNull(uuid)
-    def self.getObjectOrNull(uuid)
-        [ Cubes::getOrNull(uuid), Cliques::getOrNull(uuid) ].compact.first
+    # DataNetworkCoreFunctions::dataNetworkNyxTypes()
+    def self.dataNetworkNyxTypes()
+        [
+            "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+        ]
     end
 
-    # DataNetworkInterfaces::objectToString(object)
+end
+
+class DataNetworkDataObjects
+
+    # DataNetworkDataObjects::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        objects = DataNetworkCoreFunctions::dataNetworkNyxTypes()
+                    .map{|nyxtype|
+                        DataNetworkCoreFunctions::getOrNullAtType(uuid, nyxtype)
+                    }
+                    .compact
+        raise "7577a7d3-2dfa-40d4-a6a3-3885eaa54631" if objects.size >= 2
+        objects.first
+    end
+
+    # DataNetworkDataObjects::objectToString(object)
     def self.objectToString(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cubes::cubeToString(object)
@@ -118,7 +137,7 @@ class DataNetworkInterfaces
         raise "Error: 056686f0"
     end
 
-    # DataNetworkInterfaces::openObject(object)
+    # DataNetworkDataObjects::openObject(object)
     def self.openObject(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             cube = object
@@ -133,7 +152,7 @@ class DataNetworkInterfaces
         raise "Error: 2f28f27d"
     end
 
-    # DataNetworkInterfaces::objectDive(object)
+    # DataNetworkDataObjects::objectDive(object)
     def self.objectDive(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cubes::cubeDive(object)
@@ -146,7 +165,7 @@ class DataNetworkInterfaces
         raise "Error: cf25ea33"
     end
 
-    # DataNetworkInterfaces::objectLastActivityUnixtime(object)
+    # DataNetworkDataObjects::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cubes::getLastActivityUnixtime(object)
@@ -157,5 +176,48 @@ class DataNetworkInterfaces
             return
         end
         raise "Error: d66bdffa"
+    end
+end
+
+class Links
+
+    # Links::issue(object1, object2)
+    def self.issue(object1, object2)
+        raise "b9b7810e" if !DataNetworkCoreFunctions::dataNetworkNyxTypes().include?(object1["nyxType"])
+        raise "ff00b177" if !DataNetworkCoreFunctions::dataNetworkNyxTypes().include?(object2["nyxType"])
+        raise "14d9af33" if (object1["uuid"] == object2["uuid"]) # Prevent an object to link to itself
+        link = {
+            "nyxType"          => "link-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "creationUnixtime" => Time.new.to_f,
+            "uuid"             => SecureRandom.uuid,
+            "uuid1"            => object1["uuid"],
+            "uuid2"            => object2["uuid"]
+        }
+        DataNetworkCoreFunctions::commitToDisk(link)
+        link
+    end
+
+    # Links::linkToString(link)
+    def self.linkToString(link)
+        "[link] #{link["uuid1"]} <-> #{link["uuid2"]}"
+    end
+
+    # Links::getLinkedObjects(object)
+    def self.getLinkedObjects(object)
+        obj1s = DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+                    .select{|link| link["uuid1"] == object["uuid"] }
+                    .map{|link| DataNetworkDataObjects::getObjectOrNull(link["uuid2"]) }
+                    .compact
+        obj2s = DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+                    .select{|link| link["uuid2"] == object["uuid"] }
+                    .map{|link| DataNetworkDataObjects::getObjectOrNull(link["uuid1"]) }
+                    .compact
+        obj1s + obj2s
+    end
+
+    # Links::links()
+    def self.links()
+        DataNetworkCoreFunctions::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 end

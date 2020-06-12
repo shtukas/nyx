@@ -93,7 +93,10 @@ class NSXCatalystUI
 
             items << [
                 "tags", 
-                lambda { Cubes::tagsThenCubesThenCubeThenDive() }
+                lambda { 
+                    puts "This function is not implemented yet"
+                    LucilleCore::pressEnterToContinue()
+                }
             ]
 
             items << nil
@@ -233,7 +236,7 @@ class NSXCatalystUI
                             OpenCycles::opencycleDive(opencycle)
                             return
                         end
-                        DataNetworkInterfaces::objectDive(entity)
+                        DataNetworkDataObjects::objectDive(entity)
                     },
                     "isFocus" => false
                 }

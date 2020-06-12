@@ -1,9 +1,0 @@
-
-------------------------------------------------------
-Link {
-    "uuid"             : String
-    "nyxType"          : "link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "uuid1"            : String
-    "uuid2"            : String # Cube uuid or a Quark uuid
-}
