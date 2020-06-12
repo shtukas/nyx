@@ -535,6 +535,7 @@ class Asteroids
     # Asteroids::orbitalDive(orbitalname)
     def self.orbitalDive(orbitalname)
         loop {
+            system("clear")
             puts "-> Visiting project '#{orbitalname}'"
 
             items = []
@@ -557,8 +558,6 @@ class Asteroids
             break if !status
         }
     end
-
-
 
     # Asteroids::main()
     def self.main()
