@@ -61,11 +61,11 @@ class Spaceships
     # Spaceships::issue(cargo, engine)
     def self.issue(cargo, engine)
         spaceship = {
-            "uuid"        => SecureRandom.uuid,
-            "nyxType"     => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
-            "cargo"       => cargo,
-            "engine"      => engine
+            "cargo"            => cargo,
+            "engine"           => engine
         }
         DataNetworkCoreFunctions::commitToDisk(spaceship)
         spaceship
@@ -86,27 +86,14 @@ class Spaceships
         }
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
-
-            engine = spaceship["engine"]
-
-            if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
-                return " (bank: #{(Spaceships::bankValueLive(spaceship).to_f/3600).round(2)} hours)"
-            end
-
-            if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-                return " (ratio: #{Spaceships::onGoingTimeRatio(spaceship)})"
-            end
-
-            if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
-                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::asapManagedBestTimeRatio(spaceship)})"
-            end
-
-            raise "[Spaceships] error: 46b84bdb"
+            " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatio(spaceship)})"
         }
         typeAsUserFriendly = lambda {|type|
-            return "bank-account" if type == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
-            return "on-going-weekly-commitment" if type == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            return "asap-managed" if type == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad"
+            return " -> [] ‼️  " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            return " -> [] " if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
+            return " ⏱️ ‼️  " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return " ⏱️ " if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+            return " ⛵ " if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -149,35 +136,51 @@ class Spaceships
 
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt1 = "bank managed until completion             ( bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38 )"
-        opt5 = "asap managed                              ( asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad )"
-        opt3 = "On-going time commitment without deadline ( on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada )"
+        opt5 = "until completion ‼️       ( until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219 )"
+        opt1 = "until completion 🏖️       ( until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72 )"
+        opt0 = "single time commitment ‼️ ( singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32 )"
+        opt2 = "single time commitment 🏖️ ( singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea )"
+        opt3 = "on-going time commitment  ( on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada )"
 
         options = [
-            opt1,
             opt5,
+            opt1,
+            opt0,
+            opt2,
             opt3,
         ]
+
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
         return nil if option.nil?
-
-        if option == opt3 then
-            timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
+        if option == opt5 then
             return {
-                "type"                         => "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
-                "referenceunixtime"           => Time.new.to_i,
-                "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
+                "type" => "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
             }
         end
         if option == opt1 then
             return {
-                "type" => "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
+                "type" => "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
             }
         end
-
-        if option == opt5 then
+        if option == opt0 then
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
-                "type" => "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad"
+                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "timeCommitmentInHours" => timeCommitmentInHours
+            }
+        end
+        if option == opt2 then
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+            return {
+                "type"                  => "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea",
+                "timeCommitmentInHours" => timeCommitmentInHours
+            }
+        end
+        if option == opt3 then
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
+            return {
+                "type"                  => "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
+                "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
         nil
@@ -246,8 +249,17 @@ class Spaceships
         }
     end
 
-    # --------------------------------------------------------------------
-    # Catalyst Object support
+    # Spaceships::rollingTimeRatio(spaceship)
+    def self.rollingTimeRatio(spaceship)
+        uuid = spaceship["uuid"]
+        (1..7)
+            .map{|i|
+                timedone = Ping::totalOverTimespan(uuid, i*86400) # + Spaceships::runTimeIfAny(spaceship)
+                trueTime = i*86400
+                timedone.to_f/trueTime
+            }
+            .max
+    end
 
     # Spaceships::metric(spaceship)
     def self.metric(spaceship)
@@ -259,26 +271,34 @@ class Spaceships
 
         # Lucille.txt
         return 0 if (spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" and IO.read("/Users/pascal/Desktop/Lucille.txt").strip.size == 0)
+
+        genericFormula = lambda {|spaceship, baseMetric|
+            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
+        }
+
+        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+            return genericFormula.call(spaceship, 0.74)
+        end
+
+        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
+            return genericFormula.call(spaceship, 0.65)
+        end
+
+        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            baseMetric = engine["baseMetric"] ? engine["baseMetric"] : 0.74
+            return genericFormula.call(spaceship, baseMetric)
+        end
  
-        if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
-            timeBank = Bank::value(uuid)
-            if timeBank >= 0 then
-                return 0.20 + 0.2*Math.exp(-timeBank.to_f/3600)
-            else
-                return 0.70 + (1 - Math.exp(-timeBank.to_f/3600)).to_f/100
-            end
+        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            return genericFormula.call(spaceship, 0.65)
         end
 
-        if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            if Ping::totalOverTimespan(uuid, 86400*7) >= engine["timeCommitmentInHoursPerWeek"]*86400 then
-                return 0.30 - Spaceships::onGoingTimeRatio(spaceship)
+        if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+            if Ping::totalOverTimespan(uuid, 86400*7) >= engine["timeCommitmentInHours"]*86400 then
+                return genericFormula.call(spaceship, 0.30)
             else
-                return 0.70 - Spaceships::onGoingTimeRatio(spaceship)
+                return genericFormula.call(spaceship, 0.70)
             end
-        end
-
-        if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
-            return 0.74 - 0.1*Spaceships::asapManagedBestTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -290,15 +310,15 @@ class Spaceships
 
         engine = spaceship["engine"]
 
-        if engine["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" then
+        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
             return Bank::value(uuid) < 0
         end
 
-        if engine["type"] == "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            return Ping::totalOverTimespan(uuid, 86400*7) < engine["timeCommitmentInHoursPerWeek"]*86400
+        if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+            return Ping::totalOverTimespan(uuid, 86400*7) < engine["timeCommitmentInHours"]*86400
         end
 
-        if engine["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" then
+        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             return true
         end
 
@@ -345,7 +365,7 @@ class Spaceships
         {
             "uuid"      => uuid,
             "body"      => getBody.call(spaceship),
-            "metric"    => Spaceships::metric(spaceship) + (uuid == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" ? 0.06 : 0), # Bumping Guardian Work by 0.06 to match interface metric specification.
+            "metric"    => Spaceships::metric(spaceship),
             "execute"   => lambda { Spaceships::spaceshipDive(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
             "isRunning" => Spaceships::isRunning?(spaceship),
@@ -362,7 +382,7 @@ class Spaceships
                     .reverse
         return [] if objects.empty?
         if objects[0]["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
-            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
+            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
         end
         objects
     end
@@ -370,11 +390,6 @@ class Spaceships
     # Spaceships::spaceshipStartSequence(spaceship)
     def self.spaceshipStartSequence(spaceship)
         return if Spaceships::isRunning?(spaceship)
-
-        if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then # Guardian Work
-            Runner::start(spaceship["uuid"])
-            return
-        end
 
         if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then # Lucille.txt
             Runner::start(spaceship["uuid"])
@@ -412,7 +427,6 @@ class Spaceships
         puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
         Ping::put(spaceship["uuid"], timespan)
 
-        return if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" # Guardian Work
         return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # Lucille.txt
         return if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" # asap-managed-killer
 
@@ -423,11 +437,6 @@ class Spaceships
 
     # Spaceships::spaceshipDestroySequence(spaceship)
     def self.spaceshipDestroySequence(spaceship)
-        if spaceship["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" then
-            puts "You cannot destroy this one (Guardian Work)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
         if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
             puts "You cannot destroy this one (Lucille.txt)"
             LucilleCore::pressEnterToContinue()
@@ -438,7 +447,6 @@ class Spaceships
             LucilleCore::pressEnterToContinue()
             return
         end
-
         DataNetworkCoreFunctions::destroy(spaceship["uuid"])
     end
 
@@ -449,32 +457,6 @@ class Spaceships
             return if quark.nil?
             Quark::openQuark(quark)
         end
-    end
-
-    # --------------------------------------------------------------------
-    # on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada
-
-    # Spaceships::onGoingTimeRatio(spaceship)
-    def self.onGoingTimeRatio(spaceship)
-        uuid = spaceship["uuid"]
-        timedone = Ping::totalOverTimespan(uuid, 7*86400) + Spaceships::runTimeIfAny(spaceship)
-        trueTime = 7*86400
-        timedone.to_f/trueTime
-    end
-
-    # --------------------------------------------------------------------
-    # asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad
-
-    # Spaceships::asapManagedBestTimeRatio(spaceship)
-    def self.asapManagedBestTimeRatio(spaceship)
-        uuid = spaceship["uuid"]
-        (1..7)
-            .map{|i|
-                timedone = Ping::totalOverTimespan(uuid, i*86400) # + Spaceships::runTimeIfAny(spaceship)
-                trueTime = i*86400
-                timedone.to_f/trueTime
-            }
-            .max
     end
 end
 

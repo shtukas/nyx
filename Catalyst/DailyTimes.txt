@@ -1,7 +1,0 @@
-
-Guardian Work : 6 hours Mon-Fri
-    Spaceship
-        uuid: "5c81927e-c4fb-4f8d-adae-228c346c8c7d"
-        engine: "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
-
-Spaceships ("bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38") (top 3) : 2 hours (2/3 hours each) Mon-Sat

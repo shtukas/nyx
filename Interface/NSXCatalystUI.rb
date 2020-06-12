@@ -343,18 +343,6 @@ class NSXCatalystUI
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
 
-            # Guardian Work
-            DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
-
-            # Spaceship bank managed
-            Spaceships::spaceships()
-                .select{|spaceship| spaceship["engine"]["type"] == "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38" }
-                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                .first(3)
-                .each{|spaceship|
-                    DailyTimes::putTimeToBankNoOftenThanOnceADay(spaceship["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
-                }
-
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then
