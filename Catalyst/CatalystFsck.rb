@@ -58,7 +58,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spacesh
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Quark.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/CoreData.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Librarian.rb"
 
 # -------------------------------------------------------------------------
 
@@ -203,7 +203,7 @@ class CatalystFsck
                 puts JSON.pretty_generate(quark).red
                 exit
             end
-            if !CoreDataFile::exists?(quark["filename"]) then
+            if !LibrarianFile::exists?(quark["filename"]) then
                 puts "[error] Targetted file doesn't exists".red
                 puts JSON.pretty_generate(quark).red
                 exit
@@ -216,7 +216,7 @@ class CatalystFsck
                 puts JSON.pretty_generate(quark).red
                 exit
             end
-            if !CoreDataDirectory::exists?(quark["foldername"]) then
+            if !LibrarianDirectory::exists?(quark["foldername"]) then
                 puts "[error] Targetted foldername doesn't exists".red
                 puts JSON.pretty_generate(quark).red
                 exit

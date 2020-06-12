@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/DataNetwork.rb"
 
-require_relative "CoreData.rb"
+require_relative "Librarian.rb"
 
 # -----------------------------------------------------------------
 
@@ -87,7 +87,7 @@ class Quark
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
-        CoreDataFile::copyFileToRepository(filepath2)
+        LibrarianFile::copyFileToRepository(filepath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         quark = {
             "uuid"             => SecureRandom.uuid,
@@ -106,7 +106,7 @@ class Quark
         filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
-        CoreDataFile::copyFileToRepository(filepath2)
+        LibrarianFile::copyFileToRepository(filepath2)
         quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -120,7 +120,7 @@ class Quark
 
     # Quark::issueQuarkFromText(text)
     def self.issueQuarkFromText(text)
-        filename = CoreDataFile::textToFilename(text)
+        filename = LibrarianFile::textToFilename(text)
         quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -140,7 +140,7 @@ class Quark
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
         folderpath2 = "#{File.dirname(folderpath1)}/#{foldername2}"
         FileUtils.mv(folderpath1, folderpath2)
-        CoreDataDirectory::copyDirectoryToRepository(folderpath2)
+        LibrarianDirectory::copyDirectoryToRepository(folderpath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         quark = {
             "uuid"             => SecureRandom.uuid,
@@ -163,7 +163,7 @@ class Quark
             filename2 = "#{CatalystCommon::l22()}-#{filename1}"
             filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
             FileUtils.mv(filepath1, filepath2)
-            CoreDataFile::copyFileToRepository(filepath2)
+            LibrarianFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             quark = {
                 "uuid"             => SecureRandom.uuid,
@@ -180,7 +180,7 @@ class Quark
             foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
             folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
             FileUtils.mv(folderpath1, folderpath2)
-            CoreDataDirectory::copyDirectoryToRepository(folderpath2)
+            LibrarianDirectory::copyDirectoryToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             quark = {
                 "uuid"             => SecureRandom.uuid,
@@ -239,7 +239,7 @@ class Quark
                     next
                 end
                 mark = SecureRandom.uuid
-                markFilepath = "#{quarkFolderLocation}/DataNetwork-Directory-Mark.txt"
+                markFilepath = "#{quarkFolderLocation}/Nyx-Directory-Mark.txt"
                 File.open(markFilepath, "w"){|f| f.write(mark) }
                 break
             }
@@ -291,7 +291,7 @@ class Quark
             return Quark::issueQuarkFileInteractivelyOrNull()
         end
         if type == "new text file" then
-            filename = CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
+            filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
             quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -362,7 +362,7 @@ class Quark
             return
         end
         if quark["type"] == "file" then
-            CoreDataFile::accessFile(quark["filename"])
+            LibrarianFile::accessFile(quark["filename"])
             return
         end
         if quark["type"] == "url" then
@@ -370,7 +370,7 @@ class Quark
             return
         end
         if quark["type"] == "folder" then
-            CoreDataDirectory::openFolder(quark["foldername"])
+            LibrarianDirectory::openFolder(quark["foldername"])
             return
         end
         if quark["type"] == "unique-name" then

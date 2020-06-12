@@ -32,7 +32,7 @@ Quark
     "description"      : nil | String
 
     "type"             : "file"
-    "filename"         : String (CoreData managed)
+    "filename"         : String (Librarian managed)
 }
 
 {
@@ -43,7 +43,7 @@ Quark
     "description"      : nil | String
 
     "type"             : "folder"
-    "foldername"       : String (CoreData managed)
+    "foldername"       : String (Librarian managed)
 }
 
 {
@@ -67,7 +67,7 @@ Quark
     "type"             : "directory-mark"
     "mark"             : String # Use Atlas to find them.
                            # Atlas also supports findind directory marks.
-                           # `DataNetwork-Directory-Mark.txt` files with a unique name inside.
+                           # `Nyx-Directory-Mark.txt` files with a unique name inside.
 }
 
 {

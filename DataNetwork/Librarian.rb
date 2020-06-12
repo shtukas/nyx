@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/CoreData.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNetwork/Librarian.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -21,13 +21,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 # -----------------------------------------------------------------
 
-class CoreDataUtils
-    # CoreDataUtils::pathToCoreData()
-    def self.pathToCoreData()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/CoreData"
+class LibrarianUtils
+    # LibrarianUtils::pathToLibrarian()
+    def self.pathToLibrarian()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Librarian"
     end
 
-    # CoreDataUtils::copyLocationToCatalystBin(location)
+    # LibrarianUtils::copyLocationToCatalystBin(location)
     def self.copyLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
@@ -38,7 +38,7 @@ class CoreDataUtils
         LucilleCore::copyFileSystemLocation(location, folder3)
     end
 
-    # CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth(folderpath)
+    # LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth(folderpath)
     def self.getSubfoldersMonthsNotIncludingThisMonth(folderpath)
         months = Dir.entries(folderpath)
                     .select{|filename| filename[0, 1] != '.' }
@@ -46,14 +46,12 @@ class CoreDataUtils
     end
 end
 
-class CoreDataFile
+class LibrarianFile
 
-
-
-    # CoreDataFile::filenameToRepositoryFilepath(filename)
+    # LibrarianFile::filenameToRepositoryFilepath(filename)
     def self.filenameToRepositoryFilepath(filename)
 
-        thisMonthFolderPath = "#{CoreDataUtils::pathToCoreData()}/Files2/#{Time.new.strftime("%Y-%m")}"
+        thisMonthFolderPath = "#{LibrarianUtils::pathToLibrarian()}/Files2/#{Time.new.strftime("%Y-%m")}"
 
         if !File.exists?(thisMonthFolderPath) then
             FileUtils.mkdir(thisMonthFolderPath)
@@ -63,8 +61,8 @@ class CoreDataFile
 
         return filepath1 if File.exists?(filepath1)
 
-        filepath2 = CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth("#{CoreDataUtils::pathToCoreData()}/Files2")
-                        .map{|month| "#{CoreDataUtils::pathToCoreData()}/Files2/#{month}/#{filename}" }
+        filepath2 = LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth("#{LibrarianUtils::pathToLibrarian()}/Files2")
+                        .map{|month| "#{LibrarianUtils::pathToLibrarian()}/Files2/#{month}/#{filename}" }
                         .select{|fpath| File.exists?(fpath) }
                         .first
 
@@ -76,70 +74,70 @@ class CoreDataFile
         filepath1
     end
 
-    # CoreDataFile::copyFileToRepository(filepath1)
+    # LibrarianFile::copyFileToRepository(filepath1)
     def self.copyFileToRepository(filepath1)
-        raise "CoreData Error 655ACBBD" if !File.exists?(filepath1)
-        raise "CoreData Error 7755B7DB" if File.basename(filepath1).include?("'") 
+        raise "Librarian Error 655ACBBD" if !File.exists?(filepath1)
+        raise "Librarian Error 7755B7DB" if File.basename(filepath1).include?("'") 
                 # We could make the correction here but we want the clients (which manage the file) 
                 # to make the renaming themselves if needed
-        filepath2 = CoreDataFile::filenameToRepositoryFilepath(File.basename(filepath1))
-        raise "CoreData Error 909222C9" if File.exists?(filepath2)
+        filepath2 = LibrarianFile::filenameToRepositoryFilepath(File.basename(filepath1))
+        raise "Librarian Error 909222C9" if File.exists?(filepath2)
         FileUtils.cp(filepath1, filepath2)
     end
 
-    # CoreDataFile::exists?(filename)
+    # LibrarianFile::exists?(filename)
     def self.exists?(filename)
-        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
+        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
         File.exists?(filepath)
     end
 
-    # CoreDataFile::fileByFilenameIsSafelyOpenable(filename)
+    # LibrarianFile::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
-    # CoreDataFile::accessFile(filename)
+    # LibrarianFile::accessFile(filename)
     def self.accessFile(filename)
-        if CoreDataFile::fileByFilenameIsSafelyOpenable(filename) then
-            filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
+        if LibrarianFile::fileByFilenameIsSafelyOpenable(filename) then
+            filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
             system("open '#{filepath}'")
             if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ", false) then
                 FileUtils.cp(filepath, "/Users/pascal/Desktop")
                 puts "File copied to Desktop {#{File.basename(filepath)}}"
             end
         else
-            filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
+            filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
             FileUtils.cp(filepath, "/Users/pascal/Desktop")
             puts "File copied to Desktop {#{File.basename(filepath)}}"
         end
     end
 
-    # CoreDataFile::makeNewTextFileInteractivelyReturnCoreDataFilename()
-    def self.makeNewTextFileInteractivelyReturnCoreDataFilename()
+    # LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
+    def self.makeNewTextFileInteractivelyReturnLibrarianFilename()
         filename = "#{CatalystCommon::l22()}.txt"
-        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
+        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
         FileUtils.touch(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
         filename
     end
 
-    # CoreDataFile::textToFilename(text)
+    # LibrarianFile::textToFilename(text)
     def self.textToFilename(text)
         filename = "#{CatalystCommon::l22()}.txt"
-        filepath = CoreDataFile::filenameToRepositoryFilepath(filename)
+        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
         File.open(filepath, "w"){|f| f.puts(text) }
         filename
     end
 end
 
-class CoreDataDirectory
+class LibrarianDirectory
 
-    # CoreDataDirectory::foldernameToFolderpath(foldername)
+    # LibrarianDirectory::foldernameToFolderpath(foldername)
     def self.foldernameToFolderpath(foldername)
 
-        thisMonthFolderPath = "#{CoreDataUtils::pathToCoreData()}/Directories2/#{Time.new.strftime("%Y-%m")}"
+        thisMonthFolderPath = "#{LibrarianUtils::pathToLibrarian()}/Directories2/#{Time.new.strftime("%Y-%m")}"
 
         if !File.exists?(thisMonthFolderPath) then
             FileUtils.mkdir(thisMonthFolderPath)
@@ -149,8 +147,8 @@ class CoreDataDirectory
 
         return folderpath1 if File.exists?(folderpath1)
 
-        folderpath2 = CoreDataUtils::getSubfoldersMonthsNotIncludingThisMonth("#{CoreDataUtils::pathToCoreData()}/Directories2")
-                        .map{|month| "#{CoreDataUtils::pathToCoreData()}/Directories2/#{month}/#{foldername}" }
+        folderpath2 = LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth("#{LibrarianUtils::pathToLibrarian()}/Directories2")
+                        .map{|month| "#{LibrarianUtils::pathToLibrarian()}/Directories2/#{month}/#{foldername}" }
                         .select{|fpath| File.exists?(fpath) }
                         .first
 
@@ -162,26 +160,26 @@ class CoreDataDirectory
         folderpath1
     end
 
-    # CoreDataDirectory::exists?(foldername)
+    # LibrarianDirectory::exists?(foldername)
     def self.exists?(foldername)
-        folderpath = CoreDataDirectory::foldernameToFolderpath(foldername)
+        folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
         File.exists?(folderpath)
     end
 
-    # CoreDataDirectory::copyDirectoryToRepository(folderpath1)
+    # LibrarianDirectory::copyDirectoryToRepository(folderpath1)
     def self.copyDirectoryToRepository(folderpath1)
-        raise "CoreData Error 9F5F3754" if !File.exists?(folderpath1)
-        raise "CoreData Error D6D2099B" if File.basename(folderpath1).include?("'")
+        raise "Librarian Error 9F5F3754" if !File.exists?(folderpath1)
+        raise "Librarian Error D6D2099B" if File.basename(folderpath1).include?("'")
                 # We could make the correction here but we want the clients (which manage the directory) 
                 # to make the renaming themselves if needed
-        folderpath2 = CoreDataDirectory::foldernameToFolderpath(File.basename(folderpath1))
-        raise "CoreData Error 58A61FB9" if File.exists?(folderpath2)
+        folderpath2 = LibrarianDirectory::foldernameToFolderpath(File.basename(folderpath1))
+        raise "Librarian Error 58A61FB9" if File.exists?(folderpath2)
         LucilleCore::copyFileSystemLocation(folderpath1, folderpath2)
     end
 
-    # CoreDataDirectory::openFolder(foldername)
+    # LibrarianDirectory::openFolder(foldername)
     def self.openFolder(foldername)
-        folderpath = CoreDataDirectory::foldernameToFolderpath(foldername)
+        folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
         return if !File.exists?(folderpath)
         system("open '#{folderpath}'")
     end
