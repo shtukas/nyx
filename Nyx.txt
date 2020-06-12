@@ -1,0 +1,9 @@
+Nyx is the collection of the DataNetwork and the Roles.
+
+The DataNetwork is made of Quarks, Cubes, Tags and Cliques and the Links between them.
+
+Any object of the DataNetwork can have one or more Roles.
+
+Roles: Data, Asteriod, Starship and OpenCycle
+
+When a cube is created a role is set. Roles can be added and removed any time. If a role is destroyed, and the cube doesn't have any role left, the user is asked to set a role or to destroy the Cube.
