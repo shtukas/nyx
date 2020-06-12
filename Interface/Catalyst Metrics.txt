@@ -10,18 +10,20 @@
         0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
         0.78+         Waves every-n-hours / every-n-days
 
-        0.76  ->      Spaceships
-                        Guardian Work (special case of bank-account)
+        0.76  ->      Spaceships: Guardian Work
+                                  "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
 
-        0.74  ->      Spaceships
-                        asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad
+        0.74  ->      Spaceships: "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
+                                  "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
 
-        0.70+ ->      Spaceships
-                        bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38
-                        on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada
+        0.70  ->      Spaceships: "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
 
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids
+
+        0.65  ->      Spaceships: "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
+                                  "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+
         0.50          Backups Monitor
 
         0.20 -------- Water level ------------------------------

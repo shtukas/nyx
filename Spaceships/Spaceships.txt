@@ -21,14 +21,24 @@ Spaceship
 
     SpaceshipEngine
         {
-            "type" : "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
+            "type" : "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
         }
         {
-            "type"                         : "on-going-weekly-commitment-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            "timeCommitmentInHoursPerWeek" : Float
+            "type" : "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
         }
         {
-            "type" : "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad"
+            "type"                  : "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            "timeCommitmentInHours" : Float
+            "baseMetric"            : Float # If set, is used as base metric
+                                            # Was introduced to put Guardian Work at 0.76
+        }
+        {
+            "type"                  : "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+            "timeCommitmentInHours" : Float
+        }
+        {
+            "type"                  : "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            "timeCommitmentInHours" : Float
         }
 
 ------------------------------------------------------
@@ -45,7 +55,7 @@ Guardian Work
     "description": "Guardian Work"
   },
   "engine": {
-    "type": "bank-account-3282f7af-ff9e-4c9b-84eb-306882c05f38"
+    "type": "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
   },
   "nyxType": "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
 }
@@ -62,12 +72,12 @@ Shows the contents of the Lucille.txt file
       "description": "Lucille.txt"
     },
     "engine": {
-      "type": "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad",
+      "type": "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219",
     }
 }
 
 
-When is in first position and active, prevents the display of any asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad
+When is in first position and active, prevents the display of any until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219
 
 {
     "uuid": "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9",
@@ -78,6 +88,6 @@ When is in first position and active, prevents the display of any asap-managed-d
       "description": "asap-managed-killer"
     },
     "engine": {
-      "type": "asap-managed-dd79cb44-5b70-4043-91e8-68c1a34e1fad",
+      "type": "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219",
     }
 }
