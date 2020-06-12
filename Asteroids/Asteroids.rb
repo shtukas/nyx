@@ -74,7 +74,7 @@ class Asteroids
             orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name : ")
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
             # We are not considering the case null
         end
         [orbitalname, orbitaluuid]
@@ -133,8 +133,8 @@ class Asteroids
             .sort
     end
 
-    # Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
-    def self.orbitalname2orbitaluuidOrNUll(orbitalname)
+    # Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
+    def self.orbitalname2orbitaluuidOrNull(orbitalname)
         orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
         return orbitaluuid if !orbitaluuid.nil?
         orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
@@ -151,17 +151,17 @@ class Asteroids
 
     # Asteroids::asteroidsForOrbitalname(orbitalname)
     def self.asteroidsForOrbitalname(orbitalname)
-        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
         return [] if orbitaluuid.nil?
         Asteroids::asteroids()
             .select{|item| item["orbitaluuid"] == orbitaluuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
 
-    # Asteroids::projectsTimeDistribution()
-    def self.projectsTimeDistribution()
+    # Asteroids::orbitalsTimeDistribution()
+    def self.orbitalsTimeDistribution()
         Asteroids::orbitalnames().map{|orbitalname|
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
@@ -179,7 +179,7 @@ class Asteroids
             return if orbitalname == ""
             orbitaluuid = SecureRandom.uuid
         else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
             return if orbitaluuid.nil?
         end
         item["orbitalname"] = orbitalname
@@ -302,7 +302,7 @@ class Asteroids
         if focus then
             return JSON.parse(focus)
         end
-        focus = Asteroids::projectsTimeDistribution()
+        focus = Asteroids::orbitalsTimeDistribution()
                     .sort{|i1, i2|
                         i1["timeInHours"] <=> i2["timeInHours"]
                     }
@@ -505,5 +505,96 @@ class Asteroids
         if option == "dive" then
             Asteroids::asteroidDive(item)
         end
+    end
+
+    # Asteroids::createNewAsteroidInteractivelyOrNull()
+    def self.createNewAsteroidInteractivelyOrNull()
+        target = Quark::issueNewQuarkInteractivelyOrNull()
+        return nil if target.nil?
+        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
+        orbitaluuid = nil
+        if orbitalname.nil? then
+            orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
+            orbitaluuid = SecureRandom.uuid
+        else
+            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
+            return nil if orbitaluuid.nil?
+        end
+        Asteroids::issueNew(orbitalname, orbitaluuid, nil, target)
+    end
+
+    # Asteroids::createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
+    def self.createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
+        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
+        return nil if orbitaluuid.nil?
+        target = Quark::issueNewQuarkInteractivelyOrNull()
+        return nil if target.nil?
+        Asteroids::issueNew(orbitalname, orbitaluuid, nil, target)
+    end
+
+    # Asteroids::orbitalDive(orbitalname)
+    def self.orbitalDive(orbitalname)
+        loop {
+            puts "-> Visiting project '#{orbitalname}'"
+
+            items = []
+
+            Asteroids::asteroidsForOrbitalname(orbitalname)
+                .each{|asteroid|
+                    items << [ Asteroids::asteroidToString(asteroid), lambda{ Asteroids::asteroidDive(asteroid) } ]
+                }
+
+            items << [ 
+                        "-> Add new asteroid to this orbital", 
+                        lambda {
+                            asteroid = Asteroids::createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
+                            return if asteroid.nil?
+                            puts JSON.pretty_generate(asteroid)
+                        }
+                     ]
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
+        }
+    end
+
+
+
+    # Asteroids::main()
+    def self.main()
+        loop {
+            system("clear")
+            puts "Asteroids 👩‍💻"
+            options = [
+                "create new asteroid",
+                "orbitals dive",
+                "time report"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+            break if option.nil?
+            if option == "create new asteroid" then
+                asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
+                next if asteroid.nil?
+                puts JSON.pretty_generate(asteroid)
+            end
+            if option == "orbitals dive" then
+                loop {
+                    puts "-> Asteroids dive"
+                    orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital name ", Asteroids::orbitalnames())
+                    break if orbitalname.nil?
+                    Asteroids::orbitalDive(orbitalname)
+                }
+            end
+            if option == "time report" then
+                items = Asteroids::orbitalsTimeDistribution()
+                d = items.map{|item| item["orbitalname"].size }.max
+                items
+                    .sort{|i1, i2| i1["timeInHours"] <=> i2["timeInHours"] }
+                    .each{|item|
+                        puts "#{item["orbitalname"].ljust(d+1)} #{"%8.2f" % item["timeInHours"]} hours"
+                    }
+                LucilleCore::pressEnterToContinue()
+            end
+        }
     end
 end

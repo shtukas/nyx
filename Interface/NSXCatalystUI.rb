@@ -113,19 +113,8 @@ class NSXCatalystUI
             items << [
                 "asteroid (new)", 
                 lambda {
-                    target = Quark::issueNewQuarkInteractivelyOrNull()
-                    return if target.nil?
-                    orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
-                    orbitaluuid = nil
-                    if orbitalname.nil? then
-                        orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
-                        orbitaluuid = SecureRandom.uuid
-                    else
-                        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNUll(orbitalname)
-                        return if orbitaluuid.nil?
-                    end
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                    asteroid = Asteroids::issueNew(orbitalname, orbitaluuid, description, target)
+                    asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
+                    return if asteroid.nil?
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
                 }
