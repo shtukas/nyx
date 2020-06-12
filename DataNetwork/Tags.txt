@@ -1,0 +1,7 @@
+
+Tag {
+    "uuid"              : String
+    "nyxType"           : "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+    "creationUnixtime"  : Float # Unixtime with decimals
+    "payload"           : String
+}
