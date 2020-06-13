@@ -80,7 +80,7 @@ class NyxRoles
             return
         end
         if object["nyxType"] == "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f" then
-            OpenCycles::opencycleDive(opencycle)
+            OpenCycles::opencycleDive(object)
             return
         end
         puts object
