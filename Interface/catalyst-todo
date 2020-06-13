@@ -74,9 +74,6 @@ NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
 
 def objectsMonitoringForOnScreenNotifications()
     loop {
-        if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-            return
-        end
         sleep 5
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }

@@ -92,7 +92,7 @@ class Cliques
 
             items << nil
 
-            NyxRoles::getRolesForTarget(quark["uuid"])
+            NyxRoles::getRolesForTarget(clique["uuid"])
                 .each{|object| items << [NyxRoles::objectToString(object), lambda { NyxRoles::objectDive(object) }] }
 
             items << nil

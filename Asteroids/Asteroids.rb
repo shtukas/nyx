@@ -241,8 +241,8 @@ class Asteroids
                 "set description",
                 "recast",
                 "push",
-                "promote from Asteroid to Cube",
-                "promote from Asteroid to Open Cycle"
+                "relocate target Quark to Cube content",
+                "recast as open cycle"
             ]
             if Runner::isRunning?(item["uuid"]) then
                 options.delete("start")
@@ -277,13 +277,13 @@ class Asteroids
                 item["creationUnixtime"] = Time.new.to_f
                 NyxIO::commitToDisk(item)
             end
-            if option == "promote from Asteroid to Cube" then
+            if option == "relocate target Quark to Cube content" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 next if !status
                 NyxIO::destroy(item["uuid"])
                 return
             end
-            if option == "promote from Asteroid to Open Cycle" then
+            if option == "recast as open cycle" then
                 status = Asteroids::recastAsOpenCycle(item)
                 next if !status
                 NyxIO::destroy(item["uuid"])
