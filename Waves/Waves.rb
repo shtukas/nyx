@@ -43,7 +43,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/DataNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 # ----------------------------------------------------------------------
 
@@ -233,13 +235,13 @@ class Waves
             "description"      => description,
             "schedule"         => schedule
         }
-        DataNetworkCoreFunctions::commitToDisk(obj)
+        NyxIO::commitToDisk(obj)
         obj
     end
 
     # Waves::waves()
     def self.waves()
-        DataNetworkCoreFunctions::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+        NyxIO::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
     end
 
     # Waves::catalystObjects()
@@ -299,17 +301,17 @@ class Waves
             schedule = Waves::makeScheduleObjectInteractivelyOrNull()
             return if schedule.nil?
             wave["schedule"] = schedule
-            DataNetworkCoreFunctions::commitToDisk(wave)
+            NyxIO::commitToDisk(wave)
             return
         end
         if option == 'description' then
             wave["description"] = CatalystCommon::editTextUsingTextmate(wave["description"])
-            DataNetworkCoreFunctions::commitToDisk(wave)
+            NyxIO::commitToDisk(wave)
             return
         end
         if option == 'destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                DataNetworkCoreFunctions::destroy(wave["uuid"])
+                NyxIO::destroy(wave["uuid"])
                 return
             end
             return

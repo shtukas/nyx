@@ -50,7 +50,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quark.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
@@ -102,11 +102,11 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "cube (new)", 
+                "cube (new) + dive",
                 lambda {
-                    description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                    return if description.size == 0
-                    cube = Cubes::issueCube_v3(description)
+                    cube = Cubes::issueQuarkCubeInteractivelyWithCliqueInviteOrNull()
+                    return if cube.nil?
+                    puts JSON.pretty_generate(cube)
                     Cubes::cubeDive(cube)
                 }
             ]
@@ -114,7 +114,7 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "asteroid (new)", 
+                "asteroid (new)",
                 lambda {
                     asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
                     return if asteroid.nil?
@@ -124,7 +124,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "spaceship (new)", 
+                "spaceship (new)",
                 lambda { 
                     spaceship = Spaceships::issueSpaceShipInteractivelyOrNull()
                     return if spaceship.nil?
@@ -136,23 +136,23 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "Asteroids", 
+                "Asteroids",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
             ]
             items << [
-                "Spaceships", 
+                "Spaceships",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/spaceships") }
             ]
             items << [
-                "OpenCycles", 
+                "OpenCycles",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
             ]
             items << [
-                "Calendar", 
+                "Calendar",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
             ]
             items << [
-                "Waves", 
+                "Waves",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/waves") }
             ]
 
@@ -229,14 +229,14 @@ class NSXCatalystUI
                     "body"    => OpenCycles::opencycleToString(opencycle).yellow,
                     "metric"  => 1.414,
                     "execute" => lambda { 
-                        entity = DataNetworkCoreFunctions::getOrNull(opencycle["targetuuid"])
+                        entity = NyxIO::getOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
                             LucilleCore::pressEnterToContinue()
                             OpenCycles::opencycleDive(opencycle)
                             return
                         end
-                        DataNetworkDataObjects::objectDive(entity)
+                        NyxDataCarriers::objectDive(entity)
                     },
                     "isFocus" => false
                 }

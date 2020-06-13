@@ -43,7 +43,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/DataNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
@@ -62,7 +64,7 @@ class Asteroids
             "description"      => description,
             "quarkuuid"        => quark["uuid"]
         }
-        DataNetworkCoreFunctions::commitToDisk(item)
+        NyxIO::commitToDisk(item)
         item
     end
 
@@ -82,14 +84,14 @@ class Asteroids
 
     # Asteroids::asteroidBestDescription(item)
     def self.asteroidBestDescription(item)
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         return "#{JSON.generate(item)} -> null quark" if quark.nil?
         item["description"] || Quark::quarkToString(quark)
     end
 
     # Asteroids::asteroidOpen(item)
     def self.asteroidOpen(item)
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
     end
@@ -97,7 +99,7 @@ class Asteroids
     # Asteroids::asteroidToString(item)
     def self.asteroidToString(item)
         itemuuid = item["uuid"]
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         quarkType = quark ? quark["type"] : "[null]"
         isRunning = Runner::isRunning?(itemuuid)
         runningSuffix = isRunning ? "(running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
@@ -184,20 +186,20 @@ class Asteroids
         end
         item["orbitalname"] = orbitalname
         item["orbitaluuid"] = orbitaluuid
-        DataNetworkCoreFunctions::commitToDisk(item)
+        NyxIO::commitToDisk(item)
     end
 
     # Asteroids::recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        cube = Cubes::issueCube_v4(description, quark)
+        cube = Cubes::issueCubeWithDescriptionAndQuark(description, quark)
         puts JSON.pretty_generate(cube)
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = Links::issue(clique, cube)
+            claim = Links::issueLink(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -207,15 +209,15 @@ class Asteroids
     # Asteroids::recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
         # First we need a cube and opencycle that
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        cube = Cubes::issueCube_v4(description, quark)
+        cube = Cubes::issueCubeWithDescriptionAndQuark(description, quark)
         puts JSON.pretty_generate(cube)
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = Links::issue(clique, cube)
+            claim = Links::issueLink(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)
@@ -254,35 +256,35 @@ class Asteroids
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+                quark = NyxIO::getOrNull(item["quarkuuid"])
                 next if quark.nil?
                 Quark::openQuark(quark)
             end
             if option == "done" then
-                DataNetworkCoreFunctions::destroy(item["uuid"])
+                NyxIO::destroy(item["uuid"])
                 return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                DataNetworkCoreFunctions::commitToDisk(item)
+                NyxIO::commitToDisk(item)
             end
             if option == "recast" then
                 Asteroids::updateAsteroidOrbitalname(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
-                DataNetworkCoreFunctions::commitToDisk(item)
+                NyxIO::commitToDisk(item)
             end
             if option == "promote from Asteroid to Cube" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 next if !status
-                DataNetworkCoreFunctions::destroy(item["uuid"])
+                NyxIO::destroy(item["uuid"])
                 return
             end
             if option == "promote from Asteroid to Open Cycle" then
                 status = Asteroids::recastAsOpenCycle(item)
                 next if !status
-                DataNetworkCoreFunctions::destroy(item["uuid"])
+                NyxIO::destroy(item["uuid"])
                 return
             end
         }
@@ -290,7 +292,7 @@ class Asteroids
 
     # Asteroids::asteroids()
     def self.asteroids()
-        DataNetworkCoreFunctions::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        NyxIO::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 
     # Asteroids::getFocus()
@@ -337,7 +339,7 @@ class Asteroids
                 "type"             => "url",
                 "url"              => link
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
             Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
         end
@@ -405,19 +407,19 @@ class Asteroids
     def self.startProcedure(item)
         uuid = item["uuid"]
         Runner::start(uuid)
-        quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(item["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
 
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
             Asteroids::stop(uuid, item)
-            DataNetworkCoreFunctions::destroy(item["uuid"])
+            NyxIO::destroy(item["uuid"])
             return
         end
 
         if item["description"].nil? then
             item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            DataNetworkCoreFunctions::commitToDisk(item)
+            NyxIO::commitToDisk(item)
         end
 
         if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
@@ -431,7 +433,7 @@ class Asteroids
             if option == "recast on knowledge network" then
                 status = Asteroids::recastAsCubeContentInteractive(item)
                 return if !status
-                DataNetworkCoreFunctions::destroy(item["uuid"])
+                NyxIO::destroy(item["uuid"])
             end
         end
     end
@@ -456,7 +458,7 @@ class Asteroids
         end
 
         if option == "open" then
-            quark = DataNetworkCoreFunctions::getOrNull(item["quarkuuid"])
+            quark = NyxIO::getOrNull(item["quarkuuid"])
             return if quark.nil?
             Quark::openQuark(quark)
         end
@@ -467,12 +469,12 @@ class Asteroids
 
         if option == "done" then
             Asteroids::stop(uuid, item)
-            DataNetworkCoreFunctions::destroy(item["uuid"])
+            NyxIO::destroy(item["uuid"])
         end
 
         if option == "description" then
             item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-            DataNetworkCoreFunctions::commitToDisk(item)
+            NyxIO::commitToDisk(item)
         end
 
         if option == "update orbital" then
@@ -484,20 +486,20 @@ class Asteroids
             Asteroids::stop(uuid, item)
             status = Asteroids::recastAsCubeContentInteractive(item)
             return if !status
-            DataNetworkCoreFunctions::destroy(item["uuid"])
+            NyxIO::destroy(item["uuid"])
         end
 
         if option == "recastAsOpenCycle" then
             Asteroids::stop(uuid, item)
             status = Asteroids::recastAsOpenCycle(item)
             return if !status
-            DataNetworkCoreFunctions::destroy(item["uuid"])
+            NyxIO::destroy(item["uuid"])
         end
 
         if option == "reset-reference-time" then
             Asteroids::stop(uuid, item)
             item["creationUnixtime"] = Time.new.to_f
-            DataNetworkCoreFunctions::commitToDisk(item)
+            NyxIO::commitToDisk(item)
         end
 
         if option == "dive" then

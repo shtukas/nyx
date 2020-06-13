@@ -57,7 +57,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroid
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quark.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Librarian.rb"
 
 # -------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class CatalystFsck
     def self.checkOpenCycle(opencycle)
         puts JSON.pretty_generate(opencycle)
         targetuuid = opencycle["targetuuid"]
-        entity = DataNetworkCoreFunctions::getOrNull(targetuuid)
+        entity = NyxIO::getOrNull(targetuuid)
         if entity.nil? then
             puts "[error] open cycle".red
             puts JSON.pretty_generate(opencycle).red
@@ -290,7 +290,7 @@ class CatalystFsck
             exit
         end
         quarkuuid = asteroid["quarkuuid"] # We are targetting Quarks
-        quark = DataNetworkCoreFunctions::getOrNull(quarkuuid)
+        quark = NyxIO::getOrNull(quarkuuid)
         if quark.nil? then
             puts "[error] Asteroid has not known target quark".red
             puts JSON.pretty_generate(asteroid).red
@@ -331,7 +331,7 @@ class CatalystFsck
         end
 
         if spaceship["cargo"]["type"] == "quark" then
-            quark = DataNetworkCoreFunctions::getOrNull(spaceship["cargo"]["quarkuuid"])
+            quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
             if quark.nil? then
                 puts "[error] Spaceship item has not known target quark".red
                 puts JSON.pretty_generate(spaceship).red
@@ -402,21 +402,6 @@ class CatalystFsck
             puts JSON.pretty_generate(cube).red
             exit
         end
-        if cube["quarksuuids"].nil? then
-            puts "[error] starlight quarksuuids has empty name".red
-            puts JSON.pretty_generate(cube).red
-            exit
-        end
-        cube["quarksuuids"].each{|quarkuuid|
-            quark = Quark::getOrNull(quarkuuid)
-            if quark.nil? then
-                puts "[error] starlight points as a null quark".red
-                puts JSON.pretty_generate(cube).red
-                puts "quarkuuid: #{quarkuuid}".red
-                exit
-            end
-            CatalystFsck::checkQuark(quark)
-        }
     end
 
     # CatalystFsck::run()

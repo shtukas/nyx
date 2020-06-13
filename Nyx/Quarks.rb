@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quark.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -19,7 +19,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/DataNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 require_relative "Librarian.rb"
 
@@ -59,7 +61,7 @@ class Quark
             "type"             => "line",
             "line"             => line
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -75,7 +77,7 @@ class Quark
             "type"             => "url",
             "url"              => url
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -97,7 +99,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -114,7 +116,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename2
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -128,7 +130,7 @@ class Quark
             "type"             => "file",
             "filename"         => filename
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -150,7 +152,7 @@ class Quark
             "type"             => "folder",
             "foldername"       => foldername2
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -172,7 +174,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename2
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             quark
         else
             folderpath1 = location
@@ -189,7 +191,7 @@ class Quark
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             quark
         end
     end
@@ -206,7 +208,7 @@ class Quark
             "type"             => "unique-name",
             "name"             => uniquename
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -226,7 +228,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             return quark
         end
         if option == "mark file should be created" then
@@ -252,7 +254,7 @@ class Quark
                 "type"             => "directory-mark",
                 "mark"             => mark
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             return quark
         end
     end
@@ -268,7 +270,7 @@ class Quark
             "type"             => "datapod",
             "podname"          => podname
         }
-        DataNetworkCoreFunctions::commitToDisk(quark)
+        NyxIO::commitToDisk(quark)
         quark
     end
 
@@ -299,7 +301,7 @@ class Quark
                 "type"             => "file",
                 "filename"         => filename
             }
-            DataNetworkCoreFunctions::commitToDisk(quark)
+            NyxIO::commitToDisk(quark)
             return quark
         end
         if type == "folder" then
@@ -318,7 +320,7 @@ class Quark
 
     # Quark::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetworkCoreFunctions::getOrNull(uuid)
+        NyxIO::getOrNull(uuid)
     end
 
     # Quark::quarkToString(quark)
@@ -407,8 +409,8 @@ class Quark
         raise "Quark error 160050-490261"
     end
 
-    # Quark::diveQuark(quark)
-    def self.diveQuark(quark)
+    # Quark::quarkDive(quark)
+    def self.quarkDive(quark)
         loop {
             system("clear")
             puts Quark::quarkToString(quark).green
@@ -422,7 +424,7 @@ class Quark
                 description = LucilleCore::askQuestionAnswerAsString("quark description: ")
                 next if description == ""
                 quark["description"] = description
-                DataNetworkCoreFunctions::commitToDisk(quark)
+                NyxIO::commitToDisk(quark)
             end
         }
     end

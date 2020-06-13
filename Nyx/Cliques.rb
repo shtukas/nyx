@@ -16,7 +16,9 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/DataNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 # -----------------------------------------------------------------
 
@@ -32,7 +34,7 @@ class Cliques
 
             "name"             => LucilleCore::askQuestionAnswerAsString("clique name: ")
         }
-        DataNetworkCoreFunctions::commitToDisk(clique)
+        NyxIO::commitToDisk(clique)
         puts JSON.pretty_generate(clique)
         clique
     end
@@ -44,12 +46,12 @@ class Cliques
 
     # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetworkCoreFunctions::getOrNull(uuid)
+        NyxIO::getOrNull(uuid)
     end
 
     # Cliques::cliques()
     def self.cliques()
-        DataNetworkCoreFunctions::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        NyxIO::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -84,35 +86,32 @@ class Cliques
             items = []
 
             Links::getLinkedObjects(clique)
-                .sort{|o1, o2| DataNetworkDataObjects::objectLastActivityUnixtime(o1) <=> DataNetworkDataObjects::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
-                .each{|object| items << [DataNetworkDataObjects::objectToString(object), lambda{ DataNetworkDataObjects::objectDive(object) }] }
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .each{|object| items << [NyxDataCarriers::objectToString(object), lambda{ NyxDataCarriers::objectDive(object) }] }
 
             items << nil
 
             items << ["rename", lambda{ 
                 clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                DataNetworkCoreFunctions::commitToDisk(clique)
+                NyxIO::commitToDisk(clique)
             }]
 
             items << ["add cube (from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
-                Links::issue(clique, cube)
+                Links::issueLink(clique, cube)
             }]
 
-            items << ["add cube (create new)", lambda{ 
-                puts "Let's make a cube"
-                description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                cube = Cubes::issueCube_v3(description)
+            items << ["add cube (create new)", lambda{
+
+                cube = Cubes::issueQuarkCubeInteractivelyOrNull()
+                return if cube.nil?
                 puts JSON.pretty_generate(cube)
+
                 puts "Let's attach the cube to the clique"
-                claim = Links::issue(clique, cube)
-                puts JSON.pretty_generate(claim)
-                puts "Let's make a quark"
-                quark = Quark::issueNewQuarkInteractivelyOrNull()
-                cube["quarksuuids"] << quark["uuid"]
-                puts JSON.pretty_generate(cube)
-                DataNetworkCoreFunctions::commitToDisk(cube)
+                link = Links::issueLink(clique, cube)
+                puts JSON.pretty_generate(link)
+
                 LucilleCore::pressEnterToContinue()
             }]
 
@@ -130,7 +129,7 @@ class Cliques
 
     # Cliques::selectCliqueOrMakeNewOneOrNull()
     def self.selectCliqueOrMakeNewOneOrNull()
-        puts "-> You are on a selection Quest [selecting an clique]"
+        puts "-> You are on a selection Quest [selecting a clique]"
         puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
         clique = Cliques::selectCliqueFromExistingCliquesOrNull()

@@ -13,7 +13,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quark.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
@@ -158,7 +158,7 @@ class NSXMiscUtils
                 "quarkuuid"        => target["uuid"]
             }
             puts JSON.pretty_generate(item)
-            DataNetworkCoreFunctions::commitToDisk(item)
+            NyxIO::commitToDisk(item)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

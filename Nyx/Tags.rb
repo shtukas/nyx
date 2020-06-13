@@ -16,7 +16,9 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/DataNetwork.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 # -----------------------------------------------------------------
 
@@ -30,7 +32,7 @@ class Tags
             "creationUnixtime" => Time.new.to_f,
             "payload"          => payload
         }
-        DataNetworkCoreFunctions::commitToDisk(tag)
+        NyxIO::commitToDisk(tag)
         tag
     end
 
@@ -45,7 +47,7 @@ class Tags
             "creationUnixtime" => Time.new.to_f,
             "payload"          => payload
         }
-        DataNetworkCoreFunctions::commitToDisk(tag)
+        NyxIO::commitToDisk(tag)
         puts JSON.pretty_generate(tag)
         tag
     end
@@ -57,12 +59,12 @@ class Tags
 
     # Tags::getOrNull(uuid)
     def self.getOrNull(uuid)
-        DataNetworkCoreFunctions::getOrNull(uuid)
+        NyxIO::getOrNull(uuid)
     end
 
     # Tags::tags()
     def self.tags()
-        DataNetworkCoreFunctions::objects("tag-57c7eced-24a8-466d-a6fe-588142afd53b")
+        NyxIO::objects("tag-57c7eced-24a8-466d-a6fe-588142afd53b")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -71,9 +73,16 @@ class Tags
         Tags::tags().select{|tag| tag["payload"] == payload }
     end
 
-    # Tags::tagDive(tagPayload)
-    def self.tagDive(tagPayload)
-        puts "Tags::tagDive(tagPayload) is not implemented yet"
+    # Tags::tagPayloadDive(tagPayload)
+    def self.tagPayloadDive(tagPayload)
+        puts "Tags::tagPayloadDive(tagPayload) is not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
+
+    # Tags::tagDive(tag)
+    def self.tagDive(tag)
+        puts "Tags::tagDive(tag) is not implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
 end
