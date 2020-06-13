@@ -36,6 +36,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarrier
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxRoles.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
+
 # -----------------------------------------------------------------
 
 class Cubes
@@ -266,16 +268,8 @@ class Cubes
                 }]
             items << [
                 "opencycle (register as)", 
-                lambda{
-                    claim = {
-                        "uuid"             => SecureRandom.uuid,
-                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
-                        "creationUnixtime" => Time.new.to_f,
-                        "quarkuuid"       => cube["uuid"],
-                    }
-                    puts JSON.pretty_generate(claim)
-                    NyxIO::commitToDisk(claim)
-                }]
+                lambda { OpenCycles::issueFromCube(cube) }
+            ]
             items << [
                 "cube (destroy)", 
                 lambda{

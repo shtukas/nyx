@@ -432,6 +432,11 @@ class Quark
                 }
             ]
 
+            items << [
+                "opencycle (register as)", 
+                lambda { OpenCycles::issueFromQuark(quark) }
+            ]
+
             items << nil
 
             NyxRoles::getRolesForTarget(quark["uuid"])
