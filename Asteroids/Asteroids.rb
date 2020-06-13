@@ -191,8 +191,8 @@ class Asteroids
         NyxIO::commitToDisk(item)
     end
 
-    # Asteroids::recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastAsCubeContentInteractive(item) # Boolean # Indicates whether a promotion was acheived
+    # Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
         description = LucilleCore::askQuestionAnswerAsString("cube description: ")
@@ -226,70 +226,6 @@ class Asteroids
         puts JSON.pretty_generate(opencycle)
         LucilleCore::pressEnterToContinue()
         return true
-    end
-
-    # Asteroids::asteroidDive(item)
-    def self.asteroidDive(item)
-        loop {
-            puts "uuid: #{item["uuid"]}"
-            puts Asteroids::asteroidToString(item).green
-            puts "project time: #{Bank::value(item["orbitaluuid"].to_f/3600)} hours".green
-            options = [
-                "start",
-                "open",
-                "done",
-                "set description",
-                "recast",
-                "push",
-                "relocate target Quark to Cube content",
-                "recast as open cycle"
-            ]
-            if Runner::isRunning?(item["uuid"]) then
-                options.delete("start")
-            else
-                options.delete("stop")
-            end
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "start" then
-                Runner::start(item["uuid"])
-            end
-            if option == "stop" then
-                Runner::stop(item["uuid"])
-            end
-            if option == "open" then
-                quark = NyxIO::getOrNull(item["quarkuuid"])
-                next if quark.nil?
-                Quark::openQuark(quark)
-            end
-            if option == "done" then
-                NyxIO::destroy(item["uuid"])
-                return
-            end
-            if option == "set description" then
-                item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                NyxIO::commitToDisk(item)
-            end
-            if option == "recast" then
-                Asteroids::updateAsteroidOrbitalname(item)
-            end
-            if option == "push" then
-                item["creationUnixtime"] = Time.new.to_f
-                NyxIO::commitToDisk(item)
-            end
-            if option == "relocate target Quark to Cube content" then
-                status = Asteroids::recastAsCubeContentInteractive(item)
-                next if !status
-                NyxIO::destroy(item["uuid"])
-                return
-            end
-            if option == "recast as open cycle" then
-                status = Asteroids::recastAsOpenCycle(item)
-                next if !status
-                NyxIO::destroy(item["uuid"])
-                return
-            end
-        }
     end
 
     # Asteroids::asteroids()
@@ -331,7 +267,7 @@ class Asteroids
             "metric"           => metric,
             "isRunning"        => isRunning,
             "isRunningForLong" => isRunningForLong,
-            "execute"          => lambda{ Asteroids::execute(item) },
+            "execute"          => lambda{ Asteroids::asteroidDive(item) },
             "x-todo-item"      => item
         }
     end
@@ -403,116 +339,152 @@ class Asteroids
         objects
     end
 
-    # Asteroids::stop(uuid, item)
-    def self.stop(uuid, item)
+    # Asteroids::stop(uuid, asteroid)
+    def self.stop(uuid, asteroid)
         timespan = Runner::stop(uuid)
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        Asteroids::asteroidReceivesRunTimespan(item, timespan, true)
+        Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, true)
     end
 
-    # Asteroids::startProcedure(item)
-    def self.startProcedure(item)
-        uuid = item["uuid"]
+    # Asteroids::startProcedure(asteroid)
+    def self.startProcedure(asteroid)
+        uuid = asteroid["uuid"]
         Runner::start(uuid)
-        quark = NyxIO::getOrNull(item["quarkuuid"])
+        quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         return if quark.nil?
         Quark::openQuark(quark)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
-            Asteroids::stop(uuid, item)
-            NyxIO::destroy(item["uuid"])
+        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role) ", false) then
+            Asteroids::stop(uuid, asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
+                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+                if !status then
+                    puts "You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
+                    return
+                end
+            end
+            NyxIO::destroy(asteroid["uuid"])
             return
         end
 
-        if item["description"].nil? then
-            item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            NyxIO::commitToDisk(item)
+        if asteroid["description"].nil? then
+            asteroid["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxIO::commitToDisk(asteroid)
         end
 
-        if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-            Asteroids::stop(uuid, item)
+        if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+            Asteroids::stop(uuid, asteroid)
             puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
-            options = ["update orbital", "recast on knowledge network"]
+            options = [
+                "migrate to new orbital", 
+                "recast on knowledge network"
+            ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-            if option == "recast" then
-                Asteroids::updateAsteroidOrbitalname(item)
+            if option == "migrate to new orbital" then
+                Asteroids::updateAsteroidOrbitalname(asteroid)
             end
             if option == "recast on knowledge network" then
-                status = Asteroids::recastAsCubeContentInteractive(item)
+                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
                 return if !status
-                NyxIO::destroy(item["uuid"])
+                NyxIO::destroy(asteroid["uuid"])
             end
         end
     end
 
-    # Asteroids::stopProcedure(item)
-    def self.stopProcedure(item)
-        uuid = item["uuid"]
-        Asteroids::stop(uuid, item)
-        if item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+    # Asteroids::stopProcedure(asteroid)
+    def self.stopProcedure(asteroid)
+        uuid = asteroid["uuid"]
+        Asteroids::stop(uuid, asteroid)
+        if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
             puts "Item was not immediately done, we need to classify it."
-            Asteroids::updateAsteroidOrbitalname(item)
+            Asteroids::updateAsteroidOrbitalname(asteroid)
         end
     end
 
-    # Asteroids::execute(item)
-    def self.execute(item)
-        uuid = item["uuid"]
-        options = ["start", "open", "stop", "done", "description", "update orbital", "recastAsCubeContentInteractive", "recastAsOpenCycle", "reset-reference-time", "dive"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        if option == "start" then
-            Asteroids::startProcedure(item)
+    # Asteroids::doneProcedure(asteroid)
+    def self.doneProcedure(asteroid)
+        Asteroids::stop(uuid, asteroid)
+        if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
+            status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+            if !status then
+                puts "You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
+                return
+            end
         end
+        NyxIO::destroy(asteroid["uuid"])
+    end
 
-        if option == "open" then
-            quark = NyxIO::getOrNull(item["quarkuuid"])
-            return if quark.nil?
-            Quark::openQuark(quark)
-        end
-
-        if option == "stop" then
-            Asteroids::stopProcedure(item)
-        end
-
-        if option == "done" then
-            Asteroids::stop(uuid, item)
-            NyxIO::destroy(item["uuid"])
-        end
-
-        if option == "description" then
-            item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-            NyxIO::commitToDisk(item)
-        end
-
-        if option == "update orbital" then
-            Asteroids::stop(uuid, item)
-            Asteroids::updateAsteroidOrbitalname(item)
-        end
-
-        if option == "recastAsCubeContentInteractive" then
-            Asteroids::stop(uuid, item)
-            status = Asteroids::recastAsCubeContentInteractive(item)
-            return if !status
-            NyxIO::destroy(item["uuid"])
-        end
-
-        if option == "recastAsOpenCycle" then
-            Asteroids::stop(uuid, item)
-            status = Asteroids::recastAsOpenCycle(item)
-            return if !status
-            NyxIO::destroy(item["uuid"])
-        end
-
-        if option == "reset-reference-time" then
-            Asteroids::stop(uuid, item)
-            item["creationUnixtime"] = Time.new.to_f
-            NyxIO::commitToDisk(item)
-        end
-
-        if option == "dive" then
-            Asteroids::asteroidDive(item)
-        end
+    # Asteroids::asteroidDive(asteroid)
+    def self.asteroidDive(asteroid)
+        loop {
+            puts "uuid: #{asteroid["uuid"]}"
+            puts Asteroids::asteroidToString(asteroid).green
+            puts "project time: #{Bank::value(asteroid["orbitaluuid"].to_f/3600)} hours".green
+            options = [
+                "start",
+                "open",
+                "stop",
+                "done",
+                "set description",
+                "update orbital",
+                "push",
+                "relocate target Quark to Cube content",
+                "register as opencycle",
+                "reset-reference-time"
+            ]
+            if Runner::isRunning?(asteroid["uuid"]) then
+                options.delete("start")
+            else
+                options.delete("stop")
+            end
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "start" then
+                Asteroids::startProcedure(asteroid)
+            end
+            if option == "open" then
+                quark = NyxIO::getOrNull(asteroid["quarkuuid"])
+                next if quark.nil?
+                Quark::openQuark(quark)
+            end
+            if option == "stop" then
+                Asteroids::stopProcedure(asteroid)
+            end
+            if option == "done" then
+                Asteroids::doneProcedure(asteroid)
+                return
+            end
+            if option == "set description" then
+                asteroid["description"] = CatalystCommon::editTextUsingTextmate(asteroid["description"])
+                NyxIO::commitToDisk(asteroid)
+            end
+            if option == "update orbital" then
+                Asteroids::stop(uuid, asteroid)
+                Asteroids::updateAsteroidOrbitalname(asteroid)
+            end
+            if option == "push" then
+                asteroid["creationUnixtime"] = Time.new.to_f
+                NyxIO::commitToDisk(asteroid)
+            end
+            if option == "relocate target Quark to Cube content" then
+                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+                next if !status
+                NyxIO::destroy(asteroid["uuid"])
+                return
+            end
+            if option == "register as opencycle" then
+                status = Asteroids::recastAsOpenCycle(asteroid)
+                next if !status
+                NyxIO::destroy(asteroid["uuid"])
+                return
+            end
+            if option == "reset-reference-time" then
+                Asteroids::stop(uuid, asteroid)
+                asteroid["creationUnixtime"] = Time.new.to_f
+                NyxIO::commitToDisk(asteroid)
+            end
+        }
     end
 
     # Asteroids::createNewAsteroidInteractivelyOrNull()
