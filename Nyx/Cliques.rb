@@ -87,7 +87,8 @@ class Cliques
 
             Links::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
-                .each{|object| items << [NyxDataCarriers::objectToString(object), lambda{ NyxDataCarriers::objectDive(object) }] }
+                .each{|object| 
+                    items << [NyxDataCarriers::objectToString(object), lambda{ NyxDataCarriers::objectDive(object) }] }
 
             items << nil
 

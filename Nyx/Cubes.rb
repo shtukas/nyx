@@ -133,10 +133,28 @@ class Cubes
             .first
     end
 
-    # Cubes::getLastActivityUnixtime(cube)
-    def self.getLastActivityUnixtime(cube)
+    # Cubes::computeLastActivityUnixtime(cube)
+    def self.computeLastActivityUnixtime(cube)
         times = [ cube["creationUnixtime"] ] + Cubes::getCubeQuarks(cube).map{|quark| quark["creationUnixtime"]}
         times.max
+    end
+
+    # Cubes::forgetCachedLastActivityUnixtime(cube)
+    def self.forgetCachedLastActivityUnixtime(cube)
+        storageKey = "c8543fd5-43b3-4f5a-a4d2-802f9ddc4906:#{cube["uuid"]}"
+        KeyValueStore::destroy(nil, storageKey)
+    end
+
+    # Cubes::getLastActivityUnixtime(cube)
+    def self.getLastActivityUnixtime(cube)
+        storageKey = "c8543fd5-43b3-4f5a-a4d2-802f9ddc4906:#{cube["uuid"]}"
+        unixtime = KeyValueStore::getOrNull(nil, storageKey)
+        if unixtime then
+            return unixtime.to_f
+        end
+        unixtime = Cubes::computeLastActivityUnixtime(cube)
+        KeyValueStore::set(nil, storageKey, unixtime)
+        unixtime
     end
 
     # ------------------------------------------------------------
@@ -212,6 +230,7 @@ class Cubes
                     return if quark.nil?
                     link = Links::issueLink(cube, quark)
                     puts JSON.pretty_generate(link)
+                    Cubes::forgetCachedLastActivityUnixtime(cube)
                 }]
             items << [
                 "quark (select and remove)", 
