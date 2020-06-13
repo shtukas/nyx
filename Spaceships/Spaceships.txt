@@ -30,7 +30,7 @@ Spaceship
             "type"                  : "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
             "timeCommitmentInHours" : Float
             "baseMetric"            : Float # If set, is used as base metric
-                                            # Was introduced to put Guardian Work at 0.76
+                                            # Was introduced to put Daily Guardian Work at 0.76
         }
         {
             "type"                  : "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"

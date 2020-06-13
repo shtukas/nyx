@@ -95,7 +95,7 @@ class Spaceships
         typeAsUserFriendly = lambda {|type|
             return " -> [] ‼️  " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
             return " -> [] " if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
-            return " ⏱️ ‼️  " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return " ⏱️  ‼️  " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
             return " ⏱️ " if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
             return " ⛵ " if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
@@ -254,8 +254,11 @@ class Spaceships
                 Spaceships::reengine(spaceship)
             end
             if option == "destroy" then
-                Spaceships::spaceshipStopSequence(spaceship)
-                Spaceships::spaceshipDestroySequence(spaceship)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this starship ? ") then
+                    Spaceships::spaceshipStopSequence(spaceship)
+                    Spaceships::spaceshipDestroySequence(spaceship)
+                end
+                return
             end
         }
     end
@@ -284,7 +287,8 @@ class Spaceships
         return 0 if (spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" and IO.read("/Users/pascal/Desktop/Lucille.txt").strip.size == 0)
 
         genericFormula = lambda {|spaceship, baseMetric|
-            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - 0.1*Ping::totalOverTimespan(uuid, 86400).to_f/3600
+            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - (baseMetric-0.2)*Ping::totalWithTimeExponentialDecay(uuid, 3*3600).to_f/(3*3600)
+                         # Small shift for ordering                    # bigger temporary shift to avoid staying on top
         }
 
         if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
@@ -395,6 +399,18 @@ class Spaceships
 
     # Spaceships::catalystObjects()
     def self.catalystObjects()
+        if !KeyValueStore::flagIsTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}") then
+            Spaceships::issue({
+                    "type"        => "description",
+                    "description" => "Daily Guardian Work"
+                }, {
+                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "timeCommitmentInHours" => 6,
+                "baseMetric"            => 0.76
+            })
+            KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
+        end
+
         objects = Spaceships::spaceships()
                     .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }

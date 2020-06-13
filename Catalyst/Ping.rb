@@ -49,4 +49,12 @@ class Ping
             .inject(0, :+)
     end
 
+    # Ping::totalWithTimeExponentialDecay(uuid, timeToMinusOneInSeconds)
+    def self.totalWithTimeExponentialDecay(uuid, timeToMinusOneInSeconds)
+        unixtime = Time.new.to_f
+        BTreeSets::values(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{uuid}")
+            .map{|packet| packet["weight"]*Math.exp(-(unixtime - packet["unixtime"]).to_f/timeToMinusOneInSeconds)}
+            .inject(0, :+)
+    end
+
 end
