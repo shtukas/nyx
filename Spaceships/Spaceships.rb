@@ -321,16 +321,24 @@ class Spaceships
 
         engine = spaceship["engine"]
 
+        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+            return true
+        end
+
         if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return Bank::value(uuid) < 0
+            return false
+        end
+
+        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            return true
+        end
+
+        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            return false
         end
 
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             return Ping::totalOverTimespan(uuid, 86400*7) < engine["timeCommitmentInHours"]*86400
-        end
-
-        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            return true
         end
 
         raise "[Spaceships] error: 46b84bdb"
