@@ -545,13 +545,13 @@ class Asteroids
             system("clear")
             puts "Asteroids 👩‍💻"
             options = [
-                "create new asteroid",
+                "asteroid (create new)",
                 "orbitals dive",
                 "time report"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
-            if option == "create new asteroid" then
+            if option == "asteroid (create new)" then
                 asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
