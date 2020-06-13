@@ -415,11 +415,6 @@ class Spaceships
             return
         end
 
-        if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then # asap-managed-killer
-            Runner::start(spaceship["uuid"])
-            return
-        end
-
         Spaceships::openCargo(spaceship)
 
         if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
@@ -447,7 +442,6 @@ class Spaceships
         Ping::put(spaceship["uuid"], timespan)
 
         return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # Lucille.txt
-        return if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" # asap-managed-killer
 
         if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
             NyxIO::destroy(spaceship["uuid"])
@@ -458,11 +452,6 @@ class Spaceships
     def self.spaceshipDestroySequence(spaceship)
         if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
             puts "You cannot destroy this one (Lucille.txt)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if spaceship["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
-            puts "You cannot destroy this one (asap-managed-killer)"
             LucilleCore::pressEnterToContinue()
             return
         end
