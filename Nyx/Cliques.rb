@@ -102,6 +102,15 @@ class Cliques
                 NyxIO::commitToDisk(clique)
             }]
 
+            items << [
+                "quark (add new)", 
+                lambda{
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    link = Links::issueLink(clique, quark)
+                    puts JSON.pretty_generate(link)
+                }]
+
             items << ["add cube (from existing)", lambda{ 
                 cube = Cubes::selectCubeFromExistingOrNull()
                 return if cube.nil?
