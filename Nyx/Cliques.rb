@@ -19,6 +19,7 @@ require 'colorize'
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # -----------------------------------------------------------------
 
@@ -129,6 +130,11 @@ class Cliques
 
                 LucilleCore::pressEnterToContinue()
             }]
+
+            items << [
+                "opencycle (register as)", 
+                lambda { OpenCycles::issueFromClique(clique) }
+            ]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

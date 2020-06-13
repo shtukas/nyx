@@ -63,6 +63,18 @@ class OpenCycles
         opencycle
     end
 
+    # OpenCycles::issueFromClique(clique)
+    def self.issueFromClique(clique)
+        opencycle = {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+            "creationUnixtime" => Time.new.to_f,
+            "targetuuid"       => clique["uuid"]
+        }
+        NyxIO::commitToDisk(opencycle)
+        opencycle
+    end
+
     # OpenCycles::opencycles()
     def self.opencycles()
         NyxIO::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
