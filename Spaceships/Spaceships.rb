@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 =begin
     BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
@@ -73,8 +75,8 @@ class Spaceships
         spaceship
     end
 
-    # Spaceships::toString(spaceship)
-    def self.toString(spaceship)
+    # Spaceships::spaceshipToString(spaceship)
+    def self.spaceshipToString(spaceship)
         cargoFragment = lambda{|spaceship|
             cargo = spaceship["cargo"]
             if cargo["type"] == "description" then
@@ -193,6 +195,13 @@ class Spaceships
         NyxIO::objects("spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc")
     end
 
+    # Spaceships::getSpaceshipsByTargetUUID(targetuuid)
+    def self.getSpaceshipsByTargetUUID(targetuuid)
+        Spaceships::spaceships()
+            .select{|spaceship| spaceship["cargo"]["type"] == "quark" }
+            .select{|spaceship| spaceship["cargo"]["quarkuuid"] == targetuuid }
+    end
+
     # Spaceships::recargo(spaceship)
     def self.recargo(spaceship)
         cargo = Spaceships::makeCargoInteractivelyOrNull()
@@ -215,7 +224,7 @@ class Spaceships
     def self.spaceshipDive(spaceship)
         loop {
             system("clear")
-            puts Spaceships::toString(spaceship).green
+            puts Spaceships::spaceshipToString(spaceship).green
             options = [
                 "open",
                 "start",
@@ -356,12 +365,12 @@ class Spaceships
         getBody = lambda{|spaceship|
             if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
                 if Spaceships::isRunning?(spaceship) then
-                    return "#{Spaceships::toString(spaceship)}\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
+                    return "#{Spaceships::spaceshipToString(spaceship)}\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
                 else
-                    return Spaceships::toString(spaceship)
+                    return Spaceships::spaceshipToString(spaceship)
                 end
             end
-            Spaceships::toString(spaceship)
+            Spaceships::spaceshipToString(spaceship)
         }
 
         {

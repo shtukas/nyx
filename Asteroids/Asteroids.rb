@@ -1,6 +1,8 @@
 
 # encoding: UTF-8
 
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
+
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
@@ -293,6 +295,12 @@ class Asteroids
     # Asteroids::asteroids()
     def self.asteroids()
         NyxIO::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+    end
+
+    # Asteroids::getAsteroidsByTargetUUID(targetuuid)
+    def self.getAsteroidsByTargetUUID(targetuuid)
+        Asteroids::asteroids()
+            .select{|asteroid| asteroid["quarkuuid"] == targetuuid }
     end
 
     # Asteroids::getFocus()

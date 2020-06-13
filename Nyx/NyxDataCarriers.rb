@@ -41,7 +41,7 @@ class NyxDataCarriers
 
     # NyxDataCarriers::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-        objects = NyxIO::dataNetworkNyxTypes()
+        objects = NyxIO::dataCarriersNyxTypes()
                     .map{|nyxtype|
                         NyxIO::getOrNullAtType(uuid, nyxtype)
                     }

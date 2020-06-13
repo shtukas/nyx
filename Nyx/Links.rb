@@ -39,8 +39,8 @@ class Links
 
     # Links::issueLink(object1, object2)
     def self.issueLink(object1, object2)
-        raise "b9b7810e" if !NyxIO::dataNetworkNyxTypes().include?(object1["nyxType"])
-        raise "ff00b177" if !NyxIO::dataNetworkNyxTypes().include?(object2["nyxType"])
+        raise "b9b7810e" if !NyxIO::dataCarriersNyxTypes().include?(object1["nyxType"])
+        raise "ff00b177" if !NyxIO::dataCarriersNyxTypes().include?(object2["nyxType"])
         raise "14d9af33" if (object1["uuid"] == object2["uuid"]) # Prevent an object to link to itself
         link = {
             "uuid"             => SecureRandom.uuid,

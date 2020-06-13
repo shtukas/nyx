@@ -34,6 +34,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxRoles.rb"
 
 # -----------------------------------------------------------------
 
@@ -200,11 +201,16 @@ class Cubes
             items = []
 
             Links::getLinkedObjects(cube)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object| items << [NyxDataCarriers::objectToString(object), lambda{ NyxDataCarriers::objectDive(object) }] }
 
             items << nil
-            
+
+            NyxRoles::getRolesForTarget(cube["uuid"])
+                .each{|object| items << [NyxRoles::objectToString(object), lambda{ NyxRoles::objectDive(object) }] }
+
+            items << nil
+
             items << [
                 "cube (edit description)", 
                 lambda{

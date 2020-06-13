@@ -103,13 +103,22 @@ class NyxIO
 
     # -----------------------------------------------------------------------------------
 
-    # NyxIO::dataNetworkNyxTypes()
-    def self.dataNetworkNyxTypes()
+    # NyxIO::dataCarriersNyxTypes()
+    def self.dataCarriersNyxTypes()
         [
             "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+        ]
+    end
+
+    # NyxIO::rolesNyxTypes()
+    def self.rolesNyxTypes()
+        [
+            "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+            "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
         ]
     end
 

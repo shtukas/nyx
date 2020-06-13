@@ -1,4 +1,6 @@
 
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
+
 # encoding: UTF-8
 
 require 'json'
@@ -242,6 +244,11 @@ class Waves
     # Waves::waves()
     def self.waves()
         NyxIO::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+    end
+
+    # Waves::waveToString(wave)
+    def self.waveToString(wave)
+        "[wave] #{wave["description"]}"
     end
 
     # Waves::catalystObjects()

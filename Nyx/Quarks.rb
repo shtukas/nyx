@@ -414,18 +414,31 @@ class Quark
         loop {
             system("clear")
             puts Quark::quarkToString(quark).green
-            operations = ["open", "set description"]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", operations)
-            return if operation.nil?
-            if operation == "open" then
-                Quark::openQuark(quark)
-            end
-            if operation == "set description" then
-                description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-                next if description == ""
-                quark["description"] = description
-                NyxIO::commitToDisk(quark)
-            end
+
+            items = []
+
+            items << [
+                "open", 
+                lambda{ Quark::openQuark(quark) }
+            ]
+
+            items << [
+                "set description", 
+                lambda{ 
+                    description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+                    next if description == ""
+                    quark["description"] = description
+                    NyxIO::commitToDisk(quark)
+                }
+            ]
+
+            items << nil
+
+            NyxRoles::getRolesForTarget(quark["uuid"])
+                .each{|object| items << [NyxRoles::objectToString(object), lambda{ NyxRoles::objectDive(object) }] }
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
         }
     end
 end

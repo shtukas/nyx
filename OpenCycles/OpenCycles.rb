@@ -67,6 +67,12 @@ class OpenCycles
         NyxIO::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
     end
 
+    # OpenCycles::getOpenCyclesByTargetUUID(targetuuid)
+    def self.getOpenCyclesByTargetUUID(targetuuid)
+        OpenCycles::opencycles()
+            .select{|opencycle| opencycle["targetuuid"] == targetuuid }
+    end
+
     # OpenCycles::openQuark(opencycle)
     def self.openQuark(opencycle)
         entity = NyxIO::getOrNull(opencycle["targetuuid"])
@@ -76,8 +82,11 @@ class OpenCycles
 
     # OpenCycles::opencycleToString(opencycle)
     def self.opencycleToString(opencycle)
-        entity = NyxIO::getOrNull(opencycle["targetuuid"])
-        "[opencycle] #{entity ? NyxDataCarriers::objectToString(entity) : "data entity not found"}"
+        target = NyxIO::getOrNull(opencycle["targetuuid"])
+        if target.nil? then
+            return "[opencycle] [#{opencycle["uuid"][0, 4]}] target not found"
+        end
+        "[opencycle] [#{opencycle["uuid"][0, 4]}] #{NyxDataCarriers::objectToString(target)}"
     end
 
     # OpenCycles::opencycleDive(opencycle)
@@ -121,7 +130,7 @@ class OpenCycles
             return if operation.nil?
             if operation == "dive opencycles" then
                 loop {
-                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", OpenCycles::opencycles(), lambda {|opencycle| "[#{opencycle["uuid"][0, 4]}] #{OpenCycles::opencycleToString(opencycle)}" })
+                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", OpenCycles::opencycles(), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
                     break if opencycle.nil?
                     OpenCycles::opencycleDive(opencycle)
                 }

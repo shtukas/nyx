@@ -86,9 +86,14 @@ class Cliques
             items = []
 
             Links::getLinkedObjects(clique)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) } # "creationUnixtime" is a common attribute of all data entities
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object| 
-                    items << [NyxDataCarriers::objectToString(object), lambda{ NyxDataCarriers::objectDive(object) }] }
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }] }
+
+            items << nil
+
+            NyxRoles::getRolesForTarget(quark["uuid"])
+                .each{|object| items << [NyxRoles::objectToString(object), lambda { NyxRoles::objectDive(object) }] }
 
             items << nil
 
