@@ -558,7 +558,6 @@ class Asteroids
             end
             if option == "orbitals dive" then
                 loop {
-                    puts "-> Asteroids dive"
                     orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital name ", Asteroids::orbitalnames())
                     break if orbitalname.nil?
                     Asteroids::orbitalDive(orbitalname)
