@@ -1,35 +1,28 @@
-Nyx is the collection of the DataNetwork and the Roles.
-
-The DataNetwork is made of Quarks, Cubes, Tags and Cliques and the Links between them.
-
-Any object of the DataNetwork can have one or more Roles.
-
-Roles: Data, Asteriod, Starship, Wave and OpenCycle
-
-When a cube is created a role is set. Roles can be added and removed any time. If a role is destroyed, and the cube doesn't have any role left, the user is asked to set a role or to destroy the Cube.
 
 -- Nyx Universe ------------------------------------
 
 Nyx
 
-    DataNetwork # See DataNetwork.txt
+    NyxObjects
 
-        DataNetworkDataObjects
-            Quark     # See Quarks.txt   nyxType: "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-            Cube      # See Cubes.txt    nyxType: "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
-            Clique    # See Cliques.txt  nyxType: "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"
-            Tag       # See Tags.txt     nyxType: "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+        NyxDataNetwork
 
-        Link {
-            "uuid"             : String
-            "nyxType"          : "link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
-            "creationUnixtime" : Float # Unixtime with decimals
-            "uuid1"            : String
-            "uuid2"            : String # Cube uuid or a Quark uuid
-        }
+            NyxDataCarrier
+                Quark     # See Quarks.txt   nyxType: "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
+                Cube      # See Cubes.txt    nyxType: "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
+                Clique    # See Cliques.txt  nyxType: "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+                Tag       # See Tags.txt     nyxType: "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
 
-    Roles 
-        Waves     # See Waves.txt
-        Asteroid  # See Asteroids.txt
-        Spaceship # See Spaceship.txt
-        OpenCycle # See OpenCycles.txt
+            Link {
+                "uuid"             : String
+                "nyxType"          : "link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+                "creationUnixtime" : Float # Unixtime with decimals
+                "uuid1"            : String
+                "uuid2"            : String # Cube uuid or a Quark uuid
+            }
+
+        NyxRole
+            Waves     # See Waves.txt
+            Asteroid  # See Asteroids.txt
+            Spaceship # See Spaceship.txt
+            OpenCycle # See OpenCycles.txt
