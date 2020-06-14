@@ -90,6 +90,9 @@ class Spaceships
         }
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
+            if spaceship["engine"]["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, total: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+            end
             " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatio(spaceship)})"
         }
         typeAsUserFriendly = lambda {|type|
@@ -399,7 +402,7 @@ class Spaceships
 
     # Spaceships::catalystObjects()
     def self.catalystObjects()
-        if !KeyValueStore::flagIsTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}") then
+        if [1,2,3,4,5].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}") then
             Spaceships::issue({
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
