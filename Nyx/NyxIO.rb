@@ -17,6 +17,8 @@ require 'securerandom'
 
 require 'colorize'
 
+require 'find'
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
@@ -38,6 +40,17 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 # -----------------------------------------------------------------
 
 class NyxIO
+
+    # NyxIO::jsonObjectsFilepathsEnumerator(rootFolder)
+    def self.jsonObjectsFilepathsEnumerator(rootFolder)
+        Enumerator.new do |filepaths|
+            Find.find(rootFolder) do |path|
+                next if !File.file?(path)
+                next if path[-5, 5] != ".json"
+                filepaths << path
+            end
+        end
+    end
 
     # NyxIO::pathToRepository()
     def self.pathToRepository()
@@ -68,10 +81,7 @@ class NyxIO
 
     # NyxIO::objects(nyxtype)
     def self.objects(nyxtype)
-        folderpath = "#{NyxIO::pathToRepository()}/#{nyxtype}"
-        Dir.entries(folderpath)
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{folderpath}/#{filename}" }
+        NyxIO::jsonObjectsFilepathsEnumerator("#{NyxIO::pathToRepository()}/#{nyxtype}")
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     end

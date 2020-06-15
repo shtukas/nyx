@@ -274,8 +274,23 @@ class Quark
         quark
     end
 
-    # --------------------------------------------------
-    # User Interface
+    # Quark::quarks()
+    def self.quarks()
+        NyxIO::objects("quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+    end
+
+    # Quark::getQuarksOfTypeFolderByFoldername(foldername)
+    def self.getQuarksOfTypeFolderByFoldername(foldername)
+        Quark::quarks()
+            .select{|quark| quark["type"] == "folder" and quark["foldername"] == foldername }
+    end
+
+    # Quark::getQuarksOfTypeFileByFilename(filename)
+    def self.getQuarksOfTypeFileByFilename(filename)
+        Quark::quarks()
+            .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
+    end
 
     # Quark::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
