@@ -25,17 +25,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 
 class Cliques
 
-    # Cliques::makeCliqueInteractivelyOrNull()
-    def self.makeCliqueInteractivelyOrNull()
-        puts "making a new clique:"
+    # Cliques::issueClique(name1)
+    def self.issueClique(name1)
         clique = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "creationUnixtime" => Time.new.to_f,
-
-            "name"             => LucilleCore::askQuestionAnswerAsString("clique name: ")
+            "name"             => name1
         }
         NyxIO::commitToDisk(clique)
+        clique
+    end
+
+    # Cliques::issueCliqueInteractivelyOrNull()
+    def self.issueCliqueInteractivelyOrNull()
+        puts "making a new clique:"
+        name1 = LucilleCore::askQuestionAnswerAsString("clique name: ")
+        clique = Cliques::issueClique(name1)
         puts JSON.pretty_generate(clique)
         clique
     end
@@ -73,9 +79,16 @@ class Cliques
         clique = Cliques::selectCliqueFromExistingCliquesOrNull()
         return clique if clique
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to make a new clique and return it ? ") then
-            return Cliques::makeCliqueInteractivelyOrNull()
+            return Cliques::issueCliqueInteractivelyOrNull()
         end
         nil
+    end
+
+    # Cliques::getClickByNameOrNull(name)
+    def self.getClickByNameOrNull(name1)
+        Cliques::cliques()
+            .select{|clique| clique["name"] == name1 }
+            .first
     end
 
     # Cliques::cliqueDive(clique)
@@ -154,7 +167,7 @@ class Cliques
         LucilleCore::pressEnterToContinue()
         clique = Cliques::selectCliqueFromExistingCliquesOrNull()
         return clique if clique
-        Cliques::makeCliqueInteractivelyOrNull()
+        Cliques::issueCliqueInteractivelyOrNull()
     end
 
     # Cliques::getLastActivityUnixtime(clique)

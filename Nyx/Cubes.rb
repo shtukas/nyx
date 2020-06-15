@@ -160,8 +160,6 @@ class Cubes
         unixtime
     end
 
-    # ------------------------------------------------------------
-
     # Cubes::selectCubeFromExistingOrNull()
     def self.selectCubeFromExistingOrNull()
         cubes = Cubes::cubes()

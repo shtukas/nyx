@@ -339,6 +339,7 @@ class NSXCatalystUI
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then
                 puts "No catalyst object found"
+                LucilleCore::pressEnterToContinue()
                 return
             end
             objects[0]["isFocus"] = true
