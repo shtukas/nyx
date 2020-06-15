@@ -87,27 +87,10 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cubes", 
-                lambda { Cubes::selectFromExistingCubedAndDive() }
-            ]
-
-            items << [
                 "tags", 
                 lambda { 
                     puts "This function is not implemented yet"
                     LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << nil
-
-            items << [
-                "cube (new) + dive",
-                lambda {
-                    cube = Cubes::issueQuarkCubeInteractivelyWithCliqueInviteOrNull()
-                    return if cube.nil?
-                    puts JSON.pretty_generate(cube)
-                    Cubes::cubeDive(cube)
                 }
             ]
 

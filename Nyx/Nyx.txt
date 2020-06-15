@@ -8,18 +8,36 @@ Nyx
     NyxDataNetwork
 
         NyxDataCarriers
+
             Quark     # See Quarks.txt   nyxType: "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-            Cube      # See Cubes.txt    nyxType: "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
             Clique    # See Cliques.txt  nyxType: "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"
             Tag       # See Tags.txt     nyxType: "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
 
-        Link {
+            Cube {
+                "nyxType"     : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
+                "description" : String # description of the first quark
+                "quarks"      : Array[Quark]
+            }
+
+        Boson {
             "uuid"             : String
-            "nyxType"          : "link-b38137c1-fd43-4035-9f2c-af0fddb18c80"
+            "nyxType"          : "boson-b38137c1-fd43-4035-9f2c-af0fddb18c80"
             "creationUnixtime" : Float # Unixtime with decimals
             "uuid1"            : String
             "uuid2"            : String # Cube uuid or a Quark uuid
         }
+
+        Gluon {
+            "uuid"             : String
+            "nyxType"          : "gluon-f3b14b34-cccc-442e-a7e9-f73fb37bc597"
+            "creationUnixtime" : Float # Unixtime with decimals
+            "uuid1"            : String
+            "uuid2"            : String # Cube uuid or a Quark uuid
+        }
+
+            When a gluon is issued the relation is transitive. This means 
+            that when linking two quarks A and B, we link A to all the Quarks 
+            that B is liked to and vice and versa.
 
     NyxRoles
         Waves     # See Waves.txt        # "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"

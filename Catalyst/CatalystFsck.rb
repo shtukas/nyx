@@ -421,9 +421,6 @@ class CatalystFsck
         Cliques::cliques().each{|clique|
             CatalystFsck::checkClique(clique)
         }
-        Cubes::cubes().each{|cube|
-            CatalystFsck::checkCube(cube)
-        }
         puts "-> Completed Catalyst Integrity Check".green
     end
 end

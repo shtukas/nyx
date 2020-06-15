@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
@@ -193,15 +193,17 @@ class Asteroids
 
     # Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
+        puts "Not doing Asteroids::recastUnderlyingQuarkAsCubeContentInteractively during cube migration"
+        LucilleCore::pressEnterToContinue()
+        return
+
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
-        description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        cube = Cubes::issueCubeWithDescriptionAndQuark(description, quark)
-        puts JSON.pretty_generate(cube)
+
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = Links::issueLink(clique, cube)
+            claim = Bosons::issueLink(clique, _)
             puts JSON.pretty_generate(claim)
         end
         LucilleCore::pressEnterToContinue()
@@ -210,16 +212,20 @@ class Asteroids
 
     # Asteroids::recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
+        puts "Not doing Asteroids::recastAsOpenCycle during the cube migration"
+        LucilleCore::pressEnterToContinue()
+        return
+
         # First we need a cube and opencycle that
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
-        description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-        cube = Cubes::issueCubeWithDescriptionAndQuark(description, quark)
-        puts JSON.pretty_generate(cube)
+
+        # 
+
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         if clique then
             puts JSON.pretty_generate(clique)
-            claim = Links::issueLink(clique, cube)
+            claim = Bosons::issueLink(clique, cube)
             puts JSON.pretty_generate(claim)
         end
         opencycle = OpenCycles::issueFromCube(cube)

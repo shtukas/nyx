@@ -19,7 +19,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
@@ -429,6 +429,15 @@ class Quark
                     next if description == ""
                     quark["description"] = description
                     NyxIO::commitToDisk(quark)
+                }
+            ]
+
+            items << [
+                "attach quark with gluon", 
+                lambda { 
+                    q = Quark::issueNewQuarkInteractivelyOrNull()
+                    next if q.nil?
+                    Gluons::issueLink(quark, q)
                 }
             ]
 

@@ -16,7 +16,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
@@ -99,11 +99,14 @@ class Cliques
             puts "uuid: #{clique["uuid"]}"
             items = []
 
-            Links::getLinkedObjects(clique)
+            Bosons::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
-                .each{|object| 
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }] }
-
+                .each{|object|
+                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+                        object = Cubes::makeCubeFromQuark(object)
+                    end
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                }
             items << nil
 
             NyxRoles::getRolesForTarget(clique["uuid"])
@@ -121,28 +124,9 @@ class Cliques
                 lambda{
                     quark = Quark::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    link = Links::issueLink(clique, quark)
+                    link = Bosons::issueLink(clique, quark)
                     puts JSON.pretty_generate(link)
                 }]
-
-            items << ["add cube (from existing)", lambda{ 
-                cube = Cubes::selectCubeFromExistingOrNull()
-                return if cube.nil?
-                Links::issueLink(clique, cube)
-            }]
-
-            items << ["add cube (create new)", lambda{
-
-                cube = Cubes::issueQuarkCubeInteractivelyOrNull()
-                return if cube.nil?
-                puts JSON.pretty_generate(cube)
-
-                puts "Let's attach the cube to the clique"
-                link = Links::issueLink(clique, cube)
-                puts JSON.pretty_generate(link)
-
-                LucilleCore::pressEnterToContinue()
-            }]
 
             items << [
                 "opencycle (register as)", 
@@ -172,7 +156,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["creationUnixtime"] ] + Links::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
+        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
         times.max
     end
 end

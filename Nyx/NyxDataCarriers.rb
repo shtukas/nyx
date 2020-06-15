@@ -33,7 +33,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Tags.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 
 # -----------------------------------------------------------------
 
@@ -53,7 +53,7 @@ class NyxDataCarriers
     # NyxDataCarriers::objectToString(object)
     def self.objectToString(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            return Cubes::cubeToString(object)
+            return object["description"]
         end
         if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             return Cliques::cliqueToString(object)
@@ -71,7 +71,7 @@ class NyxDataCarriers
     # NyxDataCarriers::objectDive(object)
     def self.objectDive(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            Cubes::cubeDive(object)
+            Cubes::diveCube(object)
             return
         end
         if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -93,7 +93,8 @@ class NyxDataCarriers
     # NyxDataCarriers::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            return Cubes::getLastActivityUnixtime(object)
+            puts object
+            return object["quarks"].map{|quark| quark["creationUnixtime"] }.max
         end
         if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             return Cliques::getLastActivityUnixtime(object)

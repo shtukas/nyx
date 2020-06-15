@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Links.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -35,58 +35,78 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -----------------------------------------------------------------
 
-class Links
+class Bosons
 
-    # Links::issueLink(object1, object2)
+    # Bosons::issueLink(object1, object2)
     def self.issueLink(object1, object2)
         raise "b9b7810e" if !NyxIO::dataCarriersNyxTypes().include?(object1["nyxType"])
         raise "ff00b177" if !NyxIO::dataCarriersNyxTypes().include?(object2["nyxType"])
         raise "14d9af33" if (object1["uuid"] == object2["uuid"]) # Prevent an object to link to itself
+
+        # We now enforce the meaning of Boson and prevent the linking of two quarks
+        raise "d3e06d2f" if (object1["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" and object2["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+
+
+        link = Bosons::linked?(object1, object2)
+        return link if link
+
         link = {
             "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "link-b38137c1-fd43-4035-9f2c-af0fddb18c80",
+            "nyxType"          => "boson-b38137c1-fd43-4035-9f2c-af0fddb18c80",
             "creationUnixtime" => Time.new.to_f,
             "uuid1"            => object1["uuid"],
             "uuid2"            => object2["uuid"]
         }
         NyxIO::commitToDisk(link)
+
         link
     end
 
-    # Links::linkToString(link)
+    # Bosons::linked?(object1, object2)
+    def self.linked?(object1, object2)
+        Bosons::links()
+            .select{|link|
+                b1 = (link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"])
+                b2 = (link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"])
+                b1 or b2
+            }
+            .first
+    end
+
+    # Bosons::linkToString(link)
     def self.linkToString(link)
         "[link] #{link["uuid1"]} <-> #{link["uuid2"]}"
     end
 
-    # Links::getLinkedObjects(focus)
+    # Bosons::getLinkedObjects(focus)
     def self.getLinkedObjects(focus)
-        obj1s = NyxIO::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj1s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid1"] == focus["uuid"] }
                     .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid2"]) }
                     .compact
-        obj2s = NyxIO::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        obj2s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
                     .select{|link| link["uuid2"] == focus["uuid"] }
                     .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid1"]) }
                     .compact
         obj1s + obj2s
     end
 
-    # Links::getLinkedObjectsOfGivenNyxType(focus, nyxType)
+    # Bosons::getLinkedObjectsOfGivenNyxType(focus, nyxType)
     def self.getLinkedObjectsOfGivenNyxType(focus, nyxType)
-        Links::getLinkedObjects(focus)
+        Bosons::getLinkedObjects(focus)
             .select{|object| object["nyxType"] == nyxType }
     end
 
-    # Links::links()
+    # Bosons::links()
     def self.links()
-        NyxIO::objects("link-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Links::destroyLink(object1, object2)
+    # Bosons::destroyLink(object1, object2)
     def self.destroyLink(object1, object2)
         trace = [object1["uuid"], object2["uuid"]].sort.join(":")
-        Links::links()
+        Bosons::links()
             .select{|link| 
                 xtrace = [link["uuid1"], link["uuid2"]].sort.join(":")
                 xtrace == trace
