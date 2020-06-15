@@ -50,28 +50,7 @@ class LibrarianFile
 
     # LibrarianFile::filenameToRepositoryFilepath(filename)
     def self.filenameToRepositoryFilepath(filename)
-
-        thisMonthFolderPath = "#{LibrarianUtils::pathToLibrarian()}/Files2/#{Time.new.strftime("%Y-%m")}"
-
-        if !File.exists?(thisMonthFolderPath) then
-            FileUtils.mkdir(thisMonthFolderPath)
-        end
-
-        filepath1 = "#{thisMonthFolderPath}/#{filename}"
-
-        return filepath1 if File.exists?(filepath1)
-
-        filepath2 = LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth("#{LibrarianUtils::pathToLibrarian()}/Files2")
-                        .map{|month| "#{LibrarianUtils::pathToLibrarian()}/Files2/#{month}/#{filename}" }
-                        .select{|fpath| File.exists?(fpath) }
-                        .first
-
-        if filepath2 then
-            FileUtils.mv(filepath2, filepath1)
-            return filepath1
-        end
-
-        filepath1
+        "#{LibrarianUtils::pathToLibrarian()}/Files/#{filename}"
     end
 
     # LibrarianFile::copyFileToRepository(filepath1)
@@ -136,28 +115,7 @@ class LibrarianDirectory
 
     # LibrarianDirectory::foldernameToFolderpath(foldername)
     def self.foldernameToFolderpath(foldername)
-
-        thisMonthFolderPath = "#{LibrarianUtils::pathToLibrarian()}/Directories2/#{Time.new.strftime("%Y-%m")}"
-
-        if !File.exists?(thisMonthFolderPath) then
-            FileUtils.mkdir(thisMonthFolderPath)
-        end
-
-        folderpath1 = "#{thisMonthFolderPath}/#{foldername}"
-
-        return folderpath1 if File.exists?(folderpath1)
-
-        folderpath2 = LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth("#{LibrarianUtils::pathToLibrarian()}/Directories2")
-                        .map{|month| "#{LibrarianUtils::pathToLibrarian()}/Directories2/#{month}/#{foldername}" }
-                        .select{|fpath| File.exists?(fpath) }
-                        .first
-
-        if folderpath2 then
-            FileUtils.mv(folderpath2, folderpath1)
-            return folderpath1
-        end
-
-        folderpath1
+        "#{LibrarianUtils::pathToLibrarian()}/Directories/#{foldername}"
     end
 
     # LibrarianDirectory::exists?(foldername)
