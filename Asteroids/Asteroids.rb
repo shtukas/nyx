@@ -522,7 +522,7 @@ class Asteroids
     def self.orbitalDive(orbitalname)
         loop {
             system("clear")
-            puts "-> Visiting project '#{orbitalname}'"
+            puts "-> Visiting orbital '#{orbitalname}'"
 
             items = []
 
