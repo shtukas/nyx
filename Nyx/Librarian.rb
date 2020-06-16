@@ -37,13 +37,6 @@ class LibrarianUtils
         FileUtils.mkdir(folder3)
         LucilleCore::copyFileSystemLocation(location, folder3)
     end
-
-    # LibrarianUtils::getSubfoldersMonthsNotIncludingThisMonth(folderpath)
-    def self.getSubfoldersMonthsNotIncludingThisMonth(folderpath)
-        months = Dir.entries(folderpath)
-                    .select{|filename| filename[0, 1] != '.' }
-        months - [ Time.new.strftime("%Y-%m") ]
-    end
 end
 
 class LibrarianFile
