@@ -200,6 +200,13 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
+        top = IO.read("/Users/pascal/Desktop/Top.txt").strip
+        if top.size > 0 then
+            puts ""
+            puts top.green
+            verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(top) + 1)
+        end
+
         Calendar::dates()
             .each{|date|
                 next if date > Time.new.to_s[0, 10]
