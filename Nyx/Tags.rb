@@ -75,6 +75,7 @@ class Tags
 
     # Tags::tagDive(tag)
     def self.tagDive(tag)
+        puts "uuid: #{tag["uuid"]}"
         puts "Tags::tagDive(tag) is not implemented yet"
         LucilleCore::pressEnterToContinue()
     end

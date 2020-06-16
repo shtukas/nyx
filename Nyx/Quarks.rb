@@ -432,6 +432,7 @@ class Quarks
         loop {
             system("clear")
             puts Quarks::quarkToString(quark).green
+            puts "uuid: #{quark["uuid"]}"
 
             items = []
 
