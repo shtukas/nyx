@@ -55,6 +55,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGarbageCollection.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
@@ -86,8 +87,26 @@ class NSXCatalystUI
             ]
 
             items << [
-                "quarks listing", 
-                lambda { Quark::quarksDive() }
+                "cliques (select and dive)", 
+                lambda { 
+                    clique = Cliques::selectCliqueFromExistingCliquesOrNull()
+                    return clique.nil?
+                    Cliques::cliqueDive(clique)
+                }
+            ]
+
+            items << [
+                "quarks (select and dive)", 
+                lambda { 
+                    quark = Quarks::selectQuarkFromExistingQuarksOrNull()
+                    return quark.nil?
+                    Quarks::quarkDive(quark)
+                }
+            ]
+
+            items << [
+                "quarks (listing)", 
+                lambda { Quarks::quarksListingAndDive() }
             ]
 
             items << nil
@@ -95,7 +114,7 @@ class NSXCatalystUI
             items << [
                 "quark (new)",
                 lambda { 
-                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     clique = Cliques::selectCliqueOrMakeNewOneOrNull()
                     return if clique.nil?

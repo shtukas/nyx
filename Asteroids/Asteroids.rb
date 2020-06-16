@@ -88,14 +88,14 @@ class Asteroids
     def self.asteroidBestDescription(item)
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return "#{JSON.generate(item)} -> null quark" if quark.nil?
-        item["description"] || Quark::quarkToString(quark)
+        item["description"] || Quarks::quarkToString(quark)
     end
 
     # Asteroids::asteroidOpen(item)
     def self.asteroidOpen(item)
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return if quark.nil?
-        Quark::openQuark(quark)
+        Quarks::openQuark(quark)
     end
 
     # Asteroids::asteroidToString(item)
@@ -359,7 +359,7 @@ class Asteroids
         Runner::start(uuid)
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         return if quark.nil?
-        Quark::openQuark(quark)
+        Quarks::openQuark(quark)
 
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role) ", false) then
             Asteroids::stop(uuid, asteroid)
@@ -452,7 +452,7 @@ class Asteroids
             if option == "open" then
                 quark = NyxIO::getOrNull(asteroid["quarkuuid"])
                 next if quark.nil?
-                Quark::openQuark(quark)
+                Quarks::openQuark(quark)
             end
             if option == "stop" then
                 Asteroids::stopProcedure(asteroid)
@@ -495,7 +495,7 @@ class Asteroids
 
     # Asteroids::createNewAsteroidInteractivelyOrNull()
     def self.createNewAsteroidInteractivelyOrNull()
-        target = Quark::issueNewQuarkInteractivelyOrNull()
+        target = Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if target.nil?
         orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
         orbitaluuid = nil
@@ -513,7 +513,7 @@ class Asteroids
     def self.createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
         orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
         return nil if orbitaluuid.nil?
-        target = Quark::issueNewQuarkInteractivelyOrNull()
+        target = Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if target.nil?
         Asteroids::issueNew(orbitalname, orbitaluuid, nil, target)
     end

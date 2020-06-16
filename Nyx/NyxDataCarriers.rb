@@ -62,7 +62,7 @@ class NyxDataCarriers
             return Tags::tagToString(object)
         end
         if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            return Quark::quarkToString(object)
+            return Quarks::quarkToString(object)
         end
         puts object
         raise "Error: 056686f0"
@@ -83,7 +83,7 @@ class NyxDataCarriers
             return
         end
         if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-            Quark::quarkDive(object)
+            Quarks::quarkDive(object)
             return
         end
         puts object

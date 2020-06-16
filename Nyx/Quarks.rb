@@ -27,9 +27,9 @@ require_relative "Librarian.rb"
 
 # -----------------------------------------------------------------
 
-class Quark
+class Quarks
 
-    # Quark::selectOneFilepathOnTheDesktopOrNull()
+    # Quarks::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -38,7 +38,7 @@ class Quark
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # Quark::selectOneFolderpathOnTheDesktopOrNull()
+    # Quarks::selectOneFolderpathOnTheDesktopOrNull()
     def self.selectOneFolderpathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -50,7 +50,7 @@ class Quark
     # --------------------------------------------------
     # Issuers
 
-    # Quark::issueQuarkLineInteractively()
+    # Quarks::issueQuarkLineInteractively()
     def self.issueQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         quark = {
@@ -65,7 +65,7 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkUrlInteractively()
+    # Quarks::issueQuarkUrlInteractively()
     def self.issueQuarkUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
@@ -81,9 +81,9 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkFileInteractivelyOrNull()
+    # Quarks::issueQuarkFileInteractivelyOrNull()
     def self.issueQuarkFileInteractivelyOrNull()
-        filepath1 = Quark::selectOneFilepathOnTheDesktopOrNull()
+        filepath1 = Quarks::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -103,7 +103,7 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkFile(filepath)
+    # Quarks::issueQuarkFile(filepath)
     def self.issueQuarkFile(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
@@ -120,7 +120,7 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkFromText(text)
+    # Quarks::issueQuarkFromText(text)
     def self.issueQuarkFromText(text)
         filename = LibrarianFile::textToFilename(text)
         quark = {
@@ -134,9 +134,9 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkFolderInteractivelyOrNull()
+    # Quarks::issueQuarkFolderInteractivelyOrNull()
     def self.issueQuarkFolderInteractivelyOrNull()
-        folderpath1 = Quark::selectOneFolderpathOnTheDesktopOrNull()
+        folderpath1 = Quarks::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -156,7 +156,7 @@ class Quark
         quark
     end
 
-    # Quark::locationToFileOrFolderQuarkIssued(location)
+    # Quarks::locationToFileOrFolderQuarkIssued(location)
     def self.locationToFileOrFolderQuarkIssued(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
@@ -196,7 +196,7 @@ class Quark
         end
     end
 
-    # Quark::issueQuarkUniqueNameInteractively()
+    # Quarks::issueQuarkUniqueNameInteractively()
     def self.issueQuarkUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
@@ -212,7 +212,7 @@ class Quark
         quark
     end
 
-    # Quark::issueQuarkDirectoryMarkInteractively()
+    # Quarks::issueQuarkDirectoryMarkInteractively()
     def self.issueQuarkDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -259,7 +259,7 @@ class Quark
         end
     end
 
-    # Quark::issueQuarkDataPodInteractively()
+    # Quarks::issueQuarkDataPodInteractively()
     def self.issueQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
         quark = {
@@ -277,38 +277,38 @@ class Quark
     # --------------------------------------------------
     # 
 
-    # Quark::quarks()
+    # Quarks::quarks()
     def self.quarks()
         NyxIO::objects("quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Quark::getQuarksOfTypeFolderByFoldername(foldername)
+    # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
     def self.getQuarksOfTypeFolderByFoldername(foldername)
-        Quark::quarks()
+        Quarks::quarks()
             .select{|quark| quark["type"] == "folder" and quark["foldername"] == foldername }
     end
 
-    # Quark::getQuarksOfTypeFileByFilename(filename)
+    # Quarks::getQuarksOfTypeFileByFilename(filename)
     def self.getQuarksOfTypeFileByFilename(filename)
-        Quark::quarks()
+        Quarks::quarks()
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
-    # Quark::issueNewQuarkInteractivelyOrNull()
+    # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
         types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark", "datapod"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return Quark::issueQuarkLineInteractively()
+            return Quarks::issueQuarkLineInteractively()
         end
         if type == "url" then
-            return Quark::issueQuarkUrlInteractively()
+            return Quarks::issueQuarkUrlInteractively()
         end
         if type == "file" then
-            return Quark::issueQuarkFileInteractivelyOrNull()
+            return Quarks::issueQuarkFileInteractivelyOrNull()
         end
         if type == "new text file" then
             filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
@@ -323,25 +323,25 @@ class Quark
             return quark
         end
         if type == "folder" then
-            return Quark::issueQuarkFolderInteractivelyOrNull()
+            return Quarks::issueQuarkFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return Quark::issueQuarkUniqueNameInteractively()
+            return Quarks::issueQuarkUniqueNameInteractively()
         end
         if type == "directory-mark" then
-            return Quark::issueQuarkDirectoryMarkInteractively()
+            return Quarks::issueQuarkDirectoryMarkInteractively()
         end
         if type == "datapod" then
-            return Quark::issueQuarkDataPodInteractively()
+            return Quarks::issueQuarkDataPodInteractively()
         end
     end
 
-    # Quark::getOrNull(uuid)
+    # Quarks::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxIO::getOrNull(uuid)
     end
 
-    # Quark::quarkToString(quark)
+    # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
         if quark["description"] then
             if quark["type"] == "file" then
@@ -374,7 +374,7 @@ class Quark
         raise "Quark error 3c7968e4"
     end
 
-    # Quark::openQuark(quark)
+    # Quarks::openQuark(quark)
     def self.openQuark(quark)
         if quark["type"] == "line" then
             puts quark["line"]
@@ -427,11 +427,11 @@ class Quark
         raise "Quark error 160050-490261"
     end
 
-    # Quark::quarkDive(quark)
+    # Quarks::quarkDive(quark)
     def self.quarkDive(quark)
         loop {
             system("clear")
-            puts Quark::quarkToString(quark).green
+            puts Quarks::quarkToString(quark).green
 
             items = []
 
@@ -448,7 +448,7 @@ class Quark
 
             items << [
                 "open", 
-                lambda{ Quark::openQuark(quark) }
+                lambda{ Quarks::openQuark(quark) }
             ]
 
             items << [
@@ -464,7 +464,7 @@ class Quark
             items << [
                 "attach quark with gluon", 
                 lambda { 
-                    q = Quark::issueNewQuarkInteractivelyOrNull()
+                    q = Quarks::issueNewQuarkInteractivelyOrNull()
                     next if q.nil?
                     Gluons::issueLink(quark, q)
                 }
@@ -485,17 +485,27 @@ class Quark
         }
     end
 
-    # Quark::quarksDive()
-    def self.quarksDive()
+    # Quarks::quarksListingAndDive()
+    def self.quarksListingAndDive()
         loop {
             items = []
-            Quark::quarks()
+            Quarks::quarks()
                 .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
                 .each{|quark|
-                    items << [ Quark::quarkToString(quark), lambda{ Quark::quarkDive(quark) }]
+                    items << [ Quarks::quarkToString(quark), lambda{ Quarks::quarkDive(quark) }]
                 }
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
+    end
+
+    # Quarks::selectQuarkFromExistingQuarksOrNull()
+    def self.selectQuarkFromExistingQuarksOrNull()
+        quarkstrings = Quarks::quarks().map{|quark| Quarks::quarkToString(quark) }
+        quarkstring = CatalystCommon::chooseALinePecoStyle("quark:", [""]+quarkstrings)
+        return nil if quarkstring == ""
+        Quarks::quarks()
+            .select{|quark| Quarks::quarkToString(quark) == quarkstring }
+            .first
     end
 end

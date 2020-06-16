@@ -47,7 +47,7 @@ class Cubes
         quarks = [quark] + Gluons::getLinkedQuarks(quark)
         {
             "nyxType"     => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "description" => "[cube] (#{quarks.size}) #{Quark::quarkToString(quark)}",
+            "description" => "[cube] (#{quarks.size}) #{Quarks::quarkToString(quark)}",
             "quarks"      => quarks
         }
     end

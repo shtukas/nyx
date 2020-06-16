@@ -84,7 +84,7 @@ class Spaceships
             end
             if cargo["type"] == "quark" then
                 quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
-                return quark ? (" " + Quark::quarkToString(quark)) : " [could not find quark]"
+                return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
             end
             raise "[Spaceships] error: CE8497BB"
         }
@@ -129,7 +129,7 @@ class Spaceships
             }
         end
         if option == "quark" then
-            quark = Quark::issueNewQuarkInteractivelyOrNull()
+            quark = Quarks::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
             description = LucilleCore::askQuestionAnswerAsString("spaceship cargo description: ")
             return {
@@ -482,7 +482,7 @@ class Spaceships
         if spaceship["cargo"]["type"] == "quark" then
             quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
             return if quark.nil?
-            Quark::openQuark(quark)
+            Quarks::openQuark(quark)
         end
     end
 end

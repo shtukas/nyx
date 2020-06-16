@@ -147,7 +147,7 @@ class NSXMiscUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            target = Quark::locationToFileOrFolderQuarkIssued(location)
+            target = Quarks::locationToFileOrFolderQuarkIssued(location)
             item = {
                 "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
                 "uuid"             => SecureRandom.uuid,
