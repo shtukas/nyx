@@ -245,6 +245,7 @@ class NSXCatalystUI
         if specialCircumstancesFilepath then
             text = IO.read(specialCircumstancesFilepath).strip
             if text.size > 0 then
+                text = text.lines.first(10).join()
                 puts ""
                 puts File.basename(specialCircumstancesFilepath)
                 puts text.green
