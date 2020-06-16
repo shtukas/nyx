@@ -435,17 +435,6 @@ class Quarks
 
             items = []
 
-            Cliques::getCliqueBosonLinkedObjects(quark)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
-                .each{|object|
-                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-                        object = Cubes::makeCubeFromQuark(object)
-                    end
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
-                }
-
-            items << nil
-
             items << [
                 "open", 
                 lambda{ Quarks::openQuark(quark) }
@@ -480,6 +469,17 @@ class Quarks
             NyxRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| items << [NyxRoles::objectToString(object), lambda{ NyxRoles::objectDive(object) }] }
 
+            items << nil
+
+            Cliques::getCliqueBosonLinkedObjects(quark)
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
+                .each{|object|
+                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+                        object = Cubes::makeCubeFromQuark(object)
+                    end
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                }
+
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
@@ -508,4 +508,18 @@ class Quarks
             .select{|quark| Quarks::quarkToString(quark) == quarkstring }
             .first
     end
+
+    # Quarks::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Quarks::quarks()
+            .select{|quark| Quarks::quarkToString(quark).downcase.include?(pattern.downcase) }
+            .map{|quark|
+                {
+                    "description"   => Quarks::quarkToString(quark),
+                    "referencetime" => quark["creationUnixtime"],
+                    "dive"          => lambda{ Quarks::quarkDive(quark) }
+                }
+            }
+    end
+
 end

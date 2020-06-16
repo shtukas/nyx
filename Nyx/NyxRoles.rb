@@ -91,7 +91,7 @@ class NyxRoles
     def self.getRolesForTarget(targetuuid)
         [
             # We are not doing the Waves as they have no target
-            Asteroids::getAsteroidsByTargetUUID(targetuuid),
+            Asteroids::getAsteroidsByQuarkUUIDUseDerivation(targetuuid),
             Spaceships::getSpaceshipsByTargetUUID(targetuuid),
             OpenCycles::getOpenCyclesByTargetUUID(targetuuid)
         ].flatten

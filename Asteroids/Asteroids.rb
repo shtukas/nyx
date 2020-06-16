@@ -45,6 +45,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
@@ -67,6 +75,7 @@ class Asteroids
             "quarkuuid"        => quark["uuid"]
         }
         NyxIO::commitToDisk(item)
+        Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(item)
         item
     end
 
@@ -239,10 +248,40 @@ class Asteroids
         NyxIO::objects("asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 
-    # Asteroids::getAsteroidsByTargetUUID(targetuuid)
-    def self.getAsteroidsByTargetUUID(targetuuid)
+    # Asteroids::getAsteroidByUUIDOrNull(uuid)
+    def self.getAsteroidByUUIDOrNull(uuid)
+        NyxIO::getOrNullAtType(uuid, "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+    end
+
+    # Asteroids::getAsteroidsByQuarkUUIDUseTheForce(quarkuuid)
+    def self.getAsteroidsByQuarkUUIDUseTheForce(quarkuuid)
         Asteroids::asteroids()
-            .select{|asteroid| asteroid["quarkuuid"] == targetuuid }
+            .select{|asteroid| asteroid["quarkuuid"] == quarkuuid }
+    end
+
+    # Asteroids::getAsteroidsByQuarkUUIDUseDerivation(quarkuuid)
+    def self.getAsteroidsByQuarkUUIDUseDerivation(quarkuuid)
+        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
+        BTreeSets::values(derivationFolderpath, quarkuuid) # a set for each quarkuuid
+            .map{|asteroiduuid| Asteroids::getAsteroidByUUIDOrNull(uuid) }
+            .compact
+            .select{|asteroid| asteroid["quarkuuid"] == quarkuuid } 
+        # The set contains any asteroiduuid that have had that target at somepoint
+        # By the time we call it again, the asteroid could have gotten a new target
+        # ... and is why we check the target of the asteroid.
+    end
+
+    # Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid)
+    def self.getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid)
+        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
+        BTreeSets::set(derivationFolderpath, asteroid["quarkuuid"], asteroid["uuid"], asteroid["uuid"])
+    end
+
+    # Asteroids::updateAsteroidByQuarkUUIDIndex()
+    def self.updateAsteroidByQuarkUUIDIndex()
+        Asteroids::asteroids()
+            .each{|asteroid|
+                Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid) }
     end
 
     # Asteroids::getFocus()

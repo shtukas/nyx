@@ -148,17 +148,8 @@ class NSXMiscUtils
                 next
             end
             target = Quarks::locationToFileOrFolderQuarkIssued(location)
-            item = {
-                "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
-                "uuid"             => SecureRandom.uuid,
-                "creationUnixtime" => Time.new.to_f,
-                "orbitalname"      => "Inbox",
-                "orbitaluuid"      => "44caf74675ceb79ba5cc13bafa102509369c2b53",
-                "description"      => File.basename(location),
-                "quarkuuid"        => target["uuid"]
-            }
+            item = Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", File.basename(location), target["uuid"])
             puts JSON.pretty_generate(item)
-            NyxIO::commitToDisk(item)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

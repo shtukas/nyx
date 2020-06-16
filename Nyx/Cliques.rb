@@ -106,21 +106,6 @@ class Cliques
             puts "uuid: #{clique["uuid"]}"
             items = []
 
-            Cliques::getCliqueBosonLinkedObjects(clique)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
-                .each{|object|
-                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-                        object = Cubes::makeCubeFromQuark(object)
-                    end
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
-                }
-            items << nil
-
-            NyxRoles::getRolesForTarget(clique["uuid"])
-                .each{|object| items << [NyxRoles::objectToString(object), lambda { NyxRoles::objectDive(object) }] }
-
-            items << nil
-
             items << ["rename", lambda{ 
                 clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
                 NyxIO::commitToDisk(clique)
@@ -149,6 +134,22 @@ class Cliques
                 }
             ]
 
+            items << nil
+
+            NyxRoles::getRolesForTarget(clique["uuid"])
+                .each{|object| items << [NyxRoles::objectToString(object), lambda { NyxRoles::objectDive(object) }] }
+
+            items << nil
+
+            Cliques::getCliqueBosonLinkedObjects(clique)
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
+                .each{|object|
+                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+                        object = Cubes::makeCubeFromQuark(object)
+                    end
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                }
+
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
@@ -174,5 +175,32 @@ class Cliques
     def self.getLastActivityUnixtime(clique)
         times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
         times.max
+    end
+
+    # Cliques::cliquesListingAndDive()
+    def self.cliquesListingAndDive()
+        loop {
+            items = []
+            Cliques::cliques()
+                .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
+                .each{|clique|
+                    items << [ Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
+                }
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # Cliques::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Cliques::cliques()
+            .select{|clique| Cliques::cliqueToString(clique).downcase.include?(pattern.downcase) }
+            .map{|clique|
+                {
+                    "description"   => Cliques::cliqueToString(clique),
+                    "referencetime" => clique["creationUnixtime"],
+                    "dive"          => lambda{ Cliques::cliqueDive(clique) }
+                }
+            }
     end
 end

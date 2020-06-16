@@ -87,21 +87,8 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cliques (select and dive)", 
-                lambda { 
-                    clique = Cliques::selectCliqueFromExistingCliquesOrNull()
-                    return clique.nil?
-                    Cliques::cliqueDive(clique)
-                }
-            ]
-
-            items << [
-                "quarks (select and dive)", 
-                lambda { 
-                    quark = Quarks::selectQuarkFromExistingQuarksOrNull()
-                    return quark.nil?
-                    Quarks::quarkDive(quark)
-                }
+                "cliques (listing)", 
+                lambda { Cliques::cliquesListingAndDive() }
             ]
 
             items << [
