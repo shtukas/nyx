@@ -512,7 +512,12 @@ class Quarks
     # Quarks::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         Quarks::quarks()
-            .select{|quark| Quarks::quarkToString(quark).downcase.include?(pattern.downcase) }
+            .select{|quark| 
+                [
+                    quark["uuid"].downcase.include?(pattern.downcase),
+                    Quarks::quarkToString(quark).downcase.include?(pattern.downcase)
+                ].any?
+            }
             .map{|quark|
                 {
                     "description"   => Quarks::quarkToString(quark),

@@ -82,7 +82,12 @@ class Tags
     # Tags::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         Tags::tags()
-            .select{|tag| tag["payload"].downcase.include?(pattern.downcase) }
+            .select{|tag| 
+                [
+                    tag["uuid"].downcase.include?(pattern.downcase),
+                    tag["payload"].downcase.include?(pattern.downcase)
+                ].any?
+            }
             .reduce([]) {|selected, tag|
                 if selected.any?{|t| t["payload"] == tag["payload"] } then
                     selected << tag

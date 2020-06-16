@@ -194,7 +194,12 @@ class Cliques
     # Cliques::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         Cliques::cliques()
-            .select{|clique| Cliques::cliqueToString(clique).downcase.include?(pattern.downcase) }
+            .select{|clique| 
+                [ 
+                    clique["uuid"].downcase.include?(pattern.downcase),
+                    Cliques::cliqueToString(clique).downcase.include?(pattern.downcase)
+                ].any?
+            }
             .map{|clique|
                 {
                     "description"   => Cliques::cliqueToString(clique),
