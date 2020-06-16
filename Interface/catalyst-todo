@@ -71,7 +71,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
-NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
+#NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
 
 def objectsMonitoringForOnScreenNotifications()
     loop {

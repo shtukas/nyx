@@ -162,6 +162,16 @@ class NSXCatalystUI
                 }
             ]
 
+            items << [
+                "Nyx garbage collection", 
+                lambda { NyxGarbageCollection::run() }
+            ]
+
+            items << [
+                "Nyx curation", 
+                lambda { NSXCuration::run() }
+            ]
+
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
         }
@@ -336,12 +346,6 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
-
-            # Garbage Collection
-            NyxGarbageCollection::run()
-
-            # NSXCuration
-            NSXCuration::run()
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
