@@ -465,6 +465,15 @@ class Quarks
                 lambda { OpenCycles::issueFromQuark(quark) }
             ]
 
+            items << [
+                "quark (destroy)", 
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                        NyxIO::destroy(quark["uuid"])
+                    end
+                }
+            ]
+
             items << nil
 
             NyxRoles::getRolesForTarget(quark["uuid"])
