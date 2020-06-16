@@ -62,6 +62,11 @@ class Cliques
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
+    # Cliques::getCliqueBosonLinkedObjects(clique)
+    def self.getCliqueBosonLinkedObjects(clique)
+        Bosons::getLinkedObjects(clique)
+    end
+
     # Cliques::selectCliqueFromExistingCliquesOrNull()
     def self.selectCliqueFromExistingCliquesOrNull()
         cliquestrings = Cliques::cliques().map{|clique| Cliques::cliqueToString(clique) }
@@ -94,12 +99,14 @@ class Cliques
     # Cliques::cliqueDive(clique)
     def self.cliqueDive(clique)
         loop {
+            return if NyxIO::getOrNull(clique["uuid"]).nil? # could have been destroyed in a previous loop
+
             system("clear")
             puts Cliques::cliqueToString(clique).green
             puts "uuid: #{clique["uuid"]}"
             items = []
 
-            Bosons::getLinkedObjects(clique)
+            Cliques::getCliqueBosonLinkedObjects(clique)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
@@ -131,6 +138,15 @@ class Cliques
             items << [
                 "opencycle (register as)", 
                 lambda { OpenCycles::issueFromClique(clique) }
+            ]
+
+            items << [
+                "clique (destroy)", 
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                        NyxIO::destroy(clique["uuid"])
+                    end
+                }
             ]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen

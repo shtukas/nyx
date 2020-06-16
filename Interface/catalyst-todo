@@ -54,6 +54,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystF
 
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
+require_relative "NSXCuration.rb"
 require_relative "NSXDisplayUtils.rb"
 require_relative "NSXGeneralSearch.rb"
 require_relative "NSXEstateServices.rb"

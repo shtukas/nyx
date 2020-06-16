@@ -50,10 +50,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGarbageCollection.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
+
 
 # ------------------------------------------------------------------------
 
@@ -303,7 +307,6 @@ class NSXCatalystUI
             NSXCatalystUI::operations()
             return
         end
-
     end
 
     # NSXCatalystUI::standardUILoop()
@@ -317,6 +320,12 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
+
+            # Garbage Collection
+            NyxGarbageCollection::run()
+
+            # Garbage Collection
+            NSXCuration::run()
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
