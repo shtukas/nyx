@@ -117,15 +117,15 @@ class Asteroids
         "[asteroid] [#{item["orbitalname"]}] [#{quarkType}] #{Asteroids::asteroidBestDescription(item)} (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) #{runningSuffix}"
     end
 
-    # Asteroids::asteroidReceivesRunTimespan(item, timespan, verbose = false)
-    def self.asteroidReceivesRunTimespan(item, timespan, verbose = false)
-        itemuuid = item["uuid"]
-        orbitaluuid = item["orbitaluuid"]
+    # Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
+    def self.asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
+        asteroiduuid = asteroid["uuid"]
+        orbitaluuid = asteroid["orbitaluuid"]
 
         if verbose then
-            puts "Bank: putting #{timespan.round(2)} secs into itemuuid: #{itemuuid}"
+            puts "Bank: putting #{timespan.round(2)} secs into asteroiduuid: #{asteroiduuid}"
         end
-        Bank::put(itemuuid, timespan)
+        Bank::put(asteroiduuid, timespan)
 
         if verbose then
             puts "Bank: putting #{timespan.round(2)} secs into orbitaluuid: #{orbitaluuid}"
@@ -384,11 +384,13 @@ class Asteroids
         objects
     end
 
-    # Asteroids::stop(uuid, asteroid)
-    def self.stop(uuid, asteroid)
+    # Asteroids::stop(uuid)
+    def self.stop(uuid)
         timespan = Runner::stop(uuid)
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        asteroid = NyxIO::getOrNull(uuid)
+        return if asteroid.nil?
         Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, true)
     end
 
@@ -401,7 +403,7 @@ class Asteroids
         Quarks::openQuark(quark)
 
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role) ", false) then
-            Asteroids::stop(uuid, asteroid)
+            Asteroids::stop(uuid)
             if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
                 status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
                 if !status then
@@ -419,7 +421,7 @@ class Asteroids
         end
 
         if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-            Asteroids::stop(uuid, asteroid)
+            Asteroids::stop(uuid)
             puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
             options = [
                 "migrate to new orbital", 
@@ -440,7 +442,7 @@ class Asteroids
     # Asteroids::stopProcedure(asteroid)
     def self.stopProcedure(asteroid)
         uuid = asteroid["uuid"]
-        Asteroids::stop(uuid, asteroid)
+        Asteroids::stop(uuid)
         if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
             puts "Item was not immediately done, we need to classify it."
             Asteroids::updateAsteroidOrbitalname(asteroid)
@@ -449,7 +451,7 @@ class Asteroids
 
     # Asteroids::doneProcedure(asteroid)
     def self.doneProcedure(asteroid)
-        Asteroids::stop(uuid, asteroid)
+        Asteroids::stop(asteroid["uuid"])
         if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
             status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
             if !status then
@@ -505,7 +507,7 @@ class Asteroids
                 NyxIO::commitToDisk(asteroid)
             end
             if option == "update orbital" then
-                Asteroids::stop(uuid, asteroid)
+                Asteroids::stop(asteroid["uuid"])
                 Asteroids::updateAsteroidOrbitalname(asteroid)
             end
             if option == "push" then
@@ -525,7 +527,7 @@ class Asteroids
                 return
             end
             if option == "reset-reference-time" then
-                Asteroids::stop(uuid, asteroid)
+                Asteroids::stop(asteroid["uuid"])
                 asteroid["creationUnixtime"] = Time.new.to_f
                 NyxIO::commitToDisk(asteroid)
             end

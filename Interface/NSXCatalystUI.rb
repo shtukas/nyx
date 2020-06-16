@@ -62,7 +62,32 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 
 # ------------------------------------------------------------------------
 
+$SpecialCircumstancesFileNames = [
+    "Lucille.txt",
+    "Interface-Top.txt",
+    "Guardian-Next.txt"
+]
+
 class NSXCatalystUI
+
+    # NSXCatalystUI::applyNextTransformationToFile(filepath)
+    def self.applyNextTransformationToFile(filepath)
+        CatalystCommon::copyLocationToCatalystBin(filepath)
+        content = IO.read(filepath).strip
+        content = SectionsType0141::applyNextTransformationToContent(content)
+        File.open(filepath, "w"){|f| f.puts(content) }
+    end
+
+    # NSXCatalystUI::getSpecialCircumstanceFilepathOrNull(catalystObjects)
+    def self.getSpecialCircumstanceFilepathOrNull(catalystObjects)
+        if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Daily Guardian Work") } then
+            return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Guardian-Next.txt"
+        end
+        if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Lucille.txt") } then
+            return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Lucille.txt"
+        end
+        return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt"
+    end
 
     # NSXCatalystUI::objectFocus(object)
     def self.objectFocus(object)
@@ -216,11 +241,15 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        top = IO.read("/Users/pascal/Desktop/Top.txt").strip
-        if top.size > 0 then
-            puts ""
-            puts top.green
-            verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(top) + 1)
+        specialCircumstancesFilepath = NSXCatalystUI::getSpecialCircumstanceFilepathOrNull(catalystObjects)
+        if specialCircumstancesFilepath then
+            text = IO.read(specialCircumstancesFilepath).strip
+            if text.size > 0 then
+                puts ""
+                puts File.basename(specialCircumstancesFilepath)
+                puts text.green
+                verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
+            end
         end
 
         Calendar::dates()
@@ -314,12 +343,17 @@ class NSXCatalystUI
             return
         end
 
+        if command == "::" then
+            filename = LucilleCore::selectEntityFromListOfEntitiesOrNull("file", $SpecialCircumstancesFileNames)
+            return if filename.nil?
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/#{filename}"
+            system("open '#{filepath}'")
+        end
+
         if command == "[]" then
-            CatalystCommon::copyLocationToCatalystBin("/Users/pascal/Desktop/Lucille.txt")
-            content = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-            content = SectionsType0141::applyNextTransformationToContent(content)
-            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
-            return
+            if specialCircumstancesFilepath then
+                NSXCatalystUI::applyNextTransformationToFile(specialCircumstancesFilepath)
+            end
         end
 
         if NSXMiscUtils::isInteger(command) then

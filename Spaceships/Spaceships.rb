@@ -286,9 +286,6 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        # Lucille.txt
-        return 0 if (spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" and IO.read("/Users/pascal/Desktop/Lucille.txt").strip.size == 0)
-
         genericFormula = lambda {|spaceship, baseMetric|
             baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - (baseMetric-0.2)*Ping::totalWithTimeExponentialDecay(uuid, 3*3600).to_f/(3*3600)
                          # Small shift for ordering                    # bigger temporary shift to avoid staying on top
@@ -377,20 +374,9 @@ class Spaceships
     def self.spaceshipToCalalystObject(spaceship)
         uuid = spaceship["uuid"]
 
-        getBody = lambda{|spaceship|
-            if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
-                if Spaceships::isRunning?(spaceship) then
-                    return "#{Spaceships::spaceshipToString(spaceship)}\n" + IO.read("/Users/pascal/Desktop/Lucille.txt").lines.first(10).join()
-                else
-                    return Spaceships::spaceshipToString(spaceship)
-                end
-            end
-            Spaceships::spaceshipToString(spaceship)
-        }
-
         {
             "uuid"      => uuid,
-            "body"      => getBody.call(spaceship),
+            "body"      => Spaceships::spaceshipToString(spaceship),
             "metric"    => Spaceships::metric(spaceship),
             "execute"   => lambda { Spaceships::spaceshipDive(spaceship) },
             "isFocus"   => Spaceships::isLate?(spaceship),
@@ -414,6 +400,18 @@ class Spaceships
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
         end
 
+        if [1,2,3,4,5,6].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}") then
+            Spaceships::issue({
+                    "type"        => "description",
+                    "description" => "Lucille.txt"
+                }, {
+                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "timeCommitmentInHours" => 1,
+                "baseMetric"            => 0.75
+            })
+            KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
+        end
+
         objects = Spaceships::spaceships()
                     .map{|spaceship| Spaceships::spaceshipToCalalystObject(spaceship) }
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
@@ -428,14 +426,7 @@ class Spaceships
     # Spaceships::spaceshipStartSequence(spaceship)
     def self.spaceshipStartSequence(spaceship)
         return if Spaceships::isRunning?(spaceship)
-
-        if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then # Lucille.txt
-            Runner::start(spaceship["uuid"])
-            return
-        end
-
         Spaceships::openCargo(spaceship)
-
         if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
             Runner::start(spaceship["uuid"])
         else
@@ -459,9 +450,6 @@ class Spaceships
         Bank::put(spaceship["uuid"], timespan)
         puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
         Ping::put(spaceship["uuid"], timespan)
-
-        return if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" # Lucille.txt
-
         if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
             NyxIO::destroy(spaceship["uuid"])
         end
@@ -469,11 +457,6 @@ class Spaceships
 
     # Spaceships::spaceshipDestroySequence(spaceship)
     def self.spaceshipDestroySequence(spaceship)
-        if spaceship["uuid"] == "90b4de62-664a-484c-9b8f-459dcab551d4" then
-            puts "You cannot destroy this one (Lucille.txt)"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
         NyxIO::destroy(spaceship["uuid"])
     end
 
