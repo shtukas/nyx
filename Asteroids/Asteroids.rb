@@ -263,7 +263,7 @@ class Asteroids
     def self.getAsteroidsByQuarkUUIDUseDerivation(quarkuuid)
         derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
         BTreeSets::values(derivationFolderpath, quarkuuid) # a set for each quarkuuid
-            .map{|asteroiduuid| Asteroids::getAsteroidByUUIDOrNull(uuid) }
+            .map{|asteroiduuid| Asteroids::getAsteroidByUUIDOrNull(asteroiduuid) }
             .compact
             .select{|asteroid| asteroid["quarkuuid"] == quarkuuid } 
         # The set contains any asteroiduuid that have had that target at somepoint
