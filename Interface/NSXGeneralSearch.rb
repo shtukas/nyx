@@ -4,13 +4,17 @@
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
+
 class NSXGeneralSearch
 
     # NSXGeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
             Quarks::searchNx1630(pattern),
-            Cliques::searchNx1630(pattern)
+            Cliques::searchNx1630(pattern),
+            Tags::searchNx1630(pattern)
         ]
             .flatten
             .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }

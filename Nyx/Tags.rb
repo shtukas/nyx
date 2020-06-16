@@ -41,13 +41,7 @@ class Tags
         puts "making a new Tag:"
         payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to abort): ")
         return nil if payload.size == 0
-        tag = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "tag-57c7eced-24a8-466d-a6fe-588142afd53b",
-            "creationUnixtime" => Time.new.to_f,
-            "payload"          => payload
-        }
-        NyxIO::commitToDisk(tag)
+        tag = Tags::issueTag(payload)
         puts JSON.pretty_generate(tag)
         tag
     end
@@ -83,6 +77,25 @@ class Tags
     def self.tagDive(tag)
         puts "Tags::tagDive(tag) is not implemented yet"
         LucilleCore::pressEnterToContinue()
+    end
+
+    # Tags::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Tags::tags()
+            .select{|tag| tag["payload"].downcase.include?(pattern.downcase) }
+            .reduce([]) {|selected, tag|
+                if selected.any?{|t| t["payload"] == tag["payload"] } then
+                    selected << tag
+                end
+                selected
+            }
+            .map{|tag|
+                {
+                    "description"   => Tags::tagToString(tag),
+                    "referencetime" => tag["creationUnixtime"],
+                    "dive"          => lambda{ Tags::tagDive(tag) }
+                }
+            }
     end
 
 end
