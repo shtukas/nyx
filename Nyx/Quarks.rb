@@ -274,6 +274,9 @@ class Quark
         quark
     end
 
+    # --------------------------------------------------
+    # 
+
     # Quark::quarks()
     def self.quarks()
         NyxIO::objects("quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
@@ -432,6 +435,17 @@ class Quark
 
             items = []
 
+            Cliques::getCliqueBosonLinkedObjects(quark)
+                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
+                .each{|object|
+                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+                        object = Cubes::makeCubeFromQuark(object)
+                    end
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                }
+
+            items << nil
+
             items << [
                 "open", 
                 lambda{ Quark::openQuark(quark) }
@@ -466,6 +480,20 @@ class Quark
             NyxRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| items << [NyxRoles::objectToString(object), lambda{ NyxRoles::objectDive(object) }] }
 
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
+        }
+    end
+
+    # Quark::quarksDive()
+    def self.quarksDive()
+        loop {
+            items = []
+            Quark::quarks()
+                .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
+                .each{|quark|
+                    items << [ Quark::quarkToString(quark), lambda{ Quark::quarkDive(quark) }]
+                }
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }

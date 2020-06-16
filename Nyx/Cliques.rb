@@ -163,7 +163,7 @@ class Cliques
 
     # Cliques::selectCliqueOrMakeNewOneOrNull()
     def self.selectCliqueOrMakeNewOneOrNull()
-        puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one"
+        puts "-> I am going to make you select a clique from existing and if that doesn't work, I will make you create a new one"
         LucilleCore::pressEnterToContinue()
         clique = Cliques::selectCliqueFromExistingCliquesOrNull()
         return clique if clique

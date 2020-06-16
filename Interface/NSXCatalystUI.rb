@@ -86,19 +86,22 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cliques", 
-                lambda { Cliques::selectFromExistingCliquesAndDive() }
-            ]
-
-            items << [
-                "tags", 
-                lambda { 
-                    puts "This function is not implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                }
+                "quarks listing", 
+                lambda { Quark::quarksDive() }
             ]
 
             items << nil
+
+            items << [
+                "quark (new)",
+                lambda { 
+                    quark = Quark::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+                    return if clique.nil?
+                    Bosons::issueLink(quark, clique)
+                }
+            ]
 
             items << [
                 "asteroid (new)",
@@ -324,7 +327,7 @@ class NSXCatalystUI
             # Garbage Collection
             NyxGarbageCollection::run()
 
-            # Garbage Collection
+            # NSXCuration
             NSXCuration::run()
 
             # Displays
