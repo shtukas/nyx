@@ -378,6 +378,11 @@ class Asteroids
         Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, true)
     end
 
+    # Asteroids::destroyAsteroid(asteroiduuid)
+    def self.destroyAsteroid(asteroiduuid)
+        NyxIO::destroyAtType(asteroiduuid, "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+    end
+
     # Asteroids::startProcedure(asteroid)
     def self.startProcedure(asteroid)
         uuid = asteroid["uuid"]
@@ -427,19 +432,37 @@ class Asteroids
     def self.stopProcedure(asteroid)
         uuid = asteroid["uuid"]
         Asteroids::stop(uuid)
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? ", false) then
+            Asteroids::destroyProcedure(asteroid)
+            return
+        end
         if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Item was not immediately done. Want to postpose it by three hours ? ") then
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i + 3*3600)
+                return
+            end
             puts "Item was not immediately done, we need to classify it."
             Asteroids::updateAsteroidOrbitalname(asteroid)
         end
     end
 
-    # Asteroids::doneProcedure(asteroid)
-    def self.doneProcedure(asteroid)
+    # Asteroids::destroyProcedure(asteroid)
+    def self.destroyProcedure(asteroid)
+        puts "-> stopping asteroid"
         Asteroids::stop(asteroid["uuid"])
-        if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
+        puts "-> destroying asteroid"
+        Asteroids::destroyAsteroid(asteroid["uuid"])
+        puts "-> extracting quark"
+        quark = NyxIO::getOrNull(asteroid["quarkuuid"])
+        return if quark.nil?
+        puts "-> testing garbage collectability"
+        b1 = Quarks::quarkIfGarbageCollectable(quark)
+        if b1 and LucilleCore::askQuestionAnswerAsBoolean("-> Recast underlying Quark on the Nyx Data Network ? ") then
             status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
             if !status then
-                puts "You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
+                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkIfGarbageCollectable
+                puts "-> You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
+                LucilleCore::pressEnterToContinue()
                 return
             end
         end
@@ -455,7 +478,7 @@ class Asteroids
                 "start",
                 "open",
                 "stop",
-                "done",
+                "destroy",
                 "set description",
                 "update orbital",
                 "push",
@@ -481,8 +504,8 @@ class Asteroids
             if option == "stop" then
                 Asteroids::stopProcedure(asteroid)
             end
-            if option == "done" then
-                Asteroids::doneProcedure(asteroid)
+            if option == "destroy" then
+                Asteroids::destroyProcedure(asteroid)
                 return
             end
             if option == "set description" then

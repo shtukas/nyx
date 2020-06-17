@@ -342,8 +342,8 @@ class Quarks
 
     # Quarks::quarkIfGarbageCollectable(quark)
     def self.quarkIfGarbageCollectable(quark)
-        next false if Bosons::getLinkedObjects(quark).size > 0
-        next false if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
+        return false if Bosons::getLinkedObjects(quark).size > 0
+        return false if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
         true
     end
 
@@ -456,7 +456,7 @@ class Quarks
                 "set description",
                 lambda{
                     description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
-                    next if description == ""
+                    return if description == ""
                     quark["description"] = description
                     NyxIO::commitToDisk(quark)
                 }
