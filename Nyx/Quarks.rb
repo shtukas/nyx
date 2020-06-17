@@ -276,9 +276,6 @@ class Quarks
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # --------------------------------------------------
-    # 
-
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
@@ -341,6 +338,13 @@ class Quarks
     def self.getQuarksOfTypeFileByFilename(filename)
         Quarks::quarks()
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
+    end
+
+    # Quarks::quarkIfGarbageCollectable(quark)
+    def self.quarkIfGarbageCollectable(quark)
+        next false if Bosons::getLinkedObjects(quark).size > 0
+        next false if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
+        true
     end
 
     # Quarks::getOrNull(uuid)
@@ -451,7 +455,7 @@ class Quarks
             items << [
                 "set description",
                 lambda{
-                    description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+                    description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
                     next if description == ""
                     quark["description"] = description
                     NyxIO::commitToDisk(quark)
@@ -459,22 +463,39 @@ class Quarks
             ]
 
             items << [
-                "link to clique",
+                "add tag",
                 lambda {
-                    loop {
-                        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
-                        return if clique.nil?
-                        Bosons::issueLink(quark, clique)
-                    }
+                    payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
+                    tag = Tags::issueTag(payload)
+                    Bosons::issueLink(quark, tag)
                 }
             ]
 
             items << [
-                "attach quark with gluon",
+                "link to clique",
                 lambda {
-                    q = Quarks::issueNewQuarkInteractivelyOrNull()
-                    next if q.nil?
-                    Gluons::issueLink(quark, q)
+                    clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+                    return if clique.nil?
+                    Bosons::issueLink(quark, clique)
+                }
+            ]
+
+            items << [
+                "make new quark + attach to this with gluon",
+                lambda {
+                    newquark = Quarks::issueNewQuarkInteractivelyOrNull()
+                    return if newquark.nil?
+                    Gluons::issueLink(quark, newquark)
+                }
+            ]
+
+            items << [
+                "select existing quark + attach to this with gluon",
+                lambda {
+                    quark2 = Quarks::selectQuarkFromExistingQuarksOrNull()
+                    return if quark2.nil?
+                    return if quark["uuid"] == quark2["uuid"]
+                    Gluons::issueLink(quark, quark2)
                 }
             ]
 
@@ -558,5 +579,4 @@ class Quarks
                 }
             }
     end
-
 end

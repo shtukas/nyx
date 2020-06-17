@@ -443,7 +443,6 @@ class Asteroids
                 return
             end
         end
-        NyxIO::destroy(asteroid["uuid"])
     end
 
     # Asteroids::asteroidDive(asteroid)
