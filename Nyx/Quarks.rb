@@ -283,6 +283,11 @@ class Quarks
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
+    # Quarks::destroyQuarkByUUID(uuid)
+    def self.destroyQuarkByUUID(uuid)
+        NyxIO::destroyAtType(uuid, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+    end
+
     # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
     def self.getQuarksOfTypeFolderByFoldername(foldername)
         Quarks::quarks()
