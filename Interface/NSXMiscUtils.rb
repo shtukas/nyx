@@ -148,7 +148,8 @@ class NSXMiscUtils
                 next
             end
             target = QuarksIssuers::locationToFileOrFolderQuarkIssued(location)
-            item = Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", File.basename(location), target["uuid"])
+            puts JSON.pretty_generate(target)
+            item = Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", File.basename(location), target)
             puts JSON.pretty_generate(item)
             LucilleCore::removeFileSystemLocation(location)
         end
