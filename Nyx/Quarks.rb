@@ -455,7 +455,12 @@ class Quarks
             items << [
                 "set description",
                 lambda{
-                    description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
+                    description = 
+                        if ( quark["description"].nil? or quark["description"].size == 0 ) then
+                            description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        else
+                            description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
+                        end
                     return if description == ""
                     quark["description"] = description
                     NyxIO::commitToDisk(quark)
