@@ -447,8 +447,8 @@ class Quarks
             ]
 
             items << [
-                "set description", 
-                lambda{ 
+                "set description",
+                lambda{
                     description = LucilleCore::askQuestionAnswerAsString("quark description: ")
                     next if description == ""
                     quark["description"] = description
@@ -457,8 +457,19 @@ class Quarks
             ]
 
             items << [
-                "attach quark with gluon", 
-                lambda { 
+                "link to clique",
+                lambda {
+                    loop {
+                        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+                        return if clique.nil?
+                        Bosons::issueLink(quark, clique)
+                    }
+                }
+            ]
+
+            items << [
+                "attach quark with gluon",
+                lambda {
                     q = Quarks::issueNewQuarkInteractivelyOrNull()
                     next if q.nil?
                     Gluons::issueLink(quark, q)
