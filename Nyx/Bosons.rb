@@ -59,9 +59,8 @@ class Bosons
         }
         NyxIO::commitToDisk(link)
 
-        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-bosons-0DBD30F5-887D-4258-8E4F-6343B9214206"
-        KeyValueStore::getOrNull(derivationFolderpath, "df982ac4-544f-4df8-b7e8-f48bbde09ed8:#{object1["uuid"]}")
-        KeyValueStore::getOrNull(derivationFolderpath, "df982ac4-544f-4df8-b7e8-f48bbde09ed8:#{object2["uuid"]}")
+        Bosons::recacheLinkedObjectsFromTheForce(object1)
+        Bosons::recacheLinkedObjectsFromTheForce(object2)
 
         link
     end
@@ -82,6 +81,30 @@ class Bosons
         "[link] #{link["uuid1"]} <-> #{link["uuid2"]}"
     end
 
+    # Bosons::getLinkedObjectUseTheForce(focus)
+    def self.getLinkedObjectUseTheForce(focus)
+        # Use the Force
+        obj1s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+                    .select{|link| link["uuid1"] == focus["uuid"] }
+                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid2"]) }
+                    .compact
+        obj2s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+                    .select{|link| link["uuid2"] == focus["uuid"] }
+                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid1"]) }
+                    .compact
+        objects = obj1s + obj2s
+        objects
+    end
+
+    # Bosons::recacheLinkedObjectsFromTheForce(focus)
+    def self.recacheLinkedObjectsFromTheForce(focus)
+        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-bosons-0DBD30F5-887D-4258-8E4F-6343B9214206"
+        cacheKey = "df982ac4-544f-4df8-b7e8-f48bbde09ed8:#{focus["uuid"]}"
+        objects = Bosons::getLinkedObjectUseTheForce(focus)
+        objectsuuids = objects.map{|object| object["uuid"] }
+        KeyValueStore::set(derivationFolderpath, cacheKey, JSON.generate(objectsuuids))
+    end
+
     # Bosons::getLinkedObjects(focus)
     def self.getLinkedObjects(focus)
         derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-bosons-0DBD30F5-887D-4258-8E4F-6343B9214206"
@@ -94,20 +117,10 @@ class Bosons
             return objectsuuids.map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) }.compact
         end
 
-        # Use the Force
-        obj1s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-                    .select{|link| link["uuid1"] == focus["uuid"] }
-                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid2"]) }
-                    .compact
-        obj2s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-                    .select{|link| link["uuid2"] == focus["uuid"] }
-                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid1"]) }
-                    .compact
-        objects = obj1s + obj2s
+        objects = Bosons::getLinkedObjectUseTheForce(focus)
 
         # Setting the cache
-        objectsuuids = objects.map{|object| object["uuid"] }
-        KeyValueStore::set(derivationFolderpath, cacheKey, JSON.generate(objectsuuids))
+        Bosons::recacheLinkedObjectsFromTheForce(focus)
 
         objects
     end
