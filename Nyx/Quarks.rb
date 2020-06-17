@@ -28,8 +28,26 @@ require_relative "Librarian.rb"
 # -----------------------------------------------------------------
 
 class QuarksIssuers
-    # --------------------------------------------------
-    # Issuers
+
+    # QuarksIssuers::selectOneFilepathOnTheDesktopOrNull()
+    def self.selectOneFilepathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.file?(filepath) }
+                            .select{|filepath| File.basename(filepath) != 'pascal.png' }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
+
+    # QuarksIssuers::selectOneFolderpathOnTheDesktopOrNull()
+    def self.selectOneFolderpathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.directory?(filepath) }
+                            .select{|filepath| File.basename(filepath) != 'Todo-Inbox' }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
 
     # QuarksIssuers::issueQuarkLineInteractively()
     def self.issueQuarkLineInteractively()
@@ -64,7 +82,7 @@ class QuarksIssuers
 
     # QuarksIssuers::issueQuarkFileInteractivelyOrNull()
     def self.issueQuarkFileInteractivelyOrNull()
-        filepath1 = Quarks::selectOneFilepathOnTheDesktopOrNull()
+        filepath1 = QuarksIssuers::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -117,7 +135,7 @@ class QuarksIssuers
 
     # QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
     def self.issueQuarkFolderInteractivelyOrNull()
-        folderpath1 = Quarks::selectOneFolderpathOnTheDesktopOrNull()
+        folderpath1 = QuarksIssuers::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -257,24 +275,6 @@ class QuarksIssuers
 end
 
 class Quarks
-
-    # Quarks::selectOneFilepathOnTheDesktopOrNull()
-    def self.selectOneFilepathOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.file?(filepath) }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
-    end
-
-    # Quarks::selectOneFolderpathOnTheDesktopOrNull()
-    def self.selectOneFolderpathOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.directory?(filepath) }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
-    end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()

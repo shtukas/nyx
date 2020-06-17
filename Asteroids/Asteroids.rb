@@ -391,7 +391,7 @@ class Asteroids
         return if quark.nil?
         Quarks::openQuark(quark)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role) ", false) then
+        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (#{"if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role".green}) ", false) then
             Asteroids::stop(uuid)
             if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
                 status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
