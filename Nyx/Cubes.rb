@@ -42,8 +42,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 # -----------------------------------------------------------------
 
 class Cubes
-    # Cubes::makeCubeFromQuark(quark)
-    def self.makeCubeFromQuark(quark)
+    # Cubes::upgradeQuarkToCubeIfRelevant(quark)
+    def self.upgradeQuarkToCubeIfRelevant(quark)
+        return quark if Gluons::getLinkedQuarks(quark).empty?
         quarks = [quark] + Gluons::getLinkedQuarks(quark)
         {
             "nyxType"     => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",

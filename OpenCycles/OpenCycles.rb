@@ -99,6 +99,7 @@ class OpenCycles
         if target.nil? then
             return "[opencycle] [#{opencycle["uuid"][0, 4]}] target not found"
         end
+        target = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(target)
         "[opencycle] [#{opencycle["uuid"][0, 4]}] #{NyxDataCarriers::objectToString(target)}"
     end
 

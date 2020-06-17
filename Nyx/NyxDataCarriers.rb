@@ -108,4 +108,12 @@ class NyxDataCarriers
         puts object
         raise "Error: d66bdffa"
     end
+
+    # NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
+    def self.applyQuarkToCubeUpgradeIfRelevant(object)
+        if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            object = Cubes::upgradeQuarkToCubeIfRelevant(object)
+        end
+        object
+    end
 end

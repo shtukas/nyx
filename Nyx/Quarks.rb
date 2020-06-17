@@ -486,13 +486,17 @@ class Quarks
 
             items << nil
 
+            Gluons::getLinkedQuarks(quark)
+                .sort{|q1, q2| q1["creationUnixtime"] <=> q2["creationUnixtime"] }
+                .each{|q|
+                    items << [ Quarks::quarkToString(q), lambda{ Quarks::quarkDive(q) } ]
+                }
+
             Cliques::getCliqueBosonLinkedObjects(quark)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object|
-                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-                        object = Cubes::makeCubeFromQuark(object)
-                    end
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                    object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
+                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) } ]
                 }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen

@@ -144,9 +144,7 @@ class Cliques
             Cliques::getCliqueBosonLinkedObjects(clique)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object|
-                    if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
-                        object = Cubes::makeCubeFromQuark(object)
-                    end
+                    object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
                     items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
                 }
 
