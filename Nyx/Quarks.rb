@@ -27,30 +27,11 @@ require_relative "Librarian.rb"
 
 # -----------------------------------------------------------------
 
-class Quarks
-
-    # Quarks::selectOneFilepathOnTheDesktopOrNull()
-    def self.selectOneFilepathOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.file?(filepath) }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
-    end
-
-    # Quarks::selectOneFolderpathOnTheDesktopOrNull()
-    def self.selectOneFolderpathOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.directory?(filepath) }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
-    end
-
+class QuarksIssuers
     # --------------------------------------------------
     # Issuers
 
-    # Quarks::issueQuarkLineInteractively()
+    # QuarksIssuers::issueQuarkLineInteractively()
     def self.issueQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         quark = {
@@ -65,7 +46,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkUrlInteractively()
+    # QuarksIssuers::issueQuarkUrlInteractively()
     def self.issueQuarkUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
@@ -81,7 +62,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkFileInteractivelyOrNull()
+    # QuarksIssuers::issueQuarkFileInteractivelyOrNull()
     def self.issueQuarkFileInteractivelyOrNull()
         filepath1 = Quarks::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
@@ -103,7 +84,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkFile(filepath)
+    # QuarksIssuers::issueQuarkFile(filepath)
     def self.issueQuarkFile(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
@@ -120,7 +101,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkFromText(text)
+    # QuarksIssuers::issueQuarkFromText(text)
     def self.issueQuarkFromText(text)
         filename = LibrarianFile::textToFilename(text)
         quark = {
@@ -134,7 +115,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkFolderInteractivelyOrNull()
+    # QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
     def self.issueQuarkFolderInteractivelyOrNull()
         folderpath1 = Quarks::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
@@ -156,7 +137,7 @@ class Quarks
         quark
     end
 
-    # Quarks::locationToFileOrFolderQuarkIssued(location)
+    # QuarksIssuers::locationToFileOrFolderQuarkIssued(location)
     def self.locationToFileOrFolderQuarkIssued(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
@@ -196,7 +177,7 @@ class Quarks
         end
     end
 
-    # Quarks::issueQuarkUniqueNameInteractively()
+    # QuarksIssuers::issueQuarkUniqueNameInteractively()
     def self.issueQuarkUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
@@ -212,7 +193,7 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkDirectoryMarkInteractively()
+    # QuarksIssuers::issueQuarkDirectoryMarkInteractively()
     def self.issueQuarkDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -259,7 +240,7 @@ class Quarks
         end
     end
 
-    # Quarks::issueQuarkDataPodInteractively()
+    # QuarksIssuers::issueQuarkDataPodInteractively()
     def self.issueQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
         quark = {
@@ -273,9 +254,71 @@ class Quarks
         NyxIO::commitToDisk(quark)
         quark
     end
+end
+
+class Quarks
+
+    # Quarks::selectOneFilepathOnTheDesktopOrNull()
+    def self.selectOneFilepathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.file?(filepath) }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
+
+    # Quarks::selectOneFolderpathOnTheDesktopOrNull()
+    def self.selectOneFolderpathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.directory?(filepath) }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
 
     # --------------------------------------------------
     # 
+
+    # Quarks::issueNewQuarkInteractivelyOrNull()
+    def self.issueNewQuarkInteractivelyOrNull()
+        puts "Making a new Quark..."
+        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark", "datapod"]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
+        return if type.nil?
+        if type == "line" then
+            return QuarksIssuers::issueQuarkLineInteractively()
+        end
+        if type == "url" then
+            return QuarksIssuers::issueQuarkUrlInteractively()
+        end
+        if type == "file" then
+            return QuarksIssuers::issueQuarkFileInteractivelyOrNull()
+        end
+        if type == "new text file" then
+            filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
+            quark = {
+                "uuid"             => SecureRandom.uuid,
+                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                "creationUnixtime" => Time.new.to_f,
+                "type"             => "file",
+                "filename"         => filename
+            }
+            NyxIO::commitToDisk(quark)
+            return quark
+        end
+        if type == "folder" then
+            return QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
+        end
+        if type == "unique-name" then
+            return QuarksIssuers::issueQuarkUniqueNameInteractively()
+        end
+        if type == "directory-mark" then
+            return QuarksIssuers::issueQuarkDirectoryMarkInteractively()
+        end
+        if type == "datapod" then
+            return QuarksIssuers::issueQuarkDataPodInteractively()
+        end
+    end
 
     # Quarks::quarks()
     def self.quarks()
@@ -298,47 +341,6 @@ class Quarks
     def self.getQuarksOfTypeFileByFilename(filename)
         Quarks::quarks()
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
-    end
-
-    # Quarks::issueNewQuarkInteractivelyOrNull()
-    def self.issueNewQuarkInteractivelyOrNull()
-        puts "Making a new Quark..."
-        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark", "datapod"]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
-        return if type.nil?
-        if type == "line" then
-            return Quarks::issueQuarkLineInteractively()
-        end
-        if type == "url" then
-            return Quarks::issueQuarkUrlInteractively()
-        end
-        if type == "file" then
-            return Quarks::issueQuarkFileInteractivelyOrNull()
-        end
-        if type == "new text file" then
-            filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
-            quark = {
-                "uuid"             => SecureRandom.uuid,
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "type"             => "file",
-                "filename"         => filename
-            }
-            NyxIO::commitToDisk(quark)
-            return quark
-        end
-        if type == "folder" then
-            return Quarks::issueQuarkFolderInteractivelyOrNull()
-        end
-        if type == "unique-name" then
-            return Quarks::issueQuarkUniqueNameInteractively()
-        end
-        if type == "directory-mark" then
-            return Quarks::issueQuarkDirectoryMarkInteractively()
-        end
-        if type == "datapod" then
-            return Quarks::issueQuarkDataPodInteractively()
-        end
     end
 
     # Quarks::getOrNull(uuid)

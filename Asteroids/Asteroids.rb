@@ -219,28 +219,12 @@ class Asteroids
         return true
     end
 
-    # Asteroids::recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastAsOpenCycle(item) # Boolean # Indicates whether a promotion was acheived
-        puts "Not doing Asteroids::recastAsOpenCycle during the cube migration"
-        LucilleCore::pressEnterToContinue()
-        return
-
-        # First we need a cube and opencycle that
+    # Asteroids::recastAsOpenCycle(asteroid)
+    def self.recastAsOpenCycle(asteroid)
         quark = NyxIO::getOrNull(item["quarkuuid"])
-        return false if quark.nil?
-
-        # 
-
-        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
-        if clique then
-            puts JSON.pretty_generate(clique)
-            claim = Bosons::issueLink(clique, cube)
-            puts JSON.pretty_generate(claim)
-        end
-        opencycle = OpenCycles::issueFromCube(cube)
-        puts JSON.pretty_generate(opencycle)
-        LucilleCore::pressEnterToContinue()
-        return true
+        return if quark.nil?
+        OpenCycles::issueFromQuark(quark)
+        NyxIO::destroy(asteroid["uuid"])
     end
 
     # Asteroids::asteroids()
@@ -521,9 +505,7 @@ class Asteroids
                 return
             end
             if option == "register as opencycle" then
-                status = Asteroids::recastAsOpenCycle(asteroid)
-                next if !status
-                NyxIO::destroy(asteroid["uuid"])
+                Asteroids::recastAsOpenCycle(asteroid)
                 return
             end
             if option == "reset-reference-time" then

@@ -51,18 +51,6 @@ class OpenCycles
         opencycle
     end
 
-    # OpenCycles::issueFromCube(cube)
-    def self.issueFromCube(cube)
-        opencycle = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
-            "creationUnixtime" => Time.new.to_f,
-            "targetuuid"       => cube["uuid"]
-        }
-        NyxIO::commitToDisk(opencycle)
-        opencycle
-    end
-
     # OpenCycles::issueFromClique(clique)
     def self.issueFromClique(clique)
         opencycle = {
@@ -150,8 +138,10 @@ class OpenCycles
                 }
             end
             if operation == "make new opencycle" then
-                puts "You can't make an opencycle, but you can opencycle a cube or a clique."
-                LucilleCore::pressEnterToContinue()
+                puts "Let's make a quark"
+                quark = Quarks::issueNewQuarkInteractivelyOrNull()
+                return if quark.nil?
+                OpenCycles::issueFromQuark(quark)
             end
         }
     end

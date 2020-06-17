@@ -429,14 +429,6 @@ class Spaceships
         Spaceships::openCargo(spaceship)
         if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
             Runner::start(spaceship["uuid"])
-        else
-            if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
-                Spaceships::spaceshipStopSequence(spaceship)
-                Spaceships::spaceshipDestroySequence(spaceship)
-            else
-                puts "Hidding this item by one hour"
-                DoNotShowUntil::setUnixtime(spaceship["uuid"], Time.new.to_i+3600)
-            end
         end
     end
 
