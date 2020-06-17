@@ -287,7 +287,7 @@ class Spaceships
         return 1 if Spaceships::isRunning?(spaceship)
 
         genericFormula = lambda {|spaceship, baseMetric|
-            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - (baseMetric-0.2)*Ping::totalWithTimeExponentialDecay(uuid, 3*3600).to_f/(3*3600)
+            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - 0.1*Ping::totalWithTimeExponentialDecay(uuid, 3600).to_f/3600
                          # Small shift for ordering                    # bigger temporary shift to avoid staying on top
         }
 
