@@ -256,7 +256,7 @@ class NSXCatalystUI
         specialCircumstanceFilepaths.each{|filepath|
             text = IO.read(filepath).strip
             if text.size > 0 then
-                text = text.lines.first(10).map{|line| "    #{line}" }.join()
+                text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
                 puts ""
                 puts File.basename(filepath)
                 puts text.green

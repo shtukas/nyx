@@ -146,9 +146,7 @@ class Bosons
                 xtrace == trace
             }
             .each{|link|
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy '#{link}' ?", true) then
-                    NyxIO::destroy(link["uuid"])
-                end
+                NyxIO::destroy(link["uuid"])
             }
     end
 end

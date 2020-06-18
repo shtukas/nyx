@@ -99,7 +99,10 @@ class Cliques
     # Cliques::cliqueDive(clique)
     def self.cliqueDive(clique)
         loop {
-            return if NyxIO::getOrNull(clique["uuid"]).nil? # could have been destroyed in a previous loop
+
+            clique = NyxIO::getOrNull(clique["uuid"])
+
+            return if clique.nil? # could have been destroyed in a previous loop
 
             system("clear")
             puts Cliques::cliqueToString(clique).green

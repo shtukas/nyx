@@ -126,6 +126,7 @@ class QuarksIssuers
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
+            "description"      => description,
             "type"             => "file",
             "filename"         => filename
         }
@@ -261,6 +262,7 @@ class QuarksIssuers
     # QuarksIssuers::issueQuarkDataPodInteractively()
     def self.issueQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
         quark = {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -293,10 +295,12 @@ class Quarks
         end
         if type == "new text file" then
             filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             quark = {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
+                "description"      => description,
                 "type"             => "file",
                 "filename"         => filename
             }
@@ -356,7 +360,7 @@ class Quarks
     def self.quarkToString(quark)
         if quark["description"] then
             if quark["type"] == "file" then
-                return "[quark] [#{quark["type"]}/#{File.extname(quark["filename"])}] #{quark["description"]}"
+                return "[quark] [#{quark["type"]}#{File.extname(quark["filename"])}] #{quark["description"]}"
             else
                 return "[quark] [#{quark["type"]}] #{quark["description"]}"
             end
@@ -442,7 +446,9 @@ class Quarks
     def self.quarkDive(quark)
         loop {
 
-            return if Quarks::getOrNull(quark["uuid"]).nil? # Could have been destroyed in the previous loop
+            quark = Quarks::getOrNull(quark["uuid"])
+
+            return if quark.nil? # Could have been destroyed in the previous loop
 
             system("clear")
             puts Quarks::quarkToString(quark).green
