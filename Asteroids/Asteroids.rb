@@ -453,11 +453,11 @@ class Asteroids
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         return if quark.nil?
         puts "-> testing garbage collectability"
-        b1 = Quarks::quarkIfGarbageCollectable(quark)
+        b1 = Quarks::quarkIsGarbageCollectable(quark)
         if b1 and LucilleCore::askQuestionAnswerAsBoolean("-> Recast underlying Quark on the Nyx Data Network ? ") then
             status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
             if !status then
-                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkIfGarbageCollectable
+                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkIsGarbageCollectable
                 puts "-> You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
                 LucilleCore::pressEnterToContinue()
                 return

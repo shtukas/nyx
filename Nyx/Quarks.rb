@@ -340,8 +340,8 @@ class Quarks
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
-    # Quarks::quarkIfGarbageCollectable(quark)
-    def self.quarkIfGarbageCollectable(quark)
+    # Quarks::quarkIsGarbageCollectable(quark)
+    def self.quarkIsGarbageCollectable(quark)
         return false if Bosons::getLinkedObjects(quark).size > 0
         return false if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
         true
@@ -356,7 +356,7 @@ class Quarks
     def self.quarkToString(quark)
         if quark["description"] then
             if quark["type"] == "file" then
-                return "[quark] [#{quark["type"]}] (#{File.extname(quark["filename"])}) #{quark["description"]}"
+                return "[quark] [#{quark["type"]}/#{File.extname(quark["filename"])}] #{quark["description"]}"
             else
                 return "[quark] [#{quark["type"]}] #{quark["description"]}"
             end
@@ -441,6 +441,9 @@ class Quarks
     # Quarks::quarkDive(quark)
     def self.quarkDive(quark)
         loop {
+
+            return if Quarks::getOrNull(quark["uuid"]).nil? # Could have been destroyed in the previous loop
+
             system("clear")
             puts Quarks::quarkToString(quark).green
             puts "uuid: #{quark["uuid"]}"
@@ -453,7 +456,7 @@ class Quarks
             ]
 
             items << [
-                "set description",
+                "update description",
                 lambda{
                     description = 
                         if ( quark["description"].nil? or quark["description"].size == 0 ) then
@@ -477,7 +480,7 @@ class Quarks
             ]
 
             items << [
-                "link to clique",
+                "clique (link to)",
                 lambda {
                     clique = Cliques::selectCliqueOrMakeNewOneOrNull()
                     return if clique.nil?
@@ -512,7 +515,7 @@ class Quarks
             items << [
                 "quark (destroy)", 
                 lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
                         NyxIO::destroy(quark["uuid"])
                     end
                 }

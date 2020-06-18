@@ -116,8 +116,8 @@ class Gluons
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Gluons::destroyLink(object1, object2)
-    def self.destroyLink(object1, object2)
+    # Gluons::unlink(object1, object2)
+    def self.unlink(object1, object2)
         trace = [object1["uuid"], object2["uuid"]].sort.join(":")
         Gluons::links()
             .select{|link| 

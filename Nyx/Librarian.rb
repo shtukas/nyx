@@ -131,7 +131,10 @@ class LibrarianDirectory
     # LibrarianDirectory::openFolder(foldername)
     def self.openFolder(foldername)
         folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
-        return if !File.exists?(folderpath)
+        if !File.exists?(folderpath) then
+            puts "Folder '#{foldername}'. Could not be found."
+            LucilleCore::pressEnterToContinue()
+        end
         system("open '#{folderpath}'")
     end
 end

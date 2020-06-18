@@ -137,8 +137,8 @@ class Bosons
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Bosons::destroyLink(object1, object2)
-    def self.destroyLink(object1, object2)
+    # Bosons::unlink(object1, object2)
+    def self.unlink(object1, object2)
         trace = [object1["uuid"], object2["uuid"]].sort.join(":")
         Bosons::links()
             .select{|link| 
@@ -146,7 +146,7 @@ class Bosons
                 xtrace == trace
             }
             .each{|link|
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy '#{link}' ?") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy '#{link}' ?", true) then
                     NyxIO::destroy(link["uuid"])
                 end
             }
