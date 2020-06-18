@@ -234,6 +234,7 @@ class Spaceships
     def self.spaceshipDive(spaceship)
         loop {
             system("clear")
+            puts JSON.pretty_generate(spaceship)
             puts Spaceships::spaceshipToString(spaceship).green
             options = [
                 "open",
