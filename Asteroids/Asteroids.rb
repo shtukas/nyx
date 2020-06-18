@@ -202,19 +202,16 @@ class Asteroids
 
     # Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
-        puts "Not doing Asteroids::recastUnderlyingQuarkAsCubeContentInteractively during cube migration"
-        LucilleCore::pressEnterToContinue()
-        return
-
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
 
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
-        if clique then
-            puts JSON.pretty_generate(clique)
-            claim = Bosons::issueLink(clique, _)
-            puts JSON.pretty_generate(claim)
-        end
+        return false if clique.nil?
+
+        puts JSON.pretty_generate(clique)
+        claim = Bosons::issueLink(clique, quark)
+        puts JSON.pretty_generate(claim)
+
         LucilleCore::pressEnterToContinue()
         return true
     end
