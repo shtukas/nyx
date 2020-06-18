@@ -82,7 +82,7 @@ def objectsMonitoringForOnScreenNotifications()
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
             }
-        sleep 120
+        sleep 60
     }
 end
 
