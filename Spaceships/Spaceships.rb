@@ -300,11 +300,13 @@ class Spaceships
         end
 
         if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
             baseMetric = engine["baseMetric"] ? engine["baseMetric"] : 0.74
             return genericFormula.call(spaceship, baseMetric)
         end
  
         if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
             return genericFormula.call(spaceship, 0.65)
         end
 
