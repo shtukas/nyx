@@ -286,6 +286,7 @@ class Waves
 
     # Waves::execute(wave)
     def self.execute(wave)
+        puts Waves::waveToString(wave).green
         uuid = wave["uuid"]
         options = ['start', 'open', 'done', 'recast', 'description', 'destroy']
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
