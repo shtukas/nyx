@@ -138,11 +138,9 @@ class Spaceships
         if option == "quark" then
             quark = Quarks::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("spaceship cargo description: ")
             return {
-                "type"          => "quark",
-                "description"   => description,
-                "quarkuuid"     => quark["uuid"]
+                "type"      => "quark",
+                "quarkuuid" => quark["uuid"]
             }
         end
         nil
