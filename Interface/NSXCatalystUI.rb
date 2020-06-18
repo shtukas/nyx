@@ -63,9 +63,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 # ------------------------------------------------------------------------
 
 $SpecialCircumstancesFileNames = [
-    "Lucille.txt",
     "Interface-Top.txt",
-    "Guardian-Next.txt"
+    "Guardian-Next.txt",
+    "Lucille.txt",
 ]
 
 class NSXCatalystUI
@@ -78,15 +78,19 @@ class NSXCatalystUI
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
-    # NSXCatalystUI::getSpecialCircumstanceFilepathOrNull(catalystObjects)
-    def self.getSpecialCircumstanceFilepathOrNull(catalystObjects)
+    # NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
+    def self.getSpecialCircumstanceFilepaths(catalystObjects)
+        filepaths = []
+        if IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt").strip.size > 0 then
+            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt"
+        end
         if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Daily Guardian Work") } then
-            return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Guardian-Next.txt"
+            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Guardian-Next.txt"
         end
         if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Lucille.txt") } then
-            return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Lucille.txt"
+            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Lucille.txt"
         end
-        return "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt"
+        filepaths
     end
 
     # NSXCatalystUI::objectFocus(object)
@@ -248,17 +252,17 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        specialCircumstancesFilepath = NSXCatalystUI::getSpecialCircumstanceFilepathOrNull(catalystObjects)
-        if specialCircumstancesFilepath then
-            text = IO.read(specialCircumstancesFilepath).strip
+        specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
+        specialCircumstanceFilepaths.each{|filepath|
+            text = IO.read(filepath).strip
             if text.size > 0 then
-                text = text.lines.first(10).join()
+                text = text.lines.first(10).map{|line| "    #{line}" }.join()
                 puts ""
-                puts File.basename(specialCircumstancesFilepath)
+                puts File.basename(filepath)
                 puts text.green
                 verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
             end
-        end
+        }
 
         Calendar::dates()
             .each{|date|
@@ -359,6 +363,7 @@ class NSXCatalystUI
         end
 
         if command == "[]" then
+            specialCircumstancesFilepath = specialCircumstanceFilepaths.first
             if specialCircumstancesFilepath then
                 NSXCatalystUI::applyNextTransformationToFile(specialCircumstancesFilepath)
             end
