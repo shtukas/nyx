@@ -236,6 +236,11 @@ class Spaceships
                 "reengine",
                 "destroy",
             ]
+
+            if spaceship["cargo"]["type"] == "quark" then
+                options << "quark (dive)"
+            end
+
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
@@ -255,6 +260,12 @@ class Spaceships
             end
             if option == "reengine" then
                 Spaceships::reengine(spaceship)
+            end
+            if option == "quark (dive)" then
+                quarkuuid = spaceship["cargo"]["quarkuuid"]
+                quark = Quarks::getOrNull(quarkuuid)
+                return if quark.nil?
+                Quarks::quarkDive(quark)
             end
             if option == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this starship ? ") then
