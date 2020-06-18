@@ -437,10 +437,37 @@ class Spaceships
     # Spaceships::spaceshipStartSequence(spaceship)
     def self.spaceshipStartSequence(spaceship)
         return if Spaceships::isRunning?(spaceship)
-        Spaceships::openCargo(spaceship)
-        if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
-            Runner::start(spaceship["uuid"])
+
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
+
+        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
+                puts "time commitment spaceship is completed, destroying it..."
+                LucilleCore::pressEnterToContinue()
+                Spaceships::spaceshipDestroySequence(spaceship)
+                return
+            end
         end
+ 
+        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
+                puts "time commitment spaceship is completed, destroying it..."
+                LucilleCore::pressEnterToContinue()
+                Spaceships::spaceshipDestroySequence(spaceship)
+                return
+            end
+        end
+
+        if spaceship["cargo"]["type"] == "quark" then
+            Spaceships::openCargo(spaceship)
+            if LucilleCore::askQuestionAnswerAsBoolean("Carry on with starting ? ", true) then
+                Runner::start(spaceship["uuid"])
+            end
+            return
+        end
+
+        Runner::start(spaceship["uuid"])
     end
 
     # Spaceships::spaceshipStopSequence(spaceship)
