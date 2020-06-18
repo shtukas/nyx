@@ -369,6 +369,21 @@ class Spaceships
 
     # Spaceships::isRunningForLong?(spaceship)
     def self.isRunningForLong?(spaceship)
+        uuid = spaceship["uuid"]
+        engine = spaceship["engine"]
+
+        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
+                return true
+            end
+        end
+ 
+        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
+                return true
+            end
+        end
+
         ( Runner::runTimeInSecondsOrNull(spaceship["uuid"]) || 0 ) > 3600
     end
 
@@ -480,6 +495,18 @@ class Spaceships
         Bank::put(spaceship["uuid"], timespan)
         puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
         Ping::put(spaceship["uuid"], timespan)
+
+        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Done ? ") then
+                Spaceships::spaceshipDestroySequence(spaceship)
+            end
+        end
+ 
+        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Done ? ") then
+                Spaceships::spaceshipDestroySequence(spaceship)
+            end
+        end
     end
 
     # Spaceships::spaceshipDestroySequence(spaceship)
