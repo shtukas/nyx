@@ -133,7 +133,6 @@ class Cliques
                 lambda {
                     quarks = Cliques::getCliqueBosonLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
                     selected, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
-                    puts JSON.pretty_generate(selected)
                     return if selected.size == 0
                     puts "Now selecting/making the receiving clique"
                     LucilleCore::pressEnterToContinue()
