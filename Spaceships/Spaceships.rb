@@ -91,9 +91,16 @@ class Spaceships
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
             if spaceship["engine"]["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, total: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
             end
-            " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatio(spaceship)})"
+            if spaceship["engine"]["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+            end
+            if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+                return " (commitment weekly: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+            end
+            # " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatio(spaceship)})"
+            ""
         }
         typeAsUserFriendly = lambda {|type|
             return " -> [] ‼️  " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
