@@ -97,10 +97,10 @@ class Spaceships
         }
         typeAsUserFriendly = lambda {|type|
             return " -> [] ‼️  " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return " -> [] " if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
+            return " -> [] ⛵ " if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
             return " ⏱️  ‼️  " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return " ⏱️ " if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
-            return " ⛵ " if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return " ⏱️ ⛵ " if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+            return " 💫 " if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -240,7 +240,7 @@ class Spaceships
             return if option.nil?
             if option == "open" then
                 Spaceships::openCargo(spaceship)
-                if !Spaceships::isRunning?(spaceship) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ") then
+                if !Spaceships::isRunning?(spaceship) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ", false) then
                     Runner::start(spaceship["uuid"])
                 end
             end
@@ -388,13 +388,22 @@ class Spaceships
 
     # Spaceships::catalystObjects()
     def self.catalystObjects()
+
+        cummulatedTimeInSecondsOfDescriptionIdentifiedStarships = lambda{|description|
+            Spaceships::spaceships()
+                .select{ |spaceship| spaceship["cargo"]["type"] == "description" }
+                .select{ |spaceship| spaceship["cargo"]["description"] == description }
+                .map{ |spaceship| Bank::value(spaceship["uuid"]) }
+                .inject(0, :+)
+        }
+
         if [1,2,3,4,5].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}") then
             Spaceships::issue({
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
                 }, {
                 "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => 6,
+                "timeCommitmentInHours" => 6 - cummulatedTimeInSecondsOfDescriptionIdentifiedStarships.call("Daily Guardian Work").to_f/3600,
                 "baseMetric"            => 0.76
             })
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
@@ -406,7 +415,7 @@ class Spaceships
                     "description" => "Lucille.txt"
                 }, {
                 "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => 1,
+                "timeCommitmentInHours" => 1 - cummulatedTimeInSecondsOfDescriptionIdentifiedStarships.call("Lucille.txt").to_f/3600,
                 "baseMetric"            => 0.75
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
@@ -442,9 +451,6 @@ class Spaceships
         Bank::put(spaceship["uuid"], timespan)
         puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
         Ping::put(spaceship["uuid"], timespan)
-        if LucilleCore::askQuestionAnswerAsBoolean("Destroy ? ", false) then
-            NyxIO::destroy(spaceship["uuid"])
-        end
     end
 
     # Spaceships::spaceshipDestroySequence(spaceship)

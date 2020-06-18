@@ -64,19 +64,6 @@ Quark
 
     "description"      : nil | String
 
-    "type"             : "directory-mark"
-    "mark"             : String # Use Atlas to find them.
-                           # Atlas also supports findind directory marks.
-                           # `Nyx-Directory-Mark.txt` files with a unique name inside.
-}
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description"      : nil | String
-
     "type"             : "datapod"
     "podname"          : String
 }

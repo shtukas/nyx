@@ -212,53 +212,6 @@ class QuarksIssuers
         quark
     end
 
-    # QuarksIssuers::issueQuarkDirectoryMarkInteractively()
-    def self.issueQuarkDirectoryMarkInteractively()
-        options = ["mark file already exists", "mark file should be created"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return nil if option.nil?
-        if option == "mark file already exists" then
-            mark = LucilleCore::askQuestionAnswerAsString("mark: ")
-            description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            quark = {
-                "uuid"             => SecureRandom.uuid,
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "description"      => description,
-                "type"             => "directory-mark",
-                "mark"             => mark
-            }
-            NyxIO::commitToDisk(quark)
-            return quark
-        end
-        if option == "mark file should be created" then
-            mark = nil
-            loop {
-                quarkFolderLocation = LucilleCore::askQuestionAnswerAsString("Location to the quark folder: ")
-                if !File.exists?(quarkFolderLocation) then
-                    puts "I can't see location '#{quarkFolderLocation}'"
-                    puts "Let's try that again..."
-                    next
-                end
-                mark = SecureRandom.uuid
-                markFilepath = "#{quarkFolderLocation}/Nyx-Directory-Mark.txt"
-                File.open(markFilepath, "w"){|f| f.write(mark) }
-                break
-            }
-            description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            quark = {
-                "uuid"             => SecureRandom.uuid,
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "description"      => description,
-                "type"             => "directory-mark",
-                "mark"             => mark
-            }
-            NyxIO::commitToDisk(quark)
-            return quark
-        end
-    end
-
     # QuarksIssuers::issueQuarkDataPodInteractively()
     def self.issueQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
@@ -281,7 +234,7 @@ class Quarks
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
-        types = ["line", "url", "file", "new text file", "folder", "unique-name", "directory-mark", "datapod"]
+        types = ["line", "url", "file", "new text file", "folder", "unique-name", "datapod"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -312,9 +265,6 @@ class Quarks
         end
         if type == "unique-name" then
             return QuarksIssuers::issueQuarkUniqueNameInteractively()
-        end
-        if type == "directory-mark" then
-            return QuarksIssuers::issueQuarkDirectoryMarkInteractively()
         end
         if type == "datapod" then
             return QuarksIssuers::issueQuarkDataPodInteractively()
@@ -380,9 +330,6 @@ class Quarks
         if quark["type"] == "unique-name" then
             return "[quark] [unique name] #{quark["name"]}"
         end
-        if quark["type"] == "directory-mark" then
-            return "[quark] [directory mark] #{quark["mark"]}"
-        end
         if quark["type"] == "datapod" then
             return "[quark] [datapod] #{quark["podname"]}"
         end
@@ -416,18 +363,6 @@ class Quarks
                 system("open '#{location}'")
             else
                 puts "I could not determine the location of unique name: #{uniquename}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
-        if quark["type"] == "directory-mark" then
-            mark = quark["mark"]
-            location = AtlasCore::uniqueStringToLocationOrNull(mark)
-            if location then
-                puts "opening: #{File.dirname(location)}"
-                system("open '#{File.dirname(location)}'")
-            else
-                puts "I could not determine the location of mark: #{mark}"
                 LucilleCore::pressEnterToContinue()
             end
             return

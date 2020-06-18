@@ -174,7 +174,7 @@ class CatalystFsck
             exit
         end
 
-        types = ["line", "url", "file", "folder", "unique-name", "directory-mark", "datapod"]
+        types = ["line", "url", "file", "folder", "unique-name", "datapod"]
         if !types.include?(quark["type"]) then
             puts "[error] quark has incorrect type".red
             puts JSON.pretty_generate(quark).red
@@ -228,21 +228,6 @@ class CatalystFsck
                 puts "[error] quark has no name".red
                 puts JSON.pretty_generate(quark).red
                 exit
-            end
-        end
-
-        if quark["type"] == "directory-mark" then
-            if quark["mark"].nil? then
-                puts "[error] quark has no mark".red
-                puts JSON.pretty_generate(quark).red
-                exit
-            end
-            mark = quark["mark"]
-            location = AtlasCore::uniqueStringToLocationOrNull(mark)
-            if location.nil? then
-                puts "[error] could not identify target location for this quark mark".red
-                puts JSON.pretty_generate(quark).red
-                #exit
             end
         end
 
