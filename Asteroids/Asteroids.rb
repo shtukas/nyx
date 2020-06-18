@@ -476,7 +476,7 @@ class Asteroids
                 "open",
                 "stop",
                 "destroy",
-                "set description",
+                "update description",
                 "update orbital",
                 "push",
                 "relocate target Quark to Cube content",
@@ -505,7 +505,7 @@ class Asteroids
                 Asteroids::destroyProcedure(asteroid)
                 return
             end
-            if option == "set description" then
+            if option == "update description" then
                 asteroid["description"] = CatalystCommon::editTextUsingTextmate(asteroid["description"])
                 NyxIO::commitToDisk(asteroid)
             end
