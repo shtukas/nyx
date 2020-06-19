@@ -209,6 +209,8 @@ class Asteroids
             NyxIO::commitToDisk(quark)
         end
 
+        Quarks::issueZeroOrMoreTagsForQuark(quark)
+
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         return false if clique.nil?
 

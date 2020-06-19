@@ -132,15 +132,10 @@ class NSXCatalystUI
                 lambda { 
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    loop {
-                        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
-                        if clique.nil? then
-                            puts "-> You must attach the quark to a clique otherwise it will be garbage collected"
-                            LucilleCore::pressEnterToContinue()
-                            next
-                        end
+                    Quarks::issueZeroOrMoreTagsForQuark(quark)
+                    cliques = Cliques::selectZeroOrMoreCliquesExistingOrCreated()
+                    cliques.each{|clique|
                         Bosons::issueLink(quark, clique)
-                        break
                     }
                 }
             ]

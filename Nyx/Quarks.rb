@@ -435,6 +435,7 @@ class Quarks
                     newquark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if newquark.nil?
                     Gluons::issueLink(quark, newquark)
+                    Quarks::issueZeroOrMoreTagsForQuark(newquark)
                 }
             ]
 
@@ -527,5 +528,15 @@ class Quarks
                     "dive"          => lambda{ Quarks::quarkDive(quark) }
                 }
             }
+    end
+
+    # Quarks::issueZeroOrMoreTagsForQuark(quark)
+    def self.issueZeroOrMoreTagsForQuark(quark)
+        loop {
+            tagPayload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit) : ")
+            break if tagPayload.size == 0
+            tag = Tags::issueTag(tagPayload)
+            Bosons::issueLink(quark, tag)
+        }
     end
 end

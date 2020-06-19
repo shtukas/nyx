@@ -132,6 +132,7 @@ class Cliques
                     return if quark.nil?
                     link = Bosons::issueLink(clique, quark)
                     puts JSON.pretty_generate(link)
+                    Quarks::issueZeroOrMoreTagsForQuark(quark)
                 }]
 
             items << [
