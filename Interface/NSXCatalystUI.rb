@@ -192,6 +192,15 @@ class NSXCatalystUI
 
             items << nil
 
+
+
+            items << [
+                "Print Generation Speed Report", 
+                lambda { 
+                    NSXCatalystObjectsOperator::generationSpeedReport()
+                }
+            ]
+
             items << [
                 "Run Data Integrity Check", 
                 lambda { 
