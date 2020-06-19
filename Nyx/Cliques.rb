@@ -242,4 +242,28 @@ class Cliques
                 }
             }
     end
+
+    # Cliques::mergeCliques(clique1, clique2)
+    def self.mergeCliques(clique1, clique2)
+        # We take everything connected to clique2, link that to clique1 and delete clique2
+        Bosons::getLinkedObjects(clique2)
+            .each{|object|
+                Bosons::issueLink(clique1, object)
+            }
+        NyxIO::destroy(clique2["uuid"])
+    end
+
+    # Cliques::interactivelySelectTwoCliquesAndMerge()
+    def self.interactivelySelectTwoCliquesAndMerge()
+        puts "Select clique #1"
+        LucilleCore::pressEnterToContinue()
+        clique1 = Cliques::selectCliqueFromExistingCliquesOrNull()
+
+        puts "Select clique #2"
+        LucilleCore::pressEnterToContinue()
+        clique2 = Cliques::selectCliqueFromExistingCliquesOrNull()
+
+        return if clique1["uuid"] == clique2["uuid"]
+        Cliques::mergeCliques(clique1, clique2)
+    end
 end

@@ -211,7 +211,6 @@ class Asteroids
         claim = Bosons::issueLink(clique, quark)
         puts JSON.pretty_generate(claim)
 
-        LucilleCore::pressEnterToContinue()
         return true
     end
 

@@ -165,6 +165,13 @@ class NSXCatalystUI
                 }
             ]
 
+            items << [
+                "merge two cliques",
+                lambda { 
+                    Cliques::interactivelySelectTwoCliquesAndMerge()
+                }
+            ]
+
             items << nil
 
             items << [
