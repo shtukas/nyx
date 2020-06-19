@@ -89,6 +89,17 @@ class Cliques
         nil
     end
 
+    # Cliques::selectZeroOrMoreCliquesExistingOrCreated()
+    def self.selectZeroOrMoreCliquesExistingOrCreated()
+        cliques = []
+        loop {
+            clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+            break if clique.nil?
+            cliques << clique
+        }
+        cliques
+    end
+
     # Cliques::getClickByNameOrNull(name)
     def self.getClickByNameOrNull(name1)
         Cliques::cliques()
@@ -129,17 +140,24 @@ class Cliques
             ]
 
             items << [
-                "quarks (select multiple and send to another clique)", 
+                "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
                 lambda {
                     quarks = Cliques::getCliqueBosonLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
-                    selected, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
+                    selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
                     return if selected.size == 0
-                    puts "Now selecting/making the receiving clique"
+                    puts "Now selecting/making the receiving cliques"
                     LucilleCore::pressEnterToContinue()
-                    nextclique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                    return if clique.nil?
-                    selected.each{|quark| Bosons::issueLink(nextclique, quark) }
-                    selected.each{|quark| Bosons::unlink(clique, quark) }
+                    nextcliques = Cliques::selectZeroOrMoreCliquesExistingOrCreated()
+                    puts "Linking quarks to cliques"
+                    nextcliques.each{|nextclique|
+                        selectedQuarks.each{|quark| 
+                            Bosons::issueLink(nextclique, quark)
+                        }
+                    }
+                    puts "Unlinking quarks from (this)"
+                    selectedQuarks.each{|quark| 
+                        Bosons::unlink(clique, quark)
+                    }
                 }
             ]
 

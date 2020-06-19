@@ -63,15 +63,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCyc
 
 class Asteroids
 
-    # Asteroids::issueNew(orbitalname, orbitaluuid, description, quark)
-    def self.issueNew(orbitalname, orbitaluuid, description, quark)
+    # Asteroids::issueNew(orbitalname, orbitaluuid, quark)
+    def self.issueNew(orbitalname, orbitaluuid, quark)
         item = {
             "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "uuid"             => SecureRandom.uuid,
             "creationUnixtime" => Time.new.to_f,
             "orbitalname"      => orbitalname,
             "orbitaluuid"      => orbitaluuid,
-            "description"      => description,
             "quarkuuid"        => quark["uuid"]
         }
         NyxIO::commitToDisk(item)
@@ -96,8 +95,8 @@ class Asteroids
     # Asteroids::asteroidBestDescription(item)
     def self.asteroidBestDescription(item)
         quark = NyxIO::getOrNull(item["quarkuuid"])
-        return "#{JSON.generate(item)} -> null quark" if quark.nil?
-        item["description"] || Quarks::quarkToString(quark)
+        return "[could not find quark]" if quark.nil?
+        Quarks::quarkToString(quark)
     end
 
     # Asteroids::asteroidOpen(item)
@@ -200,8 +199,8 @@ class Asteroids
         NyxIO::commitToDisk(item)
     end
 
-    # Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastUnderlyingQuarkAsCubeContentInteractively(item) # Boolean # Indicates whether a promotion was acheived
+    # Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(item) # Boolean # Indicates whether a promotion was acheived
+    def self.recastAsteroidUnderlyingQuarkOnTheDataNetwork(item) # Boolean # Indicates whether a promotion was acheived
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
 
@@ -294,7 +293,7 @@ class Asteroids
             "isRunning"        => isRunning,
             "isRunningForLong" => isRunningForLong,
             "execute"          => lambda{ Asteroids::asteroidDive(item) },
-            "x-todo-item"      => item
+            "x-asteroid"      => item
         }
     end
 
@@ -310,7 +309,7 @@ class Asteroids
                 "url"              => link
             }
             NyxIO::commitToDisk(quark)
-            Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", link, quark)
+            Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", quark)
             Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
         end
 
@@ -391,7 +390,7 @@ class Asteroids
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (#{"if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role".green}) ", false) then
             Asteroids::stop(uuid)
             if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
-                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+                status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
                 if !status then
                     puts "You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
                     return
@@ -399,29 +398,6 @@ class Asteroids
             end
             NyxIO::destroy(asteroid["uuid"])
             return
-        end
-
-        if asteroid["description"].nil? then
-            asteroid["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            NyxIO::commitToDisk(asteroid)
-        end
-
-        if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-            Asteroids::stop(uuid)
-            puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
-            options = [
-                "migrate to new orbital", 
-                "recast on knowledge network"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-            if option == "migrate to new orbital" then
-                Asteroids::updateAsteroidOrbitalname(asteroid)
-            end
-            if option == "recast on knowledge network" then
-                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
-                return if !status
-                NyxIO::destroy(asteroid["uuid"])
-            end
         end
     end
 
@@ -434,11 +410,7 @@ class Asteroids
             return
         end
         if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Item was not immediately done. Want to postpose it by three hours ? ") then
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i + 3*3600)
-                return
-            end
-            puts "Item was not immediately done, we need to classify it."
+            puts "Item was not immediately done, we need to recast it to another orbital"
             Asteroids::updateAsteroidOrbitalname(asteroid)
         end
     end
@@ -452,12 +424,11 @@ class Asteroids
         puts "-> extracting quark"
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         return if quark.nil?
-        puts "-> testing garbage collectability"
-        b1 = Quarks::quarkIsGarbageCollectable(quark)
-        if b1 and LucilleCore::askQuestionAnswerAsBoolean("-> Recast underlying Quark on the Nyx Data Network ? ") then
-            status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+        puts "-> testing quark connections"
+        if !Quarks::quarkHasConnections(quark) and LucilleCore::askQuestionAnswerAsBoolean("-> Recast underlying Quark on the Nyx Data Network ? ") then
+            status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
             if !status then
-                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkIsGarbageCollectable
+                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkHasConnections
                 puts "-> You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
                 LucilleCore::pressEnterToContinue()
                 return
@@ -476,7 +447,6 @@ class Asteroids
                 "open",
                 "stop",
                 "destroy",
-                "update description",
                 "update orbital",
                 "push",
                 "relocate target Quark to Cube content",
@@ -505,10 +475,6 @@ class Asteroids
                 Asteroids::destroyProcedure(asteroid)
                 return
             end
-            if option == "update description" then
-                asteroid["description"] = CatalystCommon::editTextUsingTextmate(asteroid["description"])
-                NyxIO::commitToDisk(asteroid)
-            end
             if option == "update orbital" then
                 Asteroids::stop(asteroid["uuid"])
                 Asteroids::updateAsteroidOrbitalname(asteroid)
@@ -518,7 +484,7 @@ class Asteroids
                 NyxIO::commitToDisk(asteroid)
             end
             if option == "relocate target Quark to Cube content" then
-                status = Asteroids::recastUnderlyingQuarkAsCubeContentInteractively(asteroid)
+                status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
                 next if !status
                 NyxIO::destroy(asteroid["uuid"])
                 return
@@ -548,7 +514,7 @@ class Asteroids
             orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
             return nil if orbitaluuid.nil?
         end
-        Asteroids::issueNew(orbitalname, orbitaluuid, nil, target)
+        Asteroids::issueNew(orbitalname, orbitaluuid, target)
     end
 
     # Asteroids::createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
@@ -557,7 +523,7 @@ class Asteroids
         return nil if orbitaluuid.nil?
         target = Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if target.nil?
-        Asteroids::issueNew(orbitalname, orbitaluuid, nil, target)
+        Asteroids::issueNew(orbitalname, orbitaluuid, target)
     end
 
     # Asteroids::orbitalDive(orbitalname)

@@ -17,7 +17,6 @@ Asteroid {
     "uuid"             : String
     "nyxType"          : "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
     "creationUnixtime" : Float # Unixtime with decimals
-    "description"      : null | String
     "orbitalname"      : String
     "orbitaluuid"      : String
     "quarkuuid"        : String # uuid of a Quark

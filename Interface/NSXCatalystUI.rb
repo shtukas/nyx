@@ -227,12 +227,12 @@ class NSXCatalystUI
             Calendar::setDateAsReviewed(object["x-calendar-date"])
             return
         end
-        if object["x-todo-item"] and !object["isRunning"] then
-            Asteroids::startProcedure(object["x-todo-item"])
+        if object["x-asteroid"] and !object["isRunning"] then
+            Asteroids::startProcedure(object["x-asteroid"])
             return
         end
-        if object["x-todo-item"] and object["isRunning"] then
-            Asteroids::stopProcedure(object["x-todo-item"])
+        if object["x-asteroid"] and object["isRunning"] then
+            Asteroids::stopProcedure(object["x-asteroid"])
             return
         end
         if object["x-wave"] then

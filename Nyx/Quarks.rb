@@ -294,11 +294,11 @@ class Quarks
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
-    # Quarks::quarkIsGarbageCollectable(quark)
-    def self.quarkIsGarbageCollectable(quark)
-        return false if Bosons::getLinkedObjects(quark).size > 0
-        return false if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
-        true
+    # Quarks::quarkHasConnections(quark)
+    def self.quarkHasConnections(quark)
+        return true if Bosons::getLinkedObjects(quark).size > 0
+        return true if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
+        false
     end
 
     # Quarks::getOrNull(uuid)
@@ -310,28 +310,28 @@ class Quarks
     def self.quarkToString(quark)
         if quark["description"] then
             if quark["type"] == "file" then
-                return "[quark] [#{quark["type"]}#{File.extname(quark["filename"])}] #{quark["description"]}"
+                return "[quark] [#{quark["uuid"][0, 4]}] [#{quark["type"]}#{File.extname(quark["filename"])}] #{quark["description"]}"
             else
-                return "[quark] [#{quark["type"]}] #{quark["description"]}"
+                return "[quark] [#{quark["uuid"][0, 4]}] [#{quark["type"]}] #{quark["description"]}"
             end
         end
         if quark["type"] == "line" then
-            return "[quark] [line] #{quark["line"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [line] #{quark["line"]}"
         end
         if quark["type"] == "file" then
-            return "[quark] [file] #{quark["filename"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [file] #{quark["filename"]}"
         end
         if quark["type"] == "url" then
-            return "[quark] [url] #{quark["url"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [url] #{quark["url"]}"
         end
         if quark["type"] == "folder" then
-            return "[quark] [folder] #{quark["foldername"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [folder] #{quark["foldername"]}"
         end
         if quark["type"] == "unique-name" then
-            return "[quark] [unique name] #{quark["name"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [unique name] #{quark["name"]}"
         end
         if quark["type"] == "datapod" then
-            return "[quark] [datapod] #{quark["podname"]}"
+            return "[quark] [#{quark["uuid"][0, 4]}] [datapod] #{quark["podname"]}"
         end
         raise "Quark error 3c7968e4"
     end
