@@ -204,6 +204,11 @@ class Asteroids
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
 
+        if quark["description"].nil? then
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxIO::commitToDisk(quark)
+        end
+
         clique = Cliques::selectCliqueOrMakeNewOneOrNull()
         return false if clique.nil?
 
