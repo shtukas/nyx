@@ -44,7 +44,7 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = [
             Anniversaries::catalystObjects(),
-            Asteroids::catalystObjects(),
+            Asteroids::catalystObjectsFast(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             Spaceships::catalystObjects(),
@@ -63,7 +63,7 @@ class NSXCatalystObjectsOperator
             },
             {
                 "name" => "Asteroids",
-                "exec" => lambda{ Asteroids::catalystObjects() }
+                "exec" => lambda{ Asteroids::catalystObjectsFast() }
             },
             {
                 "name" => "BackupsMonitor",

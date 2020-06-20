@@ -59,6 +59,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ProgrammableBooleans.rb"
+=begin
+    ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds(uuid, n)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -----------------------------------------------------------------------
 
 class Asteroids
@@ -349,8 +366,6 @@ class Asteroids
         items2 = Asteroids::asteroids()
                     .select{|item| item["orbitaluuid"] == focus["orbitaluuid"] }
                     .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
-                    .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                    .first(3)
                     .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
 
         timeInPingInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
@@ -363,6 +378,44 @@ class Asteroids
             end
 
         (items1+items2)
+            .each_with_index {|item, indx|
+                objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
+            }
+
+        objects = objects.sort{|i1, i2| i1["metric"] <=> i2["metric"] }
+
+        objects
+    end
+
+    # Asteroids::catalystObjectsFast()
+    def self.catalystObjectsFast()
+
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("02b4b32c-58b7-49bc-983c-8117c1c3e326", 1200) then
+            uuids = Asteroids::catalystObjects().reverse.first(100).map{|obj| obj["x-asteroid"]["uuid"] }.uniq
+            KeyValueStore::set(nil, "b4998815-40af-4c34-b08d-e301cdcc4475", JSON.generate(uuids))
+        end
+
+        uuids = KeyValueStore::getOrNull(nil, "b4998815-40af-4c34-b08d-e301cdcc4475")
+        return [] if uuids.nil?
+
+        uuids = JSON.parse(uuids)
+
+        timeInPingInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
+        basemetric = 
+            if timeInPingInHours < 1 then
+                0.66 - 0.10*timeInPingInHours # 0.66 -> 0.56 after one hour
+            else
+                timeInPingInHours = timeInPingInHours - 1
+                0.2 + 0.36*Math.exp(-timeInPingInHours) # 0.56 -> 0.20 landing
+            end
+
+        objects = []
+
+        uuids
+            .map{|uuid|
+                Asteroids::getAsteroidByUUIDOrNull(uuid)
+            }
+            .compact
             .each_with_index {|item, indx|
                 objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
             }
