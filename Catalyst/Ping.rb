@@ -57,4 +57,15 @@ class Ping
             .inject(0, :+)
     end
 
+    # Ping::rollingTimeRatioOverPeriodInSeconds7Samples(uuid, timespan)
+    def self.rollingTimeRatioOverPeriodInSeconds7Samples(uuid, timespan)
+        (1..7)
+            .map{|i|
+                lookupPeriodInSeconds = timespan*(i.to_f/7)
+                timedone = Ping::totalOverTimespan(uuid, lookupPeriodInSeconds)
+                timedone.to_f/lookupPeriodInSeconds
+            }
+            .max
+    end
+
 end

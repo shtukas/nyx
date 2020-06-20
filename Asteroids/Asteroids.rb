@@ -149,6 +149,11 @@ class Asteroids
         Bank::put(orbitaluuid, timespan)
 
         if verbose then
+            puts "Ping: putting #{timespan.round(2)} secs into orbitaluuid: #{orbitaluuid}"
+        end
+        Ping::put(orbitaluuid, timespan)
+
+        if verbose then
             puts "Ping: putting #{timespan.round(2)} secs into Asteroids [uuid: ed4a67ee-c205-4ea4-a135-f10ea7782a7f]"
         end
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
@@ -194,7 +199,8 @@ class Asteroids
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
-                "timeInHours" => Bank::value(orbitaluuid).to_f/3600
+                "BankValueInHours"     => Bank::value(orbitaluuid).to_f/3600,
+                "PingRollingTimeRatio" => Ping::rollingTimeRatioOverPeriodInSeconds7Samples(orbitaluuid, 30*86400)
             }
         }
     end
@@ -296,7 +302,7 @@ class Asteroids
         end
         focus = Asteroids::orbitalsTimeDistribution()
                     .sort{|i1, i2|
-                        i1["timeInHours"] <=> i2["timeInHours"]
+                        i1["PingRollingTimeRatio"] <=> i2["PingRollingTimeRatio"]
                     }
                     .first
         KeyValueStore::set(nil, locationKey, JSON.generate(focus))
@@ -640,9 +646,9 @@ class Asteroids
                 items = Asteroids::orbitalsTimeDistribution()
                 d = items.map{|item| item["orbitalname"].size }.max
                 items
-                    .sort{|i1, i2| i1["timeInHours"] <=> i2["timeInHours"] }
+                    .sort{|i1, i2| i1["PingRollingTimeRatio"] <=> i2["PingRollingTimeRatio"] }
                     .each{|item|
-                        puts "#{item["orbitalname"].ljust(d+1)} #{"%8.2f" % item["timeInHours"]} hours"
+                        puts "#{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["PingRollingTimeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
                     }
                 LucilleCore::pressEnterToContinue()
             end

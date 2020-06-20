@@ -99,7 +99,7 @@ class Spaceships
             if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
                 return " (commitment weekly: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
             end
-            # " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatio(spaceship)})"
+            # " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatioOverWeek(spaceship)})"
             ""
         }
         typeAsUserFriendly = lambda {|type|
@@ -287,18 +287,6 @@ class Spaceships
         }
     end
 
-    # Spaceships::rollingTimeRatio(spaceship)
-    def self.rollingTimeRatio(spaceship)
-        uuid = spaceship["uuid"]
-        (1..7)
-            .map{|i|
-                timedone = Ping::totalOverTimespan(uuid, i*86400) # + Spaceships::runTimeIfAny(spaceship)
-                trueTime = i*86400
-                timedone.to_f/trueTime
-            }
-            .max
-    end
-
     # Spaceships::metric(spaceship)
     def self.metric(spaceship)
         uuid = spaceship["uuid"]
@@ -308,7 +296,7 @@ class Spaceships
         return 1 if Spaceships::isRunning?(spaceship)
 
         genericFormula = lambda {|spaceship, baseMetric|
-            baseMetric - 0.1*Spaceships::rollingTimeRatio(spaceship) - 0.1*Ping::totalWithTimeExponentialDecay(uuid, 3600).to_f/3600
+            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - 0.1*Ping::totalWithTimeExponentialDecay(uuid, 3600).to_f/3600
                          # Small shift for ordering                    # bigger temporary shift to avoid staying on top
         }
 
