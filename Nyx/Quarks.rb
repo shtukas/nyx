@@ -359,8 +359,18 @@ class Quarks
             uniquename = quark["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
-                puts "opening: #{location}"
-                system("open '#{location}'")
+                if File.file?(location) then
+                    if LibrarianFile::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                        puts "opening safely openable file '#{location}'"
+                        system("open '#{location}'")
+                    else
+                        puts "opening parent folder of '#{location}'"
+                        system("open '#{File.dirname(location)}'")
+                    end
+                else
+                    puts "opening folder '#{location}'"
+                    system("open '#{location}'")
+                end
             else
                 puts "I could not determine the location of unique name: #{uniquename}"
                 LucilleCore::pressEnterToContinue()

@@ -95,7 +95,7 @@ class Cliques
         return [] if clique.nil?
         cliques = [ clique ]
         loop {
-            break if LucilleCore::askQuestionAnswerAsBoolean("select more cliques ? ")
+            break if !LucilleCore::askQuestionAnswerAsBoolean("select more cliques ? ")
             clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
             break if clique.nil?
             cliques << clique
