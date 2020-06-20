@@ -109,10 +109,10 @@ class Asteroids
         [orbitalname, orbitaluuid]
     end
 
-    # Asteroids::asteroidBestDescription(item)
-    def self.asteroidBestDescription(item)
-        quark = NyxIO::getOrNull(item["quarkuuid"])
-        return "[could not find quark]" if quark.nil?
+    # Asteroids::quarkToString(quarkuuid)
+    def self.quarkToString(quarkuuid)
+        quark = NyxIO::getOrNull(quarkuuid)
+        return "[quark not found]" if quark.nil?
         Quarks::quarkToString(quark)
     end
 
@@ -130,7 +130,7 @@ class Asteroids
         quarkType = quark ? quark["type"] : "[null]"
         isRunning = Runner::isRunning?(itemuuid)
         runningSuffix = isRunning ? "(running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[asteroid] [#{item["orbitalname"]}] [#{quarkType}] #{Asteroids::asteroidBestDescription(item)} (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) #{runningSuffix}"
+        "[asteroid] [#{item["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(item["quarkuuid"])} (bank: #{(Bank::value(itemuuid).to_f/3600).round(2)} hours) #{runningSuffix}"
     end
 
     # Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
