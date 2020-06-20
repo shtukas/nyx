@@ -35,9 +35,9 @@ class ProgrammableBooleans
 
     # ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds(uuid, n)
     def self.trueNoMoreOftenThanEveryNSeconds(uuid, n)
-        key = CatalystCommon::getNewValueEveryNSeconds(uuid, n)
-        if !KeyValueStore::flagIsTrue(nil, key) then
-            KeyValueStore::setFlagTrue(nil, key)
+        trace = CatalystCommon::getNewValueEveryNSeconds(uuid, n)
+        if !KeyValueStore::flagIsTrue(nil, trace) then
+            KeyValueStore::setFlagTrue(nil, trace)
             return true
         end
         false

@@ -125,6 +125,6 @@ class CatalystCommon
 
     # CatalystCommon::getNewValueEveryNSeconds(uuid, n)
     def self.getNewValueEveryNSeconds(uuid, n)
-      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{ (Time.new.to_f/n).to_i.to_s }")
+      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
 end

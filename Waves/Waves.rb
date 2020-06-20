@@ -217,7 +217,7 @@ class Waves
         object["body"] = "[wave] "+announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
         object['schedule'] = schedule
-        object["execute"] = lambda { Waves::execute(wave) }
+        object["execute"] = lambda { Waves::waveDive(wave) }
         object["x-wave"] = wave
         object
     end
@@ -284,8 +284,8 @@ class Waves
         end
     end
 
-    # Waves::execute(wave)
-    def self.execute(wave)
+    # Waves::waveDive(wave)
+    def self.waveDive(wave)
         puts Waves::waveToString(wave).green
         uuid = wave["uuid"]
         options = ['start', 'open', 'done', 'recast', 'description', 'destroy']
@@ -326,6 +326,20 @@ class Waves
         end
     end
 
+    # Waves::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Waves::waves()
+            .select{|wave|
+                wave["description"].downcase.include?(pattern.downcase)
+            }
+            .map{|wave|
+                {
+                    "description"   => wave["description"],
+                    "referencetime" => wave["creationUnixtime"],
+                    "dive"          => lambda { Waves::waveDive(wave) }
+                }
+            }
+    end
 end
 
 
