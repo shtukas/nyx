@@ -26,7 +26,7 @@
 👩‍💻 🛩
         0.66  -> 0.26 Asteroids
 
-        0.65  ->      Spaceships: "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
+        0.60  ->      Spaceships: "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
                                   "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
 
         0.50          Backups Monitor

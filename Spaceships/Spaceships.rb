@@ -305,7 +305,7 @@ class Spaceships
         end
 
         if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return genericFormula.call(spaceship, 0.65)
+            return genericFormula.call(spaceship, 0.60)
         end
 
         if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
