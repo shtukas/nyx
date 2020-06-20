@@ -132,13 +132,8 @@ class NSXCatalystUI
                 lambda { 
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    Quarks::issueZeroOrMoreTagsForQuark(quark)
-                    puts "-> selecting multiple cliques (existing or new)"
-                    LucilleCore::pressEnterToContinue()
-                    cliques = Cliques::selectZeroOrMoreCliquesExistingOrCreated()
-                    cliques.each{|clique|
-                        Bosons::issueLink(quark, clique)
-                    }
+                    Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+                    Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
                 }
             ]
 

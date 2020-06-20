@@ -226,21 +226,12 @@ class Asteroids
     def self.recastAsteroidUnderlyingQuarkOnTheDataNetwork(item) # Boolean # Indicates whether a promotion was acheived
         quark = NyxIO::getOrNull(item["quarkuuid"])
         return false if quark.nil?
-
         if quark["description"].nil? then
             quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
             NyxIO::commitToDisk(quark)
         end
-
-        Quarks::issueZeroOrMoreTagsForQuark(quark)
-
-        clique = Cliques::selectCliqueOrMakeNewOneOrNull()
-        return false if clique.nil?
-
-        puts JSON.pretty_generate(clique)
-        claim = Bosons::issueLink(clique, quark)
-        puts JSON.pretty_generate(claim)
-
+        Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+        Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
         return true
     end
 

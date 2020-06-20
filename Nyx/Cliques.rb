@@ -91,8 +91,11 @@ class Cliques
 
     # Cliques::selectZeroOrMoreCliquesExistingOrCreated()
     def self.selectZeroOrMoreCliquesExistingOrCreated()
-        cliques = []
+        clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+        return [] if clique.nil?
+        cliques = [ clique ]
         loop {
+            break if LucilleCore::askQuestionAnswerAsBoolean("select more cliques ? ")
             clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
             break if clique.nil?
             cliques << clique
@@ -132,7 +135,7 @@ class Cliques
                     return if quark.nil?
                     link = Bosons::issueLink(clique, quark)
                     puts JSON.pretty_generate(link)
-                    Quarks::issueZeroOrMoreTagsForQuark(quark)
+                    Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
                 }]
 
             items << [
