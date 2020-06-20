@@ -241,6 +241,7 @@ class NSXCatalystUI
             return
         end
         if object["x-asteroid"] and !object["isRunning"] then
+            puts "-> starting asteroid"
             Asteroids::startProcedure(object["x-asteroid"])
             return
         end
