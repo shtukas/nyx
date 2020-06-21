@@ -334,7 +334,7 @@ class Waves
             }
             .map{|wave|
                 {
-                    "description"   => wave["description"],
+                    "description"   => "[wave] #{wave["description"]}",
                     "referencetime" => wave["creationUnixtime"],
                     "dive"          => lambda { Waves::waveDive(wave) }
                 }
