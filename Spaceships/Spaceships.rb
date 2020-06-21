@@ -547,8 +547,8 @@ class Spaceships
     def self.spaceshipDestructionQuarkHandling(quark)
         if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
             quark = Quarks::ensureQuarkDescription(quark)
-            Quarks::ensureQuarkTags(quark)
-            Quarks::ensureQuarkCliques(quark)
+            Quarks::ensureAtLeastOneQuarkTags(quark)
+            Quarks::ensureAtLeastOneQuarkCliques(quark)
         else
             Quarks::destroyQuarkByUUID(quark["uuid"])
         end

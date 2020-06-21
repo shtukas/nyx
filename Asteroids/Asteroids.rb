@@ -129,8 +129,8 @@ class Asteroids
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         quarkType = quark ? quark["type"] : "null"
         isRunning = Runner::isRunning?(asteroiduuid)
-        runningSuffix = isRunning ? "(running for #{(Runner::runTimeInSecondsOrNull(asteroiduuid).to_f/3600).round(2)} hour)" : ""
-        "[asteroid] #{(100*Bank::value(asteroid["uuid"]).to_f/3600).to_i.to_s.rjust(2)}% [#{asteroid["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(asteroid["quarkuuid"])} (bank: #{(Bank::value(asteroiduuid).to_f/3600).round(2)} hours) #{runningSuffix}"
+        runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(asteroiduuid).to_f/3600).round(2)} hour)" : ""
+        "[asteroid] #{(100*Bank::value(asteroid["uuid"]).to_f/3600).to_i.to_s.rjust(2)}% [#{asteroid["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(asteroid["quarkuuid"])}#{runningSuffix}"
     end
 
     # Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
@@ -420,8 +420,8 @@ class Asteroids
     def self.asteroidDestructionQuarkHandling(quark)
         if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
             quark = Quarks::ensureQuarkDescription(quark)
-            Quarks::ensureQuarkTags(quark)
-            Quarks::ensureQuarkCliques(quark)
+            Quarks::ensureAtLeastOneQuarkTags(quark)
+            Quarks::ensureAtLeastOneQuarkCliques(quark)
         else
             Quarks::destroyQuarkByUUID(quark["uuid"])
         end

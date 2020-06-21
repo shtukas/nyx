@@ -200,15 +200,6 @@ class Cliques
         Cliques::cliqueDive(clique)
     end
 
-    # Cliques::selectCliqueOrMakeNewOneOrNull()
-    def self.selectCliqueOrMakeNewOneOrNull()
-        puts "-> I am going to make you select a clique from existing and if that doesn't work, I will make you create a new one"
-        LucilleCore::pressEnterToContinue()
-        clique = Cliques::selectCliqueFromExistingCliquesOrNull()
-        return clique if clique
-        Cliques::issueCliqueInteractivelyOrNull()
-    end
-
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
         times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }

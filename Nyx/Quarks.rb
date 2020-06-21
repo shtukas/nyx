@@ -420,7 +420,7 @@ class Quarks
             ]
 
             items << [
-                "update description",
+                "description (update)",
                 lambda{
                     description = 
                         if ( quark["description"].nil? or quark["description"].size == 0 ) then
@@ -435,7 +435,7 @@ class Quarks
             ]
 
             items << [
-                "add tag",
+                "tag (add)",
                 lambda {
                     payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
                     tag = Tags::issueTag(payload)
@@ -446,14 +446,23 @@ class Quarks
             items << [
                 "clique (link to)",
                 lambda {
-                    clique = Cliques::selectCliqueOrMakeNewOneOrNull()
+                    clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
                     Bosons::issueLink(quark, clique)
                 }
             ]
 
             items << [
-                "make new quark + attach to this with gluon",
+                "clique (select and unlink)",
+                lambda {
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
+                    return if clique.nil?
+                    Bosons::unlink(quark, clique)
+                }
+            ]
+
+            items << [
+                "quark (make new + attach to this with gluon)",
                 lambda {
                     newquark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if newquark.nil?
@@ -463,7 +472,7 @@ class Quarks
             ]
 
             items << [
-                "select existing quark + attach to this with gluon",
+                "quark (select existing + attach to this with gluon)",
                 lambda {
                     quark2 = Quarks::selectQuarkFromExistingQuarksOrNull()
                     return if quark2.nil?
@@ -580,15 +589,15 @@ class Quarks
         quark
     end
 
-    # Quarks::ensureQuarkTags(quark)
-    def self.ensureQuarkTags(quark)
+    # Quarks::ensureAtLeastOneQuarkTags(quark)
+    def self.ensureAtLeastOneQuarkTags(quark)
         if Quarks::getQuarkTags(quark).empty? then
             Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
         end
     end
 
-    # Quarks::ensureQuarkCliques(quark)
-    def self.ensureQuarkCliques(quark)
+    # Quarks::ensureAtLeastOneQuarkCliques(quark)
+    def self.ensureAtLeastOneQuarkCliques(quark)
         if Quarks::getQuarkCliques(quark).empty? then
             Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
         end
