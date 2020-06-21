@@ -148,5 +148,7 @@ class Bosons
             .each{|link|
                 NyxIO::destroy(link["uuid"])
             }
+        Bosons::recacheLinkedObjectsFromTheForce(object1)
+        Bosons::recacheLinkedObjectsFromTheForce(object2)
     end
 end

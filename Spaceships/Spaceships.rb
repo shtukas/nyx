@@ -91,15 +91,14 @@ class Spaceships
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
             if spaceship["engine"]["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+                return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
             if spaceship["engine"]["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
-                return " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+                return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
             if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
                 return " (commitment weekly: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
             end
-            # " (bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours, time ratio: #{Spaceships::rollingTimeRatioOverWeek(spaceship)})"
             ""
         }
         typeAsUserFriendly = lambda {|type|
@@ -148,17 +147,17 @@ class Spaceships
 
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt5 = "until completion ‼️       ( until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219 )"
-        opt1 = "until completion 🏖️       ( until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72 )"
-        opt0 = "single time commitment ‼️ ( singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32 )"
-        opt2 = "single time commitment 🏖️ ( singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea )"
-        opt3 = "on-going time commitment  ( on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada )"
+        opt5 = "until completion ‼️"
+        opt1 = "until completion ⛵"
+        opt0 = "single time commitment ⏱️ ‼️"
+        opt2 = "single time commitment 🏖️"
+        opt3 = "on-going time commitment 💫"
 
         options = [
-            opt5,
-            opt1,
             opt0,
             opt2,
+            opt5,
+            opt1,
             opt3,
         ]
 
