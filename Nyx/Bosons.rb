@@ -33,122 +33,65 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
+
 # -----------------------------------------------------------------
 
-class Bosons
 
-    # Bosons::issueLink(object1, object2)
-    def self.issueLink(object1, object2)
-        raise "b9b7810e" if !NyxIO::dataCarriersNyxTypes().include?(object1["nyxType"])
-        raise "ff00b177" if !NyxIO::dataCarriersNyxTypes().include?(object2["nyxType"])
-        raise "14d9af33" if (object1["uuid"] == object2["uuid"]) # Prevent an object to link to itself
+class Bosons2
 
-        # We now enforce the meaning of Boson and prevent the linking of two quarks
-        raise "d3e06d2f" if (object1["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" and object2["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
-
-
-        link = Bosons::linked?(object1, object2)
-        return link if link
-
-        link = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "boson-b38137c1-fd43-4035-9f2c-af0fddb18c80",
-            "creationUnixtime" => Time.new.to_f,
-            "uuid1"            => object1["uuid"],
-            "uuid2"            => object2["uuid"]
-        }
-        NyxIO::commitToDisk(link)
-
-        Bosons::recacheLinkedObjectsFromTheForce(object1)
-        Bosons::recacheLinkedObjectsFromTheForce(object2)
-
-        link
+    # Bosons2::pathToDataStore()
+    def self.pathToDataStore()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-DataBank/Bosons2/datastore"
     end
 
-    # Bosons::linked?(object1, object2)
+    # Bosons2::setDirectedLink(uuid1, uuid2)
+    def self.setDirectedLink(uuid1, uuid2)
+        # The set uuid1 contains the list of uuids connected to uuid1
+        BTreeSets::set(Bosons2::pathToDataStore(), uuid1, uuid2, uuid2)
+    end
+
+    # Bosons2::link(object1, object2)
+    def self.link(object1, object2)
+        # Since links are directed, we need to issue both directed
+        Bosons2::setDirectedLink(object1["uuid"], object2["uuid"])
+        Bosons2::setDirectedLink(object2["uuid"], object1["uuid"])
+    end
+
+    # Bosons2::linked?(object1, object2)
     def self.linked?(object1, object2)
-        Bosons::links()
-            .select{|link|
-                b1 = (link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"])
-                b2 = (link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"])
-                b1 or b2
-            }
-            .first
+        # We only need to check one direction, since we always set and unset both
+        BTreeSets::values(Bosons2::pathToDataStore(), object1["uuid"]).include?(object2["uuid"])
     end
 
-    # Bosons::linkToString(link)
-    def self.linkToString(link)
-        "[link] #{link["uuid1"]} <-> #{link["uuid2"]}"
+    # Bosons2::getLinkedObjects(object)
+    def self.getLinkedObjects(object)
+        BTreeSets::values(Bosons2::pathToDataStore(), object["uuid"])
+            .map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) }
+            .compact
     end
 
-    # Bosons::getLinkedObjectUseTheForce(focus)
-    def self.getLinkedObjectUseTheForce(focus)
-        # Use the Force
-        obj1s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-                    .select{|link| link["uuid1"] == focus["uuid"] }
-                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid2"]) }
-                    .compact
-        obj2s = NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-                    .select{|link| link["uuid2"] == focus["uuid"] }
-                    .map{|link| NyxDataCarriers::getObjectOrNull(link["uuid1"]) }
-                    .compact
-        objects = obj1s + obj2s
-        objects
-    end
-
-    # Bosons::recacheLinkedObjectsFromTheForce(focus)
-    def self.recacheLinkedObjectsFromTheForce(focus)
-        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-bosons-0DBD30F5-887D-4258-8E4F-6343B9214206"
-        cacheKey = "df982ac4-544f-4df8-b7e8-f48bbde09ed8:#{focus["uuid"]}"
-        objects = Bosons::getLinkedObjectUseTheForce(focus)
-        objectsuuids = objects.map{|object| object["uuid"] }
-        KeyValueStore::set(derivationFolderpath, cacheKey, JSON.generate(objectsuuids))
-    end
-
-    # Bosons::getLinkedObjects(focus)
-    def self.getLinkedObjects(focus)
-        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-bosons-0DBD30F5-887D-4258-8E4F-6343B9214206"
-        cacheKey = "df982ac4-544f-4df8-b7e8-f48bbde09ed8:#{focus["uuid"]}"
-
-        # Querying the cache
-        objectsuuids = KeyValueStore::getOrNull(derivationFolderpath, cacheKey)
-        if objectsuuids then
-            objectsuuids = JSON.parse(objectsuuids)
-            return objectsuuids.map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) }.compact
-        end
-
-        objects = Bosons::getLinkedObjectUseTheForce(focus)
-
-        # Setting the cache
-        Bosons::recacheLinkedObjectsFromTheForce(focus)
-
-        objects
-    end
-
-    # Bosons::getLinkedObjectsOfGivenNyxType(focus, nyxType)
+    # Bosons2::getLinkedObjectsOfGivenNyxType(focus, nyxType)
     def self.getLinkedObjectsOfGivenNyxType(focus, nyxType)
-        Bosons::getLinkedObjects(focus)
+        Bosons2::getLinkedObjects(focus)
             .select{|object| object["nyxType"] == nyxType }
     end
 
-    # Bosons::links()
-    def self.links()
-        NyxIO::objects("boson-b38137c1-fd43-4035-9f2c-af0fddb18c80")
-            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+    # Bosons2::unsetDirectedLink(uuid1, uuid2)
+    def self.unsetDirectedLink(uuid1, uuid2)
+        BTreeSets::destroy(Bosons2::pathToDataStore(), uuid1, uuid2)
     end
 
-    # Bosons::unlink(object1, object2)
+    # Bosons2::unlink(object1, object2)
     def self.unlink(object1, object2)
-        trace = [object1["uuid"], object2["uuid"]].sort.join(":")
-        Bosons::links()
-            .select{|link| 
-                xtrace = [link["uuid1"], link["uuid2"]].sort.join(":")
-                xtrace == trace
-            }
-            .each{|link|
-                NyxIO::destroy(link["uuid"])
-            }
-        Bosons::recacheLinkedObjectsFromTheForce(object1)
-        Bosons::recacheLinkedObjectsFromTheForce(object2)
+        Bosons2::unsetDirectedLink(object1["uuid"], object2["uuid"])
+        Bosons2::unsetDirectedLink(object2["uuid"], object1["uuid"])
     end
+
 end

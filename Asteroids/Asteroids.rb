@@ -249,7 +249,7 @@ class Asteroids
 
     # Asteroids::getAsteroidsByQuarkUUIDUseDerivation(quarkuuid)
     def self.getAsteroidsByQuarkUUIDUseDerivation(quarkuuid)
-        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
+        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-DataBank/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
         BTreeSets::values(derivationFolderpath, quarkuuid) # a set for each quarkuuid
             .map{|asteroiduuid| Asteroids::getAsteroidByUUIDOrNull(asteroiduuid) }
             .compact
@@ -261,7 +261,7 @@ class Asteroids
 
     # Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid)
     def self.getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid)
-        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Repository/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
+        derivationFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-DataBank/cache/derivation-quarkuuid-asteroiduuids-dcf7d0c5-b3cd-4e03-ba4f-bc598fdf1d73"
         BTreeSets::set(derivationFolderpath, asteroid["quarkuuid"], asteroid["uuid"], asteroid["uuid"])
     end
 

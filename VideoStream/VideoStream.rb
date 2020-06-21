@@ -82,20 +82,20 @@ class VideoStream
         objects = []
 
         VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
-        .first(3)
-        .map
-        .with_index{|filepath, indx|
-            uuid = VideoStream::filepathToVideoUUID(filepath)
-            objects << {
-                "uuid"        => uuid,
-                "application" => "VideoStream",
-                "body"        => "[VideoStream] #{File.basename(filepath)}",
-                "metric"      => VideoStream::metric(indx),
-                "execute"     => lambda { VideoStream::execute(filepath) },
-                "x-video-stream" => true,
-                "x-filepath"  => filepath
+            .first(3)
+            .map
+            .with_index{|filepath, indx|
+                uuid = VideoStream::filepathToVideoUUID(filepath)
+                objects << {
+                    "uuid"        => uuid,
+                    "application" => "VideoStream",
+                    "body"        => "[VideoStream] #{File.basename(filepath)}",
+                    "metric"      => VideoStream::metric(indx),
+                    "execute"     => lambda { VideoStream::execute(filepath) },
+                    "x-video-stream" => true,
+                    "x-filepath"  => filepath
+                }
             }
-        }
 
         objects
     end

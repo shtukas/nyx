@@ -64,7 +64,7 @@ class Cliques
 
     # Cliques::getCliqueBosonLinkedObjects(clique)
     def self.getCliqueBosonLinkedObjects(clique)
-        Bosons::getLinkedObjects(clique)
+        Bosons2::getLinkedObjects(clique)
     end
 
     # Cliques::selectCliqueFromExistingCliquesOrNull()
@@ -133,7 +133,7 @@ class Cliques
                 lambda{
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    link = Bosons::issueLink(clique, quark)
+                    link = Bosons2::link(clique, quark)
                     puts JSON.pretty_generate(link)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
                 }]
@@ -155,12 +155,12 @@ class Cliques
                     puts "Linking quarks to cliques"
                     nextcliques.each{|nextclique|
                         selectedQuarks.each{|quark| 
-                            Bosons::issueLink(nextclique, quark)
+                            Bosons2::link(nextclique, quark)
                         }
                     }
                     puts "Unlinking quarks from (this)"
                     selectedQuarks.each{|quark| 
-                        Bosons::unlink(clique, quark)
+                        Bosons2::unlink(clique, quark)
                     }
                 }
             ]
@@ -202,7 +202,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
+        times = [ clique["creationUnixtime"] ] + Bosons2::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
         times.max
     end
 
@@ -241,9 +241,9 @@ class Cliques
     # Cliques::mergeCliques(clique1, clique2)
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
-        Bosons::getLinkedObjects(clique2)
+        Bosons2::getLinkedObjects(clique2)
             .each{|object|
-                Bosons::issueLink(clique1, object)
+                Bosons2::link(clique1, object)
             }
         NyxIO::destroy(clique2["uuid"])
     end

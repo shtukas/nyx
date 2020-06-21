@@ -297,20 +297,20 @@ class Quarks
 
     # Quarks::quarkHasConnections(quark)
     def self.quarkHasConnections(quark)
-        return true if Bosons::getLinkedObjects(quark).size > 0
+        return true if Bosons2::getLinkedObjects(quark).size > 0
         return true if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
         false
     end
 
     # Quarks::getQuarkTags(quark)
     def self.getQuarkTags(quark)
-        Bosons::getLinkedObjects(quark)
+        Bosons2::getLinkedObjects(quark)
             .select{|object| object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" }
     end
 
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
-        Bosons::getLinkedObjects(quark)
+        Bosons2::getLinkedObjects(quark)
             .select{|object| object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" }
     end
 
@@ -439,7 +439,7 @@ class Quarks
                 lambda {
                     payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
                     tag = Tags::issueTag(payload)
-                    Bosons::issueLink(quark, tag)
+                    Bosons2::link(quark, tag)
                 }
             ]
 
@@ -448,7 +448,7 @@ class Quarks
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
-                    Bosons::issueLink(quark, clique)
+                    Bosons2::link(quark, clique)
                 }
             ]
 
@@ -457,7 +457,7 @@ class Quarks
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
-                    Bosons::unlink(quark, clique)
+                    Bosons2::unlink(quark, clique)
                 }
             ]
 
@@ -568,7 +568,7 @@ class Quarks
             tagPayload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit) : ")
             break if tagPayload.size == 0
             tag = Tags::issueTag(tagPayload)
-            Bosons::issueLink(quark, tag)
+            Bosons2::link(quark, tag)
         }
     end
 
@@ -576,7 +576,7 @@ class Quarks
     def self.attachQuarkToZeroOrMoreCliquesInteractively(quark)
         Cliques::selectZeroOrMoreCliquesExistingOrCreated()
             .each{|clique|
-                Bosons::issueLink(quark, clique)
+                Bosons2::link(quark, clique)
             }
     end
 
