@@ -91,11 +91,31 @@ class VideoStream
                 "application" => "VideoStream",
                 "body"        => "[VideoStream] #{File.basename(filepath)}",
                 "metric"      => VideoStream::metric(indx),
-                "execute"     => lambda { VideoStream::execute(filepath) }
+                "execute"     => lambda { VideoStream::execute(filepath) },
+                "x-video-stream" => true,
+                "x-filepath"  => filepath
             }
         }
 
         objects
+    end
+
+    # VideoStream::play(filepath)
+    def self.play(filepath)
+        startTime = Time.new.to_f
+        puts filepath
+        if filepath.include?("'") then
+            filepath2 = filepath.gsub("'", ',')
+            FileUtils.mv(filepath, filepath2)
+            filepath = filepath2
+        end
+        system("open '#{filepath}'")
+        if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
+            FileUtils.rm(filepath)
+            sleep 1
+        end
+        watchTime = Time.new.to_f - startTime
+        Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", watchTime)
     end
 
     # VideoStream::execute(filepath)
@@ -103,20 +123,7 @@ class VideoStream
         options = ["play", "completed"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "play" then
-            startTime = Time.new.to_f
-            puts filepath
-            if filepath.include?("'") then
-                filepath2 = filepath.gsub("'", ',')
-                FileUtils.mv(filepath, filepath2)
-                filepath = filepath2
-            end
-            system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
-                FileUtils.rm(filepath)
-                sleep 1
-            end
-            watchTime = Time.new.to_f - startTime
-            Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", watchTime)
+            VideoStream::play(filepath)
         end
         if option == "completed" then
             exit if filepath.nil?
