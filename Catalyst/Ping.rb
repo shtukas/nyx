@@ -8,6 +8,11 @@
     Ping::totalToday(uuid)
 =end
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 =begin
     BTreeSets::values(repositorylocation or nil, uuid: String): Array[Value]
@@ -23,12 +28,12 @@ class Ping
     # Ping::put(uuid, weight: Float)
     def self.put(uuid, weight)
         packet = {
-            "uuid" => uuid,
+            "uuid" => SecureRandom.hex,
             "weight" => weight,
             "unixtime" => Time.new.to_f,
             "date" => Time.new.to_s[0, 10],
         }
-        BTreeSets::set(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{uuid}", uuid, packet)
+        BTreeSets::set(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{uuid}", packet["uuid"], packet)
     end
 
     # Ping::totalToday(uuid)

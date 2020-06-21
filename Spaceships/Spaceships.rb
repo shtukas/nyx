@@ -233,6 +233,9 @@ class Spaceships
         loop {
             system("clear")
             puts Spaceships::spaceshipToString(spaceship).green
+            puts "Bank      : #{Bank::value(spaceship["uuid"]).to_f/3600} hours"
+            puts "Ping Day  : #{Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600} hours"
+            puts "Ping Week : #{Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/3600} hours"
             options = [
                 "open",
                 "start",
@@ -240,6 +243,7 @@ class Spaceships
                 "recargo",
                 "reengine",
                 "show json",
+                "add time",
                 "destroy",
             ]
 
@@ -271,6 +275,10 @@ class Spaceships
                 puts JSON.pretty_generate(spaceship)
                 LucilleCore::pressEnterToContinue()
             end
+            if option == "add time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                Spaceships::addTimeToSpaceship(spaceship, timeInHours*3600)
+            end
             if option == "quark (dive)" then
                 quarkuuid = spaceship["cargo"]["quarkuuid"]
                 quark = Quarks::getOrNull(quarkuuid)
@@ -295,37 +303,33 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        genericFormula = lambda {|spaceship, baseMetric, analysisTimespan, targetWorkInSeconds|
-            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - (baseMetric-0.2)*(1-Ping::scheduler(uuid, analysisTimespan, targetWorkInSeconds))
+        genericFormula = lambda {|spaceship, baseMetric, dailyExpectationInSeconds|
+            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - (baseMetric-0.2)*(1-Ping::scheduler(uuid, 86400, dailyExpectationInSeconds))
             # Small shift for ordering
             # bigger temporary shift to avoid staying on top
         }
 
         if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            return genericFormula.call(spaceship, 0.74, 86400, 3*3600)
-        end
-
-        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return genericFormula.call(spaceship, 0.60, 86400, 3600)
+            return genericFormula.call(spaceship, 0.74, 6*3600)
         end
 
         if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            baseMetric = engine["baseMetric"] ? engine["baseMetric"] : 0.74
-            return genericFormula.call(spaceship, baseMetric, 86400, 3*3600)
-        end
- 
-        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
-            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            return genericFormula.call(spaceship, 0.65, 86400, 3600)
+            return genericFormula.call(spaceship, engine["baseMetric"] ? engine["baseMetric"] : 0.74, 6*3600)
         end
 
+        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
+            return genericFormula.call(spaceship, 0.65, 3600)
+        end
+
+        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
+            return genericFormula.call(spaceship, 0.60, 3600)
+        end
+ 
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            if Ping::totalOverTimespan(uuid, 86400*7) >= engine["timeCommitmentInHours"]*86400 then
-                return genericFormula.call(spaceship, 0.30, 86400, 3600)
-            else
-                return genericFormula.call(spaceship, 0.70, 86400, 3600)
-            end
+            ratioDoneOverPastWeek = Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/engine["timeCommitmentInHours"]*86400
+            return genericFormula.call(spaceship, 0.70 - ratioDoneOverPastWeek*0.50, (engine["timeCommitmentInHours"]*3600).to_f/7)
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -507,16 +511,22 @@ class Spaceships
         Runner::start(spaceship["uuid"])
     end
 
+    # Spaceships::addTimeToSpaceship(spaceship, timespanInSeconds)
+    def self.addTimeToSpaceship(spaceship, timespanInSeconds)
+        puts "[spaceship] Putting #{timespanInSeconds.round(2)} secs into Bank (#{spaceship["uuid"]})"
+        Bank::put(spaceship["uuid"], timespanInSeconds)
+        puts "[spaceship] Putting #{timespanInSeconds.round(2)} secs into Ping (#{spaceship["uuid"]})"
+        Ping::put(spaceship["uuid"], timespanInSeconds)
+    end
+
     # Spaceships::spaceshipStopSequence(spaceship)
     def self.spaceshipStopSequence(spaceship)
         return if !Spaceships::isRunning?(spaceship)
         timespan = Runner::stop(spaceship["uuid"])
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        puts "[spaceship] Putting #{timespan.round(2)} secs into Bank (#{spaceship["uuid"]})"
-        Bank::put(spaceship["uuid"], timespan)
-        puts "[spaceship] Putting #{timespan.round(2)} secs into Ping (#{spaceship["uuid"]})"
-        Ping::put(spaceship["uuid"], timespan)
+
+        Spaceships::addTimeToSpaceship(spaceship, timespan)
 
         engine = spaceship["engine"]
 
@@ -546,6 +556,7 @@ class Spaceships
 
     # Spaceships::spaceshipDestroySequence(spaceship)
     def self.spaceshipDestroySequence(spaceship)
+        Spaceships::spaceshipStopSequence(spaceship)
         if spaceship["cargo"]["type"] == "quark" then
             quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
             if !quark.nil? then
