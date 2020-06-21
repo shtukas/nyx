@@ -300,8 +300,21 @@ class Asteroids
             "isRunning"        => isRunning,
             "isRunningForLong" => isRunningForLong,
             "execute"          => lambda{ Asteroids::asteroidDive(item) },
-            "x-asteroid"      => item
+            "x-asteroid"       => item
         }
+    end
+
+    # Asteroids::getBaseMetric()
+    def self.getBaseMetric()
+        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
+        basemetric = 
+            if pastDayAsteroidTimeInHours < 2 then
+                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after two hours
+            else
+                asteroidOvertimeInMultipleOf20Mins = (pastDayAsteroidTimeInHours-2)*3
+                0.2 + 0.36*Math.exp(-asteroidOvertimeInMultipleOf20Mins) # 0.56 -> 0.20 landing
+            end
+        basemetric
     end
 
     # Asteroids::catalystObjects()
@@ -352,14 +365,7 @@ class Asteroids
                     .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
                     .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
 
-        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
-        basemetric = 
-            if pastDayAsteroidTimeInHours < 2 then
-                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after two hours
-            else
-                asteroidOvertimeInMultipleOf20Mins = (pastDayAsteroidTimeInHours-2)*3
-                0.2 + 0.36*Math.exp(-asteroidOvertimeInMultipleOf20Mins) # 0.56 -> 0.20 landing
-            end
+        basemetric = Asteroids::getBaseMetric()
 
         (items1+items2)
             .each_with_index {|item, indx|
@@ -384,14 +390,7 @@ class Asteroids
 
         uuids = JSON.parse(uuids)
 
-        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
-        basemetric = 
-            if pastDayAsteroidTimeInHours < 1 then
-                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after one hour
-            else
-                pastDayAsteroidTimeInHours = pastDayAsteroidTimeInHours - 1
-                0.2 + 0.36*Math.exp(-pastDayAsteroidTimeInHours) # 0.56 -> 0.20 landing
-            end
+        basemetric = Asteroids::getBaseMetric()
 
         objects = []
 
