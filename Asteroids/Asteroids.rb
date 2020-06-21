@@ -293,6 +293,7 @@ class Asteroids
         isRunning = Runner::isRunning?(uuid)
         isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
         metric = basemetric - 0.1*Ping::timeRatioOverPeriod7Samples(uuid, 20*86400)
+        metric = isRunning ? 1 : metric
         {
             "uuid"             => uuid,
             "body"             => Asteroids::asteroidToString(item),
@@ -630,7 +631,7 @@ class Asteroids
                 items
                     .sort{|i1, i2| i1["timeRatio"] <=> i2["timeRatio"] }
                     .each{|item|
-                        puts "#{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["timeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
+                        puts "    - #{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["timeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
                     }
                 LucilleCore::pressEnterToContinue()
             end
