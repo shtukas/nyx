@@ -448,6 +448,7 @@ class Asteroids
 
             puts "-> destroying asteroid"
             NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+            return
         end
         if LucilleCore::askQuestionAnswerAsBoolean("-> update orbital ? ", false) then
             Asteroids::stop(asteroid["uuid"])
