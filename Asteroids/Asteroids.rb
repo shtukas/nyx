@@ -129,8 +129,9 @@ class Asteroids
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
         quarkType = quark ? quark["type"] : "null"
         isRunning = Runner::isRunning?(asteroiduuid)
+        timeInBankLive = Bank::value(asteroid["uuid"]) + (Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(asteroiduuid).to_f/3600).round(2)} hour)" : ""
-        "[asteroid] #{(100*Bank::value(asteroid["uuid"]).to_f/3600).to_i.to_s.rjust(2)}% [#{asteroid["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(asteroid["quarkuuid"])}#{runningSuffix}"
+        "[asteroid] #{(100*timeInBankLive.to_f/3600).to_i.to_s.rjust(2)}% [#{asteroid["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(asteroid["quarkuuid"])}#{runningSuffix}"
     end
 
     # Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
@@ -308,7 +309,7 @@ class Asteroids
     # Asteroids::getBaseMetric()
     def self.getBaseMetric()
         pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
-        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.66, pastDayAsteroidTimeInHours, 2)
+        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.55, pastDayAsteroidTimeInHours, 2)
     end
 
     # Asteroids::catalystObjects()
