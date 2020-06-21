@@ -196,9 +196,10 @@ class QuarksIssuers
         end
     end
 
-    # QuarksIssuers::issueQuarkUniqueNameInteractively()
-    def self.issueQuarkUniqueNameInteractively()
+    # QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
+    def self.issueQuarkUniqueNameInteractivelyOrNull()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
+        return nil if uniquename.size == 0
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         quark = {
             "uuid"             => SecureRandom.uuid,
@@ -264,7 +265,7 @@ class Quarks
             return QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return QuarksIssuers::issueQuarkUniqueNameInteractively()
+            return QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
         end
         if type == "datapod" then
             return QuarksIssuers::issueQuarkDataPodInteractively()
