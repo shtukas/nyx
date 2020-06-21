@@ -484,6 +484,15 @@ class Asteroids
     # Asteroids::asteroidDive(asteroid)
     def self.asteroidDive(asteroid)
         loop {
+
+            quark = NyxIO::getOrNull(asteroid["quarkuuid"])
+            if quark.nil? then
+                puts "Can't find the quark. Going to destroy the asteroid"
+                LucilleCore::pressEnterToContinue()
+                NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+                return
+            end
+
             puts "uuid: #{asteroid["uuid"]}"
             puts Asteroids::asteroidToString(asteroid).green
             puts "project time: #{Bank::value(asteroid["orbitaluuid"].to_f/3600)} hours".green
