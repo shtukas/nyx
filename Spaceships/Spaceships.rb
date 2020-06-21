@@ -103,11 +103,11 @@ class Spaceships
             ""
         }
         typeAsUserFriendly = lambda {|type|
-            return " -> [] ‼️  " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return " -> [] ⛵ " if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
-            return " ⏱️  ‼️  " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return " ⏱️ ⛵ " if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
-            return " 💫 " if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return " ‼️ " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            return "⛵" if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
+            return "⏱️  ‼️ " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "⏱️" if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+            return "💫" if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -117,7 +117,7 @@ class Spaceships
             else
                 ""
             end
-        "[spaceship] [#{typeAsUserFriendly.call(spaceship["engine"]["type"])}]#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
+        "[spaceship] #{typeAsUserFriendly.call(spaceship["engine"]["type"])}#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
     end
 
     # Spaceships::makeCargoInteractivelyOrNull()
