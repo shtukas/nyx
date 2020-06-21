@@ -222,19 +222,6 @@ class Asteroids
         NyxIO::commitToDisk(item)
     end
 
-    # Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(item) # Boolean # Indicates whether a promotion was acheived
-    def self.recastAsteroidUnderlyingQuarkOnTheDataNetwork(item) # Boolean # Indicates whether a promotion was acheived
-        quark = NyxIO::getOrNull(item["quarkuuid"])
-        return false if quark.nil?
-        if quark["description"].nil? then
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            NyxIO::commitToDisk(quark)
-        end
-        Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
-        Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
-        return true
-    end
-
     # Asteroids::recastAsOpenCycle(asteroid)
     def self.recastAsOpenCycle(asteroid)
         quark = NyxIO::getOrNull(item["quarkuuid"])
@@ -365,13 +352,13 @@ class Asteroids
                     .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
                     .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
 
-        timeInPingInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
+        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
         basemetric = 
-            if timeInPingInHours < 1 then
-                0.66 - 0.10*timeInPingInHours # 0.66 -> 0.56 after one hour
+            if pastDayAsteroidTimeInHours < 2 then
+                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after two hours
             else
-                timeInPingInHours = timeInPingInHours - 1
-                0.2 + 0.36*Math.exp(-timeInPingInHours) # 0.56 -> 0.20 landing
+                asteroidOvertimeInMultipleOf20Mins = (pastDayAsteroidTimeInHours-2)*3
+                0.2 + 0.36*Math.exp(-asteroidOvertimeInMultipleOf20Mins) # 0.56 -> 0.20 landing
             end
 
         (items1+items2)
@@ -397,13 +384,13 @@ class Asteroids
 
         uuids = JSON.parse(uuids)
 
-        timeInPingInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
+        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
         basemetric = 
-            if timeInPingInHours < 1 then
-                0.66 - 0.10*timeInPingInHours # 0.66 -> 0.56 after one hour
+            if pastDayAsteroidTimeInHours < 1 then
+                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after one hour
             else
-                timeInPingInHours = timeInPingInHours - 1
-                0.2 + 0.36*Math.exp(-timeInPingInHours) # 0.56 -> 0.20 landing
+                pastDayAsteroidTimeInHours = pastDayAsteroidTimeInHours - 1
+                0.2 + 0.36*Math.exp(-pastDayAsteroidTimeInHours) # 0.56 -> 0.20 landing
             end
 
         objects = []
@@ -430,9 +417,15 @@ class Asteroids
         Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, true)
     end
 
-    # Asteroids::destroyAsteroid(asteroiduuid)
-    def self.destroyAsteroid(asteroiduuid)
-        NyxIO::destroyAtType(asteroiduuid, "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+    # Asteroids::asteroidDestructionQuarkHandling(quark)
+    def self.asteroidDestructionQuarkHandling(quark)
+        if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
+            quark = Quarks::ensureQuarkDescription(quark)
+            Quarks::ensureQuarkTags(quark)
+            Quarks::ensureQuarkCliques(quark)
+        else
+            Quarks::destroyQuarkByUUID(quark["uuid"])
+        end
     end
 
     # Asteroids::startProcedure(asteroid)
@@ -440,20 +433,22 @@ class Asteroids
         uuid = asteroid["uuid"]
         Runner::start(uuid)
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
-        return if quark.nil?
-        Quarks::openQuark(quark)
-
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? (#{"if yes will ask to recast the underlying Quark on Nyx Data Network and remove the Asteroid role".green}) ", false) then
-            Asteroids::stop(uuid)
-            if LucilleCore::askQuestionAnswerAsBoolean("Recast underlying Quark on the Nyx Data Network ? ") then
-                status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
-                if !status then
-                    puts "You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
-                    return
-                end
-            end
-            NyxIO::destroy(asteroid["uuid"])
+        if quark.nil? then
+            puts "Can't find the quark. Going to destroy the asteroid"
+            LucilleCore::pressEnterToContinue()
+            NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             return
+        end
+        Quarks::openQuark(quark)
+        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
+            puts "-> stopping asteroid"
+            Asteroids::stop(uuid)
+
+            puts "-> extracting quark"
+            Asteroids::asteroidDestructionQuarkHandling(quark)
+
+            puts "-> destroying asteroid"
+            NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
         end
     end
 
@@ -475,21 +470,15 @@ class Asteroids
     def self.destroyProcedure(asteroid)
         puts "-> stopping asteroid"
         Asteroids::stop(asteroid["uuid"])
-        puts "-> destroying asteroid"
-        Asteroids::destroyAsteroid(asteroid["uuid"])
+
         puts "-> extracting quark"
         quark = NyxIO::getOrNull(asteroid["quarkuuid"])
-        return if quark.nil?
-        puts "-> testing quark connections"
-        if !Quarks::quarkHasConnections(quark) and LucilleCore::askQuestionAnswerAsBoolean("-> Recast underlying Quark on the Nyx Data Network ? ") then
-            status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
-            if !status then
-                NyxIO::commitToDisk(asteroid) # putting it back as it was removed to properly test quarkHasConnections
-                puts "-> You choose to put the Quark on the Nyx Data Network, but the operation didn't finish. Aborting done operation"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
+        if !quark.nil? then
+            Asteroids::asteroidDestructionQuarkHandling(quark)
         end
+
+        puts "-> destroying asteroid"
+        NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     end
 
     # Asteroids::asteroidDive(asteroid)
@@ -505,7 +494,6 @@ class Asteroids
                 "destroy",
                 "update orbital",
                 "push",
-                "relocate target Quark to Cube content",
                 "register as opencycle",
                 "reset-reference-time"
             ]
@@ -538,12 +526,6 @@ class Asteroids
             if option == "push" then
                 asteroid["creationUnixtime"] = Time.new.to_f
                 NyxIO::commitToDisk(asteroid)
-            end
-            if option == "relocate target Quark to Cube content" then
-                status = Asteroids::recastAsteroidUnderlyingQuarkOnTheDataNetwork(asteroid)
-                next if !status
-                NyxIO::destroy(asteroid["uuid"])
-                return
             end
             if option == "register as opencycle" then
                 Asteroids::recastAsOpenCycle(asteroid)

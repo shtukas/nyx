@@ -295,35 +295,36 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        genericFormula = lambda {|spaceship, baseMetric|
-            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - 0.1*Ping::totalWithTimeExponentialDecay(uuid, 3600).to_f/3600
-                         # Small shift for ordering                    # bigger temporary shift to avoid staying on top
+        genericFormula = lambda {|spaceship, baseMetric, analysisTimespan, targetWorkInSeconds|
+            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - (baseMetric-0.2)*(1-Ping::scheduler(uuid, analysisTimespan, targetWorkInSeconds))
+            # Small shift for ordering
+            # bigger temporary shift to avoid staying on top
         }
 
         if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            return genericFormula.call(spaceship, 0.74)
+            return genericFormula.call(spaceship, 0.74, 86400, 3*3600)
         end
 
         if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return genericFormula.call(spaceship, 0.60)
+            return genericFormula.call(spaceship, 0.60, 86400, 3600)
         end
 
         if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
             baseMetric = engine["baseMetric"] ? engine["baseMetric"] : 0.74
-            return genericFormula.call(spaceship, baseMetric)
+            return genericFormula.call(spaceship, baseMetric, 86400, 3*3600)
         end
  
         if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            return genericFormula.call(spaceship, 0.65)
+            return genericFormula.call(spaceship, 0.65, 86400, 3600)
         end
 
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             if Ping::totalOverTimespan(uuid, 86400*7) >= engine["timeCommitmentInHours"]*86400 then
-                return genericFormula.call(spaceship, 0.30)
+                return genericFormula.call(spaceship, 0.30, 86400, 3600)
             else
-                return genericFormula.call(spaceship, 0.70)
+                return genericFormula.call(spaceship, 0.70, 86400, 3600)
             end
         end
 
@@ -532,8 +533,25 @@ class Spaceships
         end
     end
 
+    # Spaceships::spaceshipDestructionQuarkHandling(quark)
+    def self.spaceshipDestructionQuarkHandling(quark)
+        if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
+            quark = Quarks::ensureQuarkDescription(quark)
+            Quarks::ensureQuarkTags(quark)
+            Quarks::ensureQuarkCliques(quark)
+        else
+            Quarks::destroyQuarkByUUID(quark["uuid"])
+        end
+    end
+
     # Spaceships::spaceshipDestroySequence(spaceship)
     def self.spaceshipDestroySequence(spaceship)
+        if spaceship["cargo"]["type"] == "quark" then
+            quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
+            if !quark.nil? then
+                Spaceships::spaceshipDestructionQuarkHandling(quark)
+            end
+        end
         NyxIO::destroy(spaceship["uuid"])
     end
 

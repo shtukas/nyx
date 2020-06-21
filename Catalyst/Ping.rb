@@ -44,17 +44,22 @@ class Ping
     def self.totalOverTimespan(uuid, timespanInSeconds)
         unixtime = Time.new.to_f
         BTreeSets::values(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{uuid}")
-            .select{|packet| (unixtime- packet["unixtime"]) <= timespanInSeconds }
+            .select{|packet| (unixtime - packet["unixtime"]) <= timespanInSeconds }
             .map{|packet| packet["weight"] }
             .inject(0, :+)
     end
 
-    # Ping::totalWithTimeExponentialDecay(uuid, timeToMinusOneInSeconds)
-    def self.totalWithTimeExponentialDecay(uuid, timeToMinusOneInSeconds)
+    # Ping::scheduler(uuid, analysisTimespanInSecond, targetWorkTimespanInSeconds)
+    def self.scheduler(uuid, analysisTimespanInSecond, targetWorkTimespanInSeconds) # returns [1, 0.8] if undertarget, decays to zero at overwtime
         unixtime = Time.new.to_f
-        BTreeSets::values(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{uuid}")
-            .map{|packet| packet["weight"]*Math.exp(-(unixtime - packet["unixtime"]).to_f/timeToMinusOneInSeconds)}
-            .inject(0, :+)
+        timedone = Ping::totalOverTimespan(uuid, analysisTimespanInSecond)
+        if timedone < targetWorkTimespanInSeconds then
+            ratiodone = timedone.to_f/targetWorkTimespanInSeconds
+            1 - 0.2*ratiodone
+        else
+            overtimeInMultipleOf20Mins = (timedone-targetWorkTimespanInSeconds).to_f/1200
+            Math.exp(-overtimeInMultipleOf20Mins)
+        end
     end
 
     # Ping::rollingTimeRatioOverPeriodInSeconds7Samples(uuid, timespan)

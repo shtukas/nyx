@@ -301,6 +301,18 @@ class Quarks
         false
     end
 
+    # Quarks::getQuarkTags(quark)
+    def self.getQuarkTags(quark)
+        Bosons::getLinkedObjects(quark)
+            .select{|object| object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" }
+    end
+
+    # Quarks::getQuarkCliques(quark)
+    def self.getQuarkCliques(quark)
+        Bosons::getLinkedObjects(quark)
+            .select{|object| object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" }
+    end
+
     # Quarks::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxIO::getOrNull(uuid)
@@ -556,5 +568,28 @@ class Quarks
             .each{|clique|
                 Bosons::issueLink(quark, clique)
             }
+    end
+
+    # Quarks::ensureQuarkDescription(quark)
+    def self.ensureQuarkDescription(quark)
+        if quark["description"].nil? then
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
+            NyxIO::commitToDisk(quark)
+        end
+        quark
+    end
+
+    # Quarks::ensureQuarkTags(quark)
+    def self.ensureQuarkTags(quark)
+        if Quarks::getQuarkTags(quark).empty? then
+            Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+        end
+    end
+
+    # Quarks::ensureQuarkCliques(quark)
+    def self.ensureQuarkCliques(quark)
+        if Quarks::getQuarkCliques(quark).empty? then
+            Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
+        end
     end
 end
