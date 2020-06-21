@@ -302,33 +302,34 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        genericFormula = lambda {|spaceship, baseMetric, dailyExpectationInSeconds|
-            baseMetric - 0.1*Ping::rollingTimeRatioOverPeriodInSeconds7Samples(spaceship["uuid"], 7*86400) - (baseMetric-0.2)*(1-Ping::scheduler(uuid, 86400, dailyExpectationInSeconds))
-            # Small shift for ordering
-            # bigger temporary shift to avoid staying on top
-        }
-
         if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            return genericFormula.call(spaceship, 0.74, 6*3600)
+            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
+            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.74, timeInHours, 3)
         end
 
         if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            return genericFormula.call(spaceship, engine["baseMetric"] ? engine["baseMetric"] : 0.74, 6*3600)
+            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
+            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.74, timeInHours, 3)
         end
 
         if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            return genericFormula.call(spaceship, 0.65, 3600)
+            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
+            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.65, timeInHours, 1)
         end
 
         if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return genericFormula.call(spaceship, 0.60, 3600)
+            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
+            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.60, timeInHours, 1)
         end
  
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            ratioDoneOverPastWeek = Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/engine["timeCommitmentInHours"]*86400
-            return genericFormula.call(spaceship, 0.70 - ratioDoneOverPastWeek*0.50, (engine["timeCommitmentInHours"]*3600).to_f/7)
+            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/3600
+            metric = CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.65, timeInHours, engine["timeCommitmentInHours"])
+            lastDayTimeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
+            metric = CatalystCommon::metricSlide(metric, lastDayTimeInHours, 2*engine["timeCommitmentInHours"].to_f/7)
+            return metric
         end
 
         raise "[Spaceships] error: 46b84bdb"

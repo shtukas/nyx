@@ -59,7 +59,8 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        0.60 - indx.to_f/1000 - (0.4/25)*Ping::totalOverTimespan("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 86400) # We go down by 0.4 after 25, we do over 24 hours
+        watchTimeInHours = Ping::totalOverTimespan("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 86400).to_f/3600
+        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.60, watchTimeInHours, 1)
     end
 
     # VideoStream::catalystObjects()
@@ -102,6 +103,7 @@ class VideoStream
         options = ["play", "completed"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "play" then
+            startTime = Time.new.to_f
             puts filepath
             if filepath.include?("'") then
                 filepath2 = filepath.gsub("'", ',')
@@ -113,13 +115,13 @@ class VideoStream
                 FileUtils.rm(filepath)
                 sleep 1
             end
-            Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
+            watchTime = Time.new.to_f - startTime
+            Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", watchTime)
         end
         if option == "completed" then
             exit if filepath.nil?
             puts filepath
             FileUtils.rm(filepath)
-            Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
         end
     end
 

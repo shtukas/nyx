@@ -54,28 +54,14 @@ class Ping
             .inject(0, :+)
     end
 
-    # Ping::scheduler(uuid, analysisTimespanInSecond, targetWorkTimespanInSeconds)
-    def self.scheduler(uuid, analysisTimespanInSecond, targetWorkTimespanInSeconds) # returns [1, 0.8] if undertarget, decays to zero at overwtime
-        unixtime = Time.new.to_f
-        timedone = Ping::totalOverTimespan(uuid, analysisTimespanInSecond)
-        if timedone < targetWorkTimespanInSeconds then
-            ratiodone = timedone.to_f/targetWorkTimespanInSeconds
-            1 - 0.2*ratiodone
-        else
-            overtimeInMultipleOf20Mins = (timedone-targetWorkTimespanInSeconds).to_f/1200
-            Math.exp(-overtimeInMultipleOf20Mins)
-        end
-    end
-
-    # Ping::rollingTimeRatioOverPeriodInSeconds7Samples(uuid, timespan)
-    def self.rollingTimeRatioOverPeriodInSeconds7Samples(uuid, timespan)
+    # Ping::timeRatioOverPeriod7Samples(uuid, timespanInSeconds)
+    def self.timeRatioOverPeriod7Samples(uuid, timespanInSeconds)
         (1..7)
             .map{|i|
-                lookupPeriodInSeconds = timespan*(i.to_f/7)
+                lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
                 timedone = Ping::totalOverTimespan(uuid, lookupPeriodInSeconds)
                 timedone.to_f/lookupPeriodInSeconds
             }
             .max
     end
-
 end

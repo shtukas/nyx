@@ -102,7 +102,7 @@ class CatalystCommon
       (0..n).each {|j| d[0][j] = j}
       (1..n).each do |j|
         (1..m).each do |i|
-          d[i][j] = if s[i-1] == t[j-1]  # adjust index into string
+          d[i][j] = if s[i-1] == t[j-1] # adjust index into string
                       d[i-1][j-1]       # no operation required
                     else
                       [ d[i-1][j]+1,    # deletion
@@ -127,4 +127,25 @@ class CatalystCommon
     def self.getNewValueEveryNSeconds(uuid, n)
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
+
+    # CatalystCommon::metric1SlowDescenteAndCollapseToZero(basemetric, currentValue, targetValue)
+    def self.metric1SlowDescenteAndCollapseToZero(basemetric, currentValue, targetValue)
+        # This metric is very simple.
+        # 1. We move from basemetric to alphaMetric (meaning 20% of the journey from basemetric to 0.2), over 80% of targetValue
+        # 2. We then exponentially collapse to 0.2
+        ratioDone = currentValue.to_f/targetValue
+        alphaDifference = 0.2*(basemetric-0.2)
+        alphaMetric = basemetric - alphaDifference
+        if ratioDone < 0.8 then
+            return basemetric - (ratioDone.to_f/0.8)*alphaDifference
+        else
+            return 0.2 + (alphaMetric-0.2)*Math.exp( -3*(ratioDone-0.8).to_f/0.2 )
+        end
+    end
+
+    # CatalystCommon::metricSlide(metric, value, valueAtExpMinus1)
+    def self.metricSlide(metric, value, valueAtExpMinus1)
+      0.2 + (metric-0.2)*Math.exp( -value.to_f/valueAtExpMinus1)
+    end
+
 end

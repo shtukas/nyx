@@ -199,8 +199,8 @@ class Asteroids
             {
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
-                "BankValueInHours"     => Bank::value(orbitaluuid).to_f/3600,
-                "PingRollingTimeRatio" => Ping::rollingTimeRatioOverPeriodInSeconds7Samples(orbitaluuid, 30*86400)
+                "BankValueInHours" => Bank::value(orbitaluuid).to_f/3600,
+                "timeRatio"        => Ping::timeRatioOverPeriod7Samples(orbitaluuid, 30*86400)
             }
         }
     end
@@ -280,19 +280,19 @@ class Asteroids
         end
         focus = Asteroids::orbitalsTimeDistribution()
                     .sort{|i1, i2|
-                        i1["PingRollingTimeRatio"] <=> i2["PingRollingTimeRatio"]
+                        i1["timeRatio"] <=> i2["timeRatio"]
                     }
                     .first
         KeyValueStore::set(nil, locationKey, JSON.generate(focus))
         focus
     end
 
-    # Asteroids::itemToCatalystObject(item, basemetric, indx)
-    def self.itemToCatalystObject(item, basemetric, indx)
+    # Asteroids::itemToCatalystObject(item, basemetric)
+    def self.itemToCatalystObject(item, basemetric)
         uuid = item["uuid"]
         isRunning = Runner::isRunning?(uuid)
         isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
-        metric = basemetric - indx.to_f/1000
+        metric = basemetric - 0.1*Ping::timeRatioOverPeriod7Samples(uuid, 20*86400)
         {
             "uuid"             => uuid,
             "body"             => Asteroids::asteroidToString(item),
@@ -307,14 +307,7 @@ class Asteroids
     # Asteroids::getBaseMetric()
     def self.getBaseMetric()
         pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
-        basemetric = 
-            if pastDayAsteroidTimeInHours < 2 then
-                0.66 - 0.10*pastDayAsteroidTimeInHours # 0.66 -> 0.56 after two hours
-            else
-                asteroidOvertimeInMultipleOf20Mins = (pastDayAsteroidTimeInHours-2)*3
-                0.2 + 0.36*Math.exp(-asteroidOvertimeInMultipleOf20Mins) # 0.56 -> 0.20 landing
-            end
-        basemetric
+        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.66, pastDayAsteroidTimeInHours, 2)
     end
 
     # Asteroids::catalystObjects()
@@ -333,23 +326,27 @@ class Asteroids
             Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
         end
 
+        # -------------------------------------------------------------------------
+
         objects = []
 
         # -------------------------------------------------------------------------
 
-        # First, we display all the Inbox items in order.
-
         Asteroids::asteroids()
             .select{|item| item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
-            .sort{|i1, i2| 
-                i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, 0.85, indx)
+                objects << Asteroids::itemToCatalystObject(item, 0.85)
             }
 
         # -------------------------------------------------------------------------
 
-        # Now we select a project and work with the first 3 items
+        Asteroids::asteroids().select{|item| Runner::isRunning?(item["uuid"]) }
+            .each_with_index {|item, indx|
+                objects << Asteroids::itemToCatalystObject(item, 1)
+            }
+
+        # -------------------------------------------------------------------------
 
         focus = Asteroids::getFocus()
 
@@ -359,18 +356,19 @@ class Asteroids
         #     "timeInHours" : Float
         # }
 
-        items1 = Asteroids::asteroids().select{|item| Runner::isRunning?(item["uuid"]) }
-        items2 = Asteroids::asteroids()
-                    .select{|item| item["orbitaluuid"] == focus["orbitaluuid"] }
-                    .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
-                    .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
-
         basemetric = Asteroids::getBaseMetric()
 
-        (items1+items2)
+        Asteroids::asteroids()
+            .select{|item| item["orbitaluuid"] == focus["orbitaluuid"] }
+            .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .first(3)
+            .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
             .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
+                objects << Asteroids::itemToCatalystObject(item, basemetric)
             }
+
+        # -------------------------------------------------------------------------
 
         objects = objects.sort{|i1, i2| i1["metric"] <=> i2["metric"] }
 
@@ -379,30 +377,19 @@ class Asteroids
 
     # Asteroids::catalystObjectsFast()
     def self.catalystObjectsFast()
-
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("02b4b32c-58b7-49bc-983c-8117c1c3e326", 1200) then
             uuids = Asteroids::catalystObjects().reverse.first(100).map{|obj| obj["x-asteroid"]["uuid"] }.uniq
             KeyValueStore::set(nil, "b4998815-40af-4c34-b08d-e301cdcc4475", JSON.generate(uuids))
         end
-
         uuids = KeyValueStore::getOrNull(nil, "b4998815-40af-4c34-b08d-e301cdcc4475")
         return [] if uuids.nil?
-
         uuids = JSON.parse(uuids)
-
         basemetric = Asteroids::getBaseMetric()
-
         objects = []
-
         uuids
-            .map{|uuid|
-                Asteroids::getAsteroidByUUIDOrNull(uuid)
-            }
+            .map{|uuid| Asteroids::getAsteroidByUUIDOrNull(uuid) }
             .compact
-            .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
-            }
-
+            .each{|item| objects << Asteroids::itemToCatalystObject(item, basemetric) }
         objects
     end
 
@@ -631,9 +618,9 @@ class Asteroids
                 items = Asteroids::orbitalsTimeDistribution()
                 d = items.map{|item| item["orbitalname"].size }.max
                 items
-                    .sort{|i1, i2| i1["PingRollingTimeRatio"] <=> i2["PingRollingTimeRatio"] }
+                    .sort{|i1, i2| i1["timeRatio"] <=> i2["timeRatio"] }
                     .each{|item|
-                        puts "#{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["PingRollingTimeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
+                        puts "#{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["timeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
                     }
                 LucilleCore::pressEnterToContinue()
             end
