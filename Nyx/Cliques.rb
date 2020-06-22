@@ -258,7 +258,17 @@ class Cliques
         LucilleCore::pressEnterToContinue()
         clique2 = Cliques::selectCliqueFromExistingCliquesOrNull()
 
-        return if clique1["uuid"] == clique2["uuid"]
+        if clique1["uuid"] == clique2["uuid"] then
+            puts "You hace selected the same clique twice. Aborting operation."
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        puts "Merging:"
+        puts "    - #{Cliques::cliqueToString(clique1)}"
+        puts "    - #{Cliques::cliqueToString(clique2)}"
+        LucilleCore::pressEnterToContinue()
+
         Cliques::mergeCliques(clique1, clique2)
     end
 end
