@@ -113,9 +113,22 @@ class QuarksMakers
         }
     end
 
-    # QuarksMakers::makeQuarkFromText(text)
-    def self.makeQuarkFromText(text)
+    # QuarksMakers::makeQuarkFileFromTextInteractively(text)
+    def self.makeQuarkFileFromTextInteractively(text)
         filename = LibrarianFile::textToFilename(text)
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        {
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "creationUnixtime" => Time.new.to_f,
+            "description"      => description,
+            "type"             => "file",
+            "filename"         => filename
+        }
+    end
+
+    # QuarksMakers::makeQuarkFileFromFilenameAndDescription(filename, description)
+    def self.makeQuarkFileFromFilenameAndDescription(filename, description)
         {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -214,68 +227,9 @@ end
 
 class QuarksIssuers
 
-    # QuarksIssuers::issueQuarkLineInteractively()
-    def self.issueQuarkLineInteractively()
-        quark = QuarksMakers::makeQuarkLineInteractively()
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkUrlInteractively()
-    def self.issueQuarkUrlInteractively()
-        quark = QuarksMakers::makeQuarkUrlInteractively()
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkFileInteractivelyOrNull()
-    def self.issueQuarkFileInteractivelyOrNull()
-        quark = QuarksMakers::makeQuarkFileInteractivelyOrNull()
-        return nil if quark.nil?
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkFile(filepath)
-    def self.issueQuarkFile(filepath1)
-        quark = QuarksMakers::makeQuarkFile(filepath)
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkFromText(text)
-    def self.issueQuarkFromText(text)
-        quark = QuarksMakers::makeQuarkFromText(text)
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
-    def self.issueQuarkFolderInteractivelyOrNull()
-        quark = QuarksMakers::makeQuarkFolderInteractivelyOrNull()
-        return nil if quark.nil?
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
     # QuarksIssuers::issueQuarkFileOrFolderFromLocation(location)
     def self.issueQuarkFileOrFolderFromLocation(location)
         quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
-    def self.issueQuarkUniqueNameInteractivelyOrNull()
-        quark = QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
-        return nil if quark.nil?
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-
-    # QuarksIssuers::issueQuarkDataPodInteractively()
-    def self.issueQuarkDataPodInteractively()
-        quark = QuarksMakers::makeQuarkDataPodInteractively()
         NyxIO::commitToDisk(quark)
         quark
     end
@@ -283,44 +237,44 @@ end
 
 class Quarks
 
-    # Quarks::issueNewQuarkInteractivelyOrNull()
-    def self.issueNewQuarkInteractivelyOrNull()
+    # Quarks::makeNewQuarkInteractivelyOrNull()
+    def self.makeNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
         types = ["line", "url", "file", "new text file", "folder", "unique-name", "datapod"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return QuarksIssuers::issueQuarkLineInteractively()
+            return QuarksMakers::makeQuarkLineInteractively()
         end
         if type == "url" then
-            return QuarksIssuers::issueQuarkUrlInteractively()
+            return QuarksMakers::makeQuarkUrlInteractively()
         end
         if type == "file" then
-            return QuarksIssuers::issueQuarkFileInteractivelyOrNull()
+            return QuarksMakers::makeQuarkFileInteractivelyOrNull()
         end
         if type == "new text file" then
             filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            quark = {
-                "uuid"             => SecureRandom.uuid,
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "description"      => description,
-                "type"             => "file",
-                "filename"         => filename
-            }
-            NyxIO::commitToDisk(quark)
-            return quark
+            return QuarksMakers::makeQuarkFileFromFilenameAndDescription(filename, description)
         end
         if type == "folder" then
-            return QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
+            return QuarksMakers::makeQuarkFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
+            return QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
         end
         if type == "datapod" then
-            return QuarksIssuers::issueQuarkDataPodInteractively()
+            return QuarksMakers::makeQuarkDataPodInteractively()
         end
+    end
+
+    # Quarks::issueNewQuarkInteractivelyOrNull()
+    def self.issueNewQuarkInteractivelyOrNull()
+        puts "Issuing a new Quark..."
+        quark = Quarks::makeNewQuarkInteractivelyOrNull()
+        return nil if quark.nil?
+        NyxIO::commitToDisk(quark)
+        quark
     end
 
     # Quarks::quarks()
@@ -538,6 +492,11 @@ class Quarks
             ]
 
             items << [
+                "quark (recast)", 
+                lambda { Quarks::recastQuark(quark) }
+            ]
+
+            items << [
                 "quark (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
@@ -652,5 +611,17 @@ class Quarks
         if Quarks::getQuarkCliques(quark).empty? then
             Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
         end
+    end
+
+    # Quarks::recastQuark(quark)
+    def self.recastQuark(quark)
+        # This function makes a new quark, gives it the uuid of the argument and saves it.
+        # Thereby replacing the argument by a new one, of a possibly different type.
+        # If we were to just create a new quark and delete the old one, the new one would not 
+        # inherit the links of the old one.
+        newquark = Quarks::makeNewQuarkInteractivelyOrNull()
+        newquark["uuid"] = quark["uuid"] # uuid override
+        NyxIO::commitToDisk(newquark)
+        newquark
     end
 end
