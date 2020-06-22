@@ -493,11 +493,11 @@ class Asteroids
                 "open",
                 "stop",
                 "destroy",
-                "replace quark",
                 "update orbital",
                 "push",
                 "register as opencycle",
-                "reset-reference-time"
+                "reset-reference-time",
+                "quark dive"
             ]
             if Runner::isRunning?(asteroid["uuid"]) then
                 options.delete("start")
@@ -521,14 +521,10 @@ class Asteroids
                 Asteroids::destroyProcedure(asteroid)
                 return
             end
-            if option == "replace quark" then
-                quark1Existing = NyxIO::getOrNull(asteroid["quarkuuid"])
-                return if quark1Existing.nil?
-                quark2 = Quarks::issueNewQuarkInteractivelyOrNull()
-                return if quark2.nil?
-                asteroid["quarkuuid"] = quark2["uuid"]
-                NyxIO::commitToDisk(asteroid)
-                Quarks::destroyQuarkByUUID(quark1Existing["uuid"])
+            if option == "quark dive" then
+                quark = NyxIO::getOrNull(asteroid["quarkuuid"])
+                return if quark.nil?
+                Quarks::quarkDive(quark)
             end
             if option == "update orbital" then
                 Asteroids::stop(asteroid["uuid"])
