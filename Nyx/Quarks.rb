@@ -27,9 +27,8 @@ require_relative "Librarian.rb"
 
 # -----------------------------------------------------------------
 
-class QuarksIssuers
-
-    # QuarksIssuers::selectOneFilepathOnTheDesktopOrNull()
+class QuarksUtils
+    # QuarksUtils::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -39,7 +38,7 @@ class QuarksIssuers
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # QuarksIssuers::selectOneFolderpathOnTheDesktopOrNull()
+    # QuarksUtils::selectOneFolderpathOnTheDesktopOrNull()
     def self.selectOneFolderpathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -48,11 +47,14 @@ class QuarksIssuers
                             .sort
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
+end
 
-    # QuarksIssuers::issueQuarkLineInteractively()
-    def self.issueQuarkLineInteractively()
+class QuarksMakers
+
+    # QuarksMakers::makeQuarkLineInteractively()
+    def self.makeQuarkLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -60,15 +62,13 @@ class QuarksIssuers
             "type"             => "line",
             "line"             => line
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkUrlInteractively()
-    def self.issueQuarkUrlInteractively()
+    # QuarksMakers::makeQuarkUrlInteractively()
+    def self.makeQuarkUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -76,13 +76,11 @@ class QuarksIssuers
             "type"             => "url",
             "url"              => url
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkFileInteractivelyOrNull()
-    def self.issueQuarkFileInteractivelyOrNull()
-        filepath1 = QuarksIssuers::selectOneFilepathOnTheDesktopOrNull()
+    # QuarksMakers::makeQuarkFileInteractivelyOrNull()
+    def self.makeQuarkFileInteractivelyOrNull()
+        filepath1 = QuarksUtils::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -90,7 +88,7 @@ class QuarksIssuers
         FileUtils.mv(filepath1, filepath2)
         LibrarianFile::copyFileToRepository(filepath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -98,31 +96,27 @@ class QuarksIssuers
             "type"             => "file",
             "filename"         => filename2
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkFile(filepath)
-    def self.issueQuarkFile(filepath1)
+    # QuarksMakers::makeQuarkFile(filepath)
+    def self.makeQuarkFile(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         LibrarianFile::copyFileToRepository(filepath2)
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "type"             => "file",
             "filename"         => filename2
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkFromText(text)
-    def self.issueQuarkFromText(text)
+    # QuarksMakers::makeQuarkFromText(text)
+    def self.makeQuarkFromText(text)
         filename = LibrarianFile::textToFilename(text)
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -130,13 +124,11 @@ class QuarksIssuers
             "type"             => "file",
             "filename"         => filename
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
-    def self.issueQuarkFolderInteractivelyOrNull()
-        folderpath1 = QuarksIssuers::selectOneFolderpathOnTheDesktopOrNull()
+    # QuarksMakers::makeQuarkFolderInteractivelyOrNull()
+    def self.makeQuarkFolderInteractivelyOrNull()
+        folderpath1 = QuarksUtils::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -144,7 +136,7 @@ class QuarksIssuers
         FileUtils.mv(folderpath1, folderpath2)
         LibrarianDirectory::copyDirectoryToRepository(folderpath2)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -152,12 +144,10 @@ class QuarksIssuers
             "type"             => "folder",
             "foldername"       => foldername2
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::locationToFileOrFolderQuarkIssued(location)
-    def self.locationToFileOrFolderQuarkIssued(location)
+    # QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
+    def self.makeQuarkFileOrFolderFromLocation(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
             filepath1 = location
@@ -167,15 +157,13 @@ class QuarksIssuers
             FileUtils.mv(filepath1, filepath2)
             LibrarianFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            quark = {
+            {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "file",
                 "filename"         => filename2
             }
-            NyxIO::commitToDisk(quark)
-            quark
         else
             folderpath1 = location
             foldername1 = File.basename(folderpath1)
@@ -184,24 +172,22 @@ class QuarksIssuers
             FileUtils.mv(folderpath1, folderpath2)
             LibrarianDirectory::copyDirectoryToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            quark = {
+            {
                 "uuid"             => SecureRandom.uuid,
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
-            NyxIO::commitToDisk(quark)
-            quark
         end
     end
 
-    # QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
-    def self.issueQuarkUniqueNameInteractivelyOrNull()
+    # QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
+    def self.makeQuarkUniqueNameInteractivelyOrNull()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         return nil if uniquename.size == 0
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -209,15 +195,13 @@ class QuarksIssuers
             "type"             => "unique-name",
             "name"             => uniquename
         }
-        NyxIO::commitToDisk(quark)
-        quark
     end
 
-    # QuarksIssuers::issueQuarkDataPodInteractively()
-    def self.issueQuarkDataPodInteractively()
+    # QuarksMakers::makeQuarkDataPodInteractively()
+    def self.makeQuarkDataPodInteractively()
         podname = LucilleCore::askQuestionAnswerAsString("podname: ")
         description = LucilleCore::askQuestionAnswerAsString("description: ")
-        quark = {
+        {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
@@ -225,6 +209,73 @@ class QuarksIssuers
             "type"             => "datapod",
             "podname"          => podname
         }
+    end
+end
+
+class QuarksIssuers
+
+    # QuarksIssuers::issueQuarkLineInteractively()
+    def self.issueQuarkLineInteractively()
+        quark = QuarksMakers::makeQuarkLineInteractively()
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkUrlInteractively()
+    def self.issueQuarkUrlInteractively()
+        quark = QuarksMakers::makeQuarkUrlInteractively()
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkFileInteractivelyOrNull()
+    def self.issueQuarkFileInteractivelyOrNull()
+        quark = QuarksMakers::makeQuarkFileInteractivelyOrNull()
+        return nil if quark.nil?
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkFile(filepath)
+    def self.issueQuarkFile(filepath1)
+        quark = QuarksMakers::makeQuarkFile(filepath)
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkFromText(text)
+    def self.issueQuarkFromText(text)
+        quark = QuarksMakers::makeQuarkFromText(text)
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkFolderInteractivelyOrNull()
+    def self.issueQuarkFolderInteractivelyOrNull()
+        quark = QuarksMakers::makeQuarkFolderInteractivelyOrNull()
+        return nil if quark.nil?
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkFileOrFolderFromLocation(location)
+    def self.issueQuarkFileOrFolderFromLocation(location)
+        quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkUniqueNameInteractivelyOrNull()
+    def self.issueQuarkUniqueNameInteractivelyOrNull()
+        quark = QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
+        return nil if quark.nil?
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # QuarksIssuers::issueQuarkDataPodInteractively()
+    def self.issueQuarkDataPodInteractively()
+        quark = QuarksMakers::makeQuarkDataPodInteractively()
         NyxIO::commitToDisk(quark)
         quark
     end
