@@ -12,7 +12,7 @@
         0.74          Asteroids "Inbox"
 
         0.70          Spaceships        # metricNX1: 1.0 hours
-                      "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+                      "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
 
         0.65  -> 0.20 Spaceships        # metricNX1: 1.0 hours
                       "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"

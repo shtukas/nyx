@@ -92,7 +92,7 @@ class Spaceships
         }
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
-            if spaceship["engine"]["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            if spaceship["engine"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
                 return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
             if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
@@ -102,7 +102,7 @@ class Spaceships
         }
         typeAsUserFriendly = lambda {|type|
             return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return "⏱️ " if type == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
             return "💫"  if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         uuid = spaceship["uuid"]
@@ -164,7 +164,7 @@ class Spaceships
         if option == opt2 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
-                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
@@ -283,7 +283,7 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
             return 0.70 - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
         end
@@ -323,7 +323,7 @@ class Spaceships
             return true
         end
 
-        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return false
         end
 
@@ -356,7 +356,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
  
-        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
                 return true
             end
@@ -389,7 +389,7 @@ class Spaceships
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
                 }, {
-                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 6,
             })
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
@@ -400,7 +400,7 @@ class Spaceships
                     "type"        => "description",
                     "description" => "Lucille.txt"
                 }, {
-                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 1,
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
@@ -424,7 +424,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
 
-        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
                 puts "time commitment spaceship is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
@@ -461,6 +461,14 @@ class Spaceships
 
         if engine["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", false) then
+                Spaceships::spaceshipDestroySequence(spaceship)
+            end
+        end
+
+        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            if Bank::value(spaceship["uuid"]) >= engine["timeCommitmentInHours"]*3600 then
+                puts "time commitment spaceship is completed, destroying it..."
+                LucilleCore::pressEnterToContinue()
                 Spaceships::spaceshipDestroySequence(spaceship)
             end
         end
