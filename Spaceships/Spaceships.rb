@@ -92,18 +92,16 @@ class Spaceships
         }
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
-            if spaceship["engine"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-                return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
-            end
-            if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-                return " (commitment weekly: #{spaceship["engine"]["timeCommitmentInHours"]} hours)"
+            if spaceship["engine"]["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+                return " (commitment for a day: #{spaceship["engine"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
             ""
         }
         typeAsUserFriendly = lambda {|type|
             return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "💫"  if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "☀️"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "‼️ " if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
         }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -145,13 +143,15 @@ class Spaceships
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
         opt5 = "until completion ⛵"
-        opt2 = "single time commitment ⏱️"
-        opt3 = "on-going time commitment 💫"
+        opt2 = "single time commitment for a day ⏱️ "
+        opt3 = "on-going time commitment ☀️"
+        opt1 = "deadline ‼️ "
 
         options = [
             opt2,
             opt5,
             opt3,
+            opt1
         ]
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
@@ -164,15 +164,20 @@ class Spaceships
         if option == opt2 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
-                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
         if option == opt3 then
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
             return {
-                "type"                  => "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
-                "timeCommitmentInHours" => timeCommitmentInHours
+                "type" => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            }
+        end
+        if option == opt1 then
+            timeToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("Time to deadline in days: ").to_f
+            return {
+                "type"             => "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
+                "deadlineUnixtime" => Time.new.to_i + timeToDeadlineInDays*86400
             }
         end
         nil
@@ -283,7 +288,7 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
@@ -292,11 +297,14 @@ class Spaceships
             return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
  
-        if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+        if engine["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             uuid = spaceship["uuid"]
-            metric1 = Metrics::metricNX1(0.65, Ping::totalOverTimespan(uuid, 86400*7), 3600*engine["timeCommitmentInHours"])
-            metric2 = Metrics::metricNX1(0.65, Ping::totalToday(uuid), (3600*engine["timeCommitmentInHours"]).to_f/7)
-            return [metric1, metric2].min - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+        end
+
+        if engine["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+            uuid = spaceship["uuid"]
+            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -312,12 +320,16 @@ class Spaceships
             return true
         end
 
-        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return false
         end
 
-        if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            return Ping::totalOverTimespan(uuid, 86400*7) < engine["timeCommitmentInHours"]*86400
+        if engine["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+            return false
+        end
+
+        if engine["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+            return true
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -345,7 +357,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
  
-        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
                 return true
             end
@@ -378,7 +390,7 @@ class Spaceships
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
                 }, {
-                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 6,
             })
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
@@ -389,7 +401,7 @@ class Spaceships
                     "type"        => "description",
                     "description" => "Lucille.txt"
                 }, {
-                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 1,
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
@@ -413,7 +425,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
 
-        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
                 puts "time commitment spaceship is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
@@ -454,7 +466,7 @@ class Spaceships
             end
         end
 
-        if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(spaceship["uuid"]) >= engine["timeCommitmentInHours"]*3600 then
                 puts "time commitment spaceship is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()

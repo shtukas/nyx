@@ -331,7 +331,12 @@ class CatalystFsck
             exit
         end
 
-        engineTypes = ["on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada", "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"]
+        engineTypes = [
+            "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+            "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219",
+            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
+            "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+        ]
         if !engineTypes.include?(spaceship["engine"]["type"]) then
             puts "[error] spaceship has incorrect engine type".red
             puts JSON.pretty_generate(spaceship).red
