@@ -48,6 +48,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
@@ -270,6 +277,15 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
+        floats = BTreeSets::values(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
+        if floats.size > 0 then
+            puts ""
+            floats.each{|float|
+                puts "float: #{float["id"]} -> #{float["description"]}".red
+            }
+            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
+        end
+
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
             text = IO.read(filepath).strip
@@ -385,6 +401,24 @@ class NSXCatalystUI
             if specialCircumstancesFilepath then
                 NSXCatalystUI::applyNextTransformationToFile(specialCircumstancesFilepath)
             end
+        end
+
+        if command.start_with?("floats+") then
+            description = command[7, command.size].strip
+            return if description.size == 0
+            float = {
+                "id"          => SecureRandom.hex(2),
+                "description" => description
+            }
+            BTreeSets::set(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+            return
+        end
+
+        if command.start_with?("floats-") then
+            id = command[7, command.size].strip
+            return if id.size == 0
+            BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", id)
+            return
         end
 
         if NSXMiscUtils::isInteger(command) then
