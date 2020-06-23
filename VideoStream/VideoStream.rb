@@ -22,6 +22,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
+
 # -----------------------------------------------------------------
 
 class VideoStream
@@ -59,8 +61,8 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        watchTimeInHours = Ping::totalOverTimespan("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 86400).to_f/3600
-        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.60, watchTimeInHours, 1)
+        timeInHours = Ping::totalToday("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01").to_f/3600
+        Metrics::metricNX1(0.60, timeInHours, 0.5) - indx.to_f/1000
     end
 
     # VideoStream::catalystObjects()

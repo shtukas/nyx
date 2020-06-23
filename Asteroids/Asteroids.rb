@@ -76,6 +76,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
+
 # -----------------------------------------------------------------------
 
 class Asteroids
@@ -288,12 +290,12 @@ class Asteroids
         focus
     end
 
-    # Asteroids::itemToCatalystObject(item, basemetric)
-    def self.itemToCatalystObject(item, basemetric)
+    # Asteroids::itemToCatalystObject(item, basemetric, indx)
+    def self.itemToCatalystObject(item, basemetric, indx)
         uuid = item["uuid"]
         isRunning = Runner::isRunning?(uuid)
         isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
-        metric = basemetric - 0.1*Ping::timeRatioOverPeriod7Samples(uuid, 20*86400)
+        metric = basemetric - indx.to_f/1000
         metric = isRunning ? 1 : metric
         {
             "uuid"             => uuid,
@@ -308,8 +310,8 @@ class Asteroids
 
     # Asteroids::getBaseMetric()
     def self.getBaseMetric()
-        pastDayAsteroidTimeInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
-        CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.55, pastDayAsteroidTimeInHours, 2)
+        timeInHours = Ping::totalToday("ed4a67ee-c205-4ea4-a135-f10ea7782a7f").to_f/3600
+        Metrics::metricNX1(0.40, timeInHours, 2)
     end
 
     # Asteroids::catalystObjects()
@@ -338,14 +340,14 @@ class Asteroids
             .select{|item| item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, 0.85)
+                objects << Asteroids::itemToCatalystObject(item, 0.74, indx)
             }
 
         # -------------------------------------------------------------------------
 
         Asteroids::asteroids().select{|item| Runner::isRunning?(item["uuid"]) }
             .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, 1)
+                objects << Asteroids::itemToCatalystObject(item, 1, indx)
             }
 
         # -------------------------------------------------------------------------
@@ -367,7 +369,7 @@ class Asteroids
             .first(3)
             .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
             .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, basemetric)
+                objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
             }
 
         # -------------------------------------------------------------------------
@@ -391,7 +393,7 @@ class Asteroids
         uuids
             .map{|uuid| Asteroids::getAsteroidByUUIDOrNull(uuid) }
             .compact
-            .each{|item| objects << Asteroids::itemToCatalystObject(item, basemetric) }
+            .each_with_index{|item, indx| objects << Asteroids::itemToCatalystObject(item, basemetric, indx) }
         objects
     end
 

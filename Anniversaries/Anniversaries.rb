@@ -165,7 +165,8 @@ class Anniversaries
                                 Anniversaries::markAnniversaryAsProcessed(ns1203, anniversary)
                             }
                         }
-                    }
+                    },
+                    "x-anniversaries" => true
                 }
             ]
         end

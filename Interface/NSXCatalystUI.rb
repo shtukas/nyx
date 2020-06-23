@@ -253,6 +253,11 @@ class NSXCatalystUI
             return
         end
 
+        if object["x-anniversaries"] then
+            object["execute"].call()
+            return
+        end
+
         puts "I could not determine the obvious thing to to do with this"
         puts JSON.pretty_generate(object)
         LucilleCore::pressEnterToContinue()

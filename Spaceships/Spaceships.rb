@@ -49,6 +49,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
+
 # -----------------------------------------------------------------------------
 
 class Spaceships
@@ -90,10 +92,7 @@ class Spaceships
         }
         engineFragment = lambda{|spaceship|
             uuid = spaceship["uuid"]
-            if spaceship["engine"]["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-                return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
-            end
-            if spaceship["engine"]["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+            if spaceship["engine"]["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
                 return " (commitment: #{spaceship["engine"]["timeCommitmentInHours"]} hours, bank: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
             if spaceship["engine"]["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
@@ -102,11 +101,9 @@ class Spaceships
             ""
         }
         typeAsUserFriendly = lambda {|type|
-            return " ‼️ " if type == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return "⛵" if type == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
-            return "⏱️  ‼️ " if type == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "⏱️" if type == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
-            return "💫" if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            return "⏱️ " if type == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "💫"  if type == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         uuid = spaceship["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -147,17 +144,13 @@ class Spaceships
 
     # Spaceships::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt5 = "until completion ‼️"
-        opt1 = "until completion ⛵"
-        opt0 = "single time commitment ⏱️ ‼️"
-        opt2 = "single time commitment 🏖️"
+        opt5 = "until completion ⛵"
+        opt2 = "single time commitment ⏱️"
         opt3 = "on-going time commitment 💫"
 
         options = [
-            opt0,
             opt2,
             opt5,
-            opt1,
             opt3,
         ]
 
@@ -165,25 +158,13 @@ class Spaceships
         return nil if option.nil?
         if option == opt5 then
             return {
-                "type" => "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            }
-        end
-        if option == opt1 then
-            return {
-                "type" => "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
-            }
-        end
-        if option == opt0 then
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-            return {
-                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => timeCommitmentInHours
+                "type" => "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
             }
         end
         if option == opt2 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
-                "type"                  => "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea",
+                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
@@ -302,34 +283,31 @@ class Spaceships
 
         return 1 if Spaceships::isRunning?(spaceship)
 
-        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
-            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.74, timeInHours, 3)
-        end
-
-        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
-            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.74, timeInHours, engine["timeCommitmentInHours"])
+            return 0.70 - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
         end
 
-        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
-            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
-            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.65, timeInHours, 1)
-        end
-
-        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
-            return CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.60, timeInHours, 1)
+        if engine["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+            return Metrics::metricNX1(
+                0.65, 
+                Ping::totalToday(spaceship["uuid"]).to_f/3600, 
+                1
+            ) - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
         end
  
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            timeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/3600
-            metric = CatalystCommon::metric1SlowDescenteAndCollapseToZero(0.65, timeInHours, engine["timeCommitmentInHours"])
-            lastDayTimeInHours = Ping::totalOverTimespan(spaceship["uuid"], 86400).to_f/3600
-            metric = CatalystCommon::metricSlide(metric, lastDayTimeInHours, 2*engine["timeCommitmentInHours"].to_f/7)
-            return metric
+            metric1 = Metrics::metricNX1(
+                0.65, 
+                Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/3600, 
+                engine["timeCommitmentInHours"]
+            )
+            metric2 = Metrics::metricNX1(
+                0.65, 
+                Ping::totalToday(spaceship["uuid"]).to_f/3600, 
+                engine["timeCommitmentInHours"].to_f/7
+            )
+            return [metric1, metric2].min - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
         end
 
         raise "[Spaceships] error: 46b84bdb"
@@ -341,19 +319,11 @@ class Spaceships
 
         engine = spaceship["engine"]
 
-        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+        if engine["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             return true
         end
 
-        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
-            return false
-        end
-
-        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-            return true
-        end
-
-        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return false
         end
 
@@ -385,14 +355,8 @@ class Spaceships
     def self.isRunningForLong?(spaceship)
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
-
-        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-            if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
-                return true
-            end
-        end
  
-        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Spaceships::bankValueLive(spaceship)  >= engine["timeCommitmentInHours"]*3600 then
                 return true
             end
@@ -420,22 +384,13 @@ class Spaceships
     # Spaceships::catalystObjects()
     def self.catalystObjects()
 
-        cummulatedTimeInSecondsOfDescriptionIdentifiedStarships = lambda{|description|
-            Spaceships::spaceships()
-                .select{ |spaceship| spaceship["cargo"]["type"] == "description" }
-                .select{ |spaceship| spaceship["cargo"]["description"] == description }
-                .map{ |spaceship| Bank::value(spaceship["uuid"]) }
-                .inject(0, :+)
-        }
-
         if [1,2,3,4,5].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}") then
             Spaceships::issue({
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
                 }, {
-                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => 6 - cummulatedTimeInSecondsOfDescriptionIdentifiedStarships.call("Daily Guardian Work").to_f/3600,
-                "baseMetric"            => 0.76
+                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "timeCommitmentInHours" => 6,
             })
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
         end
@@ -445,9 +400,8 @@ class Spaceships
                     "type"        => "description",
                     "description" => "Lucille.txt"
                 }, {
-                "type"                  => "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => 1 - cummulatedTimeInSecondsOfDescriptionIdentifiedStarships.call("Lucille.txt").to_f/3600,
-                "baseMetric"            => 0.75
+                "type"                  => "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "timeCommitmentInHours" => 1,
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
         end
@@ -458,7 +412,7 @@ class Spaceships
                     .reverse
         return [] if objects.empty?
         if objects[0]["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
-            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
+            objects = objects.reject{|object| object["x-spaceship"]["engine"]["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" and object["x-spaceship"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
         end
         objects
     end
@@ -470,16 +424,7 @@ class Spaceships
         uuid = spaceship["uuid"]
         engine = spaceship["engine"]
 
-        if engine["type"] == "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-            if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
-                puts "time commitment spaceship is completed, destroying it..."
-                LucilleCore::pressEnterToContinue()
-                Spaceships::spaceshipDestroySequence(spaceship)
-                return
-            end
-        end
- 
-        if engine["type"] == "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea" then
+        if engine["type"] == "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600 then
                 puts "time commitment spaceship is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
@@ -514,13 +459,7 @@ class Spaceships
 
         engine = spaceship["engine"]
 
-        if engine["type"] == "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", false) then
-                Spaceships::spaceshipDestroySequence(spaceship)
-            end
-        end
- 
-        if engine["type"] == "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72" then
+        if engine["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", false) then
                 Spaceships::spaceshipDestroySequence(spaceship)
             end

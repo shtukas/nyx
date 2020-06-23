@@ -20,19 +20,10 @@ Spaceship
 
     SpaceshipEngine
         {
-            "type" : "until-completion-high-priority-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            "type" : "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
         }
         {
-            "type" : "until-completion-low--priority-17f86e6e-cbd3-4e83-a0f8-224c9e1a7e72"
-        }
-        {
-            "type"                  : "singleton-time-commitment-high-priority-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            "timeCommitmentInHours" : Float
-            "baseMetric"            : Float # If set, is used as base metric
-                                            # Was introduced to put Daily Guardian Work at 0.76
-        }
-        {
-            "type"                  : "singleton-time-commitment-low-priority-6fdd6cd7-0d1e-48da-ae62-ee2c61dfb4ea"
+            "type"                  : "singleton-time-commitment-for-the-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
             "timeCommitmentInHours" : Float
         }
         {
