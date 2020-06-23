@@ -25,21 +25,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::applyOrdering(objects)
-    def self.applyOrdering(objects)
-        objects = objects
-                    .select{|object| object['metric'] >= 0.2 }
-
-        objects = objects
-                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
-
-        return objects if objects.size < 2
-
-        objects
-    end
-
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = [
@@ -59,7 +44,13 @@ class NSXCatalystObjectsOperator
             "execute"          => lambda {}
         }
 
-        NSXCatalystObjectsOperator::applyOrdering(objects)
+        objects = objects
+                    .select{|object| object['metric'] >= 0.2 }
+
+        objects
+            .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
     end
 
     # NSXCatalystObjectsOperator::generationSpeedReport()
