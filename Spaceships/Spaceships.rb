@@ -293,7 +293,7 @@ class Spaceships
                 0.65, 
                 Ping::totalToday(spaceship["uuid"]).to_f/3600, 
                 1
-            ) - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
+            )
         end
  
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
@@ -307,7 +307,7 @@ class Spaceships
                 Ping::totalToday(spaceship["uuid"]).to_f/3600, 
                 engine["timeCommitmentInHours"].to_f/7
             )
-            return [metric1, metric2].min - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
+            return [metric1, metric2].min
         end
 
         raise "[Spaceships] error: 46b84bdb"

@@ -21,7 +21,7 @@ class Metrics
     def self.metricNX1(basemetric, currentValue, targetValue)
         ratioDone = currentValue.to_f/targetValue
         if ratioDone < 1 then
-            basemetric
+            basemetric - 0.001*ratioDone
         else
             0.2 + (basemetric-0.2)*Math.exp( -20*(ratioDone-1) ) # exp(-1) at ratio: 1.05 ; +5% over target
         end
