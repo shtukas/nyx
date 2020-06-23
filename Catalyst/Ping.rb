@@ -54,8 +54,8 @@ class Ping
             .inject(0, :+)
     end
 
-    # Ping::timeRatioOverPeriod7Samples(uuid, timespanInSeconds)
-    def self.timeRatioOverPeriod7Samples(uuid, timespanInSeconds)
+    # Ping::bestTimeRatioOverPeriod7Samples(uuid, timespanInSeconds)
+    def self.bestTimeRatioOverPeriod7Samples(uuid, timespanInSeconds)
         (1..7)
             .map{|i|
                 lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)

@@ -284,30 +284,19 @@ class Spaceships
         return 1 if Spaceships::isRunning?(spaceship)
 
         if engine["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-            return 1.1 if (Bank::value(uuid) >= engine["timeCommitmentInHours"]*3600)
-            return 0.70 - 0.01*Ping::timeRatioOverPeriod7Samples(uuid, 86400)
+            return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         if engine["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
-            return Metrics::metricNX1(
-                0.65, 
-                Ping::totalToday(spaceship["uuid"]).to_f/3600, 
-                1
-            )
+            uuid = spaceship["uuid"]
+            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
  
         if engine["type"] == "on-going-commitment-weekly-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
-            metric1 = Metrics::metricNX1(
-                0.65, 
-                Ping::totalOverTimespan(spaceship["uuid"], 86400*7).to_f/3600, 
-                engine["timeCommitmentInHours"]
-            )
-            metric2 = Metrics::metricNX1(
-                0.65, 
-                Ping::totalToday(spaceship["uuid"]).to_f/3600, 
-                engine["timeCommitmentInHours"].to_f/7
-            )
-            return [metric1, metric2].min
+            uuid = spaceship["uuid"]
+            metric1 = Metrics::metricNX1(0.65, Ping::totalOverTimespan(uuid, 86400*7), 3600*engine["timeCommitmentInHours"])
+            metric2 = Metrics::metricNX1(0.65, Ping::totalToday(uuid), (3600*engine["timeCommitmentInHours"]).to_f/7)
+            return [metric1, metric2].min - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         raise "[Spaceships] error: 46b84bdb"

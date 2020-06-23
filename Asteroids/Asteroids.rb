@@ -203,7 +203,7 @@ class Asteroids
                 "orbitalname" => orbitalname,
                 "orbitaluuid" => orbitaluuid,
                 "BankValueInHours" => Bank::value(orbitaluuid).to_f/3600,
-                "timeRatio"        => Ping::timeRatioOverPeriod7Samples(orbitaluuid, 30*86400)
+                "timeRatio"        => Ping::bestTimeRatioOverPeriod7Samples(orbitaluuid, 30*86400)
             }
         }
     end

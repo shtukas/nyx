@@ -66,6 +66,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spacesh
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
 # ------------------------------------------------------------------------
 
@@ -209,6 +210,11 @@ class NSXCatalystUI
                     CatalystFsck::run()
                     LucilleCore::pressEnterToContinue()
                 }
+            ]
+
+            items << [
+                "Run Shadow Update", 
+                lambda { Drives::runShadowUpdate() }
             ]
 
             items << [
