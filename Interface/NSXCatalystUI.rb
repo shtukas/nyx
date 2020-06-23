@@ -276,6 +276,25 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
+        OpenCycles::opencycles()
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .map{|opencycle|
+                menuitems.item(
+                    OpenCycles::opencycleToString(opencycle).yellow,
+                    lambda { 
+                        entity = NyxIO::getOrNull(opencycle["targetuuid"])
+                        if entity.nil? then
+                            puts "I could not find a target for this open cycle"
+                            LucilleCore::pressEnterToContinue()
+                            OpenCycles::opencycleDive(opencycle)
+                            return
+                        end
+                        NyxDataCarriers::objectDive(entity)
+                    }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
+
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
             text = IO.read(filepath).strip
@@ -297,25 +316,6 @@ class NSXCatalystUI
                     .lines
                     .map{|line| "    #{line}" }
                     .join()
-            }
-
-        OpenCycles::opencycles()
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .map{|opencycle|
-                menuitems.item(
-                    OpenCycles::opencycleToString(opencycle).yellow,
-                    lambda { 
-                        entity = NyxIO::getOrNull(opencycle["targetuuid"])
-                        if entity.nil? then
-                            puts "I could not find a target for this open cycle"
-                            LucilleCore::pressEnterToContinue()
-                            OpenCycles::opencycleDive(opencycle)
-                            return
-                        end
-                        NyxDataCarriers::objectDive(entity)
-                    }
-                )
-                verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
         floats = BTreeSets::values(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
