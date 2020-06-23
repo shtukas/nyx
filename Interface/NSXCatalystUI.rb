@@ -196,8 +196,6 @@ class NSXCatalystUI
 
             items << nil
 
-
-
             items << [
                 "Print Generation Speed Report", 
                 lambda { 
@@ -276,15 +274,7 @@ class NSXCatalystUI
         system("clear")
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
-
-        floats = BTreeSets::values(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
-        if floats.size > 0 then
-            puts ""
-            floats.each{|float|
-                puts "float: #{float["id"]} -> #{float["description"]}".red
-            }
-            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
-        end
+        menuitems = LCoreMenuItemsNX1.new()
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
@@ -309,14 +299,12 @@ class NSXCatalystUI
                     .join()
             }
 
-        x1 = OpenCycles::opencycles()
+        OpenCycles::opencycles()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .map{|opencycle|
-                {
-                    "uuid"    => SecureRandom.hex,
-                    "body"    => OpenCycles::opencycleToString(opencycle).yellow,
-                    "metric"  => 1.414,
-                    "execute" => lambda { 
+                menuitems.item(
+                    OpenCycles::opencycleToString(opencycle).yellow,
+                    lambda { 
                         entity = NyxIO::getOrNull(opencycle["targetuuid"])
                         if entity.nil? then
                             puts "I could not find a target for this open cycle"
@@ -325,29 +313,39 @@ class NSXCatalystUI
                             return
                         end
                         NyxDataCarriers::objectDive(entity)
-                    },
-                    "isFocus" => false
-                }
+                    }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
-        catalystObjects = x1 + catalystObjects
+        floats = BTreeSets::values(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
+        if floats.size > 0 then
+            puts ""
+            floats.each{|float|
+                menuitems.item(
+                    "float: #{float["description"]}".green,
+                    lambda { BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) }
+                )
+            }
+            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
+        end
 
         # --------------------------------------------------------------------------
         # Print
 
         puts ""
-        position = -1
+        verticalSpaceLeft = verticalSpaceLeft - 1
         catalystObjects.each{|object| 
-            position = position + 1
-            prefix = object["isFocus"] ? "[*#{"%2d" % position}]".red : "[ #{"%2d" % position}]"
-            str = "#{prefix} #{NSXDisplayUtils::makeDisplayStringForCatalystListing(object)}"
+            str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+            break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
             if object["isRunning"] then
                 str = str.green
             end
-            puts str
+            menuitems.item(
+                str,
+                lambda { object["execute"].call() }
+            )
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
-            next if catalystObjects.drop(position+1).any?{|item| object["isRunning"] }
-            break if verticalSpaceLeft < 2
         }
 
         # --------------------------------------------------------------------------
@@ -356,6 +354,12 @@ class NSXCatalystUI
         puts ""
         print "--> "
         command = STDIN.gets().strip
+
+        if NSXMiscUtils::isInteger(command) then
+            position = command.to_i
+            menuitems.executePosition(position)
+            return
+        end
 
         if command == 'expose' then
             object = catalystObjects.select{|object| object["isFocus"]}.first
@@ -403,28 +407,14 @@ class NSXCatalystUI
             end
         end
 
-        if command.start_with?("floats+") then
-            description = command[7, command.size].strip
+        if command.start_with?("f:") then
+            description = command[2, command.size].strip
             return if description.size == 0
             float = {
-                "id"          => SecureRandom.hex(2),
+                "id"          => SecureRandom.hex,
                 "description" => description
             }
             BTreeSets::set(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
-            return
-        end
-
-        if command.start_with?("floats-") then
-            id = command[7, command.size].strip
-            return if id.size == 0
-            BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", id)
-            return
-        end
-
-        if NSXMiscUtils::isInteger(command) then
-            position = command.to_i
-            return if catalystObjects[position].nil?
-            catalystObjects[position]["execute"].call()
             return
         end
 
