@@ -87,7 +87,8 @@ Thread.new {
 Thread.new {
     loop {
         sleep 60
-        Asteroids::cacheListingUUIDsIfNeeded(false)
+        Asteroids::cacheWorkingUUIDs()
+        ProgrammableBooleans::resetTrueNoMoreOften("5a56e54d-c24d-4ae9-a8ae-f95729bd010f")
         sleep 600
     }
 }

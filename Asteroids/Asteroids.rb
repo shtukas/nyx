@@ -451,19 +451,24 @@ class Asteroids
             .reverse
     end
 
-    # Asteroids::cacheListingUUIDsIfNeeded(force)
-    def self.cacheListingUUIDsIfNeeded(force)
-        if force or ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
-            uuids = Asteroids::catalystObjects()
-                        .first(64)
-                        .map{|object| object["uuid"] }
-            KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
+    # Asteroids::cacheWorkingUUIDs()
+    def self.cacheWorkingUUIDs()
+        uuids = Asteroids::catalystObjects()
+                    .first(64)
+                    .map{|object| object["uuid"] }
+        KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
+    end
+
+    # Asteroids::cacheWorkingUUIDsIfNeeded()
+    def self.cacheWorkingUUIDsIfNeeded()
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
+            Asteroids::cacheWorkingUUIDs()
         end
     end
 
     # Asteroids::catalystObjectsFast()
     def self.catalystObjectsFast()
-        Asteroids::cacheListingUUIDsIfNeeded(false)
+        Asteroids::cacheWorkingUUIDsIfNeeded()
         uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
         JSON.parse(uuids)
             .map{|uuid| NyxIO::getOrNull(uuid) }

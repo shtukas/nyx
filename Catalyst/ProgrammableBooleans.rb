@@ -33,13 +33,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class ProgrammableBooleans
 
+    # ProgrammableBooleans::resetTrueNoMoreOften(uuid)
+    def self.resetTrueNoMoreOften(uuid)
+        KeyValueStore::set(nil, uuid, Time.new.to_f)
+    end
+
     # ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds(uuid, n)
     def self.trueNoMoreOftenThanEveryNSeconds(uuid, n)
-        trace = CatalystCommon::getNewValueEveryNSeconds(uuid, n)
-        if !KeyValueStore::flagIsTrue(nil, trace) then
-            KeyValueStore::setFlagTrue(nil, trace)
-            return true
-        end
-        false
+        lastTimestamp = KeyValueStore::getOrDefaultValue(nil, uuid, "0").to_f
+        return false if (Time.new.to_f - lastTimestamp) < n
+        ProgrammableBooleans::resetTrueNoMoreOften(uuid)
+        true
     end
 end
