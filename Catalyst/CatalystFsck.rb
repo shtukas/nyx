@@ -258,17 +258,6 @@ class CatalystFsck
             puts JSON.pretty_generate(asteroid).red
             exit
         end
-        # asteroid["description"]
-        if asteroid["orbitalname"].nil? then
-            puts "[error] asteroid has no orbitalname".red
-            puts JSON.pretty_generate(asteroid).red
-            exit
-        end
-        if asteroid["orbitaluuid"].nil? then
-            puts "[error] asteroid has no orbitaluuid".red
-            puts JSON.pretty_generate(asteroid).red
-            exit
-        end
         if asteroid["quarkuuid"].nil? then
             puts "[error] asteroid has no quarkuuid".red
             puts JSON.pretty_generate(asteroid).red

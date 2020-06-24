@@ -2,7 +2,6 @@ To rerun the Asteroids by quark uuid index, run Asteroids::updateAsteroidByQuark
 
 Special Circumstances ProjectUUIDs
     "44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Todo-Inbox)
-    "0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
 Mercury Channels
     "F771D7FE-1802-409D-B009-5EB95BA89D86" : Where vienna posts links for Asteroids
@@ -14,10 +13,9 @@ Special bank accounts
 ------------------------------------------------------
 
 Asteroid {
-    "uuid"             : String
-    "nyxType"          : "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "orbitalname"      : String
-    "orbitaluuid"      : String
-    "quarkuuid"        : String # uuid of a Quark
+    "uuid"      : String
+    "nyxType"   : "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
+    "unixtime"  : Float # Unixtime with decimals
+    "isInbox"   : Boolean
+    "quarkuuid" : String # uuid of a Quark
 }

@@ -133,8 +133,7 @@ class Cliques
                 lambda{
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    link = Bosons2::link(clique, quark)
-                    puts JSON.pretty_generate(link)
+                    Bosons2::link(clique, quark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
                 }]
 

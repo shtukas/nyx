@@ -442,6 +442,19 @@ class NSXCatalystUI
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
 
+            while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
+                quark = {
+                    "uuid"             => SecureRandom.uuid,
+                    "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+                    "creationUnixtime" => Time.new.to_f,
+                    "type"             => "url",
+                    "url"              => link
+                }
+                NyxIO::commitToDisk(quark)
+                Asteroids::issueNew(quark, true)
+                Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
+            end
+
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then

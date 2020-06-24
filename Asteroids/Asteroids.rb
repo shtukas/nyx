@@ -82,33 +82,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.r
 
 class Asteroids
 
-    # Asteroids::issueNew(orbitalname, orbitaluuid, quark)
-    def self.issueNew(orbitalname, orbitaluuid, quark)
+    # Asteroids::issueNew(quark, isInbox)
+    def self.issueNew(quark, isInbox)
         item = {
-            "nyxType"          => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
-            "uuid"             => SecureRandom.uuid,
-            "creationUnixtime" => Time.new.to_f,
-            "orbitalname"      => orbitalname,
-            "orbitaluuid"      => orbitaluuid,
-            "quarkuuid"        => quark["uuid"]
+            "nyxType"    => "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "uuid"       => SecureRandom.uuid,
+            "unixtime"   => Time.new.to_f,
+            "isInbox"    => isInbox,
+            "quarkuuid"  => quark["uuid"]
         }
         NyxIO::commitToDisk(item)
         Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(item)
         item
-    end
-
-    # Asteroids::selectProjectNameUuidPair()
-    def self.selectProjectNameUuidPair()
-        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
-        orbitaluuid = nil
-        if orbitalname.nil? then
-            orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name : ")
-            orbitaluuid = SecureRandom.uuid
-        else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-            # We are not considering the case null
-        end
-        [orbitalname, orbitaluuid]
     end
 
     # Asteroids::quarkToString(quarkuuid)
@@ -128,18 +113,14 @@ class Asteroids
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
         asteroiduuid = asteroid["uuid"]
-        quark = NyxIO::getOrNull(asteroid["quarkuuid"])
-        quarkType = quark ? quark["type"] : "null"
         isRunning = Runner::isRunning?(asteroiduuid)
-        timeInBankLive = Bank::value(asteroid["uuid"]) + (Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(asteroiduuid).to_f/3600).round(2)} hour)" : ""
-        "[asteroid] #{(100*timeInBankLive.to_f/3600).to_i.to_s.rjust(2)}% [#{asteroid["orbitalname"]}] [#{quarkType}] #{Asteroids::quarkToString(asteroid["quarkuuid"])}#{runningSuffix}"
+        "[asteroid]#{asteroid["isInbox"] ? " [Inbox]" : ""} #{Asteroids::quarkToString(asteroid["quarkuuid"])}#{runningSuffix}"
     end
 
     # Asteroids::asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
     def self.asteroidReceivesRunTimespan(asteroid, timespan, verbose = false)
         asteroiduuid = asteroid["uuid"]
-        orbitaluuid = asteroid["orbitaluuid"]
 
         if verbose then
             puts "Bank: putting #{timespan.round(2)} secs into asteroiduuid: #{asteroiduuid}"
@@ -147,81 +128,14 @@ class Asteroids
         Bank::put(asteroiduuid, timespan)
 
         if verbose then
-            puts "Bank: putting #{timespan.round(2)} secs into orbitaluuid: #{orbitaluuid}"
-        end
-        Bank::put(orbitaluuid, timespan)
-
-        if verbose then
-            puts "Ping: putting #{timespan.round(2)} secs into orbitaluuid: #{orbitaluuid}"
-        end
-        Ping::put(orbitaluuid, timespan)
-
-        if verbose then
             puts "Ping: putting #{timespan.round(2)} secs into Asteroids [uuid: ed4a67ee-c205-4ea4-a135-f10ea7782a7f]"
         end
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
-    # Asteroids::orbitalnames()
-    def self.orbitalnames()
-        Asteroids::asteroids()
-            .map{|item| item["orbitalname"] }
-            .uniq
-            .sort
-    end
-
-    # Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-    def self.orbitalname2orbitaluuidOrNull(orbitalname)
-        orbitaluuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}")
-        return orbitaluuid if !orbitaluuid.nil?
-        orbitaluuid = Asteroids::asteroids().select{|item| item["orbitalname"] == orbitalname }.first["orbitaluuid"]
-        if !orbitaluuid.nil? then
-            KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{orbitalname}", orbitaluuid)
-        end
-        orbitaluuid
-    end
-
-    # Asteroids::selectOrbitalnameInteractivelyOrNull()
-    def self.selectOrbitalnameInteractivelyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Asteroids::orbitalnames().sort)
-    end
-
-    # Asteroids::asteroidsForOrbitalname(orbitalname)
-    def self.asteroidsForOrbitalname(orbitalname)
-        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-        return [] if orbitaluuid.nil?
-        Asteroids::asteroids()
-            .select{|item| item["orbitaluuid"] == orbitaluuid }
-            .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
-    end
-
-    # Asteroids::orbitalsTimeDistribution()
-    def self.orbitalsTimeDistribution()
-        Asteroids::orbitalnames().map{|orbitalname|
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-            {
-                "orbitalname" => orbitalname,
-                "orbitaluuid" => orbitaluuid,
-                "BankValueInHours" => Bank::value(orbitaluuid).to_f/3600,
-                "timeRatio"        => Ping::bestTimeRatioOverPeriod7Samples(orbitaluuid, 30*86400)
-            }
-        }
-    end
-
-    # Asteroids::updateAsteroidOrbitalname(item)
-    def self.updateAsteroidOrbitalname(item)
-        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
-        orbitaluuid = nil
-        if orbitalname.nil? then
-            orbitalname = LucilleCore::askQuestionAnswerAsString("orbital name ? ")
-            return if orbitalname == ""
-            orbitaluuid = SecureRandom.uuid
-        else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-            return if orbitaluuid.nil?
-        end
-        item["orbitalname"] = orbitalname
-        item["orbitaluuid"] = orbitaluuid
+    # Asteroids::removeInboxMark(item)
+    def self.removeInboxMark(item)
+        item.delete("orbitaluuid")
         NyxIO::commitToDisk(item)
     end
 
@@ -274,22 +188,6 @@ class Asteroids
                 Asteroids::getAsteroidsByQuarkUUIDRegisterAsteroid(asteroid) }
     end
 
-    # Asteroids::getFocus()
-    def self.getFocus()
-        locationKey = CatalystCommon::getNewValueEveryNSeconds("069aeb21-bce5-4ea2-aa03-230a4c354729", 2.71828*3600) # e hours
-        focus = KeyValueStore::getOrNull(nil, locationKey)
-        if focus then
-            return JSON.parse(focus)
-        end
-        focus = Asteroids::orbitalsTimeDistribution()
-                    .sort{|i1, i2|
-                        i1["timeRatio"] <=> i2["timeRatio"]
-                    }
-                    .first
-        KeyValueStore::set(nil, locationKey, JSON.generate(focus))
-        focus
-    end
-
     # Asteroids::itemToCatalystObject(item, basemetric, indx)
     def self.itemToCatalystObject(item, basemetric, indx)
         uuid = item["uuid"]
@@ -317,19 +215,6 @@ class Asteroids
     # Asteroids::catalystObjects()
     def self.catalystObjects()
 
-        while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
-            quark = {
-                "uuid"             => SecureRandom.uuid,
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                "creationUnixtime" => Time.new.to_f,
-                "type"             => "url",
-                "url"              => link
-            }
-            NyxIO::commitToDisk(quark)
-            Asteroids::issueNew("Inbox", "44caf74675ceb79ba5cc13bafa102509369c2b53", quark)
-            Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
-        end
-
         # -------------------------------------------------------------------------
 
         objects = []
@@ -337,40 +222,34 @@ class Asteroids
         # -------------------------------------------------------------------------
 
         Asteroids::asteroids()
-            .select{|item| item["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, 0.74, indx)
-            }
+            .select{|item| item["isInbox"] } # Inbox
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .each_with_index {|item, indx| objects << Asteroids::itemToCatalystObject(item, 0.74, indx) }
 
         # -------------------------------------------------------------------------
 
         Asteroids::asteroids().select{|item| Runner::isRunning?(item["uuid"]) }
-            .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, 1, indx)
-            }
+            .each_with_index {|item, indx| objects << Asteroids::itemToCatalystObject(item, 1, indx) }
 
         # -------------------------------------------------------------------------
 
-        focus = Asteroids::getFocus()
-
-        # focus : {
-        #     "orbitalname" : String,
-        #     "orbitaluuid  : String,
-        #     "timeInHours" : Float
-        # }
-
         basemetric = Asteroids::getBaseMetric()
 
-        Asteroids::asteroids()
-            .select{|item| item["orbitaluuid"] == focus["orbitaluuid"] }
-            .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .first(3)
-            .sort{|i1, i2| Bank::value(i1["uuid"]) <=> Bank::value(i2["uuid"]) }
-            .each_with_index {|item, indx|
-                objects << Asteroids::itemToCatalystObject(item, basemetric, indx)
-            }
+        asteroids = Asteroids::asteroids()
+                        .select{|item| !Runner::isRunning?(item["uuid"]) } # running object have already been taken in items1
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
+        asteroids
+            .first(10)
+            .sort{|i1, i2| Ping::bestTimeRatioOverPeriod7Samples(i1["uuid"], 86400*7) <=> Ping::bestTimeRatioOverPeriod7Samples(i2["uuid"], 86400*7) }
+            .each_with_index {|item, indx| objects << Asteroids::itemToCatalystObject(item, basemetric, indx) }
+
+        asteroids
+            .reverse
+            .first(10)
+            .sort{|i1, i2| Ping::bestTimeRatioOverPeriod7Samples(i1["uuid"], 86400*7) <=> Ping::bestTimeRatioOverPeriod7Samples(i2["uuid"], 86400*7) }
+            .each_with_index {|item, indx| objects << Asteroids::itemToCatalystObject(item, basemetric, indx) }
+
 
         # -------------------------------------------------------------------------
 
@@ -381,7 +260,7 @@ class Asteroids
 
     # Asteroids::catalystObjectsFast()
     def self.catalystObjectsFast()
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("02b4b32c-58b7-49bc-983c-8117c1c3e326", 1200) then
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("02b4b32c-58b7-49bc-983c-8117c1c3e32a", 1200) then
             uuids = Asteroids::catalystObjects().reverse.first(100).map{|obj| obj["x-asteroid"]["uuid"] }.uniq
             KeyValueStore::set(nil, "b4998815-40af-4c34-b08d-e301cdcc4475", JSON.generate(uuids))
         end
@@ -441,10 +320,6 @@ class Asteroids
             NyxIO::destroyAtType(asteroid["uuid"], "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             return
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("-> update orbital ? ", false) then
-            Asteroids::stop(asteroid["uuid"])
-            Asteroids::updateAsteroidOrbitalname(asteroid)
-        end
     end
 
     # Asteroids::stopProcedure(asteroid)
@@ -454,9 +329,9 @@ class Asteroids
             Asteroids::destroyProcedure(asteroid)
             return
         end
-        if asteroid["orbitaluuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+        if asteroid["isInbox"] then
             puts "Item was not immediately done, we need to recast it to another orbital"
-            Asteroids::updateAsteroidOrbitalname(asteroid)
+            Asteroids::removeInboxMark(asteroid)
         end
     end
 
@@ -489,13 +364,11 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}"
             puts Asteroids::asteroidToString(asteroid).green
-            puts "project time: #{Bank::value(asteroid["orbitaluuid"].to_f/3600)} hours".green
             options = [
                 "start",
                 "open",
                 "stop",
                 "destroy",
-                "update orbital",
                 "push",
                 "register as opencycle",
                 "reset-reference-time",
@@ -528,12 +401,8 @@ class Asteroids
                 return if quark.nil?
                 Quarks::quarkDive(quark)
             end
-            if option == "update orbital" then
-                Asteroids::stop(asteroid["uuid"])
-                Asteroids::updateAsteroidOrbitalname(asteroid)
-            end
             if option == "push" then
-                asteroid["creationUnixtime"] = Time.new.to_f
+                asteroid["unixtime"] = Time.new.to_f
                 NyxIO::commitToDisk(asteroid)
             end
             if option == "register as opencycle" then
@@ -542,7 +411,7 @@ class Asteroids
             end
             if option == "reset-reference-time" then
                 Asteroids::stop(asteroid["uuid"])
-                asteroid["creationUnixtime"] = Time.new.to_f
+                asteroid["unixtime"] = Time.new.to_f
                 NyxIO::commitToDisk(asteroid)
             end
         }
@@ -550,54 +419,9 @@ class Asteroids
 
     # Asteroids::createNewAsteroidInteractivelyOrNull()
     def self.createNewAsteroidInteractivelyOrNull()
-        target = Quarks::issueNewQuarkInteractivelyOrNull()
-        return nil if target.nil?
-        orbitalname = Asteroids::selectOrbitalnameInteractivelyOrNull()
-        orbitaluuid = nil
-        if orbitalname.nil? then
-            orbitalname = LucilleCore::askQuestionAnswerAsString("orbinal name: ")
-            orbitaluuid = SecureRandom.uuid
-        else
-            orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-            return nil if orbitaluuid.nil?
-        end
-        Asteroids::issueNew(orbitalname, orbitaluuid, target)
-    end
-
-    # Asteroids::createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
-    def self.createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
-        orbitaluuid = Asteroids::orbitalname2orbitaluuidOrNull(orbitalname)
-        return nil if orbitaluuid.nil?
-        target = Quarks::issueNewQuarkInteractivelyOrNull()
-        return nil if target.nil?
-        Asteroids::issueNew(orbitalname, orbitaluuid, target)
-    end
-
-    # Asteroids::orbitalDive(orbitalname)
-    def self.orbitalDive(orbitalname)
-        loop {
-            system("clear")
-            puts "-> Visiting orbital '#{orbitalname}'"
-
-            items = []
-
-            Asteroids::asteroidsForOrbitalname(orbitalname)
-                .each{|asteroid|
-                    items << [ Asteroids::asteroidToString(asteroid), lambda{ Asteroids::asteroidDive(asteroid) } ]
-                }
-
-            items << [ 
-                        "-> Add new asteroid to this orbital", 
-                        lambda {
-                            asteroid = Asteroids::createNewAsteroidWithGivenExistingOrbitalnameInteractivelyOrNull(orbitalname)
-                            return if asteroid.nil?
-                            puts JSON.pretty_generate(asteroid)
-                        }
-                     ]
-
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
-            break if !status
-        }
+        quark = Quarks::issueNewQuarkInteractivelyOrNull()
+        return nil if quark.nil?
+        Asteroids::issueNew(quark, false)
     end
 
     # Asteroids::main()
@@ -607,8 +431,6 @@ class Asteroids
             puts "Asteroids 👩‍💻"
             options = [
                 "asteroid (create new)",
-                "orbitals dive",
-                "time report"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
@@ -616,23 +438,6 @@ class Asteroids
                 asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
-            end
-            if option == "orbitals dive" then
-                loop {
-                    orbitalname = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital name ", Asteroids::orbitalnames())
-                    break if orbitalname.nil?
-                    Asteroids::orbitalDive(orbitalname)
-                }
-            end
-            if option == "time report" then
-                items = Asteroids::orbitalsTimeDistribution()
-                d = items.map{|item| item["orbitalname"].size }.max
-                items
-                    .sort{|i1, i2| i1["timeRatio"] <=> i2["timeRatio"] }
-                    .each{|item|
-                        puts "    - #{item["orbitalname"].ljust(d+1)} : rollingTimeRatio: #{"%.6f" % item["timeRatio"]} ; bank: #{"%6.2f" % item["BankValueInHours"]} hours"
-                    }
-                LucilleCore::pressEnterToContinue()
             end
         }
     end
