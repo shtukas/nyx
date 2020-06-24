@@ -57,8 +57,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Programma
 
 class Asteroids
 
-    # Asteroids::makeCargoInteractivelyOrNull()
-    def self.makeCargoInteractivelyOrNull()
+    # Asteroids::makePayloadInteractivelyOrNull()
+    def self.makePayloadInteractivelyOrNull()
         options = [
             "description",
             "quark"
@@ -135,7 +135,7 @@ class Asteroids
 
     # Asteroids::issueSpaceShipInteractivelyOrNull()
     def self.issueSpaceShipInteractivelyOrNull()
-        payload = Asteroids::makeCargoInteractivelyOrNull()
+        payload = Asteroids::makePayloadInteractivelyOrNull()
         return if payload.nil?
         orbital = Asteroids::makeEngineInteractivelyOrNull()
         return if orbital.nil?
@@ -219,7 +219,7 @@ class Asteroids
 
     # Asteroids::repayload(asteroid)
     def self.repayload(asteroid)
-        payload = Asteroids::makeCargoInteractivelyOrNull()
+        payload = Asteroids::makePayloadInteractivelyOrNull()
         return if payload.nil?
         asteroid["payload"] = payload
         puts JSON.pretty_generate(asteroid)
@@ -261,7 +261,7 @@ class Asteroids
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                Asteroids::openCargo(asteroid)
+                Asteroids::openPayload(asteroid)
                 if !Asteroids::isRunning?(asteroid) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ", false) then
                     Runner::start(asteroid["uuid"])
                 end
@@ -490,7 +490,7 @@ class Asteroids
         Runner::start(asteroid["uuid"])
 
         if asteroid["payload"]["type"] == "quark" then
-            Asteroids::openCargo(asteroid)
+            Asteroids::openPayload(asteroid)
         end
     end
 
@@ -550,8 +550,8 @@ class Asteroids
         NyxIO::destroy(asteroid["uuid"])
     end
 
-    # Asteroids::openCargo(asteroid)
-    def self.openCargo(asteroid)
+    # Asteroids::openPayload(asteroid)
+    def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "quark" then
             quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
             return if quark.nil?
