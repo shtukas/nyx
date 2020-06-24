@@ -326,19 +326,19 @@ class Asteroids
             return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400)
         end
 
+        if orbital["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+            uuid = asteroid["uuid"]
+            return Metrics::metricNX1RequiredValueAndThenFall(0.68, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+        end
+
         if orbital["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1RequiredValueAndThenFall(0.66, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
-        end
-
-        if orbital["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
-            uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1RequiredValueAndThenFall(0.64, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         if orbital["type"] == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then

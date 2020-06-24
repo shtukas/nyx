@@ -308,7 +308,7 @@ class NSXCatalystUI
                 .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
                 .each{|float|
                     menuitems.item(
-                        "float: #{float["description"]}",
+                        "float: #{float["description"]}".yellow,
                         lambda { 
                             puts "float: #{float["description"]}"
                             return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")

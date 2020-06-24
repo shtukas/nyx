@@ -35,13 +35,6 @@ class NSXCatalystObjectsOperator
             Waves::catalystObjects()
         ].flatten
 
-        objects << {
-            "uuid"             => "9E736809-9313-4D1B-9E0D-45C140430D9F",
-            "body"             => "Catalyst Project",
-            "metric"           => 0.30,
-            "execute"          => lambda {}
-        }
-
         objects = objects
                     .select{|object| object['metric'] >= 0.2 }
 
