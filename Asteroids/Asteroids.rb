@@ -51,6 +51,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ProgrammableBooleans.rb"
+
 # -----------------------------------------------------------------------------
 
 class Asteroids
@@ -436,15 +438,30 @@ class Asteroids
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
         end
 
-        objects = Asteroids::asteroids()
-                    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
-        return [] if objects.empty?
-        if objects[0]["uuid"] == "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" then
-            objects = objects.reject{|object| object["x-asteroid"]["orbital"]["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" and object["x-asteroid"]["uuid"] != "1da6ff24-e81b-4257-b533-0a9e6a5bd1e9" }
+        Asteroids::asteroids()
+            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+    end
+
+    # Asteroids::cacheListingUUIDsIfNeeded()
+    def self.cacheListingUUIDsIfNeeded()
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
+            uuids = Asteroids::catalystObjects()
+                        .first(64)
+                        .map{|object| object["uuid"] }
+            KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
         end
-        objects
+    end
+
+    # Asteroids::catalystObjectsFast()
+    def self.catalystObjectsFast()
+        Asteroids::cacheListingUUIDsIfNeeded()
+        uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
+        JSON.parse(uuids)
+            .map{|uuid| NyxIO::getOrNull(uuid) }
+            .compact
+            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
     # Asteroids::asteroidStartSequence(asteroid)

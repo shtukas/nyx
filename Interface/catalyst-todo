@@ -71,9 +71,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
-#NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
-
-def objectsMonitoringForOnScreenNotifications()
+Thread.new {
     loop {
         sleep 5
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
@@ -84,10 +82,14 @@ def objectsMonitoringForOnScreenNotifications()
             }
         sleep 60
     }
-end
+}
 
 Thread.new {
-    objectsMonitoringForOnScreenNotifications()
+    loop {
+        sleep 60
+        Asteroids::cacheListingUUIDsIfNeeded()
+        sleep 600
+    }
 }
 
 NSXCatalystUI::standardUILoop()

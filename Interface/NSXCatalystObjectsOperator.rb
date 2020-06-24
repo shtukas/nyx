@@ -28,9 +28,9 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = [
             Anniversaries::catalystObjects(),
+            Asteroids::catalystObjectsFast(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
-            Asteroids::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects()
         ].flatten

@@ -212,6 +212,14 @@ class NSXCatalystUI
                 lambda { NSXCuration::run() }
             ]
 
+            items << [
+                "Timeline garbage collection", 
+                lambda { 
+                    puts "#{NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
+                    NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
+                }
+            ]
+
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
         }
