@@ -302,6 +302,14 @@ class Asteroids
         }
     end
 
+    # Asteroids::shiftNX71(unixtime)
+    def self.shiftNX71(unixtime)
+        # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
+        unixtimeAtNextMidnightIsh = (1+Time.now.utc.to_i/86400) * 86400
+        positiveDatationInMonths = unixtimeAtNextMidnightIsh-unixtime
+        1 - positiveDatationInMonths.to_f/(86400*365*100)
+    end
+
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
         uuid = asteroid["uuid"]
@@ -330,11 +338,7 @@ class Asteroids
         end
 
         if orbital["type"] == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-            uuid = asteroid["uuid"]
-            unixtimeAtNextMidnightIsh = (1+Time.now.utc.to_i/86400) * 86400
-            positiveDatationInDays = (unixtimeAtNextMidnightIsh-asteroid["unixtime"]).to_f/86400
-            shift = 0.01*[1.to_f/positiveDatationInDays, 1].max
-            return 0.49 - shift - 0.1*Ping::totalToday("b14be1e3-ff3f-457b-8595-685db7b98a9d").to_f/3600
+            return 0.49 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
         end
 
         raise "[Asteroids] error: 46b84bdb"
