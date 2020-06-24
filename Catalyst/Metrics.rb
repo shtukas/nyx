@@ -17,8 +17,8 @@ require 'digest/sha1'
 # -----------------------------------------------------------------
 
 class Metrics
-    # Metrics::metricNX1(basemetric, currentValue, targetValue)
-    def self.metricNX1(basemetric, currentValue, targetValue)
+    # Metrics::metricNX1RequiredValueAndThenFall(basemetric, currentValue, targetValue)
+    def self.metricNX1RequiredValueAndThenFall(basemetric, currentValue, targetValue)
         ratioDone = currentValue.to_f/targetValue
         if ratioDone < 1 then
             basemetric - 0.001*ratioDone

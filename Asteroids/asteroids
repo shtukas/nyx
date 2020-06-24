@@ -55,7 +55,8 @@ loop {
     system("clear")
     options = [
         "make new asteroid",
-        "dive asteroids"
+        "dive asteroids",
+        "cache listing uuids"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
@@ -71,4 +72,8 @@ loop {
             Asteroids::asteroidDive(asteroid)
         }
     end
+    if option == "cache listing uuids" then
+        Asteroids::cacheListingUUIDsIfNeeded(true)
+    end
+    
 }

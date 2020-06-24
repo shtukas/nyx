@@ -1,4 +1,6 @@
 
+ping uuid for Asteroid: b14be1e3-ff3f-457b-8595-685db7b98a9d 
+
 Asteroid
 {
     "uuid"     : String

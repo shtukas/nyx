@@ -85,10 +85,10 @@ class Asteroids
 
     # Asteroids::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
-        opt1 = "deadline ‼️ "
-        opt2 = "single time commitment for a day ⏱️ "
-        opt5 = "until completion ⛵"
-        opt3 = "on-going time commitment ☀️"
+        opt1 = "deadline"
+        opt2 = "single time commitment for a day"
+        opt5 = "until completion"
+        opt3 = "on-going time commitment"
         opt4 = "todo"
 
         options = [
@@ -145,11 +145,11 @@ class Asteroids
     # Asteroids::issue(payload, orbital)
     def self.issue(payload, orbital)
         asteroid = {
-            "uuid"             => CatalystCommon::l22(),
-            "nyxType"          => "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "uuid"     => CatalystCommon::l22(),
+            "nyxType"  => "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "unixtime" => Time.new.to_f,
-            "payload"            => payload,
-            "orbital"           => orbital
+            "payload"  => payload,
+            "orbital"  => orbital
         }
         NyxIO::commitToDisk(asteroid)
         asteroid
@@ -190,9 +190,9 @@ class Asteroids
         typeAsUserFriendly = lambda {|type|
             return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
             return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "☀️ " if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            return "‼️ " if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
-            return "🛸" if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            return "🎡"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "🗓️"  if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+            return "🌇"  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -311,27 +311,30 @@ class Asteroids
         return 1 if Asteroids::isRunning?(asteroid)
 
         if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-            return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400)
         end
 
         if orbital["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         if orbital["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return Metrics::metricNX1RequiredValueAndThenFall(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
         if orbital["type"] == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
             uuid = asteroid["uuid"]
-            return 0.65 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            unixtimeAtNextMidnightIsh = (1+Time.now.utc.to_i/86400) * 86400
+            positiveDatationInDays = (unixtimeAtNextMidnightIsh-asteroid["unixtime"]).to_f/86400
+            shift = 0.01*[1.to_f/positiveDatationInDays, 1].max
+            return 0.49 - shift - 0.1*Ping::totalToday("b14be1e3-ff3f-457b-8595-685db7b98a9d").to_f/3600
         end
 
         raise "[Asteroids] error: 46b84bdb"
@@ -444,9 +447,9 @@ class Asteroids
             .reverse
     end
 
-    # Asteroids::cacheListingUUIDsIfNeeded()
-    def self.cacheListingUUIDsIfNeeded()
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
+    # Asteroids::cacheListingUUIDsIfNeeded(force)
+    def self.cacheListingUUIDsIfNeeded(force)
+        if force or ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
             uuids = Asteroids::catalystObjects()
                         .first(64)
                         .map{|object| object["uuid"] }
@@ -456,7 +459,7 @@ class Asteroids
 
     # Asteroids::catalystObjectsFast()
     def self.catalystObjectsFast()
-        Asteroids::cacheListingUUIDsIfNeeded()
+        Asteroids::cacheListingUUIDsIfNeeded(false)
         uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
         JSON.parse(uuids)
             .map{|uuid| NyxIO::getOrNull(uuid) }
@@ -489,10 +492,9 @@ class Asteroids
 
     # Asteroids::addTimeToAsteroid(asteroid, timespanInSeconds)
     def self.addTimeToAsteroid(asteroid, timespanInSeconds)
-        puts "[asteroid] Putting #{timespanInSeconds.round(2)} secs into Bank (#{asteroid["uuid"]})"
         Bank::put(asteroid["uuid"], timespanInSeconds)
-        puts "[asteroid] Putting #{timespanInSeconds.round(2)} secs into Ping (#{asteroid["uuid"]})"
         Ping::put(asteroid["uuid"], timespanInSeconds)
+        Ping::put("b14be1e3-ff3f-457b-8595-685db7b98a9d", timespanInSeconds)
     end
 
     # Asteroids::asteroidStopSequence(asteroid)

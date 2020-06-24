@@ -87,7 +87,7 @@ Thread.new {
 Thread.new {
     loop {
         sleep 60
-        Asteroids::cacheListingUUIDsIfNeeded()
+        Asteroids::cacheListingUUIDsIfNeeded(false)
         sleep 600
     }
 }
