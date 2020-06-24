@@ -148,7 +148,7 @@ class NSXCatalystUI
             items << [
                 "asteroid (new)",
                 lambda {
-                    asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
+                    asteroid = Asteroids::issueNewAsteroidInteractivelyOrNull()
                     return if asteroid.nil?
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
@@ -421,15 +421,39 @@ class NSXCatalystUI
             end
         end
 
-        if command.start_with?("f:") then
-            description = command[2, command.size].strip
-            return if description.size == 0
-            float = {
-                "id"          => SecureRandom.hex,
-                "unixtime"    => Time.new.to_i,
-                "description" => description
-            }
-            BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+        if command == "l+" then
+            items = []
+
+            items << [
+                "float (visible text things to keep in mind -- should be short lived)", 
+                lambda {
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    return if description.size == 0
+                    float = {
+                        "id"          => SecureRandom.hex,
+                        "unixtime"    => Time.new.to_i,
+                        "description" => description
+                    }
+                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+                }
+            ]
+
+            items << [
+                "asteroid (todo fifo)", 
+                lambda { Asteroids::issueNewAsteroidInteractivelyOrNull() }
+            ]
+
+            items << [
+                "starship (higher priority, possibly with deadline)", 
+                lambda { Asteroids::issueNewAsteroidInteractivelyOrNull() }
+            ]
+
+            items << [
+                "open cycle (with created quark)", 
+                lambda { OpenCycles::createQuarkAndIssueNew() }
+            ]
+
+            LucilleCore::menuItemsWithLambdas(items)
             return
         end
 

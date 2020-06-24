@@ -417,8 +417,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::createNewAsteroidInteractivelyOrNull()
-    def self.createNewAsteroidInteractivelyOrNull()
+    # Asteroids::issueNewAsteroidInteractivelyOrNull()
+    def self.issueNewAsteroidInteractivelyOrNull()
         quark = Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
         Asteroids::issueNew(quark, false)
@@ -435,7 +435,7 @@ class Asteroids
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "asteroid (create new)" then
-                asteroid = Asteroids::createNewAsteroidInteractivelyOrNull()
+                asteroid = Asteroids::issueNewAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
             end

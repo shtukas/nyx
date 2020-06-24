@@ -223,21 +223,8 @@ class QuarksMakers
             "podname"          => podname
         }
     end
-end
 
-class QuarksIssuers
-
-    # QuarksIssuers::issueQuarkFileOrFolderFromLocation(location)
-    def self.issueQuarkFileOrFolderFromLocation(location)
-        quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
-        NyxIO::commitToDisk(quark)
-        quark
-    end
-end
-
-class Quarks
-
-    # Quarks::makeNewQuarkInteractivelyOrNull()
+    # QuarksMakers::makeNewQuarkInteractivelyOrNull()
     def self.makeNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
         types = ["line", "url", "file", "new text file", "folder", "unique-name", "datapod"]
@@ -267,12 +254,22 @@ class Quarks
             return QuarksMakers::makeQuarkDataPodInteractively()
         end
     end
+end
+
+class Quarks
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Issuing a new Quark..."
-        quark = Quarks::makeNewQuarkInteractivelyOrNull()
+        quark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
+        NyxIO::commitToDisk(quark)
+        quark
+    end
+
+    # Quarks::issueQuarkFileOrFolderFromLocation(location)
+    def self.issueQuarkFileOrFolderFromLocation(location)
+        quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
         NyxIO::commitToDisk(quark)
         quark
     end
@@ -619,7 +616,7 @@ class Quarks
         # Thereby replacing the argument by a new one, of a possibly different type.
         # If we were to just create a new quark and delete the old one, the new one would not 
         # inherit the links of the old one.
-        newquark = Quarks::makeNewQuarkInteractivelyOrNull()
+        newquark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         newquark["uuid"] = quark["uuid"] # uuid override
         NyxIO::commitToDisk(newquark)
         newquark

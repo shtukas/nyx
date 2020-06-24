@@ -147,7 +147,7 @@ class NSXMiscUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            target = QuarksIssuers::issueQuarkFileOrFolderFromLocation(location)
+            target = Quarks::issueQuarkFileOrFolderFromLocation(location)
             puts JSON.pretty_generate(target)
             item = Asteroids::issueNew(target, true)
             puts JSON.pretty_generate(item)

@@ -51,6 +51,13 @@ class OpenCycles
         opencycle
     end
 
+    # OpenCycles::createQuarkAndIssueNew()
+    def self.createQuarkAndIssueNew()
+        quark = Quarks::issueNewQuarkInteractivelyOrNull()
+        return if quark.nil?
+        OpenCycles::issueFromQuark(quark)
+    end
+
     # OpenCycles::issueFromClique(clique)
     def self.issueFromClique(clique)
         opencycle = {
