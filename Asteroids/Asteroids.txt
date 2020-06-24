@@ -32,8 +32,8 @@ Asteroid
             "type" : "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
         }
         {
-            "type"             : "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
-            "deadlineUnixtime" : Integer
+            "type"     : "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+            "deadline" : Unixtime
         }
         {
             "type" : "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"

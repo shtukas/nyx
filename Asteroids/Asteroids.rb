@@ -126,8 +126,8 @@ class Asteroids
         if option == opt1 then
             timeToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("Time to deadline in days: ").to_f
             return {
-                "type"             => "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
-                "deadlineUnixtime" => Time.new.to_i + timeToDeadlineInDays*86400
+                "type"     => "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
+                "deadline" => Time.new.to_i + timeToDeadlineInDays*86400
             }
         end
         nil
@@ -185,14 +185,18 @@ class Asteroids
             if asteroid["orbital"]["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
                 return " (commitment for a day: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
+            if asteroid["orbital"]["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+                timeToDeadline = asteroid["orbital"]["deadline"] - Time.new.to_f
+                return " (deadline: #{Time.at(asteroid["orbital"]["deadline"]).to_s}, #{(timeToDeadline.to_f/86400).round(2)} days)"
+            end
             ""
         }
         typeAsUserFriendly = lambda {|type|
             return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
             return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "🎡"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            return "🗓️"  if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
-            return "🌇"  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            return "🎡 "  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "🗓️ "  if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+            return "🌇 "  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -457,6 +461,11 @@ class Asteroids
                     .first(64)
                     .map{|object| object["uuid"] }
         KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
+
+        uuids = Asteroids::asteroids()
+                    .select{|asteroid| asteroid["orbital"]["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" }
+                    .map{|asteroid| asteroid["uuid"] }
+        KeyValueStore::set(nil, "66ecd959-967c-4c5e-b437-c07169f3d3b1", JSON.generate(uuids))
     end
 
     # Asteroids::cacheWorkingUUIDsIfNeeded()
