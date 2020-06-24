@@ -63,7 +63,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGarbageColl
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
@@ -146,16 +145,6 @@ class NSXCatalystUI
             ]
 
             items << [
-                "asteroid (new)",
-                lambda {
-                    asteroid = Asteroids::issueNewAsteroidInteractivelyOrNull()
-                    return if asteroid.nil?
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
                 "spaceship (new)",
                 lambda { 
                     spaceship = Spaceships::issueSpaceShipInteractivelyOrNull()
@@ -174,10 +163,6 @@ class NSXCatalystUI
 
             items << nil
 
-            items << [
-                "Asteroids",
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
-            ]
             items << [
                 "Spaceships",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/spaceships") }
@@ -244,15 +229,6 @@ class NSXCatalystUI
         end
         if object["x-calendar-date"] then
             Calendar::setDateAsReviewed(object["x-calendar-date"])
-            return
-        end
-        if object["x-asteroid"] and !object["isRunning"] then
-            puts "-> starting asteroid"
-            Asteroids::startProcedure(object["x-asteroid"])
-            return
-        end
-        if object["x-asteroid"] and object["isRunning"] then
-            Asteroids::stopProcedure(object["x-asteroid"])
             return
         end
         if object["x-wave"] then
@@ -439,13 +415,8 @@ class NSXCatalystUI
             ]
 
             items << [
-                "asteroid (todo fifo)", 
-                lambda { Asteroids::issueNewAsteroidInteractivelyOrNull() }
-            ]
-
-            items << [
-                "starship (higher priority, possibly with deadline)", 
-                lambda { Asteroids::issueNewAsteroidInteractivelyOrNull() }
+                "starship", 
+                lambda { Spaceships::issueSpaceShipInteractivelyOrNull() }
             ]
 
             items << [
@@ -474,19 +445,6 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
-
-            while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
-                quark = {
-                    "uuid"             => SecureRandom.uuid,
-                    "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-                    "creationUnixtime" => Time.new.to_f,
-                    "type"             => "url",
-                    "url"              => link
-                }
-                NyxIO::commitToDisk(quark)
-                Asteroids::issueNew(quark, true)
-                Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
-            end
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()

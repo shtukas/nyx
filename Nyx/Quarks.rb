@@ -64,10 +64,8 @@ class QuarksMakers
         }
     end
 
-    # QuarksMakers::makeQuarkUrlInteractively()
-    def self.makeQuarkUrlInteractively()
-        url = LucilleCore::askQuestionAnswerAsString("url: ")
-        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+    # QuarksMakers::makeQuarkUrl(url, description)
+    def self.makeQuarkUrl(url, description)
         {
             "uuid"             => SecureRandom.uuid,
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
@@ -76,6 +74,13 @@ class QuarksMakers
             "type"             => "url",
             "url"              => url
         }
+    end
+
+    # QuarksMakers::makeQuarkUrlInteractively()
+    def self.makeQuarkUrlInteractively()
+        url = LucilleCore::askQuestionAnswerAsString("url: ")
+        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+        QuarksMakers::makeQuarkUrl(url, description)
     end
 
     # QuarksMakers::makeQuarkFileInteractivelyOrNull()

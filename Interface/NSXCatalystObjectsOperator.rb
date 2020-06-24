@@ -16,7 +16,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/Anniversaries.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/BackupsMonitor/BackupsMonitor.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/Calendar.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
@@ -29,7 +28,6 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = [
             Anniversaries::catalystObjects(),
-            Asteroids::catalystObjectsFast(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             Spaceships::catalystObjects(),
@@ -59,10 +57,6 @@ class NSXCatalystObjectsOperator
             {
                 "name" => "Anniversaries",
                 "exec" => lambda{ Anniversaries::catalystObjects() }
-            },
-            {
-                "name" => "Asteroids",
-                "exec" => lambda{ Asteroids::catalystObjectsFast() }
             },
             {
                 "name" => "BackupsMonitor",

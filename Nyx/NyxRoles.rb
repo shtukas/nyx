@@ -30,7 +30,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
@@ -52,9 +51,6 @@ class NyxRoles
         if object["nyxType"] == "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58" then
             return Waves::waveToString(object)
         end
-        if object["nyxType"] == "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37" then
-            return Asteroids::asteroidToString(object)
-        end
         if object["nyxType"] == "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc" then
             return Spaceships::spaceshipToString(object)
         end
@@ -69,10 +65,6 @@ class NyxRoles
     def self.objectDive(object)
         if object["nyxType"] == "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58" then
             puts "There isn't currently a dive function for Waves"
-            return
-        end
-        if object["nyxType"] == "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37" then
-            Asteroids::asteroidDive(object)
             return
         end
         if object["nyxType"] == "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc" then
@@ -91,7 +83,6 @@ class NyxRoles
     def self.getRolesForTarget(targetuuid)
         [
             # We are not doing the Waves as they have no target
-            Asteroids::getAsteroidsByQuarkUUIDUseDerivation(targetuuid),
             Spaceships::getSpaceshipsByTargetUUID(targetuuid),
             OpenCycles::getOpenCyclesByTargetUUID(targetuuid)
         ].flatten

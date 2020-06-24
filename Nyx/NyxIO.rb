@@ -126,7 +126,6 @@ class NyxIO
     # NyxIO::rolesNyxTypes()
     def self.rolesNyxTypes()
         [
-            "asteroid-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
             "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
             "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
         ]

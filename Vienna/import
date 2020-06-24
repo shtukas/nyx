@@ -56,6 +56,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+
 # -------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
@@ -92,21 +95,14 @@ def timeStringL22()
     "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
 end
 
-if KeyValueStore::flagIsTrue(nil, "ac508ff0-40cc-4971-ab14-c49228aed7f4:#{Time.new.to_s[0, 13]}") then
-    puts JSON.generate([])
-    exit
-end
-
 viennaLinkFeeder = ViennaLinkFeeder.new()
 
 loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
-    #puts "vienna: #{link}"
-    Mercury::postValue("F771D7FE-1802-409D-B009-5EB95BA89D86", link)
+    puts "vienna: #{link}"
+    quark = QuarksMakers::makeQuarkUrl(link, link)
+    NyxIO::commitToDisk(quark)
+    Spaceships::issueStartshipTodoFromQuark(quark)
     viennaLinkFeeder.done(link)
 }
-
-KeyValueStore::setFlagTrue(nil, "ac508ff0-40cc-4971-ab14-c49228aed7f4:#{Time.new.to_s[0, 13]}")
-
-puts JSON.generate([])

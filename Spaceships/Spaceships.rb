@@ -55,65 +55,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.r
 
 class Spaceships
 
-    # Spaceships::issueSpaceShipInteractivelyOrNull()
-    def self.issueSpaceShipInteractivelyOrNull()
-        cargo = Spaceships::makeCargoInteractivelyOrNull()
-        return if cargo.nil?
-        engine = Spaceships::makeEngineInteractivelyOrNull()
-        return if engine.nil?
-        Spaceships::issue(cargo, engine)
-    end
-
-    # Spaceships::issue(cargo, engine)
-    def self.issue(cargo, engine)
-        spaceship = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
-            "creationUnixtime" => Time.new.to_f,
-            "cargo"            => cargo,
-            "engine"           => engine
-        }
-        NyxIO::commitToDisk(spaceship)
-        spaceship
-    end
-
-    # Spaceships::spaceshipToString(spaceship)
-    def self.spaceshipToString(spaceship)
-        cargoFragment = lambda{|spaceship|
-            cargo = spaceship["cargo"]
-            if cargo["type"] == "description" then
-                return " " + cargo["description"]
-            end
-            if cargo["type"] == "quark" then
-                quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
-                return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
-            end
-            raise "[Spaceships] error: CE8497BB"
-        }
-        engineFragment = lambda{|spaceship|
-            uuid = spaceship["uuid"]
-            if spaceship["engine"]["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
-                return " (commitment for a day: #{spaceship["engine"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
-            end
-            ""
-        }
-        typeAsUserFriendly = lambda {|type|
-            return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "☀️ "  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            return "‼️ " if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
-        }
-        uuid = spaceship["uuid"]
-        isRunning = Runner::isRunning?(uuid)
-        runningString = 
-            if isRunning then
-                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
-            else
-                ""
-            end
-        "[spaceship] #{typeAsUserFriendly.call(spaceship["engine"]["type"])}#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
-    end
-
     # Spaceships::makeCargoInteractivelyOrNull()
     def self.makeCargoInteractivelyOrNull()
         options = [
@@ -146,12 +87,14 @@ class Spaceships
         opt2 = "single time commitment for a day ⏱️ "
         opt3 = "on-going time commitment ☀️"
         opt1 = "deadline ‼️ "
+        opt4 = "todo"
 
         options = [
             opt2,
             opt5,
             opt3,
-            opt1
+            opt1,
+            opt4
         ]
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
@@ -173,6 +116,11 @@ class Spaceships
                 "type" => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
             }
         end
+        if option == opt3 then
+            return {
+                "type" => "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            }
+        end
         if option == opt1 then
             timeToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("Time to deadline in days: ").to_f
             return {
@@ -181,6 +129,78 @@ class Spaceships
             }
         end
         nil
+    end
+
+    # Spaceships::issueSpaceShipInteractivelyOrNull()
+    def self.issueSpaceShipInteractivelyOrNull()
+        cargo = Spaceships::makeCargoInteractivelyOrNull()
+        return if cargo.nil?
+        engine = Spaceships::makeEngineInteractivelyOrNull()
+        return if engine.nil?
+        Spaceships::issue(cargo, engine)
+    end
+
+    # Spaceships::issue(cargo, engine)
+    def self.issue(cargo, engine)
+        spaceship = {
+            "uuid"             => CatalystCommon::l22(),
+            "nyxType"          => "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc",
+            "unixtime" => Time.new.to_f,
+            "cargo"            => cargo,
+            "engine"           => engine
+        }
+        NyxIO::commitToDisk(spaceship)
+        spaceship
+    end
+
+    # Spaceships::issueStartshipTodoFromQuark(quark)
+    def self.issueStartshipTodoFromQuark(quark)
+        cargo = {
+            "type"      => "quark",
+            "quarkuuid" => quark["uuid"]
+        }
+        engine = {
+            "type" => "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        }
+        Spaceships::issue(cargo, engine)
+    end
+
+    # Spaceships::spaceshipToString(spaceship)
+    def self.spaceshipToString(spaceship)
+        cargoFragment = lambda{|spaceship|
+            cargo = spaceship["cargo"]
+            if cargo["type"] == "description" then
+                return " " + cargo["description"]
+            end
+            if cargo["type"] == "quark" then
+                quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
+                return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
+            end
+            raise "[Spaceships] error: CE8497BB"
+        }
+        engineFragment = lambda{|spaceship|
+            uuid = spaceship["uuid"]
+            if spaceship["engine"]["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+                return " (commitment for a day: #{spaceship["engine"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+            end
+            ""
+        }
+        typeAsUserFriendly = lambda {|type|
+            return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "☀️ " if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "‼️ " if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+            return "🛸" if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        }
+        uuid = spaceship["uuid"]
+        isRunning = Runner::isRunning?(uuid)
+        runningString = 
+            if isRunning then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        "[spaceship] #{typeAsUserFriendly.call(spaceship["engine"]["type"])}#{cargoFragment.call(spaceship)}#{engineFragment.call(spaceship)}#{runningString}"
     end
 
     # Spaceships::spaceships()
@@ -307,6 +327,11 @@ class Spaceships
             return Metrics::metricNX1(0.65, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
+        if engine["type"] == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+            uuid = spaceship["uuid"]
+            return 0.65 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+        end
+
         raise "[Spaceships] error: 46b84bdb"
     end
 
@@ -330,6 +355,10 @@ class Spaceships
 
         if engine["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
             return true
+        end
+
+        if engine["type"] == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+            return false
         end
 
         raise "[Spaceships] error: 46b84bdb"

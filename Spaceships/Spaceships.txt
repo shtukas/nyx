@@ -1,11 +1,11 @@
 
 Spaceship
 {
-    "uuid"             : String
-    "nyxType"          : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
-    "creationUnixtime" : Float # Unixtime with decimals
-    "cargo"            : SpaceshipCargo
-    "engine"           : SpaceshipEngine
+    "uuid"     : String
+    "nyxType"  : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
+    "unixtime" : Float # Unixtime with decimals
+    "cargo"    : SpaceshipCargo
+    "engine"   : SpaceshipEngine
 }
 
     SpaceshipCargo
@@ -33,3 +33,8 @@ Spaceship
             "type"             : "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
             "deadlineUnixtime" : Integer
         }
+        {
+            "type" : "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        }
+
+
