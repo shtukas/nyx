@@ -282,6 +282,8 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
         OpenCycles::opencycles()
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
             .map{|opencycle|
@@ -300,6 +302,24 @@ class NSXCatalystUI
                 )
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
+
+        floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
+        if floats.size > 0 then
+            puts ""
+            floats
+                .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
+                .each{|float|
+                    menuitems.item(
+                        "float: #{float["description"]}",
+                        lambda { 
+                            puts "float: #{float["description"]}"
+                            return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                            BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) 
+                        }
+                    )
+                }
+            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
+        end
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
@@ -323,18 +343,6 @@ class NSXCatalystUI
                     .map{|line| "    #{line}" }
                     .join()
             }
-
-        floats = BTreeSets::values(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
-        if floats.size > 0 then
-            puts ""
-            floats.each{|float|
-                menuitems.item(
-                    "float: #{float["description"]}".green,
-                    lambda { BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) }
-                )
-            }
-            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
-        end
 
         # --------------------------------------------------------------------------
         # Print
@@ -418,9 +426,10 @@ class NSXCatalystUI
             return if description.size == 0
             float = {
                 "id"          => SecureRandom.hex,
+                "unixtime"    => Time.new.to_i,
                 "description" => description
             }
-            BTreeSets::set(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+            BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
             return
         end
 
