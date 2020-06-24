@@ -18,7 +18,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/Anniversaries.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/BackupsMonitor/BackupsMonitor.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/Calendar.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 
@@ -30,7 +30,7 @@ class NSXCatalystObjectsOperator
             Anniversaries::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
-            Spaceships::catalystObjects(),
+            Asteroids::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects()
         ].flatten
@@ -67,8 +67,8 @@ class NSXCatalystObjectsOperator
                 "exec" => lambda{ Calendar::catalystObjects() }
             },
             {
-                "name" => "Spaceships",
-                "exec" => lambda{ Spaceships::catalystObjects() }
+                "name" => "Asteroids",
+                "exec" => lambda{ Asteroids::catalystObjects() }
             },
             {
                 "name" => "VideoStream",

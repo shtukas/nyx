@@ -16,7 +16,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -148,7 +148,7 @@ class NSXMiscUtils
             end
             quark = Quarks::issueQuarkFileOrFolderFromLocation(location)
             puts JSON.pretty_generate(quark)
-            starship = Spaceships::issueStartshipTodoFromQuark(quark)
+            starship = Asteroids::issueStartshipTodoFromQuark(quark)
             puts JSON.pretty_generate(starship)
             LucilleCore::removeFileSystemLocation(location)
         end

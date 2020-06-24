@@ -53,7 +53,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
@@ -239,63 +239,63 @@ class CatalystFsck
         end
     end
 
-    # CatalystFsck::checkSpaceship(spaceship)
-    def self.checkSpaceship(spaceship)
-        puts JSON.pretty_generate(spaceship)
-        if spaceship["uuid"].nil? then
-            puts "[error] spaceship has no uuid".red
-            puts JSON.pretty_generate(spaceship).red
+    # CatalystFsck::checkAsteroid(asteroid)
+    def self.checkAsteroid(asteroid)
+        puts JSON.pretty_generate(asteroid)
+        if asteroid["uuid"].nil? then
+            puts "[error] asteroid has no uuid".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
-        if spaceship["nyxType"].nil? then
-            puts "[error] spaceship has no nyxType".red
-            puts JSON.pretty_generate(spaceship).red
+        if asteroid["nyxType"].nil? then
+            puts "[error] asteroid has no nyxType".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
-        if spaceship["nyxType"] != "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc" then
-            puts "[error] spaceship has incorrect nyxType".red
-            puts JSON.pretty_generate(spaceship).red
+        if asteroid["nyxType"] != "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc" then
+            puts "[error] asteroid has incorrect nyxType".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
-        if spaceship["cargo"].nil? then
-            puts "[error] spaceship has no cargo".red
-            puts JSON.pretty_generate(spaceship).red
-            exit
-        end
-
-        cargoTypes = ["description", "quark"]
-        if !cargoTypes.include?(spaceship["cargo"]["type"]) then
-            puts "[error] spaceship has incorrect cargo type".red
-            puts JSON.pretty_generate(spaceship).red
+        if asteroid["payload"].nil? then
+            puts "[error] asteroid has no payload".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
 
-        if spaceship["cargo"]["type"] == "quark" then
-            quark = NyxIO::getOrNull(spaceship["cargo"]["quarkuuid"])
+        payloadTypes = ["description", "quark"]
+        if !payloadTypes.include?(asteroid["payload"]["type"]) then
+            puts "[error] asteroid has incorrect payload type".red
+            puts JSON.pretty_generate(asteroid).red
+            exit
+        end
+
+        if asteroid["payload"]["type"] == "quark" then
+            quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
             if quark.nil? then
-                puts "[error] Spaceship item has not known target quark".red
-                puts JSON.pretty_generate(spaceship).red
+                puts "[error] Asteroid item has not known target quark".red
+                puts JSON.pretty_generate(asteroid).red
                 exit
             end
             CatalystFsck::checkQuark(quark)
         end
 
-        if spaceship["engine"].nil? then
-            puts "[error] spaceship has no engine".red
-            puts JSON.pretty_generate(spaceship).red
+        if asteroid["orbital"].nil? then
+            puts "[error] asteroid has no orbital".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
 
-        engineTypes = [
+        orbitalTypes = [
             "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
             "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219",
             "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
             "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
             "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         ]
-        if !engineTypes.include?(spaceship["engine"]["type"]) then
-            puts "[error] spaceship has incorrect engine type".red
-            puts JSON.pretty_generate(spaceship).red
+        if !orbitalTypes.include?(asteroid["orbital"]["type"]) then
+            puts "[error] asteroid has incorrect orbital type".red
+            puts JSON.pretty_generate(asteroid).red
             exit
         end
     end
@@ -358,8 +358,8 @@ class CatalystFsck
         Waves::waves().each{|wave|
             CatalystFsck::checkWaves(wave)
         }
-        Spaceships::spaceships().each{|spaceship|
-            CatalystFsck::checkSpaceship(spaceship)
+        Asteroids::asteroids().each{|asteroid|
+            CatalystFsck::checkAsteroid(asteroid)
         }
         Cliques::cliques().each{|clique|
             CatalystFsck::checkClique(clique)

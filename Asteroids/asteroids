@@ -47,28 +47,28 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::value(uuid)
 =end
 
-require_relative "Spaceships.rb"
+require_relative "Asteroids.rb"
 
 # --------------------------------------------------------------------
 
 loop {
     system("clear")
     options = [
-        "make new spaceship",
-        "dive spaceships"
+        "make new asteroid",
+        "dive asteroids"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "make new spaceship" then
-        spaceship = Spaceships::issueSpaceShipInteractivelyOrNull()
-        next if spaceship.nil?
-        puts JSON.pretty_generate(spaceship)
+    if option == "make new asteroid" then
+        asteroid = Asteroids::issueSpaceShipInteractivelyOrNull()
+        next if asteroid.nil?
+        puts JSON.pretty_generate(asteroid)
     end
-    if option == "dive spaceships" then
+    if option == "dive asteroids" then
         loop {
-            spaceship = LucilleCore::selectEntityFromListOfEntitiesOrNull("spaceship", Spaceships::spaceships(), lambda{|spaceship| Spaceships::spaceshipToString(spaceship) })
-            break if spaceship.nil?
-            Spaceships::spaceshipDive(spaceship)
+            asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", Asteroids::asteroids(), lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
+            break if asteroid.nil?
+            Asteroids::asteroidDive(asteroid)
         }
     end
 }

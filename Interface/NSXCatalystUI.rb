@@ -62,7 +62,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGarbageCollection.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
@@ -145,11 +145,11 @@ class NSXCatalystUI
             ]
 
             items << [
-                "spaceship (new)",
+                "asteroid (new)",
                 lambda { 
-                    spaceship = Spaceships::issueSpaceShipInteractivelyOrNull()
-                    return if spaceship.nil?
-                    puts JSON.pretty_generate(spaceship)
+                    asteroid = Asteroids::issueSpaceShipInteractivelyOrNull()
+                    return if asteroid.nil?
+                    puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
                 }
             ]
@@ -164,8 +164,8 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "Spaceships",
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/spaceships") }
+                "Asteroids",
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
             ]
             items << [
                 "OpenCycles",
@@ -219,12 +219,12 @@ class NSXCatalystUI
 
     # NSXCatalystUI::doTheObviousThingWithThis(object)
     def self.doTheObviousThingWithThis(object)
-        if object["x-spaceship"] and !object["isRunning"] then
-            Spaceships::spaceshipStartSequence(object["x-spaceship"])
+        if object["x-asteroid"] and !object["isRunning"] then
+            Asteroids::asteroidStartSequence(object["x-asteroid"])
             return
         end
-        if object["x-spaceship"] and object["isRunning"] then
-            Spaceships::spaceshipStopSequence(object["x-spaceship"])
+        if object["x-asteroid"] and object["isRunning"] then
+            Asteroids::asteroidStopSequence(object["x-asteroid"])
             return
         end
         if object["x-calendar-date"] then
@@ -416,7 +416,7 @@ class NSXCatalystUI
 
             items << [
                 "starship", 
-                lambda { Spaceships::issueSpaceShipInteractivelyOrNull() }
+                lambda { Asteroids::issueSpaceShipInteractivelyOrNull() }
             ]
 
             items << [

@@ -1,24 +1,24 @@
 
-Spaceship
+Asteroid
 {
     "uuid"     : String
-    "nyxType"  : "spaceship-99a06996-dcad-49f5-a0ce-02365629e4fc"
+    "nyxType"  : "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc"
     "unixtime" : Float # Unixtime with decimals
-    "cargo"    : SpaceshipCargo
-    "engine"   : SpaceshipEngine
+    "payload"  : Payload
+    "orbital"  : Orbital
 }
 
-    SpaceshipCargo
+    Payload
         {
             "type"        : "description"
             "description" : String
         }
         {
-            "type"        : "quark"
-            "quarkuuid"   : String
+            "type"      : "quark"
+            "quarkuuid" : String
         }
 
-    SpaceshipEngine
+    Orbital
         {
             "type" : "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
         }

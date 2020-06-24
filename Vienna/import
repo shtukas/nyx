@@ -57,7 +57,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Spaceships/Spaceships.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 
 # -------------------------------------------------------------------------
 
@@ -103,6 +103,6 @@ loop {
     puts "vienna: #{link}"
     quark = QuarksMakers::makeQuarkUrl(link, link)
     NyxIO::commitToDisk(quark)
-    Spaceships::issueStartshipTodoFromQuark(quark)
+    Asteroids::issueStartshipTodoFromQuark(quark)
     viennaLinkFeeder.done(link)
 }
