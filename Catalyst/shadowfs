@@ -50,10 +50,17 @@ require_relative "ShadowFS.rb"
 if ARGV[0] == "commit" and ARGV[1] then
     location = ARGV[1]
     puts ShadowFS::commitLocationReturnHash(ShadowFSOperator.new(), location)
+    exit
 end
 
 if ARGV[0] == "get" and ARGV[1] then
     nhash = ARGV[1]
     print ShadowFSOperator.new().readBlobErrorIfNotFound(nhash)
+    exit
 end
+
+
+puts "./shadowfs commit <location>"
+puts "./shadowfs get <nhash>"
+
 exit

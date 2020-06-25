@@ -1,4 +1,5 @@
-# require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/ShadowFS.rb"
+
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ShadowFS.rb"
 =begin
 
 The operator is an object that has meet the following signatures
@@ -214,7 +215,6 @@ end
 class ShadowFSOperator
 
     def initialize()
-
     end
 
     def commitBlob(blob)
