@@ -103,19 +103,19 @@ class Asteroids
         return nil if option.nil?
         if option == opt5 then
             return {
-                "type" => "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
+                "type" => "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
             }
         end
         if option == opt2 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
-                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
         if option == opt3 then
             return {
-                "type" => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+                "type" => "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
             }
         end
         if option == opt3 then
@@ -126,7 +126,7 @@ class Asteroids
         if option == opt1 then
             timeToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("Time to deadline in days: ").to_f
             return {
-                "type"     => "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
+                "type"     => "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
                 "deadline" => Time.new.to_i + timeToDeadlineInDays*86400
             }
         end
@@ -182,20 +182,20 @@ class Asteroids
         }
         orbitalFragment = lambda{|asteroid|
             uuid = asteroid["uuid"]
-            if asteroid["orbital"]["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+            if asteroid["orbital"]["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
                 return " (commitment for a day: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
             end
-            if asteroid["orbital"]["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+            if asteroid["orbital"]["type"] == "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
                 timeToDeadline = asteroid["orbital"]["deadline"] - Time.new.to_f
                 return " (deadline: #{Time.at(asteroid["orbital"]["deadline"]).to_s}, #{(timeToDeadline.to_f/86400).round(2)} days)"
             end
             ""
         }
         typeAsUserFriendly = lambda {|type|
-            return "⛵"  if type == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
-            return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
-            return "🎡 "  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
-            return "🗓️ "  if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
+            return "⛵"  if type == "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219"
+            return "⏱️ " if type == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
+            return "🎡 "  if type == "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
+            return "🗓️ "  if type == "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
             return "🌇"  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         }
         uuid = asteroid["uuid"]
@@ -322,21 +322,21 @@ class Asteroids
 
         return 1 if Asteroids::isRunning?(asteroid)
 
-        if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if orbital["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400)
         end
 
-        if orbital["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+        if orbital["type"] == "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
             uuid = asteroid["uuid"]
             return Metrics::metricNX1RequiredValueAndThenFall(0.68, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
-        if orbital["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+        if orbital["type"] == "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             uuid = asteroid["uuid"]
             return Metrics::metricNX1RequiredValueAndThenFall(0.66, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
  
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+        if orbital["type"] == "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             uuid = asteroid["uuid"]
             return Metrics::metricNX1RequiredValueAndThenFall(0.64, Ping::totalToday(uuid), 0.5*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
@@ -354,19 +354,19 @@ class Asteroids
 
         orbital = asteroid["orbital"]
 
-        if orbital["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+        if orbital["type"] == "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             return true
         end
 
-        if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if orbital["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             return false
         end
 
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
+        if orbital["type"] == "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada" then
             return false
         end
 
-        if orbital["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
+        if orbital["type"] == "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2" then
             return true
         end
 
@@ -399,7 +399,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         orbital = asteroid["orbital"]
  
-        if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if orbital["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Asteroids::bankValueLive(asteroid)  >= orbital["timeCommitmentInHours"]*3600 then
                 return true
             end
@@ -432,7 +432,7 @@ class Asteroids
                     "type"        => "description",
                     "description" => "Daily Guardian Work"
                 }, {
-                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 6,
             })
             KeyValueStore::setFlagTrue(nil, "f65f092d-4626-4aa7-bb77-9eae0592910c:#{Time.new.to_s[0, 10]}")
@@ -443,7 +443,7 @@ class Asteroids
                     "type"        => "description",
                     "description" => "Lucille.txt"
                 }, {
-                "type"                  => "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+                "type"                  => "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
                 "timeCommitmentInHours" => 1,
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
@@ -463,7 +463,7 @@ class Asteroids
         KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
 
         uuids = Asteroids::asteroids()
-                    .select{|asteroid| asteroid["orbital"]["type"] == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2" }
+                    .select{|asteroid| asteroid["orbital"]["type"] == "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2" }
                     .map{|asteroid| asteroid["uuid"] }
         KeyValueStore::set(nil, "66ecd959-967c-4c5e-b437-c07169f3d3b1", JSON.generate(uuids))
     end
@@ -492,7 +492,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         orbital = asteroid["orbital"]
 
-        if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if orbital["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(uuid) >= orbital["timeCommitmentInHours"]*3600 then
                 puts "time commitment asteroid is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
@@ -526,13 +526,13 @@ class Asteroids
 
         orbital = asteroid["orbital"]
 
-        if orbital["type"] == "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
+        if orbital["type"] == "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219" then
             if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", false) then
                 Asteroids::asteroidDestroySequence(asteroid)
             end
         end
 
-        if orbital["type"] == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
+        if orbital["type"] == "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32" then
             if Bank::value(asteroid["uuid"]) >= orbital["timeCommitmentInHours"]*3600 then
                 puts "time commitment asteroid is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()

@@ -287,10 +287,10 @@ class CatalystFsck
         end
 
         orbitalTypes = [
-            "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-            "until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219",
-            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
-            "deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
+            "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
+            "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219",
+            "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
+            "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
             "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         ]
         if !orbitalTypes.include?(asteroid["orbital"]["type"]) then
