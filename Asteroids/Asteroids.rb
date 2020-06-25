@@ -441,10 +441,10 @@ class Asteroids
         if [1,2,3,4,5,6].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}") then
             Asteroids::issue({
                     "type"        => "description",
-                    "description" => "Lucille.txt"
+                    "description" => "Catalyst Guardian Project"
                 }, {
                 "type"                  => "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-                "timeCommitmentInHours" => 1,
+                "timeCommitmentInHours" => 3,
             })
             KeyValueStore::setFlagTrue(nil, "3f0445e5-0a83-49ba-b4c0-0f081ef05feb:#{Time.new.to_s[0, 10]}")
         end

@@ -71,8 +71,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb
 
 $SpecialCircumstancesFileNames = [
     "Interface-Top.txt",
-    "Guardian-Next.txt",
-    "Lucille.txt",
+    "Guardian-Next.txt"
 ]
 
 class NSXCatalystUI
@@ -93,9 +92,6 @@ class NSXCatalystUI
         end
         if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Daily Guardian Work") } then
             filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Guardian-Next.txt"
-        end
-        if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Lucille.txt") } then
-            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Lucille.txt"
         end
         filepaths
     end
