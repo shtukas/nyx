@@ -312,7 +312,7 @@ class NSXCatalystUI
                         lambda { 
                             puts "float: #{float["description"]}"
                             return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                            BTreeSets::destroy(nil, "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) 
+                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) 
                         }
                     )
                 }

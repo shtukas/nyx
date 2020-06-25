@@ -196,7 +196,7 @@ class Asteroids
             return "⏱️ " if type == "time-commitment-for-a-day-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32"
             return "🎡 "  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada"
             return "🗓️ "  if type == "deadline-13641a9f-58db-4299-b322-65e1bbea82a2"
-            return "🌇 "  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            return "🌇"  if type == "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
