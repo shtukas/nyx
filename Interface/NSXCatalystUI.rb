@@ -143,7 +143,7 @@ class NSXCatalystUI
             items << [
                 "asteroid (new)",
                 lambda { 
-                    asteroid = Asteroids::issueSpaceShipInteractivelyOrNull()
+                    asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
                     return if asteroid.nil?
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
@@ -283,20 +283,6 @@ class NSXCatalystUI
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
-        asteroids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "66ecd959-967c-4c5e-b437-c07169f3d3b1", "[]"))
-                        .map{|uuid| NyxIO::getOrNull(uuid) }
-                        .compact
-        if asteroids.size > 0 then
-            puts ""
-            asteroids.each{|asteroid|
-                menuitems.item(
-                    Asteroids::asteroidToString(asteroid).yellow,
-                    lambda { Asteroids::asteroidDive(asteroid) }
-                )
-            }
-            verticalSpaceLeft = verticalSpaceLeft - (asteroids.size+1)
-        end
-
         floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
         if floats.size > 0 then
             puts ""
@@ -434,7 +420,7 @@ class NSXCatalystUI
 
             items << [
                 "starship", 
-                lambda { Asteroids::issueSpaceShipInteractivelyOrNull() }
+                lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
             ]
 
             items << [

@@ -56,14 +56,3 @@ Quark
     "type"             : "unique-name"
     "name"             : String # Use Atlas to find them
 }
-
-{
-    "uuid"             : String
-    "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    "creationUnixtime" : Float # Unixtime with decimals
-
-    "description"      : nil | String
-
-    "type"             : "datapod"
-    "podname"          : String
-}

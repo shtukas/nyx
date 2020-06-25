@@ -173,7 +173,7 @@ class CatalystFsck
             exit
         end
 
-        types = ["line", "url", "file", "folder", "unique-name", "datapod"]
+        types = ["line", "url", "file", "folder", "unique-name"]
         if !types.include?(quark["type"]) then
             puts "[error] quark has incorrect type".red
             puts JSON.pretty_generate(quark).red
@@ -229,14 +229,6 @@ class CatalystFsck
                 exit
             end
         end
-
-        if quark["type"] == "datapod" then
-            if quark["podname"].nil? then
-                puts "[error] quark has no podname".red
-                puts JSON.pretty_generate(quark).red
-                exit
-            end
-        end
     end
 
     # CatalystFsck::checkAsteroid(asteroid)
@@ -287,11 +279,11 @@ class CatalystFsck
         end
 
         orbitalTypes = [
-            "in-progress-time-commitment-7c67cb4f-77e0-4fdd-bae2-4c3aec31bb32",
-            "in-progress-until-completion-5b26f145-7ebf-4987-8091-2e78b16fa219",
-            "in-progress-indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2bada",
-            "in-progress-with-deadline-13641a9f-58db-4299-b322-65e1bbea82a2",
-            "todo-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            "singleton-time-commitment-7c67cb4f-77e0-4fd",
+            "on-going-until-completion-5b26f145-7ebf-498",
+            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
+            "repeating-daily-time-commitment-8123956c-05",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         ]
         if !orbitalTypes.include?(asteroid["orbital"]["type"]) then
             puts "[error] asteroid has incorrect orbital type".red

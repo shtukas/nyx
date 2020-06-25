@@ -215,24 +215,10 @@ class QuarksMakers
         }
     end
 
-    # QuarksMakers::makeQuarkDataPodInteractively()
-    def self.makeQuarkDataPodInteractively()
-        podname = LucilleCore::askQuestionAnswerAsString("podname: ")
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        {
-            "uuid"             => SecureRandom.uuid,
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
-            "creationUnixtime" => Time.new.to_f,
-            "description"      => description,
-            "type"             => "datapod",
-            "podname"          => podname
-        }
-    end
-
     # QuarksMakers::makeNewQuarkInteractivelyOrNull()
     def self.makeNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
-        types = ["line", "url", "file", "new text file", "folder", "unique-name", "datapod"]
+        types = ["line", "url", "file", "new text file", "folder", "unique-name"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -254,9 +240,6 @@ class QuarksMakers
         end
         if type == "unique-name" then
             return QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
-        end
-        if type == "datapod" then
-            return QuarksMakers::makeQuarkDataPodInteractively()
         end
     end
 end
@@ -350,9 +333,6 @@ class Quarks
         if quark["type"] == "unique-name" then
             return "[quark] [#{quark["uuid"][0, 4]}] [unique name] #{quark["name"]}"
         end
-        if quark["type"] == "datapod" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [datapod] #{quark["podname"]}"
-        end
         raise "Quark error 3c7968e4"
     end
 
@@ -395,13 +375,6 @@ class Quarks
                 puts "I could not determine the location of unique name: #{uniquename}"
                 LucilleCore::pressEnterToContinue()
             end
-            return
-        end
-        if quark["type"] == "datapod" then
-            podname = quark["podname"]
-            puts "#{podname}"
-            puts "I do not yet know how to open/access/browse DataPods"
-            LucilleCore::pressEnterToContinue()
             return
         end
         raise "Quark error 160050-490261"
@@ -491,6 +464,20 @@ class Quarks
             items << [
                 "opencycle (register as)", 
                 lambda { OpenCycles::issueFromQuark(quark) }
+            ]
+
+            items << [
+                "asteroid (create with this as target)", 
+                lambda { 
+                    payload = {
+                        "type"      => "quark",
+                        "quarkuuid" => quark["uuid"]
+                    }
+                    orbital = Asteroids::makeOrbitalInteractivelyOrNull()
+                    return if orbital.nil?
+                    asteroid = Asteroids::issue(payload, orbital)
+                    puts JSON.pretty_generate(asteroid)
+                }
             ]
 
             items << [
