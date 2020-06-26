@@ -250,8 +250,8 @@ class Asteroids
                 "open",
                 "start",
                 "stop",
-                "repayload",
-                "reorbital",
+                "re-payload",
+                "re-orbital",
                 "show json",
                 "add time",
                 "destroy",
@@ -275,10 +275,10 @@ class Asteroids
             if option == "stop" then
                 Asteroids::asteroidStopSequence(asteroid)
             end
-            if option == "repayload" then
+            if option == "re-payload" then
                 Asteroids::repayload(asteroid)
             end
-            if option == "reorbital" then
+            if option == "re-orbital" then
                 Asteroids::reorbital(asteroid)
             end
             if option == "show json" then
