@@ -353,6 +353,7 @@ class NSXCatalystUI
         floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
         if floats.size > 0 then
             puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
             floatToDescription = lambda{|float|
                 if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
                     return "float: #{float["description"]}".yellow
@@ -440,27 +441,31 @@ class NSXCatalystUI
                         floatToDescription.call(float),
                         lambda { processFloat.call(float) }
                     )
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(floatToDescription.call(float))
+                    break if verticalSpaceLeft <= 0 
                 }
-            verticalSpaceLeft = verticalSpaceLeft - floats.map{|float| floatToDescription.call(float) }.map{|text| NSXDisplayUtils::verticalSize(text) }.inject(0, :+) - 1
+            
         end
 
         # --------------------------------------------------------------------------
         # Print
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        catalystObjects.drop(5).each{|object| 
-            str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-            break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
-            if object["isRunning"] then
-                str = str.green
-            end
-            menuitems.item(
-                str,
-                lambda { object["execute"].call() }
-            )
-            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
-        }
+        if verticalSpaceLeft > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            catalystObjects.drop(5).each{|object| 
+                str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
+                if object["isRunning"] then
+                    str = str.green
+                end
+                menuitems.item(
+                    str,
+                    lambda { object["execute"].call() }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
+            }
+        end 
 
         # --------------------------------------------------------------------------
         # Prompt
