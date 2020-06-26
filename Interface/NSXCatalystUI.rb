@@ -305,20 +305,16 @@ class NSXCatalystUI
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            floatToDescription = lambda{|float|
-
-            }
-
             floats
                 .each{|float|
+                    line = Floats::floatToString(float)
                     menuitems.item(
-                        Floats::floatToString(float).yellow,
+                        line.yellow,
                         lambda { Floats::processFloat(float) }
                     )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(floatToDescription.call(float))
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
                     break if verticalSpaceLeft <= 0 
                 }
-            
         end
 
         # --------------------------------------------------------------------------

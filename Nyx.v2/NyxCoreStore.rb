@@ -111,6 +111,14 @@ end
 
 class NyxCoreStoreObjects
 
+    # NyxCoreStoreObjects::nyxNxSets()
+    def self.nyxNxSets()
+        # Duplicated in NyxSets
+        [
+            "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19" # Interface Floats
+        ]
+    end
+
     # NyxCoreStoreObjects::namedhashToObjectsFilepath(namedhash)
     def self.namedhashToObjectsFilepath(namedhash)
         if namedhash.start_with?("SHA256-") then
@@ -132,6 +140,9 @@ class NyxCoreStoreObjects
         end
         if object["nyxNxSet"].nil? then
             raise "[NyxCoreStoreObjects::put fd215c77] #{object}"
+        end
+        if !NyxCoreStoreObjects::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxCoreStoreObjects::nyxNxSets c883b1e7] #{object}"
         end
         object["nyxNxStoreTimestamp"] = Time.new.to_f
         blob = JSON.generate(object)

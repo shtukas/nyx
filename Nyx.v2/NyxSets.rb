@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
+
 # This variable contains the objects of the current display.
 # We use it to speed up display after some operations
 
@@ -69,8 +71,52 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb
 # ------------------------------------------------------------------------
 
 class NyxSets
-    def self.void()
 
+    # NyxSets::nyxNxSets()
+    def self.nyxNxSets()
+        # Duplicated in NyxCoreStoreObjects
+        [
+            "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19" # Interface Floats
+        ]
+    end
+
+    # NyxSets::putObject(object)
+    def self.putObject(object)
+        if object["uuid"].nil? then
+            raise "[NyxSets::putObject 03fa74db] #{object}"
+        end
+        if object["nyxNxSet"].nil? then
+            raise "[NyxSets::putObject 383a2ed4] #{object}"
+        end
+        if !NyxSets::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxSets::putObject 5b203f53] #{object}"
+        end
+        object["nyxNxStoreTimestamp"] = Time.new.to_f
+        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", object["nyxNxSet"], object["uuid"], object)
+    end
+
+    # NyxSets::getObjectFromSetOrNull(setid, uuid)
+    def self.getObjectFromSetOrNull(setid, uuid)
+        BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid)
+    end
+
+    # NyxSets::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        NyxSets::nyxNxSets()
+            .map{|setid| NyxSets::getObjectFromSetOrNull(setid, uuid) }
+            .compact
+            .first
+    end
+
+    # NyxSets::getObjectsFromSet(setid)
+    def self.getObjectsFromSet(setid)
+        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid)
+    end
+
+    # NyxSets::destroy(uuid)
+    def self.destroy(uuid)
+        NyxSets::nyxNxSets()
+            .map{|setid| BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid) }
     end
 end
 

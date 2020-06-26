@@ -1,0 +1,22 @@
+{
+    "uuid"        => String
+    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19"
+    "unixtime"    => Float
+    "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40"
+    "description" => String
+}
+{
+    "uuid"        => String
+    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19"
+    "unixtime"    => Float
+    "type"        => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
+    "quarkuuid"   => String
+}
+{
+    "uuid"        => String,
+    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19"
+    "unixtime"    => Float
+    "type"        => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
+    "cliqueuuid"  => String
+}
+

@@ -66,28 +66,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroid
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
-# ------------------------------------------------------------------------
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
 
-=begin
-{
-    "id"          => SecureRandom.hex,
-    "unixtime"    => Time.new.to_i,
-    "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40",
-    "description" => description
-}
-{
-    "id"          => SecureRandom.hex,
-    "unixtime"    => Time.new.to_i,
-    "type"        => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
-    "quarkuuid"   => quark["uuid"]
-}
-{
-    "id"          => SecureRandom.hex,
-    "unixtime"    => Time.new.to_i,
-    "type"        => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
-    "cliqueuuid"  => clique["uuid"]
-}
-=end
+# ------------------------------------------------------------------------
 
 class Floats
 
@@ -116,6 +97,11 @@ class Floats
         end
     end
 
+    # Floats::commitToDisk(float)
+    def self.commitToDisk(float)
+        NyxSets::putObject(float)
+    end
+
     # Floats::issueFloat()
     def self.issueFloat()
         items = []
@@ -126,12 +112,13 @@ class Floats
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description.size == 0
                 float = {
-                    "id"          => SecureRandom.hex,
+                    "uuid"        => SecureRandom.hex,
+                    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
                     "unixtime"    => Time.new.to_i,
                     "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40",
                     "description" => description
                 }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+                Floats::commitToDisk(float)
             }
         ]
 
@@ -141,12 +128,13 @@ class Floats
                 quark = Quarks::issueNewQuarkInteractivelyOrNull()
                 return if quark.nil?
                 float = {
-                    "id"         => SecureRandom.hex,
+                    "uuid"       => SecureRandom.hex,
+                    "nyxNxSet"   => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
                     "unixtime"   => Time.new.to_i,
                     "type"       => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
                     "quarkuuid"  => quark["uuid"]
                 }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+                Floats::commitToDisk(float)
             }
         ]
         items << [
@@ -155,12 +143,13 @@ class Floats
                 clique = Cliques::issueCliqueInteractivelyOrNull()
                 return if clique.nil?
                 float = {
-                    "id"         => SecureRandom.hex,
+                    "uuid"       => SecureRandom.hex,
+                    "nyxNxSet"   => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
                     "unixtime"   => Time.new.to_i,
                     "type"       => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
                     "cliqueuuid" => clique["uuid"]
                 }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+                Floats::commitToDisk(float)
             }
         ]
 
@@ -172,14 +161,14 @@ class Floats
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
             puts "float: #{float["description"]}"
             return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+            NyxSets::destroy(float["uuid"])
         end
         if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
             quarkuuid = float["quarkuuid"]
             quark = Quarks::getOrNull(quarkuuid)
             if quark.nil? then
                 return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                NyxSets::destroy(float["uuid"])
                 return
             end
             items = []
@@ -189,9 +178,7 @@ class Floats
             ]
             items << [
                 "destroy", 
-                lambda {
-                    BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                }
+                lambda { NyxSets::destroy(float["uuid"]) }
             ]
             LucilleCore::menuItemsWithLambdas(items)
         end
@@ -200,7 +187,7 @@ class Floats
             clique = Quarks::getOrNull(cliqueuuid)
             if clique.nil? then
                 return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                NyxSets::destroy(float["uuid"])
                 return
             end
             items = []
@@ -210,9 +197,7 @@ class Floats
             ]
             items << [
                 "destroy", 
-                lambda {
-                    BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                }
+                lambda { NyxSets::destroy(float["uuid"]) }
             ]
             LucilleCore::menuItemsWithLambdas(items)
         end
@@ -220,7 +205,7 @@ class Floats
 
     # Floats::getFloatsOrdered()
     def self.getFloatsOrdered()
-        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
+        NyxSets::getObjectsFromSet("1aaa9485-2c07-4b14-a5c3-ed1d6772ca19")
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
     end
 end

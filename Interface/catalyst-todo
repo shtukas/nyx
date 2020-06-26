@@ -60,6 +60,8 @@ require_relative "NSXGeneralSearch.rb"
 require_relative "NSXEstateServices.rb"
 require_relative "NSXMiscUtils.rb"
 
+require_relative "Floats.rb"
+
 # -------------------------------------------------------------------------
 
 CATALYST_RUN_HASH = SecureRandom.hex
