@@ -75,24 +75,24 @@ class Floats
     # Floats::floatToString(float)
     def self.floatToString(float)
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
-            return "float: #{float["description"]}"
+            return "[float] #{float["description"]}"
         end
         if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
             quarkuuid = float["quarkuuid"]
             quark = Quarks::getOrNull(quarkuuid)
             if quark then
-                return "float: #{Quarks::quarkToString(quark)}"
+                return "[float] #{Quarks::quarkToString(quark)}"
             else
-                return "float: [quark] not found (#{quarkuuid})"
+                return "[float] [quark] not found (#{quarkuuid})"
             end
         end
         if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
             cliqueuuid = float["cliqueuuid"]
             clique = Quarks::getOrNull(cliqueuuid)
             if clique then
-                return "float: #{Cliques::cliqueToString(clique)}"
+                return "[float] #{Cliques::cliqueToString(clique)}"
             else
-                return "float: [clique] not found (#{quarkuuid})"
+                return "[float] [clique] not found (#{quarkuuid})"
             end
         end
     end
