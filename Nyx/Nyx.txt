@@ -42,6 +42,5 @@ Nyx
     NyxRoles
         Waves     # See Waves.txt        # "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
         Asteroid # See Asteroid.txt    # "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc"
-        OpenCycle # See OpenCycles.txt   # "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"
 
 

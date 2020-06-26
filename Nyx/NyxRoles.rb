@@ -31,7 +31,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # -----------------------------------------------------------------
 
@@ -54,9 +53,6 @@ class NyxRoles
         if object["nyxType"] == "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc" then
             return Asteroids::asteroidToString(object)
         end
-        if object["nyxType"] == "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f" then
-            return OpenCycles::opencycleToString(object)
-        end
         puts object
         raise "Error: 056686f0"
     end
@@ -71,10 +67,6 @@ class NyxRoles
             Asteroids::asteroidDive(object)
             return
         end
-        if object["nyxType"] == "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f" then
-            OpenCycles::opencycleDive(object)
-            return
-        end
         puts object
         raise "Error: cf25ea33"
     end
@@ -83,8 +75,7 @@ class NyxRoles
     def self.getRolesForTarget(targetuuid)
         [
             # We are not doing the Waves as they have no target
-            Asteroids::getAsteroidsByTargetUUID(targetuuid),
-            OpenCycles::getOpenCyclesByTargetUUID(targetuuid)
+            Asteroids::getAsteroidsByTargetUUID(targetuuid)
         ].flatten
     end
 end

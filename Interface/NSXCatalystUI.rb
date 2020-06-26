@@ -63,18 +63,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGarbageColl
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
 # ------------------------------------------------------------------------
 
-$SpecialCircumstancesFileNames = [
-    "Interface-Top.txt",
-    "Guardian-Next.txt"
-]
-
 class NSXCatalystUI
+
+    # NSXCatalystUI::specialCircumstanceFileNames()
+    def self.specialCircumstanceFileNames()
+        [
+            "Interface-Top.txt",
+            "Guardian-Next.txt"
+        ]
+    end
 
     # NSXCatalystUI::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
@@ -164,10 +166,6 @@ class NSXCatalystUI
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
             ]
             items << [
-                "OpenCycles",
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
-            ]
-            items << [
                 "Calendar",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
             ]
@@ -254,6 +252,57 @@ class NSXCatalystUI
         LucilleCore::pressEnterToContinue()
     end
 
+    # NSXCatalystUI::issueNewFloat()
+    def self.issueNewFloat()
+        items = []
+
+        items << [
+            "description", 
+            lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description.size == 0
+                float = {
+                    "id"          => SecureRandom.hex,
+                    "unixtime"    => Time.new.to_i,
+                    "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40",
+                    "description" => description
+                }
+                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+            }
+        ]
+
+        items << [
+            "quark (new)", 
+            lambda {
+                quark = Quarks::issueNewQuarkInteractivelyOrNull()
+                return if quark.nil?
+                float = {
+                    "id"         => SecureRandom.hex,
+                    "unixtime"   => Time.new.to_i,
+                    "type"       => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
+                    "quarkuuid"  => quark["uuid"]
+                }
+                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+            }
+        ]
+        items << [
+            "clique (new)", 
+            lambda {
+                clique = Cliques::issueCliqueInteractivelyOrNull()
+                return if clique.nil?
+                float = {
+                    "id"         => SecureRandom.hex,
+                    "unixtime"   => Time.new.to_i,
+                    "type"       => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
+                    "cliqueuuid" => clique["uuid"]
+                }
+                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
+            }
+        ]
+
+        LucilleCore::menuItemsWithLambdas(items)
+    end
+
     # NSXCatalystUI::performStandardDisplay(catalystObjects)
     def self.performStandardDisplay(catalystObjects)
 
@@ -262,43 +311,98 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        OpenCycles::opencycles()
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-            .map{|opencycle|
-                menuitems.item(
-                    OpenCycles::opencycleToString(opencycle).yellow,
-                    lambda { 
-                        entity = NyxIO::getOrNull(opencycle["targetuuid"])
-                        if entity.nil? then
-                            puts "I could not find a target for this open cycle"
-                            LucilleCore::pressEnterToContinue()
-                            OpenCycles::opencycleDive(opencycle)
-                            return
-                        end
-                        NyxDataCarriers::objectDive(entity)
-                    }
-                )
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            }
-
         floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
         if floats.size > 0 then
             puts ""
+            floatToDescription = lambda{|float|
+                if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
+                    return "float: #{float["description"]}".yellow
+                end
+                if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
+                    quarkuuid = float["quarkuuid"]
+                    quark = Quarks::getOrNull(quarkuuid)
+                    if quark then
+                        return "float: #{Quarks::quarkToString(quark)}".yellow
+                    else
+                        return "float: [quark] not found (#{quarkuuid})".yellow
+                    end
+                end
+                if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
+                    cliqueuuid = float["cliqueuuid"]
+                    clique = Quarks::getOrNull(cliqueuuid)
+                    if clique then
+                        return "float: #{Cliques::cliqueToString(clique)}".yellow
+                    else
+                        return "float: [clique] not found (#{quarkuuid})".yellow
+                    end
+                end
+            }
+            processFloat = lambda{|float|
+                if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
+                    puts "float: #{float["description"]}"
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                    BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                end
+                if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
+                    quarkuuid = float["quarkuuid"]
+                    quark = Quarks::getOrNull(quarkuuid)
+                    if quark.nil? then
+                        return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                        return
+                    end
+
+                    items = []
+
+                    items << [
+                        "(quark) dive", 
+                        lambda { Quarks::quarkDive(quark) }
+                    ]
+
+                    items << [
+                        "destroy", 
+                        lambda {
+                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                        }
+                    ]
+
+                    LucilleCore::menuItemsWithLambdas(items)
+                end
+                if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
+                    cliqueuuid = float["cliqueuuid"]
+                    clique = Quarks::getOrNull(cliqueuuid)
+                    if clique.nil? then
+                        return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                        return
+                    end
+
+                    items = []
+
+                    items << [
+                        "(clique) dive", 
+                        lambda { Cliques::cliqueDive(clique) }
+                    ]
+
+                    items << [
+                        "destroy", 
+                        lambda {
+                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
+                        }
+                    ]
+
+                    LucilleCore::menuItemsWithLambdas(items)
+                end
+            }
             floats
                 .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
                 .each{|float|
                     menuitems.item(
-                        "float: #{float["description"]}".yellow,
-                        lambda { 
-                            puts "float: #{float["description"]}"
-                            return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"]) 
-                        }
+                        floatToDescription.call(float),
+                        lambda { processFloat.call(float) }
                     )
                 }
-            verticalSpaceLeft = verticalSpaceLeft - (floats.size+1)
+            verticalSpaceLeft = verticalSpaceLeft - floats.map{|float| floatToDescription.call(float) }.map{|text| NSXDisplayUtils::verticalSize(text) }.inject(0, :+) - 1
         end
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
@@ -388,7 +492,7 @@ class NSXCatalystUI
         end
 
         if command == "::" then
-            filename = LucilleCore::selectEntityFromListOfEntitiesOrNull("file", $SpecialCircumstancesFileNames)
+            filename = LucilleCore::selectEntityFromListOfEntitiesOrNull("file", NSXCatalystUI::specialCircumstanceFileNames())
             return if filename.nil?
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/#{filename}"
             system("open '#{filepath}'")
@@ -405,29 +509,14 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "float (visible text things to keep in mind -- should be short lived)", 
-                lambda {
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
-                    return if description.size == 0
-                    float = {
-                        "id"          => SecureRandom.hex,
-                        "unixtime"    => Time.new.to_i,
-                        "description" => description
-                    }
-                    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
-                }
+                "float",
+                lambda { NSXCatalystUI::issueNewFloat() }
             ]
 
             items << [
                 "starship", 
                 lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
             ]
-
-            items << [
-                "open cycle (with created quark)", 
-                lambda { OpenCycles::createQuarkAndIssueNew() }
-            ]
-
             LucilleCore::menuItemsWithLambdas(items)
             return
         end

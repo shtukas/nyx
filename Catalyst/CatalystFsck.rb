@@ -51,7 +51,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 # -----------------------------------------------------------------
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/Waves.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroids.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
@@ -78,33 +77,6 @@ class CatalystFsck
             return
         end
         raise "-[ 85884767-b32a-4d8f-8399-4c31edac6eda ]-"
-    end
-
-    # CatalystFsck::checkOpenCycle(opencycle)
-    def self.checkOpenCycle(opencycle)
-        puts JSON.pretty_generate(opencycle)
-        targetuuid = opencycle["targetuuid"]
-        entity = NyxIO::getOrNull(targetuuid)
-        if entity.nil? then
-            puts "[error] open cycle".red
-            puts JSON.pretty_generate(opencycle).red
-            puts "... points as an unkown entity".red
-            exit
-        end
-        puts JSON.pretty_generate(entity)
-        supportedTypes = [
-            "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
-            "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-        ]
-        if !supportedTypes.include?(entity["nyxType"]) then
-            puts "[error] open cycle".red
-            puts JSON.pretty_generate(opencycle).red
-            puts "... points as an unsupported entity".red
-            puts JSON.pretty_generate(entity).red
-            exit
-        end
-        CatalystFsck::entity(entity)
     end
 
     # CatalystFsck::checkWaves(wave)
@@ -344,9 +316,6 @@ class CatalystFsck
 
     # CatalystFsck::run()
     def self.run()
-        OpenCycles::opencycles().each{|opencycle|
-            CatalystFsck::checkOpenCycle(opencycle)
-        }
         Waves::waves().each{|wave|
             CatalystFsck::checkWaves(wave)
         }

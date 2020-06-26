@@ -19,7 +19,6 @@ require 'colorize'
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # -----------------------------------------------------------------
 
@@ -136,11 +135,6 @@ class Cliques
                     Bosons2::link(clique, quark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
                 }]
-
-            items << [
-                "opencycle (register as)", 
-                lambda { OpenCycles::issueFromClique(clique) }
-            ]
 
             items << [
                 "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 

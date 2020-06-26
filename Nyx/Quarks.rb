@@ -462,11 +462,6 @@ class Quarks
             ]
 
             items << [
-                "opencycle (register as)", 
-                lambda { OpenCycles::issueFromQuark(quark) }
-            ]
-
-            items << [
                 "asteroid (create with this as target)", 
                 lambda { 
                     payload = {

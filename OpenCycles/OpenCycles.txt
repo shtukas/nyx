@@ -1,9 +1,0 @@
-
-OpenCycle {
-    "uuid"             : String
-    "nyxType"          : "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"
-    "creationUnixtime" : Float
-    "targetuuid"       : String # Quarks and Cliques
-}
-
-
