@@ -84,7 +84,8 @@ class NyxCoreStoreBlobs
         if namedhash.start_with?("SHA256-") then
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/blobs/#{fragment1}/#{fragment2}/#{namedhash}.data"
+            fragment3 = namedhash[11, 2]
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
@@ -124,7 +125,8 @@ class NyxCoreStoreObjects
         if namedhash.start_with?("SHA256-") then
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/objects/#{fragment1}/#{fragment2}/#{namedhash}.json"
+            fragment3 = namedhash[11, 2]
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
