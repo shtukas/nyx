@@ -311,6 +311,45 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
+        specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
+        specialCircumstanceFilepaths.each{|filepath|
+            text = IO.read(filepath).strip
+            if text.size > 0 then
+                text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
+                puts ""
+                puts File.basename(filepath)
+                puts text.green
+                verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
+            end
+        }
+
+        Calendar::dates()
+            .each{|date|
+                next if date > Time.new.to_s[0, 10]
+                puts "🗓️  "+date
+                puts IO.read(dateToFilepath(date))
+                    .strip
+                    .lines
+                    .map{|line| "    #{line}" }
+                    .join()
+            }
+
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+        catalystObjects.first(5).each{|object| 
+            str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+            break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
+            if object["isRunning"] then
+                str = str.green
+            end
+            menuitems.item(
+                str,
+                lambda { object["execute"].call() }
+            )
+            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
+        }
+
         floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
         if floats.size > 0 then
             puts ""
@@ -405,35 +444,12 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - floats.map{|float| floatToDescription.call(float) }.map{|text| NSXDisplayUtils::verticalSize(text) }.inject(0, :+) - 1
         end
 
-        specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
-        specialCircumstanceFilepaths.each{|filepath|
-            text = IO.read(filepath).strip
-            if text.size > 0 then
-                text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-                puts ""
-                puts File.basename(filepath)
-                puts text.green
-                verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
-            end
-        }
-
-        Calendar::dates()
-            .each{|date|
-                next if date > Time.new.to_s[0, 10]
-                puts "🗓️  "+date
-                puts IO.read(dateToFilepath(date))
-                    .strip
-                    .lines
-                    .map{|line| "    #{line}" }
-                    .join()
-            }
-
         # --------------------------------------------------------------------------
         # Print
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        catalystObjects.each{|object| 
+        catalystObjects.drop(5).each{|object| 
             str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
             break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
             if object["isRunning"] then
