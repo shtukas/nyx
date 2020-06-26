@@ -116,7 +116,8 @@ class NyxCoreStoreObjects
     def self.nyxNxSets()
         # Duplicated in NyxSets
         [
-            "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19" # Interface Floats
+            "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19", # Interface Floats
+            "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
         ]
     end
 

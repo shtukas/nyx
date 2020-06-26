@@ -53,6 +53,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ProgrammableBooleans.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
+
 # -----------------------------------------------------------------------------
 
 class Asteroids
@@ -146,12 +148,13 @@ class Asteroids
     def self.issue(payload, orbital)
         asteroid = {
             "uuid"     => CatalystCommon::l22(),
+            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "nyxType"  => "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
             "orbital"  => orbital
         }
-        NyxIO::commitToDisk(asteroid)
+        NyxSets::putObject(asteroid)
         asteroid
     end
 
@@ -210,11 +213,11 @@ class Asteroids
 
     # Asteroids::asteroids()
     def self.asteroids()
-        NyxIO::objects("asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc")
+        NyxSets::getObjectsFromSet("b66318f4-2662-4621-a991-a6b966fb4398")
     end
 
-    # Asteroids::getAsteroidsByTargetUUID(targetuuid)
-    def self.getAsteroidsByTargetUUID(targetuuid)
+    # Asteroids::getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
+    def self.getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
         Asteroids::asteroids()
             .select{|asteroid| asteroid["payload"]["type"] == "quark" }
             .select{|asteroid| asteroid["payload"]["quarkuuid"] == targetuuid }
@@ -452,7 +455,7 @@ class Asteroids
         Asteroids::cacheWorkingUUIDsIfNeeded()
         uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
         JSON.parse(uuids)
-            .map{|uuid| NyxIO::getOrNull(uuid) }
+            .map{|uuid| NyxSets::getObjectOrNull(uuid) }
             .compact
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
@@ -527,7 +530,7 @@ class Asteroids
                 Asteroids::asteroidDestructionQuarkHandling(quark)
             end
         end
-        NyxIO::destroy(asteroid["uuid"])
+        NyxSets::destroy(asteroid["uuid"])
     end
 
     # Asteroids::openPayload(asteroid)

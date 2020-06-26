@@ -19,13 +19,7 @@ Nyx
                 "quarks"      : Array[Quark]
             }
 
-        Boson {
-            "uuid"             : String
-            "nyxType"          : "boson-b38137c1-fd43-4035-9f2c-af0fddb18c80"
-            "creationUnixtime" : Float # Unixtime with decimals
-            "uuid1"            : String
-            "uuid2"            : String # Cube uuid or a Quark uuid
-        }
+        Boson 
 
         Gluon {
             "uuid"             : String
