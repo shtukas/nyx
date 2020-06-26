@@ -1,0 +1,6 @@
+
+The Objects that go to the object store ( eg: `NyxCoreStoreObjects::put(object)` ), need to have the three following attributes
+
+    - uuid                : String
+    - nyxNxSet            : String
+    - nyxNxStoreTimestamp : Float # Unixtime with decimals # set by the storage function itself
