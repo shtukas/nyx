@@ -66,6 +66,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroid
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
+require_relative "Floats.rb"
+
 # ------------------------------------------------------------------------
 
 class NSXCatalystUI
@@ -252,57 +254,6 @@ class NSXCatalystUI
         LucilleCore::pressEnterToContinue()
     end
 
-    # NSXCatalystUI::issueNewFloat()
-    def self.issueNewFloat()
-        items = []
-
-        items << [
-            "description", 
-            lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                return if description.size == 0
-                float = {
-                    "id"          => SecureRandom.hex,
-                    "unixtime"    => Time.new.to_i,
-                    "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40",
-                    "description" => description
-                }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
-            }
-        ]
-
-        items << [
-            "quark (new)", 
-            lambda {
-                quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                return if quark.nil?
-                float = {
-                    "id"         => SecureRandom.hex,
-                    "unixtime"   => Time.new.to_i,
-                    "type"       => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
-                    "quarkuuid"  => quark["uuid"]
-                }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
-            }
-        ]
-        items << [
-            "clique (new)", 
-            lambda {
-                clique = Cliques::issueCliqueInteractivelyOrNull()
-                return if clique.nil?
-                float = {
-                    "id"         => SecureRandom.hex,
-                    "unixtime"   => Time.new.to_i,
-                    "type"       => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
-                    "cliqueuuid" => clique["uuid"]
-                }
-                BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"], float)
-            }
-        ]
-
-        LucilleCore::menuItemsWithLambdas(items)
-    end
-
     # NSXCatalystUI::performStandardDisplay(catalystObjects)
     def self.performStandardDisplay(catalystObjects)
 
@@ -377,69 +328,13 @@ class NSXCatalystUI
                     end
                 end
             }
-            processFloat = lambda{|float|
-                if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
-                    puts "float: #{float["description"]}"
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                    BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                end
-                if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
-                    quarkuuid = float["quarkuuid"]
-                    quark = Quarks::getOrNull(quarkuuid)
-                    if quark.nil? then
-                        return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                        return
-                    end
 
-                    items = []
-
-                    items << [
-                        "(quark) dive", 
-                        lambda { Quarks::quarkDive(quark) }
-                    ]
-
-                    items << [
-                        "destroy", 
-                        lambda {
-                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                        }
-                    ]
-
-                    LucilleCore::menuItemsWithLambdas(items)
-                end
-                if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
-                    cliqueuuid = float["cliqueuuid"]
-                    clique = Quarks::getOrNull(cliqueuuid)
-                    if clique.nil? then
-                        return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-                        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                        return
-                    end
-
-                    items = []
-
-                    items << [
-                        "(clique) dive", 
-                        lambda { Cliques::cliqueDive(clique) }
-                    ]
-
-                    items << [
-                        "destroy", 
-                        lambda {
-                            BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E", float["id"])
-                        }
-                    ]
-
-                    LucilleCore::menuItemsWithLambdas(items)
-                end
-            }
             floats
                 .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
                 .each{|float|
                     menuitems.item(
                         floatToDescription.call(float),
-                        lambda { processFloat.call(float) }
+                        lambda { Floats::processFloat(float) }
                     )
                     verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(floatToDescription.call(float))
                     break if verticalSpaceLeft <= 0 
@@ -531,7 +426,7 @@ class NSXCatalystUI
 
             items << [
                 "float",
-                lambda { NSXCatalystUI::issueNewFloat() }
+                lambda { Floats::issueFloat() }
             ]
 
             items << [
