@@ -301,39 +301,18 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
         }
 
-        floats = BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Floats", "7B828D25-43D7-4FA2-BCE0-B1EC86ECF27E")
+        floats = Floats::getFloatsOrdered()
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
             floatToDescription = lambda{|float|
-                if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
-                    return "float: #{float["description"]}".yellow
-                end
-                if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
-                    quarkuuid = float["quarkuuid"]
-                    quark = Quarks::getOrNull(quarkuuid)
-                    if quark then
-                        return "float: #{Quarks::quarkToString(quark)}".yellow
-                    else
-                        return "float: [quark] not found (#{quarkuuid})".yellow
-                    end
-                end
-                if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
-                    cliqueuuid = float["cliqueuuid"]
-                    clique = Quarks::getOrNull(cliqueuuid)
-                    if clique then
-                        return "float: #{Cliques::cliqueToString(clique)}".yellow
-                    else
-                        return "float: [clique] not found (#{quarkuuid})".yellow
-                    end
-                end
+
             }
 
             floats
-                .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
                 .each{|float|
                     menuitems.item(
-                        floatToDescription.call(float),
+                        Floats::floatToString(float).yellow,
                         lambda { Floats::processFloat(float) }
                     )
                     verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(floatToDescription.call(float))
