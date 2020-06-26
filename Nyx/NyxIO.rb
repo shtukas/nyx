@@ -54,7 +54,7 @@ class NyxIO
 
     # NyxIO::pathToRepository()
     def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-DataBank/objects"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Network/objects"
     end
 
     # NyxIO::getOrNullAtType(uuid, nyxtype)

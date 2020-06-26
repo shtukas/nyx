@@ -48,7 +48,7 @@ class Bosons2
 
     # Bosons2::pathToDataStore()
     def self.pathToDataStore()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-DataBank/Bosons2/datastore"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Network/Bosons"
     end
 
     # Bosons2::setDirectedLink(uuid1, uuid2)
