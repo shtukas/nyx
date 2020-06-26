@@ -4,6 +4,7 @@ Quark
 
 {
     "uuid"             : String
+    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
@@ -15,6 +16,7 @@ Quark
 
 {
     "uuid"             : String
+    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
@@ -26,6 +28,7 @@ Quark
 
 {
     "uuid"             : String
+    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
@@ -37,6 +40,7 @@ Quark
 
 {
     "uuid"             : String
+    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
@@ -48,6 +52,7 @@ Quark
 
 {
     "uuid"             : String
+    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "nyxType"          : "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
     "creationUnixtime" : Float # Unixtime with decimals
 
