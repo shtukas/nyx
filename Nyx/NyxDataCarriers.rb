@@ -93,7 +93,6 @@ class NyxDataCarriers
     # NyxDataCarriers::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
-            puts object
             return object["quarks"].map{|quark| quark["creationUnixtime"] }.max
         end
         if object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then

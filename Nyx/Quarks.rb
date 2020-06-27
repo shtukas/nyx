@@ -511,7 +511,7 @@ class Quarks
                     items << [ Quarks::quarkToString(q), lambda{ Quarks::quarkDive(q) } ]
                 }
 
-            Cliques::getCliqueBosonLinkedObjects(quark)
+            Bosons2::getLinkedObjects(quark)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)

@@ -28,11 +28,12 @@ class Tags
     def self.issueTag(payload)
         tag = {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "a00b82aa-c047-4497-82bf-16c7206913e4",
             "nyxType"          => "tag-57c7eced-24a8-466d-a6fe-588142afd53b",
             "creationUnixtime" => Time.new.to_f,
             "payload"          => payload
         }
-        NyxIO::commitToDisk(tag)
+        NyxSets::putObject(tag)
         tag
     end
 
@@ -53,12 +54,12 @@ class Tags
 
     # Tags::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxIO::getOrNull(uuid)
+        NyxSets::getObjectOrNull(uuid)
     end
 
     # Tags::tags()
     def self.tags()
-        NyxIO::objects("tag-57c7eced-24a8-466d-a6fe-588142afd53b")
+        NyxSets::objects("a00b82aa-c047-4497-82bf-16c7206913e4")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 

@@ -178,7 +178,7 @@ class Asteroids
                 return " " + payload["description"]
             end
             if payload["type"] == "quark" then
-                quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
+                quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
                 return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
             end
             raise "[Asteroids] error: CE8497BB"
@@ -229,7 +229,7 @@ class Asteroids
         return if payload.nil?
         asteroid["payload"] = payload
         puts JSON.pretty_generate(asteroid)
-        NyxIO::commitToDisk(asteroid)
+        NyxSets::putObject(asteroid)
     end
 
     # Asteroids::reorbital(asteroid)
@@ -238,7 +238,7 @@ class Asteroids
         return if orbital.nil?
         asteroid["orbital"] = orbital
         puts JSON.pretty_generate(asteroid)
-        NyxIO::commitToDisk(asteroid)
+        NyxSets::putObject(asteroid)
     end
 
     # Asteroids::asteroidDive(asteroid)
@@ -525,7 +525,7 @@ class Asteroids
     def self.asteroidDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
         if asteroid["payload"]["type"] == "quark" then
-            quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
+            quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
             if !quark.nil? then
                 Asteroids::asteroidDestructionQuarkHandling(quark)
             end
@@ -536,7 +536,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "quark" then
-            quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
+            quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
             return if quark.nil?
             Quarks::openQuark(quark)
         end

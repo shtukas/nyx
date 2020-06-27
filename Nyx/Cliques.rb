@@ -61,11 +61,6 @@ class Cliques
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Cliques::getCliqueBosonLinkedObjects(clique)
-    def self.getCliqueBosonLinkedObjects(clique)
-        Bosons2::getLinkedObjects(clique)
-    end
-
     # Cliques::selectCliqueFromExistingCliquesOrNull()
     def self.selectCliqueFromExistingCliquesOrNull()
         cliquestrings = Cliques::cliques().map{|clique| Cliques::cliqueToString(clique) }
@@ -139,7 +134,7 @@ class Cliques
             items << [
                 "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
                 lambda {
-                    quarks = Cliques::getCliqueBosonLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
+                    quarks = Bosons2::getLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
                     selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
                     return if selected.size == 0
                     puts "Now selecting/making the receiving cliques"
@@ -174,7 +169,7 @@ class Cliques
 
             items << nil
 
-            Cliques::getCliqueBosonLinkedObjects(clique)
+            Bosons2::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)

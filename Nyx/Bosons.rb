@@ -73,7 +73,7 @@ class Bosons2
     # Bosons2::getLinkedObjects(object)
     def self.getLinkedObjects(object)
         BTreeSets::values(Bosons2::pathToDataStore(), object["uuid"])
-            .map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) }
+            .map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) ||  NyxSets::getObjectOrNull(uuid) }
             .compact
     end
 
