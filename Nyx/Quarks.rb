@@ -21,7 +21,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 require_relative "Librarian.rb"
 
@@ -56,6 +55,7 @@ class QuarksMakers
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => line,
@@ -68,6 +68,7 @@ class QuarksMakers
     def self.makeQuarkUrl(url, description)
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -95,6 +96,7 @@ class QuarksMakers
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -111,6 +113,7 @@ class QuarksMakers
         LibrarianFile::copyFileToRepository(filepath2)
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "type"             => "file",
@@ -124,6 +127,7 @@ class QuarksMakers
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -136,6 +140,7 @@ class QuarksMakers
     def self.makeQuarkFileFromFilenameAndDescription(filename, description)
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -156,6 +161,7 @@ class QuarksMakers
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -177,6 +183,7 @@ class QuarksMakers
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             {
                 "uuid"             => SecureRandom.uuid,
+                "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "file",
@@ -192,6 +199,7 @@ class QuarksMakers
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             {
                 "uuid"             => SecureRandom.uuid,
+                "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
                 "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "folder",
@@ -207,6 +215,7 @@ class QuarksMakers
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
@@ -251,26 +260,26 @@ class Quarks
         puts "Issuing a new Quark..."
         quark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
-        NyxIO::commitToDisk(quark)
+        NyxSets::putObject(quark)
         quark
     end
 
     # Quarks::issueQuarkFileOrFolderFromLocation(location)
     def self.issueQuarkFileOrFolderFromLocation(location)
         quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
-        NyxIO::commitToDisk(quark)
+        NyxSets::putObject(quark)
         quark
     end
 
     # Quarks::quarks()
     def self.quarks()
-        NyxIO::objects("quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+        NyxSets::objects("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
-        NyxIO::destroyAtType(uuid, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+        NyxSets::destroy(uuid)
     end
 
     # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
@@ -306,7 +315,7 @@ class Quarks
 
     # Quarks::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxIO::getOrNull(uuid)
+        NyxSets::getObjectOrNull(uuid)
     end
 
     # Quarks::quarkToString(quark)
@@ -410,7 +419,7 @@ class Quarks
                         end
                     return if description == ""
                     quark["description"] = description
-                    NyxIO::commitToDisk(quark)
+                    NyxSets::putObject(quark)
                 }
             ]
 
@@ -484,7 +493,7 @@ class Quarks
                 "quark (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
-                        NyxIO::destroy(quark["uuid"])
+                        NyxSets::destroy(quark["uuid"])
                     end
                 }
             ]
@@ -578,7 +587,7 @@ class Quarks
     def self.ensureQuarkDescription(quark)
         if quark["description"].nil? then
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            NyxIO::commitToDisk(quark)
+            NyxSets::putObject(quark)
         end
         quark
     end
@@ -605,7 +614,7 @@ class Quarks
         # inherit the links of the old one.
         newquark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         newquark["uuid"] = quark["uuid"] # uuid override
-        NyxIO::commitToDisk(newquark)
+        NyxSets::putObject(newquark)
         newquark
     end
 end

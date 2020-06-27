@@ -120,6 +120,7 @@ class NyxCoreStoreObjects
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
+            "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
         ]
     end
 
