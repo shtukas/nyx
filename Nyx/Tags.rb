@@ -23,26 +23,17 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObje
 
 class Tags
 
-    # Tags::issueTag(payload)
-    def self.issueTag(payload)
+    # Tags::issueTag(quarkuuid, payload)
+    def self.issueTag(quarkuuid, payload)
         tag = {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "a00b82aa-c047-4497-82bf-16c7206913e4",
             "nyxType"          => "tag-57c7eced-24a8-466d-a6fe-588142afd53b",
             "creationUnixtime" => Time.new.to_f,
+            "quarkuuid"        => quarkuuid,
             "payload"          => payload
         }
         NyxSets::putObject(tag)
-        tag
-    end
-
-    # Tags::issueTagInteractivelyOrNull()
-    def self.issueTagInteractivelyOrNull()
-        puts "making a new Tag:"
-        payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to abort): ")
-        return nil if payload.size == 0
-        tag = Tags::issueTag(payload)
-        puts JSON.pretty_generate(tag)
         tag
     end
 
@@ -67,6 +58,11 @@ class Tags
         Tags::tags().select{|tag| tag["payload"] == payload }
     end
 
+    # Tags::getTagsByQuarkUUID(quarkuuid)
+    def self.getTagsByQuarkUUID(quarkuuid)
+        Tags::tags().select{|tag| tag["quarkuuid"] == quarkuuid }
+    end
+
     # Tags::tagPayloadDive(tagPayload)
     def self.tagPayloadDive(tagPayload)
         puts "Tags::tagPayloadDive(tagPayload) is not implemented yet"
@@ -76,8 +72,21 @@ class Tags
     # Tags::tagDive(tag)
     def self.tagDive(tag)
         puts "uuid: #{tag["uuid"]}"
-        puts "Tags::tagDive(tag) is not implemented yet"
-        LucilleCore::pressEnterToContinue()
+        tags = Tags::getTagsByExactPayload(tag["payload"])
+        quarks = tags
+                    .map{|tag| Quarks::getOrNull(tag["quarkuuid"]) }
+                    .compact
+        loop {
+            menuitems = LCoreMenuItemsNX1.new()
+            quarks.each{|quark|
+                menuitems.item(
+                    Quarks::quarkToString(quark), 
+                    lambda { Quarks::quarkDive(quark) }
+                )
+            }
+            status = menuitems.prompt()
+            break if !status
+        }
     end
 
     # Tags::searchNx1630(pattern)
@@ -90,7 +99,7 @@ class Tags
                 ].any?
             }
             .reduce([]) {|selected, tag|
-                if selected.any?{|t| t["payload"] == tag["payload"] } then
+                if selected.none?{|t| t["payload"] == tag["payload"] } then
                     selected << tag
                 end
                 selected

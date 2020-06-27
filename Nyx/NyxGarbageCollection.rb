@@ -43,7 +43,7 @@ class NyxGarbageCollection
     def self.run()
         Cliques::cliques()
             .each{|clique|
-                next if Bosons2::getLinkedObjects(clique).size > 0
+                next if Bosons::getLinkedObjects(clique).size > 0
                 puts "Clique has no relations: #{Cliques::cliqueToString(clique)}"
                 LucilleCore::pressEnterToContinue()
                 Cliques::cliqueDive(clique)

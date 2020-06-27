@@ -1,0 +1,7 @@
+
+Boson {
+    "uuid"              : String
+    "nyxNxSet"          : "13f3499d-fa9c-44bb-91d3-8a3ccffecefb"
+    "uuid1"             : String
+    "uuid2"             : String
+}

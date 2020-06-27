@@ -72,7 +72,7 @@ class CatalystFsck
             CatalystFsck::checkCube(entity)
             return
         end
-        if entity["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if entity["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             CatalystFsck::checkQuark(entity)
             return
         end
@@ -126,7 +126,7 @@ class CatalystFsck
             exit
         end
 
-        if quark["nyxType"] != "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if quark["nyxNxSet"] != "6b240037-8f5f-4f52-841d-12106658171f" then
             puts "[error] quark has incorrected nyxType".red
             puts JSON.pretty_generate(quark).red
             exit

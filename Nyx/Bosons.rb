@@ -17,6 +17,10 @@ require 'securerandom'
 
 require 'colorize'
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
@@ -44,54 +48,67 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 # -----------------------------------------------------------------
 
 
-class Bosons2
+class Bosons
 
-    # Bosons2::pathToDataStore()
-    def self.pathToDataStore()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Bosons"
-    end
-
-    # Bosons2::setDirectedLink(uuid1, uuid2)
-    def self.setDirectedLink(uuid1, uuid2)
-        # The set uuid1 contains the list of uuids connected to uuid1
-        BTreeSets::set(Bosons2::pathToDataStore(), uuid1, uuid2, uuid2)
-    end
-
-    # Bosons2::link(object1, object2)
+    # Bosons::link(object1, object2)
     def self.link(object1, object2)
-        # Since links are directed, we need to issue both directed
-        Bosons2::setDirectedLink(object1["uuid"], object2["uuid"])
-        Bosons2::setDirectedLink(object2["uuid"], object1["uuid"])
+        link = {
+            "uuid"      => SecureRandom.uuid,
+            "nyxNxSet"  => "13f3499d-fa9c-44bb-91d3-8a3ccffecefb",
+            "uuid1"     => uuid1,
+            "uuid2"     => uuid2
+        }
+        NyxSets::putObject(link)
+        link
     end
 
-    # Bosons2::linked?(object1, object2)
+    # Bosons::getLinks()
+    def self.getLinks()
+        NyxSets::objects("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+    end
+
+    # Bosons::linked?(object1, object2)
     def self.linked?(object1, object2)
-        # We only need to check one direction, since we always set and unset both
-        BTreeSets::values(Bosons2::pathToDataStore(), object1["uuid"]).include?(object2["uuid"])
+        Bosons::getLinks()
+            .any?{|link| 
+                b1 = link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"]
+                b2 = link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"]
+                b1 or b2
+            }
     end
 
-    # Bosons2::getLinkedObjects(object)
+    # Bosons::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        BTreeSets::values(Bosons2::pathToDataStore(), object["uuid"])
-            .map{|uuid| NyxSets::getObjectOrNull(uuid) }
-            .compact
+        objects1 = Bosons::getLinks()
+                    .select{|link| link["uuid1"] == object["uuid"] }
+                    .map{|link| NyxSets::getObjectOrNull(link["uuid2"]) }
+                    .compact
+
+        objects2 = Bosons::getLinks()
+                    .select{|link| link["uuid2"] == object["uuid"] }
+                    .map{|link| NyxSets::getObjectOrNull(link["uuid1"]) }
+                    .compact
+
+        objects1 + objects2
     end
 
-    # Bosons2::getLinkedObjectsOfGivenNyxType(focus, nyxType)
-    def self.getLinkedObjectsOfGivenNyxType(focus, nyxType)
-        Bosons2::getLinkedObjects(focus)
-            .select{|object| object["nyxType"] == nyxType }
+    # Bosons::getLinkedObjectsOfGivenNyxNxSet(focus, setid)
+    def self.getLinkedObjectsOfGivenNyxNxSet(focus, setid)
+        Bosons::getLinkedObjects(focus)
+            .select{|object| object["nyxNxSet"] == setid }
     end
 
-    # Bosons2::unsetDirectedLink(uuid1, uuid2)
-    def self.unsetDirectedLink(uuid1, uuid2)
-        BTreeSets::destroy(Bosons2::pathToDataStore(), uuid1, uuid2)
-    end
-
-    # Bosons2::unlink(object1, object2)
+    # Bosons::unlink(object1, object2)
     def self.unlink(object1, object2)
-        Bosons2::unsetDirectedLink(object1["uuid"], object2["uuid"])
-        Bosons2::unsetDirectedLink(object2["uuid"], object1["uuid"])
+        Bosons::getLinks()
+            .select{|link| 
+                b1 = link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"]
+                b2 = link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"]
+                b1 or b2
+            }
+            .each{|link|
+                NyxSets::destroy(link["uuid"])
+            }
     end
 
 end

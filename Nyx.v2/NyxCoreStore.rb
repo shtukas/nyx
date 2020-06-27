@@ -122,6 +122,7 @@ class NyxCoreStoreObjects
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
             "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
             "a00b82aa-c047-4497-82bf-16c7206913e4", # Tags
+            "13f3499d-fa9c-44bb-91d3-8a3ccffecefb", # Bosons
         ]
     end
 

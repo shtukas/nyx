@@ -56,7 +56,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => line,
             "type"             => "line",
@@ -69,7 +68,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "url",
@@ -97,7 +95,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
@@ -114,7 +111,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "type"             => "file",
             "filename"         => filename2
@@ -128,7 +124,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
@@ -141,7 +136,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
@@ -162,7 +156,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "folder",
@@ -184,7 +177,6 @@ class QuarksMakers
             {
                 "uuid"             => SecureRandom.uuid,
                 "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "file",
                 "filename"         => filename2
@@ -200,7 +192,6 @@ class QuarksMakers
             {
                 "uuid"             => SecureRandom.uuid,
                 "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
                 "creationUnixtime" => Time.new.to_f,
                 "type"             => "folder",
                 "foldername"       => foldername2
@@ -216,7 +207,6 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "nyxType"          => "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "unique-name",
@@ -301,20 +291,19 @@ class Quarks
 
     # Quarks::quarkHasConnections(quark)
     def self.quarkHasConnections(quark)
-        return true if Bosons2::getLinkedObjects(quark).size > 0
+        return true if Bosons::getLinkedObjects(quark).size > 0
         return true if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
         false
     end
 
     # Quarks::getQuarkTags(quark)
     def self.getQuarkTags(quark)
-        Bosons2::getLinkedObjects(quark)
-            .select{|object| object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" }
+        Tags::getTagsByQuarkUUID(quark["uuid"])
     end
 
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
-        Bosons2::getLinkedObjects(quark)
+        Bosons::getLinkedObjects(quark)
             .select{|object| object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" }
     end
 
@@ -447,8 +436,7 @@ class Quarks
                 "tag (add)",
                 lambda {
                     payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
-                    tag = Tags::issueTag(payload)
-                    Bosons2::link(quark, tag)
+                    Tags::issueTag(quark["uuid"], payload)
                 }
             )
 
@@ -457,7 +445,7 @@ class Quarks
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
-                    Bosons2::link(quark, clique)
+                    Bosons::link(quark, clique)
                 }
             )
 
@@ -466,7 +454,7 @@ class Quarks
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
-                    Bosons2::unlink(quark, clique)
+                    Bosons::unlink(quark, clique)
                 }
             )
 
@@ -475,7 +463,7 @@ class Quarks
                 lambda {
                     newquark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if newquark.nil?
-                    Bosons2::link(quark, newquark)
+                    Bosons::link(quark, newquark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(newquark)
                 }
             )
@@ -486,7 +474,7 @@ class Quarks
                     quark2 = Quarks::selectQuarkFromExistingQuarksOrNull()
                     return if quark2.nil?
                     return if quark["uuid"] == quark2["uuid"]
-                    Bosons2::link(quark, quark2)
+                    Bosons::link(quark, quark2)
                 }
             )
 
@@ -530,7 +518,17 @@ class Quarks
 
             puts ""
 
-            Bosons2::getLinkedObjects(quark)
+            Tags::getTagsByQuarkUUID(quark["uuid"])
+                .each{|tag|
+                    menuitems.item(
+                        Tags::tagToString(tag), 
+                        lambda { Tags::tagDive(tag) }
+                    )
+                }
+
+            puts ""
+
+            Bosons::getLinkedObjects(quark)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     object = NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
@@ -592,8 +590,7 @@ class Quarks
         loop {
             tagPayload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit) : ")
             break if tagPayload.size == 0
-            tag = Tags::issueTag(tagPayload)
-            Bosons2::link(quark, tag)
+            Tags::issueTag(quark["uuid"], tagPayload)
         }
     end
 
@@ -601,7 +598,7 @@ class Quarks
     def self.attachQuarkToZeroOrMoreCliquesInteractively(quark)
         Cliques::selectZeroOrMoreCliquesExistingOrCreated()
             .each{|clique|
-                Bosons2::link(quark, clique)
+                Bosons::link(quark, clique)
             }
     end
 

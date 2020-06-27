@@ -131,7 +131,7 @@ class Cliques
                 lambda{
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    Bosons2::link(clique, quark)
+                    Bosons::link(clique, quark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
                 }
             )
@@ -139,7 +139,8 @@ class Cliques
             menuitems.item(
                 "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
                 lambda {
-                    quarks = Bosons2::getLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
+                    quarks = Bosons::getLinkedObjects(clique)
+                                .select{|objs| objs["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" }
                     selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
                     return if selected.size == 0
                     puts "Now selecting/making the receiving cliques"
@@ -148,12 +149,12 @@ class Cliques
                     puts "Linking quarks to cliques"
                     nextcliques.each{|nextclique|
                         selectedQuarks.each{|quark| 
-                            Bosons2::link(nextclique, quark)
+                            Bosons::link(nextclique, quark)
                         }
                     }
                     puts "Unlinking quarks from (this)"
                     selectedQuarks.each{|quark| 
-                        Bosons2::unlink(clique, quark)
+                        Bosons::unlink(clique, quark)
                     }
                 }
             )
@@ -179,7 +180,7 @@ class Cliques
 
             puts ""
 
-            Bosons2::getLinkedObjects(clique)
+            Bosons::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     object = NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
@@ -203,7 +204,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["creationUnixtime"] ] + Bosons2::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
+        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
         times.max
     end
 
@@ -242,9 +243,9 @@ class Cliques
     # Cliques::mergeCliques(clique1, clique2)
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
-        Bosons2::getLinkedObjects(clique2)
+        Bosons::getLinkedObjects(clique2)
             .each{|object|
-                Bosons2::link(clique1, object)
+                Bosons::link(clique1, object)
             }
         NyxSets::destroy(clique2["uuid"])
     end

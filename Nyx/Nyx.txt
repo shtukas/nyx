@@ -1,31 +1,29 @@
 
 Nyx
 
-    Quark   # See Quarks.txt   nyxType: "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2"
-    Clique  # See Cliques.txt  nyxType: "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"
-    Tag     # See Tags.txt     nyxType: "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+    Primary Store Objects Knowledge
 
-    Cube 
-        {
-            "nyxType"     : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
-            "description" : String # description of the first quark
-            "quarks"      : Array[Quark]
-        }
+        Quark    # See Quarks.txt       nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
-    Boson 
+        Clique   # See Cliques.txt      nyxType: "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721"
 
-    Gluon
-        {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         : "3d590cee-0c1c-4b6a-8eee-4177e1b19a37"
-            "nyxType"          => "gluon-f3b14b34-cccc-442e-a7e9-f73fb37bc597",
-            "creationUnixtime" => Time.new.to_f,
-            "uuid1"            => object1["uuid"],
-            "uuid2"            => object2["uuid"]
-        }
+        Boson    # See Cliques.txt      nyxNxSet : "13f3499d-fa9c-44bb-91d3-8a3ccffecefb" 
+                                        Quark <-> Clique
+                                        Quark <-> Quark  # This creates Cubes
 
-    NyxTodo
-        Waves    # See Waves.txt       # "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
-        Asteroid # See Asteroid.txt    # "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc"
+        Tag      # See Tags.txt         nyxType: "tag-57c7eced-24a8-466d-a6fe-588142afd53b"
+                                        Tags only apply to Quarks
+
+        Waves    # See Waves.txt        nyxType: "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"
+
+        Asteroid # See Asteroid.txt     nyxType: "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc"
+
+    Generated
+        Cube 
+            {
+                "nyxType"     : "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"
+                "description" : String # description of the first quark
+                "quarks"      : Array[Quark]
+            }
 
 

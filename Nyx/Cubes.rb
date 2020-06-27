@@ -40,8 +40,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxRoles.rb"
 class Cubes
     # Cubes::upgradeQuarkToCubeIfRelevant(quark)
     def self.upgradeQuarkToCubeIfRelevant(quark)
-        return quark if Bosons2::getLinkedObjectsOfGivenNyxType(quark, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2").empty?
-        quarks = [quark] + Bosons2::getLinkedObjectsOfGivenNyxType(quark, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
+        objects = Bosons::getLinkedObjectsOfGivenNyxNxSet(quark, "6b240037-8f5f-4f52-841d-12106658171f")
+        return quark if objects.empty?
+        quarks = [quark] + objects
         {
             "nyxType"     => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "description" => "[cube] (#{quarks.size}) #{Quarks::quarkToString(quark)}",

@@ -50,7 +50,7 @@ class NyxGenericObjectInterface
         if object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" then
             return Tags::tagToString(object)
         end
-        if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             return Quarks::quarkToString(object)
         end
         puts object
@@ -71,7 +71,7 @@ class NyxGenericObjectInterface
             Tags::tagDive(tag)
             return
         end
-        if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             Quarks::quarkDive(object)
             return
         end
@@ -90,7 +90,7 @@ class NyxGenericObjectInterface
         if object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" then
             return object["creationUnixtime"]
         end
-        if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             return object["creationUnixtime"]
         end
         puts object
@@ -99,7 +99,7 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
     def self.applyQuarkToCubeUpgradeIfRelevant(object)
-        if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             object = Cubes::upgradeQuarkToCubeIfRelevant(object)
         end
         object
