@@ -203,7 +203,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).select{|object| object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" }.map{|cube| cube["creationUnixtime"] }
+        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
         times.max
     end
 

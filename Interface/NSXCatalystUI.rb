@@ -186,14 +186,6 @@ class NSXCatalystUI
             ]
 
             items << [
-                "Run Data Integrity Check", 
-                lambda { 
-                    CatalystFsck::run()
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
                 "Run Shadow Update", 
                 lambda { Drives::runShadowUpdate() }
             ]

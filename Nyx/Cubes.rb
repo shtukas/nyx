@@ -44,8 +44,8 @@ class Cubes
         return quark if objects.empty?
         quarks = [quark] + objects
         {
-            "nyxType"     => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
-            "description" => "[cube] (#{quarks.size}) #{Quarks::quarkToString(quark)}",
+            "nyxNxSet"    => "34F19BF8-0B21-4B9F-9E33-F56E897810C9",
+            "description" => "[cube] #{Quarks::quarkToString(quark)}",
             "quarks"      => quarks
         }
     end

@@ -50,8 +50,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 # -----------------------------------------------------------------
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystFsck.rb"
-
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
 require_relative "NSXDisplayUtils.rb"

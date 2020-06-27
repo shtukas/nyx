@@ -41,13 +41,13 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::objectToString(object)
     def self.objectToString(object)
-        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if object["nyxNxSet"] == "34F19BF8-0B21-4B9F-9E33-F56E897810C9" then
             return object["description"]
         end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::cliqueToString(object)
         end
-        if object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" then
+        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
             return Tags::tagToString(object)
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
@@ -59,15 +59,15 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::objectDive(object)
     def self.objectDive(object)
-        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if object["nyxNxSet"] == "34F19BF8-0B21-4B9F-9E33-F56E897810C9" then
             Cubes::diveCube(object)
             return
         end
-        if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"  then
+        if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             Cliques::cliqueDive(object)
             return
         end
-        if object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" then
+        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
             Tags::tagDive(tag)
             return
         end
@@ -81,13 +81,13 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
-        if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
+        if object["nyxNxSet"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             return object["quarks"].map{|quark| quark["creationUnixtime"] }.max
         end
-        if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"  then
+        if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::getLastActivityUnixtime(object)
         end
-        if object["nyxType"] == "tag-57c7eced-24a8-466d-a6fe-588142afd53b" then
+        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
             return object["creationUnixtime"]
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then

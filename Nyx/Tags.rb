@@ -28,7 +28,6 @@ class Tags
         tag = {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "a00b82aa-c047-4497-82bf-16c7206913e4",
-            "nyxType"          => "tag-57c7eced-24a8-466d-a6fe-588142afd53b",
             "creationUnixtime" => Time.new.to_f,
             "quarkuuid"        => quarkuuid,
             "payload"          => payload
