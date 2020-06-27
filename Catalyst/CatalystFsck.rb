@@ -64,7 +64,7 @@ class CatalystFsck
 
     # CatalystFsck::entity(entity)
     def self.entity(entity)
-        if entity["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+        if entity["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             CatalystFsck::checkClique(entity)
             return
         end
@@ -216,7 +216,7 @@ class CatalystFsck
             puts JSON.pretty_generate(asteroid).red
             exit
         end
-        if asteroid["nyxType"] != "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc" then
+        if asteroid["nyxNxSet"] != "b66318f4-2662-4621-a991-a6b966fb4398" then
             puts "[error] asteroid has incorrect nyxType".red
             puts JSON.pretty_generate(asteroid).red
             exit
@@ -277,7 +277,7 @@ class CatalystFsck
             puts JSON.pretty_generate(clique).red
             exit
         end
-        if clique["nyxType"] != "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
+        if clique["nyxNxSet"] != "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             puts "[error] clique has incorrect nyxType".red
             puts JSON.pretty_generate(clique).red
             exit

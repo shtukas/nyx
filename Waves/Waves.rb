@@ -232,7 +232,6 @@ class Waves
         object = {
             "uuid"             => uuid,
             "nyxNxSet"         => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
-            "nyxType"          => "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "schedule"         => schedule

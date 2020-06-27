@@ -148,7 +148,6 @@ class Asteroids
         asteroid = {
             "uuid"     => CatalystCommon::l22(),
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
-            "nyxType"  => "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
             "orbital"  => orbital

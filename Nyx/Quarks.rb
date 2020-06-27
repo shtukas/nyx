@@ -304,7 +304,7 @@ class Quarks
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
         Bosons::getLinkedObjects(quark)
-            .select{|object| object["nyxType"] == "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721" }
+            .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
     end
 
     # Quarks::getOrNull(uuid)

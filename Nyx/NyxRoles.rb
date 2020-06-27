@@ -38,10 +38,10 @@ class NyxRoles
 
     # NyxRoles::objectToString(object)
     def self.objectToString(object)
-        if object["nyxType"] == "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58" then
+        if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             return Waves::waveToString(object)
         end
-        if object["nyxType"] == "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc" then
+        if object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398" then
             return Asteroids::asteroidToString(object)
         end
         puts object
@@ -50,11 +50,11 @@ class NyxRoles
 
     # NyxRoles::objectDive(object)
     def self.objectDive(object)
-        if object["nyxType"] == "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58" then
+        if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             puts "There isn't currently a dive function for Waves"
             return
         end
-        if object["nyxType"] == "asteroid-99a06996-dcad-49f5-a0ce-02365629e4fc" then
+        if object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398" then
             Asteroids::asteroidDive(object)
             return
         end
