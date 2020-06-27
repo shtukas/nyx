@@ -90,7 +90,6 @@ class VideoStream
                 uuid = VideoStream::filepathToVideoUUID(filepath)
                 objects << {
                     "uuid"        => uuid,
-                    "application" => "VideoStream",
                     "body"        => "[VideoStream] #{File.basename(filepath)}",
                     "metric"      => VideoStream::metric(indx),
                     "execute"     => lambda { VideoStream::execute(filepath) },

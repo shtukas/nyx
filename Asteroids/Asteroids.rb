@@ -213,7 +213,7 @@ class Asteroids
 
     # Asteroids::asteroids()
     def self.asteroids()
-        NyxSets::getObjectsFromSet("b66318f4-2662-4621-a991-a6b966fb4398")
+        NyxSets::objects("b66318f4-2662-4621-a991-a6b966fb4398")
     end
 
     # Asteroids::getAsteroidsTypeQuarkByQuarkUUID(targetuuid)

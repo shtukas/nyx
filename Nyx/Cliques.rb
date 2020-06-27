@@ -18,7 +18,6 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
 # -----------------------------------------------------------------
 
@@ -28,11 +27,12 @@ class Cliques
     def self.issueClique(name1)
         clique = {
             "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
             "nyxType"          => "clique-8826cbad-e54e-4e78-bf7d-28c9c5019721",
             "creationUnixtime" => Time.new.to_f,
             "name"             => name1
         }
-        NyxIO::commitToDisk(clique)
+        NyxSets::putObject(object)
         clique
     end
 
@@ -52,12 +52,12 @@ class Cliques
 
     # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxIO::getOrNull(uuid)
+        NyxSets::getObjectOrNull(uuid)
     end
 
     # Cliques::cliques()
     def self.cliques()
-        NyxIO::objects("clique-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        NyxSets::objects("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -113,7 +113,7 @@ class Cliques
     def self.cliqueDive(clique)
         loop {
 
-            clique = NyxIO::getOrNull(clique["uuid"])
+            clique = NyxSets::getObjectOrNull(clique["uuid"])
 
             return if clique.nil? # could have been destroyed in a previous loop
 
@@ -124,7 +124,7 @@ class Cliques
 
             items << ["rename", lambda{ 
                 clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                NyxIO::commitToDisk(clique)
+                NyxSets::putObject(clique)
             }]
 
             items << [
@@ -162,7 +162,7 @@ class Cliques
                 "clique (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                        NyxIO::destroy(clique["uuid"])
+                        NyxSets::destroy(clique["uuid"])
                     end
                 }
             ]
@@ -238,7 +238,7 @@ class Cliques
             .each{|object|
                 Bosons2::link(clique1, object)
             }
-        NyxIO::destroy(clique2["uuid"])
+        NyxSets::destroy(clique2["uuid"])
     end
 
     # Cliques::interactivelySelectTwoCliquesAndMerge()

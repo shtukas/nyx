@@ -245,7 +245,7 @@ class Waves
 
     # Waves::waves()
     def self.waves()
-        NyxSets::getObjectsFromSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        NyxSets::objects("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::waveToString(wave)

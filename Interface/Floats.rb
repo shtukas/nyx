@@ -205,7 +205,7 @@ class Floats
 
     # Floats::getFloatsOrdered()
     def self.getFloatsOrdered()
-        NyxSets::getObjectsFromSet("1aaa9485-2c07-4b14-a5c3-ed1d6772ca19")
+        NyxSets::objects("1aaa9485-2c07-4b14-a5c3-ed1d6772ca19")
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
     end
 end
