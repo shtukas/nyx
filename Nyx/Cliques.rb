@@ -17,7 +17,7 @@ require 'securerandom'
 require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObjectInterface.rb"
 
 # -----------------------------------------------------------------
 
@@ -115,23 +115,28 @@ class Cliques
             system("clear")
             puts Cliques::cliqueToString(clique).green
             puts "uuid: #{clique["uuid"]}"
-            items = []
 
-            items << ["rename", lambda{ 
-                clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                NyxSets::putObject(clique)
-            }]
+            menuitems = LCoreMenuItemsNX1.new()
 
-            items << [
+            menuitems.item(
+                "rename", 
+                lambda{ 
+                    clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
+                    NyxSets::putObject(clique)
+                }
+            )
+
+            menuitems.item(
                 "quark (add new)", 
                 lambda{
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     Bosons2::link(clique, quark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
-                }]
+                }
+            )
 
-            items << [
+            menuitems.item(
                 "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
                 lambda {
                     quarks = Bosons2::getLinkedObjects(clique).select{|objs| objs["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" }
@@ -151,32 +156,40 @@ class Cliques
                         Bosons2::unlink(clique, quark)
                     }
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "clique (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
                         NyxSets::destroy(clique["uuid"])
                     end
                 }
-            ]
+            )
 
-            items << nil
+            puts ""
 
             NyxRoles::getRolesForTarget(clique["uuid"])
-                .each{|object| items << [NyxRoles::objectToString(object), lambda { NyxRoles::objectDive(object) }] }
-
-            items << nil
-
-            Bosons2::getLinkedObjects(clique)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
-                .each{|object|
-                    object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) }]
+                .each{|object| 
+                    menuitems.item(
+                        NyxRoles::objectToString(object), 
+                        lambda { NyxRoles::objectDive(object) }
+                    )
                 }
 
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            puts ""
+
+            Bosons2::getLinkedObjects(clique)
+                .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
+                .each{|object|
+                    object = NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
+                    menuitems.item(
+                        NyxGenericObjectInterface::objectToString(object), 
+                        lambda { NyxGenericObjectInterface::objectDive(object) }
+                    )
+                }
+
+            status = menuitems.prompt()
             break if !status
         }
     end

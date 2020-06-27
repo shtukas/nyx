@@ -20,7 +20,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObjectInterface.rb"
 
 require_relative "Librarian.rb"
 
@@ -255,12 +255,17 @@ end
 
 class Quarks
 
+    # Quarks::commitQuarkToDisk(quark)
+    def self.commitQuarkToDisk(quark)
+        NyxSets::putObject(quark)
+    end
+
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Issuing a new Quark..."
         quark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
-        NyxSets::putObject(quark)
+        Quarks::commitQuarkToDisk(quark)
         quark
     end
 
@@ -401,14 +406,14 @@ class Quarks
             puts Quarks::quarkToString(quark).green
             puts "uuid: #{quark["uuid"]}"
 
-            items = []
+            menuitems = LCoreMenuItemsNX1.new()
 
-            items << [
+            menuitems.item(
                 "open", 
                 lambda{ Quarks::openQuark(quark) }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "description (update)",
                 lambda{
                     description = 
@@ -421,56 +426,71 @@ class Quarks
                     quark["description"] = description
                     NyxSets::putObject(quark)
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
+                "description (update)",
+                lambda{
+                    description = 
+                        if ( quark["description"].nil? or quark["description"].size == 0 ) then
+                            description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        else
+                            description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
+                        end
+                    return if description == ""
+                    quark["description"] = description
+                    NyxSets::putObject(quark)
+                }
+            )
+
+            menuitems.item(
                 "tag (add)",
                 lambda {
                     payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
                     tag = Tags::issueTag(payload)
                     Bosons2::link(quark, tag)
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "clique (link to)",
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
                     Bosons2::link(quark, clique)
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "clique (select and unlink)",
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
                     Bosons2::unlink(quark, clique)
                 }
-            ]
+            )
 
-            items << [
-                "quark (make new + attach to this with gluon)",
+            menuitems.item(
+                "quark (make new + attach to this)",
                 lambda {
                     newquark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if newquark.nil?
-                    Gluons::issueLink(quark, newquark)
+                    Bosons2::link(quark, newquark)
                     Quarks::issueZeroOrMoreTagsForQuarkInteractively(newquark)
                 }
-            ]
+            )
 
-            items << [
-                "quark (select existing + attach to this with gluon)",
+            menuitems.item(
+                "quark (select existing + attach to this)",
                 lambda {
                     quark2 = Quarks::selectQuarkFromExistingQuarksOrNull()
                     return if quark2.nil?
                     return if quark["uuid"] == quark2["uuid"]
-                    Gluons::issueLink(quark, quark2)
+                    Bosons2::link(quark, quark2)
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "asteroid (create with this as target)", 
                 lambda { 
                     payload = {
@@ -482,43 +502,45 @@ class Quarks
                     asteroid = Asteroids::issue(payload, orbital)
                     puts JSON.pretty_generate(asteroid)
                 }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "quark (recast)", 
                 lambda { Quarks::recastQuark(quark) }
-            ]
+            )
 
-            items << [
+            menuitems.item(
                 "quark (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
                         NyxSets::destroy(quark["uuid"])
                     end
                 }
-            ]
+            )
 
-            items << nil
+            puts ""
 
             NyxRoles::getRolesForTarget(quark["uuid"])
-                .each{|object| items << [NyxRoles::objectToString(object), lambda{ NyxRoles::objectDive(object) }] }
-
-            items << nil
-
-            Gluons::getLinkedQuarks(quark)
-                .sort{|q1, q2| q1["creationUnixtime"] <=> q2["creationUnixtime"] }
-                .each{|q|
-                    items << [ Quarks::quarkToString(q), lambda{ Quarks::quarkDive(q) } ]
+                .each{|object| 
+                    menuitems.item(
+                        NyxRoles::objectToString(object), 
+                        lambda{ NyxRoles::objectDive(object) }
+                    )
                 }
+
+            puts ""
 
             Bosons2::getLinkedObjects(quark)
-                .sort{|o1, o2| NyxDataCarriers::objectLastActivityUnixtime(o1) <=> NyxDataCarriers::objectLastActivityUnixtime(o2) }
+                .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
-                    object = NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
-                    items << [NyxDataCarriers::objectToString(object), lambda { NyxDataCarriers::objectDive(object) } ]
+                    object = NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
+                    menuitems.item(
+                        NyxGenericObjectInterface::objectToString(object), 
+                        lambda { NyxGenericObjectInterface::objectDive(object) }
+                    )
                 }
 
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            status = menuitems.prompt()
             break if !status
         }
     end

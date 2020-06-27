@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObjectInterface.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -37,20 +37,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 
 # -----------------------------------------------------------------
 
-class NyxDataCarriers
+class NyxGenericObjectInterface
 
-    # NyxDataCarriers::getObjectOrNull(uuid)
-    def self.getObjectOrNull(uuid)
-        objects = NyxIO::dataCarriersNyxTypes()
-                    .map{|nyxtype|
-                        NyxIO::getOrNullAtType(uuid, nyxtype)
-                    }
-                    .compact
-        raise "7577a7d3-2dfa-40d4-a6a3-3885eaa54631" if objects.size >= 2
-        objects.first
-    end
-
-    # NyxDataCarriers::objectToString(object)
+    # NyxGenericObjectInterface::objectToString(object)
     def self.objectToString(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return object["description"]
@@ -68,7 +57,7 @@ class NyxDataCarriers
         raise "Error: 056686f0"
     end
 
-    # NyxDataCarriers::objectDive(object)
+    # NyxGenericObjectInterface::objectDive(object)
     def self.objectDive(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cubes::diveCube(object)
@@ -90,7 +79,7 @@ class NyxDataCarriers
         raise "Error: cf25ea33"
     end
 
-    # NyxDataCarriers::objectLastActivityUnixtime(object)
+    # NyxGenericObjectInterface::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
         if object["nyxType"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return object["quarks"].map{|quark| quark["creationUnixtime"] }.max
@@ -108,7 +97,7 @@ class NyxDataCarriers
         raise "Error: d66bdffa"
     end
 
-    # NyxDataCarriers::applyQuarkToCubeUpgradeIfRelevant(object)
+    # NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
     def self.applyQuarkToCubeUpgradeIfRelevant(object)
         if object["nyxType"] == "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             object = Cubes::upgradeQuarkToCubeIfRelevant(object)

@@ -1,8 +1,0 @@
-{
-    "uuid"             => SecureRandom.uuid,
-    "nyxNxSet"         : "3d590cee-0c1c-4b6a-8eee-4177e1b19a37"
-    "nyxType"          => "gluon-f3b14b34-cccc-442e-a7e9-f73fb37bc597",
-    "creationUnixtime" => Time.new.to_f,
-    "uuid1"            => object1["uuid"],
-    "uuid2"            => object2["uuid"]
-}

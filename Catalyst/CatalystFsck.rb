@@ -235,7 +235,7 @@ class CatalystFsck
         end
 
         if asteroid["payload"]["type"] == "quark" then
-            quark = NyxIO::getOrNull(asteroid["payload"]["quarkuuid"])
+            quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
             if quark.nil? then
                 puts "[error] Asteroid item has not known target quark".red
                 puts JSON.pretty_generate(asteroid).red

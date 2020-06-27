@@ -36,15 +36,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroid
 
 class NyxRoles
 
-    # NyxRoles::getObjectOrNull(uuid)
-    def self.getObjectOrNull(uuid)
-        objects = NyxIO::rolesNyxTypes()
-                    .map{|nyxtype| NyxIO::getOrNullAtType(uuid, nyxtype) }
-                    .compact
-        raise "e9b4533c-d2d6-4f87-8120-9ed6942777d0" if objects.size >= 2
-        objects.first
-    end
-
     # NyxRoles::objectToString(object)
     def self.objectToString(object)
         if object["nyxType"] == "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58" then

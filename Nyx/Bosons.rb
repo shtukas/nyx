@@ -48,7 +48,7 @@ class Bosons2
 
     # Bosons2::pathToDataStore()
     def self.pathToDataStore()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Network/Bosons"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nxy-Bosons"
     end
 
     # Bosons2::setDirectedLink(uuid1, uuid2)
@@ -73,7 +73,7 @@ class Bosons2
     # Bosons2::getLinkedObjects(object)
     def self.getLinkedObjects(object)
         BTreeSets::values(Bosons2::pathToDataStore(), object["uuid"])
-            .map{|uuid| NyxDataCarriers::getObjectOrNull(uuid) ||  NyxSets::getObjectOrNull(uuid) }
+            .map{|uuid| NyxSets::getObjectOrNull(uuid) }
             .compact
     end
 

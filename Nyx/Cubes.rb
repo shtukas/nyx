@@ -32,18 +32,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObjectInterface.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxRoles.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Gluons.rb"
 
 # -----------------------------------------------------------------
 
 class Cubes
     # Cubes::upgradeQuarkToCubeIfRelevant(quark)
     def self.upgradeQuarkToCubeIfRelevant(quark)
-        return quark if Gluons::getLinkedQuarks(quark).empty?
-        quarks = [quark] + Gluons::getLinkedQuarks(quark)
+        return quark if Bosons2::getLinkedObjectsOfGivenNyxType(quark, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2").empty?
+        quarks = [quark] + Bosons2::getLinkedObjectsOfGivenNyxType(quark, "quark-6af2c9d7-67b5-4d16-8913-c5980b0453f2")
         {
             "nyxType"     => "cube-933c2260-92d1-4578-9aaf-cd6557c664c6",
             "description" => "[cube] (#{quarks.size}) #{Quarks::quarkToString(quark)}",
@@ -55,7 +53,7 @@ class Cubes
     def self.diveCube(cube)
         loop {
             items = cube["quarks"].map{|quark|
-                [ NyxDataCarriers::objectToString(quark), lambda { NyxDataCarriers::objectDive(quark) } ]
+                [ NyxGenericObjectInterface::objectToString(quark), lambda { NyxGenericObjectInterface::objectDive(quark) } ]
             }
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
