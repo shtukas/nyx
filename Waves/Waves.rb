@@ -49,6 +49,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxDataCarriers.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxIO.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
+
 # ----------------------------------------------------------------------
 
 class Waves
@@ -213,8 +215,7 @@ class Waves
         announce = Waves::announce(wave["description"], schedule)
         object = {}
         object['uuid'] = uuid
-        object["application"] = "Waves"
-        object["body"] = "[wave] "+announce
+        object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
         object['schedule'] = schedule
         object["execute"] = lambda { Waves::waveDive(wave) }
@@ -228,22 +229,23 @@ class Waves
         DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
 
-    # Waves::issueWaves(uuid, description, schedule)
-    def self.issueWaves(uuid, description, schedule)
-        obj = {
+    # Waves::issueWave(uuid, description, schedule)
+    def self.issueWave(uuid, description, schedule)
+        object = {
             "uuid"             => uuid,
+            "nyxNxSet"         => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
             "nyxType"          => "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "schedule"         => schedule
         }
-        NyxIO::commitToDisk(obj)
-        obj
+        NyxSets::putObject(object)
+        object
     end
 
     # Waves::waves()
     def self.waves()
-        NyxIO::objects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58")
+        NyxSets::getObjectsFromSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::waveToString(wave)
@@ -309,17 +311,17 @@ class Waves
             schedule = Waves::makeScheduleObjectInteractivelyOrNull()
             return if schedule.nil?
             wave["schedule"] = schedule
-            NyxIO::commitToDisk(wave)
+            NyxSets::putObject(wave)
             return
         end
         if option == 'description' then
             wave["description"] = CatalystCommon::editTextUsingTextmate(wave["description"])
-            NyxIO::commitToDisk(wave)
+            NyxSets::putObject(wave)
             return
         end
         if option == 'destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                NyxIO::destroy(wave["uuid"])
+                NyxSets::destroy(wave["uuid"])
                 return
             end
             return
