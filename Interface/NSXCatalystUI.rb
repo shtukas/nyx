@@ -397,9 +397,15 @@ class NSXCatalystUI
             ]
 
             items << [
-                "starship", 
+                "asteroid",
                 lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
             ]
+
+            items << [
+                "wave",
+                lambda { Waves::issueNewWaveInteractivelyOrNull() }
+            ]
+
             LucilleCore::menuItemsWithLambdas(items)
             return
         end

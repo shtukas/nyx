@@ -240,6 +240,14 @@ class Waves
         object
     end
 
+    # Waves::issueNewWaveInteractivelyOrNull()
+    def self.issueNewWaveInteractivelyOrNull()
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+        return nil if schedule.nil?
+        Waves::issueWave(LucilleCore::timeStringL22(), line, schedule)
+    end
+
     # Waves::waves()
     def self.waves()
         NyxSets::objects("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")

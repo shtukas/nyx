@@ -53,10 +53,7 @@ loop {
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
     break if option.nil?
     if option == "new wave" then
-        line = LucilleCore::askQuestionAnswerAsString("line: ")
-        schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-        next if schedule.nil?
-        Waves::issueWave(LucilleCore::timeStringL22(), line, schedule)
+        Waves::issueNewWaveInteractivelyOrNull()
     end
     if option == "waves dive" then
         obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
