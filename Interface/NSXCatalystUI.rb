@@ -139,7 +139,7 @@ class NSXCatalystUI
                 lambda { 
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                     Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
                 }
             ]

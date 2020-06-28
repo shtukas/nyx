@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Tags.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/QuarkTags.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -21,9 +21,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObje
 
 # -----------------------------------------------------------------
 
-class Tags
+class QuarkTags
 
-    # Tags::issueTag(quarkuuid, payload)
+    # QuarkTags::issueTag(quarkuuid, payload)
     def self.issueTag(quarkuuid, payload)
         tag = {
             "uuid"             => SecureRandom.uuid,
@@ -36,42 +36,49 @@ class Tags
         tag
     end
 
-    # Tags::tagToString(tag)
+    # QuarkTags::issueQuarkTagInteractivelyOrNull(quark)
+    def self.issueQuarkTagInteractivelyOrNull(quark)
+        payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
+        return nil if payload.size == 0
+        QuarkTags::issueTag(quark["uuid"], payload)
+    end
+
+    # QuarkTags::tagToString(tag)
     def self.tagToString(tag)
         "[Tag] #{tag["payload"]}"
     end
 
-    # Tags::getOrNull(uuid)
+    # QuarkTags::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxSets::getObjectOrNull(uuid)
     end
 
-    # Tags::tags()
+    # QuarkTags::tags()
     def self.tags()
         NyxSets::objects("a00b82aa-c047-4497-82bf-16c7206913e4")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
-    # Tags::getTagsByExactPayload(payload)
-    def self.getTagsByExactPayload(payload)
-        Tags::tags().select{|tag| tag["payload"] == payload }
+    # QuarkTags::getQuarkTagsByExactPayload(payload)
+    def self.getQuarkTagsByExactPayload(payload)
+        QuarkTags::tags().select{|tag| tag["payload"] == payload }
     end
 
-    # Tags::getTagsByQuarkUUID(quarkuuid)
-    def self.getTagsByQuarkUUID(quarkuuid)
-        Tags::tags().select{|tag| tag["quarkuuid"] == quarkuuid }
+    # QuarkTags::getQuarkTagsByQuarkUUID(quarkuuid)
+    def self.getQuarkTagsByQuarkUUID(quarkuuid)
+        QuarkTags::tags().select{|tag| tag["quarkuuid"] == quarkuuid }
     end
 
-    # Tags::tagPayloadDive(tagPayload)
+    # QuarkTags::tagPayloadDive(tagPayload)
     def self.tagPayloadDive(tagPayload)
-        puts "Tags::tagPayloadDive(tagPayload) is not implemented yet"
+        puts "QuarkTags::tagPayloadDive(tagPayload) is not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
 
-    # Tags::tagDive(tag)
+    # QuarkTags::tagDive(tag)
     def self.tagDive(tag)
         puts "uuid: #{tag["uuid"]}"
-        tags = Tags::getTagsByExactPayload(tag["payload"])
+        tags = QuarkTags::getQuarkTagsByExactPayload(tag["payload"])
         quarks = tags
                     .map{|tag| Quarks::getOrNull(tag["quarkuuid"]) }
                     .compact
@@ -88,9 +95,9 @@ class Tags
         }
     end
 
-    # Tags::searchNx1630(pattern)
+    # QuarkTags::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        Tags::tags()
+        QuarkTags::tags()
             .select{|tag| 
                 [
                     tag["uuid"].downcase.include?(pattern.downcase),
@@ -105,9 +112,9 @@ class Tags
             }
             .map{|tag|
                 {
-                    "description"   => Tags::tagToString(tag),
+                    "description"   => QuarkTags::tagToString(tag),
                     "referencetime" => tag["creationUnixtime"],
-                    "dive"          => lambda{ Tags::tagDive(tag) }
+                    "dive"          => lambda{ QuarkTags::tagDive(tag) }
                 }
             }
     end

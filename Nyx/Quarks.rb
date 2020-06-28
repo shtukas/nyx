@@ -296,9 +296,9 @@ class Quarks
         false
     end
 
-    # Quarks::getQuarkTags(quark)
-    def self.getQuarkTags(quark)
-        Tags::getTagsByQuarkUUID(quark["uuid"])
+    # Quarks::getQuarkQuarkTags(quark)
+    def self.getQuarkQuarkTags(quark)
+        QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])
     end
 
     # Quarks::getQuarkCliques(quark)
@@ -418,26 +418,8 @@ class Quarks
             )
 
             menuitems.item(
-                "description (update)",
-                lambda{
-                    description = 
-                        if ( quark["description"].nil? or quark["description"].size == 0 ) then
-                            description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        else
-                            description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
-                        end
-                    return if description == ""
-                    quark["description"] = description
-                    NyxSets::putObject(quark)
-                }
-            )
-
-            menuitems.item(
                 "tag (add)",
-                lambda {
-                    payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
-                    Tags::issueTag(quark["uuid"], payload)
-                }
+                lambda { QuarkTags::issueQuarkTagInteractivelyOrNull(quark) }
             )
 
             menuitems.item(
@@ -464,7 +446,7 @@ class Quarks
                     newquark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if newquark.nil?
                     Bosons::link(quark, newquark)
-                    Quarks::issueZeroOrMoreTagsForQuarkInteractively(newquark)
+                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(newquark)
                 }
             )
 
@@ -518,11 +500,11 @@ class Quarks
 
             puts ""
 
-            Tags::getTagsByQuarkUUID(quark["uuid"])
+            QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])
                 .each{|tag|
                     menuitems.item(
-                        Tags::tagToString(tag), 
-                        lambda { Tags::tagDive(tag) }
+                        QuarkTags::tagToString(tag), 
+                        lambda { QuarkTags::tagDive(tag) }
                     )
                 }
 
@@ -585,12 +567,12 @@ class Quarks
             }
     end
 
-    # Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
-    def self.issueZeroOrMoreTagsForQuarkInteractively(quark)
+    # Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
+    def self.issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
         loop {
             tagPayload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit) : ")
             break if tagPayload.size == 0
-            Tags::issueTag(quark["uuid"], tagPayload)
+            QuarkTags::issueTag(quark["uuid"], tagPayload)
         }
     end
 
@@ -611,10 +593,10 @@ class Quarks
         quark
     end
 
-    # Quarks::ensureAtLeastOneQuarkTags(quark)
-    def self.ensureAtLeastOneQuarkTags(quark)
-        if Quarks::getQuarkTags(quark).empty? then
-            Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+    # Quarks::ensureAtLeastOneQuarkQuarkTags(quark)
+    def self.ensureAtLeastOneQuarkQuarkTags(quark)
+        if Quarks::getQuarkQuarkTags(quark).empty? then
+            Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
         end
     end
 

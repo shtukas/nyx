@@ -131,7 +131,7 @@ class Cliques
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
                     Bosons::link(clique, quark)
-                    Quarks::issueZeroOrMoreTagsForQuarkInteractively(quark)
+                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                 }
             )
 

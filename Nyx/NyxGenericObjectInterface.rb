@@ -32,7 +32,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cubes.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Quarks.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Tags.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/QuarkTags.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 
 # -----------------------------------------------------------------
@@ -48,7 +48,7 @@ class NyxGenericObjectInterface
             return Cliques::cliqueToString(object)
         end
         if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            return Tags::tagToString(object)
+            return QuarkTags::tagToString(object)
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             return Quarks::quarkToString(object)
@@ -68,7 +68,7 @@ class NyxGenericObjectInterface
             return
         end
         if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            Tags::tagDive(tag)
+            QuarkTags::tagDive(tag)
             return
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then

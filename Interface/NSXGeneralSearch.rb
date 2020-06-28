@@ -14,7 +14,7 @@ class NSXGeneralSearch
         [
             Quarks::searchNx1630(pattern),
             Cliques::searchNx1630(pattern),
-            Tags::searchNx1630(pattern),
+            QuarkTags::searchNx1630(pattern),
             Waves::searchNx1630(pattern)
         ]
             .flatten
