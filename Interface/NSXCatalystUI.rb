@@ -272,23 +272,27 @@ class NSXCatalystUI
 
         loop {
 
-            asteroidUUIDsToReview = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "20a6deee-3832-43e0-a038-1febe0cf37d5", "[]"))
-            break if asteroidUUIDsToReview.size == 0
+            asteroids = Asteroids::asteroids()
+                            .select{|asteroid| asteroid["X02394e74c407"].nil? }
 
-            startingTime  = DateTime.parse("2020-06-28T10:44:25Z").to_time.to_f
+            startingTime  = DateTime.parse("2020-06-28T18:00:25Z").to_time.to_f
             endingTime    = DateTime.parse("2020-07-30T10:44:25Z").to_time.to_f
-            startingCount = 10597
+            startingCount = 6175
             endingCount   = 200
             timeRatio     = (Time.new.to_f - startingTime).to_f/(endingTime-startingTime)
-            doneRatio     = (startingCount - asteroidUUIDsToReview.count).to_f/(startingCount-endingCount)
+            doneRatio     = (startingCount - asteroids.count).to_f/(startingCount-endingCount)
             puts ""
-            puts "-> timeRatio: #{timeRatio}"
-            puts "-> doneRatio: #{doneRatio}"
-            verticalSpaceLeft = verticalSpaceLeft - 3
+            puts "Asteroids review"
+            puts "    -> timeRatio: #{timeRatio}"
+            puts "    -> doneRatio: #{doneRatio}"
+            verticalSpaceLeft = verticalSpaceLeft - 4
             break if doneRatio > timeRatio
+
             LucilleCore::pressEnterToContinue()
 
-            asteroidUUIDsToReview
+            asteroids
+                .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                .reverse
                 .take(10)
                 .each{|uuid|
                     system ("clear")
@@ -317,7 +321,6 @@ class NSXCatalystUI
                         end
                     end
 
-
                     puts Asteroids::asteroidToString(asteroid)
                     if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
                         Asteroids::openPayload(asteroid)
@@ -341,8 +344,6 @@ class NSXCatalystUI
                     )
                     ms.prompt()
                 }
-            puts "Update operational cache"
-            Asteroids::updateOperationalCache()
         }
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)

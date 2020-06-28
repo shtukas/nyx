@@ -243,7 +243,7 @@ class Ordinals
     def self.performOrdinalRunDone(ordinal)
         puts Ordinals::ordinalToString(ordinal)
         if ordinal["type"] == "ordinal-description-cc686a4e-d634-476f-bc03-6a41cda4344a" then
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ", true) then
                 return
             end
             NyxSets::destroy(ordinal["uuid"])
@@ -257,7 +257,7 @@ class Ordinals
                 return
             end
             Quarks::openQuark(quark)
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ") then
                 return
             end
             NyxSets::destroy(ordinal["uuid"])
@@ -271,7 +271,7 @@ class Ordinals
                 return
             end
             Quarks::openQuark(quark)
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ") then
                 return
             end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy ordinal own quark ? ") then
@@ -287,7 +287,7 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ") then
                 return
             end
             if !LucilleCore::askQuestionAnswerAsBoolean("destroy float ? ") then
@@ -303,7 +303,8 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            Asteroids::asteroidDive(asteroid)
+            if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ") then
                 return
             end
             if !LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid ? ") then
@@ -317,9 +318,6 @@ class Ordinals
             if wave.nil? then
                 return if !LucilleCore::askQuestionAnswerAsBoolean("wave cannot be found, destroy ordinal ? ")
                 NyxSets::destroy(ordinal["uuid"])
-                return
-            end
-            if !LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
                 return
             end
             Waves::performDone(wave)

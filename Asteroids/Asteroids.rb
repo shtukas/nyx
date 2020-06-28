@@ -460,45 +460,30 @@ class Asteroids
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        Asteroids::asteroids()
-            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-    end
-
-    # Asteroids::updateOperationalCache()
-    def self.updateOperationalCache()
-        uuids = Asteroids::catalystObjects()
-                    .first(64)
-                    .map{|object| object["uuid"] }
-        KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
-
-        asteroidUUIDsToReview = Asteroids::asteroids()
-                                .select{|asteroid| asteroid["X02394e74c407"].nil? }
-                                .map{|asteroid| asteroid["uuid"] }
-                                .shuffle
-        KeyValueStore::set(nil, "20a6deee-3832-43e0-a038-1febe0cf37d5", JSON.generate(asteroidUUIDsToReview))
-    end
-
-    # Asteroids::updateOperationalCacheIfNeeded()
-    def self.updateOperationalCacheIfNeeded()
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
-            Asteroids::updateOperationalCache()
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("a214b4b8-a6be-4f18-8cd6-8b9d9d8df3a2", 3600) then
+            uuids = Asteroids::asteroids()
+                        .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                        .first(100)
+                        .map{|asteroid| asteroid["uuid"] }
+            KeyValueStore::set(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", JSON.generate(uuids))
         end
-    end
-
-    # Asteroids::catalystObjectsFast()
-    def self.catalystObjectsFast()
-        Asteroids::updateOperationalCacheIfNeeded()
-        uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
-        JSON.parse(uuids)
-            .map{|uuid| NyxSets::getObjectOrNull(uuid) }
+        uuids1 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", "[]"))
+        uuids2 = BTreeSets::values(nil, "d015bfdd-deb6-447f-97af-ab9e87875148:#{Time.new.to_s[0, 10]}")
+        (uuids1+uuids2)
+            .map{|uuid| Asteroids::getOrNull(uuid) }
             .compact
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
     # Asteroids::asteroidStartSequence(asteroid)
     def self.asteroidStartSequence(asteroid)
+
+        BTreeSets::set(nil, "d015bfdd-deb6-447f-97af-ab9e87875148:#{Time.new.to_s[0, 10]}", asteroid["uuid"], asteroid["uuid"])
+        # We cache the value of any asteroid that has started to help with the catalyst objects caching
+        # An asteroid that have been started (from diving into it) is not necessarily in the list of 
+        # those that the catalyst objects caching will select, and in such a case it would be running
+        # wihtout being displayed
+
         return if Asteroids::isRunning?(asteroid)
 
         uuid = asteroid["uuid"]

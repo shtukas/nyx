@@ -55,8 +55,7 @@ loop {
     system("clear")
     options = [
         "make new asteroid",
-        "dive asteroids",
-        "cache listing uuids"
+        "dive asteroids"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
@@ -72,9 +71,4 @@ loop {
             Asteroids::asteroidDive(asteroid)
         }
     end
-    if option == "cache listing uuids" then
-        Asteroids::updateOperationalCache()
-        ProgrammableBooleans::resetTrueNoMoreOften("5a56e54d-c24d-4ae9-a8ae-f95729bd010f")
-    end
-    
 }
