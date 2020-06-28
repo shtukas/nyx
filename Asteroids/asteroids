@@ -73,7 +73,7 @@ loop {
         }
     end
     if option == "cache listing uuids" then
-        Asteroids::cacheWorkingUUIDs()
+        Asteroids::updateOperationalCache()
         ProgrammableBooleans::resetTrueNoMoreOften("5a56e54d-c24d-4ae9-a8ae-f95729bd010f")
     end
     

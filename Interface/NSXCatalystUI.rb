@@ -270,6 +270,56 @@ class NSXCatalystUI
                 }
         end
 
+        loop {
+
+            asteroidUUIDsToReview = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "20a6deee-3832-43e0-a038-1febe0cf37d5", "[]"))
+            break if asteroidUUIDsToReview.size == 0
+
+            startingTime  = DateTime.parse("2020-06-28T10:44:25Z").to_time.to_f
+            endingTime    = DateTime.parse("2020-07-30T10:44:25Z").to_time.to_f
+            startingCount = 10597
+            endingCount   = 200
+            timeRatio     = (Time.new.to_f - startingTime).to_f/(endingTime-startingTime)
+            doneRatio     = (startingCount - asteroidUUIDsToReview.count).to_f/(startingCount-endingCount)
+            puts ""
+            puts "-> timeRatio: #{timeRatio}"
+            puts "-> doneRatio: #{doneRatio}"
+            verticalSpaceLeft = verticalSpaceLeft - 3
+            break if doneRatio > timeRatio
+            LucilleCore::pressEnterToContinue()
+
+            asteroidUUIDsToReview
+                .take(10)
+                .each{|uuid|
+                    system ("clear")
+                    asteroid = Asteroids::getOrNull(uuid)
+                    next if asteroid.nil?
+                    next if asteroid["X02394e74c407"]
+                    puts Asteroids::asteroidToString(asteroid)
+                    if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                        Asteroids::openPayload(asteroid)
+                    end
+                    
+                    ms = LCoreMenuItemsNX1.new()
+                    ms.item(
+                        "mark as reviewed",
+                        lambda { Floats::processFloat(float) }
+                    )
+                    ms.item(
+                        "dive",
+                        lambda { Asteroids::asteroidDive(asteroid) }
+                    )
+                    ms.item(
+                        "destroy",
+                        lambda { Asteroids::asteroidDestroySequence(asteroid) }
+                    )
+                    ms.prompt()
+                }
+            puts "Update operational cache"
+            Asteroids::updateOperationalCache()
+
+        }
+
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
             text = IO.read(filepath).strip

@@ -34,10 +34,8 @@ class NSXCatalystObjectsOperator
             VideoStream::catalystObjects(),
             Waves::catalystObjects()
         ].flatten
-
         objects = objects
                     .select{|object| object['metric'] >= 0.2 }
-
         objects
             .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }

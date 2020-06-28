@@ -252,8 +252,8 @@ class Asteroids
 
             system("clear")
             puts Asteroids::asteroidToString(asteroid)
-            puts "uuid: #{wave["uuid"]}"
-            
+            puts "uuid: #{asteroid["uuid"]}"
+
             puts "Bank      : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
             puts "Ping Day  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
             puts "Ping Week : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
@@ -466,24 +466,32 @@ class Asteroids
             .reverse
     end
 
-    # Asteroids::cacheWorkingUUIDs()
-    def self.cacheWorkingUUIDs()
+    # Asteroids::updateOperationalCache()
+    def self.updateOperationalCache()
         uuids = Asteroids::catalystObjects()
                     .first(64)
                     .map{|object| object["uuid"] }
         KeyValueStore::set(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", JSON.generate(uuids))
+
+        asteroidUUIDsToReview = Asteroids::asteroids()
+                                .select{|asteroid| asteroid["X02394e74c407"].nil? }
+                                .map{|asteroid| asteroid["uuid"] }
+                                .shuffle
+        KeyValueStore::set(nil, "20a6deee-3832-43e0-a038-1febe0cf37d5", JSON.generate(asteroidUUIDsToReview))
+    
+
     end
 
-    # Asteroids::cacheWorkingUUIDsIfNeeded()
-    def self.cacheWorkingUUIDsIfNeeded()
+    # Asteroids::updateOperationalCacheIfNeeded()
+    def self.updateOperationalCacheIfNeeded()
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("5a56e54d-c24d-4ae9-a8ae-f95729bd010f", 1200) then
-            Asteroids::cacheWorkingUUIDs()
+            Asteroids::updateOperationalCache()
         end
     end
 
     # Asteroids::catalystObjectsFast()
     def self.catalystObjectsFast()
-        Asteroids::cacheWorkingUUIDsIfNeeded()
+        Asteroids::updateOperationalCacheIfNeeded()
         uuids = KeyValueStore::getOrDefaultValue(nil, "af2c7ba1-c137-4303-b0c8-5127cecb3b06", "[]")
         JSON.parse(uuids)
             .map{|uuid| NyxSets::getObjectOrNull(uuid) }
