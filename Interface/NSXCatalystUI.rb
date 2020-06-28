@@ -113,26 +113,26 @@ class NSXCatalystUI
         loop {
             system("clear")
 
-            items = []
+            ms = LCoreMenuItemsNX1.new()
 
-            items << [
+            ms.item(
                 "general search", 
                 lambda { NSXGeneralSearch::searchAndDive() }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "cliques (listing)", 
                 lambda { Cliques::cliquesListingAndDive() }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "quarks (listing)", 
                 lambda { Quarks::quarksListingAndDive() }
-            ]
+            )
 
-            items << nil
+            puts ""
 
-            items << [
+            ms.item(
                 "quark (new)",
                 lambda { 
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
@@ -140,9 +140,9 @@ class NSXCatalystUI
                     Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                     Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
                 }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "asteroid (new)",
                 lambda { 
                     asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
@@ -150,63 +150,65 @@ class NSXCatalystUI
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
                 }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "merge two cliques",
                 lambda { 
                     Cliques::interactivelySelectTwoCliquesAndMerge()
                 }
-            ]
+            )
 
-            items << nil
+            puts ""
 
-            items << [
+            ms.item(
                 "Asteroids",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/asteroids") }
-            ]
-            items << [
+            )
+
+            ms.item(
                 "Calendar",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
-            ]
-            items << [
+            )
+
+            ms.item(
                 "Waves",
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Waves/waves") }
-            ]
+            )
 
-            items << nil
+            puts ""
 
-            items << [
+            ms.item(
                 "Print Generation Speed Report", 
                 lambda { 
                     NSXCatalystObjectsOperator::generationSpeedReport()
                 }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "Run Shadow Update", 
                 lambda { Drives::runShadowUpdate() }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "Nyx garbage collection", 
                 lambda { NyxGarbageCollection::run() }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "Nyx curation", 
                 lambda { NSXCuration::run() }
-            ]
+            )
 
-            items << [
+            ms.item(
                 "Timeline garbage collection", 
                 lambda { 
                     puts "#{NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
                     NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
                 }
-            ]
+            )
 
-            status = LucilleCore::menuItemsWithLambdas(items)
+            status = ms.prompt()
             break if !status
         }
     end
@@ -491,29 +493,24 @@ class NSXCatalystUI
         end
 
         if command == "l+" then
-            items = []
-
-            items << [
+            ms = LCoreMenuItemsNX1.new()
+            ms.item(
                 "ordinal",
                 lambda { Ordinals::issueOrdinal() }
-            ]
-
-            items << [
+            )
+            ms.item(
                 "float",
                 lambda { Floats::issueFloat() }
-            ]
-
-            items << [
+            )
+            ms.item(
                 "asteroid",
                 lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
-            ]
-
-            items << [
+            )
+            ms.item(
                 "wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
-            ]
-
-            LucilleCore::menuItemsWithLambdas(items)
+            )
+            ms.prompt()
             return
         end
 

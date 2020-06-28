@@ -210,13 +210,17 @@ class Cliques
     # Cliques::cliquesListingAndDive()
     def self.cliquesListingAndDive()
         loop {
-            items = []
+            ms = LCoreMenuItemsNX1.new()
+
             Cliques::cliques()
                 .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
                 .each{|clique|
-                    items << [ Cliques::cliqueToString(clique), lambda{ Cliques::cliqueDive(clique) }]
+                    ms.item(
+                        Cliques::cliqueToString(clique), 
+                        lambda{ Cliques::cliqueDive(clique) }
+                    )
                 }
-            status = LucilleCore::menuItemsWithLambdas(items)
+            status = ms.prompt()
             break if !status
         }
     end

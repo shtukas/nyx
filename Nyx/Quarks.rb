@@ -538,13 +538,16 @@ class Quarks
     # Quarks::quarksListingAndDive()
     def self.quarksListingAndDive()
         loop {
-            items = []
+            ms = LCoreMenuItemsNX1.new()
             Quarks::quarks()
                 .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
                 .each{|quark|
-                    items << [ Quarks::quarkToString(quark), lambda{ Quarks::quarkDive(quark) }]
+                    ms.item(
+                        Quarks::quarkToString(quark), 
+                        lambda{ Quarks::quarkDive(quark) }
+                    )
                 }
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            status = ms.prompt()
             break if !status
         }
     end

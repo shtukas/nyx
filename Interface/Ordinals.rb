@@ -129,9 +129,8 @@ class Ordinals
 
     # Ordinals::issueOrdinal()
     def self.issueOrdinal()
-        items = []
-
-        items << [
+        ms = LCoreMenuItemsNX1.new()
+        ms.item(
             "description", 
             lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -146,9 +145,8 @@ class Ordinals
                 }
                 Ordinals::commitToDisk(ordinal)
             }
-        ]
-
-        items << [
+        )
+        ms.item(
             "quark (new)", 
             lambda {
 
@@ -168,9 +166,8 @@ class Ordinals
                 }
                 Ordinals::commitToDisk(ordinal)
             }
-        ]
-
-        LucilleCore::menuItemsWithLambdas(items)
+        )
+        ms.prompt()
     end
 
     # Ordinals::issueQuarkAsOrdinalInteractively(quark)
@@ -325,11 +322,13 @@ class Ordinals
     # Ordinals::diveOrdinal(ordinal)
     def self.diveOrdinal(ordinal)
         puts Ordinals::ordinalToString(ordinal)
-        items = []
-        items << [
+
+        ms = LCoreMenuItemsNX1.new()
+        ms.item(
             "run/done ordinal", 
             lambda { Ordinals::performOrdinalRunDone(ordinal) }
-        ]
+        )
+
         if ordinal["type"] == "ordinal-description-cc686a4e-d634-476f-bc03-6a41cda4344a" then
             # 
         end
@@ -341,10 +340,10 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            items << [
+            ms.item(
                 "(quark) dive", 
                 lambda { Quarks::quarkDive(quark) }
-            ]
+            )
         end
         if ordinal["type"] == "ordinal-own-quark-ca833db7-1dd4-45bf-aac0-c26c7dc73214" then
             quarkuuid = ordinal["quarkuuid"]
@@ -354,10 +353,10 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            items << [
+            ms.item(
                 "(quark) dive", 
                 lambda { Quarks::quarkDive(quark) }
-            ]
+            )
         end
         if ordinal["type"] == "ordinal-float-e0b15f62-c8ed-4b86-addd-7345cbe46f92" then
             floatuuid = ordinal["floatuuid"]
@@ -367,11 +366,10 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            items = []
-            items << [
+            ms.item(
                 "(float) dive", 
                 lambda { Floats::processFloat(float) }
-            ]
+            )
         end
         if ordinal["type"] == "ordinal-asteroid-d55fdefa-f1ee-4d45-b705-1145dc55bf4b" then
             asteroiduuid = ordinal["asteroiduuid"]
@@ -381,11 +379,10 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            items = []
-            items << [
+            ms.item(
                 "(asteroid) dive", 
                 lambda { Asteroids::asteroidDive(asteroid) }
-            ]
+            )
         end
         if ordinal["type"] == "ordinal-wave-0a5c011f-4e95-4c01-8eae-e3df7ba44fd9" then
             waveuuid = ordinal["waveuuid"]
@@ -395,13 +392,12 @@ class Ordinals
                 NyxSets::destroy(ordinal["uuid"])
                 return
             end
-            items = []
-            items << [
+            ms.item(
                 "(wave) dive", 
                 lambda { Waves::waveDive(wave) }
-            ]
+            )
         end
-        items << [
+        ms.item(
             "update position", 
             lambda { 
                 position = LucilleCore::askQuestionAnswerAsString("ordinal position: ")
@@ -410,8 +406,8 @@ class Ordinals
                 ordinal["position"] = position
                 Ordinals::commitToDisk(ordinal)
             }
-        ]
-        items << [
+        )
+        ms.item(
             "destroy ordinal", 
             lambda { 
                 if ordinal["type"] == "ordinal-own-quark-ca833db7-1dd4-45bf-aac0-c26c7dc73214" then
@@ -421,8 +417,8 @@ class Ordinals
                 end
                 NyxSets::destroy(ordinal["uuid"]) 
             }
-        ]
-        LucilleCore::menuItemsWithLambdas(items)
+        )
+        ms.prompt()
     end
 
     # Ordinals::getOrdinalsOrdered()

@@ -53,10 +53,14 @@ class Cubes
     # Cubes::diveCube(cube)
     def self.diveCube(cube)
         loop {
+            ms = LCoreMenuItemsNX1.new()
             items = cube["quarks"].map{|quark|
-                [ NyxGenericObjectInterface::objectToString(quark), lambda { NyxGenericObjectInterface::objectDive(quark) } ]
+                ms.item(
+                    NyxGenericObjectInterface::objectToString(quark), 
+                    lambda { NyxGenericObjectInterface::objectDive(quark) } 
+                )
             }
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            status = ms.prompt()
             break if !status
         }
     end

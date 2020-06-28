@@ -117,9 +117,8 @@ class Floats
 
     # Floats::issueFloat()
     def self.issueFloat()
-        items = []
-
-        items << [
+        ms = LCoreMenuItemsNX1.new()
+        ms.item(
             "description", 
             lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -133,9 +132,8 @@ class Floats
                 }
                 Floats::commitToDisk(float)
             }
-        ]
-
-        items << [
+        )
+        ms.item(
             "quark (new)", 
             lambda {
                 quark = Quarks::issueNewQuarkInteractivelyOrNull()
@@ -149,8 +147,8 @@ class Floats
                 }
                 Floats::commitToDisk(float)
             }
-        ]
-        items << [
+        )
+        ms.item(
             "clique (new)", 
             lambda {
                 clique = Cliques::issueCliqueInteractivelyOrNull()
@@ -164,23 +162,26 @@ class Floats
                 }
                 Floats::commitToDisk(float)
             }
-        ]
-
-        LucilleCore::menuItemsWithLambdas(items)
+        )
+        ms.prompt()
     end
 
     # Floats::processFloat(float)
     def self.processFloat(float)
         puts Floats::floatToString(float)
-        items = []
-        items << [
+
+        ms = LCoreMenuItemsNX1.new()
+
+        ms.item(
             "destroy float", 
             lambda { NyxSets::destroy(float["uuid"]) }
-        ]
-        items << [
+        )
+
+        ms.item(
             "issue as ordinal", 
             lambda { Ordinals::issueFloatAsOrdinalInteractively(float) }
-        ]
+        )
+
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
             # 
         end
@@ -192,10 +193,10 @@ class Floats
                 NyxSets::destroy(float["uuid"])
                 return
             end
-            items << [
+            ms.item(
                 "(quark) dive", 
                 lambda { Quarks::quarkDive(quark) }
-            ]
+            )
         end
         if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
             cliqueuuid = float["cliqueuuid"]
@@ -205,12 +206,12 @@ class Floats
                 NyxSets::destroy(float["uuid"])
                 return
             end
-            items << [
+            ms.item(
                 "(clique) dive", 
                 lambda { Cliques::cliqueDive(clique) }
-            ]
+            )
         end
-        LucilleCore::menuItemsWithLambdas(items)
+        ms.prompt()
     end
 
     # Floats::getFloatsOrdered()

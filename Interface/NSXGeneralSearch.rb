@@ -28,12 +28,19 @@ class NSXGeneralSearch
             pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
             return if pattern.size == 0
             next if pattern.size < 3
-            items = NSXGeneralSearch::searchNx1630(pattern)
-            items = items.map{|item| [ item["description"], item["dive"] ] }
+            searchresults = NSXGeneralSearch::searchNx1630(pattern)
             loop {
                 system("clear")
                 puts "results for '#{pattern}':"
-                status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+                ms = LCoreMenuItemsNX1.new()
+                searchresults
+                    .each{|sr| 
+                        ms.item(
+                            sr["description"], 
+                            sr["dive"]
+                        )
+                    }
+                status = ms.prompt()
                 break if !status
             }
         }
