@@ -307,9 +307,6 @@ class Ordinals
             if !LucilleCore::askQuestionAnswerAsBoolean("ordinal done ? ") then
                 return
             end
-            if !LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid ? ") then
-                Asteroids::asteroidDestroySequence(asteroid)
-            end
             NyxSets::destroy(ordinal["uuid"])
         end
         if ordinal["type"] == "ordinal-wave-0a5c011f-4e95-4c01-8eae-e3df7ba44fd9" then
