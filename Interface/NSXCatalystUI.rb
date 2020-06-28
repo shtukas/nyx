@@ -299,6 +299,12 @@ class NSXCatalystUI
                 .each{|asteroid|
                     system ("clear")
 
+                    if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+                        asteroid["X02394e74c407"] = true
+                        NyxSets::putObject(asteroid)
+                        next
+                    end
+
                     if asteroid["payload"]["type"] == "quark" then
                         quarkuuid = asteroid["payload"]["quarkuuid"]
                         quark = Quarks::getOrNull(quarkuuid)
@@ -326,6 +332,19 @@ class NSXCatalystUI
                     end
                     
                     loop {
+                        asteroid = Asteroids::getOrNull(asteroid["uuid"])
+                        break if asteroid.nil? # could have been destroyed in a previous run
+                        break if asteroid["X02394e74c407"]
+
+                        if asteroid["payload"]["type"] == "quark" then
+                            quarkuuid = asteroid["payload"]["quarkuuid"]
+                            quark = Quarks::getOrNull(quarkuuid)
+                            if quark.nil? then # could have been destroyed in a previous run
+                                Asteroids::asteroidDestroySequence(asteroid)
+                                next
+                            end
+                        end
+
                         ms = LCoreMenuItemsNX1.new()
                         ms.item(
                             "mark as reviewed",
@@ -339,8 +358,22 @@ class NSXCatalystUI
                             lambda { Asteroids::asteroidDive(asteroid) }
                         )
                         ms.item(
-                            "destroy",
+                            "destroy asteroid",
                             lambda { Asteroids::asteroidDestroySequence(asteroid) }
+                        )
+                        ms.item(
+                            "destroy asteroid and quark",
+                            lambda { 
+                                return if asteroid["payload"]["type"] != "quark"
+                                quarkuuid = asteroid["payload"]["quarkuuid"]
+                                quark = Quarks::getOrNull(quarkuuid)
+                                if quark.nil? then # could have been destroyed in a previous run
+                                    Asteroids::asteroidDestroySequence(asteroid)
+                                    next
+                                end
+                                NyxSets::destroy(quark["uuid"])
+                                Asteroids::asteroidDestroySequence(asteroid) 
+                            }
                         )
                         status = ms.prompt()
                         break if !status
