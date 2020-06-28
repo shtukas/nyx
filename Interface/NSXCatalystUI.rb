@@ -296,11 +296,8 @@ class NSXCatalystUI
                 .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
                 .reverse
                 .take(10)
-                .each{|uuid|
+                .each{|asteroid|
                     system ("clear")
-                    asteroid = Asteroids::getOrNull(uuid)
-                    next if asteroid.nil?
-                    next if asteroid["X02394e74c407"]
 
                     if asteroid["payload"]["type"] == "quark" then
                         quarkuuid = asteroid["payload"]["quarkuuid"]
@@ -328,23 +325,26 @@ class NSXCatalystUI
                         Asteroids::openPayload(asteroid)
                     end
                     
-                    ms = LCoreMenuItemsNX1.new()
-                    ms.item(
-                        "mark as reviewed",
-                        lambda { 
-                            asteroid["X02394e74c407"] = true
-                            NyxSets::putObject(asteroid)
-                        }
-                    )
-                    ms.item(
-                        "dive",
-                        lambda { Asteroids::asteroidDive(asteroid) }
-                    )
-                    ms.item(
-                        "destroy",
-                        lambda { Asteroids::asteroidDestroySequence(asteroid) }
-                    )
-                    ms.prompt()
+                    loop {
+                        ms = LCoreMenuItemsNX1.new()
+                        ms.item(
+                            "mark as reviewed",
+                            lambda { 
+                                asteroid["X02394e74c407"] = true
+                                NyxSets::putObject(asteroid)
+                            }
+                        )
+                        ms.item(
+                            "dive",
+                            lambda { Asteroids::asteroidDive(asteroid) }
+                        )
+                        ms.item(
+                            "destroy",
+                            lambda { Asteroids::asteroidDestroySequence(asteroid) }
+                        )
+                        status = ms.prompt()
+                        break if !status
+                    }
                 }
         }
 

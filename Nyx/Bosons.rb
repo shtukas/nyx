@@ -55,8 +55,8 @@ class Bosons
         link = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "13f3499d-fa9c-44bb-91d3-8a3ccffecefb",
-            "uuid1"     => uuid1,
-            "uuid2"     => uuid2
+            "uuid1"     => object1["uuid"],
+            "uuid2"     => object2["uuid"]
         }
         NyxSets::putObject(link)
         link
