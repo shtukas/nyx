@@ -478,8 +478,6 @@ class Asteroids
                                 .map{|asteroid| asteroid["uuid"] }
                                 .shuffle
         KeyValueStore::set(nil, "20a6deee-3832-43e0-a038-1febe0cf37d5", JSON.generate(asteroidUUIDsToReview))
-    
-
     end
 
     # Asteroids::updateOperationalCacheIfNeeded()

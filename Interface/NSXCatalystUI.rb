@@ -295,6 +295,29 @@ class NSXCatalystUI
                     asteroid = Asteroids::getOrNull(uuid)
                     next if asteroid.nil?
                     next if asteroid["X02394e74c407"]
+
+                    if asteroid["payload"]["type"] == "quark" then
+                        quarkuuid = asteroid["payload"]["quarkuuid"]
+                        quark = Quarks::getOrNull(quarkuuid)
+                        if quark.nil? then
+                            Asteroids::asteroidDestroySequence(asteroid)
+                            next
+                        end
+                        if quark["type"] == "file" then
+                            filename = quark["filename"]
+                            if !LibrarianFile::exists?(filename) then
+                                puts "Got one:"
+                                puts JSON.pretty_generate(asteroid)
+                                puts JSON.pretty_generate(quark)
+                                LucilleCore::pressEnterToContinue()
+                                NyxSets::destroy(quark["uuid"])
+                                Asteroids::asteroidDestroySequence(asteroid)
+                                next
+                            end
+                        end
+                    end
+
+
                     puts Asteroids::asteroidToString(asteroid)
                     if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
                         Asteroids::openPayload(asteroid)
@@ -303,7 +326,10 @@ class NSXCatalystUI
                     ms = LCoreMenuItemsNX1.new()
                     ms.item(
                         "mark as reviewed",
-                        lambda { Floats::processFloat(float) }
+                        lambda { 
+                            asteroid["X02394e74c407"] = true
+                            NyxSets::putObject(asteroid)
+                        }
                     )
                     ms.item(
                         "dive",
@@ -317,7 +343,6 @@ class NSXCatalystUI
                 }
             puts "Update operational cache"
             Asteroids::updateOperationalCache()
-
         }
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
