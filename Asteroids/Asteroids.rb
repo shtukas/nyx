@@ -49,14 +49,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ProgrammableBooleans.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Ordinals.rb"
 
 # -----------------------------------------------------------------------------
 
 class Asteroids
+
+    # Asteroids::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        NyxSets::getObjectOrNull(uuid)
+    end
 
     # Asteroids::makePayloadInteractivelyOrNull()
     def self.makePayloadInteractivelyOrNull()
@@ -242,67 +246,96 @@ class Asteroids
     # Asteroids::asteroidDive(asteroid)
     def self.asteroidDive(asteroid)
         loop {
+
+            asteroid = Asteroids::getOrNull(asteroid["uuid"])
+            return if asteroid.nil?
+
             system("clear")
-            puts Asteroids::asteroidToString(asteroid).green
+            puts Asteroids::asteroidToString(asteroid)
+            puts "uuid: #{wave["uuid"]}"
+            
             puts "Bank      : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
             puts "Ping Day  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
             puts "Ping Week : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            options = [
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            menuitems.item(
                 "open",
+                lambda {
+                    Asteroids::openPayload(asteroid)
+                    if !Asteroids::isRunning?(asteroid) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ", false) then
+                        Runner::start(asteroid["uuid"])
+                    end
+                }
+            )
+
+            menuitems.item(
                 "start",
+                lambda { Asteroids::asteroidStartSequence(asteroid) }
+            )
+
+            menuitems.item(
                 "stop",
+                lambda { Asteroids::asteroidStopSequence(asteroid) }
+            )
+
+            menuitems.item(
                 "re-payload",
+                lambda { Asteroids::repayload(asteroid) }
+            )
+
+            menuitems.item(
                 "re-orbital",
+                lambda { Asteroids::reorbital(asteroid) }
+            )
+
+            menuitems.item(
                 "show json",
+                lambda {
+                    puts JSON.pretty_generate(asteroid)
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            menuitems.item(
                 "add time",
+                lambda {
+                    timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                    Asteroids::addTimeToAsteroid(asteroid, timeInHours*3600)
+                }
+            )
+
+            menuitems.item(
+                "quark (dive)",
+                lambda {
+                    quarkuuid = asteroid["payload"]["quarkuuid"]
+                    quark = Quarks::getOrNull(quarkuuid)
+                    return if quark.nil?
+                    Quarks::quarkDive(quark)
+                }
+            )
+
+            menuitems.item(
+                "ordinal (issue as)",
+                lambda {
+                    Ordinals::issueAsteroidAsOrdinalInteractively(asteroid)
+                }
+            )
+
+            menuitems.item(
                 "destroy",
-            ]
+                lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
+                        Asteroids::asteroidStopSequence(asteroid)
+                        Asteroids::asteroidDestroySequence(asteroid)
+                    end
+                }
+            )
 
-            if asteroid["payload"]["type"] == "quark" then
-                options << "quark (dive)"
-            end
+            status = menuitems.prompt()
+            break if !status
 
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-            return if option.nil?
-            if option == "open" then
-                Asteroids::openPayload(asteroid)
-                if !Asteroids::isRunning?(asteroid) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ", false) then
-                    Runner::start(asteroid["uuid"])
-                end
-            end
-            if option == "start" then
-                Asteroids::asteroidStartSequence(asteroid)
-            end
-            if option == "stop" then
-                Asteroids::asteroidStopSequence(asteroid)
-            end
-            if option == "re-payload" then
-                Asteroids::repayload(asteroid)
-            end
-            if option == "re-orbital" then
-                Asteroids::reorbital(asteroid)
-            end
-            if option == "show json" then
-                puts JSON.pretty_generate(asteroid)
-                LucilleCore::pressEnterToContinue()
-            end
-            if option == "add time" then
-                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                Asteroids::addTimeToAsteroid(asteroid, timeInHours*3600)
-            end
-            if option == "quark (dive)" then
-                quarkuuid = asteroid["payload"]["quarkuuid"]
-                quark = Quarks::getOrNull(quarkuuid)
-                return if quark.nil?
-                Quarks::quarkDive(quark)
-            end
-            if option == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this starship ? ") then
-                    Asteroids::asteroidStopSequence(asteroid)
-                    Asteroids::asteroidDestroySequence(asteroid)
-                end
-                return
-            end
         }
     end
 
@@ -414,14 +447,14 @@ class Asteroids
         uuid = asteroid["uuid"]
 
         {
-            "uuid"      => uuid,
-            "body"      => Asteroids::asteroidToString(asteroid),
-            "metric"    => Asteroids::metric(asteroid),
-            "execute"   => lambda { Asteroids::asteroidDive(asteroid) },
-            "isFocus"   => Asteroids::isLate?(asteroid),
-            "isRunning" => Asteroids::isRunning?(asteroid),
+            "uuid"             => uuid,
+            "body"             => Asteroids::asteroidToString(asteroid),
+            "metric"           => Asteroids::metric(asteroid),
+            "execute"          => lambda { Asteroids::asteroidDive(asteroid) },
+            "isFocus"          => Asteroids::isLate?(asteroid),
+            "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
-            "x-asteroid"      => asteroid
+            "x-asteroid"       => asteroid
         }
     end
 

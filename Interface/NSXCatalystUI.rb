@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-# This variable contains the objects of the current display.
-# We use it to speed up display after some operations
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
@@ -67,6 +64,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
 require_relative "Floats.rb"
+require_relative "Ordinals.rb"
 
 # ------------------------------------------------------------------------
 
@@ -251,8 +249,26 @@ class NSXCatalystUI
 
         system("clear")
 
+        startTime = Time.new.to_f
+
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
+
+        ordinals = Ordinals::getOrdinalsOrdered()
+        if ordinals.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            ordinals
+                .each{|ordinal|
+                    line = Ordinals::ordinalToString(ordinal)
+                    menuitems.item(
+                        line.red,
+                        lambda { Ordinals::diveOrdinal(ordinal) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
+                    break if verticalSpaceLeft <= 0 
+                }
+        end
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
@@ -336,6 +352,11 @@ class NSXCatalystUI
         print "--> "
         command = STDIN.gets().strip
 
+        if command == "" and (Time.new.to_f-startTime) < 5 then
+            NSXCatalystUI::performStandardDisplay(catalystObjects)
+            return
+        end
+
         if NSXMiscUtils::isInteger(command) then
             position = command.to_i
             menuitems.executePosition(position)
@@ -368,6 +389,11 @@ class NSXCatalystUI
         end
 
         if command == ".." then
+            ordinal = Ordinals::getOrdinalsOrdered().first
+            if ordinal then
+                Ordinals::performOrdinalRunDone(ordinal)
+                return
+            end
             object = catalystObjects.select{|object| object["isFocus"]}.first
             return if object.nil?
             NSXCatalystUI::doTheObviousThingWithThis(object)
@@ -390,6 +416,11 @@ class NSXCatalystUI
 
         if command == "l+" then
             items = []
+
+            items << [
+                "ordinal",
+                lambda { Ordinals::issueOrdinal() }
+            ]
 
             items << [
                 "float",

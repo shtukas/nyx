@@ -1,7 +1,6 @@
 # encoding: UTF-8
 
-# This variable contains the objects of the current display.
-# We use it to speed up display after some operations
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Floats.rb"
 
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
@@ -68,6 +67,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Ordinals.rb"
+
 # ------------------------------------------------------------------------
 
 class Floats
@@ -95,6 +96,18 @@ class Floats
                 return "[float] [clique] not found (#{quarkuuid})"
             end
         end
+        raise "[error: 3f2ec637-3b2f-45ea-8a74-9765fcdf0d93] #{float}"
+    end
+
+    # Floats::destroyFloat(float)
+    def self.destroyFloat(float)
+        puts "Destroying of floats has not been implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Floats::getOrNull(floatuuid)
+    def self.getOrNull(floatuuid)
+        NyxSets::getObjectOrNull(floatuuid)
     end
 
     # Floats::commitToDisk(float)
@@ -158,55 +171,52 @@ class Floats
 
     # Floats::processFloat(float)
     def self.processFloat(float)
+        puts Floats::floatToString(float)
+        items = []
+        items << [
+            "destroy float", 
+            lambda { NyxSets::destroy(float["uuid"]) }
+        ]
+        items << [
+            "issue as ordinal", 
+            lambda { Ordinals::issueFloatAsOrdinalInteractively(float) }
+        ]
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
-            puts "float: #{float["description"]}"
-            return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
-            NyxSets::destroy(float["uuid"])
+            # 
         end
         if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
             quarkuuid = float["quarkuuid"]
             quark = Quarks::getOrNull(quarkuuid)
             if quark.nil? then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                return if !LucilleCore::askQuestionAnswerAsBoolean("quark is null, destroy float ? ")
                 NyxSets::destroy(float["uuid"])
                 return
             end
-            items = []
             items << [
                 "(quark) dive", 
                 lambda { Quarks::quarkDive(quark) }
             ]
-            items << [
-                "destroy", 
-                lambda { NyxSets::destroy(float["uuid"]) }
-            ]
-            LucilleCore::menuItemsWithLambdas(items)
         end
         if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
             cliqueuuid = float["cliqueuuid"]
             clique = Quarks::getOrNull(cliqueuuid)
             if clique.nil? then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("destroy ? ")
+                return if !LucilleCore::askQuestionAnswerAsBoolean("clique is null, destroy float ? ")
                 NyxSets::destroy(float["uuid"])
                 return
             end
-            items = []
             items << [
                 "(clique) dive", 
                 lambda { Cliques::cliqueDive(clique) }
             ]
-            items << [
-                "destroy", 
-                lambda { NyxSets::destroy(float["uuid"]) }
-            ]
-            LucilleCore::menuItemsWithLambdas(items)
         end
+        LucilleCore::menuItemsWithLambdas(items)
     end
 
     # Floats::getFloatsOrdered()
     def self.getFloatsOrdered()
         NyxSets::objects("1aaa9485-2c07-4b14-a5c3-ed1d6772ca19")
-            .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
+            .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
     end
 end
 

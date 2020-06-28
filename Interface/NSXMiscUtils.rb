@@ -148,8 +148,8 @@ class NSXMiscUtils
             end
             quark = Quarks::issueQuarkFileOrFolderFromLocation(location)
             puts JSON.pretty_generate(quark)
-            starship = Asteroids::issueStartshipTodoFromQuark(quark)
-            puts JSON.pretty_generate(starship)
+            asteroid = Asteroids::issueStartshipTodoFromQuark(quark)
+            puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

@@ -221,8 +221,8 @@ class Waves
         object
     end
 
-    # Waves::performDone2(obj)
-    def self.performDone2(obj)
+    # Waves::performDone(obj)
+    def self.performDone(obj)
         unixtime = Waves::scheduleToDoNotShowUnixtime(obj["uuid"], obj['schedule'])
         DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
@@ -246,6 +246,11 @@ class Waves
         schedule = Waves::makeScheduleObjectInteractivelyOrNull()
         return nil if schedule.nil?
         Waves::issueWave(LucilleCore::timeStringL22(), line, schedule)
+    end
+
+    # Waves::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        NyxSets::getObjectOrNull(uuid)
     end
 
     # Waves::waves()
@@ -287,50 +292,79 @@ class Waves
     def self.openProcedure(wave)
         Waves::openItem(wave)
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-            Waves::performDone2(wave)
+            Waves::performDone(wave)
         end
     end
 
     # Waves::waveDive(wave)
     def self.waveDive(wave)
-        puts Waves::waveToString(wave).green
-        uuid = wave["uuid"]
-        options = ['start', 'open', 'done', 'recast', 'description', 'destroy']
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        if option == 'start' then
-            Waves::openItem(wave)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                Waves::performDone2(wave)
-            end
-            return
-        end
-        if option == 'open' then
-            Waves::openProcedure(wave)
-            return
-        end
-        if option == 'done' then
-            Waves::performDone2(wave)
-            return
-        end
-        if option == 'recast' then
-            schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-            return if schedule.nil?
-            wave["schedule"] = schedule
-            NyxSets::putObject(wave)
-            return
-        end
-        if option == 'description' then
-            wave["description"] = CatalystCommon::editTextUsingTextmate(wave["description"])
-            NyxSets::putObject(wave)
-            return
-        end
-        if option == 'destroy' then
-            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                NyxSets::destroy(wave["uuid"])
-                return
-            end
-            return
-        end
+        loop {
+
+            wave = Waves::getOrNull(wave["uuid"])
+            return if wave.nil?
+
+            puts Waves::waveToString(wave)
+            puts "uuid: #{wave["uuid"]}"
+            menuitems = LCoreMenuItemsNX1.new()
+
+            menuitems.item(
+                "start",
+                lambda {
+                    Waves::openItem(wave)
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+                        Waves::performDone(wave)
+                    end
+                }
+            )
+
+            menuitems.item(
+                "open",
+                lambda { Waves::openProcedure(wave) }
+            )
+
+            menuitems.item(
+                "done",
+                lambda { Waves::performDone(wave) }
+            )
+
+            menuitems.item(
+                "description",
+                lambda { 
+                    description = CatalystCommon::editTextUsingTextmate(wave["description"])
+                    return if description.nil?
+                    wave["description"] = description
+                    NyxSets::putObject(wave)
+                }
+            )
+
+            menuitems.item(
+                "recast",
+                lambda { 
+                    schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+                    return if schedule.nil?
+                    wave["schedule"] = schedule
+                    NyxSets::putObject(wave)
+                }
+            )
+
+            menuitems.item(
+                "issue as ordinal",
+                lambda { Ordinals::issueWaveAsOrdinalInteractively(wave) }
+            )
+
+            menuitems.item(
+                "destroy",
+                lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
+                        NyxSets::destroy(wave["uuid"])
+                    end
+                }
+            )
+
+            status = menuitems.prompt()
+            break if !status
+
+        }
     end
 
     # Waves::searchNx1630(pattern)

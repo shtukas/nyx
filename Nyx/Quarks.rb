@@ -22,6 +22,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Bosons.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/NyxGenericObjectInterface.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Ordinals.rb"
+
 require_relative "Librarian.rb"
 
 # -----------------------------------------------------------------
@@ -457,6 +459,14 @@ class Quarks
                     return if quark2.nil?
                     return if quark["uuid"] == quark2["uuid"]
                     Bosons::link(quark, quark2)
+                }
+            )
+
+            menuitems.item(
+                "ordinal (create with this as target)", 
+                lambda { 
+                    ordinal = Ordinals::issueQuarkAsOrdinalInteractively(quark)
+                    puts JSON.pretty_generate(ordinal)
                 }
             )
 

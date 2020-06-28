@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-# This variable contains the objects of the current display.
-# We use it to speed up display after some operations
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest

@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-# This variable contains the objects of the current display.
-# We use it to speed up display after some operations
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
@@ -117,6 +114,7 @@ class NyxCoreStoreObjects
         # Duplicated in NyxSets
         [
             "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19", # Interface Floats
+            "0fb6e397-ca40-4188-8375-6ea95ede34cf", # Interface Ordinals
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
