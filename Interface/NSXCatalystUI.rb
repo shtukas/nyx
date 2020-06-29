@@ -70,14 +70,6 @@ require_relative "Ordinals.rb"
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::specialCircumstanceFileNames()
-    def self.specialCircumstanceFileNames()
-        [
-            "Interface-Top.txt",
-            "Guardian-Next.txt"
-        ]
-    end
-
     # NSXCatalystUI::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
         CatalystCommon::copyLocationToCatalystBin(filepath)
@@ -272,17 +264,15 @@ class NSXCatalystUI
                 }
         end
 
-        specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
-        specialCircumstanceFilepaths.each{|filepath|
-            text = IO.read(filepath).strip
-            if text.size > 0 then
-                text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-                puts ""
-                puts File.basename(filepath)
-                puts text.green
-                verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
-            end
-        }
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
+        text = IO.read(filepath).strip
+        if text.size > 0 then
+            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
+            puts ""
+            puts File.basename(filepath)
+            puts text.green
+            verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
+        end
 
         Calendar::dates()
             .each{|date|
@@ -421,9 +411,7 @@ class NSXCatalystUI
         end
 
         if command == "::" then
-            filename = LucilleCore::selectEntityFromListOfEntitiesOrNull("file", NSXCatalystUI::specialCircumstanceFileNames())
-            return if filename.nil?
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/#{filename}"
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
             system("open '#{filepath}'")
         end
 
