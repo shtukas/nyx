@@ -185,8 +185,8 @@ class Ordinals
         Ordinals::commitToDisk(ordinal)
     end
 
-    # Ordinals::issueFloatAsOrdinalInteractively(float)
-    def self.issueFloatAsOrdinalInteractively(float)
+    # Ordinals::issueFloatInteractivelyAsOrdinalInteractively(float)
+    def self.issueFloatInteractivelyAsOrdinalInteractively(float)
 
         position = LucilleCore::askQuestionAnswerAsString("ordinal position: ")
         return nil if position.size == 0
@@ -368,7 +368,7 @@ class Ordinals
             end
             ms.item(
                 "(float) dive", 
-                lambda { Floats::processFloat(float) }
+                lambda { Floats::diveFloat(float) }
             )
         end
         if ordinal["type"] == "ordinal-asteroid-d55fdefa-f1ee-4d45-b705-1145dc55bf4b" then

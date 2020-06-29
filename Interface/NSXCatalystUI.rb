@@ -312,6 +312,7 @@ class NSXCatalystUI
         }
 
         floats = Floats::getFloatsOrdered()
+                    .select{|float| float["isImportant"] }
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
@@ -319,8 +320,25 @@ class NSXCatalystUI
                 .each{|float|
                     line = Floats::floatToString(float)
                     menuitems.item(
-                        line.yellow,
-                        lambda { Floats::processFloat(float) }
+                        float["isImportant"] ? line.red : line.yellow,
+                        lambda { Floats::diveFloat(float) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
+                    break if verticalSpaceLeft <= 0 
+                }
+        end
+
+        floats = Floats::getFloatsOrdered()
+                    .select{|float| !float["isImportant"] }
+        if floats.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            floats
+                .each{|float|
+                    line = Floats::floatToString(float)
+                    menuitems.item(
+                        float["isImportant"] ? line.red : line.yellow,
+                        lambda { Floats::diveFloat(float) }
                     )
                     verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
                     break if verticalSpaceLeft <= 0 
@@ -424,7 +442,7 @@ class NSXCatalystUI
             )
             ms.item(
                 "float",
-                lambda { Floats::issueFloat() }
+                lambda { Floats::issueFloatInteractively() }
             )
             ms.item(
                 "asteroid",

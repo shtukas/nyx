@@ -4,6 +4,7 @@
     "unixtime"    => Float
     "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40"
     "description" => String
+    "isImportant" : Boolean
 }
 {
     "uuid"        => String
@@ -11,6 +12,7 @@
     "unixtime"    => Float
     "type"        => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
     "quarkuuid"   => String
+    "isImportant" : Boolean
 }
 {
     "uuid"        => String,
@@ -18,5 +20,6 @@
     "unixtime"    => Float
     "type"        => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
     "cliqueuuid"  => String
+    "isImportant" : Boolean
 }
 

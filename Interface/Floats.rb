@@ -115,20 +115,22 @@ class Floats
         NyxSets::putObject(float)
     end
 
-    # Floats::issueFloat()
-    def self.issueFloat()
+    # Floats::issueFloatInteractively()
+    def self.issueFloatInteractively()
         ms = LCoreMenuItemsNX1.new()
         ms.item(
             "description", 
             lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
+                isImportant = LucilleCore::askQuestionAnswerAsBoolean("important ? ", false)
                 return if description.size == 0
                 float = {
                     "uuid"        => SecureRandom.hex,
                     "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
                     "unixtime"    => Time.new.to_i,
                     "type"        => "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40",
-                    "description" => description
+                    "description" => description,
+                    "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
             }
@@ -138,12 +140,14 @@ class Floats
             lambda {
                 quark = Quarks::issueNewQuarkInteractivelyOrNull()
                 return if quark.nil?
+                isImportant = LucilleCore::askQuestionAnswerAsBoolean("important ? ", false)
                 float = {
-                    "uuid"       => SecureRandom.hex,
-                    "nyxNxSet"   => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
-                    "unixtime"   => Time.new.to_i,
-                    "type"       => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
-                    "quarkuuid"  => quark["uuid"]
+                    "uuid"        => SecureRandom.hex,
+                    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
+                    "unixtime"    => Time.new.to_i,
+                    "type"        => "float-quark-d442c162-893c-47f8-ba57-b84980a79d59",
+                    "quarkuuid"   => quark["uuid"],
+                    "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
             }
@@ -153,12 +157,14 @@ class Floats
             lambda {
                 clique = Cliques::issueCliqueInteractivelyOrNull()
                 return if clique.nil?
+                isImportant = LucilleCore::askQuestionAnswerAsBoolean("important ? ", false)
                 float = {
-                    "uuid"       => SecureRandom.hex,
-                    "nyxNxSet"   => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
-                    "unixtime"   => Time.new.to_i,
-                    "type"       => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
-                    "cliqueuuid" => clique["uuid"]
+                    "uuid"        => SecureRandom.hex,
+                    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
+                    "unixtime"    => Time.new.to_i,
+                    "type"        => "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38",
+                    "cliqueuuid"  => clique["uuid"],
+                    "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
             }
@@ -166,8 +172,8 @@ class Floats
         ms.prompt()
     end
 
-    # Floats::processFloat(float)
-    def self.processFloat(float)
+    # Floats::diveFloat(float)
+    def self.diveFloat(float)
         puts Floats::floatToString(float)
 
         ms = LCoreMenuItemsNX1.new()
@@ -178,8 +184,16 @@ class Floats
         )
 
         ms.item(
+            "promote to important", 
+            lambda {
+                float["isImportant"] = true
+                Floats::commitToDisk(float)
+            }
+        )
+
+        ms.item(
             "issue as ordinal", 
-            lambda { Ordinals::issueFloatAsOrdinalInteractively(float) }
+            lambda { Ordinals::issueFloatInteractivelyAsOrdinalInteractively(float) }
         )
 
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then

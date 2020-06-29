@@ -47,92 +47,91 @@ class NSXCatalystObjectsOperator
 
             "execute"          => lambda {
 
-            Asteroids::asteroids()
-                .select{|asteroid| asteroid["X02394e74c407"].nil? }
-                .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
-                .reverse
-                .take(20)
-                .each{|asteroid|
-                    system ("clear")
+                Asteroids::asteroids()
+                    .select{|asteroid| asteroid["X02394e74c407"].nil? }
+                    .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                    .reverse
+                    .take(20)
+                    .each{|asteroid|
+                        system ("clear")
 
-                    if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-                        asteroid["X02394e74c407"] = true
-                        NyxSets::putObject(asteroid)
-                        next
-                    end
-
-                    if asteroid["payload"]["type"] == "quark" then
-                        quarkuuid = asteroid["payload"]["quarkuuid"]
-                        quark = Quarks::getOrNull(quarkuuid)
-                        if quark.nil? then
-                            Asteroids::asteroidDestroySequence(asteroid)
+                        if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+                            asteroid["X02394e74c407"] = true
+                            NyxSets::putObject(asteroid)
                             next
                         end
-                        if quark["type"] == "file" then
-                            filename = quark["filename"]
-                            if !LibrarianFile::exists?(filename) then
-                                NyxSets::destroy(quark["uuid"])
-                                Asteroids::asteroidDestroySequence(asteroid)
-                                next
-                            end
-                        end
-                    end
-
-                    puts Asteroids::asteroidToString(asteroid)
-
-                    if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-                        Asteroids::openPayload(asteroid)
-                    end
-                    
-                    loop {
-                        asteroid = Asteroids::getOrNull(asteroid["uuid"])
-                        break if asteroid.nil? # could have been destroyed in a previous run
-                        break if asteroid["X02394e74c407"] # have been marked as reviewed
 
                         if asteroid["payload"]["type"] == "quark" then
                             quarkuuid = asteroid["payload"]["quarkuuid"]
                             quark = Quarks::getOrNull(quarkuuid)
-                            if quark.nil? then # could have been destroyed in a previous run
+                            if quark.nil? then
                                 Asteroids::asteroidDestroySequence(asteroid)
-                                break
+                                next
+                            end
+                            if quark["type"] == "file" then
+                                filename = quark["filename"]
+                                if !LibrarianFile::exists?(filename) then
+                                    NyxSets::destroy(quark["uuid"])
+                                    Asteroids::asteroidDestroySequence(asteroid)
+                                    next
+                                end
                             end
                         end
 
-                        ms = LCoreMenuItemsNX1.new()
-                        ms.item(
-                            "mark as reviewed",
-                            lambda { 
-                                asteroid["X02394e74c407"] = true
-                                NyxSets::putObject(asteroid)
-                            }
-                        )
-                        ms.item(
-                            "dive",
-                            lambda { Asteroids::asteroidDive(asteroid) }
-                        )
-                        ms.item(
-                            "destroy asteroid",
-                            lambda { Asteroids::asteroidDestroySequence(asteroid) }
-                        )
-                        ms.item(
-                            "destroy asteroid and quark",
-                            lambda { 
-                                return if asteroid["payload"]["type"] != "quark"
+                        puts Asteroids::asteroidToString(asteroid)
+
+                        if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                            Asteroids::openPayload(asteroid)
+                        end
+                        
+                        loop {
+                            asteroid = Asteroids::getOrNull(asteroid["uuid"])
+                            break if asteroid.nil? # could have been destroyed in a previous run
+                            break if asteroid["X02394e74c407"] # have been marked as reviewed
+
+                            if asteroid["payload"]["type"] == "quark" then
                                 quarkuuid = asteroid["payload"]["quarkuuid"]
                                 quark = Quarks::getOrNull(quarkuuid)
                                 if quark.nil? then # could have been destroyed in a previous run
                                     Asteroids::asteroidDestroySequence(asteroid)
-                                    next
+                                    break
                                 end
-                                NyxSets::destroy(quark["uuid"])
-                                Asteroids::asteroidDestroySequence(asteroid) 
-                            }
-                        )
-                        status = ms.prompt()
-                        break if !status
-                    }
-                }
+                            end
 
+                            ms = LCoreMenuItemsNX1.new()
+                            ms.item(
+                                "mark as reviewed",
+                                lambda { 
+                                    asteroid["X02394e74c407"] = true
+                                    NyxSets::putObject(asteroid)
+                                }
+                            )
+                            ms.item(
+                                "dive",
+                                lambda { Asteroids::asteroidDive(asteroid) }
+                            )
+                            ms.item(
+                                "destroy asteroid",
+                                lambda { Asteroids::asteroidDestroySequence(asteroid) }
+                            )
+                            ms.item(
+                                "destroy asteroid and quark",
+                                lambda { 
+                                    return if asteroid["payload"]["type"] != "quark"
+                                    quarkuuid = asteroid["payload"]["quarkuuid"]
+                                    quark = Quarks::getOrNull(quarkuuid)
+                                    if quark.nil? then # could have been destroyed in a previous run
+                                        Asteroids::asteroidDestroySequence(asteroid)
+                                        next
+                                    end
+                                    NyxSets::destroy(quark["uuid"])
+                                    Asteroids::asteroidDestroySequence(asteroid) 
+                                }
+                            )
+                            status = ms.prompt()
+                            break if !status
+                        }
+                    }
             }
         }
 
