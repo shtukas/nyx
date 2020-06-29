@@ -31,7 +31,7 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
             "name"             => name1
         }
-        NyxSets::putObject(object)
+        NyxSets::putObject(clique)
         clique
     end
 

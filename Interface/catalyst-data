@@ -75,7 +75,7 @@ loop {
         return
     end
 
-    NSXCatalystUI::operations()
+    NSXCatalystUI::dataPortalFront()
 }
 
 # -------------------------------------------------------------------------

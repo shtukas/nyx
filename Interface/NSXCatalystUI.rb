@@ -108,8 +108,8 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::operations()
-    def self.operations()
+    # NSXCatalystUI::dataPortalFront()
+    def self.dataPortalFront()
         loop {
             system("clear")
 
@@ -246,8 +246,8 @@ class NSXCatalystUI
         LucilleCore::pressEnterToContinue()
     end
 
-    # NSXCatalystUI::performStandardDisplay(catalystObjects)
-    def self.performStandardDisplay(catalystObjects)
+    # NSXCatalystUI::standardDisplay(catalystObjects)
+    def self.standardDisplay(catalystObjects)
 
         system("clear")
 
@@ -255,116 +255,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
-
-        loop {
-
-            asteroids = Asteroids::asteroids()
-                            .select{|asteroid| asteroid["X02394e74c407"].nil? }
-
-            startingTime  = DateTime.parse("2020-06-28T18:00:25Z").to_time.to_f
-            endingTime    = DateTime.parse("2020-07-30T10:44:25Z").to_time.to_f
-            startingCount = 6175
-            endingCount   = 200
-            timeRatio     = (Time.new.to_f - startingTime).to_f/(endingTime-startingTime)
-            doneRatio     = (startingCount - asteroids.count).to_f/(startingCount-endingCount)
-            puts ""
-            puts "Asteroids review"
-            puts "    -> timeRatio: #{timeRatio}"
-            puts "    -> doneRatio: #{doneRatio}"
-            verticalSpaceLeft = verticalSpaceLeft - 4
-            break if doneRatio > timeRatio
-
-            LucilleCore::pressEnterToContinue()
-
-            asteroids
-                .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
-                .reverse
-                .take(10)
-                .each{|asteroid|
-                    system ("clear")
-
-                    if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-                        asteroid["X02394e74c407"] = true
-                        NyxSets::putObject(asteroid)
-                        next
-                    end
-
-                    if asteroid["payload"]["type"] == "quark" then
-                        quarkuuid = asteroid["payload"]["quarkuuid"]
-                        quark = Quarks::getOrNull(quarkuuid)
-                        if quark.nil? then
-                            Asteroids::asteroidDestroySequence(asteroid)
-                            next
-                        end
-                        if quark["type"] == "file" then
-                            filename = quark["filename"]
-                            if !LibrarianFile::exists?(filename) then
-                                puts "Got one:"
-                                puts JSON.pretty_generate(asteroid)
-                                puts JSON.pretty_generate(quark)
-                                LucilleCore::pressEnterToContinue()
-                                NyxSets::destroy(quark["uuid"])
-                                Asteroids::asteroidDestroySequence(asteroid)
-                                next
-                            end
-                        end
-                    end
-
-                    puts Asteroids::asteroidToString(asteroid)
-                    if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-                        Asteroids::openPayload(asteroid)
-                    end
-                    
-                    loop {
-                        asteroid = Asteroids::getOrNull(asteroid["uuid"])
-                        break if asteroid.nil? # could have been destroyed in a previous run
-                        break if asteroid["X02394e74c407"]
-
-                        if asteroid["payload"]["type"] == "quark" then
-                            quarkuuid = asteroid["payload"]["quarkuuid"]
-                            quark = Quarks::getOrNull(quarkuuid)
-                            if quark.nil? then # could have been destroyed in a previous run
-                                Asteroids::asteroidDestroySequence(asteroid)
-                                next
-                            end
-                        end
-
-                        ms = LCoreMenuItemsNX1.new()
-                        ms.item(
-                            "mark as reviewed",
-                            lambda { 
-                                asteroid["X02394e74c407"] = true
-                                NyxSets::putObject(asteroid)
-                            }
-                        )
-                        ms.item(
-                            "dive",
-                            lambda { Asteroids::asteroidDive(asteroid) }
-                        )
-                        ms.item(
-                            "destroy asteroid",
-                            lambda { Asteroids::asteroidDestroySequence(asteroid) }
-                        )
-                        ms.item(
-                            "destroy asteroid and quark",
-                            lambda { 
-                                return if asteroid["payload"]["type"] != "quark"
-                                quarkuuid = asteroid["payload"]["quarkuuid"]
-                                quark = Quarks::getOrNull(quarkuuid)
-                                if quark.nil? then # could have been destroyed in a previous run
-                                    Asteroids::asteroidDestroySequence(asteroid)
-                                    next
-                                end
-                                NyxSets::destroy(quark["uuid"])
-                                Asteroids::asteroidDestroySequence(asteroid) 
-                            }
-                        )
-                        status = ms.prompt()
-                        break if !status
-                    }
-                }
-            return
-        }
 
         ordinals = Ordinals::getOrdinalsOrdered()
         if ordinals.size > 0 then
@@ -465,7 +355,7 @@ class NSXCatalystUI
         command = STDIN.gets().strip
 
         if command == "" and (Time.new.to_f-startTime) < 5 then
-            NSXCatalystUI::performStandardDisplay(catalystObjects)
+            NSXCatalystUI::standardDisplay(catalystObjects)
             return
         end
 
@@ -549,7 +439,7 @@ class NSXCatalystUI
         end
 
         if command == "/" then
-            NSXCatalystUI::operations()
+            NSXCatalystUI::dataPortalFront()
             return
         end
     end
@@ -574,7 +464,7 @@ class NSXCatalystUI
                 return
             end
             objects[0]["isFocus"] = true
-            NSXCatalystUI::performStandardDisplay(objects)
+            NSXCatalystUI::standardDisplay(objects)
         }
     end
 end
