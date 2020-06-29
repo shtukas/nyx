@@ -233,6 +233,11 @@ class NSXCatalystUI
             return
         end
 
+        if object["x-asteroid-review"] then
+            object["execute"].call()
+            return
+        end
+
         puts "I could not determine the obvious thing to to do with this"
         puts JSON.pretty_generate(object)
         LucilleCore::pressEnterToContinue()
@@ -285,41 +290,7 @@ class NSXCatalystUI
                     .join()
             }
 
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        catalystObjects.first(5).each{|object| 
-            str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-            break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
-            if object["isRunning"] then
-                str = str.green
-            end
-            menuitems.item(
-                str,
-                lambda { object["execute"].call() }
-            )
-            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
-        }
-
         floats = Floats::getFloatsOrdered()
-                    .select{|float| float["isImportant"] }
-        if floats.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            floats
-                .each{|float|
-                    line = Floats::floatToString(float)
-                    menuitems.item(
-                        float["isImportant"] ? line.red : line.yellow,
-                        lambda { Floats::diveFloat(float) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
-                    break if verticalSpaceLeft <= 0 
-                }
-        end
-
-        floats = Floats::getFloatsOrdered()
-                    .select{|float| !float["isImportant"] }
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
@@ -341,7 +312,7 @@ class NSXCatalystUI
         if verticalSpaceLeft > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            catalystObjects.drop(5).each{|object| 
+            catalystObjects.each{|object| 
                 str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
                 if object["isRunning"] then
