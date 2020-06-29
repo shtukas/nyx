@@ -291,13 +291,6 @@ class Quarks
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
-    # Quarks::quarkHasConnections(quark)
-    def self.quarkHasConnections(quark)
-        return true if Bosons::getLinkedObjects(quark).size > 0
-        return true if NyxRoles::getRolesForTarget(quark["uuid"]).size > 0
-        false
-    end
-
     # Quarks::getQuarkQuarkTags(quark)
     def self.getQuarkQuarkTags(quark)
         QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])

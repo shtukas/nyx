@@ -256,22 +256,6 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        ordinals = Ordinals::getOrdinalsOrdered()
-        if ordinals.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            ordinals
-                .each{|ordinal|
-                    line = Ordinals::ordinalToString(ordinal)
-                    menuitems.item(
-                        line.red,
-                        lambda { Ordinals::diveOrdinal(ordinal) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
-                    break if verticalSpaceLeft <= 0 
-                }
-        end
-
         loop {
 
             asteroids = Asteroids::asteroids()
@@ -379,7 +363,24 @@ class NSXCatalystUI
                         break if !status
                     }
                 }
+            return
         }
+
+        ordinals = Ordinals::getOrdinalsOrdered()
+        if ordinals.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            ordinals
+                .each{|ordinal|
+                    line = Ordinals::ordinalToString(ordinal)
+                    menuitems.item(
+                        line.red,
+                        lambda { Ordinals::diveOrdinal(ordinal) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
+                    break if verticalSpaceLeft <= 0 
+                }
+        end
 
         specialCircumstanceFilepaths = NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
         specialCircumstanceFilepaths.each{|filepath|
