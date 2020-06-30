@@ -365,10 +365,8 @@ class NSXCatalystUI
         end
 
         if command == "[]" then
-            specialCircumstancesFilepath = specialCircumstanceFilepaths.first
-            if specialCircumstancesFilepath then
-                NSXCatalystUI::applyNextTransformationToFile(specialCircumstancesFilepath)
-            end
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
+            NSXCatalystUI::applyNextTransformationToFile(filepath)
         end
 
         if command == "l+" then
