@@ -67,8 +67,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Ordinals.rb"
-
 # ------------------------------------------------------------------------
 
 class Floats
@@ -189,11 +187,6 @@ class Floats
                 float["isImportant"] = true
                 Floats::commitToDisk(float)
             }
-        )
-
-        ms.item(
-            "issue as ordinal", 
-            lambda { Ordinals::issueFloatInteractivelyAsOrdinalInteractively(float) }
         )
 
         if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then

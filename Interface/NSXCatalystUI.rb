@@ -64,7 +64,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
 require_relative "Floats.rb"
-require_relative "Ordinals.rb"
 
 # ------------------------------------------------------------------------
 
@@ -253,16 +252,16 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        ordinals = Ordinals::getOrdinalsOrdered()
-        if ordinals.size > 0 then
+        floats = Floats::getFloatsOrdered()
+        if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            ordinals
-                .each{|ordinal|
-                    line = Ordinals::ordinalToString(ordinal)
+            floats
+                .each{|float|
+                    line = Floats::floatToString(float)
                     menuitems.item(
-                        line.red,
-                        lambda { Ordinals::diveOrdinal(ordinal) }
+                        float["isImportant"] ? line.red : line.yellow,
+                        lambda { Floats::diveFloat(float) }
                     )
                     verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
                     break if verticalSpaceLeft <= 0 
@@ -289,22 +288,6 @@ class NSXCatalystUI
                     .map{|line| "    #{line}" }
                     .join()
             }
-
-        floats = Floats::getFloatsOrdered()
-        if floats.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            floats
-                .each{|float|
-                    line = Floats::floatToString(float)
-                    menuitems.item(
-                        float["isImportant"] ? line.red : line.yellow,
-                        lambda { Floats::diveFloat(float) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
-                    break if verticalSpaceLeft <= 0 
-                }
-        end
 
         # --------------------------------------------------------------------------
         # Print
@@ -370,11 +353,6 @@ class NSXCatalystUI
         end
 
         if command == ".." then
-            ordinal = Ordinals::getOrdinalsOrdered().first
-            if ordinal then
-                Ordinals::performOrdinalRunDone(ordinal)
-                return
-            end
             object = catalystObjects.select{|object| object["isFocus"]}.first
             return if object.nil?
             NSXCatalystUI::doTheObviousThingWithThis(object)
@@ -395,10 +373,6 @@ class NSXCatalystUI
 
         if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
-            ms.item(
-                "ordinal",
-                lambda { Ordinals::issueOrdinal() }
-            )
             ms.item(
                 "float",
                 lambda { Floats::issueFloatInteractively() }

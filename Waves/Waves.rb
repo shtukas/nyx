@@ -348,11 +348,6 @@ class Waves
             )
 
             menuitems.item(
-                "issue as ordinal",
-                lambda { Ordinals::issueWaveAsOrdinalInteractively(wave) }
-            )
-
-            menuitems.item(
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then

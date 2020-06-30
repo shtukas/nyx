@@ -51,7 +51,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Metrics.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/ProgrammableBooleans.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx.v2/NyxSets.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Interface/Ordinals.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -313,13 +312,6 @@ class Asteroids
                     quark = Quarks::getOrNull(quarkuuid)
                     return if quark.nil?
                     Quarks::quarkDive(quark)
-                }
-            )
-
-            menuitems.item(
-                "ordinal (issue as)",
-                lambda {
-                    Ordinals::issueAsteroidAsOrdinalInteractively(asteroid)
                 }
             )
 
