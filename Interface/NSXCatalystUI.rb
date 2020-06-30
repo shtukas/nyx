@@ -252,15 +252,15 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        floats = Floats::getFloatsOrdered()
+        floats = Floats::getRootFloatsOrdered()
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
             floats
                 .each{|float|
-                    line = Floats::floatToString(float)
+                    line = Floats::floatToStringForUI(float)
                     menuitems.item(
-                        float["isImportant"] ? line.red : line.yellow,
+                        line,
                         lambda { Floats::diveFloat(float) }
                     )
                     verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)

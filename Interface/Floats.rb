@@ -94,7 +94,15 @@ class Floats
                 return "[float] [clique] not found (#{quarkuuid})"
             end
         end
+        if float["type"] == "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec" then
+            return "[float] [list] #{float["description"]}"
+        end
         raise "[error: 3f2ec637-3b2f-45ea-8a74-9765fcdf0d93] #{float}"
+    end
+
+    # Floats::floatToStringForUI(float)
+    def self.floatToStringForUI(float)
+        Floats::isImportant(float) ? Floats::floatToString(float).red : Floats::floatToString(float).yellow
     end
 
     # Floats::destroyFloat(float)
@@ -113,8 +121,18 @@ class Floats
         NyxSets::putObject(float)
     end
 
-    # Floats::issueFloatInteractively()
-    def self.issueFloatInteractively()
+    # Floats::addFloatToParent(parentuuid, float)
+    def self.addFloatToParent(parentuuid, float)
+        return if parentuuid.nil?
+        parent = Floats::getOrNull(parentuuid)
+        return if parent.nil?
+        return if parent["type"] != "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec"
+        parent["items"] << float["uuid"]
+        Floats::commitToDisk(parent)
+    end
+
+    # Floats::issueFloatInteractively(parentuuid)
+    def self.issueFloatInteractively(parentuuid = nil)
         ms = LCoreMenuItemsNX1.new()
         ms.item(
             "description", 
@@ -131,6 +149,7 @@ class Floats
                     "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
+                Floats::addFloatToParent(parentuuid, float)
             }
         )
         ms.item(
@@ -148,6 +167,7 @@ class Floats
                     "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
+                Floats::addFloatToParent(parentuuid, float)
             }
         )
         ms.item(
@@ -165,6 +185,23 @@ class Floats
                     "isImportant" => isImportant
                 }
                 Floats::commitToDisk(float)
+                Floats::addFloatToParent(parentuuid, float)
+            }
+        )
+        ms.item(
+            "listing", 
+            lambda {
+                description = LucilleCore::askQuestionAnswerAsString("list description: ")
+                float = {
+                    "uuid"        => SecureRandom.hex,
+                    "nyxNxSet"    => "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19",
+                    "unixtime"    => Time.new.to_i,
+                    "type"        => "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec",
+                    "description" => description,
+                    "items"       => []
+                }
+                Floats::commitToDisk(float)
+                Floats::addFloatToParent(parentuuid, float)
             }
         )
         ms.prompt()
@@ -172,59 +209,132 @@ class Floats
 
     # Floats::diveFloat(float)
     def self.diveFloat(float)
-        puts Floats::floatToString(float)
+        loop {
+            system("clear")
+            puts Floats::floatToString(float)
+            puts "uuid: #{float["uuid"]}"
+            puts ""
 
-        ms = LCoreMenuItemsNX1.new()
+            ms = LCoreMenuItemsNX1.new()
 
-        ms.item(
-            "destroy float", 
-            lambda { NyxSets::destroy(float["uuid"]) }
-        )
-
-        ms.item(
-            "promote to important", 
-            lambda {
-                float["isImportant"] = true
-                Floats::commitToDisk(float)
-            }
-        )
-
-        if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
-            # 
-        end
-        if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
-            quarkuuid = float["quarkuuid"]
-            quark = Quarks::getOrNull(quarkuuid)
-            if quark.nil? then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("quark is null, destroy float ? ")
-                NyxSets::destroy(float["uuid"])
-                return
+            if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
+                # 
             end
-            ms.item(
-                "(quark) dive", 
-                lambda { Quarks::quarkDive(quark) }
-            )
-        end
-        if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
-            cliqueuuid = float["cliqueuuid"]
-            clique = Quarks::getOrNull(cliqueuuid)
-            if clique.nil? then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("clique is null, destroy float ? ")
-                NyxSets::destroy(float["uuid"])
-                return
+            if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
+                quarkuuid = float["quarkuuid"]
+                quark = Quarks::getOrNull(quarkuuid)
+                if quark.nil? then
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("quark is null, destroy float ? ")
+                    NyxSets::destroy(float["uuid"])
+                    return
+                end
+                ms.item(
+                    "(quark) dive", 
+                    lambda { Quarks::quarkDive(quark) }
+                )
             end
+            if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
+                cliqueuuid = float["cliqueuuid"]
+                clique = Quarks::getOrNull(cliqueuuid)
+                if clique.nil? then
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("clique is null, destroy float ? ")
+                    NyxSets::destroy(float["uuid"])
+                    return
+                end
+                ms.item(
+                    "(clique) dive", 
+                    lambda { Cliques::cliqueDive(clique) }
+                )
+            end
+            if float["type"] == "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec" then
+                float["items"].each{|uuid|
+                    xf = Floats::getOrNull(uuid)
+                    next if xf.nil?
+                    ms.item(
+                        Floats::floatToString(xf), 
+                        lambda { Floats::diveFloat(xf) }
+                    )
+                }
+                puts ""
+                ms.item(
+                    "create new float and add to this list", 
+                    lambda { Floats::issueFloatInteractively(float["uuid"]) }
+                )
+                ms.item(
+                    "add existing float by uuid", 
+                    lambda { 
+                        floatuuid = LucilleCore::askQuestionAnswerAsString("float uuid: ")
+                        return if Floats::getOrNull(floatuuid).nil?
+                        float["items"] << floatuuid
+                        Floats::commitToDisk(float)
+                    }
+                )
+            end
+
+            puts ""
+
             ms.item(
-                "(clique) dive", 
-                lambda { Cliques::cliqueDive(clique) }
+                "promote to important", 
+                lambda {
+                    float["isImportant"] = true
+                    Floats::commitToDisk(float)
+                }
             )
-        end
-        ms.prompt()
+
+            ms.item(
+                "demote to non important", 
+                lambda {
+                    float["isImportant"] = false
+                    Floats::commitToDisk(float)
+                }
+            )
+
+            ms.item(
+                "destroy float", 
+                lambda { NyxSets::destroy(float["uuid"]) }
+            )
+
+            status = ms.prompt()
+            break if !status
+        }
     end
 
     # Floats::getFloatsOrdered()
     def self.getFloatsOrdered()
         NyxSets::objects("1aaa9485-2c07-4b14-a5c3-ed1d6772ca19")
             .sort{|f1, f2| (f1["unixtime"] || 0) <=> (f2["unixtime"] || 0) }
+    end
+
+    # Floats::floatIsRoot(float)
+    def self.floatIsRoot(float)
+        Floats::getFloatsOrdered()
+            .select{|xf| xf["type"] == "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec" }
+            .none?{|xf| xf["items"].include?(float["uuid"]) }
+    end
+
+    # Floats::getRootFloatsOrdered()
+    def self.getRootFloatsOrdered()
+        Floats::getFloatsOrdered()
+            .select{|float| Floats::floatIsRoot(float) }
+    end
+
+    # Floats::isImportant(float)
+    def self.isImportant(float)
+        if float["type"] == "float-description-ff149b92-cf23-49b2-9268-b63f8773eb40" then
+            return float["isImportant"]
+        end
+        if float["type"] == "float-quark-d442c162-893c-47f8-ba57-b84980a79d59" then
+            return float["isImportant"]
+        end
+        if float["type"] == "float-clique-656a24a8-2acb-417a-b23e-09dc29106f38" then
+            return float["isImportant"]
+        end
+        if float["type"] == "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec" then
+            return float["items"]
+                        .map{|floatuuid| Floats::getOrNull(floatuuid) }
+                        .compact
+                        .any?{|float| Floats::isImportant(float) }
+        end
     end
 end
 
