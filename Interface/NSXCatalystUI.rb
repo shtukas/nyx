@@ -265,23 +265,6 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        floats = Floats::getRootFloatsOrdered()
-                    .select{|float| Floats::isImportant(float) }
-        if floats.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            floats
-                .each{|float|
-                    line = Floats::floatToStringForUI(float)
-                    menuitems.item(
-                        line,
-                        lambda { Floats::diveFloat(float) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
-                    break if verticalSpaceLeft <= 0 
-                }
-        end
-
         filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
         text = IO.read(filepath).strip
         if text.size > 0 then
@@ -315,7 +298,41 @@ class NSXCatalystUI
         if verticalSpaceLeft > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            catalystObjects.each{|object| 
+            catalystObjects.take_while{|object| object["metric"] >= 0.60 }.each{|object| 
+                str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
+                if object["isRunning"] then
+                    str = str.green
+                end
+                menuitems.item(
+                    str,
+                    lambda { object["execute"].call() }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
+            }
+        end 
+
+        floats = Floats::getRootFloatsOrdered()
+                    .select{|float| Floats::isImportant(float) }
+        if floats.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            floats
+                .each{|float|
+                    line = Floats::floatToStringForUI(float)
+                    menuitems.item(
+                        line,
+                        lambda { Floats::diveFloat(float) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
+                    break if verticalSpaceLeft <= 0 
+                }
+        end
+
+        if verticalSpaceLeft > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            catalystObjects.drop_while{|object| object["metric"] >= 0.60 }.each{|object| 
                 str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
                 if object["isRunning"] then

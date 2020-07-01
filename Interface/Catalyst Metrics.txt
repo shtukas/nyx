@@ -17,7 +17,9 @@
 
         0.64  -> 0.20 Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
 
-        0.60  -> 0.20 VideoStream
+        0.60 -------- Floats level ------------------------------
+
+        0.55  -> 0.20 VideoStream
 
         0.50          Backups Monitor
 
