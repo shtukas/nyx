@@ -299,16 +299,22 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
         end
 
-        Calendar::dates()
-            .each{|date|
-                next if date > Time.new.to_s[0, 10]
-                puts "🗓️  "+date
-                puts IO.read(Calendar::dateToFilepath(date))
-                    .strip
-                    .lines
-                    .map{|line| "    #{line}" }
-                    .join()
-            }
+        dates =  Calendar::dates()
+                    .select {|date| date <= Time.new.to_s[0, 10] }
+        if dates.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            dates
+                .each{|date|
+                    next if date > Time.new.to_s[0, 10]
+                    puts "🗓️  "+date
+                    puts IO.read(Calendar::dateToFilepath(date))
+                        .strip
+                        .lines
+                        .map{|line| "    #{line}" }
+                        .join()
+                }
+        end
 
         # --------------------------------------------------------------------------
         # Print
