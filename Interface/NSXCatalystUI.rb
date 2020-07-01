@@ -196,6 +196,11 @@ class NSXCatalystUI
                 }
             )
 
+            ms.item(
+                "float (new)", 
+                lambda { Floats::issueFloatInteractively(nil) }
+            )
+
             puts ""
 
             ms.item(

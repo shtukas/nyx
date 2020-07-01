@@ -210,6 +210,10 @@ class Floats
     # Floats::diveFloat(float)
     def self.diveFloat(float)
         loop {
+
+            float = Floats::getOrNull(float["uuid"]) # we need the new version in case it is a listing and we added something to it
+            return if float.nil? # could have been deleted in the previous loop
+
             system("clear")
             puts Floats::floatToString(float)
             puts "uuid: #{float["uuid"]}"
@@ -247,14 +251,16 @@ class Floats
                 )
             end
             if float["type"] == "float-list-11533e8e-97c6-4f0b-9c62-e79af5c7f0ec" then
-                float["items"].each{|uuid|
-                    xf = Floats::getOrNull(uuid)
-                    next if xf.nil?
-                    ms.item(
-                        Floats::floatToString(xf), 
-                        lambda { Floats::diveFloat(xf) }
-                    )
-                }
+                float["items"]
+                    .map{|uuid| Floats::getOrNull(uuid) }
+                    .compact
+                    .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
+                    .each{|fx|
+                        ms.item(
+                            Floats::floatToString(fx), 
+                            lambda { Floats::diveFloat(fx) }
+                        )
+                    }
                 puts ""
                 ms.item(
                     "create new float and add to this list", 
