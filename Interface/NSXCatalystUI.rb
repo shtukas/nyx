@@ -77,18 +77,6 @@ class NSXCatalystUI
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
-    # NSXCatalystUI::getSpecialCircumstanceFilepaths(catalystObjects)
-    def self.getSpecialCircumstanceFilepaths(catalystObjects)
-        filepaths = []
-        if IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt").strip.size > 0 then
-            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Interface-Top.txt"
-        end
-        if catalystObjects.any?{|object| object["isRunning"] and object["body"].include?("Daily Guardian Work") } then
-            filepaths << "/Users/pascal/Galaxy/DataBank/Catalyst/Special-Circumstances-Files/Guardian-Next.txt"
-        end
-        filepaths
-    end
-
     # NSXCatalystUI::objectFocus(object)
     def self.objectFocus(object)
         return if object.nil?

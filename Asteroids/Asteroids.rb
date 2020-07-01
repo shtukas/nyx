@@ -450,18 +450,25 @@ class Asteroids
         }
     end
 
+    # Asteroids::precompileTopUUIDsForListing()
+    def self.precompileTopUUIDsForListing()
+        objects = Asteroids::asteroids()
+                    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
+                    .first(20)
+        uuids = objects
+                    .map{|object| object["x-asteroid"]["uuid"] }
+        KeyValueStore::set(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", JSON.generate(uuids))
+    end
+
     # Asteroids::catalystObjects()
     def self.catalystObjects()
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("a214b4b8-a6be-4f18-8cd6-8b9d9d8df3a2", 3600) then
-            uuids = Asteroids::asteroids()
-                        .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
-                        .first(100)
-                        .map{|asteroid| asteroid["uuid"] }
-            KeyValueStore::set(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", JSON.generate(uuids))
+            Asteroids::precompileTopUUIDsForListing()
         end
-        uuids1 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", "[]"))
-        uuids2 = BTreeSets::values(nil, "d015bfdd-deb6-447f-97af-ab9e87875148:#{Time.new.to_s[0, 10]}")
-        (uuids1+uuids2)
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", "[]"))
             .map{|uuid| Asteroids::getOrNull(uuid) }
             .compact
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
