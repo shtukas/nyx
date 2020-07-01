@@ -99,6 +99,44 @@ class NSXCatalystUI
         }
     end
 
+    # NSXCatalystUI::doTheObviousThingWithThis(object)
+    def self.doTheObviousThingWithThis(object)
+        if object["x-asteroid"] and !object["isRunning"] then
+            Asteroids::asteroidStartSequence(object["x-asteroid"])
+            return
+        end
+        if object["x-asteroid"] and object["isRunning"] then
+            Asteroids::asteroidStopSequence(object["x-asteroid"])
+            return
+        end
+        if object["x-calendar-date"] then
+            Calendar::setDateAsReviewed(object["x-calendar-date"])
+            return
+        end
+        if object["x-wave"] then
+            Waves::openProcedure(object["x-wave"])
+            return
+        end
+        if object["x-video-stream"] then
+            VideoStream::play(object["x-filepath"])
+            return
+        end
+
+        if object["x-anniversaries"] then
+            object["execute"].call()
+            return
+        end
+
+        if object["x-asteroid-review"] then
+            object["execute"].call()
+            return
+        end
+
+        puts "I could not determine the obvious thing to to do with this"
+        puts JSON.pretty_generate(object)
+        LucilleCore::pressEnterToContinue()
+    end
+
     # NSXCatalystUI::dataPortalFront()
     def self.dataPortalFront()
         loop {
@@ -119,6 +157,26 @@ class NSXCatalystUI
             ms.item(
                 "quarks (listing)", 
                 lambda { Quarks::quarksListingAndDive() }
+            )
+
+            ms.item(
+                "floats", 
+                lambda { 
+                    loop {
+                        system("clear")
+                        menuitems = LCoreMenuItemsNX1.new()
+                        Floats::getRootFloatsOrdered()
+                            .each{|float|
+                                line = Floats::floatToStringForUI(float)
+                                menuitems.item(
+                                    line,
+                                    lambda { Floats::diveFloat(float) }
+                                )
+                            }
+                        status = menuitems.prompt()
+                        break if !status
+                    }
+                }
             )
 
             puts ""
@@ -204,44 +262,6 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::doTheObviousThingWithThis(object)
-    def self.doTheObviousThingWithThis(object)
-        if object["x-asteroid"] and !object["isRunning"] then
-            Asteroids::asteroidStartSequence(object["x-asteroid"])
-            return
-        end
-        if object["x-asteroid"] and object["isRunning"] then
-            Asteroids::asteroidStopSequence(object["x-asteroid"])
-            return
-        end
-        if object["x-calendar-date"] then
-            Calendar::setDateAsReviewed(object["x-calendar-date"])
-            return
-        end
-        if object["x-wave"] then
-            Waves::openProcedure(object["x-wave"])
-            return
-        end
-        if object["x-video-stream"] then
-            VideoStream::play(object["x-filepath"])
-            return
-        end
-
-        if object["x-anniversaries"] then
-            object["execute"].call()
-            return
-        end
-
-        if object["x-asteroid-review"] then
-            object["execute"].call()
-            return
-        end
-
-        puts "I could not determine the obvious thing to to do with this"
-        puts JSON.pretty_generate(object)
-        LucilleCore::pressEnterToContinue()
-    end
-
     # NSXCatalystUI::standardDisplay(catalystObjects)
     def self.standardDisplay(catalystObjects)
 
@@ -253,6 +273,7 @@ class NSXCatalystUI
         menuitems = LCoreMenuItemsNX1.new()
 
         floats = Floats::getRootFloatsOrdered()
+                    .select{|float| Floats::isImportant(float) }
         if floats.size > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
@@ -282,7 +303,7 @@ class NSXCatalystUI
             .each{|date|
                 next if date > Time.new.to_s[0, 10]
                 puts "🗓️  "+date
-                puts IO.read(dateToFilepath(date))
+                puts IO.read(Calendar::dateToFilepath(date))
                     .strip
                     .lines
                     .map{|line| "    #{line}" }
