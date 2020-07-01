@@ -1,24 +1,10 @@
 
 Nyx
 
-    Primary Store Objects Knowledge
+    Data
 
-        Quark    # See Quarks.txt       nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
+        Quark       # See Quarks.txt       nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
-        Clique   # See Cliques.txt      nyxNxSet: "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
-
-        Boson    # See Cliques.txt      nyxNxSet: "13f3499d-fa9c-44bb-91d3-8a3ccffecefb" 
-                                        Quark <-> Clique
-                                        Quark <-> Quark  # This creates Cubes
-
-        Tag      # See QuarkTags.txt         nyxNxSet: "a00b82aa-c047-4497-82bf-16c7206913e4"
-                                        QuarkTags only apply to Quarks
-
-        Waves    # See Waves.txt        nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
-
-        Asteroid # See Asteroid.txt     nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
-
-    Generated
         Cube 
             {
                 "nyxNxSet"    : "34F19BF8-0B21-4B9F-9E33-F56E897810C9"
@@ -26,4 +12,18 @@ Nyx
                 "quarks"      : Array[Quark]
             }
 
+        Clique      # See Cliques.txt      nyxNxSet: "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
+
+        Boson       # See Cliques.txt      nyxNxSet: "13f3499d-fa9c-44bb-91d3-8a3ccffecefb" 
+                                           Quark <-> Clique
+                                           Quark <-> Quark  # This creates Cubes
+
+        QuarkTagTag # See QuarkTags.txt    nyxNxSet: "a00b82aa-c047-4497-82bf-16c7206913e4"
+                                           QuarkTags only target to Quarks
+
+    Todo
+
+        Waves       # See Waves.txt        nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+
+        Asteroid    # See Asteroid.txt     nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
