@@ -253,9 +253,9 @@ class Asteroids
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
 
-            puts "Bank      : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Ping Day  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
-            puts "Ping Week : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
+            puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
+            puts "Ping 24 hours  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
+            puts "Ping 7 days    : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
 
             menuitems = LCoreMenuItemsNX1.new()
 
