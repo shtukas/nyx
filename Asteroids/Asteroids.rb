@@ -198,7 +198,7 @@ class Asteroids
             return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
             return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
             return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
-            return "🎡"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
+            return "⛲"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
             return "👩‍💻"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         }
         uuid = asteroid["uuid"]
