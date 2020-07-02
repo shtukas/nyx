@@ -305,6 +305,12 @@ class Waves
 
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
+
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])
+            if unixtime then
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+            end
+
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item(
