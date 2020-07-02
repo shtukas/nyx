@@ -545,15 +545,20 @@ class Quarks
             .first
     end
 
+    # Quarks::quarkMatchesPattern(quark, pattern)
+    def self.quarkMatchesPattern(quark, pattern)
+        return true if quark["uuid"].downcase.include?(pattern.downcase)
+        return true if Quarks::quarkToString(quark).downcase.include?(pattern.downcase)
+        if quark["type"] == "unique-name" then
+            return true if quark["name"].downcase.include?(pattern.downcase)
+        end
+        false
+    end
+
     # Quarks::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         Quarks::quarks()
-            .select{|quark| 
-                [
-                    quark["uuid"].downcase.include?(pattern.downcase),
-                    Quarks::quarkToString(quark).downcase.include?(pattern.downcase)
-                ].any?
-            }
+            .select{|quark| Quarks::quarkMatchesPattern(quark, pattern) }
             .map{|quark|
                 {
                     "description"   => Quarks::quarkToString(quark),

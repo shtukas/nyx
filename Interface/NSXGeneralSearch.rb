@@ -12,13 +12,12 @@ class NSXGeneralSearch
     # NSXGeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            Quarks::searchNx1630(pattern),
-            Cliques::searchNx1630(pattern),
-            QuarkTags::searchNx1630(pattern),
-            Waves::searchNx1630(pattern)
+            Cliques::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
+            Quarks::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
+            QuarkTags::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
+            Waves::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
         ]
             .flatten
-            .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
     end
 
     # NSXGeneralSearch::searchAndDive()
