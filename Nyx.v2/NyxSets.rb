@@ -94,33 +94,94 @@ class NyxSets
             raise "[NyxSets::putObject 5b203f53] #{object}"
         end
         object["nyxNxStoreTimestamp"] = Time.new.to_f
+        
+        # Storing on disk
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", object["nyxNxSet"], object["uuid"], object)
+
+        # Operator
+        $X9176ffbef04a.putObject(object)
+
         object
     end
 
     # NyxSets::getObjectFromSetOrNull(setid, uuid)
     def self.getObjectFromSetOrNull(setid, uuid)
-        BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid)
+        # Slow version
+        # BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid)
+
+        # Faster version
+        $X9176ffbef04a.getObjectFromSetOrNull(setid, uuid)
     end
 
     # NyxSets::getObjectOrNull(uuid)
     def self.getObjectOrNull(uuid)
-        NyxSets::nyxNxSets()
-            .map{|setid| NyxSets::getObjectFromSetOrNull(setid, uuid) }
-            .compact
-            .first
+
+        # Slow version
+        # NyxSets::nyxNxSets()
+        #    .map{|setid| NyxSets::getObjectFromSetOrNull(setid, uuid) }
+        #    .compact
+        #    .first
+
+        # Faster version
+        $X9176ffbef04a.getObjectFromSetOrNull(nil, uuid)
     end
 
     # NyxSets::objects(setid)
     def self.objects(setid)
-        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid)
+
+        # Slow version
+        # BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid)
+
+        # Faster version
+        $X9176ffbef04a.objects(setid)
     end
 
     # NyxSets::destroyObject(uuid)
     def self.destroyObject(uuid)
         NyxSets::nyxNxSets()
             .each{|setid| BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid) }
+
+        $X9176ffbef04a.destroyObject(uuid)
     end
 end
 
+class NyxSetsOperator
 
+    # @allObjectsInMemory = {}
+
+    def initialize()
+        @allObjectsInMemory = {}
+        NyxSets::nyxNxSets().each{|setid|
+            BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid).each{|object|
+                @allObjectsInMemory[object["uuid"]] = object.clone
+            }
+        }
+    end
+
+    def putObject(object)
+        @allObjectsInMemory[object["uuid"]] = object.clone
+    end
+
+    def getObjectFromSetOrNull(setid, uuid)
+        @allObjectsInMemory
+            .values
+            .select{|object| object["uuid"] == uuid }
+            .map{|object| object.clone }
+            .first
+    end
+
+    def objects(setid)
+        @allObjectsInMemory
+            .values
+            .select{|object| object["nyxNxSet"] == setid }
+            .map{|object| object.clone }
+    end
+
+    def destroyObject(uuid)
+        @allObjectsInMemory.delete(uuid)
+    end
+end
+
+if !defined?($X9176ffbef04a) then
+    $X9176ffbef04a = NyxSetsOperator.new()
+end

@@ -641,7 +641,9 @@ class CatalystObjectsManager
     end
 end
 
-$charlotte = CatalystObjectsManager.new()
+if !defined?($charlotte) then
+    $charlotte = CatalystObjectsManager.new()
+end
 
 Thread.new {
     loop {
