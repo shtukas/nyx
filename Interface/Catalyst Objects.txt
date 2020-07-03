@@ -6,7 +6,8 @@ CatalystObject
     "body"             : String # Single or multiline
     "metric"           : Float
 
-    "execute"          : Lamda
+    "commands"         : Array[String]
+    "execute"          : Lambda {|input|} # input is null or a command string
 
     "isRunning"        : Boolean             # Optional [2]
     "isRunningForLong" : Boolean             # Optional [3]

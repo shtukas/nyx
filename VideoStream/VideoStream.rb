@@ -92,7 +92,8 @@ class VideoStream
                     "uuid"        => uuid,
                     "body"        => "[VideoStream] #{File.basename(filepath)}",
                     "metric"      => VideoStream::metric(indx),
-                    "execute"     => lambda { VideoStream::execute(filepath) },
+                    "commands"    => [],
+                    "execute"     => lambda { |input| VideoStream::execute(filepath) },
                     "x-video-stream" => true,
                     "x-filepath"  => filepath
                 }

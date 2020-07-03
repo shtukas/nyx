@@ -63,8 +63,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Asteroids/Asteroid
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/VideoStream.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb"
 
-require_relative "Floats.rb"
-
 # ------------------------------------------------------------------------
 
 class NSXCatalystUI
@@ -75,54 +73,6 @@ class NSXCatalystUI
         content = IO.read(filepath).strip
         content = SectionsType0141::applyNextTransformationToContent(content)
         File.open(filepath, "w"){|f| f.puts(content) }
-    end
-
-    # NSXCatalystUI::objectFocus(object)
-    def self.objectFocus(object)
-        return if object.nil?
-        puts NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-        loop {
-            object["execute"].call()
-            return if LucilleCore::askQuestionAnswerAsBoolean("exit object ? ", true)
-        }
-    end
-
-    # NSXCatalystUI::doTheObviousThingWithThis(object)
-    def self.doTheObviousThingWithThis(object)
-        if object["x-asteroid"] and !object["isRunning"] then
-            Asteroids::asteroidStartSequence(object["x-asteroid"])
-            return
-        end
-        if object["x-asteroid"] and object["isRunning"] then
-            Asteroids::asteroidStopSequence(object["x-asteroid"])
-            return
-        end
-        if object["x-calendar-date"] then
-            Calendar::setDateAsReviewed(object["x-calendar-date"])
-            return
-        end
-        if object["x-wave"] then
-            Waves::openProcedure(object["x-wave"])
-            return
-        end
-        if object["x-video-stream"] then
-            VideoStream::play(object["x-filepath"])
-            return
-        end
-
-        if object["x-anniversaries"] then
-            object["execute"].call()
-            return
-        end
-
-        if object["x-asteroid-review"] then
-            object["execute"].call()
-            return
-        end
-
-        puts "I could not determine the obvious thing to to do with this"
-        puts JSON.pretty_generate(object)
-        LucilleCore::pressEnterToContinue()
     end
 
     # NSXCatalystUI::dataPortalFront()
@@ -148,17 +98,18 @@ class NSXCatalystUI
             )
 
             ms.item(
-                "floats", 
+                "asteroid floats open-project-in-the-background", 
                 lambda { 
                     loop {
                         system("clear")
                         menuitems = LCoreMenuItemsNX1.new()
-                        Floats::getRootFloatsOrdered()
-                            .each{|float|
-                                line = Floats::floatToStringForUI(float)
+                        Asteroids::asteroids()
+                            .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
+                            .each{|asteroid|
+                                line = Asteroids::asteroidToString(asteroid)
                                 menuitems.item(
                                     line,
-                                    lambda { Floats::diveFloat(float) }
+                                    lambda { Asteroids::asteroidDive(asteroid) }
                                 )
                             }
                         status = menuitems.prompt()
@@ -194,11 +145,6 @@ class NSXCatalystUI
                 lambda { 
                     Cliques::interactivelySelectTwoCliquesAndMerge()
                 }
-            )
-
-            ms.item(
-                "float (new)", 
-                lambda { Floats::issueFloatInteractively(nil) }
             )
 
             puts ""
@@ -292,57 +238,24 @@ class NSXCatalystUI
                 }
         end
 
-        # --------------------------------------------------------------------------
-        # Print
-
         if verticalSpaceLeft > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            catalystObjects.take_while{|object| object["metric"] >= 0.60 }.each{|object| 
+            catalystObjects.each_with_index{|object, indx| 
                 str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
                 if object["isRunning"] then
                     str = str.green
                 end
+                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
                 menuitems.item(
                     str,
-                    lambda { object["execute"].call() }
+                    lambda { object["execute"].call(nil) }
                 )
-                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
-            }
-        end 
-
-        floats = Floats::getRootFloatsOrdered()
-                    .select{|float| Floats::isImportant(float) }
-        if floats.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            floats
-                .each{|float|
-                    line = Floats::floatToStringForUI(float)
-                    menuitems.item(
-                        line,
-                        lambda { Floats::diveFloat(float) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(line)
-                    break if verticalSpaceLeft <= 0 
-                }
-        end
-
-        if verticalSpaceLeft > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            catalystObjects.drop_while{|object| object["metric"] >= 0.60 }.each{|object| 
-                str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
-                if object["isRunning"] then
-                    str = str.green
+                if indx == 0 and object["commands"].size > 0 then
+                    puts "             -> #{object["commands"].join(", ")}"
+                    verticalSpaceLeft = verticalSpaceLeft - 1
                 end
-                menuitems.item(
-                    str,
-                    lambda { object["execute"].call() }
-                )
-                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
             }
         end 
 
@@ -358,14 +271,25 @@ class NSXCatalystUI
             return
         end
 
+        if command == "" then
+            return
+        end
+
         if NSXMiscUtils::isInteger(command) then
             position = command.to_i
             menuitems.executePosition(position)
             return
         end
 
+        if command == ".." then
+            object = catalystObjects.first
+            return if object.nil?
+            object["execute"].call("..")
+            return
+        end
+
         if command == 'expose' then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
+            object = catalystObjects.first
             return if object.nil?
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
@@ -373,7 +297,7 @@ class NSXCatalystUI
         end
 
         if command == "++" then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
+            object = catalystObjects.first
             return if object.nil?
             unixtime = NSXMiscUtils::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
@@ -382,17 +306,10 @@ class NSXCatalystUI
         end
 
         if command.start_with?('+') and (unixtime = NSXMiscUtils::codeToUnixtimeOrNull(command)) then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
+            object = catalystObjects.first
             return if object.nil?
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-            return
-        end
-
-        if command == ".." then
-            object = catalystObjects.select{|object| object["isFocus"]}.first
-            return if object.nil?
-            NSXCatalystUI::doTheObviousThingWithThis(object)
             return
         end
 
@@ -409,10 +326,6 @@ class NSXCatalystUI
         if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(
-                "float",
-                lambda { Floats::issueFloatInteractively() }
-            )
-            ms.item(
                 "asteroid",
                 lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
             )
@@ -428,6 +341,10 @@ class NSXCatalystUI
             NSXCatalystUI::dataPortalFront()
             return
         end
+
+        return if catalystObjects.size == 0
+
+        catalystObjects.first["execute"].call(command)
     end
 
     # NSXCatalystUI::standardUILoop()
@@ -449,7 +366,6 @@ class NSXCatalystUI
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            objects[0]["isFocus"] = true
             NSXCatalystUI::standardDisplay(objects)
         }
     end

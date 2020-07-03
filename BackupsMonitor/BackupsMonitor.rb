@@ -45,10 +45,11 @@ class BackupsMonitor
         return nil if !BackupsMonitor::scriptNameToIsDueFlag(scriptname)
         uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
         {
-            "uuid"    => uuid,
-            "body"    => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
-            "metric"  => 0.50,
-            "execute" => lambda{}
+            "uuid"     => uuid,
+            "body"     => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
+            "metric"   => 0.50,
+            "commands" => [],
+            "execute"  => lambda{|input| }
         }
     end
 

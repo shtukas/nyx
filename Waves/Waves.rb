@@ -215,8 +215,15 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
+        object["commands"] = []
+        object["execute"] = lambda { |input| 
+            if input == ".." then
+                Waves::openAndRunProcedure(wave)
+                return
+            end
+            Waves::waveDive(wave)
+        }
         object['schedule'] = schedule
-        object["execute"] = lambda { Waves::waveDive(wave) }
         object["x-wave"] = wave
         object
     end
@@ -227,17 +234,22 @@ class Waves
         DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
 
+    # Waves::commitToDisk(wave)
+    def self.commitToDisk(wave)
+        NyxSets::putObject(wave)
+    end
+
     # Waves::issueWave(uuid, description, schedule)
     def self.issueWave(uuid, description, schedule)
-        object = {
+        wave = {
             "uuid"             => uuid,
             "nyxNxSet"         => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "schedule"         => schedule
         }
-        NyxSets::putObject(object)
-        object
+        Waves::commitToDisk(wave)
+        wave
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
@@ -288,8 +300,8 @@ class Waves
         end
     end
 
-    # Waves::openProcedure(wave)
-    def self.openProcedure(wave)
+    # Waves::openAndRunProcedure(wave)
+    def self.openAndRunProcedure(wave)
         Waves::openItem(wave)
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
@@ -325,7 +337,7 @@ class Waves
 
             menuitems.item(
                 "open",
-                lambda { Waves::openProcedure(wave) }
+                lambda { Waves::openItem(wave) }
             )
 
             menuitems.item(
@@ -339,7 +351,7 @@ class Waves
                     description = CatalystCommon::editTextUsingTextmate(wave["description"])
                     return if description.nil?
                     wave["description"] = description
-                    NyxSets::putObject(wave)
+                    Waves::commitToDisk(wave)
                 }
             )
 
@@ -349,7 +361,7 @@ class Waves
                     schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                     return if schedule.nil?
                     wave["schedule"] = schedule
-                    NyxSets::putObject(wave)
+                    Waves::commitToDisk(wave)
                 }
             )
 

@@ -73,7 +73,6 @@ class NyxSets
     def self.nyxNxSets()
         # Duplicated in NyxCoreStoreObjects
         [
-            "1aaa9485-2c07-4b14-a5c3-ed1d6772ca19", # Interface Floats
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques

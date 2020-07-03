@@ -31,8 +31,13 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
             "name"             => name1
         }
-        NyxSets::putObject(clique)
+        Cliques::commitToDisk(clique)
         clique
+    end
+
+    # Cliques::commitToDisk(clique)
+    def self.commitToDisk(clique)
+        NyxSets::putObject(clique)
     end
 
     # Cliques::issueCliqueInteractivelyOrNull()
@@ -121,7 +126,7 @@ class Cliques
                 "rename", 
                 lambda{ 
                     clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
-                    NyxSets::putObject(clique)
+                    Cliques::commitToDisk(clique)
                 }
             )
 

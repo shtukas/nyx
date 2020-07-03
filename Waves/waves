@@ -63,13 +63,13 @@ loop {
         next if op.nil?
         if op == "edit description" then
             obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
-            NyxSets::putObject(obj)
+            Waves::commitToDisk(obj)
         end
         if op == "recast" then
             schedule = Waves::makeScheduleObjectInteractivelyOrNull()
             next if schedule.nil?
             obj["schedule"] = schedule
-            NyxSets::putObject(obj)
+            Waves::commitToDisk(obj)
         end
     end
 }

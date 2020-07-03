@@ -262,7 +262,7 @@ class Quarks
     # Quarks::issueQuarkFileOrFolderFromLocation(location)
     def self.issueQuarkFileOrFolderFromLocation(location)
         quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
-        NyxSets::putObject(quark)
+        Quarks::commitQuarkToDisk(quark)
         quark
     end
 
@@ -406,7 +406,7 @@ class Quarks
                         end
                     return if description == ""
                     quark["description"] = description
-                    NyxSets::putObject(quark)
+                    Quarks::commitQuarkToDisk(quark)
                 }
             )
 
@@ -589,7 +589,7 @@ class Quarks
     def self.ensureQuarkDescription(quark)
         if quark["description"].nil? then
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            NyxSets::putObject(quark)
+            Quarks::commitQuarkToDisk(quark)
         end
         quark
     end
@@ -616,7 +616,7 @@ class Quarks
         # inherit the links of the old one.
         newquark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
         newquark["uuid"] = quark["uuid"] # uuid override
-        NyxSets::putObject(newquark)
+        Quarks::commitQuarkToDisk(newquark)
         newquark
     end
 end

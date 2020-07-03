@@ -45,8 +45,8 @@ class NSXCatalystObjectsOperator
             "uuid"             => SecureRandom.hex,
             "body"             => "asteroids monitoring (X02394e74c407)",
             "metric"           => 0.99,
-
-            "execute"          => lambda {
+            "commands"         => [],
+            "execute"          => lambda { |input|
 
                 uuids
                     .each_with_index{|uuid, indx|
@@ -62,7 +62,7 @@ class NSXCatalystObjectsOperator
 
                         if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
                             asteroid["X02394e74c407"] = true
-                            NyxSets::putObject(asteroid)
+                            Asteroids::commitToDisk(asteroid)
                             next
                         end
 
@@ -87,7 +87,7 @@ class NSXCatalystObjectsOperator
 
                         if LucilleCore::askQuestionAnswerAsBoolean("mark as reviewed ? ", true) then
                             asteroid["X02394e74c407"] = true
-                            NyxSets::putObject(asteroid)
+                            Asteroids::commitToDisk(asteroid)
                             next
                         end
 
@@ -114,7 +114,7 @@ class NSXCatalystObjectsOperator
                                 "mark as reviewed",
                                 lambda { 
                                     asteroid["X02394e74c407"] = true
-                                    NyxSets::putObject(asteroid)
+                                    Asteroids::commitToDisk(asteroid)
                                 }
                             )
                             ms.item(
@@ -159,7 +159,7 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = [
             Anniversaries::catalystObjects(),
-            Asteroids::catalystObjects(),
+            $charlotte.catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             VideoStream::catalystObjects(),

@@ -61,11 +61,18 @@ class Asteroids
         NyxSets::getObjectOrNull(uuid)
     end
 
+    # Asteroids::commitToDisk(asteroid)
+    def self.commitToDisk(asteroid)
+        NyxSets::putObject(asteroid)
+        $charlotte.incomingAsteroid(asteroid)
+    end
+
     # Asteroids::makePayloadInteractivelyOrNull()
     def self.makePayloadInteractivelyOrNull()
         options = [
             "description",
-            "quark"
+            "quark",
+            "clique"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
         return nil if option.nil?
@@ -84,27 +91,46 @@ class Asteroids
                 "quarkuuid" => quark["uuid"]
             }
         end
+        if option == "clique" then
+            clique = Cliques::selectCliqueFromExistingCliquesOrNull()
+            return nil if clique.nil?
+            return {
+                "type"       => "clique",
+                "cliqueuuid" => clique["uuid"]
+            }
+        end
         nil
     end
 
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
+        opt0 = "top priority"
         opt1 = "single day time commitment"
         opt2 = "repeating daily time commitment"
         opt3 = "on going until completion"
         opt4 = "indefinite"
+        opt6 = "float to do today"
+        opt7 = "open project in the background"
         opt5 = "todo"
 
         options = [
+            opt0,
             opt1,
             opt2,
             opt3,
             opt4,
+            opt6,
+            opt7,
             opt5,
         ]
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
+        if option == opt0 then
+            return {
+                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
+            }
+        end
         if option == opt1 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
@@ -134,6 +160,16 @@ class Asteroids
                 "type"                  => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
             }
         end
+        if option == opt6 then
+            return {
+                "type"                  => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+            }
+        end
+        if option == opt7 then
+            return {
+                "type"                  => "open-project-in-the-background-b458aa91-6e1"
+            }
+        end
         nil
     end
 
@@ -155,7 +191,7 @@ class Asteroids
             "payload"  => payload,
             "orbital"  => orbital
         }
-        NyxSets::putObject(asteroid)
+        Asteroids::commitToDisk(asteroid)
         asteroid
     end
 
@@ -182,6 +218,10 @@ class Asteroids
                 quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
                 return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
             end
+            if payload["type"] == "clique" then
+                clique = Cliques::getOrNull(asteroid["payload"]["cliqueuuid"])
+                return clique ? (" " + Cliques::cliqueToString(clique)) : " [could not find clique]"
+            end
             raise "[Asteroids] error: CE8497BB"
         }
         orbitalFragment = lambda{|asteroid|
@@ -195,11 +235,14 @@ class Asteroids
             ""
         }
         typeAsUserFriendly = lambda {|type|
+            return "‼️ "  if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
             return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
             return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
             return "⛲"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
             return "👩‍💻"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            return "☀️ " if type == "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+            return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
         }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
@@ -230,7 +273,7 @@ class Asteroids
         return if payload.nil?
         asteroid["payload"] = payload
         puts JSON.pretty_generate(asteroid)
-        NyxSets::putObject(asteroid)
+        Asteroids::commitToDisk(asteroid)
     end
 
     # Asteroids::reorbital(asteroid)
@@ -239,7 +282,7 @@ class Asteroids
         return if orbital.nil?
         asteroid["orbital"] = orbital
         puts JSON.pretty_generate(asteroid)
-        NyxSets::putObject(asteroid)
+        Asteroids::commitToDisk(asteroid)
     end
 
     # Asteroids::asteroidDive(asteroid)
@@ -305,15 +348,29 @@ class Asteroids
                 }
             )
 
-            menuitems.item(
-                "quark (dive)",
-                lambda {
-                    quarkuuid = asteroid["payload"]["quarkuuid"]
-                    quark = Quarks::getOrNull(quarkuuid)
-                    return if quark.nil?
-                    Quarks::quarkDive(quark)
-                }
-            )
+            if asteroid["payload"]["type"] == "quark" then
+                menuitems.item(
+                    "quark (dive)",
+                    lambda {
+                        quarkuuid = asteroid["payload"]["quarkuuid"]
+                        quark = Quarks::getOrNull(quarkuuid)
+                        return if quark.nil?
+                        Quarks::quarkDive(quark)
+                    }
+                )
+            end
+
+            if asteroid["payload"]["type"] == "clique" then
+                menuitems.item(
+                    "clique (dive)",
+                    lambda {
+                        cliqueuuid = asteroid["payload"]["cliqueuuid"]
+                        clique = Cliques::getOrNull(cliqueuuid)
+                        return if clique.nil?
+                        Cliques::cliqueDive(clique)
+                    }
+                )
+            end
 
             menuitems.item(
                 "destroy",
@@ -347,6 +404,10 @@ class Asteroids
 
         return 1 if Asteroids::isRunning?(asteroid)
 
+        if orbital["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
+            return 0.72 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+        end
+
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
             return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
@@ -366,40 +427,19 @@ class Asteroids
             return Metrics::metricNX1RequiredValueAndThenFall(0.64, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
         end
 
+        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+            return 0.60 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+        end
+
+        if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then
+            return 0.21 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+        end
+
         if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
             return 0.49 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
         end
 
         puts asteroid
-        raise "[Asteroids] error: 46b84bdb"
-    end
-
-    # Asteroids::isLate?(asteroid)
-    def self.isLate?(asteroid)
-        uuid = asteroid["uuid"]
-
-        orbital = asteroid["orbital"]
-
-        if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return true
-        end
-
-        if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            return true
-        end
-
-        if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
-            return false
-        end
-
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            return false
-        end
-
-        if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-            return false
-        end
-
         raise "[Asteroids] error: 46b84bdb"
     end
 
@@ -424,53 +464,32 @@ class Asteroids
     def self.isRunningForLong?(asteroid)
         uuid = asteroid["uuid"]
         orbital = asteroid["orbital"]
- 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            if Asteroids::bankValueLive(asteroid)  >= orbital["timeCommitmentInHours"]*3600 then
+            if Asteroids::bankValueLive(asteroid) >= orbital["timeCommitmentInHours"]*3600 then
                 return true
             end
         end
-
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
     end
 
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
         uuid = asteroid["uuid"]
-
         {
             "uuid"             => uuid,
             "body"             => Asteroids::asteroidToString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
-            "execute"          => lambda { Asteroids::asteroidDive(asteroid) },
-            "isFocus"          => Asteroids::isLate?(asteroid),
+            "commands"         => [],
+            "execute"          => lambda { |input| Asteroids::asteroidDive(asteroid) },
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid
         }
     end
 
-    # Asteroids::precompileTopUUIDsForListing()
-    def self.precompileTopUUIDsForListing()
-        objects = Asteroids::asteroids()
-                    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
-                    .first(20)
-        uuids = objects
-                    .map{|object| object["x-asteroid"]["uuid"] }
-        KeyValueStore::set(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", JSON.generate(uuids))
-    end
-
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("a214b4b8-a6be-4f18-8cd6-8b9d9d8df3a2", 3600) then
-            Asteroids::precompileTopUUIDsForListing()
-        end
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "60463313-4264-4b0e-8802-6ff367b7b11f", "[]"))
-            .map{|uuid| Asteroids::getOrNull(uuid) }
-            .compact
+        Asteroids::asteroids()
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
@@ -565,3 +584,40 @@ class Asteroids
     end
 end
 
+class CatalystObjectsManager
+    def initialize()
+
+    end
+    def computeAndCacheSubsetOfUUIDs()
+        uuids = Asteroids::catalystObjects()
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
+                    .first(50)
+                    .map{|object| object["x-asteroid"]["uuid"] }
+        KeyValueStore::set(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", JSON.generate(uuids))
+    end
+    def getCachedUUIDs()
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", "[]"))
+    end
+    def catalystObjects()
+        getCachedUUIDs()
+            .map{|uuid| Asteroids::getOrNull(uuid) }
+            .compact
+            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+    end
+    def incomingAsteroid(asteroid)
+        uuids = getCachedUUIDs() + [asteroid["uuid"]]
+        KeyValueStore::set(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", JSON.generate(uuids))
+    end
+end
+
+$charlotte = CatalystObjectsManager.new()
+
+Thread.new {
+    loop {
+        sleep 60
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f0e7adf3-0138-4234-a0e6-f7f50f45fbb1", 3600) then
+            $charlotte.computeAndCacheSubsetOfUUIDs()
+        end
+    }
+}

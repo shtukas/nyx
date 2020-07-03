@@ -58,8 +58,6 @@ require_relative "NSXGeneralSearch.rb"
 require_relative "NSXEstateServices.rb"
 require_relative "NSXMiscUtils.rb"
 
-require_relative "Floats.rb"
-
 # -------------------------------------------------------------------------
 
 CATALYST_RUN_HASH = SecureRandom.hex
@@ -81,15 +79,6 @@ Thread.new {
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
             }
         sleep 60
-    }
-}
-
-Thread.new {
-    loop {
-        sleep 60
-        Asteroids::precompileTopUUIDsForListing()
-        ProgrammableBooleans::resetTrueNoMoreOften("a214b4b8-a6be-4f18-8cd6-8b9d9d8df3a2")
-        sleep 600
     }
 }
 
