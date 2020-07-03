@@ -293,14 +293,21 @@ class Asteroids
             return if asteroid.nil?
 
             system("clear")
+
+            CatalystCommon::horizontalRule(false)
+
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
+
+            CatalystCommon::horizontalRule(true)
 
             puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
             puts "Ping 24 hours  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
             puts "Ping 7 days    : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
 
             menuitems = LCoreMenuItemsNX1.new()
+
+            CatalystCommon::horizontalRule(true)
 
             menuitems.item(
                 "open",
@@ -381,6 +388,8 @@ class Asteroids
                     end
                 }
             )
+
+            CatalystCommon::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status

@@ -319,6 +319,8 @@ class Waves
             wave = Waves::getOrNull(wave["uuid"])
             return if wave.nil?
 
+            CatalystCommon::horizontalRule(false)
+
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
 
@@ -328,6 +330,8 @@ class Waves
             end
 
             menuitems = LCoreMenuItemsNX1.new()
+
+            CatalystCommon::horizontalRule(true)
 
             menuitems.item(
                 "start",
@@ -377,6 +381,8 @@ class Waves
                     end
                 }
             )
+
+            CatalystCommon::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status

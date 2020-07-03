@@ -127,4 +127,17 @@ class CatalystCommon
     def self.getNewValueEveryNSeconds(uuid, n)
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
+
+    # CatalystCommon::screenWidth()
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    # CatalystCommon::horizontalRule(withLineSkip)
+    def self.horizontalRule(withLineSkip)
+      if withLineSkip then
+        puts ""
+      end
+      puts "-" * (NSXMiscUtils::screenWidth()-1)
+    end
 end

@@ -117,10 +117,15 @@ class Cliques
             return if clique.nil? # could have been destroyed in a previous loop
 
             system("clear")
+
+            CatalystCommon::horizontalRule(false)
+
             puts Cliques::cliqueToString(clique).green
             puts "uuid: #{clique["uuid"]}"
 
             menuitems = LCoreMenuItemsNX1.new()
+
+            CatalystCommon::horizontalRule(true)
 
             menuitems.item(
                 "rename", 
@@ -172,7 +177,7 @@ class Cliques
                 }
             )
 
-            puts ""
+            CatalystCommon::horizontalRule(true)
 
             NyxRoles::getRolesForTarget(clique["uuid"])
                 .each{|object| 
@@ -181,8 +186,6 @@ class Cliques
                         lambda { NyxRoles::objectDive(object) }
                     )
                 }
-
-            puts ""
 
             Bosons::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
@@ -193,6 +196,8 @@ class Cliques
                         lambda { NyxGenericObjectInterface::objectDive(object) }
                     )
                 }
+
+            CatalystCommon::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status

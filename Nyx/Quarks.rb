@@ -385,11 +385,16 @@ class Quarks
             return if quark.nil? # Could have been destroyed in the previous loop
 
             system("clear")
+
+            CatalystCommon::horizontalRule(false)
+
             puts Quarks::quarkToString(quark).green
             puts "uuid: #{quark["uuid"]}"
 
+
             menuitems = LCoreMenuItemsNX1.new()
 
+            CatalystCommon::horizontalRule(true)
             menuitems.item(
                 "open", 
                 lambda{ Quarks::openQuark(quark) }
@@ -481,7 +486,7 @@ class Quarks
                 }
             )
 
-            puts ""
+            CatalystCommon::horizontalRule(true)
 
             NyxRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| 
@@ -491,8 +496,6 @@ class Quarks
                     )
                 }
 
-            puts ""
-
             QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])
                 .each{|tag|
                     menuitems.item(
@@ -500,8 +503,6 @@ class Quarks
                         lambda { QuarkTags::tagDive(tag) }
                     )
                 }
-
-            puts ""
 
             Bosons::getLinkedObjects(quark)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
@@ -512,6 +513,8 @@ class Quarks
                         lambda { NyxGenericObjectInterface::objectDive(object) }
                     )
                 }
+
+            CatalystCommon::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status
