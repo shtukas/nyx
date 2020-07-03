@@ -601,7 +601,7 @@ class Asteroids
                 Asteroids::asteroidDestructionQuarkHandling(quark)
             end
         end
-        NyxSets::destroy(asteroid["uuid"])
+        NyxSets::destroyObject(asteroid["uuid"])
     end
 
     # Asteroids::openPayload(asteroid)

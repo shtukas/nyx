@@ -116,8 +116,8 @@ class NyxSets
         BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid)
     end
 
-    # NyxSets::destroy(uuid)
-    def self.destroy(uuid)
+    # NyxSets::destroyObject(uuid)
+    def self.destroyObject(uuid)
         NyxSets::nyxNxSets()
             .each{|setid| BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid) }
     end

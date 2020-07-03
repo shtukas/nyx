@@ -167,7 +167,7 @@ class Cliques
                 "clique (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                        NyxSets::destroy(clique["uuid"])
+                        NyxSets::destroyObject(clique["uuid"])
                     end
                 }
             )
@@ -255,7 +255,7 @@ class Cliques
             .each{|object|
                 Bosons::link(clique1, object)
             }
-        NyxSets::destroy(clique2["uuid"])
+        NyxSets::destroyObject(clique2["uuid"])
     end
 
     # Cliques::interactivelySelectTwoCliquesAndMerge()

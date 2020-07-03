@@ -107,7 +107,7 @@ class Bosons
                 b1 or b2
             }
             .each{|link|
-                NyxSets::destroy(link["uuid"])
+                NyxSets::destroyObject(link["uuid"])
             }
     end
 

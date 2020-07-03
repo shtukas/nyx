@@ -274,7 +274,7 @@ class Quarks
 
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
-        NyxSets::destroy(uuid)
+        NyxSets::destroyObject(uuid)
     end
 
     # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
@@ -476,7 +476,7 @@ class Quarks
                 "quark (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
-                        NyxSets::destroy(quark["uuid"])
+                        NyxSets::destroyObject(quark["uuid"])
                     end
                 }
             )
