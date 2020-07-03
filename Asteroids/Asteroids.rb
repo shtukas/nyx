@@ -645,7 +645,7 @@ class CatalystObjectsManager
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
     def incomingAsteroid(asteroid)
-        uuids = getCachedUUIDs() + [asteroid["uuid"]]
+        uuids = (getCachedUUIDs() + [asteroid["uuid"]]).uniq
         KeyValueStore::set(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", JSON.generate(uuids))
     end
 end
