@@ -227,10 +227,13 @@ class Asteroids
         orbitalFragment = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-                return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Bank::value(uuid).to_f/3600).round(2)} hours)"
+                return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
             end
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                return " (repeating daily: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, today: #{(Ping::totalToday(uuid).to_f/3600).round(2)} hours)"
+                return " (repeating daily: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, today: #{(Asteroids::pingTodayValueLive(asteroid).to_f/3600).round(2)} hours)"
+            end
+            if asteroid["orbital"]["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
+                return " (indefinite: today: #{(Asteroids::pingTodayValueLive(asteroid).to_f/3600).round(2)} hours, #{(100*Asteroids::pingTodayValueLive(asteroid).to_f/1800).round(2)} %)"
             end
             ""
         }
@@ -464,6 +467,12 @@ class Asteroids
         Bank::value(uuid) + Asteroids::runTimeIfAny(asteroid)
     end
 
+    # Asteroids::pingTodayValueLive(asteroid)
+    def self.pingTodayValueLive(asteroid)
+        uuid = asteroid["uuid"]
+        Ping::totalToday(uuid) + Asteroids::runTimeIfAny(asteroid)
+    end
+
     # Asteroids::isRunning?(asteroid)
     def self.isRunning?(asteroid)
         Runner::isRunning?(asteroid["uuid"])
@@ -477,6 +486,12 @@ class Asteroids
             if Asteroids::bankValueLive(asteroid) >= orbital["timeCommitmentInHours"]*3600 then
                 return true
             end
+        end
+        if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
+            return Asteroids::pingTodayValueLive(asteroid) >= 3600
+        end
+        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
+            return Asteroids::pingTodayValueLive(asteroid) >= 1800
         end
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
     end
