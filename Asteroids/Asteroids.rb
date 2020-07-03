@@ -515,16 +515,23 @@ class Asteroids
 
                 if input == ".." and Runner::isRunning?(uuid) and typesThatTerminate.include?(asteroid["orbital"]["type"]) then
                     Asteroids::asteroidStopSequence(asteroid)
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", true) then
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
-                            Asteroids::asteroidDestroySequence(asteroid)
-                        end
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
+                        Asteroids::asteroidDestroySequence(asteroid)
                     end
                     return
                 end
 
                 if input == ".." and Runner::isRunning?(uuid) then
                     Asteroids::asteroidStopSequence(asteroid)
+                    return
+                end
+
+                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" and asteroid["payload"]["type"] == "description" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? (if no, then will start): ") then
+                        Asteroids::asteroidDestroySequence(asteroid)
+                        return
+                    end
+                    Asteroids::asteroidStartSequence(asteroid)
                     return
                 end
 
