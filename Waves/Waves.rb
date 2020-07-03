@@ -215,10 +215,14 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
-        object["commands"] = []
+        object["commands"] = ["done"]
         object["execute"] = lambda { |input| 
             if input == ".." then
                 Waves::openAndRunProcedure(wave)
+                return
+            end
+            if input == "done" then
+                Waves::performDone(wave)
                 return
             end
             Waves::waveDive(wave)
@@ -228,10 +232,10 @@ class Waves
         object
     end
 
-    # Waves::performDone(obj)
-    def self.performDone(obj)
-        unixtime = Waves::scheduleToDoNotShowUnixtime(obj["uuid"], obj['schedule'])
-        DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
+    # Waves::performDone(wave)
+    def self.performDone(wave)
+        unixtime = Waves::scheduleToDoNotShowUnixtime(wave["uuid"], wave['schedule'])
+        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
     # Waves::commitToDisk(wave)

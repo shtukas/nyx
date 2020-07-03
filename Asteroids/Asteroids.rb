@@ -480,7 +480,37 @@ class Asteroids
             "body"             => Asteroids::asteroidToString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
             "commands"         => [],
-            "execute"          => lambda { |input| Asteroids::asteroidDive(asteroid) },
+            "execute"          => lambda { |input|
+
+                typesThatTerminate = [
+                    "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+                    "on-going-until-completion-5b26f145-7ebf-498",
+                    "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+                    "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                ]
+
+                if input == ".." and Runner::isRunning?(uuid) and typesThatTerminate.include?(asteroid["orbital"]["type"]) then
+                    Asteroids::asteroidStopSequence(asteroid)
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", true) then
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
+                            Asteroids::asteroidDestroySequence(asteroid)
+                        end
+                    end
+                    return
+                end
+
+                if input == ".." and Runner::isRunning?(uuid) then
+                    Asteroids::asteroidStopSequence(asteroid)
+                    return
+                end
+
+                if input == ".." and !Runner::isRunning?(uuid) then
+                    Asteroids::asteroidStartSequence(asteroid)
+                    return
+                end
+
+                Asteroids::asteroidDive(asteroid) 
+            },
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid
