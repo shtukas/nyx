@@ -71,8 +71,8 @@ class Bosons
     def self.linked?(object1, object2)
         Bosons::getLinks()
             .any?{|link| 
-                b1 = link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"]
-                b2 = link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"]
+                b1 = ((link["uuid1"] == object1["uuid"]) and (link["uuid2"] == object2["uuid"]))
+                b2 = ((link["uuid1"] == object2["uuid"]) and (link["uuid2"] == object1["uuid"]))
                 b1 or b2
             }
     end
@@ -102,8 +102,8 @@ class Bosons
     def self.unlink(object1, object2)
         Bosons::getLinks()
             .select{|link| 
-                b1 = link["uuid1"] == object1["uuid"] and link["uuid2"] == object2["uuid"]
-                b2 = link["uuid1"] == object2["uuid"] and link["uuid2"] == object1["uuid"]
+                b1 = ((link["uuid1"] == object1["uuid"]) and (link["uuid2"] == object2["uuid"]))
+                b2 = ((link["uuid1"] == object2["uuid"]) and (link["uuid2"] == object1["uuid"]))
                 b1 or b2
             }
             .each{|link|
