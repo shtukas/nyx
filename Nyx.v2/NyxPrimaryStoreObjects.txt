@@ -1,5 +1,5 @@
 
-The Objects that go to the object store ( eg: `NyxCoreStoreObjects::put(object)` ), need to have the three following attributes
+The Objects that go to the object store ( eg: `NyxPrimaryStoreObjects::put(object)` ), need to have the three following attributes
 
     - uuid                : String
     - nyxNxSet            : String

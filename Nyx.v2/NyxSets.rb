@@ -71,7 +71,7 @@ class NyxSets
 
     # NyxSets::nyxNxSets()
     def self.nyxNxSets()
-        # Duplicated in NyxCoreStoreObjects
+        # Duplicated in NyxPrimaryStoreObjects
         [
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves

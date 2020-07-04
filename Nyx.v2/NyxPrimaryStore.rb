@@ -74,42 +74,42 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Drives.rb
 
 # ------------------------------------------------------------------------
 
-class NyxCoreStoreBlobs
+class NyxPrimaryStoreBlobs
 
-    # NyxCoreStoreBlobs::namedhashToBlobsFilepath(namedhash)
+    # NyxPrimaryStoreBlobs::namedhashToBlobsFilepath(namedhash)
     def self.namedhashToBlobsFilepath(namedhash)
         if namedhash.start_with?("SHA256-") then
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
             fragment3 = namedhash[11, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
             return filepath
         end
-        raise "[NyxCoreStoreUtils: a9c49293-497f-4371-98a5-6d71a7f1ba80]"
+        raise "[NyxPrimaryStoreUtils: a9c49293-497f-4371-98a5-6d71a7f1ba80]"
     end
 
-    # NyxCoreStoreBlobs::put(blob) # namedhash
+    # NyxPrimaryStoreBlobs::put(blob) # namedhash
     def self.put(blob)
         namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = NyxCoreStoreBlobs::namedhashToBlobsFilepath(namedhash)
+        filepath = NyxPrimaryStoreBlobs::namedhashToBlobsFilepath(namedhash)
         File.open(filepath, "w") {|f| f.write(blob) }
         namedhash
     end
 
-    # NyxCoreStoreBlobs::getBlobOrNull(namedhash)
+    # NyxPrimaryStoreBlobs::getBlobOrNull(namedhash)
     def self.getBlobOrNull(namedhash)
-        filepath = NyxCoreStoreBlobs::namedhashToBlobsFilepath(namedhash)
+        filepath = NyxPrimaryStoreBlobs::namedhashToBlobsFilepath(namedhash)
         return nil if !File.exists?(filepath)
         IO.read(filepath)
     end
 end
 
-class NyxCoreStoreObjects
+class NyxPrimaryStoreObjects
 
-    # NyxCoreStoreObjects::nyxNxSets()
+    # NyxPrimaryStoreObjects::nyxNxSets()
     def self.nyxNxSets()
         # Duplicated in NyxSets
         [
@@ -122,44 +122,44 @@ class NyxCoreStoreObjects
         ]
     end
 
-    # NyxCoreStoreObjects::namedhashToObjectsFilepath(namedhash)
+    # NyxPrimaryStoreObjects::namedhashToObjectsFilepath(namedhash)
     def self.namedhashToObjectsFilepath(namedhash)
         if namedhash.start_with?("SHA256-") then
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
             fragment3 = namedhash[11, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
             return filepath
         end
-        raise "[NyxCoreStoreUtils: a10f1670-b694-4937-b155-cbfa695b784a]"
+        raise "[NyxPrimaryStoreUtils: a10f1670-b694-4937-b155-cbfa695b784a]"
     end
 
-    # NyxCoreStoreObjects::put(object) # namedhash
+    # NyxPrimaryStoreObjects::put(object) # namedhash
     def self.put(object)
         if object["uuid"].nil? then
-            raise "[NyxCoreStoreObjects::put b45f7d8a] #{object}"
+            raise "[NyxPrimaryStoreObjects::put b45f7d8a] #{object}"
         end
         if object["nyxNxSet"].nil? then
-            raise "[NyxCoreStoreObjects::put fd215c77] #{object}"
+            raise "[NyxPrimaryStoreObjects::put fd215c77] #{object}"
         end
-        if !NyxCoreStoreObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxCoreStoreObjects::nyxNxSets c883b1e7] #{object}"
+        if !NyxPrimaryStoreObjects::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxPrimaryStoreObjects::nyxNxSets c883b1e7] #{object}"
         end
         object["nyxNxStoreTimestamp"] = Time.new.to_f
         blob = JSON.generate(object)
         namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = NyxCoreStoreObjects::namedhashToObjectsFilepath(namedhash)
+        filepath = NyxPrimaryStoreObjects::namedhashToObjectsFilepath(namedhash)
         File.open(filepath, "w") {|f| f.write(blob) }
         namedhash
     end
 
-    # NyxCoreStoreObjects::objectsEnumerator()
+    # NyxPrimaryStoreObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
-            Find.find("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Core-Store/objects") do |path|
+            Find.find("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/objects") do |path|
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
                 objects << JSON.parse(IO.read(path))
