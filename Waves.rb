@@ -248,7 +248,7 @@ class Waves
         wave = {
             "uuid"             => uuid,
             "nyxNxSet"         => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "schedule"         => schedule
         }
@@ -399,7 +399,7 @@ class Waves
             .map{|wave|
                 {
                     "description"   => "[wave] #{wave["description"]}",
-                    "referencetime" => wave["creationUnixtime"],
+                    "referencetime" => wave["unixtime"],
                     "dive"          => lambda { Waves::waveDive(wave) }
                 }
             }

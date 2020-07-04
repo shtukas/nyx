@@ -5,54 +5,65 @@ Quark
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "creationUnixtime" : Float # Unixtime with decimals
+    "unixtime" : Float # Unixtime with decimals
 
     "description"      : nil | String
 
     "type"             : "line"
     "line"             : String
+
+    "linkedTo"         : Array[String] # uuids of linked objects
+
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "creationUnixtime" : Float # Unixtime with decimals
+    "unixtime" : Float # Unixtime with decimals
 
     "description"      : nil | String
 
     "type"             : "url"
     "url"              : String
+
+    "linkedTo"         : Array[String] # uuids of linked objects
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "creationUnixtime" : Float # Unixtime with decimals
+    "unixtime" : Float # Unixtime with decimals
 
     "description"      : nil | String
 
     "type"             : "file"
     "filename"         : String (Librarian managed)
+
+    "linkedTo"         : Array[String] # uuids of linked objects
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "creationUnixtime" : Float # Unixtime with decimals
+    "unixtime" : Float # Unixtime with decimals
 
     "description"      : nil | String
 
     "type"             : "folder"
     "foldername"       : String (Librarian managed)
+
+    "linkedTo"         : Array[String] # uuids of linked objects
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "creationUnixtime" : Float # Unixtime with decimals
+    "unixtime" : Float # Unixtime with decimals
 
     "description"      : nil | String
 
     "type"             : "unique-name"
     "name"             : String # Use Atlas to find them
+
+    "linkedTo"         : Array[String] # uuids of linked objects
 }

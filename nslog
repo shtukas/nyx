@@ -38,4 +38,12 @@ require_relative "Quarks.rb"
 
 # --------------------------------------------------------------------
 
+QuarkTags::tags()
+.each{|object|
+    puts JSON.pretty_generate(object)
+    object["unixtime"] = object["unixtime"]
+    puts JSON.pretty_generate(object)
+    NyxObjects::put(object)
+}
+
 exit

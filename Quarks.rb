@@ -56,7 +56,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => line,
             "type"             => "line",
             "line"             => line
@@ -68,7 +68,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "url",
             "url"              => url
@@ -95,7 +95,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
             "filename"         => filename2
@@ -111,7 +111,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "type"             => "file",
             "filename"         => filename2
         }
@@ -124,7 +124,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
             "filename"         => filename
@@ -136,7 +136,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "file",
             "filename"         => filename
@@ -156,7 +156,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "folder",
             "foldername"       => foldername2
@@ -177,7 +177,7 @@ class QuarksMakers
             {
                 "uuid"             => SecureRandom.uuid,
                 "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "creationUnixtime" => Time.new.to_f,
+                "unixtime" => Time.new.to_f,
                 "type"             => "file",
                 "filename"         => filename2
             }
@@ -192,7 +192,7 @@ class QuarksMakers
             {
                 "uuid"             => SecureRandom.uuid,
                 "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "creationUnixtime" => Time.new.to_f,
+                "unixtime" => Time.new.to_f,
                 "type"             => "folder",
                 "foldername"       => foldername2
             }
@@ -207,7 +207,7 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "unique-name",
             "name"             => uniquename
@@ -269,7 +269,7 @@ class Quarks
     # Quarks::quarks()
     def self.quarks()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
-            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Quarks::destroyQuarkByUUID(uuid)
@@ -526,7 +526,7 @@ class Quarks
         loop {
             ms = LCoreMenuItemsNX1.new()
             Quarks::quarks()
-                .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
+                .sort{|q1, q2| q1["unixtime"]<=>q2["unixtime"] }
                 .each{|quark|
                     ms.item(
                         Quarks::quarkToString(quark), 
@@ -565,7 +565,7 @@ class Quarks
             .map{|quark|
                 {
                     "description"   => Quarks::quarkToString(quark),
-                    "referencetime" => quark["creationUnixtime"],
+                    "referencetime" => quark["unixtime"],
                     "dive"          => lambda{ Quarks::quarkDive(quark) }
                 }
             }

@@ -82,16 +82,16 @@ class NyxGenericObjectInterface
     # NyxGenericObjectInterface::objectLastActivityUnixtime(object)
     def self.objectLastActivityUnixtime(object)
         if object["nyxNxSet"] == "cube-933c2260-92d1-4578-9aaf-cd6557c664c6" then
-            return object["quarks"].map{|quark| quark["creationUnixtime"] }.max
+            return object["quarks"].map{|quark| quark["unixtime"] }.max
         end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::getLastActivityUnixtime(object)
         end
         if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            return object["creationUnixtime"]
+            return object["unixtime"]
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
-            return object["creationUnixtime"]
+            return object["unixtime"]
         end
         puts object
         raise "Error: d66bdffa"

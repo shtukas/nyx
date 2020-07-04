@@ -26,11 +26,11 @@ class QuarkTags
     # QuarkTags::issueTag(quarkuuid, payload)
     def self.issueTag(quarkuuid, payload)
         tag = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         => "a00b82aa-c047-4497-82bf-16c7206913e4",
-            "creationUnixtime" => Time.new.to_f,
-            "quarkuuid"        => quarkuuid,
-            "payload"          => payload
+            "uuid"      => SecureRandom.uuid,
+            "nyxNxSet"  => "a00b82aa-c047-4497-82bf-16c7206913e4",
+            "unixtime"  => Time.new.to_f,
+            "quarkuuid" => quarkuuid,
+            "payload"   => payload
         }
         NyxObjects::put(tag)
         tag
@@ -56,7 +56,7 @@ class QuarkTags
     # QuarkTags::tags()
     def self.tags()
         NyxObjects::getSet("a00b82aa-c047-4497-82bf-16c7206913e4")
-            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # QuarkTags::getQuarkTagsByExactPayload(payload)
@@ -113,7 +113,7 @@ class QuarkTags
             .map{|tag|
                 {
                     "description"   => QuarkTags::tagToString(tag),
-                    "referencetime" => tag["creationUnixtime"],
+                    "referencetime" => tag["unixtime"],
                     "dive"          => lambda{ QuarkTags::tagDive(tag) }
                 }
             }

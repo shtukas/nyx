@@ -28,7 +28,7 @@ class Cliques
         clique = {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
-            "creationUnixtime" => Time.new.to_f,
+            "unixtime" => Time.new.to_f,
             "name"             => name1
         }
         Cliques::commitToDisk(clique)
@@ -62,7 +62,7 @@ class Cliques
     # Cliques::cliques()
     def self.cliques()
         NyxObjects::getSet("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
-            .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Cliques::selectCliqueFromExistingCliquesOrNull()
@@ -213,7 +213,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["creationUnixtime"] ] + Bosons::getLinkedObjects(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
+        times = [ clique["unixtime"] ] + Bosons::getLinkedObjects(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
         times.max
     end
 
@@ -223,7 +223,7 @@ class Cliques
             ms = LCoreMenuItemsNX1.new()
 
             Cliques::cliques()
-                .sort{|q1, q2| q1["creationUnixtime"]<=>q2["creationUnixtime"] }
+                .sort{|q1, q2| q1["unixtime"]<=>q2["unixtime"] }
                 .each{|clique|
                     ms.item(
                         Cliques::cliqueToString(clique), 
@@ -247,7 +247,7 @@ class Cliques
             .map{|clique|
                 {
                     "description"   => Cliques::cliqueToString(clique),
-                    "referencetime" => clique["creationUnixtime"],
+                    "referencetime" => clique["unixtime"],
                     "dive"          => lambda{ Cliques::cliqueDive(clique) }
                 }
             }
