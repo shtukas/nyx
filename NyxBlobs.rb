@@ -17,6 +17,9 @@ require 'find'
 
 class NyxBlobs
 
+    # -----------------------------------------------
+    # Private
+
     # NyxBlobs::namedHashToBlobFilepath(namedhash)
     def self.namedHashToBlobFilepath(namedhash)
         if namedhash.start_with?("SHA256-") then
@@ -31,6 +34,9 @@ class NyxBlobs
         end
         raise "[NyxPrimaryStoreUtils: a9c49293-497f-4371-98a5-6d71a7f1ba80]"
     end
+
+    # -----------------------------------------------
+    # Public
 
     # NyxBlobs::put(blob) # namedhash
     def self.put(blob)

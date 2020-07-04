@@ -5,7 +5,7 @@
 The operator is an object that has meet the following signatures
 
     .commitBlob(blob: BinaryData) : Hash
-    .filepathToHash(filepath) : Hash
+    .filepathToContentHash(filepath) : Hash
     .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
     .datablobCheck(nhash: Hash): Boolean
     .shouldCommitFile(filepath) : Boolean
@@ -110,7 +110,7 @@ class ShadowFS
                 "aionType" => "file",
                 "name"     => File.basename(filepath),
                 "size"     => File.size(filepath),
-                "hash"     => operator.filepathToHash(filepath),
+                "hash"     => operator.filepathToContentHash(filepath),
                 "parts"    => ShadowFS::commitFileReturnPartsHashs(operator, filepath)
             }
         else
@@ -223,7 +223,7 @@ class ShadowFSOperator
         nhash
     end
 
-    def filepathToHash(filepath)
+    def filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
