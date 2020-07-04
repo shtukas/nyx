@@ -37,7 +37,7 @@ class Cliques
 
     # Cliques::commitToDisk(clique)
     def self.commitToDisk(clique)
-        NyxSets::putObject(clique)
+        NyxObjects::put(clique)
     end
 
     # Cliques::issueCliqueInteractivelyOrNull()
@@ -56,12 +56,12 @@ class Cliques
 
     # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxSets::getObjectOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
     end
 
     # Cliques::cliques()
     def self.cliques()
-        NyxSets::objects("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
+        NyxObjects::getSet("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
@@ -112,7 +112,7 @@ class Cliques
     def self.cliqueDive(clique)
         loop {
 
-            clique = NyxSets::getObjectOrNull(clique["uuid"])
+            clique = NyxObjects::getOrNull(clique["uuid"])
 
             return if clique.nil? # could have been destroyed in a previous loop
 
@@ -172,7 +172,7 @@ class Cliques
                 "clique (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                        NyxSets::destroyObject(clique["uuid"])
+                        NyxObjects::destroy(clique["uuid"])
                     end
                 }
             )
@@ -260,7 +260,7 @@ class Cliques
             .each{|object|
                 Bosons::link(clique1, object)
             }
-        NyxSets::destroyObject(clique2["uuid"])
+        NyxObjects::destroy(clique2["uuid"])
     end
 
     # Cliques::interactivelySelectTwoCliquesAndMerge()

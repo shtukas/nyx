@@ -47,7 +47,7 @@ require_relative "DoNotShowUntil.rb"
 
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
-require_relative "NyxSets.rb"
+require_relative "NyxObjects.rb"
 
 # ----------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ class Waves
 
     # Waves::commitToDisk(wave)
     def self.commitToDisk(wave)
-        NyxSets::putObject(wave)
+        NyxObjects::put(wave)
     end
 
     # Waves::issueWave(uuid, description, schedule)
@@ -266,12 +266,12 @@ class Waves
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxSets::getObjectOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
     end
 
     # Waves::waves()
     def self.waves()
-        NyxSets::objects("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        NyxObjects::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::waveToString(wave)
@@ -377,7 +377,7 @@ class Waves
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                        NyxSets::destroyObject(wave["uuid"])
+                        NyxObjects::destroy(wave["uuid"])
                     end
                 }
             )

@@ -5,4 +5,4 @@ The Objects that go to the object store ( eg: `NyxObjects::put(object)` ), need 
     - nyxNxSet            : String
     - nyxNxStoreTimestamp : Float # Unixtime with decimals # set by the storage function itself
 
-nyxNxSet null indicates that the object has been deleted.
+At during the extraction nyxNxSet null indicates that the object has been deleted.

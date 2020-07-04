@@ -50,7 +50,7 @@ require_relative "Ping.rb"
 
 require_relative "Metrics.rb"
 require_relative "ProgrammableBooleans.rb"
-require_relative "NyxSets.rb"
+require_relative "NyxObjects.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -58,12 +58,12 @@ class Asteroids
 
     # Asteroids::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxSets::getObjectOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
     end
 
     # Asteroids::commitToDisk(asteroid)
     def self.commitToDisk(asteroid)
-        NyxSets::putObject(asteroid)
+        NyxObjects::put(asteroid)
         $charlotte.incomingAsteroid(asteroid)
     end
 
@@ -260,7 +260,7 @@ class Asteroids
 
     # Asteroids::asteroids()
     def self.asteroids()
-        NyxSets::objects("b66318f4-2662-4621-a991-a6b966fb4398")
+        NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
     end
 
     # Asteroids::getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
@@ -648,7 +648,7 @@ class Asteroids
                 Asteroids::asteroidDestructionQuarkHandling(quark)
             end
         end
-        NyxSets::destroyObject(asteroid["uuid"])
+        NyxObjects::destroy(asteroid["uuid"])
     end
 
     # Asteroids::openPayload(asteroid)

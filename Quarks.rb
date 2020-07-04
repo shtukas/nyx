@@ -247,7 +247,7 @@ class Quarks
 
     # Quarks::commitQuarkToDisk(quark)
     def self.commitQuarkToDisk(quark)
-        NyxSets::putObject(quark)
+        NyxObjects::put(quark)
     end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
@@ -268,13 +268,13 @@ class Quarks
 
     # Quarks::quarks()
     def self.quarks()
-        NyxSets::objects("6b240037-8f5f-4f52-841d-12106658171f")
+        NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
-        NyxSets::destroyObject(uuid)
+        NyxObjects::destroy(uuid)
     end
 
     # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
@@ -302,7 +302,7 @@ class Quarks
 
     # Quarks::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxSets::getObjectOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
     end
 
     # Quarks::quarkToString(quark)
@@ -481,7 +481,7 @@ class Quarks
                 "quark (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
-                        NyxSets::destroyObject(quark["uuid"])
+                        NyxObjects::destroy(quark["uuid"])
                     end
                 }
             )

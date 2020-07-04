@@ -32,7 +32,7 @@ class QuarkTags
             "quarkuuid"        => quarkuuid,
             "payload"          => payload
         }
-        NyxSets::putObject(tag)
+        NyxObjects::put(tag)
         tag
     end
 
@@ -50,12 +50,12 @@ class QuarkTags
 
     # QuarkTags::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxSets::getObjectOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
     end
 
     # QuarkTags::tags()
     def self.tags()
-        NyxSets::objects("a00b82aa-c047-4497-82bf-16c7206913e4")
+        NyxObjects::getSet("a00b82aa-c047-4497-82bf-16c7206913e4")
             .sort{|n1, n2| n1["creationUnixtime"] <=> n2["creationUnixtime"] }
     end
 

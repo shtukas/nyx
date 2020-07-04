@@ -13,9 +13,16 @@ require 'fileutils'
 
 require 'find'
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 # ------------------------------------------------------------------------
 
 class NyxObjects
+
+    # Private Utils
 
     # NyxObjects::nyxNxSets()
     def self.nyxNxSets()
@@ -43,25 +50,6 @@ class NyxObjects
             return filepath
         end
         raise "[NyxPrimaryStoreUtils: a10f1670-b694-4937-b155-cbfa695b784a]"
-    end
-
-    # NyxObjects::put(object) # namedhash
-    def self.put(object)
-        if object["uuid"].nil? then
-            raise "[NyxObjects::put b45f7d8a] #{object}"
-        end
-        if object["nyxNxSet"].nil? then
-            raise "[NyxObjects::put fd215c77] #{object}"
-        end
-        if !NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxObjects::nyxNxSets c883b1e7] #{object}"
-        end
-        object["nyxNxStoreTimestamp"] = Time.new.to_f
-        blob = JSON.generate(object)
-        namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
-        File.open(filepath, "w") {|f| f.write(blob) }
-        namedhash
     end
 
     # NyxObjects::storedObjectsEnumerator()
@@ -92,5 +80,95 @@ class NyxObjects
             .values
             .select{|object| !object["nyxNxSet"].nil? } # removing the ones that have been deleted
     end
+
+    # Public Interface
+
+    # NyxObjects::put(object) # namedhash
+    def self.put(object)
+        if object["uuid"].nil? then
+            raise "[NyxObjects::put b45f7d8a] #{object}"
+        end
+        if object["nyxNxSet"].nil? then
+            raise "[NyxObjects::put fd215c77] #{object}"
+        end
+        if !NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxObjects::nyxNxSets c883b1e7] #{object}"
+        end
+        object["nyxNxStoreTimestamp"] = Time.new.to_f
+        blob = JSON.pretty_generate(object)
+        namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
+        puts filepath
+        File.open(filepath, "w") {|f| f.write(blob) }
+        $X9176ffbef04a.put(object)
+        namedhash
+    end
+
+    # NyxObjects::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        $X9176ffbef04a.getOrNull(uuid)
+    end
+
+    # NyxObjects::getSet(setid)
+    def self.getSet(setid)
+        $X9176ffbef04a.objects(setid)
+    end
+
+    # NyxObjects::destroy(uuid)
+    def self.destroy(uuid)
+        object = {}
+        object["uuid"] = uuid
+        object["nyxNxSet"] = nil
+        object["nyxNxStoreTimestamp"] = Time.new.to_f
+        blob = JSON.pretty_generate(object)
+        namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
+        puts filepath
+        File.open(filepath, "w") {|f| f.write(blob) }
+        $X9176ffbef04a.put(object)
+        namedhash
+        $X9176ffbef04a.destroyObject(uuid)
+    end
+
+end
+
+class NyxObjectsInMemoryOperator
+
+    # @allObjectsInMemory = {}
+
+    def initialize()
+        @allObjectsInMemory = {}
+        NyxObjects::loadObjectsLatestVersions()
+            .each{|object|
+                @allObjectsInMemory[object["uuid"]] = object
+            }
+    end
+
+    def put(object)
+        @allObjectsInMemory[object["uuid"]] = object.clone
+    end
+
+    def getOrNull(uuid)
+        @allObjectsInMemory
+            .values
+            .select{|object| object["uuid"] == uuid }
+            .map{|object| object.clone }
+            .first
+    end
+
+    def objects(setid)
+        @allObjectsInMemory
+            .values
+            .select{|object| object["nyxNxSet"] == setid }
+            .map{|object| object.clone }
+    end
+
+    def destroyObject(uuid)
+        @allObjectsInMemory.delete(uuid)
+    end
+end
+
+if !defined?($X9176ffbef04a) then
+    $X9176ffbef04a = NyxObjectsInMemoryOperator.new()
 end
 

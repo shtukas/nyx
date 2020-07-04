@@ -76,7 +76,7 @@ class NSXCatalystObjectsOperator
                             if quark["type"] == "file" then
                                 filename = quark["filename"]
                                 if !LibrarianFile::exists?(filename) then
-                                    NyxSets::destroyObject(quark["uuid"])
+                                    NyxObjects::destroy(quark["uuid"])
                                     Asteroids::asteroidDestroySequence(asteroid)
                                     next
                                 end
@@ -135,7 +135,7 @@ class NSXCatalystObjectsOperator
                                         Asteroids::asteroidDestroySequence(asteroid)
                                         next
                                     end
-                                    NyxSets::destroyObject(quark["uuid"])
+                                    NyxObjects::destroy(quark["uuid"])
                                     Asteroids::asteroidDestroySequence(asteroid) 
                                 }
                             )

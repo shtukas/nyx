@@ -58,13 +58,13 @@ class Bosons
             "uuid1"     => object1["uuid"],
             "uuid2"     => object2["uuid"]
         }
-        NyxSets::putObject(link)
+        NyxObjects::put(link)
         link
     end
 
     # Bosons::getLinks()
     def self.getLinks()
-        NyxSets::objects("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
     end
 
     # Bosons::linked?(object1, object2)
@@ -81,12 +81,12 @@ class Bosons
     def self.getLinkedObjects(object)
         objects1 = Bosons::getLinks()
                     .select{|link| link["uuid1"] == object["uuid"] }
-                    .map{|link| NyxSets::getObjectOrNull(link["uuid2"]) }
+                    .map{|link| NyxObjects::getOrNull(link["uuid2"]) }
                     .compact
 
         objects2 = Bosons::getLinks()
                     .select{|link| link["uuid2"] == object["uuid"] }
-                    .map{|link| NyxSets::getObjectOrNull(link["uuid1"]) }
+                    .map{|link| NyxObjects::getOrNull(link["uuid1"]) }
                     .compact
 
         objects1 + objects2
@@ -107,7 +107,7 @@ class Bosons
                 b1 or b2
             }
             .each{|link|
-                NyxSets::destroyObject(link["uuid"])
+                NyxObjects::destroy(link["uuid"])
             }
     end
 

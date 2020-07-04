@@ -29,19 +29,13 @@ require 'find'
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Bosons.rb"
-require_relative "NyxGenericObjectInterface.rb"
 require_relative "Cubes.rb"
+require_relative "NyxGenericObjectInterface.rb"
+require_relative "NyxObjects.rb"
+require_relative "NyxObjects.rb"
 require_relative "QuarkTags.rb"
 require_relative "Quarks.rb"
 
 # --------------------------------------------------------------------
-
-Cliques::cliques()
-    .each{|clique|
-
-        linkedObjects = Bosons::getLinkedObjects(clique)
-        next if linkedObjects.size >= 0
-        puts JSON.pretty_generate(clique)
-    }
 
 exit
