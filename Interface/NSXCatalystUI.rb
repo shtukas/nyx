@@ -106,9 +106,8 @@ class NSXCatalystUI
                         Asteroids::asteroids()
                             .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
                             .each{|asteroid|
-                                line = Asteroids::asteroidToString(asteroid)
                                 menuitems.item(
-                                    line,
+                                    Asteroids::asteroidToString(asteroid),
                                     lambda { Asteroids::asteroidDive(asteroid) }
                                 )
                             }

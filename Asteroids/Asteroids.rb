@@ -302,6 +302,11 @@ class Asteroids
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
 
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
+            if unixtime then
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+            end
+
             CatalystCommon::horizontalRule(true)
 
             puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
@@ -331,6 +336,17 @@ class Asteroids
                 "stop",
                 lambda { Asteroids::asteroidStopSequence(asteroid) }
             )
+
+
+            if asteroid["payload"]["type"] == "description" then
+                menuitems.item(
+                    "edit description",
+                    lambda {
+                        asteroid["payload"]["description"] = CatalystCommon::editTextUsingTextmate(asteroid["payload"]["description"]).strip
+                        Asteroids::commitToDisk(asteroid)
+                    }
+                )
+            end
 
             menuitems.item(
                 "re-payload",
