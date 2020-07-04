@@ -17,6 +17,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "Common.rb"
+
 # -----------------------------------------------------------------
 
 =begin
@@ -31,7 +33,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 class Drives
     # Drives::runShadowUpdate()
     def self.runShadowUpdate()
-        drives = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Drives/drives.json"))
+        drives = JSON.parse(IO.read("#{CatalystCommon::catalystDataCenterFolderpath()}/Drives/drives.json"))
         drives.each{|drive|
             drive["shadowFSPaths"].each{|shadowpath|
                 if File.exists?(shadowpath) then

@@ -24,7 +24,7 @@ require_relative "Common.rb"
 class LibrarianUtils
     # LibrarianUtils::pathToLibrarian()
     def self.pathToLibrarian()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Librarian"
+        "#{CatalystCommon::catalystDataCenterFolderpath()}/Librarian"
     end
 
     # LibrarianUtils::copyLocationToCatalystBin(location)

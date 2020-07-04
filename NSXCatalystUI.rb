@@ -156,7 +156,7 @@ class NSXCatalystUI
             ms.item(
                 "Calendar",
                 lambda { 
-                    system("open '/Users/pascal/Galaxy/DataBank/Catalyst/Calendar/Items'") 
+                    system("open '#{CatalystCommon::catalystDataCenterFolderpath()}/Calendar/Items'") 
                 }
             )
 
@@ -212,7 +212,7 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
+        filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
         text = IO.read(filepath).strip
         if text.size > 0 then
             text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
@@ -315,12 +315,12 @@ class NSXCatalystUI
         end
 
         if command == "::" then
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
+            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
         end
 
         if command == "[]" then
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface-Top.txt"
+            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
             NSXCatalystUI::applyNextTransformationToFile(filepath)
         end
 

@@ -28,19 +28,14 @@ class CatalystCommon
         `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
     end
 
-    # CatalystCommon::databankFolderpath()
-    def self.databankFolderpath()
-        "/Users/pascal/Galaxy/DataBank"
-    end
-
-    # CatalystCommon::catalystFolderpath()
-    def self.catalystFolderpath()
-        "#{CatalystCommon::databankFolderpath()}/Catalyst"
+    # CatalystCommon::catalystDataCenterFolderpath()
+    def self.catalystDataCenterFolderpath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst"
     end
 
     # CatalystCommon::binT1mel1neFolderpath()
     def self.binT1mel1neFolderpath()
-        "#{CatalystCommon::catalystFolderpath()}/Bin-T1mel1ne"
+        "#{CatalystCommon::catalystDataCenterFolderpath()}/Bin-T1mel1ne"
     end
 
     # CatalystCommon::editTextUsingTextmate(text)

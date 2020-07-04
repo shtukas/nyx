@@ -1,9 +1,11 @@
 
+require_relative "Common.rb"
+
 class Calendar
 
     # Calendar::pathToCalendarItems()
     def self.pathToCalendarItems()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Calendar/Items"
+        "#{CatalystCommon::catalystDataCenterFolderpath()}/Calendar/Items"
     end
 
     # Calendar::today()

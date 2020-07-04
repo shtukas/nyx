@@ -62,7 +62,7 @@ class Anniversaries
     end
 
     def self.getEventLines()
-        IO.read("#{CatalystCommon::catalystFolderpath()}/Anniversaries/anniversaries.txt")
+        IO.read("#{CatalystCommon::catalystDataCenterFolderpath()}/Anniversaries/anniversaries.txt")
             .lines
             .map{|line| line.strip }
             .select{|line| line.size > 0 }
@@ -106,7 +106,7 @@ class Anniversaries
     end
 
     def self.trueIfAnniversaryHasBeenProcessed(event, anniversary)
-        KeyValueStore::flagIsTrue("#{CatalystCommon::catalystFolderpath()}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::flagIsTrue("#{CatalystCommon::catalystDataCenterFolderpath()}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 
     def self.getEventObjects()
@@ -143,7 +143,7 @@ class Anniversaries
 
     # Anniversaries::markAnniversaryAsProcessed(event, anniversary)
     def self.markAnniversaryAsProcessed(event, anniversary)
-        KeyValueStore::setFlagTrue("#{CatalystCommon::catalystFolderpath()}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::setFlagTrue("#{CatalystCommon::catalystDataCenterFolderpath()}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 
     # Anniversaries::catalystObjects()

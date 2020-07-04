@@ -82,7 +82,7 @@ class NyxPrimaryStoreBlobs
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
             fragment3 = namedhash[11, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
+            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Primary-Store/blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
@@ -128,7 +128,7 @@ class NyxPrimaryStoreObjects
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
             fragment3 = namedhash[11, 2]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
+            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Primary-Store/objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
@@ -159,7 +159,7 @@ class NyxPrimaryStoreObjects
     # NyxPrimaryStoreObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
-            Find.find("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Primary-Store/objects") do |path|
+            Find.find("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Primary-Store/objects") do |path|
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
                 objects << JSON.parse(IO.read(path))

@@ -96,7 +96,7 @@ class NyxSets
         object["nyxNxStoreTimestamp"] = Time.new.to_f
         
         # Storing on disk
-        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", object["nyxNxSet"], object["uuid"], object)
+        BTreeSets::set("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Sets", object["nyxNxSet"], object["uuid"], object)
 
         # Operator
         $X9176ffbef04a.putObject(object)
@@ -107,7 +107,7 @@ class NyxSets
     # NyxSets::getObjectFromSetOrNull(setid, uuid)
     def self.getObjectFromSetOrNull(setid, uuid)
         # Slow version
-        # BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid)
+        # BTreeSets::getOrNull("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Sets", setid, uuid)
 
         # Faster version
         $X9176ffbef04a.getObjectFromSetOrNull(setid, uuid)
@@ -130,7 +130,7 @@ class NyxSets
     def self.objects(setid)
 
         # Slow version
-        # BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid)
+        # BTreeSets::values("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Sets", setid)
 
         # Faster version
         $X9176ffbef04a.objects(setid)
@@ -139,7 +139,7 @@ class NyxSets
     # NyxSets::destroyObject(uuid)
     def self.destroyObject(uuid)
         NyxSets::nyxNxSets()
-            .each{|setid| BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid, uuid) }
+            .each{|setid| BTreeSets::destroy("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Sets", setid, uuid) }
 
         $X9176ffbef04a.destroyObject(uuid)
     end
@@ -152,7 +152,7 @@ class NyxSetsOperator
     def initialize()
         @allObjectsInMemory = {}
         NyxSets::nyxNxSets().each{|setid|
-            BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Sets", setid).each{|object|
+            BTreeSets::values("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Sets", setid).each{|object|
                 @allObjectsInMemory[object["uuid"]] = object.clone
             }
         }
