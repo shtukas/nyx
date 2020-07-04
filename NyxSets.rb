@@ -23,6 +23,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
+
 require_relative "Ping.rb"
 =begin 
     Ping::put(uuid, weight)
@@ -47,14 +55,6 @@ require_relative "SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
-=begin
-    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
-    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
-    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
-=end
-
 require_relative "Quarks.rb"
 require_relative "Cubes.rb"
 require_relative "Cliques.rb"
@@ -71,7 +71,7 @@ class NyxSets
 
     # NyxSets::nyxNxSets()
     def self.nyxNxSets()
-        # Duplicated in NyxPrimaryStoreObjects
+        # Duplicated in NyxObjects
         [
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
