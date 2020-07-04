@@ -56,7 +56,6 @@ require_relative "Mercury.rb"
 require_relative "Quarks.rb"
 require_relative "Cubes.rb"
 require_relative "Cliques.rb"
-require_relative "NyxGarbageCollection.rb"
 require_relative "Quarks.rb"
 require_relative "Asteroids.rb"
 require_relative "VideoStream.rb"
@@ -177,11 +176,6 @@ class NSXCatalystUI
             ms.item(
                 "Run Shadow Update", 
                 lambda { Drives::runShadowUpdate() }
-            )
-
-            ms.item(
-                "Nyx garbage collection", 
-                lambda { NyxGarbageCollection::run() }
             )
 
             ms.item(

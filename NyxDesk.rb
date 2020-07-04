@@ -56,7 +56,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 require_relative "Quarks.rb"
 require_relative "Cubes.rb"
 require_relative "Cliques.rb"
-require_relative "NyxGarbageCollection.rb"
 require_relative "Quarks.rb"
 
 require_relative "Asteroids.rb"
