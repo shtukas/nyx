@@ -32,7 +32,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require_relative "Cubes.rb"
 require_relative "Quarks.rb"
 require_relative "Cliques.rb"
-require_relative "QuarkTags.rb"
 require_relative "Bosons.rb"
 
 # -----------------------------------------------------------------
@@ -46,9 +45,6 @@ class NyxGenericObjectInterface
         end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::cliqueToString(object)
-        end
-        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            return QuarkTags::tagToString(object)
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             return Quarks::quarkToString(object)
@@ -67,10 +63,6 @@ class NyxGenericObjectInterface
             Cliques::cliqueDive(object)
             return
         end
-        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            QuarkTags::tagDive(tag)
-            return
-        end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             Quarks::quarkDive(object)
             return
@@ -86,9 +78,6 @@ class NyxGenericObjectInterface
         end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::getLastActivityUnixtime(object)
-        end
-        if object["nyxNxSet"] == "a00b82aa-c047-4497-82bf-16c7206913e4" then
-            return object["unixtime"]
         end
         if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
             return object["unixtime"]

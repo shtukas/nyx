@@ -1,8 +1,0 @@
-
-Tag {
-    "uuid"      : String
-    "nyxNxSet"  : "a00b82aa-c047-4497-82bf-16c7206913e4"
-    "unixtime"  : Float # Unixtime with decimals
-    "quarkuuid" : String
-    "payload"   : String
-}

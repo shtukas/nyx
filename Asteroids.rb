@@ -632,7 +632,6 @@ class Asteroids
         return if Bosons::getLinkedObjects(quark).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
             quark = Quarks::ensureQuarkDescription(quark)
-            Quarks::ensureAtLeastOneQuarkQuarkTags(quark)
             Quarks::ensureAtLeastOneQuarkCliques(quark)
         else
             Quarks::destroyQuarkByUUID(quark["uuid"])

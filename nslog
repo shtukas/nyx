@@ -32,33 +32,14 @@ require_relative "Bosons.rb"
 require_relative "Cubes.rb"
 require_relative "NyxGenericObjectInterface.rb"
 require_relative "NyxObjects.rb"
-require_relative "NyxObjects.rb"
-require_relative "QuarkTags.rb"
 require_relative "Quarks.rb"
 
 # --------------------------------------------------------------------
 
-Bosons::getLinks().each{|link|
-    puts JSON.pretty_generate(link)
-    object1 = NyxObjects::getOrNull(link["uuid1"])
-    object2 = NyxObjects::getOrNull(link["uuid2"])
-    next if object1.nil?
-    next if object2.nil?
-    puts JSON.pretty_generate(object1)
-    if object1["linkedTo"].nil? then
-        object1["linkedTo"] = []
-    end
-    object1["linkedTo"] << object2["uuid"]
-    puts JSON.pretty_generate(object1)
-    NyxObjects::put(object1)
-    puts JSON.pretty_generate(object2)
-    if object2["linkedTo"].nil? then
-        object2["linkedTo"] = []
-    end
-    object2["linkedTo"] << object1["uuid"]
-    puts JSON.pretty_generate(object2)
-    NyxObjects::put(object2)
-    LucilleCore::pressEnterToContinue()
+Quarks::quarks()
+.each{|quark|
+    puts ""
+    puts JSON.pretty_generate(quark)
 }
 
 exit

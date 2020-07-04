@@ -289,11 +289,6 @@ class Quarks
             .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
-    # Quarks::getQuarkQuarkTags(quark)
-    def self.getQuarkQuarkTags(quark)
-        QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])
-    end
-
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
         Bosons::getLinkedObjects(quark)
@@ -390,11 +385,12 @@ class Quarks
 
             puts Quarks::quarkToString(quark).green
             puts "uuid: #{quark["uuid"]}"
+            puts "tags: #{quark["tags"].join(", ")}"
 
+            CatalystCommon::horizontalRule(true)
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            CatalystCommon::horizontalRule(true)
             menuitems.item(
                 "open", 
                 lambda{ Quarks::openQuark(quark) }
@@ -417,7 +413,23 @@ class Quarks
 
             menuitems.item(
                 "tag (add)",
-                lambda { QuarkTags::issueQuarkTagInteractivelyOrNull(quark) }
+                lambda {
+                    tag = LucilleCore::askQuestionAnswerAsString("tag: ")
+                    return if tag.size == 0
+                    quark["tags"] << tag
+                    quark["tags"] = quark["tags"].uniq
+                    Quarks::commitQuarkToDisk(quark)
+                }
+            )
+
+            menuitems.item(
+                "tag (select and remove)",
+                lambda {
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", quark["tags"])
+                    return if tag.nil?
+                    quark["tags"].delete(tag)
+                    Quarks::commitQuarkToDisk(quark)
+                }
             )
 
             menuitems.item(
@@ -496,14 +508,6 @@ class Quarks
                     )
                 }
 
-            QuarkTags::getQuarkTagsByQuarkUUID(quark["uuid"])
-                .each{|tag|
-                    menuitems.item(
-                        QuarkTags::tagToString(tag), 
-                        lambda { QuarkTags::tagDive(tag) }
-                    )
-                }
-
             Bosons::getLinkedObjects(quark)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
@@ -552,6 +556,7 @@ class Quarks
     def self.quarkMatchesPattern(quark, pattern)
         return true if quark["uuid"].downcase.include?(pattern.downcase)
         return true if Quarks::quarkToString(quark).downcase.include?(pattern.downcase)
+        return true if quark["tags"].any?{|tag| tag.downcase.include?(pattern.downcase) }
         if quark["type"] == "unique-name" then
             return true if quark["name"].downcase.include?(pattern.downcase)
         end
@@ -574,10 +579,13 @@ class Quarks
     # Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
     def self.issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
         loop {
-            tagPayload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit) : ")
-            break if tagPayload.size == 0
-            QuarkTags::issueTag(quark["uuid"], tagPayload)
+            tag = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
+            break if tag.size == 0
+            quark["tags"] << tag
+            quark["tags"] = quark["tags"].uniq
+            Quarks::commitQuarkToDisk(quark)
         }
+        quark
     end
 
     # Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
@@ -595,13 +603,6 @@ class Quarks
             Quarks::commitQuarkToDisk(quark)
         end
         quark
-    end
-
-    # Quarks::ensureAtLeastOneQuarkQuarkTags(quark)
-    def self.ensureAtLeastOneQuarkQuarkTags(quark)
-        if Quarks::getQuarkQuarkTags(quark).empty? then
-            Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
-        end
     end
 
     # Quarks::ensureAtLeastOneQuarkCliques(quark)

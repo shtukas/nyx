@@ -13,7 +13,7 @@ Quark
     "line"             : String
 
     "linkedTo"         : Array[String] # uuids of linked objects
-
+    "tags"             : Array[String] # tags
 }
 
 {
@@ -27,6 +27,7 @@ Quark
     "url"              : String
 
     "linkedTo"         : Array[String] # uuids of linked objects
+    "tags"             : Array[String] # tags
 }
 
 {
@@ -40,6 +41,7 @@ Quark
     "filename"         : String (Librarian managed)
 
     "linkedTo"         : Array[String] # uuids of linked objects
+    "tags"             : Array[String] # tags
 }
 
 {
@@ -53,6 +55,7 @@ Quark
     "foldername"       : String (Librarian managed)
 
     "linkedTo"         : Array[String] # uuids of linked objects
+    "tags"             : Array[String] # tags
 }
 
 {
@@ -66,4 +69,5 @@ Quark
     "name"             : String # Use Atlas to find them
 
     "linkedTo"         : Array[String] # uuids of linked objects
+    "tags"             : Array[String] # tags
 }

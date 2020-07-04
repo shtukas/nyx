@@ -18,9 +18,6 @@ Nyx
                                            Quark <-> Clique
                                            Quark <-> Quark  # This creates Cubes
 
-        QuarkTagTag # See QuarkTags.txt    nyxNxSet: "a00b82aa-c047-4497-82bf-16c7206913e4"
-                                           QuarkTags only target to Quarks
-
     Todo
 
         Waves       # See Waves.txt        nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
