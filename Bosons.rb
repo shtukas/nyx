@@ -52,63 +52,53 @@ class Bosons
 
     # Bosons::link(object1, object2)
     def self.link(object1, object2)
-        link = {
-            "uuid"      => SecureRandom.uuid,
-            "nyxNxSet"  => "13f3499d-fa9c-44bb-91d3-8a3ccffecefb",
-            "uuid1"     => object1["uuid"],
-            "uuid2"     => object2["uuid"]
-        }
-        NyxObjects::put(link)
-        link
-    end
+        if object1["linkedTo"].nil? then
+            object1["linkedTo"] = []
+        end
+        object1["linkedTo"] << object2["uuid"]
+        object1["linkedTo"] = object1["linkedTo"].uniq
+        NyxObjects::put(object1)
 
-    # Bosons::getLinks()
-    def self.getLinks()
-        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
-    end
-
-    # Bosons::linked?(object1, object2)
-    def self.linked?(object1, object2)
-        Bosons::getLinks()
-            .any?{|link| 
-                b1 = ((link["uuid1"] == object1["uuid"]) and (link["uuid2"] == object2["uuid"]))
-                b2 = ((link["uuid1"] == object2["uuid"]) and (link["uuid2"] == object1["uuid"]))
-                b1 or b2
-            }
+        if object2["linkedTo"].nil? then
+            object2["linkedTo"] = []
+        end
+        object2["linkedTo"] << object1["uuid"]
+        object2["linkedTo"] = object2["linkedTo"].uniq
+        NyxObjects::put(object2)
     end
 
     # Bosons::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        objects1 = Bosons::getLinks()
-                    .select{|link| link["uuid1"] == object["uuid"] }
-                    .map{|link| NyxObjects::getOrNull(link["uuid2"]) }
-                    .compact
-
-        objects2 = Bosons::getLinks()
-                    .select{|link| link["uuid2"] == object["uuid"] }
-                    .map{|link| NyxObjects::getOrNull(link["uuid1"]) }
-                    .compact
-
-        objects1 + objects2
+        return [] if object["linkedTo"].nil?
+        object["linkedTo"]
+            .map{|uuid| NyxObjects::getOrNull(uuid) }
+            .compact
     end
 
     # Bosons::getLinkedObjectsOfGivenNyxNxSet(focus, setid)
     def self.getLinkedObjectsOfGivenNyxNxSet(focus, setid)
-        Bosons::getLinkedObjects(focus)
+        return [] if focus["linkedTo"].nil?
+        focus["linkedTo"]
+            .map{|uuid| NyxObjects::getOrNull(uuid) }
+            .compact
             .select{|object| object["nyxNxSet"] == setid }
     end
 
     # Bosons::unlink(object1, object2)
     def self.unlink(object1, object2)
-        Bosons::getLinks()
-            .select{|link| 
-                b1 = ((link["uuid1"] == object1["uuid"]) and (link["uuid2"] == object2["uuid"]))
-                b2 = ((link["uuid1"] == object2["uuid"]) and (link["uuid2"] == object1["uuid"]))
-                b1 or b2
-            }
-            .each{|link|
-                NyxObjects::destroy(link["uuid"])
-            }
+        if object1["linkedTo"].nil? then
+            object1["linkedTo"] = []
+        end
+        object1["linkedTo"].delete(object2["uuid"])
+        object1["linkedTo"] = object1["linkedTo"].uniq
+        NyxObjects::put(object1)
+
+        if object2["linkedTo"].nil? then
+            object2["linkedTo"] = []
+        end
+        object2["linkedTo"].delete(object1["uuid"])
+        object2["linkedTo"] = object2["linkedTo"].uniq
+        NyxObjects::put(object2)
     end
 
 end
