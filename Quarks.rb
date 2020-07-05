@@ -114,7 +114,6 @@ class QuarksMakers
     # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
     def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
         namedhash = LibrarianAionOperator::locationToNamedHash(filepath)
-        description = File.basename(location)
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
