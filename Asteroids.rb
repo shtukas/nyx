@@ -664,6 +664,28 @@ class Asteroids
         end
     end
 
+    # Asteroids::asteroidOrbitalTypes()
+    def self.asteroidOrbitalTypes()
+        [
+            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+            "singleton-time-commitment-7c67cb4f-77e0-4fd",
+            "repeating-daily-time-commitment-8123956c-05",
+            "on-going-until-completion-5b26f145-7ebf-498",
+            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
+            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+            "open-project-in-the-background-b458aa91-6e1",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        ]
+    end
+
+    # Asteroids::diveAsteroidOrbitalType(orbitalType)
+    def self.diveAsteroidOrbitalType(orbitalType)
+        asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
+        asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
+        return if asteroid.nil?
+        Asteroids::asteroidDive(asteroid)
+    end
+
     # Asteroids::main()
     def self.main()
         loop {
@@ -681,9 +703,9 @@ class Asteroids
             end
             if option == "dive asteroids" then
                 loop {
-                    asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", Asteroids::asteroids(), lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
-                    break if asteroid.nil?
-                    Asteroids::asteroidDive(asteroid)
+                    orbitalType = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", Asteroids::asteroidOrbitalTypes())
+                    break if orbitalType.nil?
+                    Asteroids::diveAsteroidOrbitalType(orbitalType)
                 }
             end
         }
