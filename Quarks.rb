@@ -21,8 +21,8 @@ require_relative "Common.rb"
 
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
-require_relative "Librarian.rb"
-require_relative "NyxAionPointDesk.rb"
+require_relative "LibrarianAion.rb"
+require_relative "DataPortalUI.rb"
 
 # -----------------------------------------------------------------
 
@@ -97,7 +97,7 @@ class QuarksMakers
     def self.makeQuarkAionPointInteractivelyOrNull()
         location = QuarksUtils::selectOneLocationOnTheDesktopOrNull()
         return nil if location.nil?
-        namedhash = LibrarianAion::locationToNamedHash(location)
+        namedhash = LibrarianAionOperator::locationToNamedHash(location)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
@@ -113,7 +113,7 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
     def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
-        namedhash = LibrarianAion::locationToNamedHash(filepath)
+        namedhash = LibrarianAionOperator::locationToNamedHash(filepath)
         description = File.basename(location)
         {
             "uuid"             => SecureRandom.uuid,
@@ -130,7 +130,7 @@ class QuarksMakers
     # QuarksMakers::makeQuarkAionPointFromLocation(location)
     def self.makeQuarkAionPointFromLocation(location)
         raise "f8e3b314" if !File.exists?(location)
-        namedhash = LibrarianAion::locationToNamedHash(location)
+        namedhash = LibrarianAionOperator::locationToNamedHash(location)
         description = File.basename(location)
         {
             "uuid"             => SecureRandom.uuid,
@@ -218,6 +218,15 @@ class Quarks
 
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
+        object = Quarks::getOrNull(uuid)
+        if object then
+             if object["type"] == "aion-point" then
+                folderpath = LibrarianAionDesk::folderpathForQuark(quark)
+                if folderpath then
+                    LucilleCore::removeFileSystemLocation(folderpath)
+                end
+            end
+        end
         NyxObjects::destroy(uuid)
     end
 
@@ -260,7 +269,7 @@ class Quarks
             return
         end
         if quark["type"] == "aion-point" then
-            folderpath = NyxAionPointDesk::folderpathForQuark(quark)
+            folderpath = LibrarianAionDesk::folderpathForQuark(quark)
             system("open '#{folderpath}'")
             return
         end
@@ -273,7 +282,7 @@ class Quarks
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 if File.file?(location) then
-                    if LibrarianFile::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                    if CatalystCommon::fileByFilenameIsSafelyOpenable(File.basename(location)) then
                         puts "opening safely openable file '#{location}'"
                         system("open '#{location}'")
                     else
@@ -418,6 +427,11 @@ class Quarks
                         NyxObjects::destroy(quark["uuid"])
                     end
                 }
+            )
+
+            menuitems.item(
+                "/", 
+                lambda { DataPortalUI::dataPortalFront() }
             )
 
             CatalystCommon::horizontalRule(true)

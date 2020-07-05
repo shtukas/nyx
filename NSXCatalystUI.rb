@@ -61,6 +61,7 @@ require_relative "Asteroids.rb"
 require_relative "VideoStream.rb"
 require_relative "Drives.rb"
 require_relative "Waves.rb"
+require_relative "DataPortalUI.rb"
 
 # ------------------------------------------------------------------------
 
@@ -72,128 +73,6 @@ class NSXCatalystUI
         content = IO.read(filepath).strip
         content = SectionsType0141::applyNextTransformationToContent(content)
         File.open(filepath, "w"){|f| f.puts(content) }
-    end
-
-    # NSXCatalystUI::dataPortalFront()
-    def self.dataPortalFront()
-        loop {
-            system("clear")
-
-            ms = LCoreMenuItemsNX1.new()
-
-            ms.item(
-                "general search", 
-                lambda { NSXGeneralSearch::searchAndDive() }
-            )
-
-            ms.item(
-                "cliques (listing)", 
-                lambda { Cliques::cliquesListingAndDive() }
-            )
-
-            ms.item(
-                "quarks (listing)", 
-                lambda { Quarks::quarksListingAndDive() }
-            )
-
-            ms.item(
-                "asteroid floats open-project-in-the-background", 
-                lambda { 
-                    loop {
-                        system("clear")
-                        menuitems = LCoreMenuItemsNX1.new()
-                        Asteroids::asteroids()
-                            .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
-                            .each{|asteroid|
-                                menuitems.item(
-                                    Asteroids::asteroidToString(asteroid),
-                                    lambda { Asteroids::asteroidDive(asteroid) }
-                                )
-                            }
-                        status = menuitems.prompt()
-                        break if !status
-                    }
-                }
-            )
-
-            puts ""
-
-            ms.item(
-                "quark (new)",
-                lambda { 
-                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    quark = Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
-                    Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
-                }
-            )
-
-            ms.item(
-                "asteroid (new)",
-                lambda { 
-                    asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
-                    return if asteroid.nil?
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            ms.item(
-                "merge two cliques",
-                lambda { 
-                    Cliques::interactivelySelectTwoCliquesAndMerge()
-                }
-            )
-
-            puts ""
-
-            ms.item(
-                "Asteroids",
-                lambda { Asteroids::main() }
-            )
-
-            ms.item(
-                "Calendar",
-                lambda { 
-                    system("open '#{CatalystCommon::catalystDataCenterFolderpath()}/Calendar/Items'") 
-                }
-            )
-
-            ms.item(
-                "Waves",
-                lambda { Waves::main() }
-            )
-
-            puts ""
-
-            ms.item(
-                "Print Generation Speed Report", 
-                lambda { 
-                    NSXCatalystObjectsOperator::generationSpeedReport()
-                }
-            )
-
-            ms.item(
-                "Run Shadow Update", 
-                lambda { Drives::runShadowUpdate() }
-            )
-
-            ms.item(
-                "Nyx curation", 
-                lambda { NSXCuration::run() }
-            )
-
-            ms.item(
-                "Timeline garbage collection", 
-                lambda { 
-                    puts "#{NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
-                    NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
-                }
-            )
-
-            status = ms.prompt()
-            break if !status
-        }
     end
 
     # NSXCatalystUI::standardDisplay(catalystObjects)
@@ -333,7 +212,7 @@ class NSXCatalystUI
         end
 
         if command == "/" then
-            NSXCatalystUI::dataPortalFront()
+            DataPortalUI::dataPortalFront()
             return
         end
 

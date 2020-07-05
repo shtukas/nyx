@@ -73,14 +73,6 @@ class NSXCatalystObjectsOperator
                                 Asteroids::asteroidDestroySequence(asteroid)
                                 next
                             end
-                            if quark["type"] == "file" then
-                                filename = quark["filename"]
-                                if !LibrarianFile::exists?(filename) then
-                                    NyxObjects::destroy(quark["uuid"])
-                                    Asteroids::asteroidDestroySequence(asteroid)
-                                    next
-                                end
-                            end
                         end
 
                         puts Asteroids::asteroidToString(asteroid)

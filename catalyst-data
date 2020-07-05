@@ -73,7 +73,7 @@ loop {
         puts "Code change detected. Exiting."
         return
     end
-    NSXCatalystUI::dataPortalFront()
+    DataPortalUI::dataPortalFront()
 }
 
 # -------------------------------------------------------------------------

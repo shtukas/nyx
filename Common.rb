@@ -135,4 +135,10 @@ class CatalystCommon
       end
       puts "-" * (NSXMiscUtils::screenWidth()-1)
     end
+
+    # CatalystCommon::fileByFilenameIsSafelyOpenable(filename)
+    def self.fileByFilenameIsSafelyOpenable(filename)
+        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
+        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
+    end
 end

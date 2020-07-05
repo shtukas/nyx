@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "Librarian.rb"
+# require_relative "LibrarianAion.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -72,68 +72,10 @@ require_relative "NyxBlobs.rb"
 
 # -----------------------------------------------------------------
 
-class LibrarianFile
-
-    # LibrarianFile::exists?(filename)
-    def self.exists?(filename)
-        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
-        File.exists?(filepath)
-    end
-
-    # LibrarianFile::fileByFilenameIsSafelyOpenable(filename)
-    def self.fileByFilenameIsSafelyOpenable(filename)
-        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
-        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
-    end
-
-    # LibrarianFile::accessFile(filename)
-    def self.accessFile(filename)
-        if LibrarianFile::fileByFilenameIsSafelyOpenable(filename) then
-            filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
-            system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("Duplicate to Desktop ? ", false) then
-                FileUtils.cp(filepath, "/Users/pascal/Desktop")
-                puts "File copied to Desktop {#{File.basename(filepath)}}"
-            end
-        else
-            filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
-            FileUtils.cp(filepath, "/Users/pascal/Desktop")
-            puts "File copied to Desktop {#{File.basename(filepath)}}"
-        end
-    end
-
-end
-
-class LibrarianDirectory
-
-    # LibrarianDirectory::foldernameToFolderpath(foldername)
-    def self.foldernameToFolderpath(foldername)
-        "#{LibrarianUtils::pathToLibrarian()}/Directories/#{foldername}"
-    end
-
-    # LibrarianDirectory::exists?(foldername)
-    def self.exists?(foldername)
-        folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
-        File.exists?(folderpath)
-    end
-
-    # LibrarianDirectory::openFolder(foldername)
-    def self.openFolder(foldername)
-        folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
-        if !File.exists?(folderpath) then
-            puts "Folder '#{foldername}'. Could not be found."
-            LucilleCore::pressEnterToContinue()
-        end
-        system("open '#{folderpath}'")
-    end
-end
-
 =begin
-
-LibrarianAionElizabeth is the class that explain to 
-Aion how to compute hashes and where to store and 
-retrive the blobs to and from.
-
+    LibrarianAionElizabeth is the class that explain to 
+    Aion how to compute hashes and where to store and 
+    retrive the blobs to and from.
 =end
 
 class LibrarianAionElizabeth
@@ -166,15 +108,28 @@ class LibrarianAionElizabeth
 
 end
 
-class LibrarianAion
+class LibrarianAionOperator
 
-    # LibrarianAion::locationToNamedHash(location)
+    # LibrarianAionOperator::locationToNamedHash(location)
     def self.locationToNamedHash(location)
         AionCore::commitLocationReturnHash(LibrarianAionElizabeth.new(), location)
     end
 
-    # LibrarianAion::namedHashExportAtFolder(namedHash, folderpath)
+    # LibrarianAionOperator::namedHashExportAtFolder(namedHash, folderpath)
     def self.namedHashExportAtFolder(namedHash, folderpath)
         AionCore::exportHashAtFolder(LibrarianAionElizabeth.new(), namedHash, folderpath)
+    end
+end
+
+class LibrarianAionDesk
+    # LibrarianAionDesk::folderpathForQuark(quark)
+    def self.folderpathForQuark(quark)
+        folderpath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Desk/#{quark["uuid"]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+            namedhash = quark["namedhash"]
+            LibrarianAionOperator::namedHashExportAtFolder(namedhash, folderpath)
+        end
+        folderpath
     end
 end

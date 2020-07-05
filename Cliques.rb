@@ -18,6 +18,7 @@ require 'colorize'
 
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
+require_relative "DataPortalUI.rb"
 
 # -----------------------------------------------------------------
 
@@ -175,6 +176,11 @@ class Cliques
                         NyxObjects::destroy(clique["uuid"])
                     end
                 }
+            )
+
+            menuitems.item(
+                "/", 
+                lambda { DataPortalUI::dataPortalFront() }
             )
 
             CatalystCommon::horizontalRule(true)
