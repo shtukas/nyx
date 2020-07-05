@@ -206,6 +206,10 @@ class NyxObjectsCacheOperator
     # NyxObjectsCacheOperator::destroy(uuid)
     def self.destroy(uuid)
         $InMemoryObjectsCache6DB420D8.delete(uuid)
+        NyxObjects::nyxNxSets().each{|setid|
+            next if $InMemorySetsCache2917988[setid].nil?
+            $InMemorySetsCache2917988[setid].delete(uuid)
+        }
         KeyValueStore::destroy(nil, "9a470ad8-ab23-4a51-b94d-195de9912da7:#{uuid}")
         NyxObjects::nyxNxSets().each{|setid|
             BTreeSets::destroy(nil, "d9d54faa-d3e4-41e1-a9e0-317ba20e3884:#{setid}", uuid)
