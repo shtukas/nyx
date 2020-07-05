@@ -506,6 +506,7 @@ class Asteroids
 
     # Asteroids::isRunningForLong?(asteroid)
     def self.isRunningForLong?(asteroid)
+        return false if !Asteroids::isRunning?(asteroid)
         uuid = asteroid["uuid"]
         orbital = asteroid["orbital"]
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
