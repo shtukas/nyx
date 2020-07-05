@@ -107,8 +107,8 @@ class Asteroids
         opt1 = "single day time commitment"
         opt2 = "repeating daily time commitment"
         opt3 = "on going until completion"
-        opt4 = "indefinite"
         opt6 = "float to do today"
+        opt8 = "indefinite"
         opt7 = "open project in the background"
         opt5 = "todo"
 
@@ -117,8 +117,8 @@ class Asteroids
             opt1,
             opt2,
             opt3,
-            opt4,
             opt6,
+            opt8,
             opt7,
             opt5,
         ]
@@ -149,7 +149,7 @@ class Asteroids
                 "type"                  => "on-going-until-completion-5b26f145-7ebf-498"
             }
         end
-        if option == opt4 then
+        if option == opt8 then
             return {
                 "type"                  => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
             }
