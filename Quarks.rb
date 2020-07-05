@@ -217,9 +217,9 @@ class Quarks
 
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
-        object = Quarks::getOrNull(uuid)
-        if object then
-             if object["type"] == "aion-point" then
+        quark = Quarks::getOrNull(uuid)
+        if quark then
+             if quark["type"] == "aion-point" then
                 folderpath = LibrarianAionDesk::folderpathForQuark(quark)
                 if folderpath then
                     LucilleCore::removeFileSystemLocation(folderpath)
