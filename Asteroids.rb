@@ -432,7 +432,9 @@ class Asteroids
         return 1 if Asteroids::isRunning?(asteroid)
 
         if orbital["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            return 0.72 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+            return 0.72 + 0.01*Asteroids::shiftNX71(asteroid["unixtime"]) 
+            # We want the most recent one to come first
+            # LIFO queue
         end
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
