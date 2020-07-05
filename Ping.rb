@@ -54,12 +54,12 @@ class Ping
             .inject(0, :+)
     end
 
-    # Ping::bestTimeRatioOverPeriod7Samples(uuid, timespanInSeconds)
-    def self.bestTimeRatioOverPeriod7Samples(uuid, timespanInSeconds)
+    # Ping::bestTimeRatioOverPeriod7Samples(pinguuid, timespanInSeconds)
+    def self.bestTimeRatioOverPeriod7Samples(pinguuid, timespanInSeconds)
         (1..7)
             .map{|i|
                 lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
-                timedone = Ping::totalOverTimespan(uuid, lookupPeriodInSeconds)
+                timedone = Ping::totalOverTimespan(pinguuid, lookupPeriodInSeconds)
                 timedone.to_f/lookupPeriodInSeconds
             }
             .max

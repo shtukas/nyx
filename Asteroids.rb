@@ -448,12 +448,16 @@ class Asteroids
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.66, Ping::totalToday(uuid), 3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x1 = Metrics::metricNX2OnGoing(0.66, uuid) # default assumption of a target of 30 minutes
+            x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.64, Ping::totalToday(uuid), 1800) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x1 = Metrics::metricNX2OnGoing(0.64, uuid) # default assumption of a target of 30 minutes
+            x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return x1 + x2
         end
 
         if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then

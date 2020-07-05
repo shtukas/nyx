@@ -26,4 +26,20 @@ class Metrics
             0.2 + (basemetric-0.2)*Math.exp( -20*(ratioDone-1) ) # exp(-1) at ratio: 1.05 ; +5% over target
         end
     end
+
+    # Metrics::metricNX2OnGoing(basemetric, pinguuid)
+    def self.metricNX2OnGoing(basemetric, pinguuid)
+        # We look 7 samples over the past week.
+        # Below 30 minutes per 24 hours, we are at basemetric , then we fall to zero
+        bestratio = Ping::bestTimeRatioOverPeriod7Samples(pinguuid, 86400*7)
+        targetRatio = (60*30).to_f/86400
+        if bestratio < targetRatio then
+            basemetric
+        else
+            coefficient = (bestratio-targetRatio).to_f/targetRatio
+            # If bestratio = targetRatio, then coefficient is 0
+            # if bestratio is twice targetRatio, then coeffient is 1
+            0.2 + (basemetric-0.2)*Math.exp(-coefficient)
+        end
+    end
 end
