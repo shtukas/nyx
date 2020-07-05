@@ -41,6 +41,13 @@ require_relative "Mercury.rb"
     Mercury::getAllValues(channel)
 =end
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 require_relative "SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
@@ -57,16 +64,22 @@ require_relative "Quarks.rb"
 require_relative "Cubes.rb"
 require_relative "Cliques.rb"
 require_relative "Quarks.rb"
-
 require_relative "Asteroids.rb"
 require_relative "VideoStream.rb"
 require_relative "Drives.rb"
 
 # ------------------------------------------------------------------------
 
-class NyxDesk
-    def self.void()
-
+class NyxAionPointDesk
+    # NyxAionPointDesk::folderpathForQuark(quark)
+    def self.folderpathForQuark(quark)
+        folderpath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Desk/#{quark["uuid"]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+            namedhash = quark["namedhash"]
+            LibrarianAion::namedHashExportAtFolder(namedhash, folderpath)
+        end
+        folderpath
     end
 end
 

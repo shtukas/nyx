@@ -21,12 +21,13 @@ require_relative "Common.rb"
 
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
-
 require_relative "Librarian.rb"
+require_relative "NyxAionPointDesk.rb"
 
 # -----------------------------------------------------------------
 
 class QuarksUtils
+
     # QuarksUtils::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
@@ -259,9 +260,8 @@ class Quarks
             return
         end
         if quark["type"] == "aion-point" then
-            namedhash = quark["namedhash"]
-            folderpath = "/Users/pascal/Desktop"
-            LibrarianAion::namedHashExportAtFolder(namedhash, folderpath)
+            folderpath = NyxAionPointDesk::folderpathForQuark(quark)
+            system("open '#{folderpath}'")
             return
         end
         if quark["type"] == "url" then
