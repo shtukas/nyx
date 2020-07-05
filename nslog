@@ -36,11 +36,4 @@ require_relative "Quarks.rb"
 
 # --------------------------------------------------------------------
 
-NyxObjects::loadObjectsLatestVersions()
-.each{|object|
-
-}
-
-
-
 exit
