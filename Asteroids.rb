@@ -64,7 +64,6 @@ class Asteroids
     # Asteroids::commitToDisk(asteroid)
     def self.commitToDisk(asteroid)
         NyxObjects::put(asteroid)
-        $charlotte.incomingAsteroid(asteroid)
     end
 
     # Asteroids::makePayloadInteractivelyOrNull()
@@ -684,43 +683,3 @@ class Asteroids
         }
     end
 end
-
-class CatalystObjectsManager
-    def initialize()
-
-    end
-    def computeAndCacheSubsetOfUUIDs()
-        uuids = Asteroids::catalystObjects()
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
-                    .first(50)
-                    .map{|object| object["x-asteroid"]["uuid"] }
-        KeyValueStore::set(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", JSON.generate(uuids))
-    end
-    def getCachedUUIDs()
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", "[]"))
-    end
-    def catalystObjects()
-        getCachedUUIDs()
-            .map{|uuid| Asteroids::getOrNull(uuid) }
-            .compact
-            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-    end
-    def incomingAsteroid(asteroid)
-        uuids = (getCachedUUIDs() + [asteroid["uuid"]]).uniq
-        KeyValueStore::set(nil, "2d3981a9-faad-4854-83be-4fc73ac973f2", JSON.generate(uuids))
-    end
-end
-
-if !defined?($charlotte) then
-    $charlotte = CatalystObjectsManager.new()
-end
-
-Thread.new {
-    loop {
-        sleep 60
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f0e7adf3-0138-4234-a0e6-f7f50f45fbb1", 3600) then
-            $charlotte.computeAndCacheSubsetOfUUIDs()
-        end
-    }
-}

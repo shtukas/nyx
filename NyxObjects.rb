@@ -151,9 +151,6 @@ end
 
 if !defined?($InMemorySetsCache2917988) then
     $InMemorySetsCache2917988 = {} # Map[set: String, Map[uuid: String, Object] ]
-    NyxObjects::nyxNxSets().each{|setid|
-        $InMemorySetsCache2917988[setid] = {}
-    }
 end 
 
 class NyxObjectsCacheOperator
