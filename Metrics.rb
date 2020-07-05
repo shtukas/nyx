@@ -27,12 +27,12 @@ class Metrics
         end
     end
 
-    # Metrics::metricNX2OnGoing(basemetric, pinguuid)
-    def self.metricNX2OnGoing(basemetric, pinguuid)
+    # Metrics::metricNX2OnGoing(basemetric, pinguuid, dailyExpectationInSeconds)
+    def self.metricNX2OnGoing(basemetric, pinguuid, dailyExpectationInSeconds)
         # We look 7 samples over the past week.
         # Below 30 minutes per 24 hours, we are at basemetric , then we fall to zero
         bestratio = Ping::bestTimeRatioOverPeriod7Samples(pinguuid, 86400*7)
-        targetRatio = (60*30).to_f/86400
+        targetRatio = dailyExpectationInSeconds.to_f/86400
         if bestratio < targetRatio then
             basemetric
         else

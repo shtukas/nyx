@@ -448,14 +448,14 @@ class Asteroids
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::metricNX2OnGoing(0.66, uuid) # default assumption of a target of 30 minutes
+            x1 = Metrics::metricNX2OnGoing(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
             return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::metricNX2OnGoing(0.64, uuid) # default assumption of a target of 30 minutes
+            x1 = Metrics::metricNX2OnGoing(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
             return x1 + x2
         end
@@ -499,6 +499,11 @@ class Asteroids
         Runner::isRunning?(asteroid["uuid"])
     end
 
+    # Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
+    def self.onGoingUnilCompletionDailyExpectationInSeconds()
+        0.5*3600
+    end
+
     # Asteroids::isRunningForLong?(asteroid)
     def self.isRunningForLong?(asteroid)
         uuid = asteroid["uuid"]
@@ -509,12 +514,47 @@ class Asteroids
             end
         end
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
-            return Asteroids::pingTodayValueLive(asteroid) >= 3600
+            return Asteroids::pingTodayValueLive(asteroid) >= Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
         end
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            return Asteroids::pingTodayValueLive(asteroid) >= 1800
+            return Asteroids::pingTodayValueLive(asteroid) >= Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
         end
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
+    end
+
+    # Asteroids::asteroidOrbitalTypes()
+    def self.asteroidOrbitalTypes()
+        [
+            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+            "singleton-time-commitment-7c67cb4f-77e0-4fd",
+            "repeating-daily-time-commitment-8123956c-05",
+            "on-going-until-completion-5b26f145-7ebf-498",
+            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
+            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+            "open-project-in-the-background-b458aa91-6e1",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        ]
+    end
+
+    # Asteroids::asteroidOrbitalTypesThatTerminate()
+    def self.asteroidOrbitalTypesThatTerminate()
+        [
+            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+            "on-going-until-completion-5b26f145-7ebf-498",
+            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        ]
+    end
+
+    # Asteroids::asteroidOrbitalTypesThatStart()
+    def self.asteroidOrbitalTypesThatStart()
+        [
+            "singleton-time-commitment-7c67cb4f-77e0-4fd",
+            "repeating-daily-time-commitment-8123956c-05",
+            "on-going-until-completion-5b26f145-7ebf-498",
+            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        ]
     end
 
     # Asteroids::asteroidToCalalystObject(asteroid)
@@ -527,37 +567,31 @@ class Asteroids
             "commands"         => [],
             "execute"          => lambda { |input|
 
-                typesThatTerminate = [
-                    "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-                    "on-going-until-completion-5b26f145-7ebf-498",
-                    "float-to-do-today-b0d902a8-3184-45fa-9808-1",
-                    "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-                ]
+                # ----------------------------------------
+                # Not Running
 
-                if input == ".." and Runner::isRunning?(uuid) and typesThatTerminate.include?(asteroid["orbital"]["type"]) then
-                    Asteroids::asteroidStopSequence(asteroid)
+                if input == ".." and !Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatStart().include?(asteroid["orbital"]["type"]) then
+                    Asteroids::asteroidStartSequence(asteroid)
+                    return
+                end
+
+                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
-                        Asteroids::asteroidDestroySequence(asteroid)
-                    end
-                    return
-                end
-
-                if input == ".." and Runner::isRunning?(uuid) then
-                    Asteroids::asteroidStopSequence(asteroid)
-                    return
-                end
-
-                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" and asteroid["payload"]["type"] == "description" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? (if no, then will start): ") then
                         Asteroids::asteroidDestroySequence(asteroid)
                         return
                     end
-                    Asteroids::asteroidStartSequence(asteroid)
-                    return
                 end
 
-                if input == ".." and !Runner::isRunning?(uuid) then
-                    Asteroids::asteroidStartSequence(asteroid)
+                # ----------------------------------------
+                # Running
+
+                if input == ".." and Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
+                        Asteroids::asteroidDestroySequence(asteroid)
+                        return
+                    else
+                        Asteroids::asteroidStopSequence(asteroid)
+                    end
                     return
                 end
 
@@ -662,20 +696,6 @@ class Asteroids
             return if quark.nil?
             Quarks::openQuark(quark)
         end
-    end
-
-    # Asteroids::asteroidOrbitalTypes()
-    def self.asteroidOrbitalTypes()
-        [
-            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-            "singleton-time-commitment-7c67cb4f-77e0-4fd",
-            "repeating-daily-time-commitment-8123956c-05",
-            "on-going-until-completion-5b26f145-7ebf-498",
-            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
-            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
-            "open-project-in-the-background-b458aa91-6e1",
-            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-        ]
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
