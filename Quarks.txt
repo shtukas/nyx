@@ -33,26 +33,12 @@ Quark
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime" : Float # Unixtime with decimals
+    "unixtime"         : Float # Unixtime with decimals
 
     "description"      : nil | String
 
-    "type"             : "file"
-    "filename"         : String (Librarian managed)
-
-    "linkedTo"         : Array[String] # uuids of linked objects
-    "tags"             : Array[String] # tags
-}
-
-{
-    "uuid"             : String
-    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime" : Float # Unixtime with decimals
-
-    "description"      : nil | String
-
-    "type"             : "folder"
-    "foldername"       : String (Librarian managed)
+    "type"             : "aion-point"
+    "namedhash"        : String (Librarian managed)
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "tags"             : Array[String] # tags

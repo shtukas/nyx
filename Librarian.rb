@@ -17,7 +17,7 @@ require 'securerandom'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
 
-# require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 =begin
 
 The operator is an object that has meet the following signatures
@@ -72,41 +72,7 @@ require_relative "NyxBlobs.rb"
 
 # -----------------------------------------------------------------
 
-class LibrarianUtils
-    # LibrarianUtils::pathToLibrarian()
-    def self.pathToLibrarian()
-        "#{CatalystCommon::catalystDataCenterFolderpath()}/Librarian"
-    end
-
-    # LibrarianUtils::copyLocationToCatalystBin(location)
-    def self.copyLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        folder1 = "#{CatalystCommon::binT1mel1neFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        LucilleCore::copyFileSystemLocation(location, folder3)
-    end
-end
-
 class LibrarianFile
-
-    # LibrarianFile::filenameToRepositoryFilepath(filename)
-    def self.filenameToRepositoryFilepath(filename)
-        "#{LibrarianUtils::pathToLibrarian()}/Files/#{filename}"
-    end
-
-    # LibrarianFile::copyFileToRepository(filepath1)
-    def self.copyFileToRepository(filepath1)
-        raise "Librarian Error 655ACBBD" if !File.exists?(filepath1)
-        raise "Librarian Error 7755B7DB" if File.basename(filepath1).include?("'") 
-                # We could make the correction here but we want the clients (which manage the file) 
-                # to make the renaming themselves if needed
-        filepath2 = LibrarianFile::filenameToRepositoryFilepath(File.basename(filepath1))
-        raise "Librarian Error 909222C9" if File.exists?(filepath2)
-        FileUtils.cp(filepath1, filepath2)
-    end
 
     # LibrarianFile::exists?(filename)
     def self.exists?(filename)
@@ -136,23 +102,6 @@ class LibrarianFile
         end
     end
 
-    # LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
-    def self.makeNewTextFileInteractivelyReturnLibrarianFilename()
-        filename = "#{CatalystCommon::l22()}.txt"
-        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
-        FileUtils.touch(filepath)
-        system("open '#{filepath}'")
-        LucilleCore::pressEnterToContinue()
-        filename
-    end
-
-    # LibrarianFile::textToFilename(text)
-    def self.textToFilename(text)
-        filename = "#{CatalystCommon::l22()}.txt"
-        filepath = LibrarianFile::filenameToRepositoryFilepath(filename)
-        File.open(filepath, "w"){|f| f.puts(text) }
-        filename
-    end
 end
 
 class LibrarianDirectory
@@ -166,17 +115,6 @@ class LibrarianDirectory
     def self.exists?(foldername)
         folderpath = LibrarianDirectory::foldernameToFolderpath(foldername)
         File.exists?(folderpath)
-    end
-
-    # LibrarianDirectory::copyDirectoryToRepository(folderpath1)
-    def self.copyDirectoryToRepository(folderpath1)
-        raise "Librarian Error 9F5F3754" if !File.exists?(folderpath1)
-        raise "Librarian Error D6D2099B" if File.basename(folderpath1).include?("'")
-                # We could make the correction here but we want the clients (which manage the directory) 
-                # to make the renaming themselves if needed
-        folderpath2 = LibrarianDirectory::foldernameToFolderpath(File.basename(folderpath1))
-        raise "Librarian Error 58A61FB9" if File.exists?(folderpath2)
-        LucilleCore::copyFileSystemLocation(folderpath1, folderpath2)
     end
 
     # LibrarianDirectory::openFolder(foldername)
@@ -201,7 +139,6 @@ retrive the blobs to and from.
 class LibrarianAionElizabeth
 
     def initialize()
-
     end
 
     def commitBlob(blob)
@@ -213,7 +150,7 @@ class LibrarianAionElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = NyxBlobs::getBlobOrNull(namedhash)
+        blob = NyxBlobs::getBlobOrNull(nhash)
         raise "[LibrarianAionElizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
@@ -238,6 +175,6 @@ class LibrarianAion
 
     # LibrarianAion::namedHashExportAtFolder(namedHash, folderpath)
     def self.namedHashExportAtFolder(namedHash, folderpath)
-        AionCore::exportHashAtFolder(LibrarianAionElizabeth.new(), folderpath)
+        AionCore::exportHashAtFolder(LibrarianAionElizabeth.new(), namedHash, folderpath)
     end
 end

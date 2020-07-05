@@ -13,6 +13,8 @@ require 'fileutils'
 
 require 'find'
 
+require_relative "Common.rb"
+
 # ------------------------------------------------------------------------
 
 class NyxBlobs

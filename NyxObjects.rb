@@ -120,7 +120,6 @@ class NyxObjects
         blob = JSON.pretty_generate(object)
         namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
-        puts filepath
         File.open(filepath, "w") {|f| f.write(blob) }
         $X9176ffbef04a.put(object)
         namedhash

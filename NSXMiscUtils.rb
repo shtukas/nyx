@@ -146,7 +146,7 @@ class NSXMiscUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            quark = Quarks::issueQuarkFileOrFolderFromLocation(location)
+            quark = Quarks::issueQuarkAionPointFromLocation(location)
             puts JSON.pretty_generate(quark)
             asteroid = Asteroids::issueStartshipTodoFromQuark(quark)
             puts JSON.pretty_generate(asteroid)

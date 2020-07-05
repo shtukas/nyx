@@ -27,24 +27,30 @@ require_relative "Librarian.rb"
 # -----------------------------------------------------------------
 
 class QuarksUtils
-    # QuarksUtils::selectOneFilepathOnTheDesktopOrNull()
-    def self.selectOneFilepathOnTheDesktopOrNull()
+    # QuarksUtils::selectOneLocationOnTheDesktopOrNull()
+    def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.file?(filepath) }
                             .select{|filepath| File.basename(filepath) != 'pascal.png' }
+                            .select{|filepath| File.basename(filepath) != 'Todo-Inbox' }
                             .sort
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # QuarksUtils::selectOneFolderpathOnTheDesktopOrNull()
-    def self.selectOneFolderpathOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.directory?(filepath) }
-                            .select{|filepath| File.basename(filepath) != 'Todo-Inbox' }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
+    # QuarksUtils::makeNewTextFileInteractivelyReturnFilepath()
+    def self.makeNewTextFileInteractivelyReturnFilepath()
+        filepath = "/tmp/#{CatalystCommon::l22()}.txt"
+        FileUtils.touch(filepath)
+        system("open '#{filepath}'")
+        LucilleCore::pressEnterToContinue()
+        filepath
+    end
+
+    # QuarksUtils::textToFilepath(text)
+    def self.textToFilepath(text)
+        filepath = "/tmp/#{CatalystCommon::l22()}.txt"
+        File.open(filepath, "w"){|f| f.puts(text) }
+        filepath
     end
 end
 
@@ -59,7 +65,9 @@ class QuarksMakers
             "unixtime" => Time.new.to_f,
             "description"      => line,
             "type"             => "line",
-            "line"             => line
+            "line"             => line,
+            "linkedTo"         => [],
+            "tags"             => []
         }
     end
 
@@ -71,7 +79,9 @@ class QuarksMakers
             "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "url",
-            "url"              => url
+            "url"              => url,
+            "linkedTo"         => [],
+            "tags"             => []
         }
     end
 
@@ -82,121 +92,55 @@ class QuarksMakers
         QuarksMakers::makeQuarkUrl(url, description)
     end
 
-    # QuarksMakers::makeQuarkFileInteractivelyOrNull()
-    def self.makeQuarkFileInteractivelyOrNull()
-        filepath1 = QuarksUtils::selectOneFilepathOnTheDesktopOrNull()
-        return nil if filepath1.nil?
-        filename1 = File.basename(filepath1)
-        filename2 = "#{CatalystCommon::l22()}-#{filename1}"
-        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-        FileUtils.mv(filepath1, filepath2)
-        LibrarianFile::copyFileToRepository(filepath2)
+    # QuarksMakers::makeQuarkAionPointInteractivelyOrNull()
+    def self.makeQuarkAionPointInteractivelyOrNull()
+        location = QuarksUtils::selectOneLocationOnTheDesktopOrNull()
+        return nil if location.nil?
+        namedhash = LibrarianAion::locationToNamedHash(location)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
+            "unixtime"         => Time.new.to_f,
             "description"      => description,
-            "type"             => "file",
-            "filename"         => filename2
+            "type"             => "aion-point",
+            "namedhash"        => namedhash,
+            "linkedTo"         => [],
+            "tags"             => []
         }
     end
 
-    # QuarksMakers::makeQuarkFile(filepath)
-    def self.makeQuarkFile(filepath1)
-        filename2 = "#{CatalystCommon::l22()}-#{File.basename(filepath1)}"
-        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-        FileUtils.mv(filepath1, filepath2)
-        LibrarianFile::copyFileToRepository(filepath2)
+    # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
+    def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
+        namedhash = LibrarianAion::locationToNamedHash(filepath)
+        description = File.basename(location)
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
-            "type"             => "file",
-            "filename"         => filename2
-        }
-    end
-
-    # QuarksMakers::makeQuarkFileFromTextInteractively(text)
-    def self.makeQuarkFileFromTextInteractively(text)
-        filename = LibrarianFile::textToFilename(text)
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
+            "unixtime"         => Time.new.to_f,
             "description"      => description,
-            "type"             => "file",
-            "filename"         => filename
+            "type"             => "aion-point",
+            "namedhash"        => namedhash,
+            "linkedTo"         => [],
+            "tags"             => []
         }
     end
 
-    # QuarksMakers::makeQuarkFileFromFilenameAndDescription(filename, description)
-    def self.makeQuarkFileFromFilenameAndDescription(filename, description)
-        {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
-            "description"      => description,
-            "type"             => "file",
-            "filename"         => filename
-        }
-    end
-
-    # QuarksMakers::makeQuarkFolderInteractivelyOrNull()
-    def self.makeQuarkFolderInteractivelyOrNull()
-        folderpath1 = QuarksUtils::selectOneFolderpathOnTheDesktopOrNull()
-        return nil if folderpath1.nil?
-        foldername1 = File.basename(folderpath1)
-        foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
-        folderpath2 = "#{File.dirname(folderpath1)}/#{foldername2}"
-        FileUtils.mv(folderpath1, folderpath2)
-        LibrarianDirectory::copyDirectoryToRepository(folderpath2)
-        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
-            "description"      => description,
-            "type"             => "folder",
-            "foldername"       => foldername2
-        }
-    end
-
-    # QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
-    def self.makeQuarkFileOrFolderFromLocation(location)
+    # QuarksMakers::makeQuarkAionPointFromLocation(location)
+    def self.makeQuarkAionPointFromLocation(location)
         raise "f8e3b314" if !File.exists?(location)
-        if File.file?(location) then
-            filepath1 = location
-            filename1 = File.basename(filepath1)
-            filename2 = "#{CatalystCommon::l22()}-#{filename1}"
-            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-            FileUtils.mv(filepath1, filepath2)
-            LibrarianFile::copyFileToRepository(filepath2)
-            FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            {
-                "uuid"             => SecureRandom.uuid,
-                "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "unixtime" => Time.new.to_f,
-                "type"             => "file",
-                "filename"         => filename2
-            }
-        else
-            folderpath1 = location
-            foldername1 = File.basename(folderpath1)
-            foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
-            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
-            FileUtils.mv(folderpath1, folderpath2)
-            LibrarianDirectory::copyDirectoryToRepository(folderpath2)
-            FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            {
-                "uuid"             => SecureRandom.uuid,
-                "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-                "unixtime" => Time.new.to_f,
-                "type"             => "folder",
-                "foldername"       => foldername2
-            }
-        end
+        namedhash = LibrarianAion::locationToNamedHash(location)
+        description = File.basename(location)
+        {
+            "uuid"             => SecureRandom.uuid,
+            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
+            "unixtime"         => Time.new.to_f,
+            "description"      => description,
+            "type"             => "aion-point",
+            "namedhash"        => namedhash,
+            "linkedTo"         => [],
+            "tags"             => []
+        }
     end
 
     # QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
@@ -210,14 +154,16 @@ class QuarksMakers
             "unixtime" => Time.new.to_f,
             "description"      => description,
             "type"             => "unique-name",
-            "name"             => uniquename
+            "name"             => uniquename,
+            "linkedTo"         => [],
+            "tags"             => []
         }
     end
 
     # QuarksMakers::makeNewQuarkInteractivelyOrNull()
     def self.makeNewQuarkInteractivelyOrNull()
         puts "Making a new Quark..."
-        types = ["line", "url", "file", "new text file", "folder", "unique-name"]
+        types = ["line", "url", "fs-location aion-point", "new text file", "unique-name"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -226,16 +172,13 @@ class QuarksMakers
         if type == "url" then
             return QuarksMakers::makeQuarkUrlInteractively()
         end
-        if type == "file" then
-            return QuarksMakers::makeQuarkFileInteractivelyOrNull()
+        if type == "fs-location aion-point" then
+            return QuarksMakers::makeQuarkAionPointInteractivelyOrNull()
         end
         if type == "new text file" then
-            filename = LibrarianFile::makeNewTextFileInteractivelyReturnLibrarianFilename()
+            filepath = QuarksUtils::makeNewTextFileInteractivelyReturnFilepath()
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return QuarksMakers::makeQuarkFileFromFilenameAndDescription(filename, description)
-        end
-        if type == "folder" then
-            return QuarksMakers::makeQuarkFolderInteractivelyOrNull()
+            return QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
         end
         if type == "unique-name" then
             return QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
@@ -259,9 +202,9 @@ class Quarks
         quark
     end
 
-    # Quarks::issueQuarkFileOrFolderFromLocation(location)
-    def self.issueQuarkFileOrFolderFromLocation(location)
-        quark = QuarksMakers::makeQuarkFileOrFolderFromLocation(location)
+    # Quarks::issueQuarkAionPointFromLocation(location)
+    def self.issueQuarkAionPointFromLocation(location)
+        quark = QuarksMakers::makeQuarkAionPointFromLocation(location)
         Quarks::commitQuarkToDisk(quark)
         quark
     end
@@ -275,18 +218,6 @@ class Quarks
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
         NyxObjects::destroy(uuid)
-    end
-
-    # Quarks::getQuarksOfTypeFolderByFoldername(foldername)
-    def self.getQuarksOfTypeFolderByFoldername(foldername)
-        Quarks::quarks()
-            .select{|quark| quark["type"] == "folder" and quark["foldername"] == foldername }
-    end
-
-    # Quarks::getQuarksOfTypeFileByFilename(filename)
-    def self.getQuarksOfTypeFileByFilename(filename)
-        Quarks::quarks()
-            .select{|quark| quark["type"] == "file" and quark["filename"] == filename }
     end
 
     # Quarks::getQuarkCliques(quark)
@@ -303,23 +234,16 @@ class Quarks
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
         if quark["description"] then
-            if quark["type"] == "file" then
-                return "[quark] [#{quark["uuid"][0, 4]}] [#{quark["type"]}#{File.extname(quark["filename"])}] #{quark["description"]}"
-            else
-                return "[quark] [#{quark["uuid"][0, 4]}] [#{quark["type"]}] #{quark["description"]}"
-            end
+            return "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{quark["description"]}"
         end
         if quark["type"] == "line" then
             return "[quark] [#{quark["uuid"][0, 4]}] [line] #{quark["line"]}"
         end
-        if quark["type"] == "file" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [file] #{quark["filename"]}"
-        end
         if quark["type"] == "url" then
             return "[quark] [#{quark["uuid"][0, 4]}] [url] #{quark["url"]}"
         end
-        if quark["type"] == "folder" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [folder] #{quark["foldername"]}"
+        if quark["type"] == "aion-point" then
+            return "[quark] [#{quark["uuid"][0, 4]}] [aion-point] #{quark["namedhash"]}"
         end
         if quark["type"] == "unique-name" then
             return "[quark] [#{quark["uuid"][0, 4]}] [unique name] #{quark["name"]}"
@@ -334,16 +258,14 @@ class Quarks
             LucilleCore::pressEnterToContinue()
             return
         end
-        if quark["type"] == "file" then
-            LibrarianFile::accessFile(quark["filename"])
+        if quark["type"] == "aion-point" then
+            namedhash = quark["namedhash"]
+            folderpath = "/Users/pascal/Desktop"
+            LibrarianAion::namedHashExportAtFolder(namedhash, folderpath)
             return
         end
         if quark["type"] == "url" then
             system("open '#{quark["url"]}'")
-            return
-        end
-        if quark["type"] == "folder" then
-            LibrarianDirectory::openFolder(quark["foldername"])
             return
         end
         if quark["type"] == "unique-name" then

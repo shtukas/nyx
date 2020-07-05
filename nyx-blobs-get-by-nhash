@@ -28,19 +28,10 @@ require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
-require_relative "Bosons.rb"
-require_relative "Cubes.rb"
-require_relative "NyxGenericObjectInterface.rb"
-require_relative "NyxObjects.rb"
-require_relative "Quarks.rb"
+require_relative "NyxBlobs.rb"
 
 # --------------------------------------------------------------------
 
-NyxObjects::loadObjectsLatestVersions()
-.each{|object|
-
-}
-
-
-
-exit
+namedhash = ARGV[0]
+exit if namedhash.nil?
+puts NyxBlobs::getBlobOrNull(namedhash)
