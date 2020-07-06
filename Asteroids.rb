@@ -126,8 +126,10 @@ class Asteroids
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
         if option == opt0 then
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             return {
-                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
+                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+                "ordinal"               => ordinal
             }
         end
         if option == opt1 then
@@ -225,6 +227,9 @@ class Asteroids
         }
         orbitalFragment = lambda{|asteroid|
             uuid = asteroid["uuid"]
+            if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
+                return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
+            end
             if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
                 return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
             end
@@ -237,7 +242,7 @@ class Asteroids
             ""
         }
         typeAsUserFriendly = lambda {|type|
-            return "‼️ "  if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
+            return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
             return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
             return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
@@ -432,7 +437,7 @@ class Asteroids
         return 1 if Asteroids::isRunning?(asteroid)
 
         if orbital["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            return 0.72 + 0.01*Asteroids::shiftNX71(asteroid["unixtime"]) 
+            return 0.72 - 0.01*Math.atan(asteroid["orbital"]["ordinal"])
             # We want the most recent one to come first
             # LIFO queue
         end
@@ -571,16 +576,16 @@ class Asteroids
                 # ----------------------------------------
                 # Not Running
 
-                if input == ".." and !Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatStart().include?(asteroid["orbital"]["type"]) then
-                    Asteroids::asteroidStartSequence(asteroid)
-                    return
-                end
-
                 if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
                         Asteroids::asteroidDestroySequence(asteroid)
                         return
                     end
+                end
+
+                if input == ".." and !Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatStart().include?(asteroid["orbital"]["type"]) then
+                    Asteroids::asteroidStartSequence(asteroid)
+                    return
                 end
 
                 # ----------------------------------------
@@ -593,6 +598,11 @@ class Asteroids
                     else
                         Asteroids::asteroidStopSequence(asteroid)
                     end
+                    return
+                end
+
+                if input == ".." and Runner::isRunning?(uuid) and !Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
+                    Asteroids::asteroidStopSequence(asteroid)
                     return
                 end
 

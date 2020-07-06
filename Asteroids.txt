@@ -27,6 +27,7 @@ Asteroid
     Orbital
         {
             "type"                  : "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
+            "ordinal"               : Float
         }
         {
             "type"                  : "singleton-time-commitment-7c67cb4f-77e0-4fd"
