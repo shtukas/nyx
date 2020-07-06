@@ -592,7 +592,7 @@ class Asteroids
                 # Running
 
                 if input == ".." and Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                         Asteroids::asteroidDestroySequence(asteroid)
                         return
                     else
