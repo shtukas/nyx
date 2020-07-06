@@ -91,7 +91,7 @@ class NSXCatalystUI
             text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
             puts ""
             puts File.basename(filepath)
-            puts text.green
+            puts text
             verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
         end
 
@@ -118,9 +118,6 @@ class NSXCatalystUI
             catalystObjects.each_with_index{|object, indx| 
                 str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
-                if object["isRunning"] then
-                    str = str.green
-                end
                 verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
                 menuitems.item(
                     str,

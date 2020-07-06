@@ -1,4 +1,4 @@
-#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+#!/usr/bin/ruby
 
 # encoding: UTF-8
 
@@ -7,7 +7,6 @@ require 'json'
 
 require 'time'
 require 'date'
-require 'colorize'
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"

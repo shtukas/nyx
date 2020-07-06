@@ -14,8 +14,6 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require 'colorize'
-
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
 require_relative "DataPortalUI.rb"
@@ -122,7 +120,7 @@ class Cliques
 
             CatalystCommon::horizontalRule(false)
 
-            puts Cliques::cliqueToString(clique).green
+            puts Cliques::cliqueToString(clique)
             puts "uuid: #{clique["uuid"]}"
 
             if clique["textnote"] then

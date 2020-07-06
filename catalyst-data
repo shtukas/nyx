@@ -1,4 +1,4 @@
-#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+#!/usr/bin/ruby
 
 # encoding: UTF-8
 
@@ -7,7 +7,6 @@ require 'json'
 
 require 'time'
 require 'date'
-require 'colorize'
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -47,7 +46,6 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::isVisible(uid)
 
 require_relative "Common.rb"
-
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
 require_relative "NSXDisplayUtils.rb"

@@ -317,7 +317,7 @@ class Quarks
 
             CatalystCommon::horizontalRule(false)
 
-            puts Quarks::quarkToString(quark).green
+            puts Quarks::quarkToString(quark)
             puts "uuid: #{quark["uuid"]}"
             puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
             puts "tags: #{quark["tags"].join(", ")}"
