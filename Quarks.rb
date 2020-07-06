@@ -315,6 +315,7 @@ class Quarks
 
             puts Quarks::quarkToString(quark).green
             puts "uuid: #{quark["uuid"]}"
+            puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
             puts "tags: #{quark["tags"].join(", ")}"
 
             CatalystCommon::horizontalRule(true)
@@ -341,6 +342,17 @@ class Quarks
                 }
             )
 
+
+            menuitems.item(
+                "datetime (update)",
+                lambda{
+                    datetime = CatalystCommon::editTextUsingTextmate(Time.at(quark["unixtime"]).utc.iso8601).strip
+                    return if !NSXMiscUtils::dateIsIso8601Format?(datetime)
+                    unixtime = DateTime.parse(datetime).to_time.to_f
+                    quark["unixtime"] = unixtime
+                    Quarks::commitQuarkToDisk(quark)
+                }
+            )
             menuitems.item(
                 "tag (add)",
                 lambda {

@@ -24,7 +24,12 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
 class NSXMiscUtils
- 
+
+    # NSXMiscUtils::dateIsIso8601Format?(datetime)
+    def self.dateIsIso8601Format?(datetime)
+        datetime == DateTime.parse(datetime).to_time.utc.iso8601
+    end
+
     # NSXMiscUtils::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
         (Time.now+86400*n).utc.iso8601[0,10]
