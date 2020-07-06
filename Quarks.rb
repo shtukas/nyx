@@ -63,12 +63,13 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
+            "unixtime"         => Time.new.to_f,
             "description"      => line,
             "type"             => "line",
             "line"             => line,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -77,12 +78,13 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
+            "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "url",
             "url"              => url,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -107,7 +109,8 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -122,7 +125,8 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -139,7 +143,8 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -151,12 +156,13 @@ class QuarksMakers
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime" => Time.new.to_f,
+            "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "unique-name",
             "name"             => uniquename,
             "linkedTo"         => [],
-            "tags"             => []
+            "tags"             => [],
+            "textnote"         => nil
         }
     end
 
@@ -318,6 +324,13 @@ class Quarks
             puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
             puts "tags: #{quark["tags"].join(", ")}"
 
+            if quark["textnote"] then
+                puts "Note:"
+                namedhash = quark["textnote"]
+                text = NyxBlobs::getBlobOrNull(namedhash)
+                puts text
+            end
+
             CatalystCommon::horizontalRule(true)
 
             menuitems = LCoreMenuItemsNX1.new()
@@ -353,6 +366,22 @@ class Quarks
                     Quarks::commitQuarkToDisk(quark)
                 }
             )
+
+            menuitems.item(
+                "textnote (edit)", 
+                lambda{ 
+                    text = ""
+                    if quark["textnote"] then
+                        namedhash = quark["textnote"]
+                        text = NyxBlobs::getBlobOrNull(namedhash)
+                    end
+                    text = CatalystCommon::editTextUsingTextmate(text).strip
+                    namedhash = NyxBlobs::put(text)
+                    quark["textnote"] = namedhash
+                    Quarks::commitQuarkToDisk(quark)
+                }
+            )
+
             menuitems.item(
                 "tag (add)",
                 lambda {

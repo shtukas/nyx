@@ -5,4 +5,5 @@ Clique {
     "unixtime"  : Float # Unixtime with decimals
     "name"      : String
     "linkedTo"  : Array[String] # uuids of linked objects
+    "textnote"  : nil or String # namedhash
 }

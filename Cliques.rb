@@ -29,8 +29,9 @@ class Cliques
         clique = {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
-            "unixtime" => Time.new.to_f,
-            "name"             => name1
+            "unixtime"         => Time.new.to_f,
+            "name"             => name1,
+            "textnote"         => nil
         }
         Cliques::commitToDisk(clique)
         clique
@@ -124,6 +125,13 @@ class Cliques
             puts Cliques::cliqueToString(clique).green
             puts "uuid: #{clique["uuid"]}"
 
+            if clique["textnote"] then
+                puts "Note:"
+                namedhash = clique["textnote"]
+                text = NyxBlobs::getBlobOrNull(namedhash)
+                puts text
+            end
+
             menuitems = LCoreMenuItemsNX1.new()
 
             CatalystCommon::horizontalRule(true)
@@ -132,6 +140,21 @@ class Cliques
                 "rename", 
                 lambda{ 
                     clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
+                    Cliques::commitToDisk(clique)
+                }
+            )
+
+            menuitems.item(
+                "textnote (edit)", 
+                lambda{ 
+                    text = ""
+                    if clique["textnote"] then
+                        namedhash = clique["textnote"]
+                        text = NyxBlobs::getBlobOrNull(namedhash)
+                    end
+                    text = CatalystCommon::editTextUsingTextmate(text).strip
+                    namedhash = NyxBlobs::put(text)
+                    clique["textnote"] = namedhash
                     Cliques::commitToDisk(clique)
                 }
             )

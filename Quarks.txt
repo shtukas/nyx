@@ -14,6 +14,7 @@ Quark
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "tags"             : Array[String] # tags
+    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -28,6 +29,7 @@ Quark
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "tags"             : Array[String] # tags
+    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -42,6 +44,7 @@ Quark
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "tags"             : Array[String] # tags
+    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -56,4 +59,5 @@ Quark
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "tags"             : Array[String] # tags
+    "textnote"         : nil or String # namedhash
 }
