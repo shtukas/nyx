@@ -1,11 +1,13 @@
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+require_relative "LucilleCore.rb"
 
 require_relative "Common.rb"
 require_relative "Quarks.rb"
 require_relative "Cliques.rb"
+
+# -----------------------------------------------------------------
 
 class NSXGeneralSearch
 

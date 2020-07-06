@@ -1,7 +1,12 @@
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require_relative "KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
@@ -18,10 +23,7 @@ require_relative "Cubes.rb"
 require_relative "Cliques.rb"
 require_relative "Asteroids.rb"
 
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+# -----------------------------------------------------------------
 
 class NSXMiscUtils
 

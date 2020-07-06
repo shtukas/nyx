@@ -26,7 +26,7 @@ require 'digest/sha1'
 
 require 'find'
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+require_relative "LucilleCore.rb"
 
 require_relative "NyxBlobs.rb"
 

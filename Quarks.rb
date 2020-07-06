@@ -15,10 +15,8 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AtlasCore.rb"
-
+require_relative "AtlasCore.rb"
 require_relative "Common.rb"
-
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
 require_relative "LibrarianAion.rb"

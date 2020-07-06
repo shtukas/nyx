@@ -13,7 +13,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+require_relative "BTreeSets.rb"
 =begin
     BTreeSets::values(repositorylocation or nil, uuid: String): Array[Value]
     BTreeSets::set(repositorylocation or nil, uuid: String, valueuuid: String, value)
