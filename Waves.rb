@@ -403,6 +403,7 @@ class Waves
     # Waves::main()
     def self.main()
         loop {
+            system("clear")
             puts "Waves 🌊"
             options = [
                 "new wave",
