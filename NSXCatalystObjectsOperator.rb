@@ -46,7 +46,6 @@ class NSXCatalystObjectsOperator
             "uuid"             => SecureRandom.hex,
             "body"             => "asteroids monitoring (X02394e74c407)",
             "metric"           => 0.99,
-            "commands"         => [],
             "execute"          => lambda { |input|
 
                 uuids

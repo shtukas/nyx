@@ -215,14 +215,9 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
-        object["commands"] = ["done"]
-        object["execute"] = lambda { |input| 
+        object["execute"] = lambda { |input|
             if input == ".." then
                 Waves::openAndRunProcedure(wave)
-                return
-            end
-            if input == "done" then
-                Waves::performDone(wave)
                 return
             end
             Waves::waveDive(wave)

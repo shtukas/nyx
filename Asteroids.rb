@@ -570,7 +570,6 @@ class Asteroids
             "uuid"             => uuid,
             "body"             => Asteroids::asteroidToString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
-            "commands"         => [],
             "execute"          => lambda { |input|
 
                 # ----------------------------------------

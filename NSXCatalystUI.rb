@@ -123,10 +123,6 @@ class NSXCatalystUI
                     str,
                     lambda { object["execute"].call(nil) }
                 )
-                if indx == 0 and object["commands"].size > 0 then
-                    puts "             -> #{object["commands"].join(", ")}"
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                end
             }
         end 
 

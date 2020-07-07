@@ -50,7 +50,6 @@ class BackupsMonitor
             "uuid"     => uuid,
             "body"     => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
             "metric"   => 0.50,
-            "commands" => [],
             "execute"  => lambda{|input| }
         }
     end

@@ -35,7 +35,6 @@ class Calendar
             "uuid"     => uuid,
             "body"     => "🗓️  " + date + "\n" + content,
             "metric"   => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
-            "commands" => [],
             "execute"  => lambda { |input|
                 if input == ".." then
                     Calendar::setDateAsReviewed(date)

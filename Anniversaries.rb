@@ -156,7 +156,6 @@ class Anniversaries
                     "uuid"           => "eace4480-b93c-4b2f-bfb4-600f300812d3",
                     "body"           => "anniversaries",
                     "metric"         => 0.95,
-                    "commands"       => [],
                     "execute" => lambda { |input|
                         Anniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
                             ns1203["anniversaries"].each{|anniversary|
