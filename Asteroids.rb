@@ -246,10 +246,10 @@ class Asteroids
                 return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
             end
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                return " (repeating daily: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, today: #{(Asteroids::pingTodayValueLive(asteroid).to_f/3600).round(2)} hours)"
+                return " (daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, equivalent per day: #{Metrics::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
             end
             if asteroid["orbital"]["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-                return " (indefinite: today: #{(Asteroids::pingTodayValueLive(asteroid).to_f/3600).round(2)} hours, #{(100*Asteroids::pingTodayValueLive(asteroid).to_f/1800).round(2)} %)"
+                return " (equivalent per day: #{Metrics::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
             end
             ""
         }

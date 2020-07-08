@@ -17,16 +17,22 @@ require 'digest/sha1'
 # -----------------------------------------------------------------
 
 class Metrics
+
+    # Metrics::recoveredDailyTimeInHours(pinguuid)
+    def self.recoveredDailyTimeInHours(pinguuid)
+        (Ping::bestTimeRatioOverPeriod7Samples(pinguuid, 86400*7)*86400).to_f/3600
+    end
+
     # Metrics::targetRatioThenFall(basemetric, pinguuid, dailyExpectationInSeconds)
     def self.targetRatioThenFall(basemetric, pinguuid, dailyExpectationInSeconds)
         # We look 7 samples over the past week.
         # Below 30 minutes per 24 hours, we are at basemetric , then we fall to zero
         bestratio = Ping::bestTimeRatioOverPeriod7Samples(pinguuid, 86400*7)
-        targetRatio = dailyExpectationInSeconds.to_f/86400
-        if bestratio < targetRatio then
+        targetratio = dailyExpectationInSeconds.to_f/86400
+        if bestratio < targetratio then
             basemetric
         else
-            extraTimeInSeconds = (bestratio-targetRatio)*86400
+            extraTimeInSeconds = (bestratio-targetratio)*86400
             0.2 + (basemetric-0.2)*Math.exp(-extraTimeInSeconds.to_f/1200)
         end
     end
