@@ -248,9 +248,6 @@ class Asteroids
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
                 return " (daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, equivalent per day: #{Metrics::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
             end
-            if asteroid["orbital"]["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-                return " (equivalent per day: #{Metrics::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
-            end
             ""
         }
         typeAsUserFriendly = lambda {|type|
