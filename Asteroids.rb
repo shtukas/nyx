@@ -208,8 +208,8 @@ class Asteroids
         Asteroids::issue(payload, orbital)
     end
 
-    # Asteroids::asteroidTypeAsUserFriendlyString(type)
-    def self.asteroidTypeAsUserFriendlyString(type)
+    # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
+    def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
         return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
@@ -271,7 +271,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadFragment.call(asteroid)}#{orbitalFragment.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadFragment.call(asteroid)}#{orbitalFragment.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -317,6 +317,7 @@ class Asteroids
 
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
+            puts "orbital type: #{asteroid["orbital"]["type"]}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime then
