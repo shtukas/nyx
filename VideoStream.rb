@@ -115,7 +115,7 @@ class VideoStream
             sleep 1
         end
         watchTime = Time.new.to_f - startTime
-        Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", watchTime)
+        Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", watchTime)
     end
 
     # VideoStream::execute(filepath)

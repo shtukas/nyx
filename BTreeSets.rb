@@ -4,7 +4,7 @@
     BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
     BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
     BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
 # ---------------------------------------------------------------------------------------------

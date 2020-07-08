@@ -7,7 +7,7 @@ require_relative "BTreeSets.rb"
     BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
     BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
     BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
 require_relative "DailyTimes.rb"
@@ -39,13 +39,6 @@ require_relative "Bank.rb"
 =begin 
     Bank::put(uuid, weight)
     Bank::value(uuid)
-=end
-
-require_relative "Ping.rb"
-=begin 
-    Ping::put(uuid, weight)
-    Ping::totalOverTimespan(uuid, timespanInSeconds)
-    Ping::totalToday(uuid)
 =end
 
 require_relative "Metrics.rb"
@@ -324,8 +317,8 @@ class Asteroids
             CatalystCommon::horizontalRule(true)
 
             puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Ping 7 days    : #{Ping::totalOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            puts "Ping 24 hours  : #{Ping::totalOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
+            puts "Bank 7 days    : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
+            puts "Bank 24 hours  : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -453,27 +446,27 @@ class Asteroids
         end
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return 0.70 - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return 0.70 - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
             x1 = Metrics::targetRatioThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
-            x2 = - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x2 = - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
             x1 = Metrics::targetRatioThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
             x1 = Metrics::targetRatioThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
@@ -505,12 +498,6 @@ class Asteroids
         Bank::value(uuid) + Asteroids::runTimeIfAny(asteroid)
     end
 
-    # Asteroids::pingTodayValueLive(asteroid)
-    def self.pingTodayValueLive(asteroid)
-        uuid = asteroid["uuid"]
-        Ping::totalToday(uuid) + Asteroids::runTimeIfAny(asteroid)
-    end
-
     # Asteroids::isRunning?(asteroid)
     def self.isRunning?(asteroid)
         Runner::isRunning?(asteroid["uuid"])
@@ -530,12 +517,6 @@ class Asteroids
             if Asteroids::bankValueLive(asteroid) >= orbital["timeCommitmentInHours"]*3600 then
                 return true
             end
-        end
-        if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
-            return Asteroids::pingTodayValueLive(asteroid) >= Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
-        end
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            return Asteroids::pingTodayValueLive(asteroid) >= Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
         end
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
     end
@@ -671,8 +652,7 @@ class Asteroids
     # Asteroids::addTimeToAsteroid(asteroid, timespanInSeconds)
     def self.addTimeToAsteroid(asteroid, timespanInSeconds)
         Bank::put(asteroid["uuid"], timespanInSeconds)
-        Ping::put(asteroid["uuid"], timespanInSeconds)
-        Ping::put("b14be1e3-ff3f-457b-8595-685db7b98a9d", timespanInSeconds)
+        Bank::put("b14be1e3-ff3f-457b-8595-685db7b98a9d", timespanInSeconds)
     end
 
     # Asteroids::asteroidStopSequence(asteroid)

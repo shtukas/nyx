@@ -26,19 +26,12 @@ require_relative "BTreeSets.rb"
     BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
     BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
     BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
 require_relative "SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
-
-require_relative "Ping.rb"
-=begin 
-    Ping::put(uuid, weight)
-    Ping::totalOverTimespan(uuid, timespanInSeconds)
-    Ping::totalToday(uuid)
-=end
 
 require_relative "Mercury.rb"
 =begin
