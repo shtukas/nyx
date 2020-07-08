@@ -61,8 +61,7 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        timeInHours = Ping::totalToday("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01").to_f/3600
-        Metrics::metricNX1RequiredValueAndThenFall(0.55, timeInHours, 0.5) - indx.to_f/1000
+        Metrics::targetRatioThenFall(0.55, "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 0.5*3600)
     end
 
     # VideoStream::catalystObjects()

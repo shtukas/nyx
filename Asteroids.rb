@@ -433,8 +433,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::shiftNX71(unixtime)
-    def self.shiftNX71(unixtime)
+    # Asteroids::unixtimeShift_OlderTimesShiftLess(unixtime)
+    def self.unixtimeShift_OlderTimesShiftLess(unixtime)
         # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
         unixtimeAtNextMidnightIsh = (1+Time.now.utc.to_i/86400) * 86400
         positiveDatationInMonths = unixtimeAtNextMidnightIsh-unixtime
@@ -461,33 +461,35 @@ class Asteroids
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
-            return Metrics::metricNX1RequiredValueAndThenFall(0.68, Ping::totalToday(uuid), orbital["timeCommitmentInHours"]*3600) - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            x1 = Metrics::targetRatioThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
+            x2 = - 0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
+            return x1 + x2
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::metricNX2OnGoing(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x1 = Metrics::targetRatioThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
             return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::metricNX2OnGoing(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x1 = Metrics::targetRatioThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Ping::bestTimeRatioOverPeriod7Samples(uuid, 86400*7)
             return x1 + x2
         end
 
         if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.60 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+            return 0.60 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then
-            return 0.21 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+            return 0.21 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-            return 0.49 - 0.01*Asteroids::shiftNX71(asteroid["unixtime"])
+            return 0.49 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         puts asteroid
