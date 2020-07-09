@@ -52,6 +52,7 @@ require_relative "NSXDisplayUtils.rb"
 require_relative "NSXGeneralSearch.rb"
 require_relative "NSXEstateServices.rb"
 require_relative "NSXMiscUtils.rb"
+require_relative "RealEstate.rb"
 
 # -------------------------------------------------------------------------
 
@@ -63,6 +64,8 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # nslog
 
 # -------------------------------------------------------------------------
+
+RealEstate::surveyConstruction()
 
 loop {
     if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then

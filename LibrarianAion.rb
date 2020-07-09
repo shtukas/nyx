@@ -124,7 +124,7 @@ end
 class LibrarianAionDesk
     # LibrarianAionDesk::folderpathForQuark(quark)
     def self.folderpathForQuark(quark)
-        folderpath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Desk/#{quark["uuid"]}"
+        folderpath = "#{RealEstate::getDeskFolderpath()}/#{quark["uuid"]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
             namedhash = quark["namedhash"]

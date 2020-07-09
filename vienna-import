@@ -58,6 +58,8 @@ require_relative "Common.rb"
 require_relative "Quarks.rb"
 require_relative "Asteroids.rb"
 
+require_relative "RealEstate.rb"
+
 # -------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"

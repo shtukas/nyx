@@ -29,6 +29,8 @@ require_relative "LucilleCore.rb"
 
 require_relative "NyxBlobs.rb"
 
+require_relative "RealEstate.rb"
+
 # --------------------------------------------------------------------
 
 namedhash = ARGV[0]

@@ -41,6 +41,8 @@ require_relative "KeyValueStore.rb"
 
 require_relative "ShadowFS.rb"
 
+require_relative "RealEstate.rb"
+
 # -------------------------------------------------------------------------
 
 # ./shadowfs commit <location>
