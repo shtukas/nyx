@@ -183,6 +183,19 @@ class NSXCatalystUI
             NSXCatalystUI::applyNextTransformationToFile(filepath)
         end
 
+        if command == "a+" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            payload = {
+                "type"        => "description",
+                "description" => description
+            }
+            orbital = {
+                "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+            }
+            asteroid = Asteroids::issue(payload, orbital)
+            return
+        end
+
         if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(

@@ -320,19 +320,6 @@ class LucilleCore
     end
 end
 
-
-=begin
-        ms = LCoreMenuItemsNX1.new()
-        ms.item(
-            "mark as reviewed",
-            lambda { 
-                asteroid["X02394e74c407"] = true
-                NyxSets::putObject(asteroid)
-            }
-        )
-        ms.prompt()
-=end
-
 class LCoreMenuItemsNX1
 
     def initialize()
