@@ -16,8 +16,10 @@ Asteroid
             "description" : String
         }
         {
-            "type"        : "quark"
-            "quarkuuid"   : String
+            "type": "quarks",
+            "uuids": [
+                "3cfe0996-da90-44e7-8a2d-bbfb6b5cb810-EDAAC2BD"
+            ]
         }
         {
             "type"        : "clique"
@@ -25,6 +27,10 @@ Asteroid
         }
 
     Orbital
+
+        {
+            "type"                  : "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        }
         {
             "type"                  : "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             "ordinal"               : Float

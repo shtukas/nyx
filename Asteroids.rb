@@ -63,7 +63,7 @@ class Asteroids
     def self.makePayloadInteractivelyOrNull()
         options = [
             "description",
-            "quark",
+            "quarks",
             "clique"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
@@ -75,12 +75,12 @@ class Asteroids
                 "description" => description
             }
         end
-        if option == "quark" then
+        if option == "quarks" then
             quark = Quarks::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
             return {
-                "type"      => "quark",
-                "quarkuuid" => quark["uuid"]
+                "type"  => "quarks",
+                "uuids" => [ quark["uuid"] ]
             }
         end
         if option == "clique" then
@@ -96,6 +96,7 @@ class Asteroids
 
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
+        opt9 = "inbox"
         opt0 = "top priority"
         opt1 = "single day time commitment"
         opt2 = "repeating daily time commitment"
@@ -106,6 +107,7 @@ class Asteroids
         opt5 = "todo"
 
         options = [
+            opt9,
             opt0,
             opt1,
             opt2,
@@ -164,6 +166,12 @@ class Asteroids
                 "type"                  => "open-project-in-the-background-b458aa91-6e1"
             }
         end
+        if option == opt9 then
+            return {
+                "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+            }
+        end
+        
         nil
     end
 
@@ -189,20 +197,21 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueStartshipTodoFromQuark(quark)
-    def self.issueStartshipTodoFromQuark(quark)
+    # Asteroids::issueAsteroidInboxFromQuark(quark)
+    def self.issueAsteroidInboxFromQuark(quark)
         payload = {
-            "type"      => "quark",
-            "quarkuuid" => quark["uuid"]
+            "type"  => "quarks",
+            "uuids" => [ quark["uuid"] ]
         }
         orbital = {
-            "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
         Asteroids::issue(payload, orbital)
     end
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
+        return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
         return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
@@ -220,8 +229,8 @@ class Asteroids
             if payload["type"] == "description" then
                 return " " + payload["description"]
             end
-            if payload["type"] == "quark" then
-                quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
+            if payload["type"] == "quarks" then
+                quark = Quarks::getOrNull(asteroid["payload"]["uuids"][0])
                 return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
             end
             if payload["type"] == "clique" then
@@ -243,16 +252,6 @@ class Asteroids
             end
             ""
         }
-        typeAsUserFriendly = lambda {|type|
-            return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
-            return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
-            return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
-            return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
-            return "⛲"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
-            return "👩‍💻"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-            return "☀️ " if type == "float-to-do-today-b0d902a8-3184-45fa-9808-1"
-            return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
-        }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
         runningString = 
@@ -272,8 +271,8 @@ class Asteroids
     # Asteroids::getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
     def self.getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
         Asteroids::asteroids()
-            .select{|asteroid| asteroid["payload"]["type"] == "quark" }
-            .select{|asteroid| asteroid["payload"]["quarkuuid"] == targetuuid }
+            .select{|asteroid| asteroid["payload"]["type"] == "quarks" }
+            .select{|asteroid| asteroid["payload"]["uuids"].include?(targetuuid) }
     end
 
     # Asteroids::repayload(asteroid)
@@ -381,12 +380,11 @@ class Asteroids
                 }
             )
 
-            if asteroid["payload"]["type"] == "quark" then
+            if asteroid["payload"]["type"] == "quarks" then
                 menuitems.item(
                     "quark (dive)",
                     lambda {
-                        quarkuuid = asteroid["payload"]["quarkuuid"]
-                        quark = Quarks::getOrNull(quarkuuid)
+                        quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
                         return if quark.nil?
                         Quarks::quarkDive(quark)
                     }
@@ -447,6 +445,10 @@ class Asteroids
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
             return 0.70 - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+        end
+
+        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return 0.69 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
@@ -644,7 +646,7 @@ class Asteroids
 
         Runner::start(asteroid["uuid"])
 
-        if asteroid["payload"]["type"] == "quark" then
+        if asteroid["payload"]["type"] == "quarks" then
             Asteroids::openPayload(asteroid)
         end
     end
@@ -652,7 +654,7 @@ class Asteroids
     # Asteroids::addTimeToAsteroid(asteroid, timespanInSeconds)
     def self.addTimeToAsteroid(asteroid, timespanInSeconds)
         Bank::put(asteroid["uuid"], timespanInSeconds)
-        Bank::put("b14be1e3-ff3f-457b-8595-685db7b98a9d", timespanInSeconds)
+        Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
     end
 
     # Asteroids::asteroidStopSequence(asteroid)
@@ -689,8 +691,8 @@ class Asteroids
     # Asteroids::asteroidDestroySequence(asteroid)
     def self.asteroidDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-        if asteroid["payload"]["type"] == "quark" then
-            quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
+        if asteroid["payload"]["type"] == "quarks" then
+            quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
             if !quark.nil? then
                 Asteroids::asteroidDestructionQuarkHandling(quark)
             end
@@ -700,8 +702,8 @@ class Asteroids
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
-        if asteroid["payload"]["type"] == "quark" then
-            quark = Quarks::getOrNull(asteroid["payload"]["quarkuuid"])
+        if asteroid["payload"]["type"] == "quarks" then
+            quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
             return if quark.nil?
             Quarks::openQuark(quark)
         end

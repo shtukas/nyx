@@ -66,9 +66,8 @@ class NSXCatalystObjectsOperator
                             next
                         end
 
-                        if asteroid["payload"]["type"] == "quark" then
-                            quarkuuid = asteroid["payload"]["quarkuuid"]
-                            quark = Quarks::getOrNull(quarkuuid)
+                        if asteroid["payload"]["type"] == "quarks" then
+                            Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
                             if quark.nil? then
                                 Asteroids::asteroidDestroySequence(asteroid)
                                 next
@@ -92,9 +91,8 @@ class NSXCatalystObjectsOperator
                             break if asteroid.nil? # could have been destroyed in a previous run
                             break if asteroid["X02394e74c407"] # have been marked as reviewed
 
-                            if asteroid["payload"]["type"] == "quark" then
-                                quarkuuid = asteroid["payload"]["quarkuuid"]
-                                quark = Quarks::getOrNull(quarkuuid)
+                            if asteroid["payload"]["type"] == "quarks" then
+                                quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
                                 if quark.nil? then # could have been destroyed in a previous run
                                     Asteroids::asteroidDestroySequence(asteroid)
                                     break
@@ -120,9 +118,8 @@ class NSXCatalystObjectsOperator
                             ms.item(
                                 "destroy asteroid and quark",
                                 lambda { 
-                                    return if asteroid["payload"]["type"] != "quark"
-                                    quarkuuid = asteroid["payload"]["quarkuuid"]
-                                    quark = Quarks::getOrNull(quarkuuid)
+                                    return if asteroid["payload"]["type"] != "quarks"
+                                    quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
                                     if quark.nil? then # could have been destroyed in a previous run
                                         Asteroids::asteroidDestroySequence(asteroid)
                                         next

@@ -264,6 +264,28 @@ class Quarks
         raise "Quark error 3c7968e4"
     end
 
+    # Quarks::quarkuuidToString(quarkuuid)
+    def self.quarkuuidToString(quarkuuid)
+        quark = Quarks::getOrNull(quarkuuid)
+        return "[quark not found]" if quark.nil?
+        Quarks::quarkToString(quark)
+    end
+
+    # Quarks::selectQuarkFromQuarkuuidsOrNull(quarkuuids)
+    def self.selectQuarkFromQuarkuuidsOrNull(quarkuuids)
+        if quarkuuids.size == 0 then
+            return nil
+        end
+        if quarkuuids.size == 1 then
+            quarkuuid = quarkuuids[0]
+            return Quarks::getOrNull(quarkuuid)
+        end
+
+        quarkuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark: ", quarkuuids, lambda{|uuid| Quarks::quarkuuidToString(uuid) })
+        return nil if quarkuuid.nil?
+        Quarks::getOrNull(quarkuuid)
+    end
+
     # Quarks::openQuark(quark)
     def self.openQuark(quark)
         if quark["type"] == "line" then
@@ -443,8 +465,8 @@ class Quarks
                 "asteroid (create with this as target)", 
                 lambda { 
                     payload = {
-                        "type"      => "quark",
-                        "quarkuuid" => quark["uuid"]
+                        "type"  => "quarks",
+                        "uuids" => [ quark["uuid"] ]
                     }
                     orbital = Asteroids::makeOrbitalInteractivelyOrNull()
                     return if orbital.nil?

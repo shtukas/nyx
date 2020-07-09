@@ -155,7 +155,7 @@ class NSXMiscUtils
             end
             quark = Quarks::issueQuarkAionPointFromLocation(location)
             puts JSON.pretty_generate(quark)
-            asteroid = Asteroids::issueStartshipTodoFromQuark(quark)
+            asteroid = Asteroids::issueAsteroidInboxFromQuark(quark)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

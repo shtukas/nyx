@@ -102,6 +102,6 @@ loop {
     puts "vienna: #{link}"
     quark = QuarksMakers::makeQuarkUrl(link, link)
     Quarks::commitQuarkToDisk(quark)
-    Asteroids::issueStartshipTodoFromQuark(quark)
+    Asteroids::issueAsteroidInboxFromQuark(quark)
     viennaLinkFeeder.done(link)
 }
