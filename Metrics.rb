@@ -45,4 +45,11 @@ class Metrics
             0.2 + (basemetric-0.2)*Math.exp(-0.5*extraTimeInHours)
         end
     end
+
+    # Metrics::fall(basemetric, pinguuid)
+    def self.fall(basemetric, pinguuid)
+        Metrics::recoveredDailyTimeInHours(pinguuid)
+        0.2 + (basemetric-0.2)*Math.exp(-0.5*Metrics::recoveredDailyTimeInHours(pinguuid))
+    end
+
 end

@@ -307,6 +307,7 @@ class Asteroids
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
             puts "orbital type: #{asteroid["orbital"]["type"]}"
+            puts "metric: #{Asteroids::metric(asteroid)}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime then
@@ -319,9 +320,9 @@ class Asteroids
             puts "Bank 7 days    : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours  : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            menuitems = LCoreMenuItemsNX1.new()
-
             CatalystCommon::horizontalRule(true)
+
+            menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item(
                 "open",
@@ -448,7 +449,7 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.69 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return Metrics::fall(0.69, orbital["type"]) + 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
@@ -567,6 +568,22 @@ class Asteroids
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |input|
 
+                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+                    Asteroids::asteroidStartSequence(asteroid)
+                    if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+                        Asteroids::asteroidDestroySequence(asteroid)
+                    else
+                        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? ") then
+                            asteroid["orbital"] = {
+                                "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                            }
+                            Asteroids::commitToDisk(asteroid)
+                        end
+                        Asteroids::asteroidStopSequence(asteroid)
+                    end
+                    return
+                end
+
                 # ----------------------------------------
                 # Not Running
 
@@ -653,6 +670,7 @@ class Asteroids
 
     # Asteroids::addTimeToAsteroid(asteroid, timespanInSeconds)
     def self.addTimeToAsteroid(asteroid, timespanInSeconds)
+        puts "Adding #{timespanInSeconds} seconds to #{Asteroids::asteroidToString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
     end

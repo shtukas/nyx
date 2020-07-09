@@ -189,8 +189,10 @@ class NSXCatalystUI
                 "type"        => "description",
                 "description" => description
             }
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             orbital = {
-                "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+                "type"    => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+                "ordinal" => ordinal
             }
             asteroid = Asteroids::issue(payload, orbital)
             return

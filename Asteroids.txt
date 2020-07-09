@@ -29,11 +29,11 @@ Asteroid
     Orbital
 
         {
-            "type"                  : "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        }
-        {
             "type"                  : "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             "ordinal"               : Float
+        }
+        {
+            "type"                  : "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
         {
             "type"                  : "singleton-time-commitment-7c67cb4f-77e0-4fd"
