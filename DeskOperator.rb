@@ -107,7 +107,10 @@ class DeskOperator
                 deskFolderPathForQuark = DeskOperator::deskFolderpathForQuark(quark)
                 next if !File.exists?(deskFolderPathForQuark)
                 namedhash = LibrarianOperator::locationToNamedHash(deskFolderPathForQuark)
-                next if namedhash == quark["namedhash"]
+                if namedhash == quark["namedhash"] then
+                    LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
+                    next
+                end
                 quark["namedhash"] = namedhash
                 puts JSON.pretty_generate(quark)
                 Quarks::commitQuarkToDisk(quark)
