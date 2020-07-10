@@ -78,20 +78,17 @@ class NyxPrimaryObjects
     end
 
     # NyxPrimaryObjects::put(object)
-    def self.put(object, force = false)
+    def self.put(object)
         if object["uuid"].nil? then
-            raise "[NyxObjects::put 8d58ee87] #{object}"
+            raise "[NyxPrimaryObjects::put 8d58ee87] #{object}"
         end
         if object["nyxNxSet"].nil? then
-            raise "[NyxObjects::put d781f18f] #{object}"
+            raise "[NyxPrimaryObjects::put d781f18f] #{object}"
         end
         if !NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"]) then
             raise "[NyxPrimaryObjects::nyxNxSets 50229c3e] #{object}"
         end
         filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
-        if !force and File.exists?(filepath) then
-            raise "[error (3303a3ca): objects are immutable, do not change once written]"
-        end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
         object
     end
@@ -170,8 +167,8 @@ end
 class NyxObjects
 
     # NyxObjects::put(object)
-    def self.put(object, force = false)
-        NyxPrimaryObjects::put(object, force)
+    def self.put(object)
+        NyxPrimaryObjects::put(object)
         $alison41119753.incoming(object)
     end
 
