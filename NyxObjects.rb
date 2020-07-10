@@ -40,6 +40,8 @@ require_relative "BTreeSets.rb"
 
 # ------------------------------------------------------------------------
 
+$NyxObjects = nil
+
 class NyxObjects
 
     # Private Utils
@@ -99,11 +101,22 @@ class NyxObjects
 
     # NyxObjects::objects()
     def self.objects()
-        NyxObjects::objectsEnumerator().to_a
+        if $NyxObjects then
+            return $NyxObjects.values.map{|object| object.clone }
+        end
+        $NyxObjects = {}
+        NyxObjects::objectsEnumerator().each{|object|
+            $NyxObjects[object["uuid"]] = object
+        }
+        $NyxObjects.values.map{|object| object.clone }
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
+        if $NyxObjects then
+            return nil if $NyxObjects[uuid].nil?
+            return $NyxObjects[uuid].clone 
+        end
         filepath = NyxObjects::uuidToObjectFilepath(uuid)
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
@@ -111,7 +124,7 @@ class NyxObjects
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        NyxObjects::objectsEnumerator()
+        NyxObjects::objects()
             .select{|object| object["nyxNxSet"] == setid }
     end
 
