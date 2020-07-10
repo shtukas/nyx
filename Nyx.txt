@@ -5,18 +5,10 @@ Nyx
 
         Quark       # See Quarks.txt       nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
-        Cube 
-            {
-                "nyxNxSet"    : "34F19BF8-0B21-4B9F-9E33-F56E897810C9"
-                "description" : String # description of the first quark
-                "quarks"      : Array[Quark]
-            }
-
         Clique      # See Cliques.txt      nyxNxSet: "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
 
         Boson       # See Cliques.txt      nyxNxSet: "13f3499d-fa9c-44bb-91d3-8a3ccffecefb" 
                                            Quark <-> Clique
-                                           Quark <-> Quark  # This creates Cubes
 
         Tag         # See Tags.txt         nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
 

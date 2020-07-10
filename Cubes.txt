@@ -1,7 +1,0 @@
-
-
-{
-    "nyxNxSet"    : "34F19BF8-0B21-4B9F-9E33-F56E897810C9"
-    "description" : String # description of the first quark
-    "quarks"      : Array[Quark]
-}

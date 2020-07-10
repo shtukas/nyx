@@ -27,7 +27,6 @@ require_relative "KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Cubes.rb"
 require_relative "Quarks.rb"
 require_relative "Cliques.rb"
 require_relative "Bosons.rb"
@@ -38,9 +37,6 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::objectToString(object)
     def self.objectToString(object)
-        if object["nyxNxSet"] == "34F19BF8-0B21-4B9F-9E33-F56E897810C9" then
-            return object["description"]
-        end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             return Cliques::cliqueToString(object)
         end
@@ -53,10 +49,6 @@ class NyxGenericObjectInterface
 
     # NyxGenericObjectInterface::objectDive(object)
     def self.objectDive(object)
-        if object["nyxNxSet"] == "34F19BF8-0B21-4B9F-9E33-F56E897810C9" then
-            Cubes::diveCube(object)
-            return
-        end
         if object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
             Cliques::cliqueDive(object)
             return
@@ -82,13 +74,5 @@ class NyxGenericObjectInterface
         end
         puts object
         raise "Error: d66bdffa"
-    end
-
-    # NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
-    def self.applyQuarkToCubeUpgradeIfRelevant(object)
-        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
-            object = Cubes::upgradeQuarkToCubeIfRelevant(object)
-        end
-        object
     end
 end

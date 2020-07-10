@@ -19,7 +19,6 @@ require_relative "KeyValueStore.rb"
 =end
 
 require_relative "Quarks.rb"
-require_relative "Cubes.rb"
 require_relative "Cliques.rb"
 require_relative "Asteroids.rb"
 

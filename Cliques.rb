@@ -217,7 +217,6 @@ class Cliques
             Bosons::getLinkedObjects(clique)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
-                    object = NyxGenericObjectInterface::applyQuarkToCubeUpgradeIfRelevant(object)
                     menuitems.item(
                         NyxGenericObjectInterface::objectToString(object), 
                         lambda { NyxGenericObjectInterface::objectDive(object) }
