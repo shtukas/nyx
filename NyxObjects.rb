@@ -40,13 +40,9 @@ require_relative "BTreeSets.rb"
 
 # ------------------------------------------------------------------------
 
-$NyxObjects = nil
+class NyxPrimaryObjects
 
-class NyxObjects
-
-    # Private Utils
-
-    # NyxObjects::nyxNxSets()
+    # NyxPrimaryObjects::nyxNxSets()
     def self.nyxNxSets()
         # Duplicated in NyxSets
         [
@@ -54,10 +50,11 @@ class NyxObjects
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
             "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
+            "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
         ]
     end
 
-    # NyxObjects::uuidToObjectFilepath(uuid)
+    # NyxPrimaryObjects::uuidToObjectFilepath(uuid)
     def self.uuidToObjectFilepath(uuid)
         hash1 = Digest::SHA256.hexdigest(uuid)
         fragment1 = hash1[0, 2]
@@ -69,26 +66,26 @@ class NyxObjects
         return filepath
     end
 
-    # NyxObjects::put(object)
-    def self.put(object)
+    # NyxPrimaryObjects::put(object)
+    def self.put(object, force = false)
         if object["uuid"].nil? then
             raise "[NyxObjects::put 8d58ee87] #{object}"
         end
         if object["nyxNxSet"].nil? then
             raise "[NyxObjects::put d781f18f] #{object}"
         end
-        if !NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxObjects::nyxNxSets 50229c3e] #{object}"
+        if !NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxPrimaryObjects::nyxNxSets 50229c3e] #{object}"
         end
-        filepath = NyxObjects::uuidToObjectFilepath(object["uuid"])
-        if File.exists?(filepath) then
+        filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
+        if !force and File.exists?(filepath) then
             raise "[error (3303a3ca): objects are immutable, do not change once written]"
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
-        nil
+        object
     end
 
-    # NyxObjects::objectsEnumerator()
+    # NyxPrimaryObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
             Find.find("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
@@ -99,27 +96,66 @@ class NyxObjects
         end
     end
 
+    # NyxPrimaryObjects::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = NyxPrimaryObjects::uuidToObjectFilepath(uuid)
+        return nil if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+end
+
+$NyxSecondaryObjects = {}
+
+class NyxSecondaryObjects
+
+    # NyxSecondaryObjects::augmentation(object)
+    def self.augmentation(object)
+        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
+            quark = object
+            if quark["tags"].nil? then
+                quark["tags"] = []
+            end
+            $NyxSecondaryObjects[quark["uuid"]] = quark.clone
+        end
+        if object["nyxNxSet"] == "4643abd2-fec6-4184-a9ad-5ad3df3257d6" then
+            tag = object
+            quark = $NyxSecondaryObjects[tag["targetuuid"]]
+            return if quark.nil?
+            if quark["tags"].nil? then
+                quark["tags"] = []
+            end
+            quark["tags"] << tag["payload"]
+            $NyxSecondaryObjects[quark["uuid"]] = quark.clone
+        end
+    end
+end
+
+puts "Loading Primary Objects"
+NyxPrimaryObjects::objectsEnumerator().each{|object|
+    $NyxSecondaryObjects[object["uuid"]] = object.clone
+}
+
+puts "Computing Secondary Objects"
+$NyxSecondaryObjects.values.each{|object|
+    NyxSecondaryObjects::augmentation(object)
+}
+
+class NyxObjects
+
+    # NyxObjects::put(object)
+    def self.put(object, force = false)
+        NyxPrimaryObjects::put(object, force)
+    end
+
     # NyxObjects::objects()
     def self.objects()
-        if $NyxObjects then
-            return $NyxObjects.values.map{|object| object.clone }
-        end
-        $NyxObjects = {}
-        NyxObjects::objectsEnumerator().each{|object|
-            $NyxObjects[object["uuid"]] = object
-        }
-        $NyxObjects.values.map{|object| object.clone }
+        $NyxSecondaryObjects.values.map{|object| object.clone }
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        if $NyxObjects then
-            return nil if $NyxObjects[uuid].nil?
-            return $NyxObjects[uuid].clone 
-        end
-        filepath = NyxObjects::uuidToObjectFilepath(uuid)
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
+        return nil if $NyxSecondaryObjects[uuid].nil?
+        return $NyxSecondaryObjects[uuid].clone
     end
 
     # NyxObjects::getSet(setid)
@@ -130,8 +166,6 @@ class NyxObjects
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
-        filepath = NyxObjects::uuidToObjectFilepath(uuid)
-        return nil if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        NyxPrimaryObjects::destroy(uuid)
     end
 end

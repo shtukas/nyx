@@ -2,10 +2,12 @@
 ------------------------------------------------------
 Quark
 
+PrimaryObject
+
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime" : Float # Unixtime with decimals
+    "unixtime"         : Float # Unixtime with decimals
 
     "description"      : nil | String
 
@@ -13,14 +15,13 @@ Quark
     "line"             : String
 
     "linkedTo"         : Array[String] # uuids of linked objects
-    "tags"             : Array[String] # tags
     "textnote"         : nil or String # namedhash
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime" : Float # Unixtime with decimals
+    "unixtime"         : Float # Unixtime with decimals
 
     "description"      : nil | String
 
@@ -28,7 +29,6 @@ Quark
     "url"              : String
 
     "linkedTo"         : Array[String] # uuids of linked objects
-    "tags"             : Array[String] # tags
     "textnote"         : nil or String # namedhash
 }
 
@@ -43,14 +43,13 @@ Quark
     "namedhash"        : String (Librarian managed)
 
     "linkedTo"         : Array[String] # uuids of linked objects
-    "tags"             : Array[String] # tags
     "textnote"         : nil or String # namedhash
 }
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime" : Float # Unixtime with decimals
+    "unixtime"         : Float # Unixtime with decimals
 
     "description"      : nil | String
 
@@ -58,6 +57,10 @@ Quark
     "name"             : String # Use Atlas to find them
 
     "linkedTo"         : Array[String] # uuids of linked objects
-    "tags"             : Array[String] # tags
     "textnote"         : nil or String # namedhash
+}
+
+
+SecondaryObject extends Primary Object {
+    "tags" : Array[String]
 }

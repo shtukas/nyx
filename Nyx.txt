@@ -18,6 +18,8 @@ Nyx
                                            Quark <-> Clique
                                            Quark <-> Quark  # This creates Cubes
 
+        Tag         # See Tags.txt         nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
+
     Todo
 
         Waves       # See Waves.txt        nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
