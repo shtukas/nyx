@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "LibrarianAion.rb"
+# require_relative "Librarian.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -72,69 +72,20 @@ require_relative "NyxBlobs.rb"
 
 # -----------------------------------------------------------------
 
-=begin
-    LibrarianAionElizabeth is the class that explain to 
-    Aion how to compute hashes and where to store and 
-    retrive the blobs to and from.
-=end
+class DeskOperator
 
-class LibrarianAionElizabeth
-
-    def initialize()
-    end
-
-    def commitBlob(blob)
-        NyxBlobs::put(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = NyxBlobs::getBlobOrNull(nhash)
-        raise "[LibrarianAionElizabeth error: fc1dd1aa]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-
-end
-
-class LibrarianAionOperator
-
-    # LibrarianAionOperator::locationToNamedHash(location)
-    def self.locationToNamedHash(location)
-        AionCore::commitLocationReturnHash(LibrarianAionElizabeth.new(), location)
-    end
-
-    # LibrarianAionOperator::namedHashExportAtFolder(namedHash, folderpath)
-    def self.namedHashExportAtFolder(namedHash, folderpath)
-        AionCore::exportHashAtFolder(LibrarianAionElizabeth.new(), namedHash, folderpath)
-    end
-end
-
-class LibrarianDeskOperator
-
-    # LibrarianDeskOperator::deskFolderpathForQuark(quark)
+    # DeskOperator::deskFolderpathForQuark(quark)
     def self.deskFolderpathForQuark(quark)
         "#{EstateServices::getDeskFolderpath()}/#{quark["uuid"]}"
     end
 
-    # LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
+    # DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
     def self.deskFolderpathForQuarkCreateIfNotExists(quark)
-        deskFolderPathForQuark = LibrarianDeskOperator::deskFolderpathForQuark(quark)
+        deskFolderPathForQuark = DeskOperator::deskFolderpathForQuark(quark)
         if !File.exists?(deskFolderPathForQuark) then
             FileUtils.mkpath(deskFolderPathForQuark)
             namedhash = quark["namedhash"]
-            LibrarianAionOperator::namedHashExportAtFolder(namedhash, deskFolderPathForQuark)
+            LibrarianOperator::namedHashExportAtFolder(namedhash, deskFolderPathForQuark)
             # If the deskFolderPathForQuark folder contains just one folder named after the quark itself
             # Then this means that we are exporting a previously imported deskFolderPathForQuark.
             # In such a case we are going to remove the extra folder by moving thigs up...
@@ -148,14 +99,14 @@ class LibrarianDeskOperator
         deskFolderPathForQuark
     end
 
-    # LibrarianDeskOperator::commitDeskChangesToPrimaryRepository()
+    # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         Quarks::quarks()
             .each{|quark|
                 next if quark["type"] != "aion-point"
-                deskFolderPathForQuark = LibrarianDeskOperator::deskFolderpathForQuark(quark)
+                deskFolderPathForQuark = DeskOperator::deskFolderpathForQuark(quark)
                 next if !File.exists?(deskFolderPathForQuark)
-                namedhash = LibrarianAionOperator::locationToNamedHash(deskFolderPathForQuark)
+                namedhash = LibrarianOperator::locationToNamedHash(deskFolderPathForQuark)
                 next if namedhash == quark["namedhash"]
                 quark["namedhash"] = namedhash
                 puts JSON.pretty_generate(quark)

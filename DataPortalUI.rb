@@ -168,7 +168,7 @@ class DataPortalUI
 
             ms.item(
                 "Commit desk changes to primary repository", 
-                lambda { LibrarianDeskOperator::commitDeskChangesToPrimaryRepository() }
+                lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
             )
 
             ms.item(

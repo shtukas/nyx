@@ -18,7 +18,7 @@ require 'securerandom'
 require_relative "AtlasCore.rb"
 require_relative "Miscellaneous.rb"
 require_relative "Bosons.rb"
-require_relative "LibrarianAion.rb"
+require_relative "Librarian.rb"
 require_relative "DataPortalUI.rb"
 require_relative "Tags.rb"
 require_relative "Notes.rb"
@@ -92,7 +92,7 @@ class QuarksMakers
     def self.makeQuarkAionPointInteractivelyOrNull()
         location = QuarksUtils::selectOneLocationOnTheDesktopOrNull()
         return nil if location.nil?
-        namedhash = LibrarianAionOperator::locationToNamedHash(location)
+        namedhash = LibrarianOperator::locationToNamedHash(location)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
         {
             "uuid"             => SecureRandom.uuid,
@@ -106,7 +106,7 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
     def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
-        namedhash = LibrarianAionOperator::locationToNamedHash(filepath)
+        namedhash = LibrarianOperator::locationToNamedHash(filepath)
         {
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
@@ -120,7 +120,7 @@ class QuarksMakers
     # QuarksMakers::makeQuarkAionPointFromLocation(location)
     def self.makeQuarkAionPointFromLocation(location)
         raise "f8e3b314" if !File.exists?(location)
-        namedhash = LibrarianAionOperator::locationToNamedHash(location)
+        namedhash = LibrarianOperator::locationToNamedHash(location)
         description = File.basename(location)
         {
             "uuid"             => SecureRandom.uuid,
@@ -207,7 +207,7 @@ class Quarks
         quark = Quarks::getOrNull(uuid)
         if quark then
              if quark["type"] == "aion-point" then
-                folderpath = LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
+                folderpath = DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
                 if folderpath then
                     LucilleCore::removeFileSystemLocation(folderpath)
                 end
@@ -277,7 +277,7 @@ class Quarks
             return
         end
         if quark["type"] == "aion-point" then
-            folderpath = LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
+            folderpath = DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
             system("open '#{folderpath}'")
             return
         end
