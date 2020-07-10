@@ -168,6 +168,11 @@ class DataPortalUI
             )
 
             ms.item(
+                "Commit desk changes to primary repository", 
+                lambda { LibrarianDeskOperator::commitDeskChangesToPrimaryRepository() }
+            )
+
+            ms.item(
                 "Timeline garbage collection", 
                 lambda { 
                     puts "#{NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"

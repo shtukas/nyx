@@ -224,7 +224,7 @@ class Quarks
         quark = Quarks::getOrNull(uuid)
         if quark then
              if quark["type"] == "aion-point" then
-                folderpath = LibrarianAionDesk::folderpathForQuark(quark)
+                folderpath = LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
                 if folderpath then
                     LucilleCore::removeFileSystemLocation(folderpath)
                 end
@@ -294,7 +294,7 @@ class Quarks
             return
         end
         if quark["type"] == "aion-point" then
-            folderpath = LibrarianAionDesk::folderpathForQuark(quark)
+            folderpath = LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
             system("open '#{folderpath}'")
             return
         end

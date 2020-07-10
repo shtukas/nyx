@@ -121,15 +121,46 @@ class LibrarianAionOperator
     end
 end
 
-class LibrarianAionDesk
-    # LibrarianAionDesk::folderpathForQuark(quark)
-    def self.folderpathForQuark(quark)
-        folderpath = "#{RealEstate::getDeskFolderpath()}/#{quark["uuid"]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
+class LibrarianDeskOperator
+
+    # LibrarianDeskOperator::deskFolderpathForQuark(quark)
+    def self.deskFolderpathForQuark(quark)
+        "#{RealEstate::getDeskFolderpath()}/#{quark["uuid"]}"
+    end
+
+    # LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
+    def self.deskFolderpathForQuarkCreateIfNotExists(quark)
+        deskFolderPathForQuark = LibrarianDeskOperator::deskFolderpathForQuark(quark)
+        if !File.exists?(deskFolderPathForQuark) then
+            FileUtils.mkpath(deskFolderPathForQuark)
             namedhash = quark["namedhash"]
-            LibrarianAionOperator::namedHashExportAtFolder(namedhash, folderpath)
+            LibrarianAionOperator::namedHashExportAtFolder(namedhash, deskFolderPathForQuark)
+            # If the deskFolderPathForQuark folder contains just one folder named after the quark itself
+            # Then this means that we are exporting a previously imported deskFolderPathForQuark.
+            # In such a case we are going to remove the extra folder by moving thigs up...
+            if File.exists?("#{deskFolderPathForQuark}/#{quark["uuid"]}") then
+                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}", "#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting")
+                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting", RealEstate::getDeskFolderpath())
+                LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
+                FileUtils.mv("#{deskFolderPathForQuark}-lifting", deskFolderPathForQuark)
+            end
         end
-        folderpath
+        deskFolderPathForQuark
+    end
+
+    # LibrarianDeskOperator::commitDeskChangesToPrimaryRepository()
+    def self.commitDeskChangesToPrimaryRepository()
+        Quarks::quarks()
+            .each{|quark|
+                next if quark["type"] != "aion-point"
+                deskFolderPathForQuark = LibrarianDeskOperator::deskFolderpathForQuark(quark)
+                next if !File.exists?(deskFolderPathForQuark)
+                namedhash = LibrarianAionOperator::locationToNamedHash(deskFolderPathForQuark)
+                next if namedhash == quark["namedhash"]
+                quark["namedhash"] = namedhash
+                puts JSON.pretty_generate(quark)
+                Quarks::commitQuarkToDisk(quark)
+                LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
+            }
     end
 end
