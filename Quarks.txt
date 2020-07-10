@@ -2,8 +2,6 @@
 ------------------------------------------------------
 Quark
 
-PrimaryObject
-
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
@@ -58,9 +56,4 @@ PrimaryObject
 
     "linkedTo"         : Array[String] # uuids of linked objects
     "textnote"         : nil or String # namedhash
-}
-
-
-SecondaryObject extends Primary Object {
-    "tags" : Array[String]
 }

@@ -21,6 +21,7 @@ require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
 require_relative "LibrarianAion.rb"
 require_relative "DataPortalUI.rb"
+require_relative "Tags.rb"
 
 # -----------------------------------------------------------------
 
@@ -66,7 +67,6 @@ class QuarksMakers
             "type"             => "line",
             "line"             => line,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -81,7 +81,6 @@ class QuarksMakers
             "type"             => "url",
             "url"              => url,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -107,7 +106,6 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -123,7 +121,6 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -141,7 +138,6 @@ class QuarksMakers
             "type"             => "aion-point",
             "namedhash"        => namedhash,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -159,7 +155,6 @@ class QuarksMakers
             "type"             => "unique-name",
             "name"             => uniquename,
             "linkedTo"         => [],
-            "tags"             => [],
             "textnote"         => nil
         }
     end
@@ -342,7 +337,7 @@ class Quarks
             puts Quarks::quarkToString(quark)
             puts "uuid: #{quark["uuid"]}"
             puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
-            puts "tags: #{quark["tags"].join(", ")}"
+            puts "tags: #{Quarks::getQuarkTags(quark).map{|tag| tag["payload"] }.join(", ")}"
 
             if quark["textnote"] then
                 puts "Note:"
@@ -405,21 +400,18 @@ class Quarks
             menuitems.item(
                 "tag (add)",
                 lambda {
-                    tag = LucilleCore::askQuestionAnswerAsString("tag: ")
-                    return if tag.size == 0
-                    quark["tags"] << tag
-                    quark["tags"] = quark["tags"].uniq
-                    Quarks::commitQuarkToDisk(quark)
+                    payload = LucilleCore::askQuestionAnswerAsString("tag: ")
+                    return if payload.size == 0
+                    Tags::issueTag(quark["uuid"], payload)
                 }
             )
 
             menuitems.item(
                 "tag (select and remove)",
                 lambda {
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", quark["tags"])
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", Quarks::getQuarkTags(quark), lambda{|tag| tag["payload"] })
                     return if tag.nil?
-                    quark["tags"].delete(tag)
-                    Quarks::commitQuarkToDisk(quark)
+                    Tags::destroyTag(tag)
                 }
             )
 
@@ -552,7 +544,6 @@ class Quarks
     def self.quarkMatchesPattern(quark, pattern)
         return true if quark["uuid"].downcase.include?(pattern.downcase)
         return true if Quarks::quarkToString(quark).downcase.include?(pattern.downcase)
-        return true if quark["tags"].any?{|tag| tag.downcase.include?(pattern.downcase) }
         if quark["type"] == "unique-name" then
             return true if quark["name"].downcase.include?(pattern.downcase)
         end
@@ -575,13 +566,10 @@ class Quarks
     # Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
     def self.issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
         loop {
-            tag = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
-            break if tag.size == 0
-            quark["tags"] << tag
-            quark["tags"] = quark["tags"].uniq
-            Quarks::commitQuarkToDisk(quark)
+            payload = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
+            break if payload.size == 0
+            Tags::issueTag(quark["uuid"], payload)
         }
-        quark
     end
 
     # Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
@@ -618,5 +606,10 @@ class Quarks
         newquark["uuid"] = quark["uuid"] # uuid override
         Quarks::commitQuarkToDisk(newquark)
         newquark
+    end
+
+    # Quarks::getQuarkTags(quark)
+    def self.getQuarkTags(quark)
+        Tags::getTagsForTargetUUID(quark["uuid"])
     end
 end

@@ -70,4 +70,9 @@ class Tags
         NyxObjects::getSet("4643abd2-fec6-4184-a9ad-5ad3df3257d6")
             .select{|tag| tag["targetuuid"] == targetuuid }
     end
+
+    # Tags::destroyTag(tag)
+    def self.destroyTag(tag)
+        NyxObjects::destroy(tag["uuid"])
+    end
 end

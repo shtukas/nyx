@@ -40,6 +40,8 @@ require_relative "BTreeSets.rb"
 
 # ------------------------------------------------------------------------
 
+$NyxObjects = nil
+
 class NyxPrimaryObjects
 
     # NyxPrimaryObjects::nyxNxSets()
@@ -104,40 +106,10 @@ class NyxPrimaryObjects
     end
 end
 
-$NyxSecondaryObjects = {}
-
-class NyxSecondaryObjects
-
-    # NyxSecondaryObjects::augmentation(object)
-    def self.augmentation(object)
-        if object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
-            quark = object
-            if quark["tags"].nil? then
-                quark["tags"] = []
-            end
-            $NyxSecondaryObjects[quark["uuid"]] = quark.clone
-        end
-        if object["nyxNxSet"] == "4643abd2-fec6-4184-a9ad-5ad3df3257d6" then
-            tag = object
-            quark = $NyxSecondaryObjects[tag["targetuuid"]]
-            return if quark.nil?
-            if quark["tags"].nil? then
-                quark["tags"] = []
-            end
-            quark["tags"] << tag["payload"]
-            $NyxSecondaryObjects[quark["uuid"]] = quark.clone
-        end
-    end
-end
-
-puts "Loading Primary Objects"
+puts "Loading Nyx Objects"
+$NyxObjects = {}
 NyxPrimaryObjects::objectsEnumerator().each{|object|
-    $NyxSecondaryObjects[object["uuid"]] = object.clone
-}
-
-puts "Computing Secondary Objects"
-$NyxSecondaryObjects.values.each{|object|
-    NyxSecondaryObjects::augmentation(object)
+    $NyxObjects[object["uuid"]] = object.clone
 }
 
 class NyxObjects
@@ -145,17 +117,18 @@ class NyxObjects
     # NyxObjects::put(object)
     def self.put(object, force = false)
         NyxPrimaryObjects::put(object, force)
+        $NyxObjects[object["uuid"]] = object.clone
     end
 
     # NyxObjects::objects()
     def self.objects()
-        $NyxSecondaryObjects.values.map{|object| object.clone }
+        $NyxObjects.values.map{|object| object.clone }
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        return nil if $NyxSecondaryObjects[uuid].nil?
-        return $NyxSecondaryObjects[uuid].clone
+        return nil if $NyxObjects[uuid].nil?
+        return $NyxObjects[uuid].clone
     end
 
     # NyxObjects::getSet(setid)
@@ -167,5 +140,6 @@ class NyxObjects
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
         NyxPrimaryObjects::destroy(uuid)
+        $NyxObjects.delete(uuid)
     end
 end
