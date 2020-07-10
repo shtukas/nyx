@@ -45,6 +45,21 @@ require_relative "NyxObjects.rb"
 
 # -----------------------------------------------------------------------------
 
+class AsteroidsOfInterest
+
+    # AsteroidsOfInterest::register(uuid)
+    def self.register(uuid)
+        BTreeSets::set(nil, "5d114a38-f86a-46db-a33b-747c8d7ec20f", uuid, { "uuid" => uuid, "unixtime" => Time.new.to_i })
+    end
+
+    # AsteroidsOfInterest::getUUIDs()
+    def self.getUUIDs()
+        # We haven't yet implemented the fact that we forget after a while
+        BTreeSets::values(nil, "5d114a38-f86a-46db-a33b-747c8d7ec20f")
+            .map{|object| object["uuid"] }
+    end
+end
+
 class Asteroids
 
     # Asteroids::getOrNull(uuid)
@@ -297,6 +312,8 @@ class Asteroids
 
             asteroid = Asteroids::getOrNull(asteroid["uuid"])
             return if asteroid.nil?
+
+            AsteroidsOfInterest::register(asteroid["uuid"])
 
             system("clear")
 
@@ -632,7 +649,13 @@ class Asteroids
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        Asteroids::asteroids()
+
+        # Asteroids::asteroids()
+        #    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+
+        AsteroidsOfInterest::getUUIDs()
+            .map{|uuid| Asteroids::getOrNull(uuid) }
+            .compact
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
@@ -758,3 +781,16 @@ class Asteroids
         }
     end
 end
+
+Thread.new {
+    loop {
+        sleep 120
+        Asteroids::asteroids()
+            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+            .first(50)
+            .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
+        sleep 1200
+    }
+}

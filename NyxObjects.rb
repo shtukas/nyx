@@ -40,8 +40,6 @@ require_relative "BTreeSets.rb"
 
 # ------------------------------------------------------------------------
 
-$NyxObjects = nil
-
 class NyxPrimaryObjects
 
     # NyxPrimaryObjects::nyxNxSets()
@@ -106,40 +104,81 @@ class NyxPrimaryObjects
     end
 end
 
-puts "Loading Nyx Objects"
-$NyxObjects = {}
-NyxPrimaryObjects::objectsEnumerator().each{|object|
-    $NyxObjects[object["uuid"]] = object.clone
+class Alison
+    def initialize()
+        @NyxObjects = {}
+        @NyxSets = {}
+        @AsteroidsCatalystObjects = nil
+    end
+
+    def incoming(object)
+        @NyxObjects[object["uuid"]] = object
+        if @NyxSets[object["nyxNxSet"]].nil? then
+            @NyxSets[object["nyxNxSet"]] = {}
+        end
+        @NyxSets[object["nyxNxSet"]][object["uuid"]] = object
+    end
+
+    def objects()
+        @NyxObjects.values
+    end
+
+    def getOrNull(uuid)
+        @NyxObjects[uuid]
+    end
+
+    def getSet(setid)
+        @NyxSets[setid].values || []
+    end
+
+    def destroy(uuid)
+        @NyxObjects.delete(uuid)
+        NyxPrimaryObjects::nyxNxSets().each{|setid|
+            next if @NyxSets[setid].nil?
+            @NyxSets[setid].delete(uuid)
+        }
+    end
+end
+
+$alison41119753 = Alison.new()
+
+puts "Loading Nyx Objects and giving them to Alison"
+
+NyxPrimaryObjects::objectsEnumerator()
+.each{|object|
+    $alison41119753.incoming(object)
 }
+
+# ------------------------------------------------------------------------------
+# The rest of Catalyst should not know anything of what happens before this line
+# ------------------------------------------------------------------------------
 
 class NyxObjects
 
     # NyxObjects::put(object)
     def self.put(object, force = false)
         NyxPrimaryObjects::put(object, force)
-        $NyxObjects[object["uuid"]] = object.clone
+        $alison41119753.incoming(object)
     end
 
     # NyxObjects::objects()
     def self.objects()
-        $NyxObjects.values.map{|object| object.clone }
+        $alison41119753.objects()
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        return nil if $NyxObjects[uuid].nil?
-        return $NyxObjects[uuid].clone
+        $alison41119753.getOrNull(uuid)
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        NyxObjects::objects()
-            .select{|object| object["nyxNxSet"] == setid }
+        $alison41119753.getSet(setid)
     end
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
         NyxPrimaryObjects::destroy(uuid)
-        $NyxObjects.delete(uuid)
+        $alison41119753.destroy(uuid)
     end
 end
