@@ -55,23 +55,39 @@ class NyxObjects
         ]
     end
 
-    # NyxObjects::namedHashToObjectsFilepath(namedhash)
-    def self.namedHashToObjectsFilepath(namedhash)
-        if namedhash.start_with?("SHA256-") then
-            fragment1 = namedhash[7, 2]
-            fragment2 = namedhash[9, 2]
-            fragment3 = namedhash[11, 2]
-            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.json"
-            if !File.exists?(File.dirname(filepath)) then
-                FileUtils.mkpath(File.dirname(filepath))
-            end
-            return filepath
+    # NyxObjects::uuidToObjectFilepath(uuid)
+    def self.uuidToObjectFilepath(uuid)
+        hash1 = Digest::SHA256.hexdigest(uuid)
+        fragment1 = hash1[0, 2]
+        fragment2 = hash1[2, 2]
+        filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects/#{fragment1}/#{fragment2}/#{hash1}.json"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
         end
-        raise "[NyxPrimaryStoreUtils: a10f1670-b694-4937-b155-cbfa695b784a]"
+        return filepath
     end
 
-    # NyxObjects::primaryStoreObjectsEnumerator()
-    def self.primaryStoreObjectsEnumerator()
+    # NyxObjects::put(object)
+    def self.put(object)
+        if object["uuid"].nil? then
+            raise "[NyxObjects::put 8d58ee87] #{object}"
+        end
+        if object["nyxNxSet"].nil? then
+            raise "[NyxObjects::put d781f18f] #{object}"
+        end
+        if !NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) then
+            raise "[NyxObjects::nyxNxSets 50229c3e] #{object}"
+        end
+        filepath = NyxObjects::uuidToObjectFilepath(object["uuid"])
+        if File.exists?(filepath) then
+            raise "[error (3303a3ca): objects are immutable, do not change once written]"
+        end
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
+        nil
+    end
+
+    # NyxObjects::objectsEnumerator()
+    def self.objectsEnumerator()
         Enumerator.new do |objects|
             Find.find("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
                 next if !File.file?(path)
@@ -83,146 +99,26 @@ class NyxObjects
 
     # NyxObjects::objects()
     def self.objects()
-        mapping = {}
-        NyxObjects::primaryStoreObjectsEnumerator()
-            .each{|object|
-                if mapping[object["uuid"]].nil? then
-                    mapping[object["uuid"]] = object
-                else
-                    if mapping[object["uuid"]]["nyxNxStoreTimestamp"] < object["nyxNxStoreTimestamp"] then
-                        mapping[object["uuid"]] = object
-                    end
-                end
-            }
-        mapping
-            .values
-            .select{|object| !object["nyxNxSet"].nil? } # removing the ones that have been deleted
-            .select{|object| NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) } # only select the one from alive sets
-    end
-
-    # Public Interface
-
-    # NyxObjects::put(object) # namedhash
-    def self.put(object)
-        if object["uuid"].nil? then
-            raise "[NyxObjects::put b45f7d8a] #{object}"
-        end
-        if object["nyxNxSet"].nil? then
-            raise "[NyxObjects::put fd215c77] #{object}"
-        end
-        if !NyxObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxObjects::nyxNxSets c883b1e7] #{object}"
-        end
-        object["nyxNxStoreTimestamp"] = Time.new.to_f
-        blob = JSON.pretty_generate(object)
-        namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
-        File.open(filepath, "w") {|f| f.write(blob) }
-        NyxObjectsCacheOperator::put(object)
+        NyxObjects::objectsEnumerator().to_a
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjectsCacheOperator::getOrNull(uuid)
+        filepath = NyxObjects::uuidToObjectFilepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        NyxObjectsCacheOperator::objects(setid)
+        NyxObjects::objectsEnumerator()
+            .select{|object| object["nyxNxSet"] == setid }
     end
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
-        object = {}
-        object["uuid"] = uuid
-        object["nyxNxSet"] = nil
-        object["nyxNxStoreTimestamp"] = Time.new.to_f
-        blob = JSON.pretty_generate(object)
-        namedhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = NyxObjects::namedHashToObjectsFilepath(namedhash)
-        File.open(filepath, "w") {|f| f.write(blob) }
-        NyxObjectsCacheOperator::destroy(uuid)
+        filepath = NyxObjects::uuidToObjectFilepath(uuid)
+        return nil if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
-end
-
-if !defined?($InMemoryObjectsCache6DB420D8) then
-    $InMemoryObjectsCache6DB420D8 = {} # Map[uuid: String, Object]
-end
-
-if !defined?($InMemorySetsCache2917988) then
-    $InMemorySetsCache2917988 = {} # Map[set: String, Map[uuid: String, Object] ]
-end 
-
-class NyxObjectsCacheOperator
-
-    # NyxObjectsCacheOperator::put(object)
-    def self.put(object)
-        # This is called everytime an object mutates, this is the entry point of the caching system
-
-        # We update the in memory cache
-        $InMemoryObjectsCache6DB420D8[object["uuid"]] = object
-
-        # We update the in memory set cache
-        # If the in memory set has been initialised
-        if $InMemorySetsCache2917988[object["nyxNxSet"]] then
-            $InMemorySetsCache2917988[object["nyxNxSet"]][object["uuid"]] = object
-        end
-
-        # We update the on disk cache
-        KeyValueStore::set(nil, "9a470ad8-ab23-4a51-b94d-195de9912da7:#{object["uuid"]}", JSON.generate(object))
-
-        # We update the set objects
-        BTreeSets::set(nil, "d9d54faa-d3e4-41e1-a9e0-317ba20e3884:#{object["nyxNxSet"]}", object["uuid"], object)
-    end
-
-    # NyxObjectsCacheOperator::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        if $InMemoryObjectsCache6DB420D8[uuid] then
-            return $InMemoryObjectsCache6DB420D8[uuid].clone
-        end
-
-        object = KeyValueStore::getOrNull(nil, "9a470ad8-ab23-4a51-b94d-195de9912da7:#{uuid}")
-        if object then
-            object = JSON.parse(object)
-            $InMemoryObjectsCache6DB420D8[object["uuid"]] = object
-            return object
-        end
-
-        nil
-    end
-
-    # NyxObjectsCacheOperator::objects(setid)
-    def self.objects(setid)
-        if $InMemorySetsCache2917988[setid].nil? then
-            $InMemorySetsCache2917988[setid] = {}
-            BTreeSets::values(nil, "d9d54faa-d3e4-41e1-a9e0-317ba20e3884:#{setid}")
-                .each{|object|
-                    $InMemorySetsCache2917988[setid][object["uuid"]] = object
-                }
-        end
-        $InMemorySetsCache2917988[setid].values.map{|object| object.clone }
-    end
-
-    # NyxObjectsCacheOperator::destroy(uuid)
-    def self.destroy(uuid)
-        $InMemoryObjectsCache6DB420D8.delete(uuid)
-        NyxObjects::nyxNxSets().each{|setid|
-            next if $InMemorySetsCache2917988[setid].nil?
-            $InMemorySetsCache2917988[setid].delete(uuid)
-        }
-        KeyValueStore::destroy(nil, "9a470ad8-ab23-4a51-b94d-195de9912da7:#{uuid}")
-        NyxObjects::nyxNxSets().each{|setid|
-            BTreeSets::destroy(nil, "d9d54faa-d3e4-41e1-a9e0-317ba20e3884:#{setid}", uuid)
-        }
-    end
-
-    # NyxObjectsCacheOperator::reCacheAll()
-    def self.reCacheAll()
-        NyxObjects::objects().each{|object|
-            puts JSON.pretty_generate(object)
-            KeyValueStore::set(nil, "9a470ad8-ab23-4a51-b94d-195de9912da7:#{object["uuid"]}", JSON.generate(object))
-            BTreeSets::set(nil, "d9d54faa-d3e4-41e1-a9e0-317ba20e3884:#{object["nyxNxSet"]}", object["uuid"], object)
-        }
-    end
-
 end

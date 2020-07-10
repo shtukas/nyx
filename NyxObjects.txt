@@ -1,8 +1,7 @@
 
-The Objects that go to the object store ( eg: `NyxObjects::put(object)` ), need to have the three following attributes
+The Objects that go to the object store ( eg: `NyxObjects::put(object)` ), need to have the two following attributes
 
     - uuid                : String
     - nyxNxSet            : String
-    - nyxNxStoreTimestamp : Float # Unixtime with decimals # set by the storage function itself
 
-At during the extraction nyxNxSet null indicates that the object has been deleted.
+and the `nyxNxSet` need to be a valid setid.
