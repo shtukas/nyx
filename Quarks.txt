@@ -11,8 +11,6 @@ Quark
 
     "type"             : "line"
     "line"             : String
-
-    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -24,8 +22,6 @@ Quark
 
     "type"             : "url"
     "url"              : String
-
-    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -37,8 +33,6 @@ Quark
 
     "type"             : "aion-point"
     "namedhash"        : String (Librarian managed)
-
-    "textnote"         : nil or String # namedhash
 }
 
 {
@@ -50,6 +44,4 @@ Quark
 
     "type"             : "unique-name"
     "name"             : String # Use Atlas to find them
-
-    "textnote"         : nil or String # namedhash
 }

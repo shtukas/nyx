@@ -53,12 +53,10 @@ require_relative "Mercury.rb"
     Mercury::deleteFirstValue(channel)
 =end
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 require_relative "Quarks.rb"
 require_relative "Asteroids.rb"
-
-require_relative "RealEstate.rb"
 
 # -------------------------------------------------------------------------
 

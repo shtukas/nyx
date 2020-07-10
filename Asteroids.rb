@@ -31,8 +31,6 @@ require_relative "KeyValueStore.rb"
 =end
 
 require_relative "Bosons.rb"
-require_relative "NyxGenericObjectInterface.rb"
-
 require_relative "Bank.rb"
 =begin 
     Bank::put(uuid, weight)
@@ -200,7 +198,7 @@ class Asteroids
     # Asteroids::issue(payload, orbital)
     def self.issue(payload, orbital)
         asteroid = {
-            "uuid"     => CatalystCommon::l22(),
+            "uuid"     => Miscellaneous::l22(),
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
@@ -317,7 +315,7 @@ class Asteroids
 
             system("clear")
 
-            CatalystCommon::horizontalRule(false)
+            Miscellaneous::horizontalRule(false)
 
             puts Asteroids::asteroidToString(asteroid)
             puts "uuid: #{asteroid["uuid"]}"
@@ -329,13 +327,13 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
             puts "Bank 7 days    : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours  : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -364,7 +362,7 @@ class Asteroids
                 menuitems.item(
                     "edit description",
                     lambda {
-                        asteroid["payload"]["description"] = CatalystCommon::editTextUsingTextmate(asteroid["payload"]["description"]).strip
+                        asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
                         Asteroids::commitToDisk(asteroid)
                     }
                 )
@@ -429,7 +427,7 @@ class Asteroids
                 }
             )
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status

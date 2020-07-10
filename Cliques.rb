@@ -15,9 +15,8 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
 require_relative "Bosons.rb"
-require_relative "NyxGenericObjectInterface.rb"
 require_relative "DataPortalUI.rb"
-require_relative "NyxRoles.rb"
+require_relative "TodoRoles.rb"
 
 # -----------------------------------------------------------------
 
@@ -29,8 +28,7 @@ class Cliques
             "uuid"             => SecureRandom.uuid,
             "nyxNxSet"         => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
             "unixtime"         => Time.new.to_f,
-            "name"             => name1,
-            "textnote"         => nil
+            "name"             => name1
         }
         Cliques::commitToDisk(clique)
         clique
@@ -69,7 +67,7 @@ class Cliques
     # Cliques::selectCliqueFromExistingCliquesOrNull()
     def self.selectCliqueFromExistingCliquesOrNull()
         cliquestrings = Cliques::cliques().map{|clique| Cliques::cliqueToString(clique) }
-        cliquestring = CatalystCommon::chooseALinePecoStyle("clique:", [""]+cliquestrings)
+        cliquestring = Miscellaneous::chooseALinePecoStyle("clique:", [""]+cliquestrings)
         return nil if cliquestring == ""
         Cliques::cliques()
             .select{|clique| Cliques::cliqueToString(clique) == cliquestring }
@@ -119,26 +117,26 @@ class Cliques
 
             system("clear")
 
-            CatalystCommon::horizontalRule(false)
+            Miscellaneous::horizontalRule(false)
 
             puts Cliques::cliqueToString(clique)
             puts "uuid: #{clique["uuid"]}"
 
-            if clique["textnote"] then
+            notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
+
+            if notetext then
                 puts "Note:"
-                namedhash = clique["textnote"]
-                text = NyxBlobs::getBlobOrNull(namedhash)
-                puts text
+                puts notetext
             end
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             menuitems.item(
                 "rename", 
                 lambda{ 
-                    clique["name"] = CatalystCommon::editTextUsingTextmate(clique["name"]).strip
+                    clique["name"] = Miscellaneous::editTextUsingTextmate(clique["name"]).strip
                     Cliques::commitToDisk(clique)
                 }
             )
@@ -146,15 +144,9 @@ class Cliques
             menuitems.item(
                 "textnote (edit)", 
                 lambda{ 
-                    text = ""
-                    if clique["textnote"] then
-                        namedhash = clique["textnote"]
-                        text = NyxBlobs::getBlobOrNull(namedhash)
-                    end
-                    text = CatalystCommon::editTextUsingTextmate(text).strip
-                    namedhash = NyxBlobs::put(text)
-                    clique["textnote"] = namedhash
-                    Cliques::commitToDisk(clique)
+                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    Notes::issue(clique["uuid"], text)
                 }
             )
 
@@ -201,26 +193,26 @@ class Cliques
                 lambda { DataPortalUI::dataPortalFront() }
             )
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
-            NyxRoles::getRolesForTarget(clique["uuid"])
+            TodoRoles::getRolesForTarget(clique["uuid"])
                 .each{|object| 
                     menuitems.item(
-                        NyxRoles::objectToString(object), 
-                        lambda { NyxRoles::objectDive(object) }
+                        TodoRoles::objectToString(object), 
+                        lambda { TodoRoles::objectDive(object) }
                     )
                 }
 
             Bosons::getQuarksForClique(clique)
-                .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
-                .each{|object|
+                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+                .each{|quark|
                     menuitems.item(
-                        NyxGenericObjectInterface::objectToString(object), 
-                        lambda { NyxGenericObjectInterface::objectDive(object) }
+                        Quarks::quarkToString(quark), 
+                        lambda { Quarks::quarkDive(quark) }
                     )
                 }
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status
@@ -236,7 +228,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["unixtime"] ] + Bosons::getQuarksForClique(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
+        times = [ clique["unixtime"] ] + Bosons::getQuarksForClique(clique).map{|object| object["unixtime"] }
         times.max
     end
 

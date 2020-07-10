@@ -16,12 +16,12 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
 require_relative "AtlasCore.rb"
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 require_relative "Bosons.rb"
-require_relative "NyxGenericObjectInterface.rb"
 require_relative "LibrarianAion.rb"
 require_relative "DataPortalUI.rb"
 require_relative "Tags.rb"
+require_relative "Notes.rb"
 
 # -----------------------------------------------------------------
 
@@ -39,7 +39,7 @@ class QuarksUtils
 
     # QuarksUtils::makeNewTextFileInteractivelyReturnFilepath()
     def self.makeNewTextFileInteractivelyReturnFilepath()
-        filepath = "/tmp/#{CatalystCommon::l22()}.txt"
+        filepath = "/tmp/#{Miscellaneous::l22()}.txt"
         FileUtils.touch(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
@@ -48,7 +48,7 @@ class QuarksUtils
 
     # QuarksUtils::textToFilepath(text)
     def self.textToFilepath(text)
-        filepath = "/tmp/#{CatalystCommon::l22()}.txt"
+        filepath = "/tmp/#{Miscellaneous::l22()}.txt"
         File.open(filepath, "w"){|f| f.puts(text) }
         filepath
     end
@@ -65,8 +65,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => line,
             "type"             => "line",
-            "line"             => line,
-            "textnote"         => nil
+            "line"             => line
         }
     end
 
@@ -78,8 +77,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "url",
-            "url"              => url,
-            "textnote"         => nil
+            "url"              => url
         }
     end
 
@@ -102,8 +100,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "aion-point",
-            "namedhash"        => namedhash,
-            "textnote"         => nil
+            "namedhash"        => namedhash
         }
     end
 
@@ -116,8 +113,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "aion-point",
-            "namedhash"        => namedhash,
-            "textnote"         => nil
+            "namedhash"        => namedhash
         }
     end
 
@@ -132,8 +128,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "aion-point",
-            "namedhash"        => namedhash,
-            "textnote"         => nil
+            "namedhash"        => namedhash
         }
     end
 
@@ -148,8 +143,7 @@ class QuarksMakers
             "unixtime"         => Time.new.to_f,
             "description"      => description,
             "type"             => "unique-name",
-            "name"             => uniquename,
-            "textnote"         => nil
+            "name"             => uniquename
         }
     end
 
@@ -296,7 +290,7 @@ class Quarks
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 if File.file?(location) then
-                    if CatalystCommon::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                    if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
                         puts "opening safely openable file '#{location}'"
                         system("open '#{location}'")
                     else
@@ -326,21 +320,20 @@ class Quarks
 
             system("clear")
 
-            CatalystCommon::horizontalRule(false)
+            Miscellaneous::horizontalRule(false)
 
             puts Quarks::quarkToString(quark)
             puts "uuid: #{quark["uuid"]}"
             puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
             puts "tags: #{Quarks::getQuarkTags(quark).map{|tag| tag["payload"] }.join(", ")}"
 
-            if quark["textnote"] then
+            notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
+            if notetext then
                 puts "Note:"
-                namedhash = quark["textnote"]
-                text = NyxBlobs::getBlobOrNull(namedhash)
-                puts text
+                puts notetext
             end
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -356,7 +349,7 @@ class Quarks
                         if ( quark["description"].nil? or quark["description"].size == 0 ) then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
-                            description = CatalystCommon::editTextUsingTextmate(quark["description"]).strip
+                            description = Miscellaneous::editTextUsingTextmate(quark["description"]).strip
                         end
                     return if description == ""
                     quark["description"] = description
@@ -368,8 +361,8 @@ class Quarks
             menuitems.item(
                 "datetime (update)",
                 lambda{
-                    datetime = CatalystCommon::editTextUsingTextmate(Time.at(quark["unixtime"]).utc.iso8601).strip
-                    return if !NSXMiscUtils::dateIsIso8601Format?(datetime)
+                    datetime = Miscellaneous::editTextUsingTextmate(Time.at(quark["unixtime"]).utc.iso8601).strip
+                    return if !Miscellaneous::dateIsIso8601Format?(datetime)
                     unixtime = DateTime.parse(datetime).to_time.to_f
                     quark["unixtime"] = unixtime
                     Quarks::commitQuarkToDisk(quark)
@@ -379,15 +372,9 @@ class Quarks
             menuitems.item(
                 "textnote (edit)", 
                 lambda{ 
-                    text = ""
-                    if quark["textnote"] then
-                        namedhash = quark["textnote"]
-                        text = NyxBlobs::getBlobOrNull(namedhash)
-                    end
-                    text = CatalystCommon::editTextUsingTextmate(text).strip
-                    namedhash = NyxBlobs::put(text)
-                    quark["textnote"] = namedhash
-                    Quarks::commitQuarkToDisk(quark)
+                    text = Notes::getMostRecentTextForTargetOrNull(quark["uuid"]) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    Notes::issue(quark["uuid"], text)
                 }
             )
 
@@ -460,26 +447,26 @@ class Quarks
                 lambda { DataPortalUI::dataPortalFront() }
             )
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
-            NyxRoles::getRolesForTarget(quark["uuid"])
+            TodoRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| 
                     menuitems.item(
-                        NyxRoles::objectToString(object), 
-                        lambda{ NyxRoles::objectDive(object) }
+                        TodoRoles::objectToString(object), 
+                        lambda{ TodoRoles::objectDive(object) }
                     )
                 }
 
             Bosons::getCliquesForQuark(quark)
-                .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
-                .each{|object|
+                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
+                .each{|clique|
                     menuitems.item(
-                        NyxGenericObjectInterface::objectToString(object), 
-                        lambda { NyxGenericObjectInterface::objectDive(object) }
+                        Cliques::cliqueToString(clique), 
+                        lambda { Cliques::cliqueDive(clique) }
                     )
                 }
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status
@@ -506,7 +493,7 @@ class Quarks
     # Quarks::selectQuarkFromExistingQuarksOrNull()
     def self.selectQuarkFromExistingQuarksOrNull()
         quarkstrings = Quarks::quarks().map{|quark| Quarks::quarkToString(quark) }
-        quarkstring = CatalystCommon::chooseALinePecoStyle("quark:", [""]+quarkstrings)
+        quarkstring = Miscellaneous::chooseALinePecoStyle("quark:", [""]+quarkstrings)
         return nil if quarkstring == ""
         Quarks::quarks()
             .select{|quark| Quarks::quarkToString(quark) == quarkstring }

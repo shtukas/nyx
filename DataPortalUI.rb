@@ -66,7 +66,7 @@ class DataPortalUI
 
             ms.item(
                 "general search", 
-                lambda { NSXGeneralSearch::searchAndDive() }
+                lambda { GeneralSearch::searchAndDive() }
             )
 
             ms.item(
@@ -138,7 +138,7 @@ class DataPortalUI
             ms.item(
                 "Calendar",
                 lambda { 
-                    system("open '#{CatalystCommon::catalystDataCenterFolderpath()}/Calendar/Items'") 
+                    system("open '#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items'") 
                 }
             )
 
@@ -152,7 +152,7 @@ class DataPortalUI
             ms.item(
                 "Print Generation Speed Report", 
                 lambda { 
-                    NSXCatalystObjectsOperator::generationSpeedReport()
+                    CatalystObjectsOperator::generationSpeedReport()
                 }
             )
 
@@ -163,7 +163,7 @@ class DataPortalUI
 
             ms.item(
                 "Nyx curation", 
-                lambda { NSXCuration::run() }
+                lambda { Curation::run() }
             )
 
             ms.item(
@@ -174,8 +174,8 @@ class DataPortalUI
             ms.item(
                 "Timeline garbage collection", 
                 lambda { 
-                    puts "#{NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
-                    NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
+                    puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
+                    EstateServices::binT1mel1neGarbageCollectionEnvelop(true)
                 }
             )
 

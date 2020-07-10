@@ -1,0 +1,7 @@
+Note {
+    "uuid"       : String
+    "nyxNxSet"   : "c6fad718-1306-49cf-a361-76ce85e909ca"
+    "unixtime"   : Float
+    "targetuuid" : String
+    "namedhash"  : String
+}

@@ -57,34 +57,34 @@ require_relative "DataPortalUI.rb"
 
 # ------------------------------------------------------------------------
 
-class NSXCatalystUI
+class CatalystUI
 
-    # NSXCatalystUI::applyNextTransformationToFile(filepath)
+    # CatalystUI::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
-        CatalystCommon::copyLocationToCatalystBin(filepath)
+        Miscellaneous::copyLocationToCatalystBin(filepath)
         content = IO.read(filepath).strip
         content = SectionsType0141::applyNextTransformationToContent(content)
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
-    # NSXCatalystUI::standardDisplay(catalystObjects)
+    # CatalystUI::standardDisplay(catalystObjects)
     def self.standardDisplay(catalystObjects)
 
         system("clear")
 
         startTime = Time.new.to_f
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        verticalSpaceLeft = Miscellaneous::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
-        filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
         text = IO.read(filepath).strip
         if text.size > 0 then
             text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
             puts ""
             puts File.basename(filepath)
             puts text
-            verticalSpaceLeft = verticalSpaceLeft - (NSXDisplayUtils::verticalSize(text) + 2)
+            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
         end
 
         dates =  Calendar::dates()
@@ -108,9 +108,9 @@ class NSXCatalystUI
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
             catalystObjects.each_with_index{|object, indx| 
-                str = NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - NSXDisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(str)
+                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 menuitems.item(
                     str,
                     lambda { object["execute"].call(nil) }
@@ -126,7 +126,7 @@ class NSXCatalystUI
         command = STDIN.gets().strip
 
         if command == "" and (Time.new.to_f-startTime) < 5 then
-            NSXCatalystUI::standardDisplay(catalystObjects)
+            CatalystUI::standardDisplay(catalystObjects)
             return
         end
 
@@ -134,7 +134,7 @@ class NSXCatalystUI
             return
         end
 
-        if NSXMiscUtils::isInteger(command) then
+        if Miscellaneous::isInteger(command) then
             position = command.to_i
             menuitems.executePosition(position)
             return
@@ -158,13 +158,13 @@ class NSXCatalystUI
         if command == "++" then
             object = catalystObjects.first
             return if object.nil?
-            unixtime = NSXMiscUtils::codeToUnixtimeOrNull("+1 hours")
+            unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             return
         end
 
-        if command.start_with?('+') and (unixtime = NSXMiscUtils::codeToUnixtimeOrNull(command)) then
+        if command.start_with?('+') and (unixtime = Miscellaneous::codeToUnixtimeOrNull(command)) then
             object = catalystObjects.first
             return if object.nil?
             puts "Pushing to #{Time.at(unixtime).to_s}"
@@ -173,13 +173,13 @@ class NSXCatalystUI
         end
 
         if command == "::" then
-            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
         end
 
         if command == "[]" then
-            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            NSXCatalystUI::applyNextTransformationToFile(filepath)
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+            CatalystUI::applyNextTransformationToFile(filepath)
         end
 
         if command == "a+" then
@@ -221,26 +221,26 @@ class NSXCatalystUI
         catalystObjects.first["execute"].call(command)
     end
 
-    # NSXCatalystUI::standardUILoop()
+    # CatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
 
-            if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
+            if STARTING_CODE_HASH != EstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
                 puts "Code change detected. Exiting."
                 exit
             end
 
             # Some Admin
-            NSXMiscUtils::importFromLucilleInbox()
+            Miscellaneous::importFromLucilleInbox()
 
             # Displays
-            objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then
                 puts "No catalyst object found"
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            NSXCatalystUI::standardDisplay(objects)
+            CatalystUI::standardDisplay(objects)
         }
     end
 end

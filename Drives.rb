@@ -17,7 +17,7 @@ require_relative "KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 # -----------------------------------------------------------------
 
@@ -33,7 +33,7 @@ require_relative "Common.rb"
 class Drives
     # Drives::runShadowUpdate()
     def self.runShadowUpdate()
-        drives = JSON.parse(IO.read("#{CatalystCommon::catalystDataCenterFolderpath()}/Drives/drives.json"))
+        drives = JSON.parse(IO.read("#{Miscellaneous::catalystDataCenterFolderpath()}/Drives/drives.json"))
         drives.each{|drive|
             drive["shadowFSPaths"].each{|shadowpath|
                 if File.exists?(shadowpath) then

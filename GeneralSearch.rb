@@ -3,15 +3,15 @@
 
 require_relative "LucilleCore.rb"
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 require_relative "Quarks.rb"
 require_relative "Cliques.rb"
 
 # -----------------------------------------------------------------
 
-class NSXGeneralSearch
+class GeneralSearch
 
-    # NSXGeneralSearch::searchNx1630(pattern)
+    # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
             Cliques::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
@@ -21,14 +21,14 @@ class NSXGeneralSearch
             .flatten
     end
 
-    # NSXGeneralSearch::searchAndDive()
+    # GeneralSearch::searchAndDive()
     def self.searchAndDive()
         loop {
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
             return if pattern.size == 0
             next if pattern.size < 3
-            searchresults = NSXGeneralSearch::searchNx1630(pattern)
+            searchresults = GeneralSearch::searchNx1630(pattern)
             loop {
                 system("clear")
                 puts "results for '#{pattern}':"

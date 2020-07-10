@@ -13,7 +13,7 @@ require_relative "KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 require_relative "Anniversaries.rb"
 require_relative "BackupsMonitor.rb"
@@ -24,9 +24,9 @@ require_relative "Waves.rb"
 
 # -----------------------------------------------------------------
 
-class NSXCatalystObjectsOperator
+class CatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+    # CatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = [
             Anniversaries::catalystObjects(),
@@ -44,7 +44,7 @@ class NSXCatalystObjectsOperator
             .reverse
     end
 
-    # NSXCatalystObjectsOperator::generationSpeedReport()
+    # CatalystObjectsOperator::generationSpeedReport()
     def self.generationSpeedReport()
         generators = [
             {

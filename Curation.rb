@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NSXCuration
+class Curation
 
-    # NSXDisplayUtils::run()
+    # DisplayUtils::run()
     def self.run()
         
     end

@@ -39,14 +39,13 @@ require_relative "KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
 require_relative "Bosons.rb"
-require_relative "NyxGenericObjectInterface.rb"
 require_relative "NyxObjects.rb"
 
 # ----------------------------------------------------------------------
@@ -314,7 +313,7 @@ class Waves
             wave = Waves::getOrNull(wave["uuid"])
             return if wave.nil?
 
-            CatalystCommon::horizontalRule(false)
+            Miscellaneous::horizontalRule(false)
 
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
@@ -326,7 +325,7 @@ class Waves
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             menuitems.item(
                 "start",
@@ -351,7 +350,7 @@ class Waves
             menuitems.item(
                 "description",
                 lambda { 
-                    description = CatalystCommon::editTextUsingTextmate(wave["description"])
+                    description = Miscellaneous::editTextUsingTextmate(wave["description"])
                     return if description.nil?
                     wave["description"] = description
                     Waves::commitToDisk(wave)
@@ -377,7 +376,7 @@ class Waves
                 }
             )
 
-            CatalystCommon::horizontalRule(true)
+            Miscellaneous::horizontalRule(true)
 
             status = menuitems.prompt()
             break if !status
@@ -421,7 +420,7 @@ class Waves
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
                 next if op.nil?
                 if op == "edit description" then
-                    obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
+                    obj["description"] = Miscellaneous::editTextUsingTextmate(obj["description"])
                     Waves::commitToDisk(obj)
                 end
                 if op == "recast" then

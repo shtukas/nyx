@@ -1,16 +1,16 @@
 
 # encoding: UTF-8
 
-class NSXDisplayUtils
+class DisplayUtils
 
-    # NSXDisplayUtils::defaultCatalystObjectCommands()
+    # DisplayUtils::defaultCatalystObjectCommands()
     def self.defaultCatalystObjectCommands()
         ["expose"]
     end
 
-    # NSXDisplayUtils::makeDisplayStringForCatalystListing(object)
+    # DisplayUtils::makeDisplayStringForCatalystListing(object)
     def self.makeDisplayStringForCatalystListing(object)
-        # NSXMiscUtils::screenWidth()
+        # Miscellaneous::screenWidth()
         body = object["body"]
         lines = body.lines.to_a
         if lines.size == 1 then
@@ -21,8 +21,8 @@ class NSXDisplayUtils
         end
     end
 
-    # NSXDisplayUtils::verticalSize(displayStr)
+    # DisplayUtils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| (line.size.to_f/NSXMiscUtils::screenWidth()).ceil }.inject(0, :+)
+        displayStr.lines.map{|line| (line.size.to_f/Miscellaneous::screenWidth()).ceil }.inject(0, :+)
     end
 end

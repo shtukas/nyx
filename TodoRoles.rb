@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "NyxRoles.rb"
+# require_relative "TodoRoles.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -32,9 +32,9 @@ require_relative "Asteroids.rb"
 
 # -----------------------------------------------------------------
 
-class NyxRoles
+class TodoRoles
 
-    # NyxRoles::objectToString(object)
+    # TodoRoles::objectToString(object)
     def self.objectToString(object)
         if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             return Waves::waveToString(object)
@@ -46,7 +46,7 @@ class NyxRoles
         raise "Error: 056686f0"
     end
 
-    # NyxRoles::objectDive(object)
+    # TodoRoles::objectDive(object)
     def self.objectDive(object)
         if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             puts "There isn't currently a dive function for Waves"
@@ -60,7 +60,7 @@ class NyxRoles
         raise "Error: cf25ea33"
     end
 
-    # NyxRoles::getRolesForTarget(targetuuid)
+    # TodoRoles::getRolesForTarget(targetuuid)
     def self.getRolesForTarget(targetuuid)
         [
             # We are not doing the Waves as they have no target

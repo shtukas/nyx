@@ -67,7 +67,7 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 require_relative "NyxBlobs.rb"
 
 # -----------------------------------------------------------------
@@ -125,7 +125,7 @@ class LibrarianDeskOperator
 
     # LibrarianDeskOperator::deskFolderpathForQuark(quark)
     def self.deskFolderpathForQuark(quark)
-        "#{RealEstate::getDeskFolderpath()}/#{quark["uuid"]}"
+        "#{EstateServices::getDeskFolderpath()}/#{quark["uuid"]}"
     end
 
     # LibrarianDeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
@@ -140,7 +140,7 @@ class LibrarianDeskOperator
             # In such a case we are going to remove the extra folder by moving thigs up...
             if File.exists?("#{deskFolderPathForQuark}/#{quark["uuid"]}") then
                 FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}", "#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting")
-                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting", RealEstate::getDeskFolderpath())
+                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting", EstateServices::getDeskFolderpath())
                 LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
                 FileUtils.mv("#{deskFolderPathForQuark}-lifting", deskFolderPathForQuark)
             end

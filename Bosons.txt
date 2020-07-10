@@ -1,4 +1,6 @@
 
+Bosons are what link Cliques and Quarks
+
 Boson {
     "uuid"       : String
     "nyxNxSet"   : "13f3499d-fa9c-44bb-91d3-8a3ccffecefb"

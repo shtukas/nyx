@@ -13,7 +13,7 @@ require 'fileutils'
 
 require 'find'
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 # ------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ class NyxBlobs
             fragment1 = namedhash[7, 2]
             fragment2 = namedhash[9, 2]
             fragment3 = namedhash[11, 2]
-            filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Blobs/#{fragment1}/#{fragment2}/#{fragment3}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end

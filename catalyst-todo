@@ -45,43 +45,41 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
-require_relative "NSXCatalystObjectsOperator.rb"
-require_relative "NSXCatalystUI.rb"
-require_relative "NSXCuration.rb"
-require_relative "NSXDisplayUtils.rb"
-require_relative "NSXGeneralSearch.rb"
-require_relative "NSXEstateServices.rb"
-require_relative "NSXMiscUtils.rb"
-require_relative "RealEstate.rb"
+require_relative "CatalystObjectsOperator.rb"
+require_relative "CatalystUI.rb"
+require_relative "Curation.rb"
+require_relative "DisplayUtils.rb"
+require_relative "GeneralSearch.rb"
+require_relative "EstateServices.rb"
 
 # -------------------------------------------------------------------------
 
 CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(File.dirname(__FILE__)) 
-STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
+STARTING_CODE_HASH = EstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 # -------------------------------------------------------------------------
 # nslog
 
 # -------------------------------------------------------------------------
 
-RealEstate::surveyConstruction()
+EstateServices::surveyConstruction()
 
 Thread.new {
     loop {
         sleep 5
-        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "An object is running for long")
+                Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
             }
         sleep 60
     }
 }
 
-NSXCatalystUI::standardUILoop()
+CatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------

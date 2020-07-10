@@ -38,7 +38,16 @@ require_relative "BTreeSets.rb"
     BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
+require_relative "Miscellaneous.rb"
+
 # ------------------------------------------------------------------------
+
+class Miscellaneous
+    # Miscellaneous::catalystDataCenterFolderpath()
+    def self.catalystDataCenterFolderpath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst"
+    end
+end
 
 class NyxPrimaryObjects
 
@@ -52,6 +61,7 @@ class NyxPrimaryObjects
             "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
             "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
             "13f3499d-fa9c-44bb-91d3-8a3ccffecefb", # Bosons
+            "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
         ]
     end
 
@@ -60,7 +70,7 @@ class NyxPrimaryObjects
         hash1 = Digest::SHA256.hexdigest(uuid)
         fragment1 = hash1[0, 2]
         fragment2 = hash1[2, 2]
-        filepath = "#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects/#{fragment1}/#{fragment2}/#{hash1}.json"
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects/#{fragment1}/#{fragment2}/#{hash1}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -89,7 +99,7 @@ class NyxPrimaryObjects
     # NyxPrimaryObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
-            Find.find("#{CatalystCommon::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
+            Find.find("#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
                 objects << JSON.parse(IO.read(path))
@@ -104,6 +114,8 @@ class NyxPrimaryObjects
         FileUtils.rm(filepath)
     end
 end
+
+$alison41119753 = nil
 
 class Alison
     def initialize()
@@ -142,14 +154,14 @@ class Alison
     end
 end
 
-$alison41119753 = Alison.new()
-
-puts "Loading Nyx Objects and giving them to Alison"
-
-NyxPrimaryObjects::objectsEnumerator()
-.each{|object|
-    $alison41119753.incoming(object)
-}
+if $alison41119753.nil? then
+    $alison41119753 = Alison.new()
+    puts "Loading Nyx Objects and giving them to Alison"
+    NyxPrimaryObjects::objectsEnumerator()
+    .each{|object|
+        $alison41119753.incoming(object)
+    }
+end
 
 # ------------------------------------------------------------------------------
 # The rest of Catalyst should not know anything of what happens before this line

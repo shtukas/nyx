@@ -1,11 +1,11 @@
 
-require_relative "Common.rb"
+require_relative "Miscellaneous.rb"
 
 class Calendar
 
     # Calendar::pathToCalendarItems()
     def self.pathToCalendarItems()
-        "#{CatalystCommon::catalystDataCenterFolderpath()}/Calendar/Items"
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items"
     end
 
     # Calendar::today()
@@ -53,7 +53,7 @@ class Calendar
                 filepath = Calendar::dateToFilepath(date)
                 content = IO.read(filepath).strip
                 next if content.size > 0
-                CatalystCommon::copyLocationToCatalystBin(filepath)
+                Miscellaneous::copyLocationToCatalystBin(filepath)
                 FileUtils.rm(filepath)
             }
 
