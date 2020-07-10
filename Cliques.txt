@@ -4,6 +4,5 @@ Clique {
     "nyxNxSet"  : "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
     "unixtime"  : Float # Unixtime with decimals
     "name"      : String
-    "linkedTo"  : Array[String] # uuids of linked objects
     "textnote"  : nil or String # namedhash
 }

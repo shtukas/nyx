@@ -12,7 +12,6 @@ Quark
     "type"             : "line"
     "line"             : String
 
-    "linkedTo"         : Array[String] # uuids of linked objects
     "textnote"         : nil or String # namedhash
 }
 
@@ -26,7 +25,6 @@ Quark
     "type"             : "url"
     "url"              : String
 
-    "linkedTo"         : Array[String] # uuids of linked objects
     "textnote"         : nil or String # namedhash
 }
 
@@ -40,7 +38,6 @@ Quark
     "type"             : "aion-point"
     "namedhash"        : String (Librarian managed)
 
-    "linkedTo"         : Array[String] # uuids of linked objects
     "textnote"         : nil or String # namedhash
 }
 
@@ -54,6 +51,5 @@ Quark
     "type"             : "unique-name"
     "name"             : String # Use Atlas to find them
 
-    "linkedTo"         : Array[String] # uuids of linked objects
     "textnote"         : nil or String # namedhash
 }

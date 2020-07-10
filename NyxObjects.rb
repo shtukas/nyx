@@ -51,6 +51,7 @@ class NyxPrimaryObjects
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
             "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
             "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
+            "13f3499d-fa9c-44bb-91d3-8a3ccffecefb", # Bosons
         ]
     end
 
@@ -128,6 +129,7 @@ class Alison
     end
 
     def getSet(setid)
+        return [] if @NyxSets[setid].nil?
         @NyxSets[setid].values || []
     end
 

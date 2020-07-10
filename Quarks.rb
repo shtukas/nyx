@@ -66,7 +66,6 @@ class QuarksMakers
             "description"      => line,
             "type"             => "line",
             "line"             => line,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -80,7 +79,6 @@ class QuarksMakers
             "description"      => description,
             "type"             => "url",
             "url"              => url,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -105,7 +103,6 @@ class QuarksMakers
             "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -120,7 +117,6 @@ class QuarksMakers
             "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -137,7 +133,6 @@ class QuarksMakers
             "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -154,7 +149,6 @@ class QuarksMakers
             "description"      => description,
             "type"             => "unique-name",
             "name"             => uniquename,
-            "linkedTo"         => [],
             "textnote"         => nil
         }
     end
@@ -230,7 +224,7 @@ class Quarks
 
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
-        Bosons::getLinkedObjects(quark)
+        Bosons::getCliquesForQuark(quark)
             .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
     end
 
@@ -420,7 +414,7 @@ class Quarks
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
-                    Bosons::link(quark, clique)
+                    Bosons::issue(clique, quark)
                 }
             )
 
@@ -429,27 +423,7 @@ class Quarks
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
-                    Bosons::unlink(quark, clique)
-                }
-            )
-
-            menuitems.item(
-                "quark (make new + attach to this)",
-                lambda {
-                    newquark = Quarks::issueNewQuarkInteractivelyOrNull()
-                    return if newquark.nil?
-                    Bosons::link(quark, newquark)
-                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(newquark)
-                }
-            )
-
-            menuitems.item(
-                "quark (select existing + attach to this)",
-                lambda {
-                    quark2 = Quarks::selectQuarkFromExistingQuarksOrNull()
-                    return if quark2.nil?
-                    return if quark["uuid"] == quark2["uuid"]
-                    Bosons::link(quark, quark2)
+                    Bosons::issue(clique, quark)
                 }
             )
 
@@ -496,7 +470,7 @@ class Quarks
                     )
                 }
 
-            Bosons::getLinkedObjects(quark)
+            Bosons::getCliquesForQuark(quark)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     menuitems.item(
@@ -574,9 +548,7 @@ class Quarks
     # Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
     def self.attachQuarkToZeroOrMoreCliquesInteractively(quark)
         Cliques::selectZeroOrMoreCliquesExistingOrCreated()
-            .each{|clique|
-                Bosons::link(quark, clique)
-            }
+            .each{|clique| Bosons::issue(clique, quark) }
     end
 
     # Quarks::ensureQuarkDescription(quark)

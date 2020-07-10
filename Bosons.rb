@@ -47,56 +47,61 @@ require_relative "BTreeSets.rb"
 
 
 class Bosons
-
-    # Bosons::link(object1, object2)
-    def self.link(object1, object2)
-        if object1["linkedTo"].nil? then
-            object1["linkedTo"] = []
-        end
-        object1["linkedTo"] << object2["uuid"]
-        object1["linkedTo"] = object1["linkedTo"].uniq
-        NyxObjects::put(object1)
-
-        if object2["linkedTo"].nil? then
-            object2["linkedTo"] = []
-        end
-        object2["linkedTo"] << object1["uuid"]
-        object2["linkedTo"] = object2["linkedTo"].uniq
-        NyxObjects::put(object2)
+    # Bosons::make(clique, quark)
+    def self.make(clique, quark)
+        {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "13f3499d-fa9c-44bb-91d3-8a3ccffecefb",
+            "unixtime"   => Time.new.to_f,
+            "cliqueuuid" => clique["uuid"],
+            "quarkuuid"  => quark["uuid"]
+        }
     end
 
-    # Bosons::getLinkedObjects(object)
-    def self.getLinkedObjects(object)
-        return [] if object["linkedTo"].nil?
-        object["linkedTo"]
-            .map{|uuid| NyxObjects::getOrNull(uuid) }
+    # Bosons::issue(clique, quark)
+    def self.issue(clique, quark)
+        boson = Bosons::make(clique, quark)
+        NyxObjects::put(boson)
+        boson
+    end
+
+    # Bosons::getQuarksForClique(clique)
+    def self.getQuarksForClique(clique)
+        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+            .select{|boson| boson["cliqueuuid"] == clique["uuid"] }
+            .map{|boson| boson["quarkuuid"] }
+            .map{|quarkuuid| Quarks::getOrNull(quarkuuid) }
             .compact
     end
 
-    # Bosons::getLinkedObjectsOfGivenNyxNxSet(focus, setid)
-    def self.getLinkedObjectsOfGivenNyxNxSet(focus, setid)
-        return [] if focus["linkedTo"].nil?
-        focus["linkedTo"]
-            .map{|uuid| NyxObjects::getOrNull(uuid) }
+    # Bosons::getCliquesForQuark(quark)
+    def self.getCliquesForQuark(quark)
+        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+            .select{|boson| boson["quarkuuid"] == quark["uuid"] }
+            .map{|boson| boson["cliqueuuid"] }
+            .map{|cliqueuuid| Cliques::getOrNull(cliqueuuid) }
             .compact
-            .select{|object| object["nyxNxSet"] == setid }
     end
 
-    # Bosons::unlink(object1, object2)
-    def self.unlink(object1, object2)
-        if object1["linkedTo"].nil? then
-            object1["linkedTo"] = []
-        end
-        object1["linkedTo"].delete(object2["uuid"])
-        object1["linkedTo"] = object1["linkedTo"].uniq
-        NyxObjects::put(object1)
-
-        if object2["linkedTo"].nil? then
-            object2["linkedTo"] = []
-        end
-        object2["linkedTo"].delete(object1["uuid"])
-        object2["linkedTo"] = object2["linkedTo"].uniq
-        NyxObjects::put(object2)
+    # Bosons::destroy(clique, quark)
+    def self.destroy(clique, quark)
+        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+            .select{|boson| 
+                b1 = (boson["cliqueuuid"] == clique["uuid"])
+                b2 = (boson["quarkuuid"] == quark["uuid"])
+                b1 and b2
+            }
+            .first(1)
+            .each{|boson| NyxObjects::destroy(boson["uuid"]) }
     end
 
+    # Bosons::linked?(clique, quark)
+    def self.linked?(clique, quark)
+        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
+            .any?{|boson|  
+                b1 = (boson["cliqueuuid"] == clique["uuid"])
+                b2 = (boson["quarkuuid"] == quark["uuid"])
+                b1 and b2
+            }
+    end
 end

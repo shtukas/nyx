@@ -17,6 +17,7 @@ require 'securerandom'
 require_relative "Bosons.rb"
 require_relative "NyxGenericObjectInterface.rb"
 require_relative "DataPortalUI.rb"
+require_relative "NyxRoles.rb"
 
 # -----------------------------------------------------------------
 
@@ -162,7 +163,7 @@ class Cliques
                 lambda{
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    Bosons::link(clique, quark)
+                    Bosons::issue(clique, quark)
                     Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                 }
             )
@@ -170,7 +171,7 @@ class Cliques
             menuitems.item(
                 "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
                 lambda {
-                    quarks = Bosons::getLinkedObjects(clique)
+                    quarks = Bosons::getQuarksForClique(clique)
                                 .select{|objs| objs["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" }
                     selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
                     return if selected.size == 0
@@ -179,14 +180,10 @@ class Cliques
                     nextcliques = Cliques::selectZeroOrMoreCliquesExistingOrCreated()
                     puts "Linking quarks to cliques"
                     nextcliques.each{|nextclique|
-                        selectedQuarks.each{|quark| 
-                            Bosons::link(nextclique, quark)
-                        }
+                        selectedQuarks.each{|quark| Bosons::issue(nextclique, quark) }
                     }
                     puts "Unlinking quarks from (this)"
-                    selectedQuarks.each{|quark| 
-                        Bosons::unlink(clique, quark)
-                    }
+                    selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
                 }
             )
 
@@ -214,7 +211,7 @@ class Cliques
                     )
                 }
 
-            Bosons::getLinkedObjects(clique)
+            Bosons::getQuarksForClique(clique)
                 .sort{|o1, o2| NyxGenericObjectInterface::objectLastActivityUnixtime(o1) <=> NyxGenericObjectInterface::objectLastActivityUnixtime(o2) }
                 .each{|object|
                     menuitems.item(
@@ -239,7 +236,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["unixtime"] ] + Bosons::getLinkedObjects(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
+        times = [ clique["unixtime"] ] + Bosons::getQuarksForClique(clique).map{|object| NyxGenericObjectInterface::objectLastActivityUnixtime(object) }
         times.max
     end
 
@@ -282,10 +279,8 @@ class Cliques
     # Cliques::mergeCliques(clique1, clique2)
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
-        Bosons::getLinkedObjects(clique2)
-            .each{|object|
-                Bosons::link(clique1, object)
-            }
+        Bosons::getQuarksForClique(clique2)
+            .each{|quark| Bosons::issue(clique1, quark) }
         NyxObjects::destroy(clique2["uuid"])
     end
 
