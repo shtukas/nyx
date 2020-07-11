@@ -1,0 +1,10 @@
+
+------------------------------------------------------
+DateTimeZ
+{
+    "uuid"            : String
+    "nyxNxSet"        : "1bc9b712-09be-44da-9551-f22d70a3f15d"
+    "unixtime"        : Float # Unixtime with decimals
+    "targetuuid"      : String
+    "datetimeISO8601" : String
+}

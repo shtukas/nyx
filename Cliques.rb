@@ -17,20 +17,23 @@ require 'securerandom'
 require_relative "Bosons.rb"
 require_relative "DataPortalUI.rb"
 require_relative "TodoRoles.rb"
+require_relative "DateTimeZ.rb"
+require_relative "DescriptionZ.rb"
 
 # -----------------------------------------------------------------
 
 class Cliques
 
-    # Cliques::issueClique(name1)
-    def self.issueClique(name1)
+    # Cliques::issueClique(description)
+    def self.issueClique(description)
+        uuid = SecureRandom.uuid
         clique = {
-            "uuid"             => SecureRandom.uuid,
-            "nyxNxSet"         => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
-            "unixtime"         => Time.new.to_f,
-            "name"             => name1
+            "uuid"     => uuid,
+            "nyxNxSet" => "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5",
+            "unixtime" => Time.new.to_f
         }
         Cliques::commitToDisk(clique)
+        DescriptionZ::issue(uuid, description)
         clique
     end
 
@@ -48,9 +51,29 @@ class Cliques
         clique
     end
 
+    # Cliques::getCliqueDescriptionOrNull(clique)
+    def self.getCliqueDescriptionOrNull(clique)
+        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+        return nil if descriptionzs.empty?
+        descriptionzs.last["description"]
+    end
+
     # Cliques::cliqueToString(clique)
     def self.cliqueToString(clique)
-        "[clique] [#{clique["uuid"][0, 4]}] #{clique["name"]}"
+        namex = Cliques::getCliqueDescriptionOrNull(clique) 
+        "[clique] [#{clique["uuid"][0, 4]}] #{namex}"
+    end
+
+    # Cliques::getCliqueReferenceDateTime(clique)
+    def self.getCliqueReferenceDateTime(clique)
+        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+        return Time.at(clique["unixtime"]).utc.iso8601 if datetimezs.empty?
+        datetimezs.last["datetimeISO8601"]
+    end
+
+    # Cliques::getCliqueReferenceUnixtime(clique)
+    def self.getCliqueReferenceUnixtime(clique)
+        DateTime.parse(Cliques::getCliqueReferenceDateTime(clique)).to_time.to_f
     end
 
     # Cliques::getOrNull(uuid)
@@ -100,13 +123,6 @@ class Cliques
         cliques
     end
 
-    # Cliques::getClickByNameOrNull(name)
-    def self.getClickByNameOrNull(name1)
-        Cliques::cliques()
-            .select{|clique| clique["name"] == name1 }
-            .first
-    end
-
     # Cliques::cliqueDive(clique)
     def self.cliqueDive(clique)
         loop {
@@ -121,6 +137,9 @@ class Cliques
 
             puts Cliques::cliqueToString(clique)
             puts "uuid: #{clique["uuid"]}"
+            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"]).each{|descriptionz|
+                puts "description: #{descriptionz["description"]}"
+            }
 
             notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
 
@@ -136,8 +155,9 @@ class Cliques
             menuitems.item(
                 "rename", 
                 lambda{ 
-                    clique["name"] = Miscellaneous::editTextUsingTextmate(clique["name"]).strip
-                    Cliques::commitToDisk(clique)
+                    description = Cliques::getCliqueDescriptionOrNull(clique)
+                    description = Miscellaneous::editTextUsingTextmate(description).strip
+                    DescriptionZ::issueReplacementOfAnyExisting(clique["uuid"], description)
                 }
             )
 
@@ -228,7 +248,7 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ clique["unixtime"] ] + Bosons::getQuarksForClique(clique).map{|object| object["unixtime"] }
+        times = [ Cliques::getCliqueReferenceUnixtime(clique) ] + Bosons::getQuarksForClique(clique).map{|object| object["unixtime"] }
         times.max
     end
 
@@ -262,7 +282,7 @@ class Cliques
             .map{|clique|
                 {
                     "description"   => Cliques::cliqueToString(clique),
-                    "referencetime" => clique["unixtime"],
+                    "referencetime" => Cliques::getCliqueReferenceUnixtime(clique),
                     "dive"          => lambda{ Cliques::cliqueDive(clique) }
                 }
             }

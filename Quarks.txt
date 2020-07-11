@@ -7,8 +7,6 @@ Quark
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "unixtime"         : Float # Unixtime with decimals
 
-    "description"      : nil | String
-
     "type"             : "line"
     "line"             : String
 }
@@ -17,8 +15,6 @@ Quark
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "unixtime"         : Float # Unixtime with decimals
-
-    "description"      : nil | String
 
     "type"             : "url"
     "url"              : String
@@ -29,8 +25,6 @@ Quark
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "unixtime"         : Float # Unixtime with decimals
 
-    "description"      : nil | String
-
     "type"             : "aion-point"
     "namedhash"        : String (Librarian managed)
 }
@@ -39,8 +33,6 @@ Quark
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "unixtime"         : Float # Unixtime with decimals
-
-    "description"      : nil | String
 
     "type"             : "unique-name"
     "name"             : String # Use Atlas to find them

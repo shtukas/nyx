@@ -22,6 +22,8 @@ require_relative "Librarian.rb"
 require_relative "DataPortalUI.rb"
 require_relative "Tags.rb"
 require_relative "Notes.rb"
+require_relative "DateTimeZ.rb"
+require_relative "DescriptionZ.rb"
 
 # -----------------------------------------------------------------
 
@@ -58,12 +60,13 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkLineInteractively()
     def self.makeQuarkLineInteractively()
+        uuid = SecureRandom.uuid
         line = LucilleCore::askQuestionAnswerAsString("line: ")
+        DescriptionZ::issue(uuid, line)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => line,
             "type"             => "line",
             "line"             => line
         }
@@ -71,11 +74,12 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkUrl(url, description)
     def self.makeQuarkUrl(url, description)
+        uuid = SecureRandom.uuid
+        DescriptionZ::issue(uuid, description)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => description,
             "type"             => "url",
             "url"              => url
         }
@@ -90,15 +94,16 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkAionPointInteractivelyOrNull()
     def self.makeQuarkAionPointInteractivelyOrNull()
+        uuid = SecureRandom.uuid
         location = QuarksUtils::selectOneLocationOnTheDesktopOrNull()
         return nil if location.nil?
         namedhash = LibrarianOperator::locationToNamedHash(location)
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+        DescriptionZ::issue(uuid, description)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash
         }
@@ -106,12 +111,13 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
     def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
+        uuid = SecureRandom.uuid
         namedhash = LibrarianOperator::locationToNamedHash(filepath)
+        DescriptionZ::issue(uuid, description)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash
         }
@@ -120,13 +126,14 @@ class QuarksMakers
     # QuarksMakers::makeQuarkAionPointFromLocation(location)
     def self.makeQuarkAionPointFromLocation(location)
         raise "f8e3b314" if !File.exists?(location)
+        uuid = SecureRandom.uuid
         namedhash = LibrarianOperator::locationToNamedHash(location)
         description = File.basename(location)
+        DescriptionZ::issue(uuid, description)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => description,
             "type"             => "aion-point",
             "namedhash"        => namedhash
         }
@@ -134,14 +141,15 @@ class QuarksMakers
 
     # QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
     def self.makeQuarkUniqueNameInteractivelyOrNull()
+        uuid = SecureRandom.uuid
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         return nil if uniquename.size == 0
         description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+        DescriptionZ::issue(uuid, description)
         {
-            "uuid"             => SecureRandom.uuid,
+            "uuid"             => uuid,
             "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"         => Time.new.to_f,
-            "description"      => description,
             "type"             => "unique-name",
             "name"             => uniquename
         }
@@ -222,15 +230,35 @@ class Quarks
             .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
     end
 
+    # Quarks::getQuarkReferenceDateTime(quark)
+    def self.getQuarkReferenceDateTime(quark)
+        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+        return Time.at(quark["unixtime"]).utc.iso8601 if datetimezs.empty?
+        datetimezs.last["datetimeISO8601"]
+    end
+
+    # Quarks::getQuarkReferenceUnixtime(quark)
+    def self.getQuarkReferenceUnixtime(quark)
+        DateTime.parse(Quarks::getQuarkReferenceDateTime(quark)).to_time.to_f
+    end
+
     # Quarks::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxObjects::getOrNull(uuid)
     end
 
+    # Quarks::getQuarkDescriptionOrNull(quark)
+    def self.getQuarkDescriptionOrNull(quark)
+        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+        return nil if descriptionzs.empty?
+        descriptionzs.last["description"]
+    end
+
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
-        if quark["description"] then
-            return "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{quark["description"]}"
+        description = Quarks::getQuarkDescriptionOrNull(quark)
+        if description then
+            return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
         end
         if quark["type"] == "line" then
             return "[quark] [#{quark["uuid"][0, 4]}] [line] #{quark["line"]}"
@@ -324,8 +352,13 @@ class Quarks
 
             puts Quarks::quarkToString(quark)
             puts "uuid: #{quark["uuid"]}"
-            puts "date: #{Time.at(quark["unixtime"]).utc.iso8601}"
-            puts "tags: #{Quarks::getQuarkTags(quark).map{|tag| tag["payload"] }.join(", ")}"
+            DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"]).each{|descriptionz|
+                puts "description: #{descriptionz["description"]}"
+            }
+            puts "date: #{Quarks::getQuarkReferenceDateTime(quark)}"
+            Quarks::getQuarkTags(quark).each{|tag|
+                puts "tag: #{tag["payload"]}"
+            }
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
             if notetext then
@@ -345,15 +378,14 @@ class Quarks
             menuitems.item(
                 "description (update)",
                 lambda{
-                    description = 
-                        if ( quark["description"].nil? or quark["description"].size == 0 ) then
-                            description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        else
-                            description = Miscellaneous::editTextUsingTextmate(quark["description"]).strip
-                        end
+                    description = Quarks::getQuarkDescriptionOrNull(quark)
+                    if description.nil? then
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    else
+                        description = Miscellaneous::editTextUsingTextmate(description).strip
+                    end
                     return if description == ""
-                    quark["description"] = description
-                    Quarks::commitQuarkToDisk(quark)
+                    DescriptionZ::issueReplacementOfAnyExisting(quark["uuid"], description)
                 }
             )
 
@@ -361,11 +393,9 @@ class Quarks
             menuitems.item(
                 "datetime (update)",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(Time.at(quark["unixtime"]).utc.iso8601).strip
-                    return if !Miscellaneous::dateIsIso8601Format?(datetime)
-                    unixtime = DateTime.parse(datetime).to_time.to_f
-                    quark["unixtime"] = unixtime
-                    Quarks::commitQuarkToDisk(quark)
+                    datetime = Miscellaneous::editTextUsingTextmate(Quarks::getQuarkReferenceDateTime(quark)).strip
+                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
+                    DateTimeZ::issueReplacementOfAnyExisting(quark["uuid"], datetime)
                 }
             )
 
@@ -517,7 +547,7 @@ class Quarks
             .map{|quark|
                 {
                     "description"   => Quarks::quarkToString(quark),
-                    "referencetime" => quark["unixtime"],
+                    "referencetime" => Quarks::getQuarkReferenceUnixtime(quark),
                     "dive"          => lambda{ Quarks::quarkDive(quark) }
                 }
             }
@@ -540,11 +570,10 @@ class Quarks
 
     # Quarks::ensureQuarkDescription(quark)
     def self.ensureQuarkDescription(quark)
-        if quark["description"].nil? then
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            Quarks::commitQuarkToDisk(quark)
-        end
-        quark
+        return if Quarks::getQuarkDescriptionOrNull(quark)
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return if description.size == 0
+        DescriptionZ::issue(quark["uuid"], description)
     end
 
     # Quarks::ensureAtLeastOneQuarkCliques(quark)

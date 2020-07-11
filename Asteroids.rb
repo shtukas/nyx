@@ -718,7 +718,7 @@ class Asteroids
     def self.asteroidDestructionQuarkHandling(quark)
         return if Bosons::getCliquesForQuark(quark).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
-            quark = Quarks::ensureQuarkDescription(quark)
+            Quarks::ensureQuarkDescription(quark)
             Quarks::ensureAtLeastOneQuarkCliques(quark)
         else
             Quarks::destroyQuarkByUUID(quark["uuid"])

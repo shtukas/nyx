@@ -57,8 +57,8 @@ class Miscellaneous
       IO.read(filepath)
     end
 
-    # Miscellaneous::isProperDateTimeIso8601(datetime)
-    def self.isProperDateTimeIso8601(datetime)
+    # Miscellaneous::isProperDateTime_utc_iso8601(datetime)
+    def self.isProperDateTime_utc_iso8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
     end
 
@@ -148,11 +148,6 @@ class Miscellaneous
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
-    end
-
-    # Miscellaneous::dateIsIso8601Format?(datetime)
-    def self.dateIsIso8601Format?(datetime)
-        datetime == DateTime.parse(datetime).to_time.utc.iso8601
     end
 
     # Miscellaneous::nDaysInTheFuture(n)
