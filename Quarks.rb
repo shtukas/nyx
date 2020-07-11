@@ -25,6 +25,7 @@ require_relative "Notes.rb"
 require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
 require_relative "Spins.rb"
+require_relative "Comments.rb"
 
 # -----------------------------------------------------------------
 
@@ -124,9 +125,16 @@ class Quarks
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
             if notetext then
+                puts ""
                 puts "Note:"
                 puts notetext
             end
+
+            Comments::getForTargetUUIDInTimeOrder(quark["uuid"]).each{|comment|
+                puts ""
+                puts "Comment:"
+                puts NyxBlobs::getBlobOrNull(comment["namedhash"])
+            }
 
             Miscellaneous::horizontalRule(true)
 
@@ -168,11 +176,19 @@ class Quarks
             )
 
             menuitems.item(
-                "textnote (edit)", 
+                "top note (edit)", 
                 lambda{ 
                     text = Notes::getMostRecentTextForTargetOrNull(quark["uuid"]) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issue(quark["uuid"], text)
+                    Notes::issueReplacementOfAnyExisting(quark["uuid"], text)
+                }
+            )
+
+            menuitems.item(
+                "comment (new)", 
+                lambda{ 
+                    text = Miscellaneous::editTextUsingTextmate("").strip
+                    Comments::issue(quark["uuid"], nil, text)
                 }
             )
 

@@ -65,6 +65,7 @@ class NyxPrimaryObjects
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
             "0f555c97-3843-4dfe-80c8-714d837eba69", # Spin
+            "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
         ]
     end
 
