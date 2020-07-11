@@ -67,17 +67,6 @@ class DateTimeZ
         object
     end
 
-    # DateTimeZ::issueReplacementOfAnyExisting(targetuuid, datetime)
-    def self.issueReplacementOfAnyExisting(targetuuid, datetime)
-        existingobjects = DateTimeZ::getForTargetUUIDInTimeOrder(targetuuid)
-        object = DateTimeZ::make(targetuuid, datetime)
-        NyxObjects::put(object)
-        existingobjects.each{|o|
-            DateTimeZ::destroy(o)
-        }
-        object
-    end
-
     # DateTimeZ::getForTargetUUIDInTimeOrder(targetuuid)
     def self.getForTargetUUIDInTimeOrder(targetuuid)
         NyxObjects::getSet("1bc9b712-09be-44da-9551-f22d70a3f15d")

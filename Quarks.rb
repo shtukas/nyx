@@ -115,13 +115,19 @@ class Quarks
 
             puts Quarks::quarkToString(quark)
             puts "uuid: #{quark["uuid"]}"
-            DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"]).each{|descriptionz|
-                puts "description: #{descriptionz["description"]}"
-            }
+
+            DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+                .last(1)
+                .each{|descriptionz|
+                    puts "description: #{descriptionz["description"]}"
+                }
+
             puts "date: #{Quarks::getQuarkReferenceDateTime(quark)}"
-            Quarks::getQuarkTags(quark).each{|tag|
-                puts "tag: #{tag["payload"]}"
-            }
+
+            Quarks::getQuarkTags(quark)
+                .each{|tag|
+                    puts "tag: #{tag["payload"]}"
+                }
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
             if notetext then
@@ -140,9 +146,11 @@ class Quarks
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            Quarks::getQuarkSpins(quark).each{|spin|
-                puts Spins::spinToString(spin)
-            }
+            Quarks::getQuarkSpins(quark)
+                .last(1)
+                .each{|spin|
+                    puts Spins::spinToString(spin)
+                }
 
             Miscellaneous::horizontalRule(true)
 
@@ -161,7 +169,7 @@ class Quarks
                         description = Miscellaneous::editTextUsingTextmate(description).strip
                     end
                     return if description == ""
-                    DescriptionZ::issueReplacementOfAnyExisting(quark["uuid"], description)
+                    DescriptionZ::issue(quark["uuid"], description)
                 }
             )
 
@@ -171,7 +179,7 @@ class Quarks
                 lambda{
                     datetime = Miscellaneous::editTextUsingTextmate(Quarks::getQuarkReferenceDateTime(quark)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-                    DateTimeZ::issueReplacementOfAnyExisting(quark["uuid"], datetime)
+                    DateTimeZ::issue(quark["uuid"], datetime)
                 }
             )
 
@@ -180,7 +188,7 @@ class Quarks
                 lambda{ 
                     text = Notes::getMostRecentTextForTargetOrNull(quark["uuid"]) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issueReplacementOfAnyExisting(quark["uuid"], text)
+                    Notes::issue(quark["uuid"], text)
                 }
             )
 

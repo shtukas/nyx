@@ -70,7 +70,7 @@ class DescriptionZ
         object
     end
 
-    # DescriptionZ::issueReplacementOfAnyExisting(targetuuid, description)
+    # DescriptionZ::issue(targetuuid, description)
     def self.issueReplacementOfAnyExisting(targetuuid, description)
         existingobjects = DescriptionZ::getForTargetUUIDInTimeOrder(targetuuid)
         object = DescriptionZ::make(targetuuid, description)

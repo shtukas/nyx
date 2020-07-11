@@ -137,9 +137,12 @@ class Cliques
 
             puts Cliques::cliqueToString(clique)
             puts "uuid: #{clique["uuid"]}"
-            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"]).each{|descriptionz|
-                puts "description: #{descriptionz["description"]}"
-            }
+
+            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+                .last(1)
+                .each{|descriptionz|
+                    puts "description: #{descriptionz["description"]}"
+                }
 
             notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
 
@@ -157,7 +160,7 @@ class Cliques
                 lambda{ 
                     description = Cliques::getCliqueDescriptionOrNull(clique)
                     description = Miscellaneous::editTextUsingTextmate(description).strip
-                    DescriptionZ::issueReplacementOfAnyExisting(clique["uuid"], description)
+                    DescriptionZ::issue(clique["uuid"], description)
                 }
             )
 

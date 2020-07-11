@@ -66,17 +66,6 @@ class Notes
         note
     end
 
-    # Notes::issueReplacementOfAnyExisting(targetuuid, text)
-    def self.issueReplacementOfAnyExisting(targetuuid, text)
-        existingobjects = Notes::getNotesForTargetOrderedByTime(targetuuid)
-        object = Notes::make(targetuuid, text)
-        NyxObjects::put(object)
-        existingobjects.each{|o|
-            DescriptionZ::destroy(o)
-        }
-        object
-    end
-
     # Notes::getNotesForTargetOrderedByTime(targetuuid)
     def self.getNotesForTargetOrderedByTime(targetuuid)
         NyxObjects::getSet("c6fad718-1306-49cf-a361-76ce85e909ca")
