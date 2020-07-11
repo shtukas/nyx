@@ -51,6 +51,9 @@ class DescriptionZ
     # DescriptionZ::make(targetuuid, description)
     def self.make(targetuuid, description)
         raise "[DescriptionZ error 9482c130]" if description.strip.size == 0
+        if description.lines.to_a.size > 1 then
+            description = description.lines.first.strip
+        end
         {
             "uuid"        => SecureRandom.uuid,
             "nyxNxSet"    => "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f",
