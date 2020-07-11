@@ -111,8 +111,8 @@ end
 
 class LibrarianOperator
 
-    # LibrarianOperator::locationToNamedHash(location)
-    def self.locationToNamedHash(location)
+    # LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
+    def self.commitLocationDataAndReturnNamedHash(location)
         AionCore::commitLocationReturnHash(LibrarianElizabeth.new(), location)
     end
 

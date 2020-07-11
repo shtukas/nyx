@@ -63,7 +63,8 @@ class NyxPrimaryObjects
             "13f3499d-fa9c-44bb-91d3-8a3ccffecefb", # Bosons
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
-            "1bc9b712-09be-44da-9551-f22d70a3f15d"  # DateTimeZ
+            "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
+            "0f555c97-3843-4dfe-80c8-714d837eba69", # Spin
         ]
     end
 

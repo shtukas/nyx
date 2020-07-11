@@ -74,47 +74,47 @@ require_relative "NyxBlobs.rb"
 
 class DeskOperator
 
-    # DeskOperator::deskFolderpathForQuark(quark)
-    def self.deskFolderpathForQuark(quark)
-        "#{EstateServices::getDeskFolderpath()}/#{quark["uuid"]}"
+    # DeskOperator::deskFolderpathForSpin(spin)
+    def self.deskFolderpathForSpin(spin)
+        "#{EstateServices::getDeskFolderpath()}/#{spin["targetuuid"]}"
     end
 
-    # DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
-    def self.deskFolderpathForQuarkCreateIfNotExists(quark)
-        deskFolderPathForQuark = DeskOperator::deskFolderpathForQuark(quark)
-        if !File.exists?(deskFolderPathForQuark) then
-            FileUtils.mkpath(deskFolderPathForQuark)
-            namedhash = quark["namedhash"]
-            LibrarianOperator::namedHashExportAtFolder(namedhash, deskFolderPathForQuark)
-            # If the deskFolderPathForQuark folder contains just one folder named after the quark itself
-            # Then this means that we are exporting a previously imported deskFolderPathForQuark.
+    # DeskOperator::deskFolderpathForSpinCreateIfNotExists(spin)
+    def self.deskFolderpathForSpinCreateIfNotExists(spin)
+        desk_folderpath_for_spin = DeskOperator::deskFolderpathForSpin(spin)
+        if !File.exists?(desk_folderpath_for_spin) then
+            FileUtils.mkpath(desk_folderpath_for_spin)
+            namedhash = spin["namedhash"]
+            LibrarianOperator::namedHashExportAtFolder(namedhash, desk_folderpath_for_spin)
+            # If the desk_folderpath_for_spin folder contains just one folder named after the spin itself
+            # Then this means that we are exporting a previously imported desk_folderpath_for_spin.
             # In such a case we are going to remove the extra folder by moving thigs up...
-            if File.exists?("#{deskFolderPathForQuark}/#{quark["uuid"]}") then
-                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}", "#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting")
-                FileUtils.mv("#{deskFolderPathForQuark}/#{quark["uuid"]}-lifting", EstateServices::getDeskFolderpath())
-                LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
-                FileUtils.mv("#{deskFolderPathForQuark}-lifting", deskFolderPathForQuark)
+            if File.exists?("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}") then
+                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}", "#{desk_folderpath_for_spin}/#{spin["targetuuid"]}-lifting")
+                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}-lifting", EstateServices::getDeskFolderpath())
+                LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
+                FileUtils.mv("#{desk_folderpath_for_spin}-lifting", desk_folderpath_for_spin)
             end
         end
-        deskFolderPathForQuark
+        desk_folderpath_for_spin
     end
 
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
-        Quarks::quarks()
-            .each{|quark|
-                next if quark["type"] != "aion-point"
-                deskFolderPathForQuark = DeskOperator::deskFolderpathForQuark(quark)
-                next if !File.exists?(deskFolderPathForQuark)
-                namedhash = LibrarianOperator::locationToNamedHash(deskFolderPathForQuark)
-                if namedhash == quark["namedhash"] then
-                    LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
+        Spins::spins()
+            .each{|spin|
+                next if spin["type"] != "aion-point"
+                desk_folderpath_for_spin = DeskOperator::deskFolderpathForSpin(spin)
+                next if !File.exists?(desk_folderpath_for_spin)
+                namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_spin)
+                if namedhash == spin["namedhash"] then
+                    LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
                     next
                 end
-                quark["namedhash"] = namedhash
-                puts JSON.pretty_generate(quark)
-                Quarks::commitQuarkToDisk(quark)
-                LucilleCore::removeFileSystemLocation(deskFolderPathForQuark)
+                # We issue a new spin for the same target
+                spin = Spins::issueAionPoint(spin["targetuuid"], namedhash)
+                puts JSON.pretty_generate(spin)
+                LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
             }
     end
 end

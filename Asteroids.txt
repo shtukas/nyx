@@ -16,6 +16,10 @@ Asteroid
             "description" : String
         }
         {
+            "type" : "spin"
+            "uuid" : String
+        }
+        {
             "type": "quarks",
             "uuids": [
                 "3cfe0996-da90-44e7-8a2d-bbfb6b5cb810-EDAAC2BD"

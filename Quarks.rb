@@ -24,162 +24,9 @@ require_relative "Tags.rb"
 require_relative "Notes.rb"
 require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
+require_relative "Spins.rb"
 
 # -----------------------------------------------------------------
-
-class QuarksUtils
-
-    # QuarksUtils::selectOneLocationOnTheDesktopOrNull()
-    def self.selectOneLocationOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .select{|filepath| File.basename(filepath) != 'pascal.png' }
-                            .select{|filepath| File.basename(filepath) != 'Todo-Inbox' }
-                            .sort
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
-    end
-
-    # QuarksUtils::makeNewTextFileInteractivelyReturnFilepath()
-    def self.makeNewTextFileInteractivelyReturnFilepath()
-        filepath = "/tmp/#{Miscellaneous::l22()}.txt"
-        FileUtils.touch(filepath)
-        system("open '#{filepath}'")
-        LucilleCore::pressEnterToContinue()
-        filepath
-    end
-
-    # QuarksUtils::textToFilepath(text)
-    def self.textToFilepath(text)
-        filepath = "/tmp/#{Miscellaneous::l22()}.txt"
-        File.open(filepath, "w"){|f| f.puts(text) }
-        filepath
-    end
-end
-
-class QuarksMakers
-
-    # QuarksMakers::makeQuarkLineInteractively()
-    def self.makeQuarkLineInteractively()
-        uuid = SecureRandom.uuid
-        line = LucilleCore::askQuestionAnswerAsString("line: ")
-        DescriptionZ::issue(uuid, line)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "line",
-            "line"             => line
-        }
-    end
-
-    # QuarksMakers::makeQuarkUrl(url, description)
-    def self.makeQuarkUrl(url, description)
-        uuid = SecureRandom.uuid
-        DescriptionZ::issue(uuid, description)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "url",
-            "url"              => url
-        }
-    end
-
-    # QuarksMakers::makeQuarkUrlInteractively()
-    def self.makeQuarkUrlInteractively()
-        url = LucilleCore::askQuestionAnswerAsString("url: ")
-        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        QuarksMakers::makeQuarkUrl(url, description)
-    end
-
-    # QuarksMakers::makeQuarkAionPointInteractivelyOrNull()
-    def self.makeQuarkAionPointInteractivelyOrNull()
-        uuid = SecureRandom.uuid
-        location = QuarksUtils::selectOneLocationOnTheDesktopOrNull()
-        return nil if location.nil?
-        namedhash = LibrarianOperator::locationToNamedHash(location)
-        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        DescriptionZ::issue(uuid, description)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "aion-point",
-            "namedhash"        => namedhash
-        }
-    end
-
-    # QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
-    def self.makeQuarkAionPointFromFilepathAndDescription(filepath, description)
-        uuid = SecureRandom.uuid
-        namedhash = LibrarianOperator::locationToNamedHash(filepath)
-        DescriptionZ::issue(uuid, description)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "aion-point",
-            "namedhash"        => namedhash
-        }
-    end
-
-    # QuarksMakers::makeQuarkAionPointFromLocation(location)
-    def self.makeQuarkAionPointFromLocation(location)
-        raise "f8e3b314" if !File.exists?(location)
-        uuid = SecureRandom.uuid
-        namedhash = LibrarianOperator::locationToNamedHash(location)
-        description = File.basename(location)
-        DescriptionZ::issue(uuid, description)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "aion-point",
-            "namedhash"        => namedhash
-        }
-    end
-
-    # QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
-    def self.makeQuarkUniqueNameInteractivelyOrNull()
-        uuid = SecureRandom.uuid
-        uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-        return nil if uniquename.size == 0
-        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
-        DescriptionZ::issue(uuid, description)
-        {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"         => Time.new.to_f,
-            "type"             => "unique-name",
-            "name"             => uniquename
-        }
-    end
-
-    # QuarksMakers::makeNewQuarkInteractivelyOrNull()
-    def self.makeNewQuarkInteractivelyOrNull()
-        puts "Making a new Quark..."
-        types = ["line", "url", "fs-location aion-point", "new text file", "unique-name"]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
-        return if type.nil?
-        if type == "line" then
-            return QuarksMakers::makeQuarkLineInteractively()
-        end
-        if type == "url" then
-            return QuarksMakers::makeQuarkUrlInteractively()
-        end
-        if type == "fs-location aion-point" then
-            return QuarksMakers::makeQuarkAionPointInteractivelyOrNull()
-        end
-        if type == "new text file" then
-            filepath = QuarksUtils::makeNewTextFileInteractivelyReturnFilepath()
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return QuarksMakers::makeQuarkAionPointFromFilepathAndDescription(filepath, description)
-        end
-        if type == "unique-name" then
-            return QuarksMakers::makeQuarkUniqueNameInteractivelyOrNull()
-        end
-    end
-end
 
 class Quarks
 
@@ -191,17 +38,23 @@ class Quarks
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         puts "Issuing a new Quark..."
-        quark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
-        return nil if quark.nil?
-        Quarks::commitQuarkToDisk(quark)
-        quark
-    end
 
-    # Quarks::issueQuarkAionPointFromLocation(location)
-    def self.issueQuarkAionPointFromLocation(location)
-        quark = QuarksMakers::makeQuarkAionPointFromLocation(location)
+        quarkuuid = SecureRandom.uuid
+
+        spin = Spins::issueNewSpinInteractivelyOrNull(quarkuuid)
+        return nil if spin.nil?
+
+        quark = {
+            "uuid"      => quarkuuid,
+            "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
+            "unixtime"  => Time.new.to_f
+        }
         Quarks::commitQuarkToDisk(quark)
-        quark
+
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        if description.size > 0 then
+            DescriptionZ::issue(quarkuuid, description)
+        end
     end
 
     # Quarks::quarks()
@@ -210,12 +63,17 @@ class Quarks
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
+    # Quarks::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
+    end
+
     # Quarks::destroyQuarkByUUID(uuid)
     def self.destroyQuarkByUUID(uuid)
         quark = Quarks::getOrNull(uuid)
         if quark then
              if quark["type"] == "aion-point" then
-                folderpath = DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
+                folderpath = DeskOperator::deskFolderpathForSpinCreateIfNotExists(quark)
                 if folderpath then
                     LucilleCore::removeFileSystemLocation(folderpath)
                 end
@@ -224,118 +82,22 @@ class Quarks
         NyxObjects::destroy(uuid)
     end
 
-    # Quarks::getQuarkCliques(quark)
-    def self.getQuarkCliques(quark)
-        Bosons::getCliquesForQuark(quark)
-            .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
-    end
-
-    # Quarks::getQuarkReferenceDateTime(quark)
-    def self.getQuarkReferenceDateTime(quark)
-        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(quark["uuid"])
-        return Time.at(quark["unixtime"]).utc.iso8601 if datetimezs.empty?
-        datetimezs.last["datetimeISO8601"]
-    end
-
-    # Quarks::getQuarkReferenceUnixtime(quark)
-    def self.getQuarkReferenceUnixtime(quark)
-        DateTime.parse(Quarks::getQuarkReferenceDateTime(quark)).to_time.to_f
-    end
-
-    # Quarks::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
-    end
-
-    # Quarks::getQuarkDescriptionOrNull(quark)
-    def self.getQuarkDescriptionOrNull(quark)
-        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
-        return nil if descriptionzs.empty?
-        descriptionzs.last["description"]
-    end
-
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
         description = Quarks::getQuarkDescriptionOrNull(quark)
         if description then
             return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
         end
-        if quark["type"] == "line" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [line] #{quark["line"]}"
-        end
-        if quark["type"] == "url" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [url] #{quark["url"]}"
-        end
-        if quark["type"] == "aion-point" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [aion-point] #{quark["namedhash"]}"
-        end
-        if quark["type"] == "unique-name" then
-            return "[quark] [#{quark["uuid"][0, 4]}] [unique name] #{quark["name"]}"
-        end
-        raise "Quark error 3c7968e4"
-    end
-
-    # Quarks::quarkuuidToString(quarkuuid)
-    def self.quarkuuidToString(quarkuuid)
-        quark = Quarks::getOrNull(quarkuuid)
-        return "[quark not found]" if quark.nil?
-        Quarks::quarkToString(quark)
-    end
-
-    # Quarks::selectQuarkFromQuarkuuidsOrNull(quarkuuids)
-    def self.selectQuarkFromQuarkuuidsOrNull(quarkuuids)
-        if quarkuuids.size == 0 then
-            return nil
-        end
-        if quarkuuids.size == 1 then
-            quarkuuid = quarkuuids[0]
-            return Quarks::getOrNull(quarkuuid)
-        end
-
-        quarkuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark: ", quarkuuids, lambda{|uuid| Quarks::quarkuuidToString(uuid) })
-        return nil if quarkuuid.nil?
-        Quarks::getOrNull(quarkuuid)
+        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+        spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
+        "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
     end
 
     # Quarks::openQuark(quark)
     def self.openQuark(quark)
-        if quark["type"] == "line" then
-            puts quark["line"]
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if quark["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForQuarkCreateIfNotExists(quark)
-            system("open '#{folderpath}'")
-            return
-        end
-        if quark["type"] == "url" then
-            system("open '#{quark["url"]}'")
-            return
-        end
-        if quark["type"] == "unique-name" then
-            uniquename = quark["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
-            if location then
-                if File.file?(location) then
-                    if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
-                        puts "opening safely openable file '#{location}'"
-                        system("open '#{location}'")
-                    else
-                        puts "opening parent folder of '#{location}'"
-                        system("open '#{File.dirname(location)}'")
-                    end
-                else
-                    puts "opening folder '#{location}'"
-                    system("open '#{location}'")
-                end
-            else
-                puts "I could not determine the location of unique name: #{uniquename}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
-        raise "Quark error 160050-490261"
+        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+        return if spin.nil?
+        Spins::openSpin(spin)
     end
 
     # Quarks::quarkDive(quark)
@@ -369,6 +131,12 @@ class Quarks
             Miscellaneous::horizontalRule(true)
 
             menuitems = LCoreMenuItemsNX1.new()
+
+            Quarks::getQuarkSpins(quark).each{|spin|
+                puts Spins::spinToString(spin)
+            }
+
+            Miscellaneous::horizontalRule(true)
 
             menuitems.item(
                 "open", 
@@ -459,8 +227,11 @@ class Quarks
             )
 
             menuitems.item(
-                "quark (recast)", 
-                lambda { Quarks::recastQuark(quark) }
+                "re-spin", 
+                lambda { 
+                    puts "re spinning is not implemented yet"
+                    LucilleCore::pressEnterToContinue()
+                }
             )
 
             menuitems.item(
@@ -501,6 +272,67 @@ class Quarks
             status = menuitems.prompt()
             break if !status
         }
+    end
+
+    # ---------------------------------------------
+
+    # Quarks::getQuarkCliques(quark)
+    def self.getQuarkCliques(quark)
+        Bosons::getCliquesForQuark(quark)
+            .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
+    end
+
+    # Quarks::getQuarkReferenceDateTime(quark)
+    def self.getQuarkReferenceDateTime(quark)
+        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+        return Time.at(quark["unixtime"]).utc.iso8601 if datetimezs.empty?
+        datetimezs.last["datetimeISO8601"]
+    end
+
+    # Quarks::getQuarkReferenceUnixtime(quark)
+    def self.getQuarkReferenceUnixtime(quark)
+        DateTime.parse(Quarks::getQuarkReferenceDateTime(quark)).to_time.to_f
+    end
+
+    # Quarks::getQuarkSpins(quark)
+    def self.getQuarkSpins(quark)
+        Spins::getForTargetUUIDInTimeOrder(quark["uuid"])
+    end
+
+    # Quarks::getQuarkLatestSpinsOrNull(quark)
+    def self.getQuarkLatestSpinsOrNull(quark)
+        spins = Quarks::getQuarkSpins(quark)
+        return nil if spins.empty?
+        spins.last
+    end
+
+    # Quarks::getQuarkDescriptionOrNull(quark)
+    def self.getQuarkDescriptionOrNull(quark)
+        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+        return nil if descriptionzs.empty?
+        descriptionzs.last["description"]
+    end
+
+    # Quarks::quarkuuidToString(quarkuuid)
+    def self.quarkuuidToString(quarkuuid)
+        quark = Quarks::getOrNull(quarkuuid)
+        return "[quark not found]" if quark.nil?
+        Quarks::quarkToString(quark)
+    end
+
+    # Quarks::selectQuarkFromQuarkuuidsOrNull(quarkuuids)
+    def self.selectQuarkFromQuarkuuidsOrNull(quarkuuids)
+        if quarkuuids.size == 0 then
+            return nil
+        end
+        if quarkuuids.size == 1 then
+            quarkuuid = quarkuuids[0]
+            return Quarks::getOrNull(quarkuuid)
+        end
+
+        quarkuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark: ", quarkuuids, lambda{|uuid| Quarks::quarkuuidToString(uuid) })
+        return nil if quarkuuid.nil?
+        Quarks::getOrNull(quarkuuid)
     end
 
     # Quarks::quarksListingAndDive()
@@ -581,18 +413,6 @@ class Quarks
         if Quarks::getQuarkCliques(quark).empty? then
             Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
         end
-    end
-
-    # Quarks::recastQuark(quark)
-    def self.recastQuark(quark)
-        # This function makes a new quark, gives it the uuid of the argument and saves it.
-        # Thereby replacing the argument by a new one, of a possibly different type.
-        # If we were to just create a new quark and delete the old one, the new one would not 
-        # inherit the links of the old one.
-        newquark = QuarksMakers::makeNewQuarkInteractivelyOrNull()
-        newquark["uuid"] = quark["uuid"] # uuid override
-        Quarks::commitQuarkToDisk(newquark)
-        newquark
     end
 
     # Quarks::getQuarkTags(quark)

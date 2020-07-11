@@ -1,0 +1,49 @@
+
+Spins are data carriers. They allow Quarks to mutate.
+
+Spin
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "targetuuid"   : String 
+    "type"         : "line"
+    "line"         : String
+}
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "targetuuid"   : String 
+    "type"         : "url"
+    "url"          : String
+}
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "targetuuid"   : String 
+    "type"         : "text"
+    "namedhash"    : String (Reference to a blob)
+}
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "targetuuid"   : String 
+    "type"         : "aion-point"
+    "namedhash"    : String (Librarian managed, accessed using the Desk)
+}
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "targetuuid"   : String 
+    "type"         : "unique-name"
+    "name"         : String # Use Atlas to find them
+}

@@ -1,39 +1,10 @@
 
-------------------------------------------------------
-Quark
+Quark, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Spins.
 
 {
     "uuid"             : String
     "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
     "unixtime"         : Float # Unixtime with decimals
-
-    "type"             : "line"
-    "line"             : String
 }
 
-{
-    "uuid"             : String
-    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime"         : Float # Unixtime with decimals
-
-    "type"             : "url"
-    "url"              : String
-}
-
-{
-    "uuid"             : String
-    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime"         : Float # Unixtime with decimals
-
-    "type"             : "aion-point"
-    "namedhash"        : String (Librarian managed)
-}
-
-{
-    "uuid"             : String
-    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
-    "unixtime"         : Float # Unixtime with decimals
-
-    "type"             : "unique-name"
-    "name"             : String # Use Atlas to find them
-}
+They are targetted by DecriptionsZs, DateTimeZs, Tags, Notes and Comments.

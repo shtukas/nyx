@@ -208,16 +208,24 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromQuark(quark)
-    def self.issueAsteroidInboxFromQuark(quark)
+    # Asteroids::issueAsteroidInboxFromSpin(asteroiduuid, spin)
+    def self.issueAsteroidInboxFromSpin(asteroiduuid, spin)
         payload = {
-            "type"  => "quarks",
-            "uuids" => [ quark["uuid"] ]
+            "type" => "spin",
+            "uuid" => spin["uuid"]
         }
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
-        Asteroids::issue(payload, orbital)
+        asteroid = {
+            "uuid"     => asteroiduuid,
+            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime" => Time.new.to_f,
+            "payload"  => payload,
+            "orbital"  => orbital
+        }
+        Asteroids::commitToDisk(asteroid)
+        asteroid
     end
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)

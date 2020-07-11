@@ -271,9 +271,17 @@ class Miscellaneous
                 FileUtils.mv(location, location2)
                 next
             end
-            quark = Quarks::issueQuarkAionPointFromLocation(location)
-            puts JSON.pretty_generate(quark)
-            asteroid = Asteroids::issueAsteroidInboxFromQuark(quark)
+
+            asteroiduuid = SecureRandom.uuid
+            # Technically the asteroid will refer to the spin, which is enough to get asteroid working, 
+            # but we want the spin to carry the right target to be able to do proper garbage collection.
+            # Hence deciding upfront the uuid of the asteroid
+
+            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
+            spin = Spins::issueAionPoint(asteroiduuid, namedhash) 
+            puts JSON.pretty_generate(spin)
+
+            asteroid = Asteroids::issueAsteroidInboxFromSpin(asteroiduuid, spin)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end
