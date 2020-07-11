@@ -91,6 +91,9 @@ class NyxPrimaryObjects
             raise "[NyxPrimaryObjects::nyxNxSets 50229c3e] #{object}"
         end
         filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
+        if File.exists?(filepath) then
+            raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
+        end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
         object
     end
