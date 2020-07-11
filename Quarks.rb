@@ -15,6 +15,18 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require_relative "KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 require_relative "AtlasCore.rb"
 require_relative "Miscellaneous.rb"
 require_relative "Bosons.rb"
@@ -28,6 +40,31 @@ require_relative "Spins.rb"
 require_relative "Comments.rb"
 
 # -----------------------------------------------------------------
+
+class QuarkCached
+
+    # QuarkCached::quarkToStringUseTheForce(quark)
+    def self.quarkToStringUseTheForce(quark)
+        description = Quarks::getQuarkDescriptionOrNull(quark)
+        if description then
+            return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
+        end
+        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+        spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
+        "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
+    end
+
+    # QuarkCached::quarkToStringForgetCachedValues(quark)
+    def self.quarkToStringForgetCachedValues(quark)
+        $GlobalInMemoryHash.delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+        KeyValueStore::destroy(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+    end
+
+    # QuarkCached::forget(quark)
+    def self.forget(quark)
+        QuarkCached::quarkToStringForgetCachedValues(quark)
+    end
+end
 
 class Quarks
 
@@ -85,13 +122,19 @@ class Quarks
 
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
-        description = Quarks::getQuarkDescriptionOrNull(quark)
+        description = $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"]
         if description then
-            return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
+            return description 
         end
-        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
-        spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
-        "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
+        description = KeyValueStore::getOrNull(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+        if description then
+            $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"] = description
+            return description
+        end
+        description = QuarkCached::quarkToStringUseTheForce(quark)
+        KeyValueStore::set(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
+        $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"] = description
+        description
     end
 
     # Quarks::openQuark(quark)
@@ -110,6 +153,8 @@ class Quarks
             return if quark.nil? # Could have been destroyed in the previous loop
 
             system("clear")
+
+            QuarkCached::forget(quark)
 
             Miscellaneous::horizontalRule(false)
 

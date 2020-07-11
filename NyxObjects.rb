@@ -113,6 +113,18 @@ class NyxPrimaryObjects
         end
     end
 
+    # NyxPrimaryObjects::objects()
+    def self.objects()
+        NyxPrimaryObjects::objectsEnumerator().to_a
+    end
+
+    # NyxPrimaryObjects::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = NyxPrimaryObjects::uuidToObjectFilepath(uuid)
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
     # NyxPrimaryObjects::destroy(uuid)
     def self.destroy(uuid)
         filepath = NyxPrimaryObjects::uuidToObjectFilepath(uuid)
@@ -121,84 +133,66 @@ class NyxPrimaryObjects
     end
 end
 
-$alison41119753 = nil
-
-class Alison
-    def initialize()
-        @NyxObjects = {}
-        @NyxSets = {}
-        @AsteroidsCatalystObjects = nil
-    end
-
-    def incoming(object)
-        @NyxObjects[object["uuid"]] = object
-        if @NyxSets[object["nyxNxSet"]].nil? then
-            @NyxSets[object["nyxNxSet"]] = {}
-        end
-        @NyxSets[object["nyxNxSet"]][object["uuid"]] = object
-    end
-
-    def objects()
-        @NyxObjects.values
-    end
-
-    def getOrNull(uuid)
-        @NyxObjects[uuid]
-    end
-
-    def getSet(setid)
-        return [] if @NyxSets[setid].nil?
-        @NyxSets[setid].values || []
-    end
-
-    def destroy(uuid)
-        @NyxObjects.delete(uuid)
-        NyxPrimaryObjects::nyxNxSets().each{|setid|
-            next if @NyxSets[setid].nil?
-            @NyxSets[setid].delete(uuid)
-        }
-    end
-end
-
-if $alison41119753.nil? then
-    $alison41119753 = Alison.new()
-    puts "Loading Nyx Objects and giving them to Alison"
-    NyxPrimaryObjects::objectsEnumerator()
-    .each{|object|
-        $alison41119753.incoming(object)
-    }
-end
-
 # ------------------------------------------------------------------------------
 # The rest of Catalyst should not know anything of what happens before this line
 # ------------------------------------------------------------------------------
 
 class NyxObjects
 
+    @@objects = {}
+    @@sets = {}
+
+    # NyxObjects::init()
+    def self.init()
+        puts "NyxObjects::init()"
+        NyxPrimaryObjects::objects().each{|object|
+            @@objects[object["uuid"]] = object
+        }
+        NyxPrimaryObjects::nyxNxSets().each{|setid|
+            @@sets[setid] = {}
+        }
+        @@objects.values.each{|object|
+            @@sets[object["nyxNxSet"]][object["uuid"]] = object
+        }
+    end
+
     # NyxObjects::put(object)
     def self.put(object)
         NyxPrimaryObjects::put(object)
-        $alison41119753.incoming(object)
+        @@objects[object["uuid"]] = object
+        @@sets[object["nyxNxSet"]][object["uuid"]] = object
     end
 
     # NyxObjects::objects()
     def self.objects()
-        $alison41119753.objects()
+        # NyxPrimaryObjects::objects()
+        @@objects.values
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        $alison41119753.getOrNull(uuid)
+        # NyxPrimaryObjects::getOrNull(uuid)
+        @@objects[uuid]
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        $alison41119753.getSet(setid)
+        #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
+        @@sets[setid].values
     end
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
         NyxPrimaryObjects::destroy(uuid)
-        $alison41119753.destroy(uuid)
+        @@objects.delete(uuid)
+        NyxPrimaryObjects::nyxNxSets().each{|setid|
+            @@sets[setid].delete(uuid)
+        }
     end
 end
+
+NyxObjects::init()
+
+$GlobalInMemoryHash = {}
+
+

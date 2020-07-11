@@ -125,11 +125,6 @@ class CatalystUI
         print "--> "
         command = STDIN.gets().strip
 
-        if command == "" and (Time.new.to_f-startTime) < 5 then
-            CatalystUI::standardDisplay(catalystObjects)
-            return
-        end
-
         if command == "" then
             return
         end
