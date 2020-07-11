@@ -101,12 +101,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    asteroiduuid = SecureRandom.uuid
-    # Technically the asteroid will refer to the spin, which is enough to get asteroid working, 
-    # but we want the spin to carry the right target to be able to do proper garbage collection.
-    # Hence deciding upfront the uuid of the asteroid
-
-    spin = Spins::issueUrl(asteroiduuid, link)
-    asteroid = Asteroids::issueAsteroidInboxFromSpin(asteroiduuid, spin)
+    spin = Spins::issueUrl(SecureRandom.uuid, link)
+    asteroid = Asteroids::issueAsteroidInboxFromSpin(spin)
     viennaLinkFeeder.done(link)
 }

@@ -272,16 +272,11 @@ class Miscellaneous
                 next
             end
 
-            asteroiduuid = SecureRandom.uuid
-            # Technically the asteroid will refer to the spin, which is enough to get asteroid working, 
-            # but we want the spin to carry the right target to be able to do proper garbage collection.
-            # Hence deciding upfront the uuid of the asteroid
-
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            spin = Spins::issueAionPoint(asteroiduuid, namedhash) 
+            spin = Spins::issueAionPoint(SecureRandom.uuid, namedhash) # this value is going to be picked up as the uuid of the asteroid
             puts JSON.pretty_generate(spin)
 
-            asteroid = Asteroids::issueAsteroidInboxFromSpin(asteroiduuid, spin)
+            asteroid = Asteroids::issueAsteroidInboxFromSpin(spin)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

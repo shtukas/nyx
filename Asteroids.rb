@@ -74,6 +74,7 @@ class Asteroids
     def self.makePayloadInteractivelyOrNull()
         options = [
             "description",
+            "spin",
             "quarks",
             "clique"
         ]
@@ -84,6 +85,14 @@ class Asteroids
             return {
                 "type"        => "description",
                 "description" => description
+            }
+        end
+        if option == "spin" then
+            spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.uuid) # this value is going to be picked up as the uuid of the asteroid
+            return nil if spin.nil?
+            return {
+                "type" => "spin",
+                "uuid" => [ spin["uuid"] ]
             }
         end
         if option == "quarks" then
@@ -198,7 +207,7 @@ class Asteroids
     # Asteroids::issue(payload, orbital)
     def self.issue(payload, orbital)
         asteroid = {
-            "uuid"     => Miscellaneous::l22(),
+            "uuid"     => SecureRandom.uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
@@ -208,8 +217,9 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromSpin(asteroiduuid, spin)
-    def self.issueAsteroidInboxFromSpin(asteroiduuid, spin)
+    # Asteroids::issueAsteroidInboxFromSpin(spin)
+    def self.issueAsteroidInboxFromSpin(spin)
+        asteroiduuid = spin["targetuuid"]
         payload = {
             "type" => "spin",
             "uuid" => spin["uuid"]
@@ -247,6 +257,10 @@ class Asteroids
             payload = asteroid["payload"]
             if payload["type"] == "description" then
                 return " " + payload["description"]
+            end
+            if payload["type"] == "spin" then
+                spin = NyxObjects::getOrNull(asteroid["payload"]["uuid"])
+                return spin ? (" " + Spins::spinToString(spin)) : " [could not find spin]"
             end
             if payload["type"] == "quarks" then
                 quark = Quarks::getOrNull(asteroid["payload"]["uuids"][0])
