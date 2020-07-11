@@ -99,7 +99,9 @@ class NyxPrimaryObjects
             Find.find("#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
-                objects << JSON.parse(IO.read(path))
+                object = JSON.parse(IO.read(path))
+                object["nyxFilepath"] = path
+                objects << object
             end
         end
     end

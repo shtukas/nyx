@@ -1,5 +1,4 @@
 
-
 Nyx
 
     Data
@@ -16,9 +15,11 @@ Nyx
 
 All Nyx Objects 
 
-    need to have the two following attributes
+    1. need to have the two following attributes
 
         - uuid                : String
         - nyxNxSet            : String
 
-    and the `nyxNxSet` need to be a valid setid.
+       and the nyxNxSet need to be a valid setid.
+
+    2. Have an additional "nyxFilepath" attribute set at load, which contains the path to the file
