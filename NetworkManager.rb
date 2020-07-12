@@ -19,9 +19,7 @@ class NetworkManager
         # --------------------------------------------------------
         # Make any clique that is not a target a target of root
 
-        root = Cliques::cliques()
-                    .select{|clique| Cliques::getCliqueDescriptionOrNull(clique) == "[root]" }
-                    .first
+        root = Cliques::getRootClique()
         if root.nil? then
             puts "That's strange, I could not find the root clique 🤔"
             LucilleCore::pressEnterToContinue()

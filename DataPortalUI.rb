@@ -14,6 +14,11 @@ class DataPortalUI
             )
 
             ms.item(
+                "network navigation from [root]", 
+                lambda { Cliques::cliqueNavigationView(Cliques::getRootClique()) }
+            )
+
+            ms.item(
                 "cliques (listing)", 
                 lambda { Cliques::cliquesListingAndDive() }
             )

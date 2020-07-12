@@ -47,16 +47,6 @@ class Cliques
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # Cliques::isRoot?(clique)
-    def self.isRoot?(clique)
-        Cliques::getCliqueDescriptionOrNull(clique) == "[root]"
-    end
-
-    # Cliques::canShowDiveOperations(clique)
-    def self.canShowDiveOperations(clique)
-        !Cliques::isRoot?(clique)
-    end
-
     # Cliques::cliqueDive(clique)
     def self.cliqueDive(clique)
         loop {
@@ -228,7 +218,96 @@ class Cliques
         }
     end
 
+    # Cliques::cliqueNavigationView(clique)
+    def self.cliqueNavigationView(clique)
+        loop {
+
+            clique = NyxObjects::getOrNull(clique["uuid"])
+
+            return if clique.nil? # could have been destroyed in a previous loop
+
+            system("clear")
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            Miscellaneous::horizontalRule(false)
+            # ----------------------------------------------------------
+            # Clique Identity Information
+
+            puts "uuid: #{clique["uuid"]}"
+
+            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+                .last(1)
+                .each{|descriptionz|
+                    puts "description: #{descriptionz["description"]}"
+                }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Navigation
+
+            puts "Navigation:"
+
+            if !Cliques::isRoot?(clique) then
+
+                puts ""
+                puts "Sources:"
+                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                    # Targets can be anything but for the moment they are just cliques
+                    menuitems.item(
+                        Cliques::cliqueToString(c), 
+                        lambda { Cliques::cliqueNavigationView(c) }
+                    )
+                }
+
+            end
+
+            puts ""
+            puts "Targets:"
+            TaxonomyArrows::getTargetsForSource(clique).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    Cliques::cliqueToString(c), 
+                    lambda { Cliques::cliqueNavigationView(c) }
+                )
+            }
+
+            Miscellaneous::horizontalRule(true)
+
+            TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    "Dive into clique", 
+                    lambda { Cliques::cliqueDive(clique) }
+                )
+            }
+
+
+            Miscellaneous::horizontalRule(true)
+
+            status = menuitems.prompt()
+            break if !status
+        }
+    end
+
     # ---------------------------------------------------
+
+    # Cliques::getRootClique()
+    def self.getRootClique()
+        Cliques::cliques()
+            .select{|clique| Cliques::getCliqueDescriptionOrNull(clique) == "[root]" }
+            .first
+    end
+
+    # Cliques::isRoot?(clique)
+    def self.isRoot?(clique)
+        Cliques::getCliqueDescriptionOrNull(clique) == "[root]"
+    end
+
+    # Cliques::canShowDiveOperations(clique)
+    def self.canShowDiveOperations(clique)
+        !Cliques::isRoot?(clique)
+    end
 
     # Cliques::getCliqueDescriptionOrNull(clique)
     def self.getCliqueDescriptionOrNull(clique)
