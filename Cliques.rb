@@ -4,6 +4,7 @@ class Cliques
 
     # Cliques::issueClique(description)
     def self.issueClique(description)
+        return if description == "[root]" # enforcing the fact that there is only one root.
         uuid = SecureRandom.uuid
         clique = {
             "uuid"     => uuid,
