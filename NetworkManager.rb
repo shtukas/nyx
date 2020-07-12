@@ -9,7 +9,7 @@ class NetworkManager
         # --------------------------------------------------------
         # We ensure that the "[root]" clique exists
 
-        if Cliques::cliques().none?{|clique| Cliques::getCliqueDescriptionOrNull(clique) == "[root]" } then
+        if Cliques::cliques().none?{|clique| Cliques::isRoot?(clique) } then
             # We do not have a [root] clique, going to create one
             puts "We do not have a [root] clique, going to create one"
             LucilleCore::pressEnterToContinue()
@@ -26,7 +26,7 @@ class NetworkManager
             return
         end
         Cliques::cliques().each{|clique|
-            next if Cliques::getCliqueDescriptionOrNull(clique) == "[root]" # we do not target the [root]
+            next if Cliques::isRoot?(clique) # we do not target the [root]
             next if TaxonomyArrows::getSourcesForTarget(clique).size > 0
             # At this point we have a clique which doesn't have any sources
             puts "Issuing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
@@ -40,7 +40,7 @@ class NetworkManager
         # is untargetted from [root]
 
         TaxonomyArrows::getTargetsForSource(root).each{|clique|
-            next if Cliques::getCliqueDescriptionOrNull(clique) == "[root]" # we do not target the [root]
+            next if Cliques::isRoot?(clique) # we do not target the [root]
             next if TaxonomyArrows::getSourcesForTarget(clique).size <= 1 # It would be pathologique if it was zero, because by this point they should all have at least one source 
             puts "Removing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
             LucilleCore::pressEnterToContinue()

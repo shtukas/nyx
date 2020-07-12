@@ -16,6 +16,7 @@ class TaxonomyArrows
 
     # TaxonomyArrows::issue(source, target)
     def self.issue(source, target)
+        return if Cliques::isRoot?(target)
         arrow = TaxonomyArrows::make(source, target)
         NyxObjects::put(arrow)
         arrow
