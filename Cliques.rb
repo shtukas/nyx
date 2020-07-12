@@ -47,6 +47,16 @@ class Cliques
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
+    # Cliques::isRoot?(clique)
+    def self.isRoot?(clique)
+        Cliques::getCliqueDescriptionOrNull(clique) == "[root]"
+    end
+
+    # Cliques::canShowDiveOperations(clique)
+    def self.canShowDiveOperations(clique)
+        !Cliques::isRoot?(clique)
+    end
+
     # Cliques::cliqueDive(clique)
     def self.cliqueDive(clique)
         loop {
@@ -84,70 +94,74 @@ class Cliques
 
             puts "Operations"
 
-            menuitems.item(
-                "rename", 
-                lambda{ 
-                    description = Cliques::getCliqueDescriptionOrNull(clique)
-                    description = Miscellaneous::editTextUsingTextmate(description).strip
-                    DescriptionZ::issue(clique["uuid"], description)
-                }
-            )
+            if Cliques::canShowDiveOperations(clique) then
 
-            menuitems.item(
-                "note (edit)", 
-                lambda{ 
-                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
-                    text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issue(clique["uuid"], text)
-                }
-            )
+                menuitems.item(
+                    "rename", 
+                    lambda{ 
+                        description = Cliques::getCliqueDescriptionOrNull(clique)
+                        description = Miscellaneous::editTextUsingTextmate(description).strip
+                        DescriptionZ::issue(clique["uuid"], description)
+                    }
+                )
 
-            menuitems.item(
-                "quark (add new)", 
-                lambda{
-                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    Bosons::issue(clique, quark)
-                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
-                }
-            )
+                menuitems.item(
+                    "note (edit)", 
+                    lambda{ 
+                        text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
+                        text = Miscellaneous::editTextUsingTextmate(text).strip
+                        Notes::issue(clique["uuid"], text)
+                    }
+                )
 
-            menuitems.item(
-                "graph maker: select multiple quark ; send to existing/new clique ; detach from this",
-                lambda {
-                    quarks = Bosons::getQuarksForClique(clique)
-                    selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
-                    return if selectedQuarks.size == 0
-                    puts "Now selecting/making the receiving clique"
-                    LucilleCore::pressEnterToContinue()
-                    c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                    return if c.nil?
-                    puts "Making the new clique a target of this"
-                    TaxonomyArrows::issue(source, c)
-                    puts "Linking quarks to clique"
-                    selectedQuarks.each{|quark| Bosons::issue(c, quark) }
-                    puts "Unlinking quarks from (this)"
-                    selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
-                }
-            )
+                menuitems.item(
+                    "quark (add new)", 
+                    lambda{
+                        quark = Quarks::issueNewQuarkInteractivelyOrNull()
+                        return if quark.nil?
+                        Bosons::issue(clique, quark)
+                        Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
+                    }
+                )
 
-            menuitems.item(
-                "select clique for targeting", 
-                lambda { 
-                    c = Cliques::selectCliqueFromExistingCliquesOrNull()
-                    return if c.nil?
-                    TaxonomyArrows::issue(clique, c)
-                }
-            )
+                menuitems.item(
+                    "graph maker: select multiple quark ; send to existing/new clique ; detach from this",
+                    lambda {
+                        quarks = Bosons::getQuarksForClique(clique)
+                        selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
+                        return if selectedQuarks.size == 0
+                        puts "Now selecting/making the receiving clique"
+                        LucilleCore::pressEnterToContinue()
+                        c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+                        return if c.nil?
+                        puts "Making the new clique a target of this"
+                        TaxonomyArrows::issue(source, c)
+                        puts "Linking quarks to clique"
+                        selectedQuarks.each{|quark| Bosons::issue(c, quark) }
+                        puts "Unlinking quarks from (this)"
+                        selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
+                    }
+                )
 
-            menuitems.item(
-                "clique (destroy)", 
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                        NyxObjects::destroy(clique["uuid"])
-                    end
-                }
-            )
+                menuitems.item(
+                    "select clique for targeting", 
+                    lambda { 
+                        c = Cliques::selectCliqueFromExistingCliquesOrNull()
+                        return if c.nil?
+                        TaxonomyArrows::issue(clique, c)
+                    }
+                )
+
+                menuitems.item(
+                    "clique (destroy)", 
+                    lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                            NyxObjects::destroy(clique["uuid"])
+                        end
+                    }
+                )
+
+            end
 
             menuitems.item(
                 "/", 
@@ -160,14 +174,18 @@ class Cliques
 
             puts "Navigation:"
 
-            puts "Sources:"
-            TaxonomyArrows::getSourcesForTarget(clique).each{|c|
-                # Targets can be anything but for the moment they are just cliques
-                menuitems.item(
-                    Cliques::cliqueToString(c), 
-                    lambda { Cliques::cliqueDive(c) }
-                )
-            }
+            if !Cliques::isRoot?(clique) then
+
+                puts "Sources:"
+                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                    # Targets can be anything but for the moment they are just cliques
+                    menuitems.item(
+                        Cliques::cliqueToString(c), 
+                        lambda { Cliques::cliqueDive(c) }
+                    )
+                }
+
+            end
 
             puts "Targets:"
             TaxonomyArrows::getTargetsForSource(clique).each{|c|
