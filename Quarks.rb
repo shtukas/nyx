@@ -38,6 +38,7 @@ require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
 require_relative "Spins.rb"
 require_relative "Comments.rb"
+require_relative "InMemoryGlobalHash"
 
 # -----------------------------------------------------------------
 
@@ -56,7 +57,7 @@ class QuarkCached
 
     # QuarkCached::quarkToStringForgetCachedValues(quark)
     def self.quarkToStringForgetCachedValues(quark)
-        $GlobalInMemoryHash.delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+        InMemoryGlobalHash::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
         KeyValueStore::destroy(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
     end
 
@@ -122,18 +123,18 @@ class Quarks
 
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
-        description = $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"]
+        description = InMemoryGlobalHash::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
         if description then
             return description 
         end
         description = KeyValueStore::getOrNull(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
         if description then
-            $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"] = description
+            InMemoryGlobalHash::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
             return description
         end
         description = QuarkCached::quarkToStringUseTheForce(quark)
         KeyValueStore::set(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
-        $GlobalInMemoryHash["9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}"] = description
+        InMemoryGlobalHash::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
         description
     end
 

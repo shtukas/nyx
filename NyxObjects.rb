@@ -191,7 +191,3 @@ class NyxObjects
 end
 
 NyxObjects::init()
-
-$GlobalInMemoryHash = {}
-
-
