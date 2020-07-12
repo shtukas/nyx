@@ -101,9 +101,12 @@ class Quarks
 
             QuarkCached::forget(quark)
 
-            Miscellaneous::horizontalRule(false)
+            menuitems = LCoreMenuItemsNX1.new()
 
-            puts Quarks::quarkToString(quark)
+            Miscellaneous::horizontalRule(false)
+            # -------------------------------------------
+            # Quark metadata
+
             puts "uuid: #{quark["uuid"]}"
 
             DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
@@ -113,11 +116,6 @@ class Quarks
                 }
 
             puts "date: #{Quarks::getQuarkReferenceDateTime(quark)}"
-
-            Quarks::getQuarkTags(quark)
-                .each{|tag|
-                    puts "tag: #{tag["payload"]}"
-                }
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
             if notetext then
@@ -132,9 +130,16 @@ class Quarks
                 puts NyxBlobs::getBlobOrNull(comment["namedhash"])
             }
 
-            Miscellaneous::horizontalRule(true)
+            Quarks::getQuarkTags(quark)
+                .each{|tag|
+                    puts "tag: #{tag["payload"]}"
+                }
 
-            menuitems = LCoreMenuItemsNX1.new()
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
+
+            puts "Data:"
 
             Quarks::getQuarkSpins(quark)
                 .last(1)
@@ -143,6 +148,10 @@ class Quarks
                 }
 
             Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
+
+            puts "Operations:"
 
             menuitems.item(
                 "open", 
@@ -162,7 +171,6 @@ class Quarks
                     DescriptionZ::issue(quark["uuid"], description)
                 }
             )
-
 
             menuitems.item(
                 "datetime (update)",
@@ -263,6 +271,10 @@ class Quarks
             )
 
             Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Contents
+
+            puts "Contents"
 
             TodoRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| 

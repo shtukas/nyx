@@ -39,8 +39,8 @@ class TaxonomyArrows
             .compact
     end
 
-    # TaxonomyArrows::destroy(source, target)
-    def self.destroy(source, target)
+    # TaxonomyArrows::destroyArrow(source, target)
+    def self.destroyArrow(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| 
                 b1 = (arrow["sourceuuid"] == source["uuid"])
@@ -51,7 +51,7 @@ class TaxonomyArrows
             .each{|arrow| NyxObjects::destroy(arrow["uuid"]) }
     end
 
-    # TaxonomyArrows::exists?(source, target)
+    # TaxonomyArrows::arrowExists?(source, target)
     def self.exists?(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .any?{|arrow|  
