@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "Bosons.rb"
+# require_relative "TaxonomyArrows.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -45,63 +45,62 @@ require_relative "BTreeSets.rb"
 
 # -----------------------------------------------------------------
 
+class TaxonomyArrows
 
-class Bosons
-
-    # Bosons::make(clique, quark)
-    def self.make(clique, quark)
+    # TaxonomyArrows::make(source, target)
+    def self.make(source, target)
         {
             "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "13f3499d-fa9c-44bb-91d3-8a3ccffecefb",
+            "nyxNxSet"   => "d83a3ff5-023e-482c-8658-f7cfdbb6b738",
             "unixtime"   => Time.new.to_f,
-            "cliqueuuid" => clique["uuid"],
-            "quarkuuid"  => quark["uuid"]
+            "sourceuuid" => source["uuid"],
+            "targetuuid" => target["uuid"]
         }
     end
 
-    # Bosons::issue(clique, quark)
-    def self.issue(clique, quark)
-        boson = Bosons::make(clique, quark)
-        NyxObjects::put(boson)
-        boson
+    # TaxonomyArrows::issue(source, target)
+    def self.issue(source, target)
+        arrow = TaxonomyArrows::make(source, target)
+        NyxObjects::put(arrow)
+        arrow
     end
 
-    # Bosons::getQuarksForClique(clique)
-    def self.getQuarksForClique(clique)
-        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
-            .select{|boson| boson["cliqueuuid"] == clique["uuid"] }
-            .map{|boson| boson["quarkuuid"] }
-            .map{|quarkuuid| Quarks::getOrNull(quarkuuid) }
+    # TaxonomyArrows::getTargetsForSource(source)
+    def self.getTargetsForSource(source)
+        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+            .select{|arrow| arrow["sourceuuid"] == source["uuid"] }
+            .map{|arrow| arrow["targetuuid"] }
+            .map{|targetuuid| NyxObjects::getOrNull(targetuuid) }
             .compact
     end
 
-    # Bosons::getCliquesForQuark(quark)
-    def self.getCliquesForQuark(quark)
-        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
-            .select{|boson| boson["quarkuuid"] == quark["uuid"] }
-            .map{|boson| boson["cliqueuuid"] }
-            .map{|cliqueuuid| Cliques::getOrNull(cliqueuuid) }
+    # TaxonomyArrows::getSourcesForTarget(target)
+    def self.getSourcesForTarget(target)
+        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+            .select{|arrow| arrow["targetuuid"] == target["uuid"] }
+            .map{|arrow| arrow["sourceuuid"] }
+            .map{|sourceuuid| NyxObjects::getOrNull(sourceuuid) }
             .compact
     end
 
-    # Bosons::destroy(clique, quark)
-    def self.destroy(clique, quark)
-        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
-            .select{|boson| 
-                b1 = (boson["cliqueuuid"] == clique["uuid"])
-                b2 = (boson["quarkuuid"] == quark["uuid"])
+    # TaxonomyArrows::destroy(source, target)
+    def self.destroy(source, target)
+        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+            .select{|arrow| 
+                b1 = (arrow["sourceuuid"] == source["uuid"])
+                b2 = (arrow["targetuuid"] == target["uuid"])
                 b1 and b2
             }
             .first(1)
-            .each{|boson| NyxObjects::destroy(boson["uuid"]) }
+            .each{|arrow| NyxObjects::destroy(arrow["uuid"]) }
     end
 
-    # Bosons::linked?(clique, quark)
-    def self.linked?(clique, quark)
-        NyxObjects::getSet("13f3499d-fa9c-44bb-91d3-8a3ccffecefb")
-            .any?{|boson|  
-                b1 = (boson["cliqueuuid"] == clique["uuid"])
-                b2 = (boson["quarkuuid"] == quark["uuid"])
+    # TaxonomyArrows::exists?(source, target)
+    def self.exists?(source, target)
+        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+            .any?{|arrow|  
+                b1 = (arrow["sourceuuid"] == source["uuid"])
+                b2 = (arrow["targetuuid"] == target["uuid"])
                 b1 and b2
             }
     end
