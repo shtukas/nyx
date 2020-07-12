@@ -261,6 +261,8 @@ class Waves
     def self.waveDive(wave)
         loop {
 
+            system("clear")
+
             wave = Waves::getOrNull(wave["uuid"])
             return if wave.nil?
 
