@@ -40,21 +40,31 @@ require_relative "Bank.rb"
 require_relative "Metrics.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "NyxObjects.rb"
+require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 # -----------------------------------------------------------------------------
 
 class AsteroidsOfInterest
 
+    # AsteroidsOfInterest::getCollection()
+    def self.getCollection()
+        collection = InMemoryWithOnDiskPersistenceValueCache::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f")
+        if collection.nil? then
+            collection = {}
+        end
+        collection
+    end
+
     # AsteroidsOfInterest::register(uuid)
     def self.register(uuid)
-        BTreeSets::set(nil, "5d114a38-f86a-46db-a33b-747c8d7ec20f", uuid, { "uuid" => uuid, "unixtime" => Time.new.to_i })
+        collection = AsteroidsOfInterest::getCollection()
+        collection[uuid] = { "uuid" => uuid, "unixtime" => Time.new.to_i }
+        InMemoryWithOnDiskPersistenceValueCache::set("5d114a38-f86a-46db-a33b-747c8d7ec22f", collection)
     end
 
     # AsteroidsOfInterest::getUUIDs()
     def self.getUUIDs()
-        # We haven't yet implemented the fact that we forget after a while
-        BTreeSets::values(nil, "5d114a38-f86a-46db-a33b-747c8d7ec20f")
-            .map{|object| object["uuid"] }
+        AsteroidsOfInterest::getCollection().values.map{|item|  item["uuid"] }
     end
 end
 

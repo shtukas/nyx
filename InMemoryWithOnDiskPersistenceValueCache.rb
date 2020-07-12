@@ -45,19 +45,19 @@ require_relative "BTreeSets.rb"
 
 # -----------------------------------------------------------------
 
-class FastCache
+class InMemoryWithOnDiskPersistenceValueCache
     @@XHash61CDAB202D6 = {}
 
-    # FastCache::set(key, value)
+    # InMemoryWithOnDiskPersistenceValueCache::set(key, value)
     def self.set(key, value)
-        @@XHash61CDAB202D6[key] = value.clone
+        @@XHash61CDAB202D6[key] = value
         KeyValueStore::set(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}", JSON.generate([value]))
     end
 
-    # FastCache::getOrNull(key)
+    # InMemoryWithOnDiskPersistenceValueCache::getOrNull(key)
     def self.getOrNull(key)
         if @@XHash61CDAB202D6[key] then
-            return @@XHash61CDAB202D6[key].clone 
+            return @@XHash61CDAB202D6[key]
         end
         box = KeyValueStore::getOrNull(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}")
         if box then
@@ -68,7 +68,7 @@ class FastCache
         nil
     end
 
-    # FastCache::delete(key)
+    # InMemoryWithOnDiskPersistenceValueCache::delete(key)
     def self.delete(key)
         @@XHash61CDAB202D6.delete(key)
         KeyValueStore::destroy(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}")

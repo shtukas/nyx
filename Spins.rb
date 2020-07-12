@@ -43,14 +43,14 @@ require_relative "BTreeSets.rb"
     BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
-require_relative "FastCache.rb"
+require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 # -----------------------------------------------------------------
 
 class SpinCached
     # SpinCached::forget(spin)
     def self.forget(spin)
-        FastCache.delete("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
     end
 end
 
@@ -193,7 +193,7 @@ class Spins
 
     # Spins::spinToString(spin)
     def self.spinToString(spin)
-        str = FastCache.getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
         return str if str
 
         str = (lambda{|quark|
@@ -216,7 +216,7 @@ class Spins
             raise "[Spins error 2c53b113-cc79]"
         }).call(spin)
 
-        FastCache.set("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}", str)
         str
     end
 

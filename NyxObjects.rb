@@ -40,7 +40,7 @@ require_relative "BTreeSets.rb"
 
 require_relative "Miscellaneous.rb"
 
-require_relative "FastCache.rb"
+require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 # ------------------------------------------------------------------------
 
@@ -142,21 +142,21 @@ class NyxObjects
 
     # NyxObjects::getObjectsMap()
     def self.getObjectsMap()
-        objectsmap = FastCache.getOrNull("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88")
+        objectsmap = InMemoryWithOnDiskPersistenceValueCache::getOrNull("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88")
         if objectsmap.nil? then
             puts "-> computing objectsmap from strach"
             objectsmap = {}
             NyxPrimaryObjects::objects().each{|object|
                 objectsmap[object["uuid"]] = object
             }
-            FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+            InMemoryWithOnDiskPersistenceValueCache::set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
         end
         objectsmap
     end
 
     # NyxObjects::getSetsMap()
     def self.getSetsMap()
-        setsmap = FastCache.getOrNull("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59")
+        setsmap = InMemoryWithOnDiskPersistenceValueCache::getOrNull("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59")
         if setsmap.nil? then
             puts "-> computing setsmap from strach"
             setsmap = {}
@@ -166,7 +166,7 @@ class NyxObjects
             NyxPrimaryObjects::objects().each{|object|
                 setsmap[object["nyxNxSet"]][object["uuid"]] = object
             }
-            FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
+            InMemoryWithOnDiskPersistenceValueCache::set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
         end
         setsmap
     end
@@ -177,11 +177,11 @@ class NyxObjects
 
         objectsmap = NyxObjects::getObjectsMap()
         objectsmap[object["uuid"]] = object
-        FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+        InMemoryWithOnDiskPersistenceValueCache::set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
 
         setsmap = NyxObjects::getSetsMap()
         setsmap[object["nyxNxSet"]][object["uuid"]] = object
-        FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
+        InMemoryWithOnDiskPersistenceValueCache::set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
     end
 
     # NyxObjects::objects()
@@ -211,12 +211,12 @@ class NyxObjects
 
         objectsmap = NyxObjects::getObjectsMap()
         objectsmap.delete(uuid)
-        FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+        InMemoryWithOnDiskPersistenceValueCache::set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
 
         setsmap = NyxObjects::getSetsMap()
         NyxPrimaryObjects::nyxNxSets().each{|setid|
             setsmap[setid].delete(uuid)
         }
-        FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
+        InMemoryWithOnDiskPersistenceValueCache::set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
     end
 end

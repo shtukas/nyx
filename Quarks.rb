@@ -38,14 +38,14 @@ require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
 require_relative "Spins.rb"
 require_relative "Comments.rb"
-require_relative "FastCache.rb"
+require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 # -----------------------------------------------------------------
 
 class QuarkCached
     # QuarkCached::forget(quark)
     def self.forget(quark)
-        FastCache::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}") # toString
+        InMemoryWithOnDiskPersistenceValueCache::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}") # toString
     end
 end
 
@@ -105,7 +105,7 @@ class Quarks
 
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
-        str = FastCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
         return str if str
 
         str = (lambda{|quark|
@@ -118,7 +118,7 @@ class Quarks
             "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
         }).call(quark)
 
-        FastCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
 
         str
     end
