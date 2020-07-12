@@ -40,6 +40,8 @@ require_relative "BTreeSets.rb"
 
 require_relative "Miscellaneous.rb"
 
+require_relative "FastCache.rb"
+
 # ------------------------------------------------------------------------
 
 class Miscellaneous
@@ -138,56 +140,83 @@ end
 
 class NyxObjects
 
-    @@objects = {}
-    @@sets = {}
+    # NyxObjects::getObjectsMap()
+    def self.getObjectsMap()
+        objectsmap = FastCache.getOrNull("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88")
+        if objectsmap.nil? then
+            puts "-> computing objectsmap from strach"
+            objectsmap = {}
+            NyxPrimaryObjects::objects().each{|object|
+                objectsmap[object["uuid"]] = object
+            }
+            FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+        end
+        objectsmap
+    end
 
-    # NyxObjects::init()
-    def self.init()
-        puts "NyxObjects::init()"
-        NyxPrimaryObjects::objects().each{|object|
-            @@objects[object["uuid"]] = object
-        }
-        NyxPrimaryObjects::nyxNxSets().each{|setid|
-            @@sets[setid] = {}
-        }
-        @@objects.values.each{|object|
-            @@sets[object["nyxNxSet"]][object["uuid"]] = object
-        }
+    # NyxObjects::getSetsMap()
+    def self.getSetsMap()
+        setsmap = FastCache.getOrNull("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59")
+        if setsmap.nil? then
+            puts "-> computing setsmap from strach"
+            setsmap = {}
+            NyxPrimaryObjects::nyxNxSets().each{|setid|
+                setsmap[setid] = {}
+            }
+            NyxPrimaryObjects::objects().each{|object|
+                setsmap[object["nyxNxSet"]][object["uuid"]] = object
+            }
+            FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
+        end
+        setsmap
     end
 
     # NyxObjects::put(object)
     def self.put(object)
         NyxPrimaryObjects::put(object)
-        @@objects[object["uuid"]] = object
-        @@sets[object["nyxNxSet"]][object["uuid"]] = object
+
+        objectsmap = NyxObjects::getObjectsMap()
+        objectsmap[object["uuid"]] = object
+        FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+
+        setsmap = NyxObjects::getSetsMap()
+        setsmap[object["nyxNxSet"]][object["uuid"]] = object
+        FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
     end
 
     # NyxObjects::objects()
     def self.objects()
         # NyxPrimaryObjects::objects()
-        @@objects.values
+        objectsmap = NyxObjects::getObjectsMap()
+        objectsmap.values
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
         # NyxPrimaryObjects::getOrNull(uuid)
-        @@objects[uuid]
+        objectsmap = NyxObjects::getObjectsMap()
+        objectsmap[uuid]
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
         #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
-        @@sets[setid].values
+        setsmap = NyxObjects::getSetsMap()
+        setsmap[setid].values
     end
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
         NyxPrimaryObjects::destroy(uuid)
-        @@objects.delete(uuid)
+
+        objectsmap = NyxObjects::getObjectsMap()
+        objectsmap.delete(uuid)
+        FastCache.set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
+
+        setsmap = NyxObjects::getSetsMap()
         NyxPrimaryObjects::nyxNxSets().each{|setid|
-            @@sets[setid].delete(uuid)
+            setsmap[setid].delete(uuid)
         }
+        FastCache.set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
     end
 end
-
-NyxObjects::init()

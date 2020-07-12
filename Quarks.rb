@@ -38,32 +38,14 @@ require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
 require_relative "Spins.rb"
 require_relative "Comments.rb"
-require_relative "InMemoryGlobalHash"
+require_relative "FastCache.rb"
 
 # -----------------------------------------------------------------
 
 class QuarkCached
-
-    # QuarkCached::quarkToStringUseTheForce(quark)
-    def self.quarkToStringUseTheForce(quark)
-        description = Quarks::getQuarkDescriptionOrNull(quark)
-        if description then
-            return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
-        end
-        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
-        spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
-        "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
-    end
-
-    # QuarkCached::quarkToStringForgetCachedValues(quark)
-    def self.quarkToStringForgetCachedValues(quark)
-        InMemoryGlobalHash::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
-        KeyValueStore::destroy(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
-    end
-
     # QuarkCached::forget(quark)
     def self.forget(quark)
-        QuarkCached::quarkToStringForgetCachedValues(quark)
+        FastCache::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}") # toString
     end
 end
 
@@ -123,19 +105,22 @@ class Quarks
 
     # Quarks::quarkToString(quark)
     def self.quarkToString(quark)
-        description = InMemoryGlobalHash::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
-        if description then
-            return description 
-        end
-        description = KeyValueStore::getOrNull(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
-        if description then
-            InMemoryGlobalHash::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
-            return description
-        end
-        description = QuarkCached::quarkToStringUseTheForce(quark)
-        KeyValueStore::set(nil, "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
-        InMemoryGlobalHash::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", description)
-        description
+        str = FastCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
+        return str if str
+
+        str = (lambda{|quark|
+            description = Quarks::getQuarkDescriptionOrNull(quark)
+            if description then
+                return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
+            end
+            spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+            spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
+            "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
+        }).call(quark)
+
+        FastCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
+
+        str
     end
 
     # Quarks::openQuark(quark)

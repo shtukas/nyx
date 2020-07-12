@@ -45,22 +45,32 @@ require_relative "BTreeSets.rb"
 
 # -----------------------------------------------------------------
 
-class InMemoryGlobalHash
-    @@GlobalInMemoryHash61CDAB202D6 = {}
+class FastCache
+    @@XHash61CDAB202D6 = {}
 
-    # InMemoryGlobalHash::set(key, value)
+    # FastCache::set(key, value)
     def self.set(key, value)
-        @@GlobalInMemoryHash61CDAB202D6[key] = value.clone
+        @@XHash61CDAB202D6[key] = value.clone
+        KeyValueStore::set(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}", JSON.generate([value]))
     end
 
-    # InMemoryGlobalHash::getOrNull(key)
+    # FastCache::getOrNull(key)
     def self.getOrNull(key)
-        return nil if @@GlobalInMemoryHash61CDAB202D6[key].nil?
-        @@GlobalInMemoryHash61CDAB202D6[key].clone
+        if @@XHash61CDAB202D6[key] then
+            return @@XHash61CDAB202D6[key].clone 
+        end
+        box = KeyValueStore::getOrNull(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}")
+        if box then
+            value = JSON.parse(box)[0]
+            @@XHash61CDAB202D6[key] = value
+            return value
+        end
+        nil
     end
 
-    # InMemoryGlobalHash::delete(key)
+    # FastCache::delete(key)
     def self.delete(key)
-        @@GlobalInMemoryHash61CDAB202D6.delete(key)
+        @@XHash61CDAB202D6.delete(key)
+        KeyValueStore::destroy(nil, "07b3815a-9d77-49fa-ac07-c51524a0f381:#{key}")
     end
 end

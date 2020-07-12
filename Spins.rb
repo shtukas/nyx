@@ -43,7 +43,16 @@ require_relative "BTreeSets.rb"
     BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
+require_relative "FastCache.rb"
+
 # -----------------------------------------------------------------
+
+class SpinCached
+    # SpinCached::forget(spin)
+    def self.forget(spin)
+        FastCache.delete("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+    end
+end
 
 class Spins
 
@@ -179,27 +188,36 @@ class Spins
         description = LucilleCore::askQuestionAnswerAsString("spin description: ")
         return if description == ""
         DescriptionZ::issue(spin["uuid"], description)
+        SpinCached::forget(spin)
     end
 
     # Spins::spinToString(spin)
     def self.spinToString(spin)
-        description = Spins::getSpinDescriptionOrNull(spin)
-        if description then
-            return "[spin] [#{spin["uuid"][0, 4]}] #{description}"
-        end
-        if spin["type"] == "line" then
-            return "[spin] [#{spin["uuid"][0, 4]}] [line] #{spin["line"]}"
-        end
-        if spin["type"] == "url" then
-            return "[spin] [#{spin["uuid"][0, 4]}] [url] #{spin["url"]}"
-        end
-        if spin["type"] == "aion-point" then
-            return "[spin] [#{spin["uuid"][0, 4]}] [aion-point] #{spin["namedhash"]}"
-        end
-        if spin["type"] == "unique-name" then
-            return "[spin] [#{spin["uuid"][0, 4]}] [unique name] #{spin["name"]}"
-        end
-        raise "[Spins error 2c53b113-cc79]"
+        str = FastCache.getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+        return str if str
+
+        str = (lambda{|quark|
+            description = Spins::getSpinDescriptionOrNull(spin)
+            if description then
+                return "[spin] [#{spin["uuid"][0, 4]}] #{description}"
+            end
+            if spin["type"] == "line" then
+                return "[spin] [#{spin["uuid"][0, 4]}] [line] #{spin["line"]}"
+            end
+            if spin["type"] == "url" then
+                return "[spin] [#{spin["uuid"][0, 4]}] [url] #{spin["url"]}"
+            end
+            if spin["type"] == "aion-point" then
+                return "[spin] [#{spin["uuid"][0, 4]}] [aion-point] #{spin["namedhash"]}"
+            end
+            if spin["type"] == "unique-name" then
+                return "[spin] [#{spin["uuid"][0, 4]}] [unique name] #{spin["name"]}"
+            end
+            raise "[Spins error 2c53b113-cc79]"
+        }).call(spin)
+
+        FastCache.set("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}", str)
+        str
     end
 
     # Spins::getForTargetUUIDInTimeOrder(targetuuid)
