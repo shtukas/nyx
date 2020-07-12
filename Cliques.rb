@@ -19,6 +19,7 @@ require_relative "DataPortalUI.rb"
 require_relative "TodoRoles.rb"
 require_relative "DateTimeZ.rb"
 require_relative "DescriptionZ.rb"
+require_relative "TaxonomyArrows.rb"
 
 # -----------------------------------------------------------------
 
@@ -51,17 +52,193 @@ class Cliques
         clique
     end
 
+    # Cliques::cliqueToString(clique)
+    def self.cliqueToString(clique)
+        namex = Cliques::getCliqueDescriptionOrNull(clique) 
+        "[clique] [#{clique["uuid"][0, 4]}] #{namex}"
+    end
+
+    # Cliques::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
+    end
+
+    # Cliques::cliques()
+    def self.cliques()
+        NyxObjects::getSet("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
+    # Cliques::cliqueDive(clique)
+    def self.cliqueDive(clique)
+        loop {
+
+            clique = NyxObjects::getOrNull(clique["uuid"])
+
+            return if clique.nil? # could have been destroyed in a previous loop
+
+            system("clear")
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            Miscellaneous::horizontalRule(false)
+            # ----------------------------------------------------------
+            # Clique Identity Information
+
+            puts "uuid: #{clique["uuid"]}"
+
+            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+                .last(1)
+                .each{|descriptionz|
+                    puts "description: #{descriptionz["description"]}"
+                }
+
+            notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
+
+            if notetext then
+                puts "Note:"
+                puts notetext
+            end
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
+
+            puts "Operations"
+
+            menuitems.item(
+                "rename", 
+                lambda{ 
+                    description = Cliques::getCliqueDescriptionOrNull(clique)
+                    description = Miscellaneous::editTextUsingTextmate(description).strip
+                    DescriptionZ::issue(clique["uuid"], description)
+                }
+            )
+
+            menuitems.item(
+                "note (edit)", 
+                lambda{ 
+                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    Notes::issue(clique["uuid"], text)
+                }
+            )
+
+            menuitems.item(
+                "quark (add new)", 
+                lambda{
+                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
+                    return if quark.nil?
+                    Bosons::issue(clique, quark)
+                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
+                }
+            )
+
+            menuitems.item(
+                "graph maker: select multiple quark ; send to existing/new clique ; detach from this",
+                lambda {
+                    quarks = Bosons::getQuarksForClique(clique)
+                    selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
+                    return if selectedQuarks.size == 0
+                    puts "Now selecting/making the receiving clique"
+                    LucilleCore::pressEnterToContinue()
+                    c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+                    return if c.nil?
+                    puts "Making the new clique a target of this"
+                    TaxonomyArrows::issue(source, c)
+                    puts "Linking quarks to clique"
+                    selectedQuarks.each{|quark| Bosons::issue(c, quark) }
+                    puts "Unlinking quarks from (this)"
+                    selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
+                }
+            )
+
+            menuitems.item(
+                "select clique for targeting", 
+                lambda { 
+                    c = Cliques::selectCliqueFromExistingCliquesOrNull()
+                    return if c.nil?
+                    TaxonomyArrows::issue(clique, c)
+                }
+            )
+
+            menuitems.item(
+                "clique (destroy)", 
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                        NyxObjects::destroy(clique["uuid"])
+                    end
+                }
+            )
+
+            menuitems.item(
+                "/", 
+                lambda { DataPortalUI::dataPortalFront() }
+            )
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Navigation
+
+            puts "Navigation:"
+
+            puts "Sources:"
+            TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    Cliques::cliqueToString(c), 
+                    lambda { Cliques::cliqueDive(c) }
+                )
+            }
+
+            puts "Targets:"
+            TaxonomyArrows::getTargetsForSource(clique).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    Cliques::cliqueToString(c), 
+                    lambda { Cliques::cliqueDive(c) }
+                )
+            }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Contents
+
+            puts "Contents"
+
+            # Roles if any
+            TodoRoles::getRolesForTarget(clique["uuid"])
+                .each{|object| 
+                    menuitems.item(
+                        TodoRoles::objectToString(object), 
+                        lambda { TodoRoles::objectDive(object) }
+                    )
+                }
+
+            # Quarks
+            Bosons::getQuarksForClique(clique)
+                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+                .each{|quark|
+                    menuitems.item(
+                        Quarks::quarkToString(quark), 
+                        lambda { Quarks::quarkDive(quark) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule(true)
+
+            status = menuitems.prompt()
+            break if !status
+        }
+    end
+
+    # ---------------------------------------------------
+
     # Cliques::getCliqueDescriptionOrNull(clique)
     def self.getCliqueDescriptionOrNull(clique)
         descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
         return nil if descriptionzs.empty?
         descriptionzs.last["description"]
-    end
-
-    # Cliques::cliqueToString(clique)
-    def self.cliqueToString(clique)
-        namex = Cliques::getCliqueDescriptionOrNull(clique) 
-        "[clique] [#{clique["uuid"][0, 4]}] #{namex}"
     end
 
     # Cliques::getCliqueReferenceDateTime(clique)
@@ -74,17 +251,6 @@ class Cliques
     # Cliques::getCliqueReferenceUnixtime(clique)
     def self.getCliqueReferenceUnixtime(clique)
         DateTime.parse(Cliques::getCliqueReferenceDateTime(clique)).to_time.to_f
-    end
-
-    # Cliques::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
-    end
-
-    # Cliques::cliques()
-    def self.cliques()
-        NyxObjects::getSet("4ebd0da9-6fe4-442e-81b9-eda8343fc1e5")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Cliques::selectCliqueFromExistingCliquesOrNull()
@@ -121,125 +287,6 @@ class Cliques
             cliques << clique
         }
         cliques
-    end
-
-    # Cliques::cliqueDive(clique)
-    def self.cliqueDive(clique)
-        loop {
-
-            clique = NyxObjects::getOrNull(clique["uuid"])
-
-            return if clique.nil? # could have been destroyed in a previous loop
-
-            system("clear")
-
-            Miscellaneous::horizontalRule(false)
-
-            puts Cliques::cliqueToString(clique)
-            puts "uuid: #{clique["uuid"]}"
-
-            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
-                .last(1)
-                .each{|descriptionz|
-                    puts "description: #{descriptionz["description"]}"
-                }
-
-            notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
-
-            if notetext then
-                puts "Note:"
-                puts notetext
-            end
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            Miscellaneous::horizontalRule(true)
-
-            menuitems.item(
-                "rename", 
-                lambda{ 
-                    description = Cliques::getCliqueDescriptionOrNull(clique)
-                    description = Miscellaneous::editTextUsingTextmate(description).strip
-                    DescriptionZ::issue(clique["uuid"], description)
-                }
-            )
-
-            menuitems.item(
-                "textnote (edit)", 
-                lambda{ 
-                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
-                    text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issue(clique["uuid"], text)
-                }
-            )
-
-            menuitems.item(
-                "quark (add new)", 
-                lambda{
-                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    Bosons::issue(clique, quark)
-                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
-                }
-            )
-
-            menuitems.item(
-                "quarks (select multiple ; send to cliques ; detach from this) # graph maker", 
-                lambda {
-                    quarks = Bosons::getQuarksForClique(clique)
-                                .select{|objs| objs["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" }
-                    selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
-                    return if selected.size == 0
-                    puts "Now selecting/making the receiving cliques"
-                    LucilleCore::pressEnterToContinue()
-                    nextcliques = Cliques::selectZeroOrMoreCliquesExistingOrCreated()
-                    puts "Linking quarks to cliques"
-                    nextcliques.each{|nextclique|
-                        selectedQuarks.each{|quark| Bosons::issue(nextclique, quark) }
-                    }
-                    puts "Unlinking quarks from (this)"
-                    selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
-                }
-            )
-
-            menuitems.item(
-                "clique (destroy)", 
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                        NyxObjects::destroy(clique["uuid"])
-                    end
-                }
-            )
-
-            menuitems.item(
-                "/", 
-                lambda { DataPortalUI::dataPortalFront() }
-            )
-
-            Miscellaneous::horizontalRule(true)
-
-            TodoRoles::getRolesForTarget(clique["uuid"])
-                .each{|object| 
-                    menuitems.item(
-                        TodoRoles::objectToString(object), 
-                        lambda { TodoRoles::objectDive(object) }
-                    )
-                }
-
-            Bosons::getQuarksForClique(clique)
-                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-                .each{|quark|
-                    menuitems.item(
-                        Quarks::quarkToString(quark), 
-                        lambda { Quarks::quarkDive(quark) }
-                    )
-                }
-
-            Miscellaneous::horizontalRule(true)
-
-            status = menuitems.prompt()
-            break if !status
-        }
     end
 
     # Cliques::selectFromExistingCliquesAndDive()

@@ -69,6 +69,7 @@ class NyxPrimaryObjects
             "0f555c97-3843-4dfe-80c8-714d837eba69", # Spin
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
+            "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # TaxonomyArrow
         ]
     end
 
@@ -181,6 +182,9 @@ class NyxObjects
         InMemoryWithOnDiskPersistenceValueCache::set("objectsmap-890d815a-094b-4341-bf0f-e7dc7ff02a88", objectsmap)
 
         setsmap = NyxObjects::getSetsMap()
+        if setsmap[object["nyxNxSet"]].nil? then
+            setsmap[object["nyxNxSet"]] = {} # This happens when a set was intrduced after the last snapshot
+        end
         setsmap[object["nyxNxSet"]][object["uuid"]] = object
         InMemoryWithOnDiskPersistenceValueCache::set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
     end
@@ -203,6 +207,7 @@ class NyxObjects
     def self.getSet(setid)
         #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
         setsmap = NyxObjects::getSetsMap()
+        return [] if setsmap[setid].nil? # This happens when a set was intrduced after the last snapshot
         setsmap[setid].values
     end
 
