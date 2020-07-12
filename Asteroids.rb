@@ -70,6 +70,12 @@ class Asteroids
         NyxObjects::put(asteroid)
     end
 
+    # Asteroids::reCommitToDisk(asteroid)
+    def self.reCommitToDisk(asteroid)
+        NyxObjects::destroy(asteroid["uuid"])
+        NyxObjects::put(asteroid)
+    end
+
     # Asteroids::makePayloadInteractivelyOrNull()
     def self.makePayloadInteractivelyOrNull()
         options = [
@@ -308,22 +314,22 @@ class Asteroids
             .select{|asteroid| asteroid["payload"]["uuids"].include?(targetuuid) }
     end
 
-    # Asteroids::repayload(asteroid)
-    def self.repayload(asteroid)
+    # Asteroids::rePayload(asteroid)
+    def self.rePayload(asteroid)
         payload = Asteroids::makePayloadInteractivelyOrNull()
         return if payload.nil?
         asteroid["payload"] = payload
         puts JSON.pretty_generate(asteroid)
-        Asteroids::commitToDisk(asteroid)
+        Asteroids::reCommitToDisk(asteroid)
     end
 
-    # Asteroids::reorbital(asteroid)
-    def self.reorbital(asteroid)
+    # Asteroids::reOrbital(asteroid)
+    def self.reOrbital(asteroid)
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
         asteroid["orbital"] = orbital
         puts JSON.pretty_generate(asteroid)
-        Asteroids::commitToDisk(asteroid)
+        Asteroids::reCommitToDisk(asteroid)
     end
 
     # Asteroids::asteroidDive(asteroid)
@@ -385,19 +391,19 @@ class Asteroids
                     "edit description",
                     lambda {
                         asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
-                        Asteroids::commitToDisk(asteroid)
+                        Asteroids::reCommitToDisk(asteroid)
                     }
                 )
             end
 
             menuitems.item(
                 "re-payload",
-                lambda { Asteroids::repayload(asteroid) }
+                lambda { Asteroids::rePayload(asteroid) }
             )
 
             menuitems.item(
                 "re-orbital",
-                lambda { Asteroids::reorbital(asteroid) }
+                lambda { Asteroids::reOrbital(asteroid) }
             )
 
             menuitems.item(
@@ -612,7 +618,7 @@ class Asteroids
                             asteroid["orbital"] = {
                                 "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
                             }
-                            Asteroids::commitToDisk(asteroid)
+                            Asteroids::reCommitToDisk(asteroid)
                         end
                         Asteroids::asteroidStopSequence(asteroid)
                     end
@@ -704,6 +710,10 @@ class Asteroids
 
         Runner::start(asteroid["uuid"])
 
+        if asteroid["payload"]["type"] == "spin" then
+            Asteroids::openPayload(asteroid)
+        end
+
         if asteroid["payload"]["type"] == "quarks" then
             Asteroids::openPayload(asteroid)
         end
@@ -761,6 +771,12 @@ class Asteroids
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
+        if asteroid["payload"]["type"] == "spin" then
+            spin = NyxObjects::getOrNull(asteroid["payload"]["uuid"])
+            return if spin.nil?
+            puts JSON.pretty_generate(spin)
+            Spins::openSpin(spin)
+        end
         if asteroid["payload"]["type"] == "quarks" then
             quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
             return if quark.nil?
