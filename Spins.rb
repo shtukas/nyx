@@ -177,6 +177,7 @@ class Spins
     def self.ensureSpinDescriptionOrNothing(spin)
         return if Spins::getSpinDescriptionOrNull(spin)
         description = LucilleCore::askQuestionAnswerAsString("spin description: ")
+        return if description == ""
         DescriptionZ::issue(spin["uuid"], description)
     end
 
