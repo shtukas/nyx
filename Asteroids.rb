@@ -669,6 +669,10 @@ class Asteroids
                 # Running
 
                 if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" and Runner::isRunning?(uuid) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                        Asteroids::asteroidDestroySequence(asteroid)
+                        return
+                    end
                     Asteroids::asteroidStopSequence(asteroid)
                     Asteroids::tryAndMoveThisInboxItem(asteroid)
                     return
