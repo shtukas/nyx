@@ -766,11 +766,11 @@ class Asteroids
                 Spins::ensureSpinDescriptionOrNothing(spin)
             end
         end
-
     end
 
     # Asteroids::asteroidDestructionQuarkHandling(quark)
     def self.asteroidDestructionQuarkHandling(quark)
+        puts Quarks::quarkToString(quark)
         return if Bosons::getCliquesForQuark(quark).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
             Quarks::ensureQuarkDescription(quark)
@@ -782,13 +782,24 @@ class Asteroids
 
     # Asteroids::asteroidDestroySequence(asteroid)
     def self.asteroidDestroySequence(asteroid)
-        Asteroids::asteroidStopSequence(asteroid)
-        if asteroid["payload"]["type"] == "quarks" then
-            quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
-            if !quark.nil? then
-                Asteroids::asteroidDestructionQuarkHandling(quark)
-            end
+        if Asteroids::isRunning?(asteroid) then
+            timespan = Runner::stop(asteroid["uuid"])
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            Asteroids::addTimeToAsteroid(asteroid, timespan)
         end
+
+        if asteroid["payload"]["type"] == "spin" then
+            NyxObjects::destroy(asteroid["payload"]["uuid"])
+        end
+
+        if asteroid["payload"]["type"] == "quarks" then
+            asteroid["payload"]["uuids"].each{|uuid|
+                quark = Quarks::getOrNull(uuid)
+                next if quark.nil?
+                Asteroids::asteroidDestructionQuarkHandling(quark)
+            }
+        end
+
         NyxObjects::destroy(asteroid["uuid"])
     end
 
