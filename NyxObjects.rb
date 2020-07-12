@@ -107,7 +107,6 @@ class NyxPrimaryObjects
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
                 object = JSON.parse(IO.read(path))
-                object["nyxFilepath"] = path
                 objects << object
             end
         end

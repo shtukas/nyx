@@ -600,6 +600,24 @@ class Asteroids
         ]
     end
 
+    # Asteroids::tryAndMoveThisInboxItem(asteroid)
+    def self.tryAndMoveThisInboxItem(asteroid)
+        return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            Asteroids::asteroidDestroySequence(asteroid)
+        else
+            if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? ") then
+                asteroid["orbital"] = {
+                    "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                }
+                Asteroids::reCommitToDisk(asteroid)
+            else
+                puts "Not done and not moved to queue. I am going to reOrbital"
+                Asteroids::reOrbital(asteroid)
+            end
+        end
+    end
+
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
         uuid = asteroid["uuid"]
@@ -609,24 +627,14 @@ class Asteroids
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |input|
 
-                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-                    Asteroids::asteroidStartSequence(asteroid)
-                    if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                        Asteroids::asteroidDestroySequence(asteroid)
-                    else
-                        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? ") then
-                            asteroid["orbital"] = {
-                                "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-                            }
-                            Asteroids::reCommitToDisk(asteroid)
-                        end
-                        Asteroids::asteroidStopSequence(asteroid)
-                    end
-                    return
-                end
-
                 # ----------------------------------------
                 # Not Running
+
+                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" and !Runner::isRunning?(uuid) then
+                    Asteroids::asteroidStartSequence(asteroid)
+                    Asteroids::tryAndMoveThisInboxItem(asteroid)
+                    return
+                end
 
                 if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
@@ -649,6 +657,12 @@ class Asteroids
 
                 # ----------------------------------------
                 # Running
+
+                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" and Runner::isRunning?(uuid) then
+                    Asteroids::asteroidStopSequence(asteroid)
+                    Asteroids::tryAndMoveThisInboxItem(asteroid)
+                    return
+                end
 
                 if input == ".." and Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
@@ -735,6 +749,7 @@ class Asteroids
 
         Asteroids::addTimeToAsteroid(asteroid, timespan)
 
+        payload = asteroid["payload"]
         orbital = asteroid["orbital"]
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
@@ -744,6 +759,14 @@ class Asteroids
                 Asteroids::asteroidDestroySequence(asteroid)
             end
         end
+
+        if payload["type"] == "spin" then
+            spin = NyxObjects::getOrNull(payload["uuid"])
+            if spin then
+                Spins::ensureSpinDescriptionOrNothing(spin)
+            end
+        end
+
     end
 
     # Asteroids::asteroidDestructionQuarkHandling(quark)

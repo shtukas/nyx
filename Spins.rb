@@ -166,8 +166,26 @@ class Spins
         NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
+    # Spins::getSpinDescriptionOrNull(spin)
+    def self.getSpinDescriptionOrNull(spin)
+        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(spin["uuid"])
+        return nil if descriptionzs.empty?
+        descriptionzs.last["description"]
+    end
+
+    # Spins::ensureSpinDescriptionOrNothing(spin)
+    def self.ensureSpinDescriptionOrNothing(spin)
+        return if Spins::getSpinDescriptionOrNull(spin)
+        description = LucilleCore::askQuestionAnswerAsString("spin description: ")
+        DescriptionZ::issue(spin["uuid"], description)
+    end
+
     # Spins::spinToString(spin)
     def self.spinToString(spin)
+        description = Spins::getSpinDescriptionOrNull(spin)
+        if description then
+            return "[spin] [#{spin["uuid"][0, 4]}] #{description}"
+        end
         if spin["type"] == "line" then
             return "[spin] [#{spin["uuid"][0, 4]}] [line] #{spin["line"]}"
         end
