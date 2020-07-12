@@ -1,16 +1,6 @@
 
 # encoding: UTF-8
 
-require_relative "BTreeSets.rb"
-=begin
-    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
-    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
-    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
-=end
-
-# -----------------------------------------------------------------
-
 class Bank
 
     # Bank::getTimePackets(setuuid)

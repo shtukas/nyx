@@ -1,39 +1,4 @@
 
-# require_relative "Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-=end
-
-require 'json'
-
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-=end
-
-# ---------------------------------------------------------------------------------------------
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
-# ---------------------------------------------------------------------------------------------
-
 =begin
 
 {

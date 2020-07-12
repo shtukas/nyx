@@ -1,10 +1,6 @@
 
 # encoding: UTF-8
 
-require_relative "Miscellaneous.rb"
-
-# -----------------------------------------------------------------
-
 class EstateServices
 
     # EstateServices::today()

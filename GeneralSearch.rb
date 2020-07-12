@@ -1,14 +1,6 @@
 
 # encoding: UTF-8
 
-require_relative "LucilleCore.rb"
-
-require_relative "Miscellaneous.rb"
-require_relative "Quarks.rb"
-require_relative "Cliques.rb"
-
-# -----------------------------------------------------------------
-
 class GeneralSearch
 
     # GeneralSearch::searchNx1630(pattern)

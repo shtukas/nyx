@@ -1,40 +1,5 @@
 # encoding: utf-8
 
-# require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
-require 'fileutils'
-# FileUtils.mkpath '/a/b/c'
-# FileUtils.cp(src, dst)
-# FileUtils.rm(path_to_image)
-# FileUtils.rm_rf(dir)
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-# Digest::SHA256.hexdigest 'message'  
-# Digest::SHA256.file(myFile).hexdigest
-
-require 'json'
-
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
-require 'find'
-
-# -----------------------------------------------------------------------------------
-
 KEYVALUESTORE_XSPACE_XCACHE_V2_FOLDER_PATH = "/Users/pascal/x-space/x-cache-v2"
 
 class KeyValueStorePathManager

@@ -1,29 +1,6 @@
 
 # encoding: UTF-8
 
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
-require_relative "Miscellaneous.rb"
-
-require_relative "Anniversaries.rb"
-require_relative "BackupsMonitor.rb"
-require_relative "Calendar.rb"
-require_relative "Asteroids.rb"
-require_relative "VideoStream.rb"
-require_relative "Waves.rb"
-
-# -----------------------------------------------------------------
-
 class CatalystObjectsOperator
 
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()

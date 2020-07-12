@@ -1,8 +1,5 @@
 
 # encoding: UTF-8
-require 'json'
-
-require_relative "Miscellaneous.rb"
 
 # -------------------------------------------------------------------------------------
 

@@ -1,28 +1,5 @@
 # encoding: UTF-8
 
-# require_relative "Cliques.rb"
-
-require 'fileutils'
-# FileUtils.mkpath '/a/b/c'
-# FileUtils.cp(src, dst)
-# FileUtils.mv 'oldname', 'newname'
-# FileUtils.rm(path_to_image)
-# FileUtils.rm_rf('dir/to/remove')
-
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
-require_relative "Bosons.rb"
-require_relative "DataPortalUI.rb"
-require_relative "TodoRoles.rb"
-require_relative "DateTimeZ.rb"
-require_relative "DescriptionZ.rb"
-require_relative "TaxonomyArrows.rb"
-
-# -----------------------------------------------------------------
-
 class Cliques
 
     # Cliques::issueClique(description)

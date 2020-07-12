@@ -1,49 +1,5 @@
 # encoding: UTF-8
 
-# require_relative "Asteroids.rb"
-
-require_relative "BTreeSets.rb"
-=begin
-    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
-    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
-    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
-=end
-
-require_relative "Runner.rb"
-=begin 
-    Runner::isRunning?(uuid)
-    Runner::runTimeInSecondsOrNull(uuid) # null | Float
-    Runner::start(uuid)
-    Runner::stop(uuid) # null | Float
-=end
-
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
-require_relative "Bosons.rb"
-require_relative "Bank.rb"
-=begin 
-    Bank::put(uuid, weight)
-    Bank::value(uuid)
-=end
-
-require_relative "Metrics.rb"
-require_relative "ProgrammableBooleans.rb"
-require_relative "NyxObjects.rb"
-require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
-
-# -----------------------------------------------------------------------------
-
 class AsteroidsOfInterest
 
     # AsteroidsOfInterest::getCollection()

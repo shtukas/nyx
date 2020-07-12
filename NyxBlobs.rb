@@ -1,22 +1,5 @@
 # encoding: UTF-8
 
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
-require 'fileutils'
-# FileUtils.mkpath '/a/b/c'
-# FileUtils.cp(src, dst)
-# FileUtils.mv 'oldname', 'newname'
-# FileUtils.rm(path_to_image)
-# FileUtils.rm_rf('dir/to/remove')
-
-require 'find'
-
-require_relative "Miscellaneous.rb"
-
-# ------------------------------------------------------------------------
-
 class NyxBlobs
 
     # -----------------------------------------------

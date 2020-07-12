@@ -1,5 +1,4 @@
 
-# require_relative "ShadowFS.rb"
 =begin
 
 The operator is an object that has meet the following signatures
@@ -18,14 +17,6 @@ ShadowFS::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
 ShadowFSFsck::structureCheckAionHash(operator, nhash)
 
 =end
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-# Digest::SHA256.hexdigest 'message'  
-# Digest::SHA256.file(myFile).hexdigest
-
-require 'find'
 
 # ------------------------------------------------------------------------
 

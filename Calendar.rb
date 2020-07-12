@@ -1,6 +1,4 @@
 
-require_relative "Miscellaneous.rb"
-
 class Calendar
 
     # Calendar::pathToCalendarItems()

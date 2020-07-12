@@ -1,25 +1,5 @@
 # encoding: UTF-8
 
-# require_relative "DoNotShowUntil.rb"
-#    DoNotShowUntil::setUnixtime(uid, unixtime)
-#    DoNotShowUntil::isVisible(uid)
-
-require 'time'
-
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-=end
-
-# ----------------------------------------------------------------------
-
 class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uid, unixtime)

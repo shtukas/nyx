@@ -1,36 +1,6 @@
 
 # encoding: UTF-8
 
-# require_relative "ProgrammableBooleans.rb"
-=begin
-    ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds(uuid, n)
-=end
-
-require 'fileutils'
-# FileUtils.mkpath '/a/b/c'
-# FileUtils.cp(src, dst)
-# FileUtils.mv 'oldname', 'newname'
-# FileUtils.rm(path_to_image)
-# FileUtils.rm_rf('dir/to/remove')
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
-# -----------------------------------------------------------------
-
 class ProgrammableBooleans
 
     # ProgrammableBooleans::resetTrueNoMoreOften(uuid)

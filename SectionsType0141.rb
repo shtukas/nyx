@@ -1,15 +1,6 @@
 
-# require_relative "SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
-
-# ---------------------------------------------------------------------------------------------
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
-# ---------------------------------------------------------------------------------------------
 
 class SectionsType0141
 

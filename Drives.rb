@@ -1,26 +1,6 @@
 
 # encoding: UTF-8
 
-# require_relative "Drives.rb"
-
-require_relative "ShadowFS.rb"
-
-require_relative "KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
-require_relative "Miscellaneous.rb"
-
-# -----------------------------------------------------------------
-
 =begin
     {
         "drivename" : "EnergyGrid",

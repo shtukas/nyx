@@ -1,4 +1,4 @@
-# require_relative "AionCore.rb"
+
 =begin
 
 The operator is an object that has meet the following signatures
@@ -47,14 +47,6 @@ AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
 AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-# Digest::SHA256.hexdigest 'message'  
-# Digest::SHA256.file(myFile).hexdigest
-
-require 'find'
 
 # ------------------------------------------------------------------------
 

@@ -25,9 +25,7 @@ require 'digest/sha1'
 
 require 'find'
 
-require_relative "LucilleCore.rb"
-
-require_relative "NyxBlobs.rb"
+require_relative "loader.rb"
 
 # --------------------------------------------------------------------
 
