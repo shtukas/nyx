@@ -4,7 +4,7 @@
 class SpinCached
     # SpinCached::forget(spin)
     def self.forget(spin)
-        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}")
     end
 end
 
@@ -147,7 +147,7 @@ class Spins
 
     # Spins::spinToString(spin)
     def self.spinToString(spin)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}")
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}")
         return str if str
 
         str = (lambda{|quark|
@@ -162,7 +162,11 @@ class Spins
                 return "[spin] [#{spin["uuid"][0, 4]}] [url] #{spin["url"]}"
             end
             if spin["type"] == "text" then
-                return "[spin] [#{spin["uuid"][0, 4]}] [text]"
+                namedhashToFirstLine = lambda {|namedhash|
+                    text = NyxBlobs::getBlobOrNull(namedhash).strip
+                    line = text.size>0 ? text.lines.first.strip : "[empty text]"
+                }
+                return "[spin] [#{spin["uuid"][0, 4]}] #{namedhashToFirstLine.call(spin["namedhash"])}"
             end
             if spin["type"] == "aion-point" then
                 return "[spin] [#{spin["uuid"][0, 4]}] [aion-point] #{spin["namedhash"]}"
@@ -173,7 +177,7 @@ class Spins
             raise "[Spins error 2c53b113-cc79]"
         }).call(spin)
 
-        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e3:#{spin["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}", str)
         str
     end
 
