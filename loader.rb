@@ -32,6 +32,7 @@ require "time"
 
 # ------------------------------------------------------------
 
+require_relative "AionCore.rb"
 require_relative "Anniversaries.rb"
 require_relative "Asteroids.rb"
 require_relative "AtlasCore.rb"
