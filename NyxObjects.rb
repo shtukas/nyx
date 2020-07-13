@@ -170,6 +170,7 @@ class NyxObjects
 
         setsmap = NyxObjects::getSetsMap()
         NyxPrimaryObjects::nyxNxSets().each{|setid|
+            next if setsmap[setid].nil?
             setsmap[setid].delete(uuid)
         }
         InMemoryWithOnDiskPersistenceValueCache::set("setsmap-de7d6236-57ae-4a20-bf0d-02917caf4b59", setsmap)
