@@ -174,7 +174,8 @@ class Asteroids
         return if payload.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
-        Asteroids::issue(payload, orbital)
+        asteroid = Asteroids::issue(payload, orbital)
+        AsteroidsOfInterest::register(asteroid["uuid"])
     end
 
     # Asteroids::issue(payload, orbital)
