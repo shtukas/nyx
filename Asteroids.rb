@@ -240,14 +240,17 @@ class Asteroids
             end
             if payload["type"] == "quarks" then
                 if payload["description"] then
-                    return " #{payload["description"]}"
+                    return " [quarks series] #{payload["description"]}"
                 else
-                    asteroid["payload"]["uuids"].each{|uuid|
-                        quark = Quarks::getOrNull(uuid)
-                        next if quark.nil?
-                        return " #{Quarks::quarkToString(quark)}"
-                    }
-                    return " [no description and no quark]"
+                    if asteroid["payload"]["uuids"].size == 1 then
+                        asteroid["payload"]["uuids"].each{|uuid|
+                            quark = Quarks::getOrNull(uuid)
+                            next if quark.nil?
+                            return " [quarks series] #{Quarks::quarkToString(quark)}"
+                        }
+                    end
+
+                    return " [quarks series] [no description and no quark]"
                 end
 
             end
@@ -351,6 +354,19 @@ class Asteroids
                 puts "Quarks Series:"
                 puts ""
 
+                if asteroid["payload"]["description"].nil? then
+                    menuitems.item(
+                        "give description to series",
+                        lambda { 
+                            description = LucilleCore::askQuestionAnswerAsString("series description: ")
+                            return if description == ""
+                            asteroid["payload"]["description"] = description
+                            Asteroids::reCommitToDisk(asteroid)
+                        }
+                    )
+                    puts ""
+                end
+
                 asteroid["payload"]["uuids"].each{|uuid|
                     quark = Quarks::getOrNull(uuid)
                     next if quark.nil?
@@ -369,6 +385,19 @@ class Asteroids
                         return if q.nil?
                         asteroid["payload"]["uuids"] << q["uuid"]
                         Asteroids::reCommitToDisk(asteroid)
+                    }
+                )
+            end
+
+            if asteroid["payload"]["type"] == "clique" then
+                Miscellaneous::horizontalRule(true)
+                menuitems.item(
+                    "clique (dive)",
+                    lambda {
+                        cliqueuuid = asteroid["payload"]["cliqueuuid"]
+                        clique = Cliques::getOrNull(cliqueuuid)
+                        return if clique.nil?
+                        Cliques::cliqueDive(clique)
                     }
                 )
             end
@@ -413,7 +442,7 @@ class Asteroids
                 )
             else
                 menuitems.item(
-                    "re-payload (not available for 'quarks')",
+                    "re-payload (not available for quarks series)",
                     lambda {}
                 )
             end
@@ -438,29 +467,6 @@ class Asteroids
                     Asteroids::addTimeToAsteroid(asteroid, timeInHours*3600)
                 }
             )
-
-            if asteroid["payload"]["type"] == "quarks" then
-                menuitems.item(
-                    "quark (dive)",
-                    lambda {
-                        quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
-                        return if quark.nil?
-                        Quarks::quarkDive(quark)
-                    }
-                )
-            end
-
-            if asteroid["payload"]["type"] == "clique" then
-                menuitems.item(
-                    "clique (dive)",
-                    lambda {
-                        cliqueuuid = asteroid["payload"]["cliqueuuid"]
-                        clique = Cliques::getOrNull(cliqueuuid)
-                        return if clique.nil?
-                        Cliques::cliqueDive(clique)
-                    }
-                )
-            end
 
             menuitems.item(
                 "destroy",
