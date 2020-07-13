@@ -354,7 +354,7 @@ class Asteroids
                 puts "Quarks Series:"
                 puts ""
 
-                if asteroid["payload"]["description"].nil? then
+                if asteroid["payload"]["description"].nil? and asteroid["payload"]["uuids"].size != 1 then
                     menuitems.item(
                         "give description to series",
                         lambda { 
