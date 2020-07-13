@@ -139,24 +139,7 @@ class Quarks
             # ----------------------------------------------------------
             # Operations
 
-            puts "Data:"
-
-            Quarks::getQuarkSpins(quark)
-                .last(1)
-                .each{|spin|
-                    puts Spins::spinToString(spin)
-                }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Operations
-
-            puts "Operations:"
-
-            menuitems.item(
-                "open", 
-                lambda{ Quarks::openQuark(quark) }
-            )
+            puts "Quark Operations:"
 
             menuitems.item(
                 "description (update)",
@@ -272,9 +255,24 @@ class Quarks
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Contents
+            # Operations
 
-            puts "Contents"
+            puts "Data:"
+
+            Quarks::getQuarkSpins(quark)
+                .last(1)
+                .each{|spin|
+                    menuitems.item(
+                        Spins::spinToString(spin),
+                        lambda{ Spins::openSpin(spin) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Related
+
+            puts "Related Objects"
 
             TodoRoles::getRolesForTarget(quark["uuid"])
                 .each{|object| 
