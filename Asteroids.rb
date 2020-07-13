@@ -391,7 +391,7 @@ class Asteroids
                 "add time",
                 lambda {
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    Asteroids::addTimeToAsteroid(asteroid, timeInHours*3600)
+                    Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
                 }
             )
 
@@ -440,26 +440,28 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.69 - 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            x2 = Metrics::noMoreThanBankValueOverPeriodOtherwiseFall(0.69, "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860", 3600, 3*3600)
+            x3 = - 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return x2 + x3
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::targetRatioThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
             x2 = - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::targetRatioThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::targetRatioThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
@@ -643,8 +645,8 @@ class Asteroids
         end
     end
 
-    # Asteroids::addTimeToAsteroid(asteroid, timespanInSeconds)
-    def self.addTimeToAsteroid(asteroid, timespanInSeconds)
+    # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
+    def self.asteroidReceivesTime(asteroid, timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::asteroidToString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
@@ -657,7 +659,7 @@ class Asteroids
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
 
-        Asteroids::addTimeToAsteroid(asteroid, timespan)
+        Asteroids::asteroidReceivesTime(asteroid, timespan)
 
         payload = asteroid["payload"]
         orbital = asteroid["orbital"]
@@ -688,7 +690,7 @@ class Asteroids
         if Asteroids::isRunning?(asteroid) then
             timespan = Runner::stop(asteroid["uuid"])
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            Asteroids::addTimeToAsteroid(asteroid, timespan)
+            Asteroids::asteroidReceivesTime(asteroid, timespan)
         end
         NyxObjects::destroy(asteroid["uuid"])
     end
