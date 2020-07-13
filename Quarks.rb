@@ -119,16 +119,15 @@ class Quarks
             # -------------------------------------------
             # Quark metadata
 
-            puts Quarks::quarkToString(quark)
-            puts ""
-
-            puts "uuid: #{quark["uuid"]}"
-
             DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
                 .last(1)
                 .each{|descriptionz|
                     puts "description: #{descriptionz["description"]}"
                 }
+
+            puts ""
+
+            puts "uuid: #{quark["uuid"]}"
 
             puts "date: #{Quarks::getQuarkReferenceDateTime(quark)}"
 
