@@ -193,15 +193,6 @@ class Cliques
 
             puts "Contents"
 
-            # Roles if any
-            TodoRoles::getRolesForTarget(clique["uuid"])
-                .each{|object| 
-                    menuitems.item(
-                        TodoRoles::objectToString(object), 
-                        lambda { TodoRoles::objectDive(object) }
-                    )
-                }
-
             # Quarks
             Bosons::getQuarksForClique(clique)
                 .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }

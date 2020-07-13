@@ -120,21 +120,6 @@ class CatalystUI
             CatalystUI::applyNextTransformationToFile(filepath)
         end
 
-        if command == "a+" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            payload = {
-                "type"        => "description",
-                "description" => description
-            }
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            orbital = {
-                "type"    => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-                "ordinal" => ordinal
-            }
-            asteroid = Asteroids::issue(payload, orbital)
-            return
-        end
-
         if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(

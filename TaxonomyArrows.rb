@@ -53,7 +53,7 @@ class TaxonomyArrows
     end
 
     # TaxonomyArrows::arrowExists?(source, target)
-    def self.exists?(source, target)
+    def self.arrowExists?(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .any?{|arrow|  
                 b1 = (arrow["sourceuuid"] == source["uuid"])

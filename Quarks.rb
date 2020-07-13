@@ -232,23 +232,6 @@ class Quarks
             )
 
             menuitems.item(
-                "asteroid (create with this as target)", 
-                lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid payload series description: ")
-                    return if description == ""
-                    payload = {
-                        "type"        => "quarks",
-                        "uuids"       => [ quark["uuid"] ],
-                        "description" => description
-                    }
-                    orbital = Asteroids::makeOrbitalInteractivelyOrNull()
-                    return if orbital.nil?
-                    asteroid = Asteroids::issue(payload, orbital)
-                    puts JSON.pretty_generate(asteroid)
-                }
-            )
-
-            menuitems.item(
                 "re-spin", 
                 lambda { 
                     puts "re spinning is not implemented yet"
@@ -289,15 +272,7 @@ class Quarks
             # ----------------------------------------------------------
             # Related
 
-            puts "Related Objects"
-
-            TodoRoles::getRolesForTarget(quark["uuid"])
-                .each{|object| 
-                    menuitems.item(
-                        TodoRoles::objectToString(object), 
-                        lambda{ TodoRoles::objectDive(object) }
-                    )
-                }
+            puts "Cliques:"
 
             Bosons::getCliquesForQuark(quark)
                 .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }

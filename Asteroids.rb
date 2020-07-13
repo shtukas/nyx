@@ -42,13 +42,11 @@ class Asteroids
         NyxObjects::put(asteroid)
     end
 
-    # Asteroids::makePayloadInteractivelyOrNull()
-    def self.makePayloadInteractivelyOrNull()
+    # Asteroids::makePayloadInteractivelyOrNull(asteroiduuid)
+    def self.makePayloadInteractivelyOrNull(asteroiduuid)
         options = [
             "description",
-            "spin",
-            "quarks",
-            "clique"
+            "spins"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
         return nil if option.nil?
@@ -59,30 +57,13 @@ class Asteroids
                 "description" => description
             }
         end
-        if option == "spin" then
-            spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.uuid) # this value is going to be picked up as the uuid of the asteroid
+        if option == "spins" then
+            spin = Spins::issueNewSpinInteractivelyOrNull(asteroiduuid)
             return nil if spin.nil?
             return {
-                "type" => "spin",
-                "uuid" => [ spin["uuid"] ]
-            }
-        end
-        if option == "quarks" then
-            quark = Quarks::issueNewQuarkInteractivelyOrNull()
-            return nil if quark.nil?
-            description = LucilleCore::askQuestionAnswerAsString("asteroid payload series description: ")
-            return {
-                "type"        => "quarks",
-                "uuids"       => [ quark["uuid"] ],
-                "description" => description
-            }
-        end
-        if option == "clique" then
-            clique = Cliques::selectCliqueFromExistingCliquesOrNull()
-            return nil if clique.nil?
-            return {
-                "type"       => "clique",
-                "cliqueuuid" => clique["uuid"]
+                "type"         => "spins",
+                "description"  => nil,
+                "asteroiduuid" => asteroiduuid
             }
         end
         nil
@@ -172,7 +153,7 @@ class Asteroids
 
     # Asteroids::issueAsteroidInteractivelyOrNull()
     def self.issueAsteroidInteractivelyOrNull()
-        payload = Asteroids::makePayloadInteractivelyOrNull()
+        payload = Asteroids::makePayloadInteractivelyOrNull(SecureRandom.uuid)
         return if payload.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
@@ -182,8 +163,12 @@ class Asteroids
 
     # Asteroids::issue(payload, orbital)
     def self.issue(payload, orbital)
+        asteroiduuid = SecureRandom.uuid
+        if payload["type"] == "spins" then
+            asteroiduuid = payload["asteroiduuid"]
+        end
         asteroid = {
-            "uuid"     => SecureRandom.uuid,
+            "uuid"     => asteroiduuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
@@ -197,8 +182,9 @@ class Asteroids
     def self.issueAsteroidInboxFromSpin(spin)
         asteroiduuid = spin["targetuuid"]
         payload = {
-            "type" => "spin",
-            "uuid" => spin["uuid"]
+            "type"         => "spins",
+            "description"  => nil,
+            "asteroiduuid" => asteroiduuid
         }
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
@@ -234,30 +220,19 @@ class Asteroids
             if payload["type"] == "description" then
                 return " " + payload["description"]
             end
-            if payload["type"] == "spin" then
-                spin = NyxObjects::getOrNull(asteroid["payload"]["uuid"])
-                return spin ? (" " + Spins::spinToString(spin)) : " [could not find spin]"
-            end
-            if payload["type"] == "quarks" then
+            if payload["type"] == "spins" then
                 if payload["description"] then
-                    return " [quarks series] #{payload["description"]}"
+                    return " #{payload["description"]}"
                 else
-                    if asteroid["payload"]["uuids"].size == 1 then
-                        asteroid["payload"]["uuids"].each{|uuid|
-                            quark = Quarks::getOrNull(uuid)
-                            next if quark.nil?
-                            return " [quarks series] #{Quarks::quarkToString(quark)}"
-                        }
+                    spins = Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"])
+                    if spins.size == 1 then
+                        spin = spins[0]
+                        return " #{Spins::spinToString(spin)}"
                     end
-
-                    return " [quarks series] [no description and no quark]"
+                    return " [spin series] (no description given)"
                 end
-
             end
-            if payload["type"] == "clique" then
-                clique = Cliques::getOrNull(asteroid["payload"]["cliqueuuid"])
-                return clique ? (" " + Cliques::cliqueToString(clique)) : " [could not find clique]"
-            end
+            puts JSON.pretty_generate(asteroid)
             raise "[Asteroids] error: CE8497BB"
         }
         orbitalFragment = lambda{|asteroid|
@@ -287,22 +262,6 @@ class Asteroids
     # Asteroids::asteroids()
     def self.asteroids()
         NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
-    end
-
-    # Asteroids::getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
-    def self.getAsteroidsTypeQuarkByQuarkUUID(targetuuid)
-        Asteroids::asteroids()
-            .select{|asteroid| asteroid["payload"]["type"] == "quarks" }
-            .select{|asteroid| asteroid["payload"]["uuids"].include?(targetuuid) }
-    end
-
-    # Asteroids::rePayload(asteroid)
-    def self.rePayload(asteroid)
-        payload = Asteroids::makePayloadInteractivelyOrNull()
-        return if payload.nil?
-        asteroid["payload"] = payload
-        puts JSON.pretty_generate(asteroid)
-        Asteroids::reCommitToDisk(asteroid)
     end
 
     # Asteroids::reOrbital(asteroid)
@@ -347,18 +306,18 @@ class Asteroids
             puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            if asteroid["payload"]["type"] == "quarks" then
+            if asteroid["payload"]["type"] == "spins" then
 
                 Miscellaneous::horizontalRule(true)
 
-                puts "Quarks Series:"
+                puts "Spin Series:"
                 puts ""
 
-                if asteroid["payload"]["description"].nil? and asteroid["payload"]["uuids"].size != 1 then
+                if asteroid["payload"]["description"].nil? then
                     menuitems.item(
                         "give description to series",
                         lambda { 
-                            description = LucilleCore::askQuestionAnswerAsString("series description: ")
+                            description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
                             return if description == ""
                             asteroid["payload"]["description"] = description
                             Asteroids::reCommitToDisk(asteroid)
@@ -367,38 +326,18 @@ class Asteroids
                     puts ""
                 end
 
-                asteroid["payload"]["uuids"].each{|uuid|
-                    quark = Quarks::getOrNull(uuid)
-                    next if quark.nil?
+                Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"]).each{|spin|
                     menuitems.item(
-                        Quarks::quarkToString(quark),
-                        lambda { Quarks::quarkDive(quark) }
+                        Spins::spinToString(spin),
+                        lambda { Spins::openSpin(spin) }
                     )
                 }
 
                 puts ""
 
                 menuitems.item(
-                    "add new quark to series",
-                    lambda { 
-                        q = Quarks::issueNewQuarkInteractivelyOrNull()
-                        return if q.nil?
-                        asteroid["payload"]["uuids"] << q["uuid"]
-                        Asteroids::reCommitToDisk(asteroid)
-                    }
-                )
-            end
-
-            if asteroid["payload"]["type"] == "clique" then
-                Miscellaneous::horizontalRule(true)
-                menuitems.item(
-                    "clique (dive)",
-                    lambda {
-                        cliqueuuid = asteroid["payload"]["cliqueuuid"]
-                        clique = Cliques::getOrNull(cliqueuuid)
-                        return if clique.nil?
-                        Cliques::cliqueDive(clique)
-                    }
+                    "add new spin to asteroid",
+                    lambda { Spins::issueNewSpinInteractivelyOrNull(asteroid["uuid"]) }
                 )
             end
 
@@ -432,18 +371,6 @@ class Asteroids
                         asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
                         Asteroids::reCommitToDisk(asteroid)
                     }
-                )
-            end
-
-            if asteroid["payload"]["type"] != "quarks" then
-                menuitems.item(
-                    "re-payload",
-                    lambda { Asteroids::rePayload(asteroid) }
-                )
-            else
-                menuitems.item(
-                    "re-payload (not available for quarks series)",
-                    lambda {}
                 )
             end
 
@@ -602,27 +529,6 @@ class Asteroids
         ]
     end
 
-    # Asteroids::asteroidOrbitalTypesThatTerminate()
-    def self.asteroidOrbitalTypesThatTerminate()
-        [
-            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-            "on-going-until-completion-5b26f145-7ebf-498",
-            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
-            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-        ]
-    end
-
-    # Asteroids::asteroidOrbitalTypesThatStart()
-    def self.asteroidOrbitalTypesThatStart()
-        [
-            "singleton-time-commitment-7c67cb4f-77e0-4fd",
-            "repeating-daily-time-commitment-8123956c-05",
-            "on-going-until-completion-5b26f145-7ebf-498",
-            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
-            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-        ]
-    end
-
     # Asteroids::tryAndMoveThisInboxItem(asteroid)
     def self.tryAndMoveThisInboxItem(asteroid)
         return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
@@ -653,21 +559,9 @@ class Asteroids
                 # ----------------------------------------
                 # Not Running
 
-                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" and !Runner::isRunning?(uuid) then
+                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
                     Asteroids::asteroidStartSequence(asteroid)
                     Asteroids::tryAndMoveThisInboxItem(asteroid)
-                    return
-                end
-
-                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ") then
-                        Asteroids::asteroidDestroySequence(asteroid)
-                        return
-                    end
-                end
-
-                if input == ".." and !Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatStart().include?(asteroid["orbital"]["type"]) then
-                    Asteroids::asteroidStartSequence(asteroid)
                     return
                 end
 
@@ -678,31 +572,24 @@ class Asteroids
                     end
                 end
 
+                if input == ".." and !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "spins" then
+                    Asteroids::openPayload(asteroid)
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                        Asteroids::asteroidDestroySequence(asteroid)
+                        return
+                    end
+                end
+
                 # ----------------------------------------
                 # Running
 
-                if input == ".." and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" and Runner::isRunning?(uuid) then
+                if input == ".." and Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                         Asteroids::asteroidDestroySequence(asteroid)
                         return
                     end
                     Asteroids::asteroidStopSequence(asteroid)
                     Asteroids::tryAndMoveThisInboxItem(asteroid)
-                    return
-                end
-
-                if input == ".." and Runner::isRunning?(uuid) and Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidDestroySequence(asteroid)
-                        return
-                    else
-                        Asteroids::asteroidStopSequence(asteroid)
-                    end
-                    return
-                end
-
-                if input == ".." and Runner::isRunning?(uuid) and !Asteroids::asteroidOrbitalTypesThatTerminate().include?(asteroid["orbital"]["type"]) then
-                    Asteroids::asteroidStopSequence(asteroid)
                     return
                 end
 
@@ -751,11 +638,7 @@ class Asteroids
 
         Runner::start(asteroid["uuid"])
 
-        if asteroid["payload"]["type"] == "spin" then
-            Asteroids::openPayload(asteroid)
-        end
-
-        if asteroid["payload"]["type"] == "quarks" then
+        if asteroid["payload"]["type"] == "spins" then
             Asteroids::openPayload(asteroid)
         end
     end
@@ -786,13 +669,6 @@ class Asteroids
                 Asteroids::asteroidDestroySequence(asteroid)
             end
         end
-
-        if payload["type"] == "spin" then
-            spin = NyxObjects::getOrNull(payload["uuid"])
-            if spin then
-                Spins::ensureSpinDescriptionOrNothing(spin)
-            end
-        end
     end
 
     # Asteroids::asteroidDestructionQuarkHandling(quark)
@@ -814,44 +690,24 @@ class Asteroids
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
             Asteroids::addTimeToAsteroid(asteroid, timespan)
         end
-
-        if asteroid["payload"]["type"] == "spin" then
-            NyxObjects::destroy(asteroid["payload"]["uuid"])
-        end
-
-        if asteroid["payload"]["type"] == "quarks" then
-            asteroid["payload"]["uuids"].each{|uuid|
-                quark = Quarks::getOrNull(uuid)
-                next if quark.nil?
-                Asteroids::asteroidDestructionQuarkHandling(quark)
-            }
-        end
-
         NyxObjects::destroy(asteroid["uuid"])
     end
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
-        if asteroid["payload"]["type"] == "spin" then
-            spin = NyxObjects::getOrNull(asteroid["payload"]["uuid"])
+        if asteroid["payload"]["type"] == "spins" then
+            spins = Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"])
+            if spins.size == 0 then
+                return
+            end
+            if spins.size == 1 then
+                spin = spins[0]
+                Spins::openSpin(spin)
+                return
+            end
+            spin = LucilleCore::selectEntityFromListOfEntitiesOrNull("spin", spins, lambda{ |spin| Spins::spinToString(spin) })
             return if spin.nil?
-            puts JSON.pretty_generate(spin)
             Spins::openSpin(spin)
-        end
-        if asteroid["payload"]["type"] == "quarks" then
-            if asteroid["payload"]["uuids"].size == 0 then
-                return
-            end
-            if asteroid["payload"]["uuids"].size == 1 then
-                quarkuuid = asteroid["payload"]["uuids"][0]
-                quark = Quarks::getOrNull(quarkuuid)
-                return if quark.nil?
-                Quarks::openQuark(quark)
-                return
-            end
-            quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
-            return if quark.nil?
-            Quarks::openQuark(quark)
         end
     end
 

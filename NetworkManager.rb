@@ -6,6 +6,8 @@ class NetworkManager
     # NetworkManager::ensureBasicConfiguration()
     def self.ensureBasicConfiguration()
 
+        return
+
         # --------------------------------------------------------
         # We ensure that the "[root]" clique exists
 
@@ -25,13 +27,13 @@ class NetworkManager
             LucilleCore::pressEnterToContinue()
             return
         end
+
         Cliques::cliques().each{|clique|
             next if Cliques::isRoot?(clique) # we do not target the [root]
             next if TaxonomyArrows::getSourcesForTarget(clique).size > 0
             # At this point we have a clique which doesn't have any sources
             puts "Issuing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
-            LucilleCore::pressEnterToContinue()
-            TaxonomyArrows::issue(root, clique)
+            puts TaxonomyArrows::issue(root, clique)
         }
 
         # --------------------------------------------------------
@@ -43,7 +45,6 @@ class NetworkManager
             next if Cliques::isRoot?(clique) # we do not target the [root]
             next if TaxonomyArrows::getSourcesForTarget(clique).size <= 1 # It would be pathologique if it was zero, because by this point they should all have at least one source 
             puts "Removing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
-            LucilleCore::pressEnterToContinue()
             TaxonomyArrows::destroyArrow(root, clique)
         }
 

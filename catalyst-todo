@@ -20,7 +20,7 @@ NetworkManager::ensureBasicConfiguration()
 
 Thread.new {
     loop {
-        sleep 5
+        sleep 50
         CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }
             .first(1)
