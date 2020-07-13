@@ -88,77 +88,78 @@ class Asteroids
 
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
-        opt9 = "inbox"
-        opt0 = "top priority"
-        opt1 = "single day time commitment"
-        opt2 = "repeating daily time commitment"
-        opt3 = "on going until completion"
-        opt6 = "float to do today"
-        opt8 = "indefinite"
-        opt7 = "open project in the background"
-        opt5 = "todo"
+
+        opt100 = "top priority"
+        opt380 = "single day time commitment"
+        opt390 = "repeating daily time commitment"
+        opt400 = "on going until completion"
+        opt410 = "inbox"
+        opt420 = "float to do today"
+        opt430 = "indefinite"
+        opt440 = "open project in the background"
+        opt450 = "todo"
 
         options = [
-            opt9,
-            opt0,
-            opt1,
-            opt2,
-            opt3,
-            opt6,
-            opt8,
-            opt7,
-            opt5,
+            opt100,
+            opt380,
+            opt390,
+            opt400,
+            opt410,
+            opt420,
+            opt430,
+            opt440,
+            opt450,
         ]
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
-        if option == opt0 then
+        if option == opt100 then
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             return {
                 "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
                 "ordinal"               => ordinal
             }
         end
-        if option == opt1 then
+        if option == opt380 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
                 "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fd",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
-        if option == opt2 then
+        if option == opt390 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
                 "type"                  => "repeating-daily-time-commitment-8123956c-05",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
-        if option == opt3 then
+        if option == opt400 then
             return {
                 "type"                  => "on-going-until-completion-5b26f145-7ebf-498"
             }
         end
-        if option == opt8 then
+        if option == opt430 then
             return {
                 "type"                  => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
             }
         end
-        if option == opt5 then
+        if option == opt450 then
             return {
                 "type"                  => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
             }
         end
-        if option == opt6 then
+        if option == opt420 then
             return {
                 "type"                  => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
             }
         end
-        if option == opt7 then
+        if option == opt440 then
             return {
                 "type"                  => "open-project-in-the-background-b458aa91-6e1"
             }
         end
-        if option == opt9 then
+        if option == opt410 then
             return {
                 "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
             }
