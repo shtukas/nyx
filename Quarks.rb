@@ -82,7 +82,7 @@ class Quarks
             if description then
                 return  "[quark] [#{quark["uuid"][0, 4]}] #{description}"
             end
-            spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+            spin = Quarks::getQuarkLatestSpinOrNull(quark)
             if spin then
                 return "[quark] [#{quark["uuid"][0, 4]}] #{Spins::spinToString(spin)}"
             end
@@ -96,7 +96,7 @@ class Quarks
 
     # Quarks::openQuark(quark)
     def self.openQuark(quark)
-        spin = Quarks::getQuarkLatestSpinsOrNull(quark)
+        spin = Quarks::getQuarkLatestSpinOrNull(quark)
         return if spin.nil?
         Spins::openSpin(spin)
     end
@@ -340,8 +340,8 @@ class Quarks
         Spins::getForTargetUUIDInTimeOrder(quark["uuid"])
     end
 
-    # Quarks::getQuarkLatestSpinsOrNull(quark)
-    def self.getQuarkLatestSpinsOrNull(quark)
+    # Quarks::getQuarkLatestSpinOrNull(quark)
+    def self.getQuarkLatestSpinOrNull(quark)
         spins = Quarks::getQuarkSpins(quark)
         return nil if spins.empty?
         spins.last

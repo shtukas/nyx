@@ -839,6 +839,16 @@ class Asteroids
             Spins::openSpin(spin)
         end
         if asteroid["payload"]["type"] == "quarks" then
+            if asteroid["payload"]["uuids"].size == 0 then
+                return
+            end
+            if asteroid["payload"]["uuids"].size == 1 then
+                quarkuuid = asteroid["payload"]["uuids"][0]
+                quark = Quarks::getOrNull(quarkuuid)
+                return if quark.nil?
+                Quarks::openQuark(quark)
+                return
+            end
             quark = Quarks::selectQuarkFromQuarkuuidsOrNull(asteroid["payload"]["uuids"])
             return if quark.nil?
             Quarks::openQuark(quark)
