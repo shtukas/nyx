@@ -24,17 +24,27 @@ class Quarks
         spin = Spins::issueNewSpinInteractivelyOrNull(quarkuuid)
         return nil if spin.nil?
 
+        #puts JSON.pretty_generate(spin)
+
         quark = {
             "uuid"      => quarkuuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
+        #puts JSON.pretty_generate(quark)
         Quarks::commitQuarkToDisk(quark)
 
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        if description.size > 0 then
-            DescriptionZ::issue(quarkuuid, description)
+        if ["line", "url", "text"].include?(spin["type"]) then
+            return quark
         end
+
+        description = LucilleCore::askQuestionAnswerAsString("quark description: ")
+        if description.size > 0 then
+            descriptionz = DescriptionZ::issue(quarkuuid, description)
+            puts JSON.pretty_generate(descriptionz)
+        end
+
+        quark
     end
 
     # Quarks::quarks()
@@ -70,11 +80,13 @@ class Quarks
         str = (lambda{|quark|
             description = Quarks::getQuarkDescriptionOrNull(quark)
             if description then
-                return  "[quark] [#{quark["uuid"][0, 4]}] (#{quark["type"]}) #{description}"
+                return  "[quark] [#{quark["uuid"][0, 4]}] #{description}"
             end
             spin = Quarks::getQuarkLatestSpinsOrNull(quark)
-            spinstring = spin ? Spins::spinToString(spin) : "[no spin]"
-            "[quark] [#{quark["uuid"][0, 4]}] #{spinstring}"
+            if spin then
+                return "[quark] [#{quark["uuid"][0, 4]}] #{Spins::spinToString(spin)}"
+            end
+            "[quark] [#{quark["uuid"][0, 4]}] [no spin]"
         }).call(quark)
 
         InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
@@ -106,6 +118,9 @@ class Quarks
             Miscellaneous::horizontalRule(false)
             # -------------------------------------------
             # Quark metadata
+
+            puts Quarks::quarkToString(quark)
+            puts ""
 
             puts "uuid: #{quark["uuid"]}"
 
@@ -220,9 +235,12 @@ class Quarks
             menuitems.item(
                 "asteroid (create with this as target)", 
                 lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid payload series description: ")
+                    return if description == ""
                     payload = {
-                        "type"  => "quarks",
-                        "uuids" => [ quark["uuid"] ]
+                        "type"        => "quarks",
+                        "uuids"       => [ quark["uuid"] ],
+                        "description" => description
                     }
                     orbital = Asteroids::makeOrbitalInteractivelyOrNull()
                     return if orbital.nil?

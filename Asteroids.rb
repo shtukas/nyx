@@ -70,9 +70,11 @@ class Asteroids
         if option == "quarks" then
             quark = Quarks::issueNewQuarkInteractivelyOrNull()
             return nil if quark.nil?
+            description = LucilleCore::askQuestionAnswerAsString("asteroid payload series description: ")
             return {
-                "type"  => "quarks",
-                "uuids" => [ quark["uuid"] ]
+                "type"        => "quarks",
+                "uuids"       => [ quark["uuid"] ],
+                "description" => description
             }
         end
         if option == "clique" then
@@ -237,8 +239,17 @@ class Asteroids
                 return spin ? (" " + Spins::spinToString(spin)) : " [could not find spin]"
             end
             if payload["type"] == "quarks" then
-                quark = Quarks::getOrNull(asteroid["payload"]["uuids"][0])
-                return quark ? (" " + Quarks::quarkToString(quark)) : " [could not find quark]"
+                if payload["description"] then
+                    return " #{payload["description"]}"
+                else
+                    asteroid["payload"]["uuids"].each{|uuid|
+                        quark = Quarks::getOrNull(uuid)
+                        next if quark.nil?
+                        return " #{Quarks::quarkToString(quark)}"
+                    }
+                    return " [no description and no quark]"
+                end
+
             end
             if payload["type"] == "clique" then
                 clique = Cliques::getOrNull(asteroid["payload"]["cliqueuuid"])
@@ -311,9 +322,13 @@ class Asteroids
 
             system("clear")
 
+            menuitems = LCoreMenuItemsNX1.new()
+
             Miscellaneous::horizontalRule(false)
 
             puts Asteroids::asteroidToString(asteroid)
+            puts ""
+
             puts "uuid: #{asteroid["uuid"]}"
             puts "orbital type: #{asteroid["orbital"]["type"]}"
             puts "metric: #{Asteroids::metric(asteroid)}"
@@ -325,13 +340,40 @@ class Asteroids
 
             Miscellaneous::horizontalRule(true)
 
-            puts "Bank           : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Bank 7 days    : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            puts "Bank 24 hours  : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
+            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
+            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
+            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
+
+            if asteroid["payload"]["type"] == "quarks" then
+
+                Miscellaneous::horizontalRule(true)
+
+                puts "Quarks Series:"
+                puts ""
+
+                asteroid["payload"]["uuids"].each{|uuid|
+                    quark = Quarks::getOrNull(uuid)
+                    next if quark.nil?
+                    menuitems.item(
+                        Quarks::quarkToString(quark),
+                        lambda { Quarks::quarkDive(quark) }
+                    )
+                }
+
+                puts ""
+
+                menuitems.item(
+                    "add new quark to series",
+                    lambda { 
+                        q = Quarks::issueNewQuarkInteractivelyOrNull()
+                        return if q.nil?
+                        asteroid["payload"]["uuids"] << q["uuid"]
+                        Asteroids::reCommitToDisk(asteroid)
+                    }
+                )
+            end
 
             Miscellaneous::horizontalRule(true)
-
-            menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item(
                 "open",
@@ -364,10 +406,17 @@ class Asteroids
                 )
             end
 
-            menuitems.item(
-                "re-payload",
-                lambda { Asteroids::rePayload(asteroid) }
-            )
+            if asteroid["payload"]["type"] != "quarks" then
+                menuitems.item(
+                    "re-payload",
+                    lambda { Asteroids::rePayload(asteroid) }
+                )
+            else
+                menuitems.item(
+                    "re-payload (not available for 'quarks')",
+                    lambda {}
+                )
+            end
 
             menuitems.item(
                 "re-orbital",

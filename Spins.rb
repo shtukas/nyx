@@ -161,6 +161,9 @@ class Spins
             if spin["type"] == "url" then
                 return "[spin] [#{spin["uuid"][0, 4]}] [url] #{spin["url"]}"
             end
+            if spin["type"] == "text" then
+                return "[spin] [#{spin["uuid"][0, 4]}] [text]"
+            end
             if spin["type"] == "aion-point" then
                 return "[spin] [#{spin["uuid"][0, 4]}] [aion-point] #{spin["namedhash"]}"
             end
@@ -193,6 +196,7 @@ class Spins
             return
         end
         if spin["type"] == "text" then
+            system("clear")
             namedhash = spin["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash)
             puts text
