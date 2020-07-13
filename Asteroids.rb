@@ -513,7 +513,7 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return Metrics::fall(0.69, orbital["type"]) + 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return Metrics::fall(0.69, orbital["type"]) - 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
