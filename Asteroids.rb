@@ -92,11 +92,11 @@ class Asteroids
     def self.makeOrbitalInteractivelyOrNull()
 
         opt100 = "top priority"
-        opt380 = "single day time commitment"
+        opt380 = "singleton time commitment"
+        opt410 = "inbox"
         opt390 = "repeating daily time commitment"
         opt400 = "on going until completion"
-        opt410 = "inbox"
-        opt420 = "float to do today"
+        opt420 = "todo today"
         opt430 = "indefinite"
         opt440 = "open project in the background"
         opt450 = "todo"
@@ -216,9 +216,9 @@ class Asteroids
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
-        return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
         return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
+        return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
         return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
         return "⛲"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
