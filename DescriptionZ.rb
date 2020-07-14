@@ -27,7 +27,7 @@ class DescriptionZ
 
     # DescriptionZ::issue(targetuuid, description)
     def self.issueReplacementOfAnyExisting(targetuuid, description)
-        existingobjects = DescriptionZ::getForTargetUUIDInTimeOrder(targetuuid)
+        existingobjects = DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
         object = DescriptionZ::make(targetuuid, description)
         NyxObjects::put(object)
         existingobjects.each{|o|
@@ -36,8 +36,8 @@ class DescriptionZ
         object
     end
 
-    # DescriptionZ::getForTargetUUIDInTimeOrder(targetuuid)
-    def self.getForTargetUUIDInTimeOrder(targetuuid)
+    # DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
+    def self.getDescriptionZsForTargetInTimeOrder(targetuuid)
         NyxObjects::getSet("4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f")
             .select{|object| object["targetuuid"] == targetuuid }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }

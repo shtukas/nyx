@@ -58,7 +58,7 @@ class Asteroids
             }
         end
         if option == "spins" then
-            spin = Spins::issueNewSpinInteractivelyOrNull(asteroiduuid)
+            spin = Spins::issueNewSpinInteractivelyOrNull(asteroiduuid, SecureRandom.hex)
             return nil if spin.nil?
             return {
                 "type"         => "spins",
@@ -224,7 +224,7 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    spins = Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"])
+                    spins = Spins::getSpinsForTargetInTimeOrder(asteroid["uuid"])
                     if spins.size == 1 then
                         spin = spins[0]
                         return " #{Spins::spinToString(spin)}"
@@ -264,8 +264,8 @@ class Asteroids
         NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
     end
 
-    # Asteroids::reOrbital(asteroid)
-    def self.reOrbital(asteroid)
+    # Asteroids::reOrbitalOrNothing(asteroid)
+    def self.reOrbitalOrNothing(asteroid)
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
         asteroid["orbital"] = orbital
@@ -296,7 +296,7 @@ class Asteroids
             puts "metric: #{Asteroids::metric(asteroid)}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
-            if unixtime then
+            if unixtime and (Time.new.to_i < unixtime) then
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
@@ -326,7 +326,7 @@ class Asteroids
                     puts ""
                 end
 
-                Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"]).each{|spin|
+                Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(asteroid["uuid"]).each{|spin|
                     menuitems.item(
                         Spins::spinToString(spin),
                         lambda { Spins::openSpin(spin) }
@@ -337,8 +337,21 @@ class Asteroids
 
                 menuitems.item(
                     "add new spin to asteroid",
-                    lambda { Spins::issueNewSpinInteractivelyOrNull(asteroid["uuid"]) }
+                    lambda { Spins::issueNewSpinInteractivelyOrNull(asteroid["uuid"], SecureRandom.hex) }
                 )
+
+                if asteroid["payload"]["description"] then
+                    menuitems.item(
+                        "update series description",
+                        lambda { 
+                            description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
+                            return if description == ""
+                            asteroid["payload"]["description"] = description
+                            Asteroids::reCommitToDisk(asteroid)
+                        }
+                    )
+                end
+
             end
 
             Miscellaneous::horizontalRule(true)
@@ -363,7 +376,6 @@ class Asteroids
                 lambda { Asteroids::asteroidStopSequence(asteroid) }
             )
 
-
             if asteroid["payload"]["type"] == "description" then
                 menuitems.item(
                     "edit description",
@@ -376,7 +388,7 @@ class Asteroids
 
             menuitems.item(
                 "re-orbital",
-                lambda { Asteroids::reOrbital(asteroid) }
+                lambda { Asteroids::reOrbitalOrNothing(asteroid) }
             )
 
             menuitems.item(
@@ -533,20 +545,133 @@ class Asteroids
     # Asteroids::tryAndMoveThisInboxItem(asteroid)
     def self.tryAndMoveThisInboxItem(asteroid)
         return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
             Asteroids::asteroidStopAndDestroySequence(asteroid)
-        else
-            if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? ") then
-                Asteroids::asteroidStopSequence(asteroid)
-                asteroid["orbital"] = {
-                    "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-                }
-                Asteroids::reCommitToDisk(asteroid)
-            else
-                puts "Not done and not moved to queue. I am going to reOrbital"
-                Asteroids::reOrbital(asteroid)
-                Asteroids::asteroidStopSequence(asteroid)
+            return
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("move to todo today ? (if no, will propose to move to queue) : ") then
+            Asteroids::asteroidStopSequence(asteroid)
+            asteroid["orbital"] = {
+                "type" => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+            }
+            Asteroids::reCommitToDisk(asteroid)
+            return
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? (if no, will give you all orbital options) ") then
+            Asteroids::asteroidStopSequence(asteroid)
+            asteroid["orbital"] = {
+                "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            }
+            Asteroids::reCommitToDisk(asteroid)
+            return
+        end
+
+        Asteroids::reOrbitalOrNothing(asteroid)
+    end
+
+    # Asteroids::asteroidDoubleDotProcessing(asteroid)
+    def self.asteroidDoubleDotProcessing(asteroid)
+
+        uuid = asteroid["uuid"]
+
+        # ----------------------------------------
+        # Not Running
+
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            Asteroids::tryAndMoveThisInboxItem(asteroid)
+            return
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
             end
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "description" then
+            Asteroids::asteroidStartSequence(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+            return
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "spins" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            return
+        end
+
+        # ----------------------------------------
+        # Running
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+            Asteroids::asteroidStopSequence(asteroid)
+            Asteroids::tryAndMoveThisInboxItem(asteroid)
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+            Asteroids::asteroidStopSequence(asteroid)
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+            Asteroids::asteroidStopSequence(asteroid)
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" and asteroid["payload"]["type"] == "description" then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+            Asteroids::asteroidStopSequence(asteroid)
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" and asteroid["payload"]["type"] == "description" then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
+                return
+            end
+            Asteroids::asteroidStopSequence(asteroid)
+            return
         end
     end
 
@@ -558,44 +683,10 @@ class Asteroids
             "body"             => Asteroids::asteroidToString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |input|
-
-                # ----------------------------------------
-                # Not Running
-
-                if input == ".." and !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-                    Asteroids::asteroidStartSequence(asteroid)
-                    Asteroids::tryAndMoveThisInboxItem(asteroid)
+                if input == ".." then
+                    Asteroids::asteroidDoubleDotProcessing(asteroid)
                     return
                 end
-
-                if input == ".." and !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "description" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidStopAndDestroySequence(asteroid)
-                        return
-                    end
-                end
-
-                if input == ".." and !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "spins" then
-                    Asteroids::openPayload(asteroid)
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidStopAndDestroySequence(asteroid)
-                        return
-                    end
-                end
-
-                # ----------------------------------------
-                # Running
-
-                if input == ".." and Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidStopAndDestroySequence(asteroid)
-                        return
-                    end
-                    Asteroids::asteroidStopSequence(asteroid)
-                    Asteroids::tryAndMoveThisInboxItem(asteroid)
-                    return
-                end
-
                 Asteroids::asteroidDive(asteroid) 
             },
             "isRunning"        => Asteroids::isRunning?(asteroid),
@@ -626,24 +717,7 @@ class Asteroids
         # wihtout being displayed
 
         return if Asteroids::isRunning?(asteroid)
-
-        uuid = asteroid["uuid"]
-        orbital = asteroid["orbital"]
-
-        if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            if Bank::value(uuid) >= orbital["timeCommitmentInHours"]*3600 then
-                puts "singleton time commitment asteroid is completed, destroying it..."
-                LucilleCore::pressEnterToContinue()
-                Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
-            end
-        end
-
         Runner::start(asteroid["uuid"])
-
-        if asteroid["payload"]["type"] == "spins" then
-            Asteroids::openPayload(asteroid)
-        end
     end
 
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
@@ -695,7 +769,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "spins" then
-            spins = Spins::getForTargetUUIDInTimeOrder(asteroid["uuid"])
+            spins = Spins::getSpinsForTargetInTimeOrder(asteroid["uuid"])
             if spins.size == 0 then
                 return
             end
@@ -712,10 +786,13 @@ class Asteroids
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
     def self.diveAsteroidOrbitalType(orbitalType)
-        asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
-        asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
-        return if asteroid.nil?
-        Asteroids::asteroidDive(asteroid)
+        loop {
+            system("clear")
+            asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
+            asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
+            break if asteroid.nil?
+            Asteroids::asteroidDive(asteroid)
+        }
     end
 
     # Asteroids::main()

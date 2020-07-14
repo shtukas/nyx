@@ -4,7 +4,7 @@
 class SpinCached
     # SpinCached::forget(spin)
     def self.forget(spin)
-        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}")
+        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{spin["uuid"]}")
     end
 end
 
@@ -20,13 +20,14 @@ class Spins
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # Spins::issueLine(targetuuid, line)
-    def self.issueLine(targetuuid, line)
+    # Spins::issueLine(targetuuid, familyname, line)
+    def self.issueLine(targetuuid, familyname, line)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "targetuuid" => targetuuid,
+            "familyname" => familyname,
             "type"       => "line",
             "line"       => line
         }
@@ -34,13 +35,14 @@ class Spins
         object
     end
 
-    # Spins::issueUrl(targetuuid, url)
-    def self.issueUrl(targetuuid, url)
+    # Spins::issueUrl(targetuuid, familyname, url)
+    def self.issueUrl(targetuuid, familyname, url)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "targetuuid" => targetuuid,
+            "familyname" => familyname,
             "type"       => "url",
             "url"        => url
         }
@@ -48,14 +50,15 @@ class Spins
         object
     end
 
-    # Spins::issueText(targetuuid, text)
-    def self.issueText(targetuuid, text)
+    # Spins::issueText(targetuuid, familyname, text)
+    def self.issueText(targetuuid, familyname, text)
         namedhash = NyxBlobs::put(text)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "targetuuid" => targetuuid,
+            "familyname" => familyname,
             "type"       => "text",
             "namedhash"  => namedhash
         }
@@ -63,13 +66,14 @@ class Spins
         object
     end
 
-    # Spins::issueAionPoint(targetuuid, namedhash)
-    def self.issueAionPoint(targetuuid, namedhash)
+    # Spins::issueAionPoint(targetuuid, familyname, namedhash)
+    def self.issueAionPoint(targetuuid, familyname, namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "targetuuid" => targetuuid,
+            "familyname" => familyname,
             "type"       => "aion-point",
             "namedhash"  => namedhash
         }
@@ -77,13 +81,14 @@ class Spins
         object
     end
 
-    # Spins::issueUniqueName(targetuuid, uniquename)
-    def self.issueUniqueName(targetuuid, uniquename)
+    # Spins::issueUniqueName(targetuuid, familyname, uniquename)
+    def self.issueUniqueName(targetuuid, familyname, uniquename)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "targetuuid" => targetuuid,
+            "familyname" => familyname,
             "type"       => "unique-name",
             "name"       => uniquename
         }
@@ -91,8 +96,8 @@ class Spins
         object
     end
 
-    # Spins::issueNewSpinInteractivelyOrNull(targetuuid)
-    def self.issueNewSpinInteractivelyOrNull(targetuuid)
+    # Spins::issueNewSpinInteractivelyOrNull(targetuuid, familyname)
+    def self.issueNewSpinInteractivelyOrNull(targetuuid, familyname)
         puts "Making a new Spin..."
         types = ["line", "url", "text", "fs-location aion-point", "unique-name"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
@@ -100,27 +105,28 @@ class Spins
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
-            return Spins::issueLine(targetuuid, line)
+            return Spins::issueLine(targetuuid, familyname, line)
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
-            return Spins::issueUrl(targetuuid, url)
+            return Spins::issueUrl(targetuuid, familyname, url)
         end
         if type == "text" then
             text = Miscellaneous::editTextUsingTextmate("").strip
             return nil if text.size == 0
-            return Spins::issueText(targetuuid, text)
+            return Spins::issueText(targetuuid, familyname, text)
         end
         if type == "fs-location aion-point" then
             location = Spins::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return Spins::issueAionPoint(targetuuid, namedhash)
+            return Spins::issueAionPoint(targetuuid, familyname, namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             return nil if uniquename.size == 0
+            return Spins::issueUniqueName(targetuuid, familyname, uniquename)
         end
     end
 
@@ -131,7 +137,7 @@ class Spins
 
     # Spins::getSpinDescriptionOrNull(spin)
     def self.getSpinDescriptionOrNull(spin)
-        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(spin["uuid"])
+        descriptionzs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(spin["uuid"])
         return nil if descriptionzs.empty?
         descriptionzs.last["description"]
     end
@@ -147,49 +153,64 @@ class Spins
 
     # Spins::spinToString(spin)
     def self.spinToString(spin)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}")
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{spin["uuid"]}")
         return str if str
 
-        str = (lambda{|quark|
+        str = (lambda{|spin|
             description = Spins::getSpinDescriptionOrNull(spin)
             if description then
-                return "[spin] [#{spin["uuid"][0, 4]}] #{description}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{description}"
             end
             if spin["type"] == "line" then
-                return "[spin] [#{spin["uuid"][0, 4]}] [line] #{spin["line"]}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{spin["line"]}"
             end
             if spin["type"] == "url" then
-                return "[spin] [#{spin["uuid"][0, 4]}] [url] #{spin["url"]}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{spin["url"]}"
             end
             if spin["type"] == "text" then
                 namedhashToFirstLine = lambda {|namedhash|
                     text = NyxBlobs::getBlobOrNull(namedhash).strip
                     line = text.size>0 ? text.lines.first.strip : "[empty text]"
                 }
-                return "[spin] [#{spin["uuid"][0, 4]}] #{namedhashToFirstLine.call(spin["namedhash"])}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{namedhashToFirstLine.call(spin["namedhash"])}"
             end
             if spin["type"] == "aion-point" then
-                return "[spin] [#{spin["uuid"][0, 4]}] [aion-point] #{spin["namedhash"]}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{spin["namedhash"]}"
             end
             if spin["type"] == "unique-name" then
-                return "[spin] [#{spin["uuid"][0, 4]}] [unique name] #{spin["name"]}"
+                return "[spin] [#{spin["familyname"][0, 4]}] [#{spin["uuid"][0, 4]}] [#{spin["type"]}] #{spin["name"]}"
             end
             raise "[Spins error 2c53b113-cc79]"
         }).call(spin)
 
-        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e6:#{spin["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{spin["uuid"]}", str)
         str
     end
 
-    # Spins::getForTargetUUIDInTimeOrder(targetuuid)
-    def self.getForTargetUUIDInTimeOrder(targetuuid)
+    # Spins::getSpinsForTargetInTimeOrder(targetuuid)
+    def self.getSpinsForTargetInTimeOrder(targetuuid)
         NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
             .select{|object| object["targetuuid"] == targetuuid }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
+    # Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(targetuuid)
+    def self.getSpinsForTargetInTimeOrderLatestOfEachFamily(targetuuid)
+        Spins::getSpinsForTargetInTimeOrder(targetuuid)
+            .reverse
+            .reduce([]){|spins, spin|
+                if spins.none?{|s| s["familyname"] == spin["familyname"] } then
+                    spins << spin
+                end
+                spins
+            }
+            .reverse
+    end
+
     # Spins::openSpin(spin)
     def self.openSpin(spin)
+        puts "spin:"
+        puts JSON.pretty_generate(spin)
         if spin["type"] == "line" then
             puts spin["line"]
             LucilleCore::pressEnterToContinue()

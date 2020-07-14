@@ -35,14 +35,18 @@ class DeskOperator
                 next if spin["type"] != "aion-point"
                 desk_folderpath_for_spin = DeskOperator::deskFolderpathForSpin(spin)
                 next if !File.exists?(desk_folderpath_for_spin)
+                puts "spin:"
+                puts JSON.pretty_generate(spin)
                 namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_spin)
+                puts "namedhash from folder: #{namedhash}"
                 if namedhash == spin["namedhash"] then
                     LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
                     next
                 end
-                # We issue a new spin for the same target
-                spin = Spins::issueAionPoint(spin["targetuuid"], namedhash)
-                puts JSON.pretty_generate(spin)
+                # We generate new spin with the same target and the same familyname
+                newspin = Spins::issueAionPoint(spin["targetuuid"], spin["familyname"], namedhash)
+                puts "new spin:"
+                puts JSON.pretty_generate(newspin)
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
             }
     end

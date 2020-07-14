@@ -65,10 +65,10 @@ class Cliques
 
             puts "Clique:"
 
-            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+            DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
                 .last(1)
                 .each{|descriptionz|
-                    puts "    description: #{descriptionz["description"]}"
+                    puts "    name: #{descriptionz["description"]}"
                 }
 
             puts "    uuid: #{clique["uuid"]}"
@@ -79,6 +79,26 @@ class Cliques
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
+
+            puts ""
+
+            menuitems.item(
+                "rename", 
+                lambda{ 
+                    description = Cliques::getCliqueDescriptionOrNull(clique)
+                    description = Miscellaneous::editTextUsingTextmate(description).strip
+                    DescriptionZ::issue(clique["uuid"], description)
+                }
+            )
+
+            menuitems.item(
+                "note (edit)", 
+                lambda{ 
+                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    Notes::issue(clique["uuid"], text)
+                }
+            )
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
@@ -128,27 +148,9 @@ class Cliques
             # ----------------------------------------------------------
             # Operations
 
-            puts "Clique Operations:"
+            puts "Operations:"
 
             if Cliques::canShowDiveOperations(clique) then
-
-                menuitems.item(
-                    "rename", 
-                    lambda{ 
-                        description = Cliques::getCliqueDescriptionOrNull(clique)
-                        description = Miscellaneous::editTextUsingTextmate(description).strip
-                        DescriptionZ::issue(clique["uuid"], description)
-                    }
-                )
-
-                menuitems.item(
-                    "note (edit)", 
-                    lambda{ 
-                        text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
-                        text = Miscellaneous::editTextUsingTextmate(text).strip
-                        Notes::issue(clique["uuid"], text)
-                    }
-                )
 
                 menuitems.item(
                     "quark (add new)", 
@@ -229,7 +231,7 @@ class Cliques
 
             puts "uuid: #{clique["uuid"]}"
 
-            DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+            DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
                 .last(1)
                 .each{|descriptionz|
                     puts "description: #{descriptionz["description"]}"
@@ -308,14 +310,14 @@ class Cliques
 
     # Cliques::getCliqueDescriptionOrNull(clique)
     def self.getCliqueDescriptionOrNull(clique)
-        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+        descriptionzs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
         return nil if descriptionzs.empty?
         descriptionzs.last["description"]
     end
 
     # Cliques::getCliqueReferenceDateTime(clique)
     def self.getCliqueReferenceDateTime(clique)
-        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(clique["uuid"])
+        datetimezs = DateTimeZ::getDateTimeZsForTargetInTimeOrder(clique["uuid"])
         return Time.at(clique["unixtime"]).utc.iso8601 if datetimezs.empty?
         datetimezs.last["datetimeISO8601"]
     end

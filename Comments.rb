@@ -23,8 +23,8 @@ class Comments
         object
     end
 
-    # Comments::getForTargetUUIDInTimeOrder(targetuuid)
-    def self.getForTargetUUIDInTimeOrder(targetuuid)
+    # Comments::getCommentsForTargetInTimeOrder(targetuuid)
+    def self.getCommentsForTargetInTimeOrder(targetuuid)
         NyxObjects::getSet("7e99bb92-098d-4f84-a680-f158126aa3bf")
             .select{|object| object["targetuuid"] == targetuuid }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }

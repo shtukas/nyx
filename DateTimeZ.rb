@@ -22,8 +22,8 @@ class DateTimeZ
         object
     end
 
-    # DateTimeZ::getForTargetUUIDInTimeOrder(targetuuid)
-    def self.getForTargetUUIDInTimeOrder(targetuuid)
+    # DateTimeZ::getDateTimeZsForTargetInTimeOrder(targetuuid)
+    def self.getDateTimeZsForTargetInTimeOrder(targetuuid)
         NyxObjects::getSet("1bc9b712-09be-44da-9551-f22d70a3f15d")
             .select{|object| object["targetuuid"] == targetuuid }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }

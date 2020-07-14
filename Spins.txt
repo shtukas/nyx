@@ -1,13 +1,18 @@
 
 Spins are data carriers. They allow Quarks to mutate.
 
+The notion of spin family was introduced when I was working on introducing mutation of asteroids. Turns out that an asteroid can have more than one independant spins, but then we only want to show the latest version of a given one, hence the notion of a family. When we issue a replacement spin we replace the spins of the same family. 
+
+When a spin is created we need to specifiy its family name, either randomly chosen or given since the newly created spins is meant to replace anybody of the same family.  
+
 Spin
 
 {
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "targetuuid"   : String 
+    "targetuuid"   : String
+    "familyname"   : String
     "type"         : "line"
     "line"         : String
 }
@@ -16,7 +21,8 @@ Spin
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "targetuuid"   : String 
+    "targetuuid"   : String
+    "familyname"   : String
     "type"         : "url"
     "url"          : String
 }
@@ -25,7 +31,8 @@ Spin
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "targetuuid"   : String 
+    "targetuuid"   : String
+    "familyname"   : String
     "type"         : "text"
     "namedhash"    : String (Reference to a blob)
 }
@@ -34,7 +41,8 @@ Spin
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "targetuuid"   : String 
+    "targetuuid"   : String
+    "familyname"   : String
     "type"         : "aion-point"
     "namedhash"    : String (Librarian managed, accessed using the Desk)
 }
@@ -43,7 +51,8 @@ Spin
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "targetuuid"   : String 
+    "targetuuid"   : String
+    "familyname"   : String
     "type"         : "unique-name"
     "name"         : String # Use Atlas to find them
 }

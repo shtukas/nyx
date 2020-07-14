@@ -250,7 +250,7 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            spin = Spins::issueAionPoint(SecureRandom.uuid, namedhash) # this value is going to be picked up as the uuid of the asteroid
+            spin = Spins::issueAionPoint(SecureRandom.uuid, SecureRandom.hex, namedhash) # this value is going to be picked up as the uuid of the asteroid
             puts JSON.pretty_generate(spin)
 
             asteroid = Asteroids::issueAsteroidInboxFromSpin(spin)

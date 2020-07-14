@@ -21,7 +21,7 @@ class Quarks
 
         quarkuuid = SecureRandom.uuid
 
-        spin = Spins::issueNewSpinInteractivelyOrNull(quarkuuid)
+        spin = Spins::issueNewSpinInteractivelyOrNull(quarkuuid, SecureRandom.hex)
         return nil if spin.nil?
 
         #puts JSON.pretty_generate(spin)
@@ -77,28 +77,23 @@ class Quarks
         str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}")
         return str if str
 
-        str = (lambda{|quark|
-            description = Quarks::getQuarkDescriptionOrNull(quark)
-            if description then
-                return  "[quark] [#{quark["uuid"][0, 4]}] #{description}"
-            end
-            spin = Quarks::getQuarkLatestSpinOrNull(quark)
-            if spin then
-                return "[quark] [#{quark["uuid"][0, 4]}] #{Spins::spinToString(spin)}"
-            end
-            "[quark] [#{quark["uuid"][0, 4]}] [no spin]"
-        }).call(quark)
+        description = Quarks::getQuarkDescriptionZDescriptionOrNull(quark)
+        if description then
+            str = "[quark] [#{quark["uuid"][0, 4]}] #{description}"
+            InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
+            return str
+        end
 
+        Quarks::getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
+            .each{|spin|
+                str = "[quark] [#{quark["uuid"][0, 4]}] #{Spins::spinToString(spin)}"
+                InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
+                return str
+            }
+
+        str = "[quark] [#{quark["uuid"][0, 4]}] [no description]"
         InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{quark["uuid"]}", str)
-
         str
-    end
-
-    # Quarks::openQuark(quark)
-    def self.openQuark(quark)
-        spin = Quarks::getQuarkLatestSpinOrNull(quark)
-        return if spin.nil?
-        Spins::openSpin(spin)
     end
 
     # Quarks::quarkDive(quark)
@@ -121,14 +116,14 @@ class Quarks
 
             puts "Quark: "
 
-            DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
-                .last(1)
-                .each{|descriptionz|
-                    puts "    description: #{descriptionz["description"]}"
-                }
+            descriptionz = DescriptionZ::getDescriptionZsForTargetInTimeOrder(quark["uuid"]).last
+            if descriptionz then
+                puts "    description: #{descriptionz["description"]}"
+            else
+                puts "    #{Quarks::quarkToString(quark)}"
+            end
 
             puts "    uuid: #{quark["uuid"]}"
-
             puts "    date: #{Quarks::getQuarkReferenceDateTime(quark)}"
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
@@ -138,7 +133,7 @@ class Quarks
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
 
-            Comments::getForTargetUUIDInTimeOrder(quark["uuid"]).each{|comment|
+            Comments::getCommentsForTargetInTimeOrder(quark["uuid"]).each{|comment|
                 puts ""
                 puts "Comment:"
                 puts NyxBlobs::getBlobOrNull(comment["namedhash"]).lines.map{|line| "    #{line}" }.join()
@@ -149,55 +144,32 @@ class Quarks
                     puts "tag: #{tag["payload"]}"
                 }
 
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Operations
+            puts ""
 
-            puts "Data:"
-
-            Quarks::getQuarkSpins(quark)
-                .last(1)
-                .each{|spin|
-                    menuitems.item(
-                        Spins::spinToString(spin),
-                        lambda{ Spins::openSpin(spin) }
-                    )
-                }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Related
-
-            puts "Cliques:"
-
-            Bosons::getCliquesForQuark(quark)
-                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
-                .each{|clique|
-                    menuitems.item(
-                        Cliques::cliqueToString(clique), 
-                        lambda { Cliques::cliqueDive(clique) }
-                    )
-                }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Operations
-
-            puts "Quark Operations:"
-
-            menuitems.item(
-                "description (update)",
-                lambda{
-                    description = Quarks::getQuarkDescriptionOrNull(quark)
-                    if description.nil? then
+            if DescriptionZ::getDescriptionZsForTargetInTimeOrder(quark["uuid"]).last then
+                menuitems.item(
+                    "description (update)",
+                    lambda{
+                        description = Quarks::getQuarkDescriptionZDescriptionOrNull(quark)
+                        if description.nil? then
+                            description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        else
+                            description = Miscellaneous::editTextUsingTextmate(description).strip
+                        end
+                        return if description == ""
+                        DescriptionZ::issue(quark["uuid"], description)
+                    }
+                )
+            else
+                menuitems.item(
+                    "description (set)",
+                    lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
-                    else
-                        description = Miscellaneous::editTextUsingTextmate(description).strip
-                    end
-                    return if description == ""
-                    DescriptionZ::issue(quark["uuid"], description)
-                }
-            )
+                        return if description == ""
+                        DescriptionZ::issue(quark["uuid"], description)
+                    }
+                )
+            end
 
             menuitems.item(
                 "datetime (update)",
@@ -244,6 +216,53 @@ class Quarks
             )
 
             menuitems.item(
+                "quark (destroy)", 
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
+                        NyxObjects::destroy(quark["uuid"])
+                    end
+                }
+            )
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
+
+            puts "Spins:"
+
+            Quarks::getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
+                .each{|spin|
+                    menuitems.item(
+                        Spins::spinToString(spin),
+                        lambda{ Spins::openSpin(spin) }
+                    )
+                }
+
+            puts ""
+            menuitems.item(
+                "add new spin to quark",
+                lambda { Spins::issueNewSpinInteractivelyOrNull(quark["uuid"], SecureRandom.hex) }
+            )
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Related
+
+            puts "Cliques:"
+
+            Bosons::getCliquesForQuark(quark)
+                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
+                .each{|clique|
+                    menuitems.item(
+                        Cliques::cliqueToString(clique), 
+                        lambda { Cliques::cliqueDive(clique) }
+                    )
+                }
+
+            puts ""
+            puts "Quark/Cliques Operations:"
+
+            menuitems.item(
                 "clique (link to)",
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
@@ -261,22 +280,10 @@ class Quarks
                 }
             )
 
-            menuitems.item(
-                "re-spin", 
-                lambda { 
-                    puts "re spinning is not implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
 
-            menuitems.item(
-                "quark (destroy)", 
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this quark ? ") then
-                        NyxObjects::destroy(quark["uuid"])
-                    end
-                }
-            )
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
 
             menuitems.item(
                 "/", 
@@ -300,7 +307,7 @@ class Quarks
 
     # Quarks::getQuarkReferenceDateTime(quark)
     def self.getQuarkReferenceDateTime(quark)
-        datetimezs = DateTimeZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+        datetimezs = DateTimeZ::getDateTimeZsForTargetInTimeOrder(quark["uuid"])
         return Time.at(quark["unixtime"]).utc.iso8601 if datetimezs.empty?
         datetimezs.last["datetimeISO8601"]
     end
@@ -310,21 +317,14 @@ class Quarks
         DateTime.parse(Quarks::getQuarkReferenceDateTime(quark)).to_time.to_f
     end
 
-    # Quarks::getQuarkSpins(quark)
-    def self.getQuarkSpins(quark)
-        Spins::getForTargetUUIDInTimeOrder(quark["uuid"])
+    # Quarks::getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
+    def self.getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
+        Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(quark["uuid"])
     end
 
-    # Quarks::getQuarkLatestSpinOrNull(quark)
-    def self.getQuarkLatestSpinOrNull(quark)
-        spins = Quarks::getQuarkSpins(quark)
-        return nil if spins.empty?
-        spins.last
-    end
-
-    # Quarks::getQuarkDescriptionOrNull(quark)
-    def self.getQuarkDescriptionOrNull(quark)
-        descriptionzs = DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
+    # Quarks::getQuarkDescriptionZDescriptionOrNull(quark)
+    def self.getQuarkDescriptionZDescriptionOrNull(quark)
+        descriptionzs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(quark["uuid"])
         return nil if descriptionzs.empty?
         descriptionzs.last["description"]
     end
@@ -418,7 +418,7 @@ class Quarks
 
     # Quarks::ensureQuarkDescription(quark)
     def self.ensureQuarkDescription(quark)
-        return if Quarks::getQuarkDescriptionOrNull(quark)
+        return if Quarks::getQuarkDescriptionZDescriptionOrNull(quark)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description.size == 0
         DescriptionZ::issue(quark["uuid"], description)
