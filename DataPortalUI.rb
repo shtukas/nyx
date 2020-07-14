@@ -51,11 +51,20 @@ class DataPortalUI
             puts ""
 
             ms.item(
+                "clique (new)",
+                lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("clique name: ")
+                    return if description == ""
+                    Cliques::issueClique(description)
+                }
+            )
+
+            ms.item(
                 "quark (new)",
                 lambda { 
                     quark = Quarks::issueNewQuarkInteractivelyOrNull()
                     return if quark.nil?
-                    quark = Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
+                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                     Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
                 }
             )

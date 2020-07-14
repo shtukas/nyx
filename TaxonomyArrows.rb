@@ -27,6 +27,7 @@ class TaxonomyArrows
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| arrow["sourceuuid"] == source["uuid"] }
             .map{|arrow| arrow["targetuuid"] }
+            .uniq
             .map{|targetuuid| NyxObjects::getOrNull(targetuuid) }
             .compact
     end
@@ -36,6 +37,7 @@ class TaxonomyArrows
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| arrow["targetuuid"] == target["uuid"] }
             .map{|arrow| arrow["sourceuuid"] }
+            .uniq
             .map{|sourceuuid| NyxObjects::getOrNull(sourceuuid) }
             .compact
     end

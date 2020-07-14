@@ -57,6 +57,8 @@ class Cliques
 
             system("clear")
 
+            puts "Clique"
+
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule(false)
@@ -244,25 +246,29 @@ class Cliques
 
                 puts ""
                 puts "Sources:"
-                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                TaxonomyArrows::getSourcesForTarget(clique)
+                    .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
+                    .each{|c|
+                        # Targets can be anything but for the moment they are just cliques
+                        menuitems.item(
+                            Cliques::cliqueToString(c), 
+                            lambda { Cliques::cliqueNavigationView(c) }
+                        )
+                    }
+
+            end
+
+            puts ""
+            puts "Targets:"
+            TaxonomyArrows::getTargetsForSource(clique)
+                .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
+                .each{|c|
                     # Targets can be anything but for the moment they are just cliques
                     menuitems.item(
                         Cliques::cliqueToString(c), 
                         lambda { Cliques::cliqueNavigationView(c) }
                     )
                 }
-
-            end
-
-            puts ""
-            puts "Targets:"
-            TaxonomyArrows::getTargetsForSource(clique).each{|c|
-                # Targets can be anything but for the moment they are just cliques
-                menuitems.item(
-                    Cliques::cliqueToString(c), 
-                    lambda { Cliques::cliqueNavigationView(c) }
-                )
-            }
 
             Miscellaneous::horizontalRule(true)
 
