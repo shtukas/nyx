@@ -21,7 +21,7 @@ class NyxPrimaryObjects
             "0f555c97-3843-4dfe-80c8-714d837eba69", # Spin
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
-            "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # TaxonomyArrow
+            "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
         ]
     end
 

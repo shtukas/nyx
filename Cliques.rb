@@ -126,7 +126,7 @@ class Cliques
             if !Cliques::isRoot?(clique) then
 
                 puts "Sources:"
-                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
                     # Targets can be anything but for the moment they are just cliques
                     menuitems.item(
                         Cliques::cliqueToString(c), 
@@ -137,7 +137,7 @@ class Cliques
             end
 
             puts "Targets:"
-            TaxonomyArrows::getTargetsForSource(clique).each{|c|
+            Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
                 # Targets can be anything but for the moment they are just cliques
                 menuitems.item(
                     Cliques::cliqueToString(c), 
@@ -174,7 +174,7 @@ class Cliques
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                         return if c.nil?
                         puts "Making the new clique a target of this"
-                        TaxonomyArrows::issue(source, c)
+                        Arrows::issue(source, c)
                         puts "Linking quarks to clique"
                         selectedQuarks.each{|quark| Bosons::issue(c, quark) }
                         puts "Unlinking quarks from (this)"
@@ -187,7 +187,7 @@ class Cliques
                     lambda { 
                         c = Cliques::selectCliqueFromExistingCliquesOrNull()
                         return if c.nil?
-                        TaxonomyArrows::issue(clique, c)
+                        Arrows::issue(clique, c)
                     }
                 )
 
@@ -227,42 +227,16 @@ class Cliques
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule(false)
-            # ----------------------------------------------------------
-            # Clique Identity Information
 
-            puts "uuid: #{clique["uuid"]}"
+            puts Cliques::cliqueToString(clique)
+            menuitems.item(
+                "Dive into clique", 
+                lambda { Cliques::cliqueDive(clique) }
+            )
 
-            DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
-                .last(1)
-                .each{|descriptionz|
-                    puts "description: #{descriptionz["description"]}"
-                }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Navigation
-
-            puts "Navigation:"
-
-            if !Cliques::isRoot?(clique) then
-
-                puts ""
-                puts "Sources:"
-                TaxonomyArrows::getSourcesForTarget(clique)
-                    .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
-                    .each{|c|
-                        # Targets can be anything but for the moment they are just cliques
-                        menuitems.item(
-                            Cliques::cliqueToString(c), 
-                            lambda { Cliques::cliqueNavigationView(c) }
-                        )
-                    }
-
-            end
-
-            puts ""
+            Miscellaneous::horizontalRule(false)
             puts "Targets:"
-            TaxonomyArrows::getTargetsForSource(clique)
+            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
                 .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
                 .each{|c|
                     # Targets can be anything but for the moment they are just cliques
@@ -271,17 +245,6 @@ class Cliques
                         lambda { Cliques::cliqueNavigationView(c) }
                     )
                 }
-
-            Miscellaneous::horizontalRule(true)
-
-            TaxonomyArrows::getSourcesForTarget(clique).each{|c|
-                # Targets can be anything but for the moment they are just cliques
-                menuitems.item(
-                    "Dive into clique", 
-                    lambda { Cliques::cliqueDive(clique) }
-                )
-            }
-
 
             Miscellaneous::horizontalRule(true)
 

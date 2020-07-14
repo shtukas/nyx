@@ -1,6 +1,6 @@
-TaxonomyArrows , current used for the navigation network between cliques.
+Arrows , current used for the navigation network between cliques.
 
-TaxonomyArrows
+Arrows
 {
     "uuid"       : String
     "nyxNxSet"   : "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
