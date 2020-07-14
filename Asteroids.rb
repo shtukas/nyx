@@ -300,6 +300,16 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
+            menuitems.item(
+                "set asteroid description",
+                lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
+                    return if description == ""
+                    asteroid["payload"]["description"] = description
+                    Asteroids::reCommitToDisk(asteroid)
+                }
+            )
+
             Miscellaneous::horizontalRule(true)
 
             puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
@@ -312,19 +322,6 @@ class Asteroids
 
                 puts "Spin Series:"
                 puts ""
-
-                if asteroid["payload"]["description"].nil? then
-                    menuitems.item(
-                        "give description to series",
-                        lambda { 
-                            description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
-                            return if description == ""
-                            asteroid["payload"]["description"] = description
-                            Asteroids::reCommitToDisk(asteroid)
-                        }
-                    )
-                    puts ""
-                end
 
                 Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(asteroid["uuid"]).each{|spin|
                     menuitems.item(

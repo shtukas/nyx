@@ -115,6 +115,7 @@ class Quarks
             # Quark metadata
 
             puts "Quark: "
+            puts "    #{Quarks::quarkToString(quark)}"
 
             descriptionz = DescriptionZ::getDescriptionZsForTargetInTimeOrder(quark["uuid"]).last
             if descriptionz then

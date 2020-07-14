@@ -64,6 +64,7 @@ class Cliques
             # Clique Identity Information
 
             puts "Clique:"
+            puts "    #{Cliques::cliqueToString(clique)}"
 
             DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
                 .last(1)
