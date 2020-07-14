@@ -182,15 +182,29 @@ class Spins
         str
     end
 
-    # Spins::getSpinsForSourceInTimeOrder(sourceuuid)
-    def self.getSpinsForSourceInTimeOrder(sourceuuid)
+    # Spins::getSpinsOfGivenFamilyName(familyname)
+    def self.getSpinsOfGivenFamilyName(familyname)
+        Spins::spins()
+            .select{|spin| spin["familyname"] == familyname }
+    end
+
+    # Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(sourceuuid)
+    def self.getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(sourceuuid)
+        # The transitivity to Family members was introduced because of the desk clearing.
+        # When a new spin is made only its family name is known (it has the same as the one it replaces)
+        # But the arrows are not set up since the source of he targets are not known. 
+        # We could look them up, thinking about it, but let us just decide that family members are 
+        # part of this answer even if they were not actually arrowed
         Arrows::getTargetOfGivenSetsForSourceUUID(sourceuuid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+            .map{|spin| spin["familyname"] }
+            .map{|familyname| Spins::getSpinsOfGivenFamilyName(familyname) }
+            .flatten
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # Spins::getSpinsForSourceInTimeOrderLatestOfEachFamily(sourceuuid)
-    def self.getSpinsForSourceInTimeOrderLatestOfEachFamily(sourceuuid)
-        Spins::getSpinsForSourceInTimeOrder(sourceuuid)
+    # Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(sourceuuid)
+    def self.getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(sourceuuid)
+        Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(sourceuuid)
             .reverse
             .reduce([]){|spins, spin|
                 if spins.none?{|s| s["familyname"] == spin["familyname"] } then

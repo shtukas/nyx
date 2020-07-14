@@ -224,7 +224,7 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    spins = Spins::getSpinsForSourceInTimeOrder(asteroid["uuid"])
+                    spins = Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
                     if spins.size == 1 then
                         spin = spins[0]
                         return " #{Spins::spinToString(spin)}"
@@ -300,6 +300,7 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
+            puts ""
             menuitems.item(
                 "set asteroid description",
                 lambda { 
@@ -323,7 +324,7 @@ class Asteroids
                 puts "Spin Series:"
                 puts ""
 
-                Spins::getSpinsForSourceInTimeOrderLatestOfEachFamily(asteroid["uuid"]).each{|spin|
+                Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(asteroid["uuid"]).each{|spin|
                     menuitems.item(
                         Spins::spinToString(spin),
                         lambda { Spins::openSpin(spin) }
@@ -770,7 +771,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "spins" then
-            spins = Spins::getSpinsForSourceInTimeOrder(asteroid["uuid"])
+            spins = Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
             if spins.size == 0 then
                 return
             end

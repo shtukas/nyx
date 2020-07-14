@@ -325,7 +325,7 @@ class Quarks
 
     # Quarks::getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
     def self.getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
-        Spins::getSpinsForSourceInTimeOrderLatestOfEachFamily(quark["uuid"])
+        Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(quark["uuid"])
     end
 
     # Quarks::getQuarkDescriptionZDescriptionOrNull(quark)
