@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
-NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ae0d312a869c:7d8195ff-2d5d-437c-aa51-ff5f34c8919f:#{Time.new.to_s[0, 10]}"
-NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-ae0d312a869c:41409a3b-9b1e-496e-bf2d-28fb6ce56042:#{Time.new.to_s[0, 10]}"
+NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ae0d312a869d:7d8195ff-2d5d-437c-aa51-ff5f34c8919f:#{Time.new.to_s[0, 10]}"
+NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-ae0d312a869d:41409a3b-9b1e-496e-bf2d-28fb6ce56042:#{Time.new.to_s[0, 10]}"
 
 class NyxPrimaryObjects
 

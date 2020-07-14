@@ -21,8 +21,10 @@ class Quarks
 
         quarkuuid = SecureRandom.uuid
 
-        spin = Spins::issueNewSpinInteractivelyOrNull(quarkuuid, SecureRandom.hex)
+        spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
         return nil if spin.nil?
+
+        Arrows::issueWithUUIDs(quarkuuid, spin["uuid"])
 
         #puts JSON.pretty_generate(spin)
 
@@ -242,7 +244,11 @@ class Quarks
             puts ""
             menuitems.item(
                 "add new spin to quark",
-                lambda { Spins::issueNewSpinInteractivelyOrNull(quark["uuid"], SecureRandom.hex) }
+                lambda { 
+                    spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
+                    return if spin.nil?
+                    Arrows::issue(quark, spin)
+                }
             )
 
             Miscellaneous::horizontalRule(true)
@@ -319,7 +325,7 @@ class Quarks
 
     # Quarks::getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
     def self.getSpinsForQuarkInTimeOrderLatestOfEachFamily(quark)
-        Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(quark["uuid"])
+        Spins::getSpinsForSourceInTimeOrderLatestOfEachFamily(quark["uuid"])
     end
 
     # Quarks::getQuarkDescriptionZDescriptionOrNull(quark)

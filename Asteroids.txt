@@ -18,7 +18,6 @@ Asteroid
         {
             "type"         : "spins"
             "description"  : null or String
-            "asteroiduuid" : String
         }
 
     Orbital

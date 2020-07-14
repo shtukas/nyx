@@ -58,12 +58,12 @@ class Asteroids
             }
         end
         if option == "spins" then
-            spin = Spins::issueNewSpinInteractivelyOrNull(asteroiduuid, SecureRandom.hex)
+            spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
             return nil if spin.nil?
+            Arrows::issueWithUUIDs(asteroiduuid, spin["uuid"])
             return {
-                "type"         => "spins",
-                "description"  => nil,
-                "asteroiduuid" => asteroiduuid
+                "type"        => "spins",
+                "description" => nil
             }
         end
         nil
@@ -180,11 +180,11 @@ class Asteroids
 
     # Asteroids::issueAsteroidInboxFromSpin(spin)
     def self.issueAsteroidInboxFromSpin(spin)
-        asteroiduuid = spin["targetuuid"]
+        asteroiduuid = SecureRandom.uuid
+        Arrows::issueWithUUIDs(asteroiduuid, spin["uuid"])
         payload = {
             "type"         => "spins",
-            "description"  => nil,
-            "asteroiduuid" => asteroiduuid
+            "description"  => nil
         }
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
@@ -224,7 +224,7 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    spins = Spins::getSpinsForTargetInTimeOrder(asteroid["uuid"])
+                    spins = Spins::getSpinsForSourceInTimeOrder(asteroid["uuid"])
                     if spins.size == 1 then
                         spin = spins[0]
                         return " #{Spins::spinToString(spin)}"
@@ -323,7 +323,7 @@ class Asteroids
                 puts "Spin Series:"
                 puts ""
 
-                Spins::getSpinsForTargetInTimeOrderLatestOfEachFamily(asteroid["uuid"]).each{|spin|
+                Spins::getSpinsForSourceInTimeOrderLatestOfEachFamily(asteroid["uuid"]).each{|spin|
                     menuitems.item(
                         Spins::spinToString(spin),
                         lambda { Spins::openSpin(spin) }
@@ -334,7 +334,11 @@ class Asteroids
 
                 menuitems.item(
                     "add new spin to asteroid",
-                    lambda { Spins::issueNewSpinInteractivelyOrNull(asteroid["uuid"], SecureRandom.hex) }
+                    lambda { 
+                        spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex) 
+                        return if spin.nil?
+                        Arrows::issue(asteroid, spin)
+                    }
                 )
 
                 if asteroid["payload"]["description"] then
@@ -766,7 +770,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "spins" then
-            spins = Spins::getSpinsForTargetInTimeOrder(asteroid["uuid"])
+            spins = Spins::getSpinsForSourceInTimeOrder(asteroid["uuid"])
             if spins.size == 0 then
                 return
             end
@@ -790,6 +794,11 @@ class Asteroids
             break if asteroid.nil?
             Asteroids::asteroidDive(asteroid)
         }
+    end
+
+    # Asteroids::getSpinsForAsteroid(asteroid)
+    def self.getSpinsForAsteroid(asteroid)
+        Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
     # Asteroids::main()

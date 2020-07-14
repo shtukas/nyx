@@ -5,7 +5,7 @@ class DeskOperator
 
     # DeskOperator::deskFolderpathForSpin(spin)
     def self.deskFolderpathForSpin(spin)
-        "#{EstateServices::getDeskFolderpath()}/#{spin["targetuuid"]}"
+        "#{EstateServices::getDeskFolderpath()}/#{spin["familyname"]}"
     end
 
     # DeskOperator::deskFolderpathForSpinCreateIfNotExists(spin)
@@ -18,9 +18,9 @@ class DeskOperator
             # If the desk_folderpath_for_spin folder contains just one folder named after the spin itself
             # Then this means that we are exporting a previously imported desk_folderpath_for_spin.
             # In such a case we are going to remove the extra folder by moving thigs up...
-            if File.exists?("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}") then
-                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}", "#{desk_folderpath_for_spin}/#{spin["targetuuid"]}-lifting")
-                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["targetuuid"]}-lifting", EstateServices::getDeskFolderpath())
+            if File.exists?("#{desk_folderpath_for_spin}/#{spin["familyname"]}") then
+                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["familyname"]}", "#{desk_folderpath_for_spin}/#{spin["familyname"]}-lifting")
+                FileUtils.mv("#{desk_folderpath_for_spin}/#{spin["familyname"]}-lifting", EstateServices::getDeskFolderpath())
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
                 FileUtils.mv("#{desk_folderpath_for_spin}-lifting", desk_folderpath_for_spin)
             end
@@ -44,7 +44,7 @@ class DeskOperator
                     next
                 end
                 # We generate new spin with the same target and the same familyname
-                newspin = Spins::issueAionPoint(spin["targetuuid"], spin["familyname"], namedhash)
+                newspin = Spins::issueAionPoint(spin["familyname"], namedhash)
                 puts "new spin:"
                 puts JSON.pretty_generate(newspin)
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_spin)
