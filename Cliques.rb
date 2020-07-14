@@ -108,7 +108,7 @@ class Cliques
             puts "Contents"
 
             # Quarks
-            Bosons::getQuarksForClique(clique)
+            Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                 .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
                 .each{|quark|
                     menuitems.item(
@@ -158,7 +158,7 @@ class Cliques
                     lambda{
                         quark = Quarks::issueNewQuarkInteractivelyOrNull()
                         return if quark.nil?
-                        Bosons::issue(clique, quark)
+                        Arrows::issue(clique, quark)
                         Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
                     }
                 )
@@ -166,7 +166,7 @@ class Cliques
                 menuitems.item(
                     "graph maker: select multiple quark ; send to existing/new clique ; detach from this",
                     lambda {
-                        quarks = Bosons::getQuarksForClique(clique)
+                        quarks = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                         selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
                         return if selectedQuarks.size == 0
                         puts "Now selecting/making the receiving clique"
@@ -176,9 +176,9 @@ class Cliques
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
                         puts "Linking quarks to clique"
-                        selectedQuarks.each{|quark| Bosons::issue(c, quark) }
+                        selectedQuarks.each{|quark| Arrows::issue(c, quark) }
                         puts "Unlinking quarks from (this)"
-                        selectedQuarks.each{|quark| Bosons::destroy(clique, quark) }
+                        selectedQuarks.each{|quark| Arrows::destroyArrow(clique, quark) }
                     }
                 )
 
@@ -336,8 +336,10 @@ class Cliques
 
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
-        times = [ Cliques::getCliqueReferenceUnixtime(clique) ] + Bosons::getQuarksForClique(clique).map{|object| object["unixtime"] }
-        times.max
+        times1 = [ Cliques::getCliqueReferenceUnixtime(clique) ] 
+        times2 = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                    .map{|object| object["unixtime"] }
+        (times1+times2).max
     end
 
     # Cliques::cliquesListingAndDive()
@@ -379,8 +381,8 @@ class Cliques
     # Cliques::mergeCliques(clique1, clique2)
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
-        Bosons::getQuarksForClique(clique2)
-            .each{|quark| Bosons::issue(clique1, quark) }
+        Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
+            .each{|quark| Arrows::issue(clique1, quark) }
         NyxObjects::destroy(clique2["uuid"])
     end
 

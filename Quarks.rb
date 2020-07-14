@@ -251,7 +251,7 @@ class Quarks
 
             puts "Cliques:"
 
-            Bosons::getCliquesForQuark(quark)
+            Arrows::getSourceOfGivenSetsForTarget(quark, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
                 .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
                 .each{|clique|
                     menuitems.item(
@@ -268,7 +268,7 @@ class Quarks
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
-                    Bosons::issue(clique, quark)
+                    Arrows::issue(clique, quark)
                 }
             )
 
@@ -277,7 +277,7 @@ class Quarks
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Quarks::getQuarkCliques(quark), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
-                    Bosons::issue(clique, quark)
+                    Arrows::issue(clique, quark)
                 }
             )
 
@@ -302,8 +302,7 @@ class Quarks
 
     # Quarks::getQuarkCliques(quark)
     def self.getQuarkCliques(quark)
-        Bosons::getCliquesForQuark(quark)
-            .select{|object| object["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" }
+        Arrows::getSourceOfGivenSetsForTarget(quark, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
     # Quarks::getQuarkReferenceDateTime(quark)
@@ -414,7 +413,7 @@ class Quarks
     # Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
     def self.attachQuarkToZeroOrMoreCliquesInteractively(quark)
         Cliques::selectZeroOrMoreCliquesExistingOrCreated()
-            .each{|clique| Bosons::issue(clique, quark) }
+            .each{|clique| Arrows::issue(clique, quark) }
     end
 
     # Quarks::ensureQuarkDescription(quark)

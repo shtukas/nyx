@@ -41,10 +41,6 @@ Nyx
     Arrow # Arrows.txt
           # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
 
-    Boson         # Bosons.txt
-                  # nyxNxSet: "13f3499d-fa9c-44bb-91d3-8a3ccffecefb"
-                  # Clique to Quark directed links
-
 All Nyx Objects 
 
     1. Need to have the two following attributes

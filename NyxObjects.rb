@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
-NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ae0d312a869a:7d8195ff-2d5d-437c-aa51-ff5f34c8919f:#{Time.new.to_s[0, 10]}"
-NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-ae0d312a869a:41409a3b-9b1e-496e-bf2d-28fb6ce56042:#{Time.new.to_s[0, 10]}"
+NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ae0d312a869c:7d8195ff-2d5d-437c-aa51-ff5f34c8919f:#{Time.new.to_s[0, 10]}"
+NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-ae0d312a869c:41409a3b-9b1e-496e-bf2d-28fb6ce56042:#{Time.new.to_s[0, 10]}"
 
 class NyxPrimaryObjects
 
@@ -14,7 +14,6 @@ class NyxPrimaryObjects
             "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
             "6b240037-8f5f-4f52-841d-12106658171f", # Quarks
             "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
-            "13f3499d-fa9c-44bb-91d3-8a3ccffecefb", # Bosons
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
@@ -118,6 +117,9 @@ class NyxObjects
                 setsmap[setid] = {}
             }
             NyxPrimaryObjects::objects().each{|object|
+                if setsmap[object["nyxNxSet"]].nil? then
+                    setsmap[object["nyxNxSet"]] = {}
+                end
                 setsmap[object["nyxNxSet"]][object["uuid"]] = object
             }
             InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
