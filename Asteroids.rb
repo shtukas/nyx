@@ -399,8 +399,7 @@ class Asteroids
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
-                        Asteroids::asteroidStopSequence(asteroid)
-                        Asteroids::asteroidDestroySequence(asteroid)
+                        Asteroids::asteroidStopAndDestroySequence(asteroid)
                     end
                 }
             )
@@ -535,9 +534,10 @@ class Asteroids
     def self.tryAndMoveThisInboxItem(asteroid)
         return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-            Asteroids::asteroidDestroySequence(asteroid)
+            Asteroids::asteroidStopAndDestroySequence(asteroid)
         else
             if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? ") then
+                Asteroids::asteroidStopSequence(asteroid)
                 asteroid["orbital"] = {
                     "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
                 }
@@ -545,6 +545,7 @@ class Asteroids
             else
                 puts "Not done and not moved to queue. I am going to reOrbital"
                 Asteroids::reOrbital(asteroid)
+                Asteroids::asteroidStopSequence(asteroid)
             end
         end
     end
@@ -569,7 +570,7 @@ class Asteroids
 
                 if input == ".." and !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "description" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidDestroySequence(asteroid)
+                        Asteroids::asteroidStopAndDestroySequence(asteroid)
                         return
                     end
                 end
@@ -577,7 +578,7 @@ class Asteroids
                 if input == ".." and !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "spins" then
                     Asteroids::openPayload(asteroid)
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidDestroySequence(asteroid)
+                        Asteroids::asteroidStopAndDestroySequence(asteroid)
                         return
                     end
                 end
@@ -587,7 +588,7 @@ class Asteroids
 
                 if input == ".." and Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                        Asteroids::asteroidDestroySequence(asteroid)
+                        Asteroids::asteroidStopAndDestroySequence(asteroid)
                         return
                     end
                     Asteroids::asteroidStopSequence(asteroid)
@@ -633,7 +634,7 @@ class Asteroids
             if Bank::value(uuid) >= orbital["timeCommitmentInHours"]*3600 then
                 puts "singleton time commitment asteroid is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
-                Asteroids::asteroidDestroySequence(asteroid)
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
                 return
             end
         end
@@ -668,7 +669,7 @@ class Asteroids
             if Bank::value(asteroid["uuid"]) >= orbital["timeCommitmentInHours"]*3600 then
                 puts "time commitment asteroid is completed, destroying it..."
                 LucilleCore::pressEnterToContinue()
-                Asteroids::asteroidDestroySequence(asteroid)
+                Asteroids::asteroidStopAndDestroySequence(asteroid)
             end
         end
     end
@@ -685,13 +686,9 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestroySequence(asteroid)
-    def self.asteroidDestroySequence(asteroid)
-        if Asteroids::isRunning?(asteroid) then
-            timespan = Runner::stop(asteroid["uuid"])
-            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            Asteroids::asteroidReceivesTime(asteroid, timespan)
-        end
+    # Asteroids::asteroidStopAndDestroySequence(asteroid)
+    def self.asteroidStopAndDestroySequence(asteroid)
+        Asteroids::asteroidStopSequence(asteroid)
         NyxObjects::destroy(asteroid["uuid"])
     end
 

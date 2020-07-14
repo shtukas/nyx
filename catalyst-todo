@@ -16,7 +16,7 @@ STARTING_CODE_HASH = EstateServices::locationHashRecursively(CATALYST_CODE_FOLDE
 # -------------------------------------------------------------------------
 
 EstateServices::surveyConstruction()
-NetworkManager::ensureBasicConfiguration()
+NetworkManager::ensureBasicNetworkPrinciples()
 
 Thread.new {
     loop {

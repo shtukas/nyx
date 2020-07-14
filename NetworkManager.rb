@@ -3,8 +3,8 @@
 
 class NetworkManager
 
-    # NetworkManager::ensureBasicConfiguration()
-    def self.ensureBasicConfiguration()
+    # NetworkManager::ensureBasicNetworkPrinciples()
+    def self.ensureBasicNetworkPrinciples()
 
         # --------------------------------------------------------
         # We ensure that the "[root]" clique exists

@@ -57,35 +57,78 @@ class Cliques
 
             system("clear")
 
-            puts "Clique"
-
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule(false)
             # ----------------------------------------------------------
             # Clique Identity Information
 
+            puts "Clique:"
+
             DescriptionZ::getForTargetUUIDInTimeOrder(clique["uuid"])
                 .last(1)
                 .each{|descriptionz|
-                    puts "description: #{descriptionz["description"]}"
+                    puts "    description: #{descriptionz["description"]}"
                 }
 
-            puts ""
-            puts "uuid: #{clique["uuid"]}"
+            puts "    uuid: #{clique["uuid"]}"
 
             notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
 
             if notetext then
                 puts "Note:"
-                puts notetext
+                puts notetext.lines.map{|line| "    #{line}" }.join()
             end
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Contents
+
+            puts "Contents"
+
+            # Quarks
+            Bosons::getQuarksForClique(clique)
+                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+                .each{|quark|
+                    menuitems.item(
+                        Quarks::quarkToString(quark), 
+                        lambda { Quarks::quarkDive(quark) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Navigation
+
+            puts "Navigation:"
+
+            if !Cliques::isRoot?(clique) then
+
+                puts "Sources:"
+                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
+                    # Targets can be anything but for the moment they are just cliques
+                    menuitems.item(
+                        Cliques::cliqueToString(c), 
+                        lambda { Cliques::cliqueDive(c) }
+                    )
+                }
+
+            end
+
+            puts "Targets:"
+            TaxonomyArrows::getTargetsForSource(clique).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    Cliques::cliqueToString(c), 
+                    lambda { Cliques::cliqueDive(c) }
+                )
+            }
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
             # Operations
 
-            puts "Operations"
+            puts "Clique Operations:"
 
             if Cliques::canShowDiveOperations(clique) then
 
@@ -160,50 +203,6 @@ class Cliques
                 "/", 
                 lambda { DataPortalUI::dataPortalFront() }
             )
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Navigation
-
-            puts "Navigation:"
-
-            if !Cliques::isRoot?(clique) then
-
-                puts "Sources:"
-                TaxonomyArrows::getSourcesForTarget(clique).each{|c|
-                    # Targets can be anything but for the moment they are just cliques
-                    menuitems.item(
-                        Cliques::cliqueToString(c), 
-                        lambda { Cliques::cliqueDive(c) }
-                    )
-                }
-
-            end
-
-            puts "Targets:"
-            TaxonomyArrows::getTargetsForSource(clique).each{|c|
-                # Targets can be anything but for the moment they are just cliques
-                menuitems.item(
-                    Cliques::cliqueToString(c), 
-                    lambda { Cliques::cliqueDive(c) }
-                )
-            }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Contents
-
-            puts "Contents"
-
-            # Quarks
-            Bosons::getQuarksForClique(clique)
-                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-                .each{|quark|
-                    menuitems.item(
-                        Quarks::quarkToString(quark), 
-                        lambda { Quarks::quarkDive(quark) }
-                    )
-                }
 
             Miscellaneous::horizontalRule(true)
 

@@ -119,34 +119,64 @@ class Quarks
             # -------------------------------------------
             # Quark metadata
 
+            puts "Quark: "
+
             DescriptionZ::getForTargetUUIDInTimeOrder(quark["uuid"])
                 .last(1)
                 .each{|descriptionz|
-                    puts "description: #{descriptionz["description"]}"
+                    puts "    description: #{descriptionz["description"]}"
                 }
 
-            puts ""
+            puts "    uuid: #{quark["uuid"]}"
 
-            puts "uuid: #{quark["uuid"]}"
-
-            puts "date: #{Quarks::getQuarkReferenceDateTime(quark)}"
+            puts "    date: #{Quarks::getQuarkReferenceDateTime(quark)}"
 
             notetext = Notes::getMostRecentTextForTargetOrNull(quark["uuid"])
             if notetext then
                 puts ""
                 puts "Note:"
-                puts notetext
+                puts notetext.lines.map{|line| "    #{line}" }.join()
             end
 
             Comments::getForTargetUUIDInTimeOrder(quark["uuid"]).each{|comment|
                 puts ""
                 puts "Comment:"
-                puts NyxBlobs::getBlobOrNull(comment["namedhash"])
+                puts NyxBlobs::getBlobOrNull(comment["namedhash"]).lines.map{|line| "    #{line}" }.join()
             }
 
             Quarks::getQuarkTags(quark)
                 .each{|tag|
                     puts "tag: #{tag["payload"]}"
+                }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Operations
+
+            puts "Data:"
+
+            Quarks::getQuarkSpins(quark)
+                .last(1)
+                .each{|spin|
+                    menuitems.item(
+                        Spins::spinToString(spin),
+                        lambda{ Spins::openSpin(spin) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule(true)
+            # ----------------------------------------------------------
+            # Related
+
+            puts "Cliques:"
+
+            Bosons::getCliquesForQuark(quark)
+                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
+                .each{|clique|
+                    menuitems.item(
+                        Cliques::cliqueToString(clique), 
+                        lambda { Cliques::cliqueDive(clique) }
+                    )
                 }
 
             Miscellaneous::horizontalRule(true)
@@ -252,36 +282,6 @@ class Quarks
                 "/", 
                 lambda { DataPortalUI::dataPortalFront() }
             )
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Operations
-
-            puts "Data:"
-
-            Quarks::getQuarkSpins(quark)
-                .last(1)
-                .each{|spin|
-                    menuitems.item(
-                        Spins::spinToString(spin),
-                        lambda{ Spins::openSpin(spin) }
-                    )
-                }
-
-            Miscellaneous::horizontalRule(true)
-            # ----------------------------------------------------------
-            # Related
-
-            puts "Cliques:"
-
-            Bosons::getCliquesForQuark(quark)
-                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
-                .each{|clique|
-                    menuitems.item(
-                        Cliques::cliqueToString(clique), 
-                        lambda { Cliques::cliqueDive(clique) }
-                    )
-                }
 
             Miscellaneous::horizontalRule(true)
 
