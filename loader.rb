@@ -34,6 +34,7 @@ require "time"
 
 require_relative "AionCore.rb"
 require_relative "Anniversaries.rb"
+require_relative "Arrows.rb"
 require_relative "Asteroids.rb"
 require_relative "AtlasCore.rb"
 
@@ -127,7 +128,7 @@ require_relative "ShadowFS.rb"
 require_relative "Spins.rb"
 
 require_relative "Tags.rb"
-require_relative "Arrows.rb"
+require_relative "TextZs.rb"
 
 require_relative "VideoStream.rb"
 
