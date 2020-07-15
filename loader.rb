@@ -74,6 +74,7 @@ require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
 
+require_relative "InMemoryValueCache.rb"
 require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 require_relative "KeyValueStore.rb"
@@ -125,7 +126,7 @@ require_relative "Runner.rb"
 =end
 
 require_relative "ShadowFS.rb"
-require_relative "Spins.rb"
+require_relative "Fragments.rb"
 
 require_relative "Tags.rb"
 require_relative "TextZs.rb"

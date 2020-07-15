@@ -16,7 +16,7 @@ Asteroid
             "description" : String
         }
         {
-            "type"         : "spins"
+            "type"         : "fragments"
             "description"  : null or String
         }
 

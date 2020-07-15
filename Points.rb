@@ -21,12 +21,12 @@ class Points
 
         pointuuid = SecureRandom.uuid
 
-        spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
-        return nil if spin.nil?
+        fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
+        return nil if fragment.nil?
 
-        Arrows::issueWithUUIDs(pointuuid, spin["uuid"])
+        Arrows::issueWithUUIDs(pointuuid, fragment["uuid"])
 
-        #puts JSON.pretty_generate(spin)
+        #puts JSON.pretty_generate(fragment)
 
         point = {
             "uuid"      => pointuuid,
@@ -36,7 +36,7 @@ class Points
         #puts JSON.pretty_generate(point)
         Points::commitPointToDisk(point)
 
-        if ["line", "url", "text"].include?(spin["type"]) then
+        if ["line", "url", "text"].include?(fragment["type"]) then
             return point
         end
 
@@ -65,7 +65,7 @@ class Points
         point = Points::getOrNull(uuid)
         if point then
              if point["type"] == "aion-point" then
-                folderpath = DeskOperator::deskFolderpathForSpinCreateIfNotExists(point)
+                folderpath = DeskOperator::deskFolderpathForFragmentCreateIfNotExists(point)
                 if folderpath then
                     LucilleCore::removeFileSystemLocation(folderpath)
                 end
@@ -86,9 +86,9 @@ class Points
             return str
         end
 
-        Points::getSpinsForPointInTimeOrderLatestOfEachFamily(point)
-            .each{|spin|
-                str = "[point] [#{point["uuid"][0, 4]}] #{Spins::spinToString(spin)}"
+        Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
+            .each{|fragment|
+                str = "[point] [#{point["uuid"][0, 4]}] #{Fragments::fragmentToString(fragment)}"
                 InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{point["uuid"]}", str)
                 return str
             }
@@ -231,23 +231,23 @@ class Points
             # ----------------------------------------------------------
             # Operations
 
-            puts "Spins:"
+            puts "Fragments:"
 
-            Points::getSpinsForPointInTimeOrderLatestOfEachFamily(point)
-                .each{|spin|
+            Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
+                .each{|fragment|
                     menuitems.item(
-                        Spins::spinToString(spin),
-                        lambda{ Spins::openSpin(spin) }
+                        Fragments::fragmentToString(fragment),
+                        lambda{ Fragments::openFragment(fragment) }
                     )
                 }
 
             puts ""
             menuitems.item(
-                "add new spin to point",
+                "add new fragment to point",
                 lambda { 
-                    spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
-                    return if spin.nil?
-                    Arrows::issue(point, spin)
+                    fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
+                    return if fragment.nil?
+                    Arrows::issue(point, fragment)
                 }
             )
 
@@ -323,9 +323,9 @@ class Points
         DateTime.parse(Points::getPointReferenceDateTime(point)).to_time.to_f
     end
 
-    # Points::getSpinsForPointInTimeOrderLatestOfEachFamily(point)
-    def self.getSpinsForPointInTimeOrderLatestOfEachFamily(point)
-        Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(point["uuid"])
+    # Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
+    def self.getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
+        Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(point["uuid"])
     end
 
     # Points::getPointDescriptionZDescriptionOrNull(point)

@@ -250,10 +250,10 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            spin = Spins::issueAionPoint(SecureRandom.hex, namedhash) # this value is going to be picked up as the uuid of the asteroid
-            puts JSON.pretty_generate(spin)
+            fragment = Fragments::issueAionPoint(SecureRandom.hex, namedhash) # this value is going to be picked up as the uuid of the asteroid
+            puts JSON.pretty_generate(fragment)
 
-            asteroid = Asteroids::issueAsteroidInboxFromSpin(spin)
+            asteroid = Asteroids::issueAsteroidInboxFromFragment(fragment)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

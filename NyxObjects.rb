@@ -1,7 +1,7 @@
 # encoding: UTF-8
 
-NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ae0d312a869d:7d8195ff-2d5d-437c-aa51-ff5f34c8919f:#{Time.new.to_s[0, 10]}"
-NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-ae0d312a869d:41409a3b-9b1e-496e-bf2d-28fb6ce56042:#{Time.new.to_s[0, 10]}"
+NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ff5f34c8919f"
+NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-28fb6ce56042"
 
 class NyxPrimaryObjects
 
@@ -17,7 +17,7 @@ class NyxPrimaryObjects
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
-            "0f555c97-3843-4dfe-80c8-714d837eba69", # Spin
+            "0f555c97-3843-4dfe-80c8-714d837eba69", # Fragment
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
@@ -95,21 +95,21 @@ class NyxObjects
 
     # NyxObjects::getObjectsMap()
     def self.getObjectsMap()
-        objectsmap = InMemoryWithOnDiskPersistenceValueCache::getOrNull(NyxPrimaryObjectsObjectMapKey)
+        objectsmap = InMemoryValueCache::getOrNull(NyxPrimaryObjectsObjectMapKey)
         if objectsmap.nil? then
             puts "-> computing objectsmap from scratch"
             objectsmap = {}
             NyxPrimaryObjects::objects().each{|object|
                 objectsmap[object["uuid"]] = object
             }
-            InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
+            InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
         end
         objectsmap
     end
 
     # NyxObjects::getSetsMap()
     def self.getSetsMap()
-        setsmap = InMemoryWithOnDiskPersistenceValueCache::getOrNull(NyxPrimaryObjectsSetMapKey)
+        setsmap = InMemoryValueCache::getOrNull(NyxPrimaryObjectsSetMapKey)
         if setsmap.nil? then
             puts "-> computing setsmap from scratch"
             setsmap = {}
@@ -122,7 +122,7 @@ class NyxObjects
                 end
                 setsmap[object["nyxNxSet"]][object["uuid"]] = object
             }
-            InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
+            InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
         end
         setsmap
     end
@@ -133,14 +133,14 @@ class NyxObjects
 
         objectsmap = NyxObjects::getObjectsMap()
         objectsmap[object["uuid"]] = object
-        InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
+        InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
 
         setsmap = NyxObjects::getSetsMap()
         if setsmap[object["nyxNxSet"]].nil? then
             setsmap[object["nyxNxSet"]] = {} # This happens when a set was intrduced after the last snapshot
         end
         setsmap[object["nyxNxSet"]][object["uuid"]] = object
-        InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
+        InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
     end
 
     # NyxObjects::objects()
@@ -171,13 +171,13 @@ class NyxObjects
 
         objectsmap = NyxObjects::getObjectsMap()
         objectsmap.delete(uuid)
-        InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
+        InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
 
         setsmap = NyxObjects::getSetsMap()
         NyxPrimaryObjects::nyxNxSets().each{|setid|
             next if setsmap[setid].nil?
             setsmap[setid].delete(uuid)
         }
-        InMemoryWithOnDiskPersistenceValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
+        InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
     end
 end

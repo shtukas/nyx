@@ -45,7 +45,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    spin = Spins::issueUrl(SecureRandom.hex, link)
-    asteroid = Asteroids::issueAsteroidInboxFromSpin(spin)
+    fragment = Fragments::issueUrl(SecureRandom.hex, link)
+    asteroid = Asteroids::issueAsteroidInboxFromFragment(fragment)
     viennaLinkFeeder.done(link)
 }

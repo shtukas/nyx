@@ -46,7 +46,7 @@ class Asteroids
     def self.makePayloadInteractivelyOrNull(asteroiduuid)
         options = [
             "description",
-            "spins"
+            "fragments"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
         return nil if option.nil?
@@ -57,12 +57,12 @@ class Asteroids
                 "description" => description
             }
         end
-        if option == "spins" then
-            spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex)
-            return nil if spin.nil?
-            Arrows::issueWithUUIDs(asteroiduuid, spin["uuid"])
+        if option == "fragments" then
+            fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
+            return nil if fragment.nil?
+            Arrows::issueWithUUIDs(asteroiduuid, fragment["uuid"])
             return {
-                "type"        => "spins",
+                "type"        => "fragments",
                 "description" => nil
             }
         end
@@ -174,12 +174,12 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromSpin(spin)
-    def self.issueAsteroidInboxFromSpin(spin)
+    # Asteroids::issueAsteroidInboxFromFragment(fragment)
+    def self.issueAsteroidInboxFromFragment(fragment)
         asteroiduuid = SecureRandom.uuid
-        Arrows::issueWithUUIDs(asteroiduuid, spin["uuid"])
+        Arrows::issueWithUUIDs(asteroiduuid, fragment["uuid"])
         payload = {
-            "type"         => "spins",
+            "type"         => "fragments",
             "description"  => nil
         }
         orbital = {
@@ -216,16 +216,16 @@ class Asteroids
             if payload["type"] == "description" then
                 return " " + payload["description"]
             end
-            if payload["type"] == "spins" then
+            if payload["type"] == "fragments" then
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    spins = Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
-                    if spins.size == 1 then
-                        spin = spins[0]
-                        return " #{Spins::spinToString(spin)}"
+                    fragments = Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
+                    if fragments.size == 1 then
+                        fragment = fragments[0]
+                        return " #{Fragments::fragmentToString(fragment)}"
                     end
-                    return " [spin series] (no description given)"
+                    return " [fragment series] (no description given)"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -300,7 +300,7 @@ class Asteroids
             menuitems.item(
                 "set asteroid description",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
+                    description = LucilleCore::askQuestionAnswerAsString("fragment series description: ")
                     return if description == ""
                     asteroid["payload"]["description"] = description
                     Asteroids::reCommitToDisk(asteroid)
@@ -313,28 +313,28 @@ class Asteroids
             puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            if asteroid["payload"]["type"] == "spins" then
+            if asteroid["payload"]["type"] == "fragments" then
 
                 Miscellaneous::horizontalRule(true)
 
-                puts "Spin Series:"
+                puts "Fragment Series:"
                 puts ""
 
-                Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(asteroid["uuid"]).each{|spin|
+                Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(asteroid["uuid"]).each{|fragment|
                     menuitems.item(
-                        Spins::spinToString(spin),
-                        lambda { Spins::openSpin(spin) }
+                        Fragments::fragmentToString(fragment),
+                        lambda { Fragments::openFragment(fragment) }
                     )
                 }
 
                 puts ""
 
                 menuitems.item(
-                    "add new spin to asteroid",
+                    "add new fragment to asteroid",
                     lambda { 
-                        spin = Spins::issueNewSpinInteractivelyOrNull(SecureRandom.hex) 
-                        return if spin.nil?
-                        Arrows::issue(asteroid, spin)
+                        fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex) 
+                        return if fragment.nil?
+                        Arrows::issue(asteroid, fragment)
                     }
                 )
 
@@ -609,7 +609,7 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "spins" then
+        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "fragments" then
             Asteroids::asteroidStartSequence(asteroid)
             Asteroids::openPayload(asteroid)
             return
@@ -754,19 +754,19 @@ class Asteroids
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
-        if asteroid["payload"]["type"] == "spins" then
-            spins = Spins::getSpinsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
-            if spins.size == 0 then
+        if asteroid["payload"]["type"] == "fragments" then
+            fragments = Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
+            if fragments.size == 0 then
                 return
             end
-            if spins.size == 1 then
-                spin = spins[0]
-                Spins::openSpin(spin)
+            if fragments.size == 1 then
+                fragment = fragments[0]
+                Fragments::openFragment(fragment)
                 return
             end
-            spin = LucilleCore::selectEntityFromListOfEntitiesOrNull("spin", spins, lambda{ |spin| Spins::spinToString(spin) })
-            return if spin.nil?
-            Spins::openSpin(spin)
+            fragment = LucilleCore::selectEntityFromListOfEntitiesOrNull("fragment", fragments, lambda{ |fragment| Fragments::fragmentToString(fragment) })
+            return if fragment.nil?
+            Fragments::openFragment(fragment)
         end
     end
 
@@ -781,8 +781,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::getSpinsForAsteroid(asteroid)
-    def self.getSpinsForAsteroid(asteroid)
+    # Asteroids::getFragmentsForAsteroid(asteroid)
+    def self.getFragmentsForAsteroid(asteroid)
         Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
