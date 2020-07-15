@@ -622,30 +622,18 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" and asteroid["payload"]["type"] == "description" then
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
-            end
-            Asteroids::asteroidStopSequence(asteroid)
-            return
-        end
-
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
             Asteroids::asteroidStopSequence(asteroid)
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" and asteroid["payload"]["type"] == "description" then
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
-            end
-            Asteroids::asteroidStopSequence(asteroid)
-            return
-        end
+        typesThatAreMeantToTerminate = [
+            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
+            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        ]
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" and asteroid["payload"]["type"] == "description" then
+        if Runner::isRunning?(uuid) and typesThatAreMeantToTerminate.include?(asteroid["orbital"]["type"]) then
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidStopAndDestroySequence(asteroid)
                 return

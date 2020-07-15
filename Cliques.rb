@@ -63,8 +63,7 @@ class Cliques
             # ----------------------------------------------------------
             # Clique Identity Information
 
-            puts "Clique:"
-            puts "    #{Cliques::cliqueToString(clique)}"
+            puts "Clique: #{Cliques::cliqueToString(clique)}"
 
             DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
                 .last(1)
@@ -124,26 +123,44 @@ class Cliques
             puts "Navigation:"
 
             if !Cliques::isRoot?(clique) then
-
+                puts ""
                 puts "Sources:"
-                Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
+                Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
                     # Targets can be anything but for the moment they are just cliques
                     menuitems.item(
                         Cliques::cliqueToString(c), 
                         lambda { Cliques::cliqueDive(c) }
                     )
                 }
-
+                puts ""
+                menuitems.item(
+                    "select clique for sourcing", 
+                    lambda { 
+                        c = Cliques::selectCliqueFromExistingCliquesOrNull()
+                        return if c.nil?
+                        Arrows::issue(c, clique)
+                    }
+                )
             end
 
+            puts ""
             puts "Targets:"
-            Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
+            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
                 # Targets can be anything but for the moment they are just cliques
                 menuitems.item(
                     Cliques::cliqueToString(c), 
                     lambda { Cliques::cliqueDive(c) }
                 )
             }
+            puts ""
+            menuitems.item(
+                "select clique for targeting", 
+                lambda { 
+                    c = Cliques::selectCliqueFromExistingCliquesOrNull()
+                    return if c.nil?
+                    Arrows::issue(clique, c)
+                }
+            )
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
@@ -179,15 +196,6 @@ class Cliques
                         selectedPages.each{|page| Arrows::issue(c, page) }
                         puts "Unlinking pages from (this)"
                         selectedPages.each{|page| Arrows::destroyArrow(clique, page) }
-                    }
-                )
-
-                menuitems.item(
-                    "select clique for targeting", 
-                    lambda { 
-                        c = Cliques::selectCliqueFromExistingCliquesOrNull()
-                        return if c.nil?
-                        Arrows::issue(clique, c)
                     }
                 )
 

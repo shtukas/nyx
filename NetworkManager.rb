@@ -31,7 +31,6 @@ class NetworkManager
             next if Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size > 0
             # At this page we have a clique which doesn't have any sources
             puts "Issuing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
-            LucilleCore::pressEnterToContinue()
             Arrows::issue(root, clique)
         }
 
@@ -44,7 +43,6 @@ class NetworkManager
             next if Cliques::isRoot?(clique) # we do not target the [root]
             next if Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this page they should all have at least one source 
             puts "Removing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
-            LucilleCore::pressEnterToContinue()
             Arrows::destroyArrow(root, clique)
         }
 

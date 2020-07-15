@@ -76,7 +76,7 @@ class Pages
             return str
         end
 
-        flocks = Flocks::getFlocksForSource(asteroid)
+        flocks = Flocks::getFlocksForSource(page)
         if flocks.size > 0 then
             str = Flocks::flockToString(flocks[0])
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{page["uuid"]}", str)
@@ -105,9 +105,7 @@ class Pages
             Miscellaneous::horizontalRule(false)
             # -------------------------------------------
             # Page metadata
-
-            puts "Page: "
-            puts "    #{Pages::pageToString(page)}"
+            puts "Page: #{Pages::pageToString(page)}"
 
             descriptionz = DescriptionZ::getDescriptionZsForTargetInTimeOrder(page["uuid"]).last
             if descriptionz then
