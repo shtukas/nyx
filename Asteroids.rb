@@ -338,18 +338,6 @@ class Asteroids
                     }
                 )
 
-                if asteroid["payload"]["description"] then
-                    menuitems.item(
-                        "update series description",
-                        lambda { 
-                            description = LucilleCore::askQuestionAnswerAsString("spin series description: ")
-                            return if description == ""
-                            asteroid["payload"]["description"] = description
-                            Asteroids::reCommitToDisk(asteroid)
-                        }
-                    )
-                end
-
             end
 
             Miscellaneous::horizontalRule(true)
