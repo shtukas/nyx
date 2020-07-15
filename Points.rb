@@ -19,22 +19,21 @@ class Points
     def self.issueNewPointInteractivelyOrNull()
         puts "Issuing a new Point..."
 
-        pointuuid = SecureRandom.uuid
-
-        fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
-        return nil if fragment.nil?
-
-        Arrows::issueWithUUIDs(pointuuid, fragment["uuid"])
-
-        #puts JSON.pretty_generate(fragment)
-
         point = {
-            "uuid"      => pointuuid,
+            "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
         #puts JSON.pretty_generate(point)
         Points::commitPointToDisk(point)
+
+        fragment = Fragments::issueNewFragmentInteractivelyOrNull()
+        return point if fragment.nil?
+        #puts JSON.pretty_generate(fragment)
+
+        flock = Flocks::issue()
+        Arrows::issue(flock, fragment)
+        Arrows::issue(point, flock)
 
         if ["line", "url", "text"].include?(fragment["type"]) then
             return point
@@ -42,7 +41,7 @@ class Points
 
         description = LucilleCore::askQuestionAnswerAsString("point description: ")
         if description.size > 0 then
-            descriptionz = DescriptionZ::issue(pointuuid, description)
+            descriptionz = DescriptionZ::issue(point["uuid"], description)
             puts JSON.pretty_generate(descriptionz)
         end
 
@@ -86,12 +85,12 @@ class Points
             return str
         end
 
-        Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
-            .each{|fragment|
-                str = "[point] [#{point["uuid"][0, 4]}] #{Fragments::fragmentToString(fragment)}"
-                InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{point["uuid"]}", str)
-                return str
-            }
+        flocks = Flocks::getFlocksForSource(asteroid)
+        if flocks.size > 0 then
+            str = Flocks::flockToString(flocks[0])
+            InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{point["uuid"]}", str)
+            return str
+        end
 
         str = "[point] [#{point["uuid"][0, 4]}] [no description]"
         InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{point["uuid"]}", str)
@@ -231,23 +230,27 @@ class Points
             # ----------------------------------------------------------
             # Operations
 
-            puts "Fragments:"
+            puts "Flocks:"
+            puts ""
 
-            Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
-                .each{|fragment|
-                    menuitems.item(
-                        Fragments::fragmentToString(fragment),
-                        lambda{ Fragments::openFragment(fragment) }
-                    )
-                }
+            Flocks::getFlocksForSource(point).each{|flock|
+                fragment = Flocks::getLastFlockFragmentOrNull(flock)
+                next if fragment.nil?
+                menuitems.item(
+                    Fragments::fragmentToString(fragment),
+                    lambda { Fragments::openFragment(fragment) }
+                )
+            }
 
             puts ""
             menuitems.item(
                 "add new fragment to point",
                 lambda { 
-                    fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
+                    fragment = Fragments::issueNewFragmentInteractivelyOrNull()
                     return if fragment.nil?
-                    Arrows::issue(point, fragment)
+                    flock = Flocks::issue()
+                    Arrows::issue(flock, fragment)
+                    Arrows::issue(point, flock)
                 }
             )
 
@@ -321,11 +324,6 @@ class Points
     # Points::getPointReferenceUnixtime(point)
     def self.getPointReferenceUnixtime(point)
         DateTime.parse(Points::getPointReferenceDateTime(point)).to_time.to_f
-    end
-
-    # Points::getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
-    def self.getFragmentsForPointInTimeOrderLatestOfEachFamily(point)
-        Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(point["uuid"])
     end
 
     # Points::getPointDescriptionZDescriptionOrNull(point)

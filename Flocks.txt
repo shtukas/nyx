@@ -1,0 +1,9 @@
+
+Flocks define the various mutation of a Fragment. People interested in Fragments don't link to them, they link to the Flock
+
+Flock {
+    "uuid"         : String
+    "nyxNxSet"     : "c18e8093-63d6-4072-8827-14f238975d04"
+    "unixtime"     : Float # Unixtime with decimals
+    "identifier"   : String
+}

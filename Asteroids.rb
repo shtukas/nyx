@@ -46,7 +46,7 @@ class Asteroids
     def self.makePayloadInteractivelyOrNull(asteroiduuid)
         options = [
             "description",
-            "fragments"
+            "metal"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
         return nil if option.nil?
@@ -57,12 +57,14 @@ class Asteroids
                 "description" => description
             }
         end
-        if option == "fragments" then
-            fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex)
+        if option == "metal" then
+            fragment = Fragments::issueNewFragmentInteractivelyOrNull()
             return nil if fragment.nil?
-            Arrows::issueWithUUIDs(asteroiduuid, fragment["uuid"])
+            flock = Flocks::issue()
+            Arrows::issue(flock, fragment)
+            Arrows::issueWithUUIDs(asteroiduuid, flock["uuid"])
             return {
-                "type"        => "fragments",
+                "type"        => "metal",
                 "description" => nil
             }
         end
@@ -174,25 +176,24 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromFragment(fragment)
-    def self.issueAsteroidInboxFromFragment(fragment)
-        asteroiduuid = SecureRandom.uuid
-        Arrows::issueWithUUIDs(asteroiduuid, fragment["uuid"])
+    # Asteroids::issueAsteroidInboxFromFlock(flock)
+    def self.issueAsteroidInboxFromFlock(flock)
         payload = {
-            "type"         => "fragments",
+            "type"         => "metal",
             "description"  => nil
         }
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
         asteroid = {
-            "uuid"     => asteroiduuid,
+            "uuid"     => SecureRandom.uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
+        Arrows::issue(asteroid, flock)
         asteroid
     end
 
@@ -216,16 +217,15 @@ class Asteroids
             if payload["type"] == "description" then
                 return " " + payload["description"]
             end
-            if payload["type"] == "fragments" then
+            if payload["type"] == "metal" then
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    fragments = Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
-                    if fragments.size == 1 then
-                        fragment = fragments[0]
-                        return " #{Fragments::fragmentToString(fragment)}"
+                    flocks = Flocks::getFlocksForSource(asteroid)
+                    if flocks.size == 0 then
+                        return " (no flock found)"
                     end
-                    return " [fragment series] (no description given)"
+                    return " #{Flocks::flockToString(flocks[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -313,14 +313,16 @@ class Asteroids
             puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            if asteroid["payload"]["type"] == "fragments" then
+            if asteroid["payload"]["type"] == "metal" then
 
                 Miscellaneous::horizontalRule(true)
 
-                puts "Fragment Series:"
+                puts "Flocks:"
                 puts ""
 
-                Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembersLatestOfEachFamily(asteroid["uuid"]).each{|fragment|
+                Flocks::getFlocksForSource(asteroid).each{|flock|
+                    fragment = Flocks::getLastFlockFragmentOrNull(flock)
+                    next if fragment.nil?
                     menuitems.item(
                         Fragments::fragmentToString(fragment),
                         lambda { Fragments::openFragment(fragment) }
@@ -332,25 +334,17 @@ class Asteroids
                 menuitems.item(
                     "add new fragment to asteroid",
                     lambda { 
-                        fragment = Fragments::issueNewFragmentInteractivelyOrNull(SecureRandom.hex) 
+                        fragment = Fragments::issueNewFragmentInteractivelyOrNull()
                         return if fragment.nil?
-                        Arrows::issue(asteroid, fragment)
+                        flock = Flocks::issue()
+                        Arrows::issue(flock, fragment)
+                        Arrows::issue(asteroid, flock)
                     }
                 )
 
             end
 
             Miscellaneous::horizontalRule(true)
-
-            menuitems.item(
-                "open",
-                lambda {
-                    Asteroids::openPayload(asteroid)
-                    if !Asteroids::isRunning?(asteroid) and LucilleCore::askQuestionAnswerAsBoolean("Would you like to start ? ", false) then
-                        Runner::start(asteroid["uuid"])
-                    end
-                }
-            )
 
             menuitems.item(
                 "start",
@@ -609,7 +603,7 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "fragments" then
+        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "metal" then
             Asteroids::asteroidStartSequence(asteroid)
             Asteroids::openPayload(asteroid)
             return
@@ -754,17 +748,20 @@ class Asteroids
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
-        if asteroid["payload"]["type"] == "fragments" then
-            fragments = Fragments::getFragmentsForSourceInTimeOrderTransitiveToFamilyMembers(asteroid["uuid"])
-            if fragments.size == 0 then
+        if asteroid["payload"]["type"] == "metal" then
+            flocks = Flocks::getFlocksForSource(asteroid)
+            if flocks.size == 0 then
                 return
             end
-            if fragments.size == 1 then
-                fragment = fragments[0]
+            if flocks.size == 1 then
+                fragment = Flocks::getLastFlockFragmentOrNull(flock)
+                return if fragment.nil?
                 Fragments::openFragment(fragment)
                 return
             end
-            fragment = LucilleCore::selectEntityFromListOfEntitiesOrNull("fragment", fragments, lambda{ |fragment| Fragments::fragmentToString(fragment) })
+            flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
+            return if flock.nil?
+            fragment = Flocks::getLastFlockFragmentOrNull(flock)
             return if fragment.nil?
             Fragments::openFragment(fragment)
         end

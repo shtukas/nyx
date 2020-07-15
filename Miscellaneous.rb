@@ -250,10 +250,11 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            fragment = Fragments::issueAionPoint(SecureRandom.hex, namedhash) # this value is going to be picked up as the uuid of the asteroid
+            fragment = Fragments::issueAionPoint(namedhash)
             puts JSON.pretty_generate(fragment)
-
-            asteroid = Asteroids::issueAsteroidInboxFromFragment(fragment)
+            flock = Flocks::issue()
+            Arrows::issue(flock, fragment)
+            asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

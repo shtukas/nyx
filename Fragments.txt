@@ -11,7 +11,6 @@ Fragment
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "familyname"   : String
     "type"         : "line"
     "line"         : String
 }
@@ -20,7 +19,6 @@ Fragment
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "familyname"   : String
     "type"         : "url"
     "url"          : String
 }
@@ -29,7 +27,6 @@ Fragment
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "familyname"   : String
     "type"         : "text"
     "namedhash"    : String (Reference to a blob)
 }
@@ -38,7 +35,6 @@ Fragment
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "familyname"   : String
     "type"         : "aion-point"
     "namedhash"    : String (Librarian managed, accessed using the Desk)
 }
@@ -47,7 +43,6 @@ Fragment
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "familyname"   : String
     "type"         : "unique-name"
     "name"         : String # Use Atlas to find them
 }

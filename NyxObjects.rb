@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-NyxPrimaryObjectsObjectMapKey = "35a405c0-a862-4618-95d9-ff5f34c8919f"
-NyxPrimaryObjectsSetMapKey    = "35a405c0-a862-4618-95d9-28fb6ce56042"
-
 class NyxPrimaryObjects
 
     # NyxPrimaryObjects::nyxNxSets()
@@ -21,6 +18,7 @@ class NyxPrimaryObjects
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
+            "c18e8093-63d6-4072-8827-14f238975d04", # Flock
         ]
     end
 
@@ -49,7 +47,7 @@ class NyxPrimaryObjects
         end
         filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
         if File.exists?(filepath) then
-            raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
+            #raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
         object
@@ -87,97 +85,91 @@ class NyxPrimaryObjects
     end
 end
 
+NyxObjectsCachingKeyPrefix = "fd1c4b94-b6cb-4222-9715-fe201ed98016"
+
+class NyxObjectsCaching
+
+    # NyxObjectsCaching::getSetsMap(setid)
+    def self.getSetsMap(setid)
+        set = InMemoryWithOnDiskPersistenceValueCache::getOrNull("#{NyxObjectsCachingKeyPrefix}:#{setid}")
+        if set.nil? then
+            puts "-> computing #{setid} from scratch"
+            set = {}
+            NyxPrimaryObjects::objectsEnumerator()
+                .each{|o|
+                    if o["nyxNxSet"] == setid then
+                        set[o["uuid"]] = o
+                    end
+                }
+            InMemoryWithOnDiskPersistenceValueCache::set("#{NyxObjectsCachingKeyPrefix}:#{setid}", set)
+        end
+        set
+    end
+
+    # NyxObjectsCaching::setSetMap(setid, set)
+    def self.setSetMap(setid, set)
+        InMemoryWithOnDiskPersistenceValueCache::set("#{NyxObjectsCachingKeyPrefix}:#{setid}", set)
+    end
+end
+
 # ------------------------------------------------------------------------------
 # The rest of Catalyst should not know anything of what happens before this line
 # ------------------------------------------------------------------------------
 
 class NyxObjects
 
-    # NyxObjects::getObjectsMap()
-    def self.getObjectsMap()
-        objectsmap = InMemoryValueCache::getOrNull(NyxPrimaryObjectsObjectMapKey)
-        if objectsmap.nil? then
-            puts "-> computing objectsmap from scratch"
-            objectsmap = {}
-            NyxPrimaryObjects::objects().each{|object|
-                objectsmap[object["uuid"]] = object
-            }
-            InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
-        end
-        objectsmap
-    end
-
-    # NyxObjects::getSetsMap()
-    def self.getSetsMap()
-        setsmap = InMemoryValueCache::getOrNull(NyxPrimaryObjectsSetMapKey)
-        if setsmap.nil? then
-            puts "-> computing setsmap from scratch"
-            setsmap = {}
-            NyxPrimaryObjects::nyxNxSets().each{|setid|
-                setsmap[setid] = {}
-            }
-            NyxPrimaryObjects::objects().each{|object|
-                if setsmap[object["nyxNxSet"]].nil? then
-                    setsmap[object["nyxNxSet"]] = {}
-                end
-                setsmap[object["nyxNxSet"]][object["uuid"]] = object
-            }
-            InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
-        end
-        setsmap
-    end
-
     # NyxObjects::put(object)
     def self.put(object)
         NyxPrimaryObjects::put(object)
 
-        objectsmap = NyxObjects::getObjectsMap()
-        objectsmap[object["uuid"]] = object
-        InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
-
-        setsmap = NyxObjects::getSetsMap()
-        if setsmap[object["nyxNxSet"]].nil? then
-            setsmap[object["nyxNxSet"]] = {} # This happens when a set was intrduced after the last snapshot
-        end
-        setsmap[object["nyxNxSet"]][object["uuid"]] = object
-        InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
+        # Then we put the object into its cached set
+        setid = object["nyxNxSet"]
+        set = NyxObjectsCaching::getSetsMap(setid)
+        set[object["uuid"]] = object
+        NyxObjectsCaching::setSetMap(setid, set)
     end
 
     # NyxObjects::objects()
     def self.objects()
         # NyxPrimaryObjects::objects()
-        objectsmap = NyxObjects::getObjectsMap()
-        objectsmap.values
+
+        NyxPrimaryObjects::nyxNxSets()
+            .map{|setid| NyxObjectsCaching::getSetsMap(setid).values }
+            .flatten
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
         # NyxPrimaryObjects::getOrNull(uuid)
-        objectsmap = NyxObjects::getObjectsMap()
-        objectsmap[uuid]
+        
+        NyxPrimaryObjects::nyxNxSets()
+            .each{|setid|
+                setmap = NyxObjectsCaching::getSetsMap(setid)
+                if setmap[uuid] then
+                    return setmap[uuid]
+                end
+            }
+        nil
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
         #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
-        setsmap = NyxObjects::getSetsMap()
-        return [] if setsmap[setid].nil? # This happens when a set was intrduced after the last snapshot
-        setsmap[setid].values
+        
+        NyxObjectsCaching::getSetsMap(setid).values
     end
 
     # NyxObjects::destroy(uuid)
     def self.destroy(uuid)
         NyxPrimaryObjects::destroy(uuid)
 
-        objectsmap = NyxObjects::getObjectsMap()
-        objectsmap.delete(uuid)
-        InMemoryValueCache::set(NyxPrimaryObjectsObjectMapKey, objectsmap)
-
-        setsmap = NyxObjects::getSetsMap()
-        NyxPrimaryObjects::nyxNxSets().each{|setid|
-            next if setsmap[setid].nil?
-            setsmap[setid].delete(uuid)
-        }
-        InMemoryValueCache::set(NyxPrimaryObjectsSetMapKey, setsmap)
+        NyxPrimaryObjects::nyxNxSets()
+            .each{|setid|
+                setmap = NyxObjectsCaching::getSetsMap(setid)
+                if setmap[uuid] then
+                    setmap.delete(uuid)
+                    NyxObjectsCaching::setSetMap(setid, setmap)
+                end
+            }
     end
 end

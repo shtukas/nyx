@@ -72,6 +72,8 @@ require_relative "Drives.rb"
 
 require_relative "EstateServices.rb"
 
+require_relative "Flocks.rb"
+
 require_relative "GeneralSearch.rb"
 
 require_relative "InMemoryValueCache.rb"
