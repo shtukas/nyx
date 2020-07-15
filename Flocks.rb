@@ -16,7 +16,7 @@ class Flocks
 
     # Flocks::flocks()
     def self.flocks()
-        NyxObjects::getSet("4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f")
+        NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
     # Flocks::flockToString(flock)

@@ -325,7 +325,7 @@ class Asteroids
                     next if fragment.nil?
                     menuitems.item(
                         Fragments::fragmentToString(fragment),
-                        lambda { Fragments::openFragment(fragment) }
+                        lambda { Fragments::openFragment(flock, fragment) }
                     )
                 }
 
@@ -754,16 +754,17 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
+                flock = flocks[0]
                 fragment = Flocks::getLastFlockFragmentOrNull(flock)
                 return if fragment.nil?
-                Fragments::openFragment(fragment)
+                Fragments::openFragment(flock, fragment)
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
             fragment = Flocks::getLastFlockFragmentOrNull(flock)
             return if fragment.nil?
-            Fragments::openFragment(fragment)
+            Fragments::openFragment(flock, fragment)
         end
     end
 

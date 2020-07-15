@@ -61,15 +61,6 @@ class Points
 
     # Points::destroyPointByUUID(uuid)
     def self.destroyPointByUUID(uuid)
-        point = Points::getOrNull(uuid)
-        if point then
-             if point["type"] == "aion-point" then
-                folderpath = DeskOperator::deskFolderpathForFragmentCreateIfNotExists(point)
-                if folderpath then
-                    LucilleCore::removeFileSystemLocation(folderpath)
-                end
-            end
-        end
         NyxObjects::destroy(uuid)
     end
 
@@ -238,7 +229,7 @@ class Points
                 next if fragment.nil?
                 menuitems.item(
                     Fragments::fragmentToString(fragment),
-                    lambda { Fragments::openFragment(fragment) }
+                    lambda { Fragments::openFragment(flock, fragment) }
                 )
             }
 

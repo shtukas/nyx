@@ -132,23 +132,23 @@ class Fragments
 
         str = (lambda{|fragment|
             if fragment["type"] == "line" then
-                return "[fragment] [#{fragment["familyname"][0, 4]}] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["line"]}"
+                return "[fragment] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["line"]}"
             end
             if fragment["type"] == "url" then
-                return "[fragment] [#{fragment["familyname"][0, 4]}] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["url"]}"
+                return "[fragment] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["url"]}"
             end
             if fragment["type"] == "text" then
                 namedhashToFirstLine = lambda {|namedhash|
                     text = NyxBlobs::getBlobOrNull(namedhash).strip
                     line = text.size>0 ? text.lines.first.strip : "[empty text]"
                 }
-                return "[fragment] [#{fragment["familyname"][0, 4]}] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{namedhashToFirstLine.call(fragment["namedhash"])}"
+                return "[fragment] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{namedhashToFirstLine.call(fragment["namedhash"])}"
             end
             if fragment["type"] == "aion-point" then
-                return "[fragment] [#{fragment["familyname"][0, 4]}] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["namedhash"]}"
+                return "[fragment] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["namedhash"]}"
             end
             if fragment["type"] == "unique-name" then
-                return "[fragment] [#{fragment["familyname"][0, 4]}] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["name"]}"
+                return "[fragment] [#{fragment["uuid"][0, 4]}] [#{fragment["type"]}] #{fragment["name"]}"
             end
             raise "[Fragments error 2c53b113-cc79]"
         }).call(fragment)
@@ -157,8 +157,10 @@ class Fragments
         str
     end
 
-    # Fragments::openFragment(fragment)
-    def self.openFragment(fragment)
+    # Fragments::openFragment(flock, fragment)
+    def self.openFragment(flock, fragment)
+        puts "flock:"
+        puts JSON.pretty_generate(flock)
         puts "fragment:"
         puts JSON.pretty_generate(fragment)
         if fragment["type"] == "line" then
@@ -179,7 +181,7 @@ class Fragments
             return
         end
         if fragment["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForFragmentCreateIfNotExists(fragment)
+            folderpath = DeskOperator::deskFolderpathForFragmentCreateIfNotExists(flock, fragment)
             system("open '#{folderpath}'")
             return
         end
