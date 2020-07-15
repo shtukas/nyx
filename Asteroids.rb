@@ -546,7 +546,7 @@ class Asteroids
             return
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? (if no, will give you all orbital options) ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? (if no, will give you all orbital options) : ") then
             Asteroids::asteroidStopSequence(asteroid)
             asteroid["orbital"] = {
                 "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
