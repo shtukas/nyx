@@ -130,6 +130,11 @@ class DataPortalUI
             )
 
             ms.item(
+                "NyxGarbageCollection", 
+                lambda { NyxGarbageCollection::run() }
+            )
+
+            ms.item(
                 "Archive timeline garbage collection", 
                 lambda { 
                     puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"

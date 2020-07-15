@@ -103,8 +103,8 @@ class EstateServices
         EstateServices::archivesT1mel1neGarbageCollectionCore(nil, verbose)
     end
 
-    # EstateServices::surveyConstruction()
-    def self.surveyConstruction()
+    # EstateServices::surveyAndConstruction()
+    def self.surveyAndConstruction()
         userHomeDirectory = ENV['HOME']
         docnetFolderPath = "#{userHomeDirectory}/.docnet"
         if !File.exists?(docnetFolderPath) then

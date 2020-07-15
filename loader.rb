@@ -56,10 +56,9 @@ require_relative "BTreeSets.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
-
-require_relative "Comments.rb"
-
 require_relative "Cliques.rb"
+require_relative "Comments.rb"
+require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
 require_relative "DateTimeZ.rb"
@@ -110,6 +109,7 @@ require_relative "NetworkManager.rb"
 
 require_relative "Notes.rb"
 require_relative "NyxBlobs.rb"
+require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"
 
 require_relative "ProgrammableBooleans.rb"

@@ -40,6 +40,11 @@ class Arrows
         arrow
     end
 
+    # Arrows::arrows()
+    def self.arrows()
+        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+    end
+
     # Arrows::destroyArrow(source, target)
     def self.destroyArrow(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
