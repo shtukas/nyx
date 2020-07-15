@@ -107,13 +107,13 @@ class Cliques
 
             puts "Contents"
 
-            # Quarks
+            # Points
             Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                 .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-                .each{|quark|
+                .each{|point|
                     menuitems.item(
-                        Quarks::quarkToString(quark), 
-                        lambda { Quarks::quarkDive(quark) }
+                        Points::pointToString(point), 
+                        lambda { Points::pointDive(point) }
                     )
                 }
 
@@ -154,31 +154,31 @@ class Cliques
             if Cliques::canShowDiveOperations(clique) then
 
                 menuitems.item(
-                    "quark (add new)", 
+                    "point (add new)", 
                     lambda{
-                        quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                        return if quark.nil?
-                        Arrows::issue(clique, quark)
-                        Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
+                        point = Points::issueNewPointInteractivelyOrNull()
+                        return if point.nil?
+                        Arrows::issue(clique, point)
+                        Points::issueZeroOrMorePointTagsForPointInteractively(point)
                     }
                 )
 
                 menuitems.item(
-                    "graph maker: select multiple quark ; send to existing/new clique ; detach from this",
+                    "graph maker: select multiple point ; send to existing/new clique ; detach from this",
                     lambda {
-                        quarks = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedQuarks, _ = LucilleCore::selectZeroOrMore("quarks", [], quarks, toStringLambda = lambda{ |quark| Quarks::quarkToString(quark) })
-                        return if selectedQuarks.size == 0
+                        points = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedPoints, _ = LucilleCore::selectZeroOrMore("points", [], points, toStringLambda = lambda{ |point| Points::pointToString(point) })
+                        return if selectedPoints.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                         return if c.nil?
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
-                        puts "Linking quarks to clique"
-                        selectedQuarks.each{|quark| Arrows::issue(c, quark) }
-                        puts "Unlinking quarks from (this)"
-                        selectedQuarks.each{|quark| Arrows::destroyArrow(clique, quark) }
+                        puts "Linking points to clique"
+                        selectedPoints.each{|point| Arrows::issue(c, point) }
+                        puts "Unlinking points from (this)"
+                        selectedPoints.each{|point| Arrows::destroyArrow(clique, point) }
                     }
                 )
 
@@ -382,7 +382,7 @@ class Cliques
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
         Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
-            .each{|quark| Arrows::issue(clique1, quark) }
+            .each{|point| Arrows::issue(clique1, point) }
         NyxObjects::destroy(clique2["uuid"])
     end
 

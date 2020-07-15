@@ -114,7 +114,7 @@ require_relative "NyxObjects.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
-require_relative "Quarks.rb"
+require_relative "Points.rb"
 
 require_relative "Runner.rb"
 =begin 

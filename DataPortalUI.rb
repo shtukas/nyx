@@ -24,8 +24,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "quarks (listing)", 
-                lambda { Quarks::quarksListingAndDive() }
+                "points (listing)", 
+                lambda { Points::pointsListingAndDive() }
             )
 
             ms.item(
@@ -60,12 +60,12 @@ class DataPortalUI
             )
 
             ms.item(
-                "quark (new)",
+                "point (new)",
                 lambda { 
-                    quark = Quarks::issueNewQuarkInteractivelyOrNull()
-                    return if quark.nil?
-                    Quarks::issueZeroOrMoreQuarkTagsForQuarkInteractively(quark)
-                    Quarks::attachQuarkToZeroOrMoreCliquesInteractively(quark)
+                    point = Points::issueNewPointInteractivelyOrNull()
+                    return if point.nil?
+                    Points::issueZeroOrMorePointTagsForPointInteractively(point)
+                    Points::attachPointToZeroOrMoreCliquesInteractively(point)
                 }
             )
 

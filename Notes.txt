@@ -1,4 +1,4 @@
-Note , used as way to give extra information about a quark. They target the quark.
+Note, used as way to give extra information about a point. They target the point.
 
 {
     "uuid"       : String

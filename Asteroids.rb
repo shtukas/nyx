@@ -734,15 +734,15 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestructionQuarkHandling(quark)
-    def self.asteroidDestructionQuarkHandling(quark)
-        puts Quarks::quarkToString(quark)
-        return if Arrows::getSourceOfGivenSetsForTarget(quark, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
-        if LucilleCore::askQuestionAnswerAsBoolean("Retain quark ? ") then
-            Quarks::ensureQuarkDescription(quark)
-            Quarks::ensureAtLeastOneQuarkCliques(quark)
+    # Asteroids::asteroidDestructionPointHandling(point)
+    def self.asteroidDestructionPointHandling(point)
+        puts Points::pointToString(point)
+        return if Arrows::getSourceOfGivenSetsForTarget(point, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
+        if LucilleCore::askQuestionAnswerAsBoolean("Retain point ? ") then
+            Points::ensurePointDescription(point)
+            Points::ensureAtLeastOnePointCliques(point)
         else
-            Quarks::destroyQuarkByUUID(quark["uuid"])
+            Points::destroyPointByUUID(point["uuid"])
         end
     end
 

@@ -1,5 +1,5 @@
 
-Quark, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Spins.
+Point, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Spins.
 
 {
     "uuid"             : String

@@ -1,5 +1,5 @@
 
-Spins are data carriers. They allow Quarks to mutate.
+Spins are data carriers. They allow Points to mutate.
 
 The notion of spin family was introduced when I was working on introducing mutation of asteroids. Turns out that an asteroid can have more than one independant spins, but then we only want to show the latest version of a given one, hence the notion of a family. When we issue a replacement spin we replace the spins of the same family. 
 
