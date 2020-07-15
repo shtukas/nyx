@@ -163,12 +163,8 @@ class Asteroids
 
     # Asteroids::issue(payload, orbital)
     def self.issue(payload, orbital)
-        asteroiduuid = SecureRandom.uuid
-        if payload["type"] == "spins" then
-            asteroiduuid = payload["asteroiduuid"]
-        end
         asteroid = {
-            "uuid"     => asteroiduuid,
+            "uuid"     => SecureRandom.uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,

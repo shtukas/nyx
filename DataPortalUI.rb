@@ -130,7 +130,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "Timeline garbage collection", 
+                "Archive timeline garbage collection", 
                 lambda { 
                     puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
                     EstateServices::binT1mel1neGarbageCollectionEnvelop(true)

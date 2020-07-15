@@ -31,6 +31,8 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         Spins::spins()
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }  # We want the last of a family to come first (part 1)
+            .reverse                                            # We want the last of a family to come first (part 2)
             .each{|spin|
                 next if spin["type"] != "aion-point"
                 desk_folderpath_for_spin = DeskOperator::deskFolderpathForSpin(spin)
