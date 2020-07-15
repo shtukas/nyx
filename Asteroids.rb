@@ -324,7 +324,7 @@ class Asteroids
                     frame = Flocks::getLastFlockFrameOrNull(flock)
                     next if frame.nil?
                     menuitems.item(
-                        Frames::frameToString(frame),
+                        Flocks::flockToString(flock),
                         lambda { Frames::openFrame(flock, frame) }
                     )
                 }
@@ -332,13 +332,24 @@ class Asteroids
                 puts ""
 
                 menuitems.item(
-                    "add new frame to asteroid",
+                    "add new flock",
                     lambda { 
                         frame = Frames::issueNewFrameInteractivelyOrNull()
                         return if frame.nil?
                         flock = Flocks::issue()
                         Arrows::issue(flock, frame)
                         Arrows::issue(asteroid, flock)
+                    }
+                )
+                menuitems.item(
+                    "select flock and destroy",
+                    lambda { 
+                        flocks = Flocks::getFlocksForSource(asteroid)
+                        flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
+                        return if flock.nil?
+                        if LucilleCore::askQuestionAnswerAsBoolean("are you sure to want to destroy this flock? : ") then
+                            NyxObjects::destroy(flock["uuid"])
+                        end
                     }
                 )
 
