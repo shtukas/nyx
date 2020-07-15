@@ -45,9 +45,9 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    fragment = Fragments::issueUrl(link)
+    frame = Frames::issueUrl(link)
     flock = Flocks::issue()
-    Arrows::issue(flock, fragment)
+    Arrows::issue(flock, frame)
     asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
     viennaLinkFeeder.done(link)
 }

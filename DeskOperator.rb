@@ -8,12 +8,12 @@ class DeskOperator
         "#{EstateServices::getDeskFolderpath()}/#{flock["uuid"]}"
     end
 
-    # DeskOperator::deskFolderpathForFragmentCreateIfNotExists(flock, fragment)
-    def self.deskFolderpathForFragmentCreateIfNotExists(flock, fragment)
+    # DeskOperator::deskFolderpathForFrameCreateIfNotExists(flock, frame)
+    def self.deskFolderpathForFrameCreateIfNotExists(flock, frame)
         desk_folderpath_for_flock = DeskOperator::deskFolderpathForFlock(flock)
         if !File.exists?(desk_folderpath_for_flock) then
             FileUtils.mkpath(desk_folderpath_for_flock)
-            namedhash = fragment["namedhash"]
+            namedhash = frame["namedhash"]
             LibrarianOperator::namedHashExportAtFolder(namedhash, desk_folderpath_for_flock)
             # If the desk_folderpath_for_flock folder contains just one folder named after the flock itself
             # Then this means that we are exporting a previously imported desk_folderpath_for_flock.
@@ -31,23 +31,23 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         Flocks::flocks().each{|flock|
-            fragment = Flocks::getLastFlockFragmentOrNull(flock)
-            next if fragment.nil?
-            next if fragment["type"] != "aion-point"
+            frame = Flocks::getLastFlockFrameOrNull(flock)
+            next if frame.nil?
+            next if frame["type"] != "aion-point"
             desk_folderpath_for_flock = DeskOperator::deskFolderpathForFlock(flock)
             next if !File.exists?(desk_folderpath_for_flock)
-            #puts "fragment:"
-            #puts JSON.pretty_generate(fragment)
+            #puts "frame:"
+            #puts JSON.pretty_generate(frame)
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_flock)
             #puts "namedhash from folder: #{namedhash}"
-            if namedhash == fragment["namedhash"] then
+            if namedhash == frame["namedhash"] then
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_flock)
                 next
             end
-            newfragment = Fragments::issueAionPoint(namedhash)
-            Arrows::issue(flock, newfragment)
-            #puts "new fragment:"
-            #puts JSON.pretty_generate(newfragment)
+            newframe = Frames::issueAionPoint(namedhash)
+            Arrows::issue(flock, newframe)
+            #puts "new frame:"
+            #puts JSON.pretty_generate(newframe)
             LucilleCore::removeFileSystemLocation(desk_folderpath_for_flock)
         }
     end

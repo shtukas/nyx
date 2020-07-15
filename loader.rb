@@ -128,7 +128,7 @@ require_relative "Runner.rb"
 =end
 
 require_relative "ShadowFS.rb"
-require_relative "Fragments.rb"
+require_relative "Frames.rb"
 
 require_relative "Tags.rb"
 require_relative "TextZs.rb"

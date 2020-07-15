@@ -1,5 +1,5 @@
 
-Flocks define the various mutation of a Fragment. People interested in Fragments don't link to them, they link to the Flock
+Flocks define the various mutation of a Frame. People interested in Frames don't link to them, they link to the Flock
 
 Flock {
     "uuid"         : String

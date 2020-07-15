@@ -27,15 +27,15 @@ class Points
         #puts JSON.pretty_generate(point)
         Points::commitPointToDisk(point)
 
-        fragment = Fragments::issueNewFragmentInteractivelyOrNull()
-        return point if fragment.nil?
-        #puts JSON.pretty_generate(fragment)
+        frame = Frames::issueNewFrameInteractivelyOrNull()
+        return point if frame.nil?
+        #puts JSON.pretty_generate(frame)
 
         flock = Flocks::issue()
-        Arrows::issue(flock, fragment)
+        Arrows::issue(flock, frame)
         Arrows::issue(point, flock)
 
-        if ["line", "url", "text"].include?(fragment["type"]) then
+        if ["line", "url", "text"].include?(frame["type"]) then
             return point
         end
 
@@ -225,22 +225,22 @@ class Points
             puts ""
 
             Flocks::getFlocksForSource(point).each{|flock|
-                fragment = Flocks::getLastFlockFragmentOrNull(flock)
-                next if fragment.nil?
+                frame = Flocks::getLastFlockFrameOrNull(flock)
+                next if frame.nil?
                 menuitems.item(
-                    Fragments::fragmentToString(fragment),
-                    lambda { Fragments::openFragment(flock, fragment) }
+                    Frames::frameToString(frame),
+                    lambda { Frames::openFrame(flock, frame) }
                 )
             }
 
             puts ""
             menuitems.item(
-                "add new fragment to point",
+                "add new frame to point",
                 lambda { 
-                    fragment = Fragments::issueNewFragmentInteractivelyOrNull()
-                    return if fragment.nil?
+                    frame = Frames::issueNewFrameInteractivelyOrNull()
+                    return if frame.nil?
                     flock = Flocks::issue()
-                    Arrows::issue(flock, fragment)
+                    Arrows::issue(flock, frame)
                     Arrows::issue(point, flock)
                 }
             )

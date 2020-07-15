@@ -250,10 +250,10 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            fragment = Fragments::issueAionPoint(namedhash)
-            puts JSON.pretty_generate(fragment)
+            frame = Frames::issueAionPoint(namedhash)
+            puts JSON.pretty_generate(frame)
             flock = Flocks::issue()
-            Arrows::issue(flock, fragment)
+            Arrows::issue(flock, frame)
             asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)

@@ -1,5 +1,5 @@
 
-Point, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Fragments.
+Point, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Frames.
 
 {
     "uuid"             : String

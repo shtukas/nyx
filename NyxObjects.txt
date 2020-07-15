@@ -11,13 +11,13 @@ Nyx
 
         DescriptionZ  # DescriptionZ.txt
                       # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # Fragment, Point, Clique
+                      # Frame, Point, Clique
 
         DateTimeZ     # DateTimeZ.txt
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"
                       # Point, Clique
 
-        Fragment          # Fragments.txt
+        Frame          # Frames.txt
                       # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
                       # Point
 

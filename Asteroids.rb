@@ -58,10 +58,10 @@ class Asteroids
             }
         end
         if option == "metal" then
-            fragment = Fragments::issueNewFragmentInteractivelyOrNull()
-            return nil if fragment.nil?
+            frame = Frames::issueNewFrameInteractivelyOrNull()
+            return nil if frame.nil?
             flock = Flocks::issue()
-            Arrows::issue(flock, fragment)
+            Arrows::issue(flock, frame)
             Arrows::issueWithUUIDs(asteroiduuid, flock["uuid"])
             return {
                 "type"        => "metal",
@@ -212,7 +212,7 @@ class Asteroids
 
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
-        payloadFragment = lambda{|asteroid|
+        payloadFrame = lambda{|asteroid|
             payload = asteroid["payload"]
             if payload["type"] == "description" then
                 return " " + payload["description"]
@@ -231,7 +231,7 @@ class Asteroids
             puts JSON.pretty_generate(asteroid)
             raise "[Asteroids] error: CE8497BB"
         }
-        orbitalFragment = lambda{|asteroid|
+        orbitalFrame = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
                 return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
@@ -252,7 +252,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadFragment.call(asteroid)}#{orbitalFragment.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadFrame.call(asteroid)}#{orbitalFrame.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -300,7 +300,7 @@ class Asteroids
             menuitems.item(
                 "set asteroid description",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("fragment series description: ")
+                    description = LucilleCore::askQuestionAnswerAsString("frame series description: ")
                     return if description == ""
                     asteroid["payload"]["description"] = description
                     Asteroids::reCommitToDisk(asteroid)
@@ -321,23 +321,23 @@ class Asteroids
                 puts ""
 
                 Flocks::getFlocksForSource(asteroid).each{|flock|
-                    fragment = Flocks::getLastFlockFragmentOrNull(flock)
-                    next if fragment.nil?
+                    frame = Flocks::getLastFlockFrameOrNull(flock)
+                    next if frame.nil?
                     menuitems.item(
-                        Fragments::fragmentToString(fragment),
-                        lambda { Fragments::openFragment(flock, fragment) }
+                        Frames::frameToString(frame),
+                        lambda { Frames::openFrame(flock, frame) }
                     )
                 }
 
                 puts ""
 
                 menuitems.item(
-                    "add new fragment to asteroid",
+                    "add new frame to asteroid",
                     lambda { 
-                        fragment = Fragments::issueNewFragmentInteractivelyOrNull()
-                        return if fragment.nil?
+                        frame = Frames::issueNewFrameInteractivelyOrNull()
+                        return if frame.nil?
                         flock = Flocks::issue()
-                        Arrows::issue(flock, fragment)
+                        Arrows::issue(flock, frame)
                         Arrows::issue(asteroid, flock)
                     }
                 )
@@ -755,16 +755,16 @@ class Asteroids
             end
             if flocks.size == 1 then
                 flock = flocks[0]
-                fragment = Flocks::getLastFlockFragmentOrNull(flock)
-                return if fragment.nil?
-                Fragments::openFragment(flock, fragment)
+                frame = Flocks::getLastFlockFrameOrNull(flock)
+                return if frame.nil?
+                Frames::openFrame(flock, frame)
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            fragment = Flocks::getLastFlockFragmentOrNull(flock)
-            return if fragment.nil?
-            Fragments::openFragment(flock, fragment)
+            frame = Flocks::getLastFlockFrameOrNull(flock)
+            return if frame.nil?
+            Frames::openFrame(flock, frame)
         end
     end
 
@@ -779,8 +779,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::getFragmentsForAsteroid(asteroid)
-    def self.getFragmentsForAsteroid(asteroid)
+    # Asteroids::getFramesForAsteroid(asteroid)
+    def self.getFramesForAsteroid(asteroid)
         Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
