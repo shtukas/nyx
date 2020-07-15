@@ -728,15 +728,15 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestructionPointHandling(point)
-    def self.asteroidDestructionPointHandling(point)
-        puts Points::pointToString(point)
-        return if Arrows::getSourceOfGivenSetsForTarget(point, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
-        if LucilleCore::askQuestionAnswerAsBoolean("Retain point ? ") then
-            Points::ensurePointDescription(point)
-            Points::ensureAtLeastOnePointCliques(point)
+    # Asteroids::asteroidDestructionPageHandling(page)
+    def self.asteroidDestructionPageHandling(page)
+        puts Pages::pageToString(page)
+        return if Arrows::getSourceOfGivenSetsForTarget(page, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
+        if LucilleCore::askQuestionAnswerAsBoolean("Retain page ? ") then
+            Pages::ensurePageDescription(page)
+            Pages::ensureAtLeastOnePageCliques(page)
         else
-            Points::destroyPointByUUID(point["uuid"])
+            Pages::destroyPageByUUID(page["uuid"])
         end
     end
 

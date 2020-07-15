@@ -107,13 +107,13 @@ class Cliques
 
             puts "Contents"
 
-            # Points
+            # Pages
             Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                 .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-                .each{|point|
+                .each{|page|
                     menuitems.item(
-                        Points::pointToString(point), 
-                        lambda { Points::pointDive(point) }
+                        Pages::pageToString(page), 
+                        lambda { Pages::pageDive(page) }
                     )
                 }
 
@@ -154,31 +154,31 @@ class Cliques
             if Cliques::canShowDiveOperations(clique) then
 
                 menuitems.item(
-                    "point (add new)", 
+                    "page (add new)", 
                     lambda{
-                        point = Points::issueNewPointInteractivelyOrNull()
-                        return if point.nil?
-                        Arrows::issue(clique, point)
-                        Points::issueZeroOrMorePointTagsForPointInteractively(point)
+                        page = Pages::issueNewPageInteractivelyOrNull()
+                        return if page.nil?
+                        Arrows::issue(clique, page)
+                        Pages::issueZeroOrMorePageTagsForPageInteractively(page)
                     }
                 )
 
                 menuitems.item(
-                    "graph maker: select multiple point ; send to existing/new clique ; detach from this",
+                    "graph maker: select multiple page ; send to existing/new clique ; detach from this",
                     lambda {
-                        points = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedPoints, _ = LucilleCore::selectZeroOrMore("points", [], points, toStringLambda = lambda{ |point| Points::pointToString(point) })
-                        return if selectedPoints.size == 0
+                        pages = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedPages, _ = LucilleCore::selectZeroOrMore("pages", [], pages, toStringLambda = lambda{ |page| Pages::pageToString(page) })
+                        return if selectedPages.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                         return if c.nil?
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
-                        puts "Linking points to clique"
-                        selectedPoints.each{|point| Arrows::issue(c, point) }
-                        puts "Unlinking points from (this)"
-                        selectedPoints.each{|point| Arrows::destroyArrow(clique, point) }
+                        puts "Linking pages to clique"
+                        selectedPages.each{|page| Arrows::issue(c, page) }
+                        puts "Unlinking pages from (this)"
+                        selectedPages.each{|page| Arrows::destroyArrow(clique, page) }
                     }
                 )
 
@@ -382,7 +382,7 @@ class Cliques
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
         Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
-            .each{|point| Arrows::issue(clique1, point) }
+            .each{|page| Arrows::issue(clique1, page) }
         NyxObjects::destroy(clique2["uuid"])
     end
 

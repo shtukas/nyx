@@ -73,6 +73,7 @@ require_relative "Drives.rb"
 require_relative "EstateServices.rb"
 
 require_relative "Flocks.rb"
+require_relative "Frames.rb"
 
 require_relative "GeneralSearch.rb"
 
@@ -116,8 +117,7 @@ require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"
 
 require_relative "ProgrammableBooleans.rb"
-
-require_relative "Points.rb"
+require_relative "Pages.rb"
 
 require_relative "Runner.rb"
 =begin 
@@ -128,7 +128,6 @@ require_relative "Runner.rb"
 =end
 
 require_relative "ShadowFS.rb"
-require_relative "Frames.rb"
 
 require_relative "Tags.rb"
 require_relative "TextZs.rb"

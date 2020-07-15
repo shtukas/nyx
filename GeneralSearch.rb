@@ -7,7 +7,7 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             Cliques::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
-            Points::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
+            Pages::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
             Waves::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
         ]
             .flatten

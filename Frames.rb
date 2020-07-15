@@ -60,8 +60,8 @@ class Frames
         object
     end
 
-    # Frames::issueAionPoint(namedhash)
-    def self.issueAionPoint(namedhash)
+    # Frames::issueAionPage(namedhash)
+    def self.issueAionPage(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
@@ -111,7 +111,7 @@ class Frames
             location = Frames::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return Frames::issueAionPoint(namedhash)
+            return Frames::issueAionPage(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")

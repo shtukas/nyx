@@ -24,8 +24,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "points (listing)", 
-                lambda { Points::pointsListingAndDive() }
+                "pages (listing)", 
+                lambda { Pages::pagesListingAndDive() }
             )
 
             ms.item(
@@ -60,12 +60,12 @@ class DataPortalUI
             )
 
             ms.item(
-                "point (new)",
+                "page (new)",
                 lambda { 
-                    point = Points::issueNewPointInteractivelyOrNull()
-                    return if point.nil?
-                    Points::issueZeroOrMorePointTagsForPointInteractively(point)
-                    Points::attachPointToZeroOrMoreCliquesInteractively(point)
+                    page = Pages::issueNewPageInteractivelyOrNull()
+                    return if page.nil?
+                    Pages::issueZeroOrMorePageTagsForPageInteractively(page)
+                    Pages::attachPageToZeroOrMoreCliquesInteractively(page)
                 }
             )
 
