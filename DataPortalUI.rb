@@ -62,9 +62,7 @@ class DataPortalUI
             ms.item(
                 "page (new)",
                 lambda { 
-                    page = Pages::issueNewPageInteractivelyOrNull()
-                    return if page.nil?
-                    Pages::issueZeroOrMorePageTagsForPageInteractively(page)
+                    page = Pages::issueNewPageInteractively()
                     Pages::attachPageToZeroOrMoreCliquesInteractively(page)
                 }
             )

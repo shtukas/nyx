@@ -15,8 +15,8 @@ class Pages
         NyxObjects::put(page)
     end
 
-    # Pages::issueNewPageInteractivelyOrNull()
-    def self.issueNewPageInteractivelyOrNull()
+    # Pages::issueNewPageInteractively()
+    def self.issueNewPageInteractively()
         puts "Issuing a new Page..."
 
         page = {
@@ -24,19 +24,13 @@ class Pages
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
-        #puts JSON.pretty_generate(page)
+        puts JSON.pretty_generate(page)
         Pages::commitPageToDisk(page)
 
-        frame = Frames::issueNewFrameInteractivelyOrNull()
-        return page if frame.nil?
-        #puts JSON.pretty_generate(frame)
-
-        flock = Flocks::issue()
-        Arrows::issue(flock, frame)
-        Arrows::issue(page, flock)
-
-        if ["line", "url", "text"].include?(frame["type"]) then
-            return page
+        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+        if flock then
+            puts JSON.pretty_generate(flock)
+            Arrows::issue(page, flock)
         end
 
         description = LucilleCore::askQuestionAnswerAsString("page description: ")
@@ -44,6 +38,8 @@ class Pages
             descriptionz = DescriptionZ::issue(page["uuid"], description)
             puts JSON.pretty_generate(descriptionz)
         end
+
+        Pages::issueZeroOrMorePageTagsForPageInteractively(page)
 
         page
     end

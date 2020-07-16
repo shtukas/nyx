@@ -75,10 +75,12 @@ class Flocks
 
     # Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
     def self.issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+        puts "Making a new Flock..."
         frame = Frames::issueNewFrameInteractivelyOrNull()
         return nil if frame.nil?
         flock = Flocks::issue()
         Arrows::issue(flock, frame)
+        Flocks::giveDescriptionToFlockInteractively(flock)
         flock
     end
 end

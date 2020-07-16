@@ -107,14 +107,31 @@ class Cliques
             puts "Contents"
 
             # Pages
-            Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+            Cliques::getCliquePagesInTimeOrder(clique)
                 .each{|page|
                     menuitems.item(
                         Pages::pageToString(page), 
                         lambda { Pages::pageDive(page) }
                     )
                 }
+
+            puts ""
+            menuitems.item(
+                "add new page", 
+                lambda{
+                    page = Pages::issueNewPageInteractively()
+                    Arrows::issue(clique, page)
+                }
+            )
+
+            menuitems.item(
+                "select page and remove from clique", 
+                lambda{
+                    page = LucilleCore::selectEntityFromListOfEntitiesOrNull("page", Cliques::getCliquePagesInTimeOrder(clique), lambda{|page| Pages::pageToString(page) })
+                    return if page.nil?
+                    Arrows::removeArrow(clique, page)
+                }
+            )
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
@@ -171,16 +188,6 @@ class Cliques
             if Cliques::canShowDiveOperations(clique) then
 
                 menuitems.item(
-                    "page (add new)", 
-                    lambda{
-                        page = Pages::issueNewPageInteractivelyOrNull()
-                        return if page.nil?
-                        Arrows::issue(clique, page)
-                        Pages::issueZeroOrMorePageTagsForPageInteractively(page)
-                    }
-                )
-
-                menuitems.item(
                     "graph maker: select multiple page ; send to existing/new clique ; detach from this",
                     lambda {
                         pages = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
@@ -195,7 +202,7 @@ class Cliques
                         puts "Linking pages to clique"
                         selectedPages.each{|page| Arrows::issue(c, page) }
                         puts "Unlinking pages from (this)"
-                        selectedPages.each{|page| Arrows::destroyArrow(clique, page) }
+                        selectedPages.each{|page| Arrows::removeArrow(clique, page) }
                     }
                 )
 
@@ -262,6 +269,12 @@ class Cliques
     end
 
     # ---------------------------------------------------
+
+    # Cliques::getCliquePagesInTimeOrder(clique)
+    def self.getCliquePagesInTimeOrder(clique)
+        Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+    end
 
     # Cliques::getRootClique()
     def self.getRootClique()

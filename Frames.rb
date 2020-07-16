@@ -159,10 +159,10 @@ class Frames
 
     # Frames::openFrame(flock, frame)
     def self.openFrame(flock, frame)
-        puts "flock:"
-        puts JSON.pretty_generate(flock)
-        puts "frame:"
-        puts JSON.pretty_generate(frame)
+        #puts "flock:"
+        #puts JSON.pretty_generate(flock)
+        #puts "frame:"
+        #puts JSON.pretty_generate(frame)
         if frame["type"] == "line" then
             puts frame["line"]
             LucilleCore::pressEnterToContinue()
