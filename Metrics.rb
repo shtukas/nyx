@@ -3,25 +3,9 @@
 
 class Metrics
 
-    # Metrics::best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
-    def self.best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
-        (1..7)
-            .map{|i|
-                lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
-                timedone = Bank::valueOverTimespan(bankuuid, lookupPeriodInSeconds)
-                timedone.to_f/lookupPeriodInSeconds
-            }
-            .max
-    end
-
-    # Metrics::recoveredDailyTimeInHours(bankuuid)
-    def self.recoveredDailyTimeInHours(bankuuid)
-        (Metrics::best7SamplesTimeRatioOverPeriod(bankuuid, 86400*7)*86400).to_f/3600
-    end
-
     # Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(basemetric, bankuuid, dailyExpectationInSeconds)
     def self.achieveDataComputedDailyExpectationInSecondsThenFall(basemetric, bankuuid, dailyExpectationInSeconds)
-        recoveredTimeInHours = Metrics::recoveredDailyTimeInHours(bankuuid)
+        recoveredTimeInHours = BankExtended::recoveredDailyTimeInHours(bankuuid)
         expectedTimeInHours = dailyExpectationInSeconds.to_f/3600
         if recoveredTimeInHours < expectedTimeInHours then
             basemetric

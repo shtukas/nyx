@@ -157,14 +157,22 @@ class Cliques
             puts "Navigation:"
 
             if !Cliques::isRoot?(clique) then
-                Cliques::getCliqueNavigationSources(clique).each{|c|
+                sources = Cliques::getCliqueNavigationSources(clique)
+                if sources.size > 0 then
+                    puts ""
+                end
+                sources.each{|c|
                     menuitems.item(
                         "source: #{Cliques::cliqueToString(c)}", 
                         lambda { Cliques::landing(c) }
                     )
                 }
             end
-            Cliques::getCliqueNavigationTargets(clique).each{|c|
+            targets = Cliques::getCliqueNavigationTargets(clique)
+            if targets.size > 0 then
+                puts ""
+            end
+            targets.each{|c|
                 menuitems.item(
                     "target: #{Cliques::cliqueToString(c)}", 
                     lambda { Cliques::landing(c) }

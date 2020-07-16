@@ -41,3 +41,22 @@ class Bank
                 .inject(0, :+)
     end
 end
+
+class BankExtended
+
+    # BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
+    def self.best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
+        (1..7)
+            .map{|i|
+                lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
+                timedone = Bank::valueOverTimespan(bankuuid, lookupPeriodInSeconds)
+                timedone.to_f/lookupPeriodInSeconds
+            }
+            .max
+    end
+
+    # BankExtended::recoveredDailyTimeInHours(bankuuid)
+    def self.recoveredDailyTimeInHours(bankuuid)
+        (BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, 86400*7)*86400).to_f/3600
+    end
+end

@@ -119,11 +119,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "Nyx curation", 
-                lambda { Curation::run() }
-            )
-
-            ms.item(
                 "Commit desk changes to primary repository", 
                 lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
             )

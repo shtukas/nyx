@@ -146,7 +146,7 @@ class Flocks
             Flocks::getCubesForFlock(flock)
                 .each{|cube|
                     menuitems.item(
-                        "cube: #{Cubes::cubeToString(cube)}", 
+                        "parent cube: #{Cubes::cubeToString(cube)}", 
                         lambda { Cubes::landing(cube) }
                     )
                 }

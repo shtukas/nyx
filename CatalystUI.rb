@@ -156,6 +156,8 @@ class CatalystUI
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
 
+            Curation::run()
+
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then

@@ -240,7 +240,7 @@ class Asteroids
                 return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
             end
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                return " (daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{Metrics::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
+                return " (daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
             end
             ""
         }
@@ -421,7 +421,7 @@ class Asteroids
         end
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return 0.70 - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+            return 0.70 - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
@@ -433,21 +433,21 @@ class Asteroids
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
             x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
-            x2 = - 0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+            x2 = - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
             x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
  
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
             x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*Metrics::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
