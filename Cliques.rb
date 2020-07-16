@@ -51,7 +51,7 @@ class Cliques
     def self.dive(clique)
         loop {
 
-            clique = NyxObjects::getOrNull(clique["uuid"])
+            clique = Cliques::getOrNull(clique["uuid"])
 
             return if clique.nil? # could have been destroyed in a previous loop
 
@@ -239,6 +239,7 @@ class Cliques
         end
 
         loop {
+            break if Cliques::getOrNull(clique["uuid"]).nil?
             system("clear")
             puts Cliques::cliqueToString(clique)
             puts ""

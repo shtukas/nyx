@@ -300,6 +300,7 @@ class Cubes
             return
         end
         loop {
+            break if Cubes::getOrNull(cube["uuid"]).nil?
             system("clear")
             puts Cubes::cubeToString(cube)
             puts ""
