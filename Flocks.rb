@@ -21,11 +21,17 @@ class Flocks
 
     # Flocks::flockToString(flock)
     def self.flockToString(flock)
+        frames = Flocks::getFramesForFlock(flock)
         description = DescriptionZ::getLastDescriptionForTargetOrNull(flock["uuid"])
         if description then
-            return "[flock] #{description}"
+            frametype =
+                if frames.size > 0 then
+                    frametype = " [#{frames.last["type"]}]"
+                else
+                    ""
+                end
+            return "[flock]#{frametype} #{description}"
         end
-        frames = Flocks::getFramesForFlock(flock)
         if frames.size > 0 then
             return "[flock] #{Frames::frameToString(frames[0])}"
         end
@@ -82,5 +88,32 @@ class Flocks
         Arrows::issue(flock, frame)
         Flocks::giveDescriptionToFlockInteractively(flock)
         flock
+    end
+
+    # Flocks::dive(flock)
+    def self.dive(flock)
+        loop {
+            system("clear")
+            puts Flocks::flockToString(flock)
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item(
+                "update name",
+                lambda { Flocks::giveDescriptionToFlockInteractively(flock) }
+            )
+            menuitems.item(
+                "open",
+                lambda { Flocks::openFlock(flock) }
+            )
+            menuitems.item(
+                "destroy",
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this flock ? ") then
+                        NyxObjects::destroy(flock["uuid"])
+                    end
+                }
+            )
+            status = menuitems.prompt()
+            break if !status
+        }
     end
 end

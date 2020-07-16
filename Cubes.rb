@@ -74,7 +74,7 @@ class Cubes
 
         flocks = Flocks::getFlocksForSource(cube)
         if flocks.size > 0 then
-            str = Flocks::flockToString(flocks[0])
+            str = "[cube] #{Flocks::flockToString(flocks[0])}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{cube["uuid"]}", str)
             return str
         end
@@ -99,19 +99,18 @@ class Cubes
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule(false)
+
             # -------------------------------------------
             # Cube metadata
-            puts "Cube: #{Cubes::cubeToString(cube)}"
+            puts Cubes::cubeToString(cube)
 
-            descriptionz = DescriptionZ::getDescriptionZsForTargetInTimeOrder(cube["uuid"]).last
-            if descriptionz then
-                puts "    description: #{descriptionz["description"]}"
-            else
-                puts "    #{Cubes::cubeToString(cube)}"
+            description = DescriptionZ::getLastDescriptionForTargetOrNull(cube["uuid"])
+            if description then
+                puts "description: #{description}"
             end
 
-            puts "    uuid: #{cube["uuid"]}"
-            puts "    date: #{Cubes::getCubeReferenceDateTime(cube)}"
+            puts "uuid: #{cube["uuid"]}"
+            puts "date: #{Cubes::getCubeReferenceDateTime(cube)}"
 
             notetext = Notes::getMostRecentTextForTargetOrNull(cube["uuid"])
             if notetext then
@@ -221,7 +220,7 @@ class Cubes
             Flocks::getFlocksForSource(cube).each{|flock|
                 menuitems.item(
                     Flocks::flockToString(flock),
-                    lambda { Flocks::openFlock(flock) }
+                    lambda { Flocks::dive(flock) }
                 )
             }
 
@@ -231,28 +230,6 @@ class Cubes
                 lambda { 
                     flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
                     Arrows::issue(cube, flock)
-                }
-            )
-
-            menuitems.item(
-                "select flock and name",
-                lambda { 
-                    flocks = Flocks::getFlocksForSource(cube)
-                    flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
-                    return if flock.nil?
-                    Flocks::giveDescriptionToFlockInteractively(flock)
-                }
-            )
-
-            menuitems.item(
-                "select flock and destroy",
-                lambda { 
-                    flocks = Flocks::getFlocksForSource(cube)
-                    flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
-                    return if flock.nil?
-                    if LucilleCore::askQuestionAnswerAsBoolean("are you sure to want to destroy this flock? : ") then
-                        NyxObjects::destroy(flock["uuid"])
-                    end
                 }
             )
 
@@ -272,7 +249,6 @@ class Cubes
                 }
 
             puts ""
-            puts "Cube/Cliques Operations:"
 
             menuitems.item(
                 "clique (link to)",

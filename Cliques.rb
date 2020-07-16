@@ -63,18 +63,14 @@ class Cliques
             # ----------------------------------------------------------
             # Clique Identity Information
 
-            puts "Clique: #{Cliques::cliqueToString(clique)}"
-
-            DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
-                .last(1)
-                .each{|descriptionz|
-                    puts "    name: #{descriptionz["description"]}"
-                }
-
-            puts "    uuid: #{clique["uuid"]}"
+            puts Cliques::cliqueToString(clique)
+            puts "uuid: #{clique["uuid"]}"
+            description = DescriptionZ::getLastDescriptionForTargetOrNull(clique["uuid"])
+            if description then
+                puts "description: #{description}"
+            end
 
             notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
-
             if notetext then
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
