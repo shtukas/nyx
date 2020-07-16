@@ -334,13 +334,22 @@ class Asteroids
                 menuitems.item(
                     "add new flock",
                     lambda { 
-                        frame = Frames::issueNewFrameInteractivelyOrNull()
-                        return if frame.nil?
-                        flock = Flocks::issue()
-                        Arrows::issue(flock, frame)
+                        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+                        return if flock.nil?
                         Arrows::issue(asteroid, flock)
                     }
                 )
+
+                menuitems.item(
+                    "select flock and name",
+                    lambda { 
+                        flocks = Flocks::getFlocksForSource(asteroid)
+                        flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
+                        return if flock.nil?
+                        Flocks::giveDescriptionToFlockInteractively(flock)
+                    }
+                )
+
                 menuitems.item(
                     "select flock and destroy",
                     lambda { 
@@ -753,17 +762,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                flock = flocks[0]
-                frame = Flocks::getLastFlockFrameOrNull(flock)
-                return if frame.nil?
-                Frames::openFrame(flock, frame)
+                Flocks::openFlock(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            frame = Flocks::getLastFlockFrameOrNull(flock)
-            return if frame.nil?
-            Frames::openFrame(flock, frame)
+            Flocks::openFlock(flock)
         end
     end
 

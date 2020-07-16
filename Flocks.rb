@@ -21,11 +21,15 @@ class Flocks
 
     # Flocks::flockToString(flock)
     def self.flockToString(flock)
-        frames = Flocks::getFramesForFlock(flock)
-        if frames.size == 0 then
-            return "[flock] no frame"
+        description = DescriptionZ::getLastDescriptionForTargetOrNull(flock["uuid"])
+        if description then
+            return "[flock] #{description}"
         end
-        "[flock] #{Frames::frameToString(frames[0])}"
+        frames = Flocks::getFramesForFlock(flock)
+        if frames.size > 0 then
+            return "[flock] #{Frames::frameToString(frames[0])}"
+        end
+        return "[flock] no description and no frame"
     end
 
     # Flocks::getFlocksForSource(source)
@@ -53,5 +57,28 @@ class Flocks
         Flocks::getFramesForFlock(flock)
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
             .last
+    end
+
+    # Flocks::openFlock(flock)
+    def self.openFlock(flock)
+        frame = Flocks::getLastFlockFrameOrNull(flock)
+        return if frame.nil?
+        Frames::openFrame(flock, frame)
+    end
+
+    # Flocks::giveDescriptionToFlockInteractively(flock)
+    def self.giveDescriptionToFlockInteractively(flock)
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return if description == ""
+        DescriptionZ::issue(flock["uuid"], description)
+    end
+
+    # Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+    def self.issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+        frame = Frames::issueNewFrameInteractivelyOrNull()
+        return nil if frame.nil?
+        flock = Flocks::issue()
+        Arrows::issue(flock, frame)
+        flock
     end
 end

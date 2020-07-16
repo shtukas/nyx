@@ -43,6 +43,13 @@ class DescriptionZ
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
+    # DescriptionZ::getLastDescriptionForTargetOrNull(targetuuid)
+    def self.getLastDescriptionForTargetOrNull(targetuuid)
+        zs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
+        return nil if zs.size == 0
+        zs.last["description"]
+    end
+
     # DescriptionZ::destroy(object)
     def self.destroy(object)
         NyxObjects::destroy(object["uuid"])

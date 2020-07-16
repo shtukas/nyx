@@ -223,11 +223,9 @@ class Pages
             puts ""
 
             Flocks::getFlocksForSource(page).each{|flock|
-                frame = Flocks::getLastFlockFrameOrNull(flock)
-                next if frame.nil?
                 menuitems.item(
                     Flocks::flockToString(flock),
-                    lambda { Frames::openFrame(flock, frame) }
+                    lambda { Flocks::openFlock(flock) }
                 )
             }
 
@@ -235,11 +233,18 @@ class Pages
             menuitems.item(
                 "add new flock",
                 lambda { 
-                    frame = Frames::issueNewFrameInteractivelyOrNull()
-                    return if frame.nil?
-                    flock = Flocks::issue()
-                    Arrows::issue(flock, frame)
+                    flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
                     Arrows::issue(page, flock)
+                }
+            )
+
+            menuitems.item(
+                "select flock and name",
+                lambda { 
+                    flocks = Flocks::getFlocksForSource(page)
+                    flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
+                    return if flock.nil?
+                    Flocks::giveDescriptionToFlockInteractively(flock)
                 }
             )
 
