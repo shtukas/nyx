@@ -95,9 +95,10 @@ class Flocks
         loop {
             system("clear")
             puts Flocks::flockToString(flock)
+            puts "uuid: #{flock["uuid"]}"
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item(
-                "update name",
+                "update description",
                 lambda { Flocks::giveDescriptionToFlockInteractively(flock) }
             )
             menuitems.item(
