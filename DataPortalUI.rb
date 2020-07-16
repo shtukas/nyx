@@ -24,8 +24,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "pages (listing)", 
-                lambda { Pages::pagesListingAndDive() }
+                "cubes (listing)", 
+                lambda { Cubes::cubesListingAndDive() }
             )
 
             ms.item(
@@ -60,10 +60,10 @@ class DataPortalUI
             )
 
             ms.item(
-                "page (new)",
+                "cube (new)",
                 lambda { 
-                    page = Pages::issueNewPageInteractively()
-                    Pages::attachPageToZeroOrMoreCliquesInteractively(page)
+                    cube = Cubes::issueNewCubeInteractively()
+                    Cubes::attachCubeToZeroOrMoreCliquesInteractively(cube)
                 }
             )
 

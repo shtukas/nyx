@@ -58,6 +58,7 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Cliques.rb"
 require_relative "Comments.rb"
+require_relative "Cubes.rb"
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
@@ -117,7 +118,6 @@ require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"
 
 require_relative "ProgrammableBooleans.rb"
-require_relative "Pages.rb"
 
 require_relative "Runner.rb"
 =begin 

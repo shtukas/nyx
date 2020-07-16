@@ -44,7 +44,7 @@ class DeskOperator
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_flock)
                 next
             end
-            newframe = Frames::issueAionPage(namedhash)
+            newframe = Frames::issueAionCube(namedhash)
             Arrows::issue(flock, newframe)
             #puts "new frame:"
             #puts JSON.pretty_generate(newframe)

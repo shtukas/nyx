@@ -1,5 +1,5 @@
 
-Page, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Frames.
+Cube, are the center of the Catalyst universe, the abstract data carriers. They are elements of Cliques and mutate using Flocks.
 
 {
     "uuid"             : String

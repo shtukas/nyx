@@ -1,4 +1,4 @@
-Note, used as way to give extra information about a page. They target the page.
+Note, used as way to give extra information about a cube. They target the cube.
 
 {
     "uuid"       : String

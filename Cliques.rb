@@ -106,30 +106,30 @@ class Cliques
 
             puts "Contents"
 
-            # Pages
-            Cliques::getCliquePagesInTimeOrder(clique)
-                .each{|page|
+            # Cubes
+            Cliques::getCliqueCubesInTimeOrder(clique)
+                .each{|cube|
                     menuitems.item(
-                        Pages::pageToString(page), 
-                        lambda { Pages::pageDive(page) }
+                        Cubes::cubeToString(cube), 
+                        lambda { Cubes::cubeDive(cube) }
                     )
                 }
 
             puts ""
             menuitems.item(
-                "add new page", 
+                "add new cube", 
                 lambda{
-                    page = Pages::issueNewPageInteractively()
-                    Arrows::issue(clique, page)
+                    cube = Cubes::issueNewCubeInteractively()
+                    Arrows::issue(clique, cube)
                 }
             )
 
             menuitems.item(
-                "select page and remove from clique", 
+                "select cube and remove from clique", 
                 lambda{
-                    page = LucilleCore::selectEntityFromListOfEntitiesOrNull("page", Cliques::getCliquePagesInTimeOrder(clique), lambda{|page| Pages::pageToString(page) })
-                    return if page.nil?
-                    Arrows::removeArrow(clique, page)
+                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", Cliques::getCliqueCubesInTimeOrder(clique), lambda{|cube| Cubes::cubeToString(cube) })
+                    return if cube.nil?
+                    Arrows::removeArrow(clique, cube)
                 }
             )
 
@@ -188,21 +188,21 @@ class Cliques
             if Cliques::canShowDiveOperations(clique) then
 
                 menuitems.item(
-                    "graph maker: select multiple page ; send to existing/new clique ; detach from this",
+                    "graph maker: select multiple cube ; send to existing/new clique ; detach from this",
                     lambda {
-                        pages = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedPages, _ = LucilleCore::selectZeroOrMore("pages", [], pages, toStringLambda = lambda{ |page| Pages::pageToString(page) })
-                        return if selectedPages.size == 0
+                        cubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedCubes, _ = LucilleCore::selectZeroOrMore("cubes", [], cubes, toStringLambda = lambda{ |cube| Cubes::cubeToString(cube) })
+                        return if selectedCubes.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                         return if c.nil?
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
-                        puts "Linking pages to clique"
-                        selectedPages.each{|page| Arrows::issue(c, page) }
-                        puts "Unlinking pages from (this)"
-                        selectedPages.each{|page| Arrows::removeArrow(clique, page) }
+                        puts "Linking cubes to clique"
+                        selectedCubes.each{|cube| Arrows::issue(c, cube) }
+                        puts "Unlinking cubes from (this)"
+                        selectedCubes.each{|cube| Arrows::removeArrow(clique, cube) }
                     }
                 )
 
@@ -270,8 +270,8 @@ class Cliques
 
     # ---------------------------------------------------
 
-    # Cliques::getCliquePagesInTimeOrder(clique)
-    def self.getCliquePagesInTimeOrder(clique)
+    # Cliques::getCliqueCubesInTimeOrder(clique)
+    def self.getCliqueCubesInTimeOrder(clique)
         Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
@@ -403,7 +403,7 @@ class Cliques
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
         Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
-            .each{|page| Arrows::issue(clique1, page) }
+            .each{|cube| Arrows::issue(clique1, cube) }
         NyxObjects::destroy(clique2["uuid"])
     end
 
