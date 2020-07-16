@@ -15,17 +15,17 @@ class DataPortalUI
 
             ms.item(
                 "network navigation from [root]", 
-                lambda { Cliques::cliqueNavigationView(Cliques::getRootClique()) }
+                lambda { Cliques::landing(Cliques::getRootClique()) }
             )
 
             ms.item(
                 "cliques (listing)", 
-                lambda { Cliques::cliquesListingAndDive() }
+                lambda { Cliques::cliquesListingAndLanding() }
             )
 
             ms.item(
                 "cubes (listing)", 
-                lambda { Cubes::cubesListingAndDive() }
+                lambda { Cubes::cubesListingAndLanding() }
             )
 
             ms.item(
@@ -55,7 +55,8 @@ class DataPortalUI
                 lambda { 
                     description = LucilleCore::askQuestionAnswerAsString("clique name: ")
                     return if description == ""
-                    Cliques::issueClique(description)
+                    clique = Cliques::issueClique(description)
+                    Cliques::dive(clique)
                 }
             )
 

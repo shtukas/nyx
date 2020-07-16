@@ -367,7 +367,7 @@ class Asteroids
                 Flocks::getFlocksForSource(asteroid).each{|flock|
                     menuitems.item(
                         Flocks::flockToString(flock),
-                        lambda { Flocks::dive(flock) }
+                        lambda { Flocks::landing(flock) }
                     )
                 }
 
@@ -736,12 +736,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                Flocks::openFlock(flocks[0])
+                Flocks::quickDataAccess(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            Flocks::openFlock(flock)
+            Flocks::quickDataAccess(flock)
         end
     end
 

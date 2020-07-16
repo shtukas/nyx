@@ -47,8 +47,8 @@ class Cliques
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # Cliques::cliqueDive(clique)
-    def self.cliqueDive(clique)
+    # Cliques::dive(clique)
+    def self.dive(clique)
         loop {
 
             clique = NyxObjects::getOrNull(clique["uuid"])
@@ -96,6 +96,15 @@ class Cliques
                 }
             )
 
+            menuitems.item(
+                "clique (destroy)", 
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
+                        NyxObjects::destroy(clique["uuid"])
+                    end
+                }
+            )
+
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
             # Contents
@@ -107,7 +116,7 @@ class Cliques
                 .each{|cube|
                     menuitems.item(
                         Cubes::cubeToString(cube), 
-                        lambda { Cubes::cubeDive(cube) }
+                        lambda { Cubes::dive(cube) }
                     )
                 }
 
@@ -120,6 +129,27 @@ class Cliques
                 }
             )
 
+            if Cliques::canShowDiveOperations(clique) then
+                menuitems.item(
+                    "graph maker: select multiple cube ; send to existing/new clique ; detach from this",
+                    lambda {
+                        cubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedCubes, _ = LucilleCore::selectZeroOrMore("cubes", [], cubes, toStringLambda = lambda{ |cube| Cubes::cubeToString(cube) })
+                        return if selectedCubes.size == 0
+                        puts "Now selecting/making the receiving clique"
+                        LucilleCore::pressEnterToContinue()
+                        c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
+                        return if c.nil?
+                        puts "Making the new clique a target of this"
+                        Arrows::issue(source, c)
+                        puts "Linking cubes to clique"
+                        selectedCubes.each{|cube| Arrows::issue(c, cube) }
+                        puts "Unlinking cubes from (this)"
+                        selectedCubes.each{|cube| Arrows::removeArrow(clique, cube) }
+                    }
+                )
+            end
+
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
             # Navigation
@@ -127,19 +157,17 @@ class Cliques
             puts "Navigation:"
 
             if !Cliques::isRoot?(clique) then
-                Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
-                    # Targets can be anything but for the moment they are just cliques
+                Cliques::getCliqueNavigationSources(clique).each{|c|
                     menuitems.item(
                         "source: #{Cliques::cliqueToString(c)}", 
-                        lambda { Cliques::cliqueDive(c) }
+                        lambda { Cliques::landing(c) }
                     )
                 }
             end
-            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
-                # Targets can be anything but for the moment they are just cliques
+            Cliques::getCliqueNavigationTargets(clique).each{|c|
                 menuitems.item(
                     "target: #{Cliques::cliqueToString(c)}", 
-                    lambda { Cliques::cliqueDive(c) }
+                    lambda { Cliques::landing(c) }
                 )
             }
             puts ""
@@ -161,44 +189,27 @@ class Cliques
                     Arrows::issue(clique, c)
                 }
             )
-
+            if !Cliques::isRoot?(clique) then
+                menuitems.item(
+                    "remove clique from sourcing", 
+                    lambda { 
+                        c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationSources(clique), lambda{|c| Cliques::cliqueToString(c) })
+                        return if c.nil?
+                        Arrows::removeArrow(c, clique)
+                    }
+                )
+            end
+            menuitems.item(
+                "remove clique from targeting", 
+                lambda { 
+                    c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationTargets(clique), lambda{|c| Cliques::cliqueToString(c) })
+                    return if c.nil?
+                    Arrows::removeArrow(clique, c)
+                }
+            )
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
             # Operations
-
-            puts "Operations:"
-
-            if Cliques::canShowDiveOperations(clique) then
-
-                menuitems.item(
-                    "graph maker: select multiple cube ; send to existing/new clique ; detach from this",
-                    lambda {
-                        cubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedCubes, _ = LucilleCore::selectZeroOrMore("cubes", [], cubes, toStringLambda = lambda{ |cube| Cubes::cubeToString(cube) })
-                        return if selectedCubes.size == 0
-                        puts "Now selecting/making the receiving clique"
-                        LucilleCore::pressEnterToContinue()
-                        c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                        return if c.nil?
-                        puts "Making the new clique a target of this"
-                        Arrows::issue(source, c)
-                        puts "Linking cubes to clique"
-                        selectedCubes.each{|cube| Arrows::issue(c, cube) }
-                        puts "Unlinking cubes from (this)"
-                        selectedCubes.each{|cube| Arrows::removeArrow(clique, cube) }
-                    }
-                )
-
-                menuitems.item(
-                    "clique (destroy)", 
-                    lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this clique ? ") then
-                            NyxObjects::destroy(clique["uuid"])
-                        end
-                    }
-                )
-
-            end
 
             menuitems.item(
                 "/", 
@@ -212,46 +223,80 @@ class Cliques
         }
     end
 
-    # Cliques::cliqueNavigationView(clique)
-    def self.cliqueNavigationView(clique)
+    # Cliques::quickDataAccess(clique)
+    def self.quickDataAccess(clique)
+        cubes = Cliques::getCliqueCubesInTimeOrder(clique)
+        if cubes.size == 0 then
+            puts "Could not find cubes for clique: #{Cliques::cliqueToString(clique)}"
+            puts "Going to dive into it"
+            LucilleCore::pressEnterToContinue()
+            Cliques::dive(clique)
+            return
+        end
+        if cubes.size == 1 then
+            Cubes::landing(cubes[0])
+            return
+        end
+
         loop {
-
-            clique = NyxObjects::getOrNull(clique["uuid"])
-
-            return if clique.nil? # could have been destroyed in a previous loop
-
             system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            Miscellaneous::horizontalRule(false)
-
             puts Cliques::cliqueToString(clique)
-            menuitems.item(
-                "Dive into clique", 
-                lambda { Cliques::cliqueDive(clique) }
-            )
+            puts ""
+            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| Cubes::cubeToString(cube) })
+            break if cube.nil?
+            Cubes::landing(cube)
+        }
+    end
 
-            Miscellaneous::horizontalRule(false)
-            puts "Targets:"
-            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
-                .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
+    # Cliques::landing(clique)
+    def self.landing(clique)
+        loop {
+            system("clear")
+            puts Cliques::cliqueToString(clique)
+            puts ""
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item(
+                "quick data access",
+                lambda { Cliques::quickDataAccess(clique) }
+            )
+            menuitems.item(
+                "dive",
+                lambda { Cliques::dive(clique) }
+            )
+            puts ""
+            Cliques::getCliqueNavigationSources(clique)
                 .each{|c|
-                    # Targets can be anything but for the moment they are just cliques
                     menuitems.item(
-                        Cliques::cliqueToString(c), 
-                        lambda { Cliques::cliqueNavigationView(c) }
+                        "navigation source: #{Cliques::cliqueToString(c)}", 
+                        lambda { Cliques::landing(c) }
                     )
                 }
-
-            Miscellaneous::horizontalRule(true)
-
+            Cliques::getCliqueNavigationTargets(clique)
+                .each{|c|
+                    menuitems.item(
+                        "navigation target: #{Cliques::cliqueToString(c)}", 
+                        lambda { Cliques::landing(c) }
+                    )
+                }
+            puts ""
             status = menuitems.prompt()
             break if !status
         }
     end
 
     # ---------------------------------------------------
+
+    # Cliques::getCliqueNavigationSources(clique)
+    def self.getCliqueNavigationSources(clique)
+        Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+            .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
+    end
+
+    # Cliques::getCliqueNavigationTargets(clique)
+    def self.getCliqueNavigationTargets(clique)
+        Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+        .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
+    end
 
     # Cliques::getCliqueCubesInTimeOrder(clique)
     def self.getCliqueCubesInTimeOrder(clique)
@@ -331,13 +376,6 @@ class Cliques
         cliques
     end
 
-    # Cliques::selectFromExistingCliquesAndDive()
-    def self.selectFromExistingCliquesAndDive()
-        clique = Cliques::selectCliqueFromExistingCliquesOrNull()
-        return if clique.nil?
-        Cliques::cliqueDive(clique)
-    end
-
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
         times1 = [ Cliques::getCliqueReferenceUnixtime(clique) ] 
@@ -346,8 +384,8 @@ class Cliques
         (times1+times2).max
     end
 
-    # Cliques::cliquesListingAndDive()
-    def self.cliquesListingAndDive()
+    # Cliques::cliquesListingAndLanding()
+    def self.cliquesListingAndLanding()
         loop {
             ms = LCoreMenuItemsNX1.new()
 
@@ -356,7 +394,7 @@ class Cliques
                 .each{|clique|
                     ms.item(
                         Cliques::cliqueToString(clique), 
-                        lambda{ Cliques::cliqueDive(clique) }
+                        lambda{ Cliques::landing(clique) }
                     )
                 }
             status = ms.prompt()
@@ -377,7 +415,7 @@ class Cliques
                 {
                     "description"   => Cliques::cliqueToString(clique),
                     "referencetime" => Cliques::getCliqueReferenceUnixtime(clique),
-                    "dive"          => lambda{ Cliques::cliqueDive(clique) }
+                    "dive"          => lambda{ Cliques::landing(clique) }
                 }
             }
     end

@@ -43,6 +43,11 @@ class Flocks
         Arrows::getTargetOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
+    # Flocks::getCubesForFlock(flock)
+    def self.getCubesForFlock(flock)
+        Arrows::getSourceOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
+    end
+
     # Flocks::getFramesForFlock(flock)
     def self.getFramesForFlock(flock)
         Arrows::getTargetsForSourceUUID(flock["uuid"])
@@ -63,13 +68,6 @@ class Flocks
         Flocks::getFramesForFlock(flock)
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
             .last
-    end
-
-    # Flocks::openFlock(flock)
-    def self.openFlock(flock)
-        frame = Flocks::getLastFlockFrameOrNull(flock)
-        return if frame.nil?
-        Frames::openFrame(flock, frame)
     end
 
     # Flocks::giveDescriptionToFlockInteractively(flock)
@@ -103,7 +101,7 @@ class Flocks
             )
             menuitems.item(
                 "open",
-                lambda { Flocks::openFlock(flock) }
+                lambda { Flocks::quickDataAccess(flock) }
             )
             menuitems.item(
                 "destroy",
@@ -117,4 +115,45 @@ class Flocks
             break if !status
         }
     end
+
+    # Flocks::quickDataAccess(flock)
+    def self.quickDataAccess(flock)
+        frame = Flocks::getLastFlockFrameOrNull(flock)
+        if frame.nil? then
+            puts "I could not find frames for this flock. Aborting"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        Frames::openFrame(flock, frame)
+    end
+
+    # Flocks::landing(flock)
+    def self.landing(flock)
+        loop {
+            system("clear")
+            puts Flocks::flockToString(flock)
+            puts ""
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item(
+                "quick data access",
+                lambda { Flocks::quickDataAccess(flock) }
+            )
+            menuitems.item(
+                "dive",
+                lambda { Flocks::dive(flock) }
+            )
+            puts ""
+            Flocks::getCubesForFlock(flock)
+                .each{|cube|
+                    menuitems.item(
+                        "cube: #{Cubes::cubeToString(cube)}", 
+                        lambda { Cubes::landing(cube) }
+                    )
+                }
+            puts ""
+            status = menuitems.prompt()
+            break if !status
+        }
+    end
+
 end

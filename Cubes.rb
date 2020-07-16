@@ -84,8 +84,8 @@ class Cubes
         str
     end
 
-    # Cubes::cubeDive(cube)
-    def self.cubeDive(cube)
+    # Cubes::dive(cube)
+    def self.dive(cube)
         loop {
 
             cube = Cubes::getOrNull(cube["uuid"])
@@ -219,7 +219,7 @@ class Cubes
             Flocks::getFlocksForSource(cube).each{|flock|
                 menuitems.item(
                     Flocks::flockToString(flock),
-                    lambda { Flocks::dive(flock) }
+                    lambda { Flocks::landing(flock) }
                 )
             }
 
@@ -244,7 +244,7 @@ class Cubes
                 .each{|clique|
                     menuitems.item(
                         Cliques::cliqueToString(clique), 
-                        lambda { Cliques::cliqueDive(clique) }
+                        lambda { Cliques::landing(clique) }
                     )
                 }
 
@@ -280,6 +280,59 @@ class Cubes
 
             Miscellaneous::horizontalRule(true)
 
+            status = menuitems.prompt()
+            break if !status
+        }
+    end
+
+    # Cubes::quickDataAccess(cube)
+    def self.quickDataAccess(cube)
+        flocks = Flocks::getFlocksForSource(cube)
+        if flocks.size == 0 then
+            puts "Could not find flocks for this cube: #{Cubes::cubeToString(cube)}"
+            puts "Going to dive into it"
+            LucilleCore::pressEnterToContinue()
+            Cubes::dive(cube)
+            return
+        end
+        if flocks.size == 1 then
+            Flocks::landing(flocks[0])
+            return
+        end
+        loop {
+            system("clear")
+            puts Cubes::cubeToString(cube)
+            puts ""
+            flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
+            break if flock.nil?
+            Flocks::landing(flock)
+        }
+    end
+
+    # Cubes::landing(cube)
+    def self.landing(cube)
+        loop {
+            system("clear")
+            puts Cubes::cubeToString(cube)
+            puts ""
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item(
+                "quick data access",
+                lambda { Cubes::quickDataAccess(cube) }
+            )
+            menuitems.item(
+                "dive",
+                lambda { Cubes::dive(cube) }
+            )
+            puts ""
+            Cubes::getCubeCliques(cube)
+                .each{|c|
+                    menuitems.item(
+                        "cliques: #{Cliques::cliqueToString(c)}", 
+                        lambda { Cliques::landing(c) }
+                    )
+                }
+            puts ""
             status = menuitems.prompt()
             break if !status
         }
@@ -333,8 +386,8 @@ class Cubes
         Cubes::getOrNull(cubeuuid)
     end
 
-    # Cubes::cubesListingAndDive()
-    def self.cubesListingAndDive()
+    # Cubes::cubesListingAndLanding()
+    def self.cubesListingAndLanding()
         loop {
             ms = LCoreMenuItemsNX1.new()
             Cubes::cubes()
@@ -342,7 +395,7 @@ class Cubes
                 .each{|cube|
                     ms.item(
                         Cubes::cubeToString(cube), 
-                        lambda{ Cubes::cubeDive(cube) }
+                        lambda{ Cubes::landing(cube) }
                     )
                 }
             status = ms.prompt()
@@ -378,7 +431,7 @@ class Cubes
                 {
                     "description"   => Cubes::cubeToString(cube),
                     "referencetime" => Cubes::getCubeReferenceUnixtime(cube),
-                    "dive"          => lambda{ Cubes::cubeDive(cube) }
+                    "dive"          => lambda{ Cubes::landing(cube) }
                 }
             }
     end
