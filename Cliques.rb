@@ -453,4 +453,78 @@ class Cliques
 
         Cliques::mergeCliques(clique1, clique2)
     end
+
+    # Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(clique = nil)
+    def self.selectExistingOrNewCliqueFromRootNavigationOrNull(clique = nil)
+        if clique.nil? then
+            return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(Cliques::getRootClique())
+        end
+        system("clear")
+        puts Cliques::cliqueToString(clique)
+        puts ""
+
+        options = []
+
+        options << ["select and return current"]
+        Cliques::getCliqueNavigationTargets(clique).each{|c|
+            options << ["select and return this target", c]
+        }
+        Cliques::getCliqueNavigationTargets(clique).each{|c|
+            options << ["search into", c]
+        }
+        options << ["make new target clique for current and return that"]
+        options << ["back to source"]
+        options << ["try peco style choosing clique by name"]
+        options << ["abort search and return null"]
+
+        optionToString = lambda {|option|
+            if option.size == 1 then
+                return option[0]
+            end
+            if option[0] == "select and return this target" then
+                return "select and return this target: #{Cliques::cliqueToString(option[1])}"
+            end
+            if option[0] == "search into" then
+                return "search into: #{Cliques::cliqueToString(option[1])}"
+            end
+        }
+
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options, optionToString)
+        if option.nil? then
+            return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(clique)
+        end
+        if option[0] == "select and return current" then
+            return clique
+        end
+        if option[0] == "select and return this target" then
+            return option[1]
+        end
+        if option[0] == "search into" then
+            resultSearch = Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(option[1])
+            if resultSearch == "back to source" then
+                return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(clique)
+            end
+            return resultSearch # which can be a clique or nil
+        end
+        if option[0] == "make new target clique for current and return that" then
+            target = Cliques::issueCliqueInteractivelyOrNull()
+            if target.nil? then
+                return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(clique)
+            end
+            Arrows::make(clique, target)
+            return target
+        end
+        if option[0] == "back to source" then
+            return "back to source"
+        end
+        if option[0] == "try peco style choosing clique by name" then
+            selection = Cliques::selectCliqueFromExistingCliquesOrNull()
+            return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(clique) if selection.nil?
+            return Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull(selection)
+        end
+        if option[0] == "abort search and return null" then
+            return nil
+        end
+        raise "[43fd640a-b070-46b8] #{JSON.generate(option)}"
+    end
 end
