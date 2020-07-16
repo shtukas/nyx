@@ -7,16 +7,16 @@ class DataPortalUI
             system("clear")
 
             ms = LCoreMenuItemsNX1.new()
-
+            ms.item(
+                "network navigation from [root]", 
+                lambda { Cliques::landing(Cliques::getRootClique()) }
+            )
             ms.item(
                 "general search", 
                 lambda { GeneralSearch::searchAndDive() }
             )
 
-            ms.item(
-                "network navigation from [root]", 
-                lambda { Cliques::landing(Cliques::getRootClique()) }
-            )
+            puts ""
 
             ms.item(
                 "cliques (listing)", 

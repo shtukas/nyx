@@ -272,6 +272,7 @@ class Cliques
                         lambda { Cliques::landing(c) }
                     )
                 }
+            puts ""
             Cliques::getCliqueNavigationTargets(clique)
                 .each{|c|
                     menuitems.item(
