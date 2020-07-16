@@ -215,7 +215,6 @@ class Cubes
             # Operations
 
             puts "Flocks:"
-            puts ""
 
             Flocks::getFlocksForSource(cube).each{|flock|
                 menuitems.item(
@@ -225,6 +224,7 @@ class Cubes
             }
 
             puts ""
+
             menuitems.item(
                 "add new flock",
                 lambda { 

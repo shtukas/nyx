@@ -100,7 +100,7 @@ class Cliques
             # ----------------------------------------------------------
             # Contents
 
-            puts "Contents"
+            puts "Cubes:"
 
             # Cubes
             Cliques::getCliqueCubesInTimeOrder(clique)
@@ -120,15 +120,6 @@ class Cliques
                 }
             )
 
-            menuitems.item(
-                "select cube and remove from clique", 
-                lambda{
-                    cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", Cliques::getCliqueCubesInTimeOrder(clique), lambda{|cube| Cubes::cubeToString(cube) })
-                    return if cube.nil?
-                    Arrows::removeArrow(clique, cube)
-                }
-            )
-
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
             # Navigation
@@ -136,16 +127,23 @@ class Cliques
             puts "Navigation:"
 
             if !Cliques::isRoot?(clique) then
-                puts ""
-                puts "Sources:"
                 Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
                     # Targets can be anything but for the moment they are just cliques
                     menuitems.item(
-                        Cliques::cliqueToString(c), 
+                        "source: #{Cliques::cliqueToString(c)}", 
                         lambda { Cliques::cliqueDive(c) }
                     )
                 }
-                puts ""
+            end
+            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
+                # Targets can be anything but for the moment they are just cliques
+                menuitems.item(
+                    "target: #{Cliques::cliqueToString(c)}", 
+                    lambda { Cliques::cliqueDive(c) }
+                )
+            }
+            puts ""
+            if !Cliques::isRoot?(clique) then
                 menuitems.item(
                     "select clique for sourcing", 
                     lambda { 
@@ -155,17 +153,6 @@ class Cliques
                     }
                 )
             end
-
-            puts ""
-            puts "Targets:"
-            Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).each{|c|
-                # Targets can be anything but for the moment they are just cliques
-                menuitems.item(
-                    Cliques::cliqueToString(c), 
-                    lambda { Cliques::cliqueDive(c) }
-                )
-            }
-            puts ""
             menuitems.item(
                 "select clique for targeting", 
                 lambda { 

@@ -307,41 +307,6 @@ class Asteroids
                 }
             )
 
-            Miscellaneous::horizontalRule(true)
-
-            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
-
-            if asteroid["payload"]["type"] == "metal" then
-
-                Miscellaneous::horizontalRule(true)
-
-                puts "Flocks:"
-                puts ""
-
-                Flocks::getFlocksForSource(asteroid).each{|flock|
-                    menuitems.item(
-                        Flocks::flockToString(flock),
-                        lambda { Flocks::dive(flock) }
-                    )
-                }
-
-                puts ""
-
-                menuitems.item(
-                    "add new flock",
-                    lambda { 
-                        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
-                        return if flock.nil?
-                        Arrows::issue(asteroid, flock)
-                    }
-                )
-
-            end
-
-            Miscellaneous::horizontalRule(true)
-
             menuitems.item(
                 "start",
                 lambda { Asteroids::asteroidStartSequence(asteroid) }
@@ -391,6 +356,39 @@ class Asteroids
                     end
                 }
             )
+
+            if asteroid["payload"]["type"] == "metal" then
+
+                Miscellaneous::horizontalRule(true)
+
+                puts "Flocks:"
+                puts ""
+
+                Flocks::getFlocksForSource(asteroid).each{|flock|
+                    menuitems.item(
+                        Flocks::flockToString(flock),
+                        lambda { Flocks::dive(flock) }
+                    )
+                }
+
+                puts ""
+
+                menuitems.item(
+                    "add new flock",
+                    lambda { 
+                        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+                        return if flock.nil?
+                        Arrows::issue(asteroid, flock)
+                    }
+                )
+
+            end
+
+            Miscellaneous::horizontalRule(true)
+
+            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
+            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
+            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
             Miscellaneous::horizontalRule(true)
 
