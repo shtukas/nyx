@@ -99,7 +99,7 @@ class Asteroids
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
         if option == opt100 then
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            ordinal = Asteroids::determineOrdinalForNewTopPriority()
             return {
                 "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
                 "ordinal"               => ordinal
@@ -759,6 +759,27 @@ class Asteroids
     # Asteroids::getFramesForAsteroid(asteroid)
     def self.getFramesForAsteroid(asteroid)
         Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+    end
+
+    # Asteroids::getTopPriorityAsteroidsInPriorityOrder()
+    def self.getTopPriorityAsteroidsInPriorityOrder()
+        Asteroids::asteroids()
+            .select{|asteroid| asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" }
+            .sort{|a1, a2| a1["orbital"]["ordinal"] <=> a2["orbital"]["ordinal"] }
+    end
+
+    # Asteroids::determineOrdinalForNewTopPriority()
+    def self.determineOrdinalForNewTopPriority()
+        topPriorities = Asteroids::getTopPriorityAsteroidsInPriorityOrder()
+        if topPriorities.empty? then
+            return 0
+        else
+            puts ""
+            Asteroids::getTopPriorityAsteroidsInPriorityOrder()
+                .each{|asteroid| puts Asteroids::asteroidToString(asteroid) }
+            puts ""
+            return LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        end
     end
 
     # Asteroids::main()
