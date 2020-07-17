@@ -62,7 +62,7 @@ class Asteroids
             return nil if cube.nil?
             flock = Flocks::issue()
             Arrows::issue(flock, cube)
-            Arrows::issueWithUUIDs(asteroiduuid, flock["uuid"])
+            Arrows::issue({ "uuid" => asteroiduuid }, flock) # clever idea ^^
             return {
                 "type"        => "metal",
                 "description" => nil

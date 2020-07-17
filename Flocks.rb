@@ -50,7 +50,7 @@ class Flocks
 
     # Flocks::getCubesForFlock(flock)
     def self.getCubesForFlock(flock)
-        Arrows::getTargetsForSourceUUID(flock["uuid"])
+        Arrows::getTargetsForSource(flock)
     end
 
     # Flocks::getLastFlockCubeOrNull(flock)

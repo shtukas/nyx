@@ -22,24 +22,6 @@ class Arrows
         arrow
     end
 
-    # Arrows::makeWithUUIDs(sourceuuid, targetuuid)
-    def self.makeWithUUIDs(sourceuuid, targetuuid)
-        {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "d83a3ff5-023e-482c-8658-f7cfdbb6b738",
-            "unixtime"   => Time.new.to_f,
-            "sourceuuid" => sourceuuid,
-            "targetuuid" => targetuuid
-        }
-    end
-
-    # Arrows::issueWithUUIDs(sourceuuid, targetuuid)
-    def self.issueWithUUIDs(sourceuuid, targetuuid)
-        arrow = Arrows::makeWithUUIDs(sourceuuid, targetuuid)
-        NyxObjects::put(arrow)
-        arrow
-    end
-
     # Arrows::arrows()
     def self.arrows()
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
@@ -80,23 +62,6 @@ class Arrows
     # Arrows::getTargetsOfGivenSetsForSource(source, setids)
     def self.getTargetsOfGivenSetsForSource(source, setids)
         Arrows::getTargetsForSource(source).select{|object|
-            setids.include?(object["nyxNxSet"])
-        }
-    end
-
-    # Arrows::getTargetsForSourceUUID(sourceuuid)
-    def self.getTargetsForSourceUUID(sourceuuid)
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-            .select{|arrow| arrow["sourceuuid"] == sourceuuid }
-            .map{|arrow| arrow["targetuuid"] }
-            .uniq
-            .map{|targetuuid| NyxObjects::getOrNull(targetuuid) }
-            .compact
-    end
-
-    # Arrows::getTargetsOfGivenSetsForSourceUUID(sourceuuid, setids)
-    def self.getTargetsOfGivenSetsForSourceUUID(sourceuuid, setids)
-        Arrows::getTargetsForSourceUUID(sourceuuid).select{|object|
             setids.include?(object["nyxNxSet"])
         }
     end
