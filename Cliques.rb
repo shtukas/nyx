@@ -184,7 +184,7 @@ class Cliques
             puts ""
             if !Cliques::isRoot?(clique) then
                 menuitems.item(
-                    "select clique for sourcing", 
+                    "add nagigation source", 
                     lambda { 
                         c = Cliques::selectCliqueFromExistingCliquesOrNull()
                         return if c.nil?
@@ -193,7 +193,7 @@ class Cliques
                 )
             end
             menuitems.item(
-                "select clique for targeting", 
+                "add navigation target", 
                 lambda { 
                     c = Cliques::selectCliqueFromExistingCliquesOrNull()
                     return if c.nil?
@@ -202,7 +202,7 @@ class Cliques
             )
             if !Cliques::isRoot?(clique) then
                 menuitems.item(
-                    "remove clique from sourcing", 
+                    "remove navigation source", 
                     lambda { 
                         c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationSources(clique), lambda{|c| Cliques::cliqueToString(c) })
                         return if c.nil?
@@ -211,7 +211,7 @@ class Cliques
                 )
             end
             menuitems.item(
-                "remove clique from targeting", 
+                "remove navigation target", 
                 lambda { 
                     c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationTargets(clique), lambda{|c| Cliques::cliqueToString(c) })
                     return if c.nil?
