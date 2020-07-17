@@ -46,8 +46,8 @@ loop {
     puts "vienna: #{link}"
 
     ns0 = NSDataType0s::issueUrl(link)
-    flock = Flocks::issue()
-    Arrows::issue(flock, ns0)
-    asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
+    ns1 = NSDataType1s::issue()
+    Arrows::issue(ns1, ns0)
+    asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
     viennaLinkFeeder.done(link)
 }

@@ -1,8 +1,8 @@
 NSDataType0 is the ImmutableDataPoint
 
-Asteroid = Array[Flocks]
+Asteroid = Array[NSDataType1s]
 
-Flock = Array[NSDataType0]
+NSDataType1 = Array[NSDataType0]
 
 Clique = Array[NSDataType2]
 

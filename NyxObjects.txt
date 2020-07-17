@@ -9,7 +9,7 @@ Nyx
         Asteroid      # Asteroid.txt
                       # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
-        Flock         # Flock.txt
+        NSDataType1         # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
 
         Clique        # Cliques.txt
@@ -29,7 +29,7 @@ Nyx
 
         DescriptionZ  # DescriptionZ.txt
                       # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # Clique, NSDataType2, Flock
+                      # Clique, NSDataType2, NSDataType1
 
         DateTimeZ     # DateTimeZ.txt
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"

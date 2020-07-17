@@ -3,14 +3,14 @@
 
 class DeskOperator
 
-    # DeskOperator::deskFolderpathForFlock(ns2)
-    def self.deskFolderpathForFlock(ns2)
+    # DeskOperator::deskFolderpathForNSDataType1(ns2)
+    def self.deskFolderpathForNSDataType1(ns2)
         "#{EstateServices::getDeskFolderpath()}/#{ns2["uuid"]}"
     end
 
     # DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns2, ns0)
     def self.deskFolderpathForNSDataType0CreateIfNotExists(ns2, ns0)
-        desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForFlock(ns2)
+        desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForNSDataType1(ns2)
         if !File.exists?(desk_folderpath_for_ns2) then
             FileUtils.mkpath(desk_folderpath_for_ns2)
             namedhash = ns0["namedhash"]
@@ -34,7 +34,7 @@ class DeskOperator
             ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
-            desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForFlock(ns2)
+            desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForNSDataType1(ns2)
             next if !File.exists?(desk_folderpath_for_ns2)
             #puts "ns0:"
             #puts JSON.pretty_generate(ns0)

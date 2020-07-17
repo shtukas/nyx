@@ -252,9 +252,9 @@ class Miscellaneous
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
             ns0 = NSDataType0s::issueAionNSDataType2(namedhash)
             puts JSON.pretty_generate(ns0)
-            flock = Flocks::issue()
-            Arrows::issue(flock, ns0)
-            asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
+            ns1 = NSDataType1s::issue()
+            Arrows::issue(ns1, ns0)
+            asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

@@ -60,9 +60,9 @@ class Asteroids
         if option == "metal" then
             ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
             return nil if ns0.nil?
-            flock = Flocks::issue()
-            Arrows::issue(flock, ns0)
-            Arrows::issue({ "uuid" => asteroiduuid }, flock) # clever idea ^^
+            ns1 = NSDataType1s::issue()
+            Arrows::issue(ns1, ns0)
+            Arrows::issue({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
             return {
                 "type"        => "metal",
                 "description" => nil
@@ -176,8 +176,8 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromFlock(flock)
-    def self.issueAsteroidInboxFromFlock(flock)
+    # Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
+    def self.issueAsteroidInboxFromNSDataType1(ns1)
         payload = {
             "type"         => "metal",
             "description"  => nil
@@ -193,7 +193,7 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issue(asteroid, flock)
+        Arrows::issue(asteroid, ns1)
         asteroid
     end
 
@@ -221,11 +221,11 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    flocks = Flocks::getFlocksForSource(asteroid)
-                    if flocks.size == 0 then
-                        return " (no flock found)"
+                    ns1s = NSDataType1s::getNSDataType1sForSource(asteroid)
+                    if ns1s.size == 0 then
+                        return " (no ns1 found)"
                     end
-                    return " #{Flocks::flockToString(flocks[0])}"
+                    return " #{NSDataType1s::ns1ToString(ns1s[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -361,20 +361,20 @@ class Asteroids
 
                 Miscellaneous::horizontalRule(true)
 
-                puts "Flocks:"
+                puts "NSDataType1s:"
 
-                Flocks::getFlocksForSource(asteroid).each{|flock|
+                NSDataType1s::getNSDataType1sForSource(asteroid).each{|ns1|
                     menuitems.item(
-                        Flocks::flockToString(flock),
+                        NSDataType1s::ns1ToString(ns1),
                         lambda { 
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
                                 "access ns0",
-                                lambda { Flocks::openLastNSDataType0(flock) }
+                                lambda { NSDataType1s::openLastNSDataType0(ns1) }
                             )
                             ms.item(
                                 "landing",
-                                lambda { Flocks::landing(flock) }
+                                lambda { NSDataType1s::landing(ns1) }
                             )
                             ms.prompt()
                          }
@@ -385,11 +385,11 @@ class Asteroids
                 puts ""
 
                 menuitems.item(
-                    "add new flock",
+                    "add new ns1",
                     lambda { 
-                        flock = Flocks::issueNewFlockAndItsFirstNSDataType0InteractivelyOrNull()
-                        return if flock.nil?
-                        Arrows::issue(asteroid, flock)
+                        ns1 = NSDataType1s::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                        return if ns1.nil?
+                        Arrows::issue(asteroid, ns1)
                     }
                 )
 
@@ -742,17 +742,17 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            flocks = Flocks::getFlocksForSource(asteroid)
-            if flocks.size == 0 then
+            ns1s = NSDataType1s::getNSDataType1sForSource(asteroid)
+            if ns1s.size == 0 then
                 return
             end
-            if flocks.size == 1 then
-                Flocks::openLastNSDataType0(flocks[0])
+            if ns1s.size == 1 then
+                NSDataType1s::openLastNSDataType0(ns1s[0])
                 return
             end
-            flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
-            return if flock.nil?
-            Flocks::openLastNSDataType0(flock)
+            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1s::ns1ToString(ns1) })
+            return if ns1.nil?
+            NSDataType1s::openLastNSDataType0(ns1)
         end
     end
 

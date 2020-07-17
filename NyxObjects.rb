@@ -18,7 +18,7 @@ class NyxPrimaryObjects
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
-            "c18e8093-63d6-4072-8827-14f238975d04", # Flock
+            "c18e8093-63d6-4072-8827-14f238975d04", # NSDataType1
         ]
     end
 

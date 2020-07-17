@@ -1,0 +1,8 @@
+
+NSDataType1s are mutable  data points. NSDataType0s are the various version of a NSDataType1.
+
+NSDataType1 {
+    "uuid"         : String
+    "nyxNxSet"     : "c18e8093-63d6-4072-8827-14f238975d04"
+    "unixtime"     : Float # Unixtime with decimals
+}
