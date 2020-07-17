@@ -17,8 +17,6 @@ class Curation
     # Curation::run()
     def self.run()
 
-        return
-
         curationTimeControlUUID = "56995147-b264-49fb-955c-d5a919395ea3"
 
         return if (rand*rand) < BankExtended::recoveredDailyTimeInHours(curationTimeControlUUID)
