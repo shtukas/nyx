@@ -58,10 +58,10 @@ class Asteroids
             }
         end
         if option == "metal" then
-            frame = Frames::issueNewFrameInteractivelyOrNull()
-            return nil if frame.nil?
+            cube = Cubes::issueNewCubeInteractivelyOrNull()
+            return nil if cube.nil?
             flock = Flocks::issue()
-            Arrows::issue(flock, frame)
+            Arrows::issue(flock, cube)
             Arrows::issueWithUUIDs(asteroiduuid, flock["uuid"])
             return {
                 "type"        => "metal",
@@ -212,7 +212,7 @@ class Asteroids
 
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
-        payloadFrame = lambda{|asteroid|
+        payloadCube = lambda{|asteroid|
             payload = asteroid["payload"]
             if payload["type"] == "description" then
                 return " " + payload["description"]
@@ -231,7 +231,7 @@ class Asteroids
             puts JSON.pretty_generate(asteroid)
             raise "[Asteroids] error: CE8497BB"
         }
-        orbitalFrame = lambda{|asteroid|
+        orbitalCube = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
                 return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
@@ -252,7 +252,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadFrame.call(asteroid)}#{orbitalFrame.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadCube.call(asteroid)}#{orbitalCube.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -387,7 +387,7 @@ class Asteroids
                 menuitems.item(
                     "add new flock",
                     lambda { 
-                        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+                        flock = Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
                         return if flock.nil?
                         Arrows::issue(asteroid, flock)
                     }
@@ -767,8 +767,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::getFramesForAsteroid(asteroid)
-    def self.getFramesForAsteroid(asteroid)
+    # Asteroids::getCubesForAsteroid(asteroid)
+    def self.getCubesForAsteroid(asteroid)
         Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 

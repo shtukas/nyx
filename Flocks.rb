@@ -21,21 +21,21 @@ class Flocks
 
     # Flocks::flockToString(flock)
     def self.flockToString(flock)
-        frames = Flocks::getFramesForFlock(flock)
+        cubes = Flocks::getCubesForFlock(flock)
         description = DescriptionZ::getLastDescriptionForTargetOrNull(flock["uuid"])
         if description then
-            frametype =
-                if frames.size > 0 then
-                    frametype = " [#{frames.last["type"]}]"
+            cubetype =
+                if cubes.size > 0 then
+                    cubetype = " [#{cubes.last["type"]}]"
                 else
                     ""
                 end
-            return "[flock]#{frametype} #{description}"
+            return "[flock]#{cubetype} #{description}"
         end
-        if frames.size > 0 then
-            return "[flock] #{Frames::frameToString(frames[0])}"
+        if cubes.size > 0 then
+            return "[flock] #{Cubes::cubeToString(cubes[0])}"
         end
-        return "[flock] no description and no frame"
+        return "[flock] no description and no cube"
     end
 
     # Flocks::getFlocksForSource(source)
@@ -48,14 +48,14 @@ class Flocks
         Arrows::getSourceOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
-    # Flocks::getFramesForFlock(flock)
-    def self.getFramesForFlock(flock)
+    # Flocks::getCubesForFlock(flock)
+    def self.getCubesForFlock(flock)
         Arrows::getTargetsForSourceUUID(flock["uuid"])
     end
 
-    # Flocks::getLastFlockFrameOrNull(flock)
-    def self.getLastFlockFrameOrNull(flock)
-        Flocks::getFramesForFlock(flock)
+    # Flocks::getLastFlockCubeOrNull(flock)
+    def self.getLastFlockCubeOrNull(flock)
+        Flocks::getCubesForFlock(flock)
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
             .last
     end
@@ -67,13 +67,13 @@ class Flocks
         DescriptionZ::issue(flock["uuid"], description)
     end
 
-    # Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
-    def self.issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+    # Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
+    def self.issueNewFlockAndItsFirstCubeInteractivelyOrNull()
         puts "Making a new Flock..."
-        frame = Frames::issueNewFrameInteractivelyOrNull()
-        return nil if frame.nil?
+        cube = Cubes::issueNewCubeInteractivelyOrNull()
+        return nil if cube.nil?
         flock = Flocks::issue()
-        Arrows::issue(flock, frame)
+        Arrows::issue(flock, cube)
         Flocks::giveDescriptionToFlockInteractively(flock)
         flock
     end
@@ -108,12 +108,12 @@ class Flocks
 
     # Flocks::openLastHypercube(flock)
     def self.quickDataAccess(flock)
-        frame = Flocks::getLastFlockFrameOrNull(flock)
-        if frame.nil? then
-            puts "I could not find frames for this flock. Aborting"
+        cube = Flocks::getLastFlockCubeOrNull(flock)
+        if cube.nil? then
+            puts "I could not find cubes for this flock. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        Frames::openFrame(flock, frame)
+        Cubes::openCube(flock, cube)
     end
 end

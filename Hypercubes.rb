@@ -27,7 +27,7 @@ class Hypercubes
         puts JSON.pretty_generate(hypercube)
         Hypercubes::commitHypercubeToDisk(hypercube)
 
-        flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
+        flock = Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
         if flock then
             puts JSON.pretty_generate(flock)
             Arrows::issue(hypercube, flock)
@@ -214,14 +214,14 @@ class Hypercubes
             # ----------------------------------------------------------
             # Latest Hypercube
 
-            frame = Hypercubes::getLastHypercubeFrameOrNull(hypercube)
-            if frame then
+            cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+            if cube then
                 menuitems.item(
                     "view data",
-                    lambda { Frames::openFrame(hypercube, frame) }
+                    lambda { Cubes::openCube(hypercube, cube) }
                 )
             else
-                puts "No frame found for this hypercube"
+                puts "No cube found for this hypercube"
             end
 
             Miscellaneous::horizontalRule(true)
@@ -283,15 +283,15 @@ class Hypercubes
         Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
-    # Hypercubes::getHypercubeFramesInTimeOrder(hypercube)
-    def self.getHypercubeFramesInTimeOrder(hypercube)
+    # Hypercubes::getHypercubeCubesInTimeOrder(hypercube)
+    def self.getHypercubeCubesInTimeOrder(hypercube)
         Arrows::getTargetOfGivenSetsForSource(hypercube, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # Hypercubes::getLastHypercubeFrameOrNull(hypercube)
-    def self.getLastHypercubeFrameOrNull(hypercube)
-        Hypercubes::getHypercubeFramesInTimeOrder(hypercube).last
+    # Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+    def self.getLastHypercubeCubeOrNull(hypercube)
+        Hypercubes::getHypercubeCubesInTimeOrder(hypercube).last
     end
 
     # Hypercubes::getHypercubeReferenceDateTime(hypercube)

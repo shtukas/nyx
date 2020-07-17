@@ -1,16 +1,16 @@
 
 # encoding: UTF-8
 
-class FrameCached
-    # FrameCached::forget(frame)
-    def self.forget(frame)
-        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{frame["uuid"]}")
+class CubeCached
+    # CubeCached::forget(cube)
+    def self.forget(cube)
+        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}")
     end
 end
 
-class Frames
+class Cubes
 
-    # Frames::selectOneLocationOnTheDesktopOrNull()
+    # Cubes::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -20,7 +20,7 @@ class Frames
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # Frames::issueLine(line)
+    # Cubes::issueLine(line)
     def self.issueLine(line)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -33,7 +33,7 @@ class Frames
         object
     end
 
-    # Frames::issueUrl(url)
+    # Cubes::issueUrl(url)
     def self.issueUrl(url)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -46,7 +46,7 @@ class Frames
         object
     end
 
-    # Frames::issueText(text)
+    # Cubes::issueText(text)
     def self.issueText(text)
         namedhash = NyxBlobs::put(text)
         object = {
@@ -60,7 +60,7 @@ class Frames
         object
     end
 
-    # Frames::issueAionHypercube(namedhash)
+    # Cubes::issueAionHypercube(namedhash)
     def self.issueAionHypercube(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -73,7 +73,7 @@ class Frames
         object
     end
 
-    # Frames::issueUniqueName(uniquename)
+    # Cubes::issueUniqueName(uniquename)
     def self.issueUniqueName(uniquename)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -86,103 +86,103 @@ class Frames
         object
     end
 
-    # Frames::issueNewFrameInteractivelyOrNull()
-    def self.issueNewFrameInteractivelyOrNull()
-        puts "Making a new Frame..."
+    # Cubes::issueNewCubeInteractivelyOrNull()
+    def self.issueNewCubeInteractivelyOrNull()
+        puts "Making a new Cube..."
         types = ["line", "url", "text", "fs-location aion-point", "unique-name"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
-            return Frames::issueLine(line)
+            return Cubes::issueLine(line)
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
-            return Frames::issueUrl(url)
+            return Cubes::issueUrl(url)
         end
         if type == "text" then
             text = Miscellaneous::editTextUsingTextmate("").strip
             return nil if text.size == 0
-            return Frames::issueText(text)
+            return Cubes::issueText(text)
         end
         if type == "fs-location aion-point" then
-            location = Frames::selectOneLocationOnTheDesktopOrNull()
+            location = Cubes::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return Frames::issueAionHypercube(namedhash)
+            return Cubes::issueAionHypercube(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             return nil if uniquename.size == 0
-            return Frames::issueUniqueName(uniquename)
+            return Cubes::issueUniqueName(uniquename)
         end
     end
 
-    # Frames::frames()
-    def self.frames()
+    # Cubes::cubes()
+    def self.cubes()
         NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
-    # Frames::frameToString(frame)
-    def self.frameToString(frame)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{frame["uuid"]}")
+    # Cubes::cubeToString(cube)
+    def self.cubeToString(cube)
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}")
         return str if str
 
-        str = (lambda{|frame|
-            if frame["type"] == "line" then
-                return "[frame] [#{frame["uuid"][0, 4]}] [#{frame["type"]}] #{frame["line"]}"
+        str = (lambda{|cube|
+            if cube["type"] == "line" then
+                return "[cube] [#{cube["uuid"][0, 4]}] [#{cube["type"]}] #{cube["line"]}"
             end
-            if frame["type"] == "url" then
-                return "[frame] [#{frame["uuid"][0, 4]}] [#{frame["type"]}] #{frame["url"]}"
+            if cube["type"] == "url" then
+                return "[cube] [#{cube["uuid"][0, 4]}] [#{cube["type"]}] #{cube["url"]}"
             end
-            if frame["type"] == "text" then
+            if cube["type"] == "text" then
                 namedhashToFirstLine = lambda {|namedhash|
                     text = NyxBlobs::getBlobOrNull(namedhash).strip
                     line = text.size>0 ? text.lines.first.strip : "[empty text]"
                 }
-                return "[frame] [#{frame["uuid"][0, 4]}] [#{frame["type"]}] #{namedhashToFirstLine.call(frame["namedhash"])}"
+                return "[cube] [#{cube["uuid"][0, 4]}] [#{cube["type"]}] #{namedhashToFirstLine.call(cube["namedhash"])}"
             end
-            if frame["type"] == "aion-point" then
-                return "[frame] [#{frame["uuid"][0, 4]}] [#{frame["type"]}] #{frame["namedhash"]}"
+            if cube["type"] == "aion-point" then
+                return "[cube] [#{cube["uuid"][0, 4]}] [#{cube["type"]}] #{cube["namedhash"]}"
             end
-            if frame["type"] == "unique-name" then
-                return "[frame] [#{frame["uuid"][0, 4]}] [#{frame["type"]}] #{frame["name"]}"
+            if cube["type"] == "unique-name" then
+                return "[cube] [#{cube["uuid"][0, 4]}] [#{cube["type"]}] #{cube["name"]}"
             end
-            raise "[Frames error 2c53b113-cc79]"
-        }).call(frame)
+            raise "[Cubes error 2c53b113-cc79]"
+        }).call(cube)
 
-        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{frame["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}", str)
         str
     end
 
-    # Frames::openFrame(hypercube, frame)
-    def self.openFrame(hypercube, frame)
-        if frame["type"] == "line" then
-            puts frame["line"]
+    # Cubes::openCube(hypercube, cube)
+    def self.openCube(hypercube, cube)
+        if cube["type"] == "line" then
+            puts cube["line"]
             LucilleCore::pressEnterToContinue()
             return
         end
-        if frame["type"] == "url" then
-            system("open '#{frame["url"]}'")
+        if cube["type"] == "url" then
+            system("open '#{cube["url"]}'")
             return
         end
-        if frame["type"] == "text" then
+        if cube["type"] == "text" then
             system("clear")
-            namedhash = frame["namedhash"]
+            namedhash = cube["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash)
             puts text
             LucilleCore::pressEnterToContinue()
             return
         end
-        if frame["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForFrameCreateIfNotExists(hypercube, frame)
+        if cube["type"] == "aion-point" then
+            folderpath = DeskOperator::deskFolderpathForCubeCreateIfNotExists(hypercube, cube)
             system("open '#{folderpath}'")
             return
         end
-        if frame["type"] == "unique-name" then
-            uniquename = frame["name"]
+        if cube["type"] == "unique-name" then
+            uniquename = cube["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 if File.file?(location) then
@@ -203,6 +203,6 @@ class Frames
             end
             return
         end
-        raise "[Frame error 4bf5cfb1-c2a2]"
+        raise "[Cube error 4bf5cfb1-c2a2]"
     end
 end

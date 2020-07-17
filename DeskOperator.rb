@@ -8,12 +8,12 @@ class DeskOperator
         "#{EstateServices::getDeskFolderpath()}/#{hypercube["uuid"]}"
     end
 
-    # DeskOperator::deskFolderpathForFrameCreateIfNotExists(hypercube, frame)
-    def self.deskFolderpathForFrameCreateIfNotExists(hypercube, frame)
+    # DeskOperator::deskFolderpathForCubeCreateIfNotExists(hypercube, cube)
+    def self.deskFolderpathForCubeCreateIfNotExists(hypercube, cube)
         desk_folderpath_for_hypercube = DeskOperator::deskFolderpathForFlock(hypercube)
         if !File.exists?(desk_folderpath_for_hypercube) then
             FileUtils.mkpath(desk_folderpath_for_hypercube)
-            namedhash = frame["namedhash"]
+            namedhash = cube["namedhash"]
             LibrarianOperator::namedHashExportAtFolder(namedhash, desk_folderpath_for_hypercube)
             # If the desk_folderpath_for_hypercube folder contains just one folder named after the hypercube itself
             # Then this means that we are exporting a previously imported desk_folderpath_for_hypercube.
@@ -31,23 +31,23 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         Hypercubes::hypercubes().each{|hypercube|
-            frame = Hypercubes::getLastHypercubeFrameOrNull(hypercube)
-            next if frame.nil?
-            next if frame["type"] != "aion-point"
+            cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+            next if cube.nil?
+            next if cube["type"] != "aion-point"
             desk_folderpath_for_hypercube = DeskOperator::deskFolderpathForFlock(hypercube)
             next if !File.exists?(desk_folderpath_for_hypercube)
-            #puts "frame:"
-            #puts JSON.pretty_generate(frame)
+            #puts "cube:"
+            #puts JSON.pretty_generate(cube)
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_hypercube)
             #puts "namedhash from folder: #{namedhash}"
-            if namedhash == frame["namedhash"] then
+            if namedhash == cube["namedhash"] then
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_hypercube)
                 next
             end
-            newframe = Frames::issueAionHypercube(namedhash)
-            Arrows::issue(hypercube, newframe)
-            #puts "new frame:"
-            #puts JSON.pretty_generate(newframe)
+            newcube = Cubes::issueAionHypercube(namedhash)
+            Arrows::issue(hypercube, newcube)
+            #puts "new cube:"
+            #puts JSON.pretty_generate(newcube)
             LucilleCore::removeFileSystemLocation(desk_folderpath_for_hypercube)
         }
     end

@@ -1,11 +1,11 @@
 
-Frames are data carriers. They allow Hypercubes to mutate.
+Cubes are data carriers. They allow Hypercubes to mutate.
 
-The notion of frame family was introduced when I was working on introducing mutation of asteroids. Turns out that an asteroid can have more than one independant frames, but then we only want to show the latest version of a given one, hence the notion of a family. When we issue a replacement frame we replace the frames of the same family. 
+The notion of cube family was introduced when I was working on introducing mutation of asteroids. Turns out that an asteroid can have more than one independant cubes, but then we only want to show the latest version of a given one, hence the notion of a family. When we issue a replacement cube we replace the cubes of the same family. 
 
-When a frame is created we need to specifiy its family name, either randomly chosen or given since the newly created frames is meant to replace anybody of the same family.  
+When a cube is created we need to specifiy its family name, either randomly chosen or given since the newly created cubes is meant to replace anybody of the same family.  
 
-Frame
+Cube
 
 {
     "uuid"         : String

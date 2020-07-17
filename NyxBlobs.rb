@@ -8,10 +8,10 @@ class NyxBlobs
     # NyxBlobs::namedHashToBlobFilepath(namedhash)
     def self.namedHashToBlobFilepath(namedhash)
         if namedhash.start_with?("SHA256-") then
-            frame1 = namedhash[7, 2]
-            frame2 = namedhash[9, 2]
-            frame3 = namedhash[11, 2]
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Blobs/#{frame1}/#{frame2}/#{frame3}/#{namedhash}.data"
+            cube1 = namedhash[7, 2]
+            cube2 = namedhash[9, 2]
+            cube3 = namedhash[11, 2]
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Blobs/#{cube1}/#{cube2}/#{cube3}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
