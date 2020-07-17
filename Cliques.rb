@@ -65,6 +65,8 @@ class Cliques
             # Clique Identity Information
 
             puts Cliques::cliqueToString(clique)
+            puts ""
+
             puts "uuid: #{clique["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(clique)
             if description then

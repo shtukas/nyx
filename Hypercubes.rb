@@ -104,6 +104,7 @@ class Hypercubes
             # -------------------------------------------
             # Hypercube metadata
             puts Hypercubes::hypercubeToString(hypercube)
+            puts ""
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
             if description then
