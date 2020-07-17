@@ -118,28 +118,28 @@ class Cliques
 
             # NSDataType2s
             Cliques::getCliqueNSDataType2sInTimeOrder(clique)
-                .each{|hypercube|
+                .each{|ns2|
                     menuitems.item(
-                        NSDataType2s::hypercubeToString(hypercube), 
-                        lambda { NSDataType2s::landing(hypercube) }
+                        NSDataType2s::ns2ToString(ns2), 
+                        lambda { NSDataType2s::landing(ns2) }
                     )
                 }
 
             puts ""
             menuitems.item(
-                "add new hypercube", 
+                "add new ns2", 
                 lambda{
-                    hypercube = NSDataType2s::issueNewNSDataType2Interactively()
-                    Arrows::issue(clique, hypercube)
+                    ns2 = NSDataType2s::issueNewNSDataType2Interactively()
+                    Arrows::issue(clique, ns2)
                 }
             )
 
             if Cliques::canShowDiveOperations(clique) then
                 menuitems.item(
-                    "graph maker: select multiple hypercube ; send to existing/new clique ; detach from this",
+                    "graph maker: select multiple ns2 ; send to existing/new clique ; detach from this",
                     lambda {
-                        hypercubes = Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedNSDataType2s, _ = LucilleCore::selectZeroOrMore("hypercubes", [], hypercubes, toStringLambda = lambda{ |hypercube| NSDataType2s::hypercubeToString(hypercube) })
+                        ns2s = Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedNSDataType2s, _ = LucilleCore::selectZeroOrMore("ns2s", [], ns2s, toStringLambda = lambda{ |ns2| NSDataType2s::ns2ToString(ns2) })
                         return if selectedNSDataType2s.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
@@ -147,10 +147,10 @@ class Cliques
                         return if c.nil?
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
-                        puts "Linking hypercubes to clique"
-                        selectedNSDataType2s.each{|hypercube| Arrows::issue(c, hypercube) }
-                        puts "Unlinking hypercubes from (this)"
-                        selectedNSDataType2s.each{|hypercube| Arrows::remove(clique, hypercube) }
+                        puts "Linking ns2s to clique"
+                        selectedNSDataType2s.each{|ns2| Arrows::issue(c, ns2) }
+                        puts "Unlinking ns2s from (this)"
+                        selectedNSDataType2s.each{|ns2| Arrows::remove(clique, ns2) }
                     }
                 )
             end
@@ -374,7 +374,7 @@ class Cliques
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
         Arrows::getTargetsOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
-            .each{|hypercube| Arrows::issue(clique1, hypercube) }
+            .each{|ns2| Arrows::issue(clique1, ns2) }
         NyxObjects::destroy(clique2["uuid"])
     end
 

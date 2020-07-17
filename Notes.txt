@@ -1,4 +1,4 @@
-Note, used as way to give extra information about a hypercube. They target the hypercube.
+Note, used as way to give extra information about a ns2. They target the ns2.
 
 {
     "uuid"       : String

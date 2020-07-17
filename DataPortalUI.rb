@@ -24,8 +24,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "hypercubes (listing)", 
-                lambda { NSDataType2s::hypercubesListingAndLanding() }
+                "ns2s (listing)", 
+                lambda { NSDataType2s::ns2sListingAndLanding() }
             )
 
             ms.item(
@@ -61,10 +61,10 @@ class DataPortalUI
             )
 
             ms.item(
-                "hypercube (new)",
+                "ns2 (new)",
                 lambda { 
-                    hypercube = NSDataType2s::issueNewNSDataType2Interactively()
-                    NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(hypercube)
+                    ns2 = NSDataType2s::issueNewNSDataType2Interactively()
+                    NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(ns2)
                 }
             )
 

@@ -157,8 +157,8 @@ class Cubes
         str
     end
 
-    # Cubes::openCube(hypercube, cube)
-    def self.openCube(hypercube, cube)
+    # Cubes::openCube(ns2, cube)
+    def self.openCube(ns2, cube)
         if cube["type"] == "line" then
             puts cube["line"]
             LucilleCore::pressEnterToContinue()
@@ -177,7 +177,7 @@ class Cubes
             return
         end
         if cube["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForCubeCreateIfNotExists(hypercube, cube)
+            folderpath = DeskOperator::deskFolderpathForCubeCreateIfNotExists(ns2, cube)
             system("open '#{folderpath}'")
             return
         end
