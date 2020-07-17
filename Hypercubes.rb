@@ -221,7 +221,7 @@ class Hypercubes
             # ----------------------------------------------------------
             # Cliques
 
-            puts "Parent Cliques:"
+            puts "Cliques:"
 
             Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
                 .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
