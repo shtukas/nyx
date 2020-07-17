@@ -178,7 +178,7 @@ class LucilleCore
     # LucilleCore::selectEntityFromListOfEntitiesOrNull(type, elements, toStringLambda = lambda{ |item| item })
     def self.selectEntityFromListOfEntitiesOrNull(type, elements, toStringLambda = lambda{ |item| item })
         puts "Select #{type}"
-        indexDisplayMaxSize = elements.size.to_s.size # This allows adjustement of the index cube.
+        indexDisplayMaxSize = elements.size.to_s.size # This allows adjustement of the index ns0.
         elements.each_with_index{|element,index|
                 puts "    [#{(index+1).to_s.rjust(indexDisplayMaxSize)}] #{toStringLambda.call(element)}"
             }
@@ -262,7 +262,7 @@ class LucilleCore
     # Item = [String, lambda {}]
     def self.menuItemsWithLambdas(items)
         puts "->"
-        indexDisplayMaxSize = items.size.to_s.size # This allows adjustement of the index cube.
+        indexDisplayMaxSize = items.size.to_s.size # This allows adjustement of the index ns0.
         items.each_with_index{|item,index|
                 if item.nil? then
                     puts ""

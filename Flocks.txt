@@ -1,5 +1,5 @@
 
-Flocks define the various mutation of a Cube. People interested in Cubes don't link to them, they link to the Flock
+Flocks define the various mutation of a NSDataType0. People interested in NSDataType0s don't link to them, they link to the Flock
 
 Flock {
     "uuid"         : String

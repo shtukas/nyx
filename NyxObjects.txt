@@ -18,7 +18,7 @@ Nyx
         NSDataType2     # NSDataType2s.txt
                       # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
-        Cube          # Cubes.txt
+        NSDataType0          # NSDataType0s.txt
                       # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
                       # NSDataType2
 

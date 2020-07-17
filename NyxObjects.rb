@@ -14,7 +14,7 @@ class NyxPrimaryObjects
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
-            "0f555c97-3843-4dfe-80c8-714d837eba69", # Cube
+            "0f555c97-3843-4dfe-80c8-714d837eba69", # NSDataType0
             "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
@@ -25,9 +25,9 @@ class NyxPrimaryObjects
     # NyxPrimaryObjects::uuidToObjectFilepath(uuid)
     def self.uuidToObjectFilepath(uuid)
         hash1 = Digest::SHA256.hexdigest(uuid)
-        cube1 = hash1[0, 2]
-        cube2 = hash1[2, 2]
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects/#{cube1}/#{cube2}/#{hash1}.json"
+        ns01 = hash1[0, 2]
+        ns02 = hash1[2, 2]
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects/#{ns01}/#{ns02}/#{hash1}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end

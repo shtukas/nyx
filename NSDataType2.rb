@@ -27,10 +27,10 @@ class NSDataType2s
         puts JSON.pretty_generate(ns2)
         NSDataType2s::commitNSDataType2ToDisk(ns2)
 
-        cube = Cubes::issueNewCubeInteractivelyOrNull()
-        if cube then
-            puts JSON.pretty_generate(cube)
-            Arrows::issue(ns2, cube)
+        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+        if ns0 then
+            puts JSON.pretty_generate(ns0)
+            Arrows::issue(ns2, ns0)
         end
 
         description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
@@ -73,9 +73,9 @@ class NSDataType2s
             return str
         end
 
-        cube = NSDataType2s::getLastNSDataType2CubeOrNull(ns2)
-        if cube then
-            str = "[ns2] #{Cubes::cubeToString(cube)}"
+        ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
+        if ns0 then
+            str = "[ns2] #{NSDataType0s::ns0ToString(ns0)}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         end
@@ -208,14 +208,14 @@ class NSDataType2s
             # ----------------------------------------------------------
             # Latest NSDataType2
 
-            cube = NSDataType2s::getLastNSDataType2CubeOrNull(ns2)
-            if cube then
+            ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
+            if ns0 then
                 menuitems.item(
-                    "access cube (#{cube["type"]})",
-                    lambda { Cubes::openCube(ns2, cube) }
+                    "access ns0 (#{ns0["type"]})",
+                    lambda { NSDataType0s::openNSDataType0(ns2, ns0) }
                 )
             else
-                puts "No cube found for this ns2"
+                puts "No ns0 found for this ns2"
             end
 
             Miscellaneous::horizontalRule(true)
@@ -277,15 +277,15 @@ class NSDataType2s
         Arrows::getSourcesOfGivenSetsForTarget(ns2, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
-    # NSDataType2s::getNSDataType2CubesInTimeOrder(ns2)
-    def self.getNSDataType2CubesInTimeOrder(ns2)
+    # NSDataType2s::getNSDataType2NSDataType0sInTimeOrder(ns2)
+    def self.getNSDataType2NSDataType0sInTimeOrder(ns2)
         Arrows::getTargetsOfGivenSetsForSource(ns2, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType2s::getLastNSDataType2CubeOrNull(ns2)
-    def self.getLastNSDataType2CubeOrNull(ns2)
-        NSDataType2s::getNSDataType2CubesInTimeOrder(ns2).last
+    # NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
+    def self.getLastNSDataType2NSDataType0OrNull(ns2)
+        NSDataType2s::getNSDataType2NSDataType0sInTimeOrder(ns2).last
     end
 
     # NSDataType2s::getNSDataType2ReferenceDateTime(ns2)

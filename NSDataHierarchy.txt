@@ -1,10 +1,9 @@
+NSDataType0 is the ImmutableDataPoint
 
 Asteroid = Array[Flocks]
 
-Flock = Array[Cubes]
+Flock = Array[NSDataType0]
 
-Clique = Array[NSDataType2s]
+Clique = Array[NSDataType2]
 
-NSDataType2 = Array[Cubes]
-
-where Cube is the ImmutableDataPoint
+NSDataType2 = Array[NSDataType0]

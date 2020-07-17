@@ -250,10 +250,10 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            cube = Cubes::issueAionNSDataType2(namedhash)
-            puts JSON.pretty_generate(cube)
+            ns0 = NSDataType0s::issueAionNSDataType2(namedhash)
+            puts JSON.pretty_generate(ns0)
             flock = Flocks::issue()
-            Arrows::issue(flock, cube)
+            Arrows::issue(flock, ns0)
             asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)

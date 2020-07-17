@@ -58,7 +58,7 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Cliques.rb"
 require_relative "Comments.rb"
-require_relative "Cubes.rb"
+require_relative "NSDataType0s.rb"
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"

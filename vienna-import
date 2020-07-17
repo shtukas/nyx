@@ -45,9 +45,9 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    cube = Cubes::issueUrl(link)
+    ns0 = NSDataType0s::issueUrl(link)
     flock = Flocks::issue()
-    Arrows::issue(flock, cube)
+    Arrows::issue(flock, ns0)
     asteroid = Asteroids::issueAsteroidInboxFromFlock(flock)
     viennaLinkFeeder.done(link)
 }

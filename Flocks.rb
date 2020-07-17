@@ -21,21 +21,21 @@ class Flocks
 
     # Flocks::flockToString(flock)
     def self.flockToString(flock)
-        cubes = Flocks::getCubesForFlock(flock)
+        ns0s = Flocks::getNSDataType0sForFlock(flock)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(flock)
         if description then
-            cubetype =
-                if cubes.size > 0 then
-                    cubetype = " [#{cubes.last["type"]}]"
+            ns0type =
+                if ns0s.size > 0 then
+                    ns0type = " [#{ns0s.last["type"]}]"
                 else
                     ""
                 end
-            return "[flock]#{cubetype} #{description}"
+            return "[flock]#{ns0type} #{description}"
         end
-        if cubes.size > 0 then
-            return "[flock] #{Cubes::cubeToString(cubes[0])}"
+        if ns0s.size > 0 then
+            return "[flock] #{NSDataType0s::ns0ToString(ns0s[0])}"
         end
-        return "[flock] no description and no cube"
+        return "[flock] no description and no ns0"
     end
 
     # Flocks::getFlocksForSource(source)
@@ -43,14 +43,14 @@ class Flocks
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # Flocks::getCubesForFlock(flock)
-    def self.getCubesForFlock(flock)
+    # Flocks::getNSDataType0sForFlock(flock)
+    def self.getNSDataType0sForFlock(flock)
         Arrows::getTargetsForSource(flock)
     end
 
-    # Flocks::getLastFlockCubeOrNull(flock)
-    def self.getLastFlockCubeOrNull(flock)
-        Flocks::getCubesForFlock(flock)
+    # Flocks::getLastFlockNSDataType0OrNull(flock)
+    def self.getLastFlockNSDataType0OrNull(flock)
+        Flocks::getNSDataType0sForFlock(flock)
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
             .last
     end
@@ -63,13 +63,13 @@ class Flocks
         Arrows::issue(flock, descriptionz)
     end
 
-    # Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
-    def self.issueNewFlockAndItsFirstCubeInteractivelyOrNull()
+    # Flocks::issueNewFlockAndItsFirstNSDataType0InteractivelyOrNull()
+    def self.issueNewFlockAndItsFirstNSDataType0InteractivelyOrNull()
         puts "Making a new Flock..."
-        cube = Cubes::issueNewCubeInteractivelyOrNull()
-        return nil if cube.nil?
+        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+        return nil if ns0.nil?
         flock = Flocks::issue()
-        Arrows::issue(flock, cube)
+        Arrows::issue(flock, ns0)
         Flocks::giveDescriptionToFlockInteractively(flock)
         flock
     end
@@ -87,7 +87,7 @@ class Flocks
             )
             menuitems.item(
                 "open",
-                lambda { Flocks::openLastCube(flock) }
+                lambda { Flocks::openLastNSDataType0(flock) }
             )
             menuitems.item(
                 "destroy",
@@ -102,14 +102,14 @@ class Flocks
         }
     end
 
-    # Flocks::openLastCube(flock)
-    def self.openLastCube(flock)
-        cube = Flocks::getLastFlockCubeOrNull(flock)
-        if cube.nil? then
-            puts "I could not find cubes for this flock. Aborting"
+    # Flocks::openLastNSDataType0(flock)
+    def self.openLastNSDataType0(flock)
+        ns0 = Flocks::getLastFlockNSDataType0OrNull(flock)
+        if ns0.nil? then
+            puts "I could not find ns0s for this flock. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        Cubes::openCube(flock, cube)
+        NSDataType0s::openNSDataType0(flock, ns0)
     end
 end

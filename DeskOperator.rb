@@ -8,12 +8,12 @@ class DeskOperator
         "#{EstateServices::getDeskFolderpath()}/#{ns2["uuid"]}"
     end
 
-    # DeskOperator::deskFolderpathForCubeCreateIfNotExists(ns2, cube)
-    def self.deskFolderpathForCubeCreateIfNotExists(ns2, cube)
+    # DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns2, ns0)
+    def self.deskFolderpathForNSDataType0CreateIfNotExists(ns2, ns0)
         desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForFlock(ns2)
         if !File.exists?(desk_folderpath_for_ns2) then
             FileUtils.mkpath(desk_folderpath_for_ns2)
-            namedhash = cube["namedhash"]
+            namedhash = ns0["namedhash"]
             LibrarianOperator::namedHashExportAtFolder(namedhash, desk_folderpath_for_ns2)
             # If the desk_folderpath_for_ns2 folder contains just one folder named after the ns2 itself
             # Then this means that we are exporting a previously imported desk_folderpath_for_ns2.
@@ -31,23 +31,23 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         NSDataType2s::ns2s().each{|ns2|
-            cube = NSDataType2s::getLastNSDataType2CubeOrNull(ns2)
-            next if cube.nil?
-            next if cube["type"] != "aion-point"
+            ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
+            next if ns0.nil?
+            next if ns0["type"] != "aion-point"
             desk_folderpath_for_ns2 = DeskOperator::deskFolderpathForFlock(ns2)
             next if !File.exists?(desk_folderpath_for_ns2)
-            #puts "cube:"
-            #puts JSON.pretty_generate(cube)
+            #puts "ns0:"
+            #puts JSON.pretty_generate(ns0)
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_ns2)
             #puts "namedhash from folder: #{namedhash}"
-            if namedhash == cube["namedhash"] then
+            if namedhash == ns0["namedhash"] then
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns2)
                 next
             end
-            newcube = Cubes::issueAionNSDataType2(namedhash)
-            Arrows::issue(ns2, newcube)
-            #puts "new cube:"
-            #puts JSON.pretty_generate(newcube)
+            newns0 = NSDataType0s::issueAionNSDataType2(namedhash)
+            Arrows::issue(ns2, newns0)
+            #puts "new ns0:"
+            #puts JSON.pretty_generate(newns0)
             LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns2)
         }
     end

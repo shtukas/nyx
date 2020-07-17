@@ -58,10 +58,10 @@ class Asteroids
             }
         end
         if option == "metal" then
-            cube = Cubes::issueNewCubeInteractivelyOrNull()
-            return nil if cube.nil?
+            ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+            return nil if ns0.nil?
             flock = Flocks::issue()
-            Arrows::issue(flock, cube)
+            Arrows::issue(flock, ns0)
             Arrows::issue({ "uuid" => asteroiduuid }, flock) # clever idea ^^
             return {
                 "type"        => "metal",
@@ -212,7 +212,7 @@ class Asteroids
 
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
-        payloadCube = lambda{|asteroid|
+        payloadNSDataType0 = lambda{|asteroid|
             payload = asteroid["payload"]
             if payload["type"] == "description" then
                 return " " + payload["description"]
@@ -231,7 +231,7 @@ class Asteroids
             puts JSON.pretty_generate(asteroid)
             raise "[Asteroids] error: CE8497BB"
         }
-        orbitalCube = lambda{|asteroid|
+        orbitalNSDataType0 = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
                 return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
@@ -252,7 +252,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadCube.call(asteroid)}#{orbitalCube.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadNSDataType0.call(asteroid)}#{orbitalNSDataType0.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -369,8 +369,8 @@ class Asteroids
                         lambda { 
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
-                                "access cube",
-                                lambda { Flocks::openLastCube(flock) }
+                                "access ns0",
+                                lambda { Flocks::openLastNSDataType0(flock) }
                             )
                             ms.item(
                                 "landing",
@@ -387,7 +387,7 @@ class Asteroids
                 menuitems.item(
                     "add new flock",
                     lambda { 
-                        flock = Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
+                        flock = Flocks::issueNewFlockAndItsFirstNSDataType0InteractivelyOrNull()
                         return if flock.nil?
                         Arrows::issue(asteroid, flock)
                     }
@@ -747,12 +747,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                Flocks::openLastCube(flocks[0])
+                Flocks::openLastNSDataType0(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            Flocks::openLastCube(flock)
+            Flocks::openLastNSDataType0(flock)
         end
     end
 
@@ -767,8 +767,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::getCubesForAsteroid(asteroid)
-    def self.getCubesForAsteroid(asteroid)
+    # Asteroids::getNSDataType0sForAsteroid(asteroid)
+    def self.getNSDataType0sForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
