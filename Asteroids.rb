@@ -369,7 +369,7 @@ class Asteroids
                         lambda { 
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
-                                "view data",
+                                "access cube",
                                 lambda { Flocks::openLastCube(flock) }
                             )
                             ms.item(

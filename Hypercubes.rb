@@ -210,7 +210,7 @@ class Hypercubes
             cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
             if cube then
                 menuitems.item(
-                    "view data",
+                    "access cube",
                     lambda { Cubes::openCube(hypercube, cube) }
                 )
             else
