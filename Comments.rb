@@ -24,7 +24,6 @@ class Comments
     # Comments::comments()
     def self.comments()
         NyxObjects::getSet("7e99bb92-098d-4f84-a680-f158126aa3bf")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Comments::getCommentsForSourceInTimeOrder(source)

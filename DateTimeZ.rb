@@ -25,7 +25,6 @@ class DateTimeZ
     # DateTimeZ::datetimez()
     def self.datetimez()
         NyxObjects::getSet("1bc9b712-09be-44da-9551-f22d70a3f15d")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # DateTimeZ::getDateTimeZForSourceInTimeOrder(source)

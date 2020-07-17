@@ -28,7 +28,6 @@ class DescriptionZ
     # DescriptionZ::descriptionz()
     def self.descriptionz()
         NyxObjects::getSet("4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # DescriptionZ::getDescriptionZForSourceInTimeOrder(source)

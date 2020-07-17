@@ -23,7 +23,6 @@ class Tags
     # Tags::tags()
     def self.tags()
         NyxObjects::getSet("4643abd2-fec6-4184-a9ad-5ad3df3257d6")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Tags::getTagsForSource(source)
