@@ -143,7 +143,7 @@ class NSDataType3
                         return if selectedNSDataType2.size == 0
                         puts "Now selecting/making the receiving ns3"
                         LucilleCore::pressEnterToContinue()
-                        c = NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
+                        c = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
                         return if c.nil?
                         puts "Making the new ns3 a target of this"
                         Arrows::issue(source, c)
@@ -188,7 +188,7 @@ class NSDataType3
                 menuitems.item(
                     "add nagigation source", 
                     lambda { 
-                        c = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
+                        c = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
                         return if c.nil?
                         Arrows::issue(c, ns3)
                     }
@@ -197,7 +197,7 @@ class NSDataType3
             menuitems.item(
                 "add navigation target", 
                 lambda { 
-                    c = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
+                    c = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
                     return if c.nil?
                     Arrows::issue(ns3, c)
                 }
@@ -290,66 +290,12 @@ class NSDataType3
         DateTime.parse(NSDataType3::getNSDataType3ReferenceDateTime(ns3)).to_time.to_f
     end
 
-    # NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
-    def self.selectNSDataType3FromExistingNSDataType3sOrNull()
-        ns3strings = NSDataType3::ns3s().map{|ns3| NSDataType3::ns3ToString(ns3) }
-        ns3string = Miscellaneous::chooseALinePecoStyle("ns3:", [""]+ns3strings)
-        return nil if ns3string == ""
-        NSDataType3::ns3s()
-            .select{|ns3| NSDataType3::ns3ToString(ns3) == ns3string }
-            .first
-    end
-
-    # NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
-    def self.selectNSDataType3FromExistingOrCreateOneOrNull()
-        puts "-> You are selecting a ns3 (possibly will create one)"
-        LucilleCore::pressEnterToContinue()
-        ns3 = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
-        return ns3 if ns3
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to make a new ns3 and return it ? ") then
-            return NSDataType3::issueNSDataType3InteractivelyOrNull()
-        end
-        nil
-    end
-
-    # NSDataType3::selectZeroOrMoreNSDataType3sExistingOrCreated()
-    def self.selectZeroOrMoreNSDataType3sExistingOrCreated()
-        ns3 = NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
-        return [] if ns3.nil?
-        ns3s = [ ns3 ]
-        loop {
-            break if !LucilleCore::askQuestionAnswerAsBoolean("select more ns3s ? ")
-            ns3 = NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
-            break if ns3.nil?
-            ns3s << ns3
-        }
-        ns3s
-    end
-
     # NSDataType3::getLastActivityUnixtime(ns3)
     def self.getLastActivityUnixtime(ns3)
         times1 = [ NSDataType3::getNSDataType3ReferenceUnixtime(ns3) ] 
         times2 = Arrows::getTargetsOfGivenSetsForSource(ns3, ["6b240037-8f5f-4f52-841d-12106658171f"])
                     .map{|object| object["unixtime"] }
         (times1+times2).max
-    end
-
-    # NSDataType3::ns3sListingAndLanding()
-    def self.ns3sListingAndLanding()
-        loop {
-            ms = LCoreMenuItemsNX1.new()
-
-            NSDataType3::ns3s()
-                .sort{|q1, q2| q1["unixtime"]<=>q2["unixtime"] }
-                .each{|ns3|
-                    ms.item(
-                        NSDataType3::ns3ToString(ns3), 
-                        lambda{ NSDataType3::landing(ns3) }
-                    )
-                }
-            status = ms.prompt()
-            break if !status
-        }
     end
 
     # NSDataType3::searchNx1630(pattern)
@@ -382,11 +328,11 @@ class NSDataType3
     def self.interactivelySelectTwoNSDataType3sAndMerge()
         puts "Select ns3 #1"
         LucilleCore::pressEnterToContinue()
-        ns31 = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
+        ns31 = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
 
         puts "Select ns3 #2"
         LucilleCore::pressEnterToContinue()
-        ns32 = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
+        ns32 = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
 
         if ns31["uuid"] == ns32["uuid"] then
             puts "You hace selected the same ns3 twice. Aborting operation."
@@ -422,7 +368,6 @@ class NSDataType3
         }
         options << ["make new target ns3 for current and return that"]
         options << ["back to source"]
-        options << ["try peco style choosing ns3 by name"]
         options << ["abort search and return null"]
 
         optionToString = lambda {|option|
@@ -464,11 +409,6 @@ class NSDataType3
         end
         if option[0] == "back to source" then
             return "back to source"
-        end
-        if option[0] == "try peco style choosing ns3 by name" then
-            selection = NSDataType3::selectNSDataType3FromExistingNSDataType3sOrNull()
-            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3) if selection.nil?
-            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(selection)
         end
         if option[0] == "abort search and return null" then
             return nil

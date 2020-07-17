@@ -721,18 +721,6 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestructionNSDataType2Handling(ns2)
-    def self.asteroidDestructionNSDataType2Handling(ns2)
-        puts NSDataType2::ns2ToString(ns2)
-        return if Arrows::getSourcesOfGivenSetsForTarget(ns2, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
-        if LucilleCore::askQuestionAnswerAsBoolean("Retain ns2 ? ") then
-            NSDataType2::ensureNSDataType2Description(ns2)
-            NSDataType2::ensureAtLeastOneNSDataType2NSDataType3s(ns2)
-        else
-            NSDataType2::destroyNSDataType2ByUUID(ns2["uuid"])
-        end
-    end
-
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)

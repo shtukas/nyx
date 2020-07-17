@@ -19,16 +19,6 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "ns3s (listing)", 
-                lambda { NSDataType3::ns3sListingAndLanding() }
-            )
-
-            ms.item(
-                "ns2s (listing)", 
-                lambda { NSDataType2::ns2sListingAndLanding() }
-            )
-
-            ms.item(
                 "asteroid floats open-project-in-the-background", 
                 lambda { 
                     loop {
@@ -64,7 +54,7 @@ class DataPortalUI
                 "ns2 (new)",
                 lambda { 
                     ns2 = NSDataType2::issueNewNSDataType2Interactively()
-                    NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
+                    NSDataType2::landing(ns2)
                 }
             )
 

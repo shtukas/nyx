@@ -235,7 +235,7 @@ class NSDataType2
             menuitems.item(
                 "select ns3 and add to",
                 lambda {
-                    ns3 = NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
+                    ns3 = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
                     return if ns3.nil?
                     Arrows::issue(ns3, ns2)
                 }
@@ -373,12 +373,6 @@ class NSDataType2
         }
     end
 
-    # NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
-    def self.attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
-        NSDataType3::selectZeroOrMoreNSDataType3sExistingOrCreated()
-            .each{|ns3| Arrows::issue(ns3, ns2) }
-    end
-
     # NSDataType2::ensureNSDataType2Description(ns2)
     def self.ensureNSDataType2Description(ns2)
         return if DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
@@ -386,13 +380,6 @@ class NSDataType2
         return if description.size == 0
         descriptionz = DescriptionZ::issue(description)
         Arrows::issue(ns2, descriptionz)
-    end
-
-    # NSDataType2::ensureAtLeastOneNSDataType2NSDataType3s(ns2)
-    def self.ensureAtLeastOneNSDataType2NSDataType3s(ns2)
-        if NSDataType2::getNSDataType2NSDataType3s(ns2).empty? then
-            NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
-        end
     end
 
     # NSDataType2::getNSDataType2Tags(ns2)
