@@ -148,7 +148,7 @@ class Cliques
                         puts "Linking hypercubes to clique"
                         selectedHypercubes.each{|hypercube| Arrows::issue(c, hypercube) }
                         puts "Unlinking hypercubes from (this)"
-                        selectedHypercubes.each{|hypercube| Arrows::removeArrow(clique, hypercube) }
+                        selectedHypercubes.each{|hypercube| Arrows::remove(clique, hypercube) }
                     }
                 )
             end
@@ -206,7 +206,7 @@ class Cliques
                     lambda { 
                         c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationSources(clique), lambda{|c| Cliques::cliqueToString(c) })
                         return if c.nil?
-                        Arrows::removeArrow(c, clique)
+                        Arrows::remove(c, clique)
                     }
                 )
             end
@@ -215,7 +215,7 @@ class Cliques
                 lambda { 
                     c = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Cliques::getCliqueNavigationTargets(clique), lambda{|c| Cliques::cliqueToString(c) })
                     return if c.nil?
-                    Arrows::removeArrow(clique, c)
+                    Arrows::remove(clique, c)
                 }
             )
             Miscellaneous::horizontalRule(true)

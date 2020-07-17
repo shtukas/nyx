@@ -53,7 +53,7 @@ class NetworkManager
         Cliques::getCliqueNavigationTargets(root).each{|clique|
             next if Cliques::isRoot?(clique) # we do not target the [root]
             next if Arrows::getSourcesOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this hypercube they should all have at least one source 
-            Arrows::removeArrow(root, clique)
+            Arrows::remove(root, clique)
         }
     end
 end

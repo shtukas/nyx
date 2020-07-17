@@ -16,6 +16,7 @@ class Arrows
 
     # Arrows::issue(source, target)
     def self.issue(source, target)
+        return if Arrows::exists?(source, target)
         return if Cliques::isRoot?(target)
         arrow = Arrows::make(source, target)
         NyxObjects::put(arrow)
@@ -27,20 +28,19 @@ class Arrows
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
     end
 
-    # Arrows::removeArrow(source, target)
-    def self.removeArrow(source, target)
+    # Arrows::remove(source, target)
+    def self.remove(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| 
                 b1 = (arrow["sourceuuid"] == source["uuid"])
                 b2 = (arrow["targetuuid"] == target["uuid"])
                 b1 and b2
             }
-            .first(1)
             .each{|arrow| NyxObjects::destroy(arrow["uuid"]) }
     end
 
-    # Arrows::arrowExists?(source, target)
-    def self.arrowExists?(source, target)
+    # Arrows::exists?(source, target)
+    def self.exists?(source, target)
         NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .any?{|arrow|  
                 b1 = (arrow["sourceuuid"] == source["uuid"])

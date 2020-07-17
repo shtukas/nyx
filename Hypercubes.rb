@@ -235,7 +235,7 @@ class Hypercubes
             puts ""
 
             menuitems.item(
-                "clique (link to)",
+                "select clique and add to",
                 lambda {
                     clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                     return if clique.nil?
@@ -244,11 +244,11 @@ class Hypercubes
             )
 
             menuitems.item(
-                "clique (select and unlink)",
+                "select clique and remove from",
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Hypercubes::getHypercubeCliques(hypercube), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
-                    Arrows::issue(clique, hypercube)
+                    Arrows::remove(clique, hypercube)
                 }
             )
 
