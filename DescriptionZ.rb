@@ -13,7 +13,6 @@ class DescriptionZ
             "uuid"        => SecureRandom.uuid,
             "nyxNxSet"    => "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f",
             "unixtime"    => Time.new.to_f,
-            "targetuuid"  => targetuuid,
             "description" => description
         }
     end
