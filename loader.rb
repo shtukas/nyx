@@ -77,7 +77,7 @@ require_relative "Flocks.rb"
 
 require_relative "GeneralSearch.rb"
 
-require_relative "Hypercubes.rb"
+require_relative "NSDataType2s.rb"
 
 require_relative "InMemoryValueCache.rb"
 require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"

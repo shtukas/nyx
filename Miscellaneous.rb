@@ -250,7 +250,7 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            cube = Cubes::issueAionHypercube(namedhash)
+            cube = Cubes::issueAionNSDataType2(namedhash)
             puts JSON.pretty_generate(cube)
             flock = Flocks::issue()
             Arrows::issue(flock, cube)

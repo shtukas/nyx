@@ -114,14 +114,14 @@ class Cliques
             # ----------------------------------------------------------
             # Contents
 
-            puts "Hypercubes:"
+            puts "NSDataType2s:"
 
-            # Hypercubes
-            Cliques::getCliqueHypercubesInTimeOrder(clique)
+            # NSDataType2s
+            Cliques::getCliqueNSDataType2sInTimeOrder(clique)
                 .each{|hypercube|
                     menuitems.item(
-                        Hypercubes::hypercubeToString(hypercube), 
-                        lambda { Hypercubes::landing(hypercube) }
+                        NSDataType2s::hypercubeToString(hypercube), 
+                        lambda { NSDataType2s::landing(hypercube) }
                     )
                 }
 
@@ -129,7 +129,7 @@ class Cliques
             menuitems.item(
                 "add new hypercube", 
                 lambda{
-                    hypercube = Hypercubes::issueNewHypercubeInteractively()
+                    hypercube = NSDataType2s::issueNewNSDataType2Interactively()
                     Arrows::issue(clique, hypercube)
                 }
             )
@@ -139,8 +139,8 @@ class Cliques
                     "graph maker: select multiple hypercube ; send to existing/new clique ; detach from this",
                     lambda {
                         hypercubes = Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedHypercubes, _ = LucilleCore::selectZeroOrMore("hypercubes", [], hypercubes, toStringLambda = lambda{ |hypercube| Hypercubes::hypercubeToString(hypercube) })
-                        return if selectedHypercubes.size == 0
+                        selectedNSDataType2s, _ = LucilleCore::selectZeroOrMore("hypercubes", [], hypercubes, toStringLambda = lambda{ |hypercube| NSDataType2s::hypercubeToString(hypercube) })
+                        return if selectedNSDataType2s.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
@@ -148,9 +148,9 @@ class Cliques
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
                         puts "Linking hypercubes to clique"
-                        selectedHypercubes.each{|hypercube| Arrows::issue(c, hypercube) }
+                        selectedNSDataType2s.each{|hypercube| Arrows::issue(c, hypercube) }
                         puts "Unlinking hypercubes from (this)"
-                        selectedHypercubes.each{|hypercube| Arrows::remove(clique, hypercube) }
+                        selectedNSDataType2s.each{|hypercube| Arrows::remove(clique, hypercube) }
                     }
                 )
             end
@@ -250,8 +250,8 @@ class Cliques
         .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
     end
 
-    # Cliques::getCliqueHypercubesInTimeOrder(clique)
-    def self.getCliqueHypercubesInTimeOrder(clique)
+    # Cliques::getCliqueNSDataType2sInTimeOrder(clique)
+    def self.getCliqueNSDataType2sInTimeOrder(clique)
         Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end

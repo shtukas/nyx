@@ -1,23 +1,23 @@
 
 # encoding: UTF-8
 
-class HypercubeCached
-    # HypercubeCached::forget(hypercube)
+class NSDataType2Cached
+    # NSDataType2Cached::forget(hypercube)
     def self.forget(hypercube)
         InMemoryWithOnDiskPersistenceValueCache::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}") # toString
     end
 end
 
-class Hypercubes
+class NSDataType2s
 
-    # Hypercubes::commitHypercubeToDisk(hypercube)
-    def self.commitHypercubeToDisk(hypercube)
+    # NSDataType2s::commitNSDataType2ToDisk(hypercube)
+    def self.commitNSDataType2ToDisk(hypercube)
         NyxObjects::put(hypercube)
     end
 
-    # Hypercubes::issueNewHypercubeInteractively()
-    def self.issueNewHypercubeInteractively()
-        puts "Issuing a new Hypercube..."
+    # NSDataType2s::issueNewNSDataType2Interactively()
+    def self.issueNewNSDataType2Interactively()
+        puts "Issuing a new NSDataType2..."
 
         hypercube = {
             "uuid"      => SecureRandom.uuid,
@@ -25,7 +25,7 @@ class Hypercubes
             "unixtime"  => Time.new.to_f
         }
         puts JSON.pretty_generate(hypercube)
-        Hypercubes::commitHypercubeToDisk(hypercube)
+        NSDataType2s::commitNSDataType2ToDisk(hypercube)
 
         cube = Cubes::issueNewCubeInteractivelyOrNull()
         if cube then
@@ -40,28 +40,28 @@ class Hypercubes
             Arrows::issue(hypercube, descriptionz)
         end
 
-        Hypercubes::issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
+        NSDataType2s::issueZeroOrMoreTagsForNSDataType2Interactively(hypercube)
 
         hypercube
     end
 
-    # Hypercubes::hypercubes()
+    # NSDataType2s::hypercubes()
     def self.hypercubes()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # Hypercubes::getOrNull(uuid)
+    # NSDataType2s::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxObjects::getOrNull(uuid)
     end
 
-    # Hypercubes::destroyHypercubeByUUID(uuid)
-    def self.destroyHypercubeByUUID(uuid)
+    # NSDataType2s::destroyNSDataType2ByUUID(uuid)
+    def self.destroyNSDataType2ByUUID(uuid)
         NyxObjects::destroy(uuid)
     end
 
-    # Hypercubes::hypercubeToString(hypercube)
+    # NSDataType2s::hypercubeToString(hypercube)
     def self.hypercubeToString(hypercube)
         str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}")
         return str if str
@@ -73,7 +73,7 @@ class Hypercubes
             return str
         end
 
-        cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+        cube = NSDataType2s::getLastNSDataType2CubeOrNull(hypercube)
         if cube then
             str = "[hypercube] #{Cubes::cubeToString(cube)}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}", str)
@@ -85,25 +85,25 @@ class Hypercubes
         str
     end
 
-    # Hypercubes::landing(hypercube)
+    # NSDataType2s::landing(hypercube)
     def self.landing(hypercube)
         loop {
 
-            hypercube = Hypercubes::getOrNull(hypercube["uuid"])
+            hypercube = NSDataType2s::getOrNull(hypercube["uuid"])
 
             return if hypercube.nil? # Could have been destroyed in the previous loop
 
             system("clear")
 
-            HypercubeCached::forget(hypercube)
+            NSDataType2Cached::forget(hypercube)
 
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule(false)
 
             # -------------------------------------------
-            # Hypercube metadata
-            puts Hypercubes::hypercubeToString(hypercube)
+            # NSDataType2 metadata
+            puts NSDataType2s::hypercubeToString(hypercube)
             puts ""
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
@@ -112,7 +112,7 @@ class Hypercubes
             end
 
             puts "uuid: #{hypercube["uuid"]}"
-            puts "date: #{Hypercubes::getHypercubeReferenceDateTime(hypercube)}"
+            puts "date: #{NSDataType2s::getNSDataType2ReferenceDateTime(hypercube)}"
 
             notetext = Notes::getMostRecentTextForSourceOrNull(hypercube)
             if notetext then
@@ -121,7 +121,7 @@ class Hypercubes
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
 
-            Hypercubes::getHypercubeTags(hypercube)
+            NSDataType2s::getNSDataType2Tags(hypercube)
                 .each{|tag|
                     puts "tag: #{tag["payload"]}"
                 }
@@ -159,7 +159,7 @@ class Hypercubes
             menuitems.item(
                 "datetime (update)",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(Hypercubes::getHypercubeReferenceDateTime(hypercube)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(NSDataType2s::getNSDataType2ReferenceDateTime(hypercube)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issue(hypercube, datetimez)
@@ -189,7 +189,7 @@ class Hypercubes
             menuitems.item(
                 "tag (select and remove)",
                 lambda {
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", Hypercubes::getHypercubeTags(hypercube), lambda{|tag| tag["payload"] })
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", NSDataType2s::getNSDataType2Tags(hypercube), lambda{|tag| tag["payload"] })
                     return if tag.nil?
                     Tags::destroyTag(tag)
                 }
@@ -206,9 +206,9 @@ class Hypercubes
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Latest Hypercube
+            # Latest NSDataType2
 
-            cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+            cube = NSDataType2s::getLastNSDataType2CubeOrNull(hypercube)
             if cube then
                 menuitems.item(
                     "access cube (#{cube["type"]})",
@@ -247,7 +247,7 @@ class Hypercubes
             menuitems.item(
                 "select clique and remove from",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", Hypercubes::getHypercubeCliques(hypercube), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", NSDataType2s::getNSDataType2Cliques(hypercube), lambda{|clique| Cliques::cliqueToString(clique) })
                     return if clique.nil?
                     Arrows::remove(clique, hypercube)
                 }
@@ -272,66 +272,66 @@ class Hypercubes
 
     # ---------------------------------------------
 
-    # Hypercubes::getHypercubeCliques(hypercube)
-    def self.getHypercubeCliques(hypercube)
+    # NSDataType2s::getNSDataType2Cliques(hypercube)
+    def self.getNSDataType2Cliques(hypercube)
         Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
-    # Hypercubes::getHypercubeCubesInTimeOrder(hypercube)
-    def self.getHypercubeCubesInTimeOrder(hypercube)
+    # NSDataType2s::getNSDataType2CubesInTimeOrder(hypercube)
+    def self.getNSDataType2CubesInTimeOrder(hypercube)
         Arrows::getTargetsOfGivenSetsForSource(hypercube, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # Hypercubes::getLastHypercubeCubeOrNull(hypercube)
-    def self.getLastHypercubeCubeOrNull(hypercube)
-        Hypercubes::getHypercubeCubesInTimeOrder(hypercube).last
+    # NSDataType2s::getLastNSDataType2CubeOrNull(hypercube)
+    def self.getLastNSDataType2CubeOrNull(hypercube)
+        NSDataType2s::getNSDataType2CubesInTimeOrder(hypercube).last
     end
 
-    # Hypercubes::getHypercubeReferenceDateTime(hypercube)
-    def self.getHypercubeReferenceDateTime(hypercube)
+    # NSDataType2s::getNSDataType2ReferenceDateTime(hypercube)
+    def self.getNSDataType2ReferenceDateTime(hypercube)
         datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(hypercube)
         return datetime if datetime
         Time.at(hypercube["unixtime"]).utc.iso8601
     end
 
-    # Hypercubes::getHypercubeReferenceUnixtime(hypercube)
-    def self.getHypercubeReferenceUnixtime(hypercube)
-        DateTime.parse(Hypercubes::getHypercubeReferenceDateTime(hypercube)).to_time.to_f
+    # NSDataType2s::getNSDataType2ReferenceUnixtime(hypercube)
+    def self.getNSDataType2ReferenceUnixtime(hypercube)
+        DateTime.parse(NSDataType2s::getNSDataType2ReferenceDateTime(hypercube)).to_time.to_f
     end
 
-    # Hypercubes::hypercubeuuidToString(hypercubeuuid)
+    # NSDataType2s::hypercubeuuidToString(hypercubeuuid)
     def self.hypercubeuuidToString(hypercubeuuid)
-        hypercube = Hypercubes::getOrNull(hypercubeuuid)
+        hypercube = NSDataType2s::getOrNull(hypercubeuuid)
         return "[hypercube not found]" if hypercube.nil?
-        Hypercubes::hypercubeToString(hypercube)
+        NSDataType2s::hypercubeToString(hypercube)
     end
 
-    # Hypercubes::selectHypercubeFromHypercubeuuidsOrNull(hypercubeuuids)
-    def self.selectHypercubeFromHypercubeuuidsOrNull(hypercubeuuids)
+    # NSDataType2s::selectNSDataType2FromNSDataType2uuidsOrNull(hypercubeuuids)
+    def self.selectNSDataType2FromNSDataType2uuidsOrNull(hypercubeuuids)
         if hypercubeuuids.size == 0 then
             return nil
         end
         if hypercubeuuids.size == 1 then
             hypercubeuuid = hypercubeuuids[0]
-            return Hypercubes::getOrNull(hypercubeuuid)
+            return NSDataType2s::getOrNull(hypercubeuuid)
         end
 
-        hypercubeuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("hypercube: ", hypercubeuuids, lambda{|uuid| Hypercubes::hypercubeuuidToString(uuid) })
+        hypercubeuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("hypercube: ", hypercubeuuids, lambda{|uuid| NSDataType2s::hypercubeuuidToString(uuid) })
         return nil if hypercubeuuid.nil?
-        Hypercubes::getOrNull(hypercubeuuid)
+        NSDataType2s::getOrNull(hypercubeuuid)
     end
 
-    # Hypercubes::hypercubesListingAndLanding()
+    # NSDataType2s::hypercubesListingAndLanding()
     def self.hypercubesListingAndLanding()
         loop {
             ms = LCoreMenuItemsNX1.new()
-            Hypercubes::hypercubes()
+            NSDataType2s::hypercubes()
                 .sort{|q1, q2| q1["unixtime"]<=>q2["unixtime"] }
                 .each{|hypercube|
                     ms.item(
-                        Hypercubes::hypercubeToString(hypercube), 
-                        lambda{ Hypercubes::landing(hypercube) }
+                        NSDataType2s::hypercubeToString(hypercube), 
+                        lambda{ NSDataType2s::landing(hypercube) }
                     )
                 }
             status = ms.prompt()
@@ -339,41 +339,41 @@ class Hypercubes
         }
     end
 
-    # Hypercubes::selectHypercubeFromExistingHypercubesOrNull()
-    def self.selectHypercubeFromExistingHypercubesOrNull()
-        hypercubestrings = Hypercubes::hypercubes().map{|hypercube| Hypercubes::hypercubeToString(hypercube) }
+    # NSDataType2s::selectNSDataType2FromExistingNSDataType2sOrNull()
+    def self.selectNSDataType2FromExistingNSDataType2sOrNull()
+        hypercubestrings = NSDataType2s::hypercubes().map{|hypercube| NSDataType2s::hypercubeToString(hypercube) }
         hypercubestring = Miscellaneous::chooseALinePecoStyle("hypercube:", [""]+hypercubestrings)
         return nil if hypercubestring == ""
-        Hypercubes::hypercubes()
-            .select{|hypercube| Hypercubes::hypercubeToString(hypercube) == hypercubestring }
+        NSDataType2s::hypercubes()
+            .select{|hypercube| NSDataType2s::hypercubeToString(hypercube) == hypercubestring }
             .first
     end
 
-    # Hypercubes::hypercubeMatchesPattern(hypercube, pattern)
+    # NSDataType2s::hypercubeMatchesPattern(hypercube, pattern)
     def self.hypercubeMatchesPattern(hypercube, pattern)
         return true if hypercube["uuid"].downcase.include?(pattern.downcase)
-        return true if Hypercubes::hypercubeToString(hypercube).downcase.include?(pattern.downcase)
+        return true if NSDataType2s::hypercubeToString(hypercube).downcase.include?(pattern.downcase)
         if hypercube["type"] == "unique-name" then
             return true if hypercube["name"].downcase.include?(pattern.downcase)
         end
         false
     end
 
-    # Hypercubes::searchNx1630(pattern)
+    # NSDataType2s::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        Hypercubes::hypercubes()
-            .select{|hypercube| Hypercubes::hypercubeMatchesPattern(hypercube, pattern) }
+        NSDataType2s::hypercubes()
+            .select{|hypercube| NSDataType2s::hypercubeMatchesPattern(hypercube, pattern) }
             .map{|hypercube|
                 {
-                    "description"   => Hypercubes::hypercubeToString(hypercube),
-                    "referencetime" => Hypercubes::getHypercubeReferenceUnixtime(hypercube),
-                    "dive"          => lambda{ Hypercubes::landing(hypercube) }
+                    "description"   => NSDataType2s::hypercubeToString(hypercube),
+                    "referencetime" => NSDataType2s::getNSDataType2ReferenceUnixtime(hypercube),
+                    "dive"          => lambda{ NSDataType2s::landing(hypercube) }
                 }
             }
     end
 
-    # Hypercubes::issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
-    def self.issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
+    # NSDataType2s::issueZeroOrMoreTagsForNSDataType2Interactively(hypercube)
+    def self.issueZeroOrMoreTagsForNSDataType2Interactively(hypercube)
         loop {
             payload = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
             break if payload.size == 0
@@ -382,14 +382,14 @@ class Hypercubes
         }
     end
 
-    # Hypercubes::attachHypercubeToZeroOrMoreCliquesInteractively(hypercube)
-    def self.attachHypercubeToZeroOrMoreCliquesInteractively(hypercube)
+    # NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(hypercube)
+    def self.attachNSDataType2ToZeroOrMoreCliquesInteractively(hypercube)
         Cliques::selectZeroOrMoreCliquesExistingOrCreated()
             .each{|clique| Arrows::issue(clique, hypercube) }
     end
 
-    # Hypercubes::ensureHypercubeDescription(hypercube)
-    def self.ensureHypercubeDescription(hypercube)
+    # NSDataType2s::ensureNSDataType2Description(hypercube)
+    def self.ensureNSDataType2Description(hypercube)
         return if DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description.size == 0
@@ -397,15 +397,15 @@ class Hypercubes
         Arrows::issue(hypercube, descriptionz)
     end
 
-    # Hypercubes::ensureAtLeastOneHypercubeCliques(hypercube)
-    def self.ensureAtLeastOneHypercubeCliques(hypercube)
-        if Hypercubes::getHypercubeCliques(hypercube).empty? then
-            Hypercubes::attachHypercubeToZeroOrMoreCliquesInteractively(hypercube)
+    # NSDataType2s::ensureAtLeastOneNSDataType2Cliques(hypercube)
+    def self.ensureAtLeastOneNSDataType2Cliques(hypercube)
+        if NSDataType2s::getNSDataType2Cliques(hypercube).empty? then
+            NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(hypercube)
         end
     end
 
-    # Hypercubes::getHypercubeTags(hypercube)
-    def self.getHypercubeTags(hypercube)
+    # NSDataType2s::getNSDataType2Tags(hypercube)
+    def self.getNSDataType2Tags(hypercube)
         Tags::getTagsForSource(hypercube)
     end
 end

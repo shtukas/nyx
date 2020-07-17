@@ -721,15 +721,15 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestructionHypercubeHandling(hypercube)
-    def self.asteroidDestructionHypercubeHandling(hypercube)
-        puts Hypercubes::hypercubeToString(hypercube)
+    # Asteroids::asteroidDestructionNSDataType2Handling(hypercube)
+    def self.asteroidDestructionNSDataType2Handling(hypercube)
+        puts NSDataType2s::hypercubeToString(hypercube)
         return if Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain hypercube ? ") then
-            Hypercubes::ensureHypercubeDescription(hypercube)
-            Hypercubes::ensureAtLeastOneHypercubeCliques(hypercube)
+            NSDataType2s::ensureNSDataType2Description(hypercube)
+            NSDataType2s::ensureAtLeastOneNSDataType2Cliques(hypercube)
         else
-            Hypercubes::destroyHypercubeByUUID(hypercube["uuid"])
+            NSDataType2s::destroyNSDataType2ByUUID(hypercube["uuid"])
         end
     end
 

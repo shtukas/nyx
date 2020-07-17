@@ -30,8 +30,8 @@ class DeskOperator
 
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
-        Hypercubes::hypercubes().each{|hypercube|
-            cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+        NSDataType2s::hypercubes().each{|hypercube|
+            cube = NSDataType2s::getLastNSDataType2CubeOrNull(hypercube)
             next if cube.nil?
             next if cube["type"] != "aion-point"
             desk_folderpath_for_hypercube = DeskOperator::deskFolderpathForFlock(hypercube)
@@ -44,7 +44,7 @@ class DeskOperator
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_hypercube)
                 next
             end
-            newcube = Cubes::issueAionHypercube(namedhash)
+            newcube = Cubes::issueAionNSDataType2(namedhash)
             Arrows::issue(hypercube, newcube)
             #puts "new cube:"
             #puts JSON.pretty_generate(newcube)

@@ -1,5 +1,5 @@
 
-Cubes are data carriers. They allow Hypercubes to mutate.
+Cubes are data carriers. They allow NSDataType2s to mutate.
 
 The notion of cube family was introduced when I was working on introducing mutation of asteroids. Turns out that an asteroid can have more than one independant cubes, but then we only want to show the latest version of a given one, hence the notion of a family. When we issue a replacement cube we replace the cubes of the same family. 
 

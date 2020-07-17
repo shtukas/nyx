@@ -60,8 +60,8 @@ class Cubes
         object
     end
 
-    # Cubes::issueAionHypercube(namedhash)
-    def self.issueAionHypercube(namedhash)
+    # Cubes::issueAionNSDataType2(namedhash)
+    def self.issueAionNSDataType2(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
@@ -111,7 +111,7 @@ class Cubes
             location = Cubes::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return Cubes::issueAionHypercube(namedhash)
+            return Cubes::issueAionNSDataType2(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")

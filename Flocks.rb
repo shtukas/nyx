@@ -43,11 +43,6 @@ class Flocks
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # Flocks::getHypercubesForFlock(flock)
-    def self.getHypercubesForFlock(flock)
-        Arrows::getSourcesOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
-    end
-
     # Flocks::getCubesForFlock(flock)
     def self.getCubesForFlock(flock)
         Arrows::getTargetsForSource(flock)

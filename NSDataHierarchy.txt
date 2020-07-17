@@ -1,0 +1,10 @@
+
+Asteroid = Array[Flocks]
+
+Flock = Array[Cubes]
+
+Clique = Array[NSDataType2s]
+
+NSDataType2 = Array[Cubes]
+
+where Cube is the ImmutableDataPoint
