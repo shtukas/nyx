@@ -447,23 +447,23 @@ class Asteroids
             x2 = - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
+ 
+        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+            return 0.64 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+        end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.66, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
-            return x1 + x2
-        end
- 
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            uuid = asteroid["uuid"]
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.62, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
             x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
         end
 
-        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.60 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
+            uuid = asteroid["uuid"]
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.60, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
+            return x1 + x2
         end
 
         if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then

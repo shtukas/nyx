@@ -211,7 +211,7 @@ class Hypercubes
             cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
             if cube then
                 menuitems.item(
-                    "access cube",
+                    "access cube (#{cube["type"]})",
                     lambda { Cubes::openCube(hypercube, cube) }
                 )
             else

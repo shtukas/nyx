@@ -17,11 +17,11 @@
 
         0.68  -> 0.20 Asteroids "repeating-daily-time-commitment-8123956c-05"
 
-        0.66  -> 0.20 Asteroids "on-going-until-completion-5b26f145-7ebf-498"
+        0.64          Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
 
-        0.64  -> 0.20 Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
+        0.62  -> 0.20 Asteroids "on-going-until-completion-5b26f145-7ebf-498"
 
-        0.60          Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+        0.60  -> 0.20 Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
 
         0.55  -> 0.20 VideoStream
 
