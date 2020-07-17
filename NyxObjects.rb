@@ -85,31 +85,30 @@ class NyxPrimaryObjects
     end
 end
 
-NyxObjectsCachingKeyPrefix = "fd1c4b94-b6cb-4222-9715-fe201ed98018"
+NyxObjectsCacheKey = "fd1c4b94-b6cb-4222-9715-fe201ed98019"
 
-class NyxObjectsCaching
+$NyxObjectsStructure = nil # Each key is a setid
 
-    # NyxObjectsCaching::getSetsMap(setid)
-    def self.getSetsMap(setid)
-        set = InMemoryWithOnDiskPersistenceValueCache::getOrNull("#{NyxObjectsCachingKeyPrefix}:#{setid}")
-        if set.nil? then
-            puts "-> computing #{setid} from scratch"
-            set = {}
-            NyxPrimaryObjects::objectsEnumerator()
-                .each{|o|
-                    if o["nyxNxSet"] == setid then
-                        set[o["uuid"]] = o
-                    end
-                }
-            InMemoryWithOnDiskPersistenceValueCache::set("#{NyxObjectsCachingKeyPrefix}:#{setid}", set)
+if $NyxObjectsStructure.nil? then
+    structure = KeyValueStore::getOrNull(nil, NyxObjectsCacheKey)
+    if structure then
+        puts "-> Loading from cache"
+        $NyxObjectsStructure = JSON.parse(structure)
+    end
+end
+
+if $NyxObjectsStructure.nil? then
+    puts "-> Loading from primary store"
+    structure = {}
+    NyxPrimaryObjects::objectsEnumerator().each{|object|
+        setid = object["nyxNxSet"]
+        if structure[setid].nil? then
+            structure[setid] = {}
         end
-        set
-    end
-
-    # NyxObjectsCaching::setSetMap(setid, set)
-    def self.setSetMap(setid, set)
-        InMemoryWithOnDiskPersistenceValueCache::set("#{NyxObjectsCachingKeyPrefix}:#{setid}", set)
-    end
+        structure[setid][object["uuid"]] = object
+    }
+    $NyxObjectsStructure = structure
+    KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate(structure))
 end
 
 # ------------------------------------------------------------------------------
@@ -124,9 +123,11 @@ class NyxObjects
 
         # Then we put the object into its cached set
         setid = object["nyxNxSet"]
-        set = NyxObjectsCaching::getSetsMap(setid)
-        set[object["uuid"]] = object
-        NyxObjectsCaching::setSetMap(setid, set)
+        if $NyxObjectsStructure[setid].nil? then
+            $NyxObjectsStructure[setid] = {}
+        end
+        $NyxObjectsStructure[setid][object["uuid"]] = object
+        KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
     end
 
     # NyxObjects::objects()
@@ -134,7 +135,12 @@ class NyxObjects
         # NyxPrimaryObjects::objects()
 
         NyxPrimaryObjects::nyxNxSets()
-            .map{|setid| NyxObjectsCaching::getSetsMap(setid).values }
+            .map{|setid| 
+                if $NyxObjectsStructure[setid].nil? then
+                    $NyxObjectsStructure[setid] = {}
+                end
+                $NyxObjectsStructure[setid].values
+            }
             .flatten
     end
 
@@ -144,9 +150,11 @@ class NyxObjects
         
         NyxPrimaryObjects::nyxNxSets()
             .each{|setid|
-                setmap = NyxObjectsCaching::getSetsMap(setid)
-                if setmap[uuid] then
-                    return setmap[uuid]
+                if $NyxObjectsStructure[setid].nil? then
+                    $NyxObjectsStructure[setid] = {}
+                end
+                if $NyxObjectsStructure[setid][uuid] then
+                    return $NyxObjectsStructure[setid][uuid]
                 end
             }
         nil
@@ -155,8 +163,11 @@ class NyxObjects
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
         #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
-        
-        NyxObjectsCaching::getSetsMap(setid).values
+
+        if $NyxObjectsStructure[setid].nil? then
+            $NyxObjectsStructure[setid] = {}
+        end
+        $NyxObjectsStructure[setid].values
     end
 
     # NyxObjects::destroy(uuid)
@@ -165,11 +176,11 @@ class NyxObjects
 
         NyxPrimaryObjects::nyxNxSets()
             .each{|setid|
-                setmap = NyxObjectsCaching::getSetsMap(setid)
-                if setmap[uuid] then
-                    setmap.delete(uuid)
-                    NyxObjectsCaching::setSetMap(setid, setmap)
+                if $NyxObjectsStructure[setid].nil? then
+                    $NyxObjectsStructure[setid] = {}
                 end
+                $NyxObjectsStructure[setid].delete(uuid)
             }
+        KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
     end
 end

@@ -15,8 +15,8 @@ STARTING_CODE_HASH = EstateServices::locationHashRecursively(CATALYST_CODE_FOLDE
 
 # -------------------------------------------------------------------------
 
-EstateServices::surveyAndConstruction()
-NetworkManager::ensureBasicNetworkPrinciples()
+EstateServices::ensureReadiness()
+NetworkManager::ensureReadiness()
 
 loop {
     if STARTING_CODE_HASH != EstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then

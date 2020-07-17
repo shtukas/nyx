@@ -103,19 +103,16 @@ class EstateServices
         EstateServices::archivesT1mel1neGarbageCollectionCore(nil, verbose)
     end
 
-    # EstateServices::surveyAndConstruction()
-    def self.surveyAndConstruction()
+    # EstateServices::ensureReadiness()
+    def self.ensureReadiness()
         userHomeDirectory = ENV['HOME']
-        docnetFolderPath = "#{userHomeDirectory}/.docnet"
-        if !File.exists?(docnetFolderPath) then
-            status = LucilleCore::askQuestionAnswerAsBoolean("The folder '#{docnetFolderPath}' has not been created. I am going to create it, please confirm ")
-            if !status then
-                puts "I am aborting launching docnet. Good bye."
-                exit
-            end
-            FileUtils.mkdir(docnetFolderPath)
+        userHomeDirectoryCatalystFolderPath = "#{userHomeDirectory}/.catalyst"
+        if !File.exists?(userHomeDirectoryCatalystFolderPath) then
+            puts "The folder '#{userHomeDirectoryCatalystFolderPath}' has not been created. I am going to create it."
+            LucilleCore::pressEnterToContinue()
+            FileUtils.mkdir(userHomeDirectoryCatalystFolderPath)
         end
-        deskFolderPath = "#{docnetFolderPath}/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
+        deskFolderPath = "#{userHomeDirectoryCatalystFolderPath}/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
         if !File.exists?(deskFolderPath) then
             FileUtils.mkdir(deskFolderPath)
         end
@@ -123,7 +120,7 @@ class EstateServices
 
     # EstateServices::getDeskFolderpath()
     def self.getDeskFolderpath()
-        "#{ENV['HOME']}/.docnet/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
+        "#{ENV['HOME']}/.catalyst/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
     end
 
 end

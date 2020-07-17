@@ -15,12 +15,13 @@ STARTING_CODE_HASH = EstateServices::locationHashRecursively(CATALYST_CODE_FOLDE
 
 # -------------------------------------------------------------------------
 
-EstateServices::surveyAndConstruction()
-NetworkManager::ensureBasicNetworkPrinciples()
+EstateServices::ensureReadiness()
+NetworkManager::ensureReadiness()
 
-CatalystObjectsOperator::getCatalystListingObjectsOrdered() 
-    # We run this to build the necessary cachings before the thread start.
-    # Otherwise we might end up with the main thread and the secondary thread doing the same thing
+Thread.new {
+    sleep 60
+    NetworkManager::performSecondaryNetworkMaintenance()
+}
 
 Thread.new {
     loop {
