@@ -60,8 +60,8 @@ class Frames
         object
     end
 
-    # Frames::issueAionCube(namedhash)
-    def self.issueAionCube(namedhash)
+    # Frames::issueAionHypercube(namedhash)
+    def self.issueAionHypercube(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
@@ -111,7 +111,7 @@ class Frames
             location = Frames::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return Frames::issueAionCube(namedhash)
+            return Frames::issueAionHypercube(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
@@ -157,8 +157,8 @@ class Frames
         str
     end
 
-    # Frames::openFrame(cube, frame)
-    def self.openFrame(cube, frame)
+    # Frames::openFrame(hypercube, frame)
+    def self.openFrame(hypercube, frame)
         if frame["type"] == "line" then
             puts frame["line"]
             LucilleCore::pressEnterToContinue()
@@ -177,7 +177,7 @@ class Frames
             return
         end
         if frame["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForFrameCreateIfNotExists(cube, frame)
+            folderpath = DeskOperator::deskFolderpathForFrameCreateIfNotExists(hypercube, frame)
             system("open '#{folderpath}'")
             return
         end

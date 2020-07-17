@@ -9,7 +9,7 @@ Nyx
         Asteroid      # Asteroid.txt
                       # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
-        Cube          # Cubes.txt
+        Hypercube     # Hypercubes.txt
                       # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
         Clique        # Cliques.txt
@@ -25,25 +25,25 @@ Nyx
 
         Frame         # Frames.txt
                       # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
-                      # Cube
+                      # Hypercube
 
     Metadata
 
         DescriptionZ  # DescriptionZ.txt
                       # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # Clique, Cube, Flock
+                      # Clique, Hypercube, Flock
 
         DateTimeZ     # DateTimeZ.txt
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"
-                      # Cube, Clique
+                      # Hypercube, Clique
 
         Tag           # Tags.txt
                       # nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
-                      # Cube
+                      # Hypercube
 
         Note          # Notes.txt
                       # nyxNxSet: "c6fad718-1306-49cf-a361-76ce85e909ca"
-                      # Cube
+                      # Hypercube
 
     Arrow # Arrows.txt
           # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"

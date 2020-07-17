@@ -24,8 +24,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "cubes (listing)", 
-                lambda { Cubes::cubesListingAndLanding() }
+                "hypercubes (listing)", 
+                lambda { Hypercubes::hypercubesListingAndLanding() }
             )
 
             ms.item(
@@ -61,10 +61,10 @@ class DataPortalUI
             )
 
             ms.item(
-                "cube (new)",
+                "hypercube (new)",
                 lambda { 
-                    cube = Cubes::issueNewCubeInteractively()
-                    Cubes::attachCubeToZeroOrMoreCliquesInteractively(cube)
+                    hypercube = Hypercubes::issueNewHypercubeInteractively()
+                    Hypercubes::attachHypercubeToZeroOrMoreCliquesInteractively(hypercube)
                 }
             )
 

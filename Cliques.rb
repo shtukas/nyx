@@ -109,43 +109,43 @@ class Cliques
             # ----------------------------------------------------------
             # Contents
 
-            puts "Cubes:"
+            puts "Hypercubes:"
 
-            # Cubes
-            Cliques::getCliqueCubesInTimeOrder(clique)
-                .each{|cube|
+            # Hypercubes
+            Cliques::getCliqueHypercubesInTimeOrder(clique)
+                .each{|hypercube|
                     menuitems.item(
-                        Cubes::cubeToString(cube), 
-                        lambda { Cubes::landing(cube) }
+                        Hypercubes::hypercubeToString(hypercube), 
+                        lambda { Hypercubes::landing(hypercube) }
                     )
                 }
 
             puts ""
             menuitems.item(
-                "add new cube", 
+                "add new hypercube", 
                 lambda{
-                    cube = Cubes::issueNewCubeInteractively()
-                    Arrows::issue(clique, cube)
+                    hypercube = Hypercubes::issueNewHypercubeInteractively()
+                    Arrows::issue(clique, hypercube)
                 }
             )
 
             if Cliques::canShowDiveOperations(clique) then
                 menuitems.item(
-                    "graph maker: select multiple cube ; send to existing/new clique ; detach from this",
+                    "graph maker: select multiple hypercube ; send to existing/new clique ; detach from this",
                     lambda {
-                        cubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedCubes, _ = LucilleCore::selectZeroOrMore("cubes", [], cubes, toStringLambda = lambda{ |cube| Cubes::cubeToString(cube) })
-                        return if selectedCubes.size == 0
+                        hypercubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        selectedHypercubes, _ = LucilleCore::selectZeroOrMore("hypercubes", [], hypercubes, toStringLambda = lambda{ |hypercube| Hypercubes::hypercubeToString(hypercube) })
+                        return if selectedHypercubes.size == 0
                         puts "Now selecting/making the receiving clique"
                         LucilleCore::pressEnterToContinue()
                         c = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
                         return if c.nil?
                         puts "Making the new clique a target of this"
                         Arrows::issue(source, c)
-                        puts "Linking cubes to clique"
-                        selectedCubes.each{|cube| Arrows::issue(c, cube) }
-                        puts "Unlinking cubes from (this)"
-                        selectedCubes.each{|cube| Arrows::removeArrow(clique, cube) }
+                        puts "Linking hypercubes to clique"
+                        selectedHypercubes.each{|hypercube| Arrows::issue(c, hypercube) }
+                        puts "Unlinking hypercubes from (this)"
+                        selectedHypercubes.each{|hypercube| Arrows::removeArrow(clique, hypercube) }
                     }
                 )
             end
@@ -245,8 +245,8 @@ class Cliques
         .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
     end
 
-    # Cliques::getCliqueCubesInTimeOrder(clique)
-    def self.getCliqueCubesInTimeOrder(clique)
+    # Cliques::getCliqueHypercubesInTimeOrder(clique)
+    def self.getCliqueHypercubesInTimeOrder(clique)
         Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
@@ -371,7 +371,7 @@ class Cliques
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
         Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
-            .each{|cube| Arrows::issue(clique1, cube) }
+            .each{|hypercube| Arrows::issue(clique1, hypercube) }
         NyxObjects::destroy(clique2["uuid"])
     end
 

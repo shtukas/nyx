@@ -58,7 +58,6 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Cliques.rb"
 require_relative "Comments.rb"
-require_relative "Cubes.rb"
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
@@ -77,6 +76,8 @@ require_relative "Flocks.rb"
 require_relative "Frames.rb"
 
 require_relative "GeneralSearch.rb"
+
+require_relative "Hypercubes.rb"
 
 require_relative "InMemoryValueCache.rb"
 require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"

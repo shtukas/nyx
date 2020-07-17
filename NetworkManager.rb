@@ -29,7 +29,7 @@ class NetworkManager
         Cliques::cliques().each{|clique|
             next if Cliques::isRoot?(clique) # we do not target the [root]
             next if Cliques::getCliqueNavigationSources(clique).size > 0
-            # At this cube we have a clique which doesn't have any sources
+            # At this hypercube we have a clique which doesn't have any sources
             puts "Issuing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
             Arrows::issue(root, clique)
         }
@@ -41,7 +41,7 @@ class NetworkManager
 
         Cliques::getCliqueNavigationTargets(root).each{|clique|
             next if Cliques::isRoot?(clique) # we do not target the [root]
-            next if Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this cube they should all have at least one source 
+            next if Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this hypercube they should all have at least one source 
             puts "Removing Taxonomy arrow [root] -> #{Cliques::cliqueToString(clique)}"
             Arrows::removeArrow(root, clique)
         }

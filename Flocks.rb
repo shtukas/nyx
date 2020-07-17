@@ -43,8 +43,8 @@ class Flocks
         Arrows::getTargetOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # Flocks::getCubesForFlock(flock)
-    def self.getCubesForFlock(flock)
+    # Flocks::getHypercubesForFlock(flock)
+    def self.getHypercubesForFlock(flock)
         Arrows::getSourceOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
@@ -91,7 +91,7 @@ class Flocks
             )
             menuitems.item(
                 "open",
-                lambda { Flocks::openLastCube(flock) }
+                lambda { Flocks::openLastHypercube(flock) }
             )
             menuitems.item(
                 "destroy",
@@ -106,7 +106,7 @@ class Flocks
         }
     end
 
-    # Flocks::openLastCube(flock)
+    # Flocks::openLastHypercube(flock)
     def self.quickDataAccess(flock)
         frame = Flocks::getLastFlockFrameOrNull(flock)
         if frame.nil? then

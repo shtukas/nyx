@@ -370,7 +370,7 @@ class Asteroids
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
                                 "view data",
-                                lambda { Flocks::openLastCube(flock) }
+                                lambda { Flocks::openLastHypercube(flock) }
                             )
                             ms.item(
                                 "landing",
@@ -721,15 +721,15 @@ class Asteroids
         end
     end
 
-    # Asteroids::asteroidDestructionCubeHandling(cube)
-    def self.asteroidDestructionCubeHandling(cube)
-        puts Cubes::cubeToString(cube)
-        return if Arrows::getSourceOfGivenSetsForTarget(cube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
-        if LucilleCore::askQuestionAnswerAsBoolean("Retain cube ? ") then
-            Cubes::ensureCubeDescription(cube)
-            Cubes::ensureAtLeastOneCubeCliques(cube)
+    # Asteroids::asteroidDestructionHypercubeHandling(hypercube)
+    def self.asteroidDestructionHypercubeHandling(hypercube)
+        puts Hypercubes::hypercubeToString(hypercube)
+        return if Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
+        if LucilleCore::askQuestionAnswerAsBoolean("Retain hypercube ? ") then
+            Hypercubes::ensureHypercubeDescription(hypercube)
+            Hypercubes::ensureAtLeastOneHypercubeCliques(hypercube)
         else
-            Cubes::destroyCubeByUUID(cube["uuid"])
+            Hypercubes::destroyHypercubeByUUID(hypercube["uuid"])
         end
     end
 
@@ -747,12 +747,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                Flocks::openLastCube(flocks[0])
+                Flocks::openLastHypercube(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            Flocks::openLastCube(flock)
+            Flocks::openLastHypercube(flock)
         end
     end
 
