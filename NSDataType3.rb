@@ -366,7 +366,7 @@ class NSDataType3
         NSDataType3::getNSDataType3NavigationTargets(ns3).each{|c|
             options << ["search into", c]
         }
-        options << ["make new target ns3 for current and return that"]
+        options << ["make new target ns3 for current and move to that"]
         options << ["back to source"]
         options << ["abort search and return null"]
 
@@ -399,13 +399,13 @@ class NSDataType3
             end
             return resultSearch # which can be a ns3 or nil
         end
-        if option[0] == "make new target ns3 for current and return that" then
+        if option[0] == "make new target ns3 for current and move to that" then
             target = NSDataType3::issueNSDataType3InteractivelyOrNull()
             if target.nil? then
                 return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3)
             end
             Arrows::make(ns3, target)
-            return target
+            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(target)
         end
         if option[0] == "back to source" then
             return "back to source"

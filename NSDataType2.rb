@@ -211,7 +211,7 @@ class NSDataType2
             NSDataType2::getNSDataType2NSDataType1sInTimeOrder(ns2).each{|ns1|
                 menuitems.item(
                     "access ns1: #{NSDataType1::ns1ToString(ns1)}",
-                    lambda { NSDataType1::openLastNSDataType0(ns1) }
+                    lambda { NSDataType1::landing(ns1) }
                 )
             }
 
