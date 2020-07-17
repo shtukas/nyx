@@ -57,7 +57,7 @@ class CatalystObjectsOperator
                             item["runtime"] = Time.new.to_f - time1
                             item
                         }
-        generators = generators.sort{|item1, item2| item1["runtime"] <=> item2["runtime"] }
+        generators = generators.sort{|item1, item2| item1["runtime"] <=> item2["runtime"] }.reverse
         generators.each{|item|
             puts "#{item["name"].ljust(20)} : #{item["runtime"].round(2)}"
         }

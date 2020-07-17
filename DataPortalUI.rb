@@ -96,21 +96,26 @@ class DataPortalUI
 
             puts ""
 
+
+
             ms.item(
                 "Print Generation Speed Report", 
-                lambda { 
-                    CatalystObjectsOperator::generationSpeedReport()
-                }
+                lambda { CatalystObjectsOperator::generationSpeedReport() }
             )
 
             ms.item(
-                "Run Shadow Update", 
-                lambda { Drives::runShadowUpdate() }
+                "Curation::run()", 
+                lambda { Curation::run() }
             )
 
             ms.item(
                 "Commit desk changes to primary repository", 
                 lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
+            )
+
+            ms.item(
+                "Drives::runShadowUpdate()", 
+                lambda { Drives::runShadowUpdate() }
             )
 
             ms.item(
