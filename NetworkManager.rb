@@ -7,21 +7,21 @@ class NetworkManager
     def self.ensureReadiness()
 
         # --------------------------------------------------------
-        # We ensure that the "[root]" clique exists
+        # We ensure that the "[root]" ns3 exists
 
-        if Cliques::cliques().none?{|clique| Cliques::isRoot?(clique) } then
-            # We do not have a [root] clique, going to create one
-            puts "We do not have a [root] clique, going to create one"
+        if NSDataType3::ns3s().none?{|ns3| NSDataType3::isRoot?(ns3) } then
+            # We do not have a [root] ns3, going to create one
+            puts "We do not have a [root] ns3, going to create one"
             LucilleCore::pressEnterToContinue()
-            Cliques::issueClique("[root]")
+            NSDataType3::issueNSDataType3("[root]")
         end
 
         # --------------------------------------------------------
-        # Make any clique that is not a target a target of root
+        # Make any ns3 that is not a target a target of root
 
-        root = Cliques::getRootClique()
+        root = NSDataType3::getRootNSDataType3()
         if root.nil? then
-            puts "[error: 8891f3b1] That's strange, I could not find the root clique 🤔"
+            puts "[error: 8891f3b1] That's strange, I could not find the root ns3 🤔"
             exit
         end
     end
@@ -30,30 +30,30 @@ class NetworkManager
     def self.performSecondaryNetworkMaintenance()
 
         # --------------------------------------------------------
-        # Make any clique that is not a target a target of root
+        # Make any ns3 that is not a target a target of root
 
-        root = Cliques::getRootClique()
+        root = NSDataType3::getRootNSDataType3()
         if root.nil? then
-            puts "[error: bb9833e3] That's strange, I could not find the root clique 🤔"
+            puts "[error: bb9833e3] That's strange, I could not find the root ns3 🤔"
             exit
         end
 
-        Cliques::cliques().each{|clique|
-            next if Cliques::isRoot?(clique) # we do not target the [root]
-            next if Cliques::getCliqueNavigationSources(clique).size > 0
-            # At this ns2 we have a clique which doesn't have any sources
-            Arrows::issue(root, clique)
+        NSDataType3::ns3s().each{|ns3|
+            next if NSDataType3::isRoot?(ns3) # we do not target the [root]
+            next if NSDataType3::getNSDataType3NavigationSources(ns3).size > 0
+            # At this ns2 we have a ns3 which doesn't have any sources
+            Arrows::issue(root, ns3)
         }
 
         # --------------------------------------------------------
-        # Make any clique that is a target of root and something else 
+        # Make any ns3 that is a target of root and something else 
         # (meaning has more than one source)
         # is untargetted from [root]
 
-        Cliques::getCliqueNavigationTargets(root).each{|clique|
-            next if Cliques::isRoot?(clique) # we do not target the [root]
-            next if Arrows::getSourcesOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this ns2 they should all have at least one source 
-            Arrows::remove(root, clique)
+        NSDataType3::getNSDataType3NavigationTargets(root).each{|ns3|
+            next if NSDataType3::isRoot?(ns3) # we do not target the [root]
+            next if Arrows::getSourcesOfGivenSetsForTarget(ns3, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size <= 1 # It would be pathologique if it was zero, because by this ns2 they should all have at least one source 
+            Arrows::remove(root, ns3)
         }
     end
 end

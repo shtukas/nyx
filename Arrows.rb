@@ -17,7 +17,7 @@ class Arrows
     # Arrows::issue(source, target)
     def self.issue(source, target)
         return if Arrows::exists?(source, target)
-        return if Cliques::isRoot?(target)
+        return if NSDataType3::isRoot?(target)
         arrow = Arrows::make(source, target)
         NyxObjects::put(arrow)
         arrow

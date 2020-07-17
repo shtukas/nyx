@@ -8,8 +8,8 @@ class NyxPrimaryObjects
         [
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
-            "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # Cliques
-            "6b240037-8f5f-4f52-841d-12106658171f", # NSDataType2s
+            "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # NSDataType3s
+            "6b240037-8f5f-4f52-841d-12106658171f", # NSDataType2
             "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ

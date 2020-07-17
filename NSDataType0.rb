@@ -60,8 +60,8 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::issueAionNSDataType2(namedhash)
-    def self.issueAionNSDataType2(namedhash)
+    # NSDataType0s::issueAionPoint(namedhash)
+    def self.issueAionPoint(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
@@ -111,7 +111,7 @@ class NSDataType0s
             location = NSDataType0s::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return NSDataType0s::issueAionNSDataType2(namedhash)
+            return NSDataType0s::issueAionPoint(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")

@@ -56,9 +56,9 @@ require_relative "BTreeSets.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
-require_relative "Cliques.rb"
+
 require_relative "Comments.rb"
-require_relative "NSDataType0s.rb"
+
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
@@ -73,11 +73,7 @@ require_relative "Drives.rb"
 
 require_relative "EstateServices.rb"
 
-require_relative "NSDataType1s.rb"
-
 require_relative "GeneralSearch.rb"
-
-require_relative "NSDataType2s.rb"
 
 require_relative "InMemoryValueCache.rb"
 require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
@@ -114,6 +110,10 @@ require_relative "Miscellaneous.rb"
 require_relative "NetworkManager.rb"
 
 require_relative "Notes.rb"
+require_relative "NSDataType0.rb"
+require_relative "NSDataType1.rb"
+require_relative "NSDataType2.rb"
+require_relative "NSDataType3.rb"
 require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"

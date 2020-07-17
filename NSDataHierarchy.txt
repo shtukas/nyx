@@ -1,9 +1,22 @@
-NSDataType0 is the ImmutableDataPoint
+NSDataType0 # Immutable Data Point
+    -> line
+    -> url
+    -> text
+    -> aion-point
+    -> unique-name
 
-Asteroid = Array[NSDataType1s]
+NSDataType1: Array[NSDataType0] 
+             Mutable Data Point
 
-NSDataType1 = Array[NSDataType0]
+Asteroid 
+    Contains Array[NSDataType1]
 
-Clique = Array[NSDataType2]
+NSDataType2 
+    Contains Array[NSDataType1] 
+    Aggregation of related mutable datpoints
+    Entity-ish level data
 
-NSDataType2 = Array[NSDataType0]
+NSDataType3 
+    Contains Array[NSDataType2]
+    Node of the Navigation Network (aka Knowledge Graph)
+

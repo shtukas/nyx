@@ -1,5 +1,5 @@
 
-NSDataType1s are mutable  data points. NSDataType0s are the various version of a NSDataType1.
+NSDataType1 are mutable  data points. NSDataType0s are the various version of a NSDataType1.
 
 NSDataType1 {
     "uuid"         : String

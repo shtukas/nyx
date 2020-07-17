@@ -8,14 +8,14 @@ class NSDataType2Cached
     end
 end
 
-class NSDataType2s
+class NSDataType2
 
-    # NSDataType2s::commitNSDataType2ToDisk(ns2)
+    # NSDataType2::commitNSDataType2ToDisk(ns2)
     def self.commitNSDataType2ToDisk(ns2)
         NyxObjects::put(ns2)
     end
 
-    # NSDataType2s::issueNewNSDataType2Interactively()
+    # NSDataType2::issueNewNSDataType2Interactively()
     def self.issueNewNSDataType2Interactively()
         puts "Issuing a new NSDataType2..."
 
@@ -25,7 +25,7 @@ class NSDataType2s
             "unixtime"  => Time.new.to_f
         }
         puts JSON.pretty_generate(ns2)
-        NSDataType2s::commitNSDataType2ToDisk(ns2)
+        NSDataType2::commitNSDataType2ToDisk(ns2)
 
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         if ns0 then
@@ -40,28 +40,28 @@ class NSDataType2s
             Arrows::issue(ns2, descriptionz)
         end
 
-        NSDataType2s::issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
+        NSDataType2::issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
 
         ns2
     end
 
-    # NSDataType2s::ns2s()
+    # NSDataType2::ns2s()
     def self.ns2s()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # NSDataType2s::getOrNull(uuid)
+    # NSDataType2::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType2s::destroyNSDataType2ByUUID(uuid)
+    # NSDataType2::destroyNSDataType2ByUUID(uuid)
     def self.destroyNSDataType2ByUUID(uuid)
         NyxObjects::destroy(uuid)
     end
 
-    # NSDataType2s::ns2ToString(ns2)
+    # NSDataType2::ns2ToString(ns2)
     def self.ns2ToString(ns2)
         str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}")
         return str if str
@@ -73,9 +73,9 @@ class NSDataType2s
             return str
         end
 
-        ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
-        if ns0 then
-            str = "[ns2] #{NSDataType0s::ns0ToString(ns0)}"
+        ns1 = NSDataType2::getNSDataType2NSDataType1sInTimeOrder(ns2).last
+        if ns1 then
+            str = "[ns2] #{NSDataType1::ns1ToString(ns1)}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         end
@@ -85,11 +85,11 @@ class NSDataType2s
         str
     end
 
-    # NSDataType2s::landing(ns2)
+    # NSDataType2::landing(ns2)
     def self.landing(ns2)
         loop {
 
-            ns2 = NSDataType2s::getOrNull(ns2["uuid"])
+            ns2 = NSDataType2::getOrNull(ns2["uuid"])
 
             return if ns2.nil? # Could have been destroyed in the previous loop
 
@@ -103,7 +103,7 @@ class NSDataType2s
 
             # -------------------------------------------
             # NSDataType2 metadata
-            puts NSDataType2s::ns2ToString(ns2)
+            puts NSDataType2::ns2ToString(ns2)
             puts ""
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
@@ -112,7 +112,7 @@ class NSDataType2s
             end
 
             puts "uuid: #{ns2["uuid"]}"
-            puts "date: #{NSDataType2s::getNSDataType2ReferenceDateTime(ns2)}"
+            puts "date: #{NSDataType2::getNSDataType2ReferenceDateTime(ns2)}"
 
             notetext = Notes::getMostRecentTextForSourceOrNull(ns2)
             if notetext then
@@ -121,7 +121,7 @@ class NSDataType2s
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
 
-            NSDataType2s::getNSDataType2Tags(ns2)
+            NSDataType2::getNSDataType2Tags(ns2)
                 .each{|tag|
                     puts "tag: #{tag["payload"]}"
                 }
@@ -159,7 +159,7 @@ class NSDataType2s
             menuitems.item(
                 "datetime (update)",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(NSDataType2s::getNSDataType2ReferenceDateTime(ns2)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(NSDataType2::getNSDataType2ReferenceDateTime(ns2)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issue(ns2, datetimez)
@@ -189,7 +189,7 @@ class NSDataType2s
             menuitems.item(
                 "tag (select and remove)",
                 lambda {
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", NSDataType2s::getNSDataType2Tags(ns2), lambda{|tag| tag["payload"] })
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", NSDataType2::getNSDataType2Tags(ns2), lambda{|tag| tag["payload"] })
                     return if tag.nil?
                     Tags::destroyTag(tag)
                 }
@@ -206,53 +206,49 @@ class NSDataType2s
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Latest NSDataType2
+            # NSDataType1
 
-            ns0 = NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
-            if ns0 then
+            NSDataType2::getNSDataType2NSDataType1sInTimeOrder(ns2).each{|ns1|
                 menuitems.item(
-                    "access ns0 (#{ns0["type"]})",
-                    lambda { NSDataType0s::openNSDataType0(ns2, ns0) }
+                    "access ns1: #{NSDataType1::ns1ToString(ns1)}",
+                    lambda { NSDataType1::openLastNSDataType0(ns1) }
                 )
-            else
-                puts "No ns0 found for this ns2"
-            end
+            }
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Cliques
+            # NSDataType3s
 
-            puts "Cliques:"
+            puts "NSDataType3s:"
 
             Arrows::getSourcesOfGivenSetsForTarget(ns2, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
-                .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
-                .each{|clique|
+                .sort{|o1, o2| NSDataType3::getLastActivityUnixtime(o1) <=> NSDataType3::getLastActivityUnixtime(o2) }
+                .each{|ns3|
                     menuitems.item(
-                        Cliques::cliqueToString(clique), 
-                        lambda { Cliques::landing(clique) }
+                        NSDataType3::ns3ToString(ns3), 
+                        lambda { NSDataType3::landing(ns3) }
                     )
                 }
 
             puts ""
 
             menuitems.item(
-                "select clique and add to",
+                "select ns3 and add to",
                 lambda {
-                    clique = Cliques::selectCliqueFromExistingOrCreateOneOrNull()
-                    return if clique.nil?
-                    Arrows::issue(clique, ns2)
+                    ns3 = NSDataType3::selectNSDataType3FromExistingOrCreateOneOrNull()
+                    return if ns3.nil?
+                    Arrows::issue(ns3, ns2)
                 }
             )
 
             menuitems.item(
-                "select clique and remove from",
+                "select ns3 and remove from",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", NSDataType2s::getNSDataType2Cliques(ns2), lambda{|clique| Cliques::cliqueToString(clique) })
-                    return if clique.nil?
-                    Arrows::remove(clique, ns2)
+                    ns3 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns3", NSDataType2::getNSDataType2NSDataType3s(ns2), lambda{|ns3| NSDataType3::ns3ToString(ns3) })
+                    return if ns3.nil?
+                    Arrows::remove(ns3, ns2)
                 }
             )
-
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
@@ -272,66 +268,61 @@ class NSDataType2s
 
     # ---------------------------------------------
 
-    # NSDataType2s::getNSDataType2Cliques(ns2)
-    def self.getNSDataType2Cliques(ns2)
+    # NSDataType2::getNSDataType2NSDataType3s(ns2)
+    def self.getNSDataType2NSDataType3s(ns2)
         Arrows::getSourcesOfGivenSetsForTarget(ns2, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
-    # NSDataType2s::getNSDataType2NSDataType0sInTimeOrder(ns2)
-    def self.getNSDataType2NSDataType0sInTimeOrder(ns2)
-        Arrows::getTargetsOfGivenSetsForSource(ns2, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+    # NSDataType2::getNSDataType2NSDataType1sInTimeOrder(ns2)
+    def self.getNSDataType2NSDataType1sInTimeOrder(ns2)
+        Arrows::getTargetsOfGivenSetsForSource(ns2, ["c18e8093-63d6-4072-8827-14f238975d04"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType2s::getLastNSDataType2NSDataType0OrNull(ns2)
-    def self.getLastNSDataType2NSDataType0OrNull(ns2)
-        NSDataType2s::getNSDataType2NSDataType0sInTimeOrder(ns2).last
-    end
-
-    # NSDataType2s::getNSDataType2ReferenceDateTime(ns2)
+    # NSDataType2::getNSDataType2ReferenceDateTime(ns2)
     def self.getNSDataType2ReferenceDateTime(ns2)
         datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns2)
         return datetime if datetime
         Time.at(ns2["unixtime"]).utc.iso8601
     end
 
-    # NSDataType2s::getNSDataType2ReferenceUnixtime(ns2)
+    # NSDataType2::getNSDataType2ReferenceUnixtime(ns2)
     def self.getNSDataType2ReferenceUnixtime(ns2)
-        DateTime.parse(NSDataType2s::getNSDataType2ReferenceDateTime(ns2)).to_time.to_f
+        DateTime.parse(NSDataType2::getNSDataType2ReferenceDateTime(ns2)).to_time.to_f
     end
 
-    # NSDataType2s::ns2uuidToString(ns2uuid)
+    # NSDataType2::ns2uuidToString(ns2uuid)
     def self.ns2uuidToString(ns2uuid)
-        ns2 = NSDataType2s::getOrNull(ns2uuid)
+        ns2 = NSDataType2::getOrNull(ns2uuid)
         return "[ns2 not found]" if ns2.nil?
-        NSDataType2s::ns2ToString(ns2)
+        NSDataType2::ns2ToString(ns2)
     end
 
-    # NSDataType2s::selectNSDataType2FromNSDataType2uuidsOrNull(ns2uuids)
+    # NSDataType2::selectNSDataType2FromNSDataType2uuidsOrNull(ns2uuids)
     def self.selectNSDataType2FromNSDataType2uuidsOrNull(ns2uuids)
         if ns2uuids.size == 0 then
             return nil
         end
         if ns2uuids.size == 1 then
             ns2uuid = ns2uuids[0]
-            return NSDataType2s::getOrNull(ns2uuid)
+            return NSDataType2::getOrNull(ns2uuid)
         end
 
-        ns2uuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns2: ", ns2uuids, lambda{|uuid| NSDataType2s::ns2uuidToString(uuid) })
+        ns2uuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns2: ", ns2uuids, lambda{|uuid| NSDataType2::ns2uuidToString(uuid) })
         return nil if ns2uuid.nil?
-        NSDataType2s::getOrNull(ns2uuid)
+        NSDataType2::getOrNull(ns2uuid)
     end
 
-    # NSDataType2s::ns2sListingAndLanding()
+    # NSDataType2::ns2sListingAndLanding()
     def self.ns2sListingAndLanding()
         loop {
             ms = LCoreMenuItemsNX1.new()
-            NSDataType2s::ns2s()
+            NSDataType2::ns2s()
                 .sort{|q1, q2| q1["unixtime"]<=>q2["unixtime"] }
                 .each{|ns2|
                     ms.item(
-                        NSDataType2s::ns2ToString(ns2), 
-                        lambda{ NSDataType2s::landing(ns2) }
+                        NSDataType2::ns2ToString(ns2), 
+                        lambda{ NSDataType2::landing(ns2) }
                     )
                 }
             status = ms.prompt()
@@ -339,40 +330,40 @@ class NSDataType2s
         }
     end
 
-    # NSDataType2s::selectNSDataType2FromExistingNSDataType2sOrNull()
-    def self.selectNSDataType2FromExistingNSDataType2sOrNull()
-        ns2strings = NSDataType2s::ns2s().map{|ns2| NSDataType2s::ns2ToString(ns2) }
+    # NSDataType2::selectNSDataType2FromExistingNSDataType2OrNull()
+    def self.selectNSDataType2FromExistingNSDataType2OrNull()
+        ns2strings = NSDataType2::ns2s().map{|ns2| NSDataType2::ns2ToString(ns2) }
         ns2string = Miscellaneous::chooseALinePecoStyle("ns2:", [""]+ns2strings)
         return nil if ns2string == ""
-        NSDataType2s::ns2s()
-            .select{|ns2| NSDataType2s::ns2ToString(ns2) == ns2string }
+        NSDataType2::ns2s()
+            .select{|ns2| NSDataType2::ns2ToString(ns2) == ns2string }
             .first
     end
 
-    # NSDataType2s::ns2MatchesPattern(ns2, pattern)
+    # NSDataType2::ns2MatchesPattern(ns2, pattern)
     def self.ns2MatchesPattern(ns2, pattern)
         return true if ns2["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType2s::ns2ToString(ns2).downcase.include?(pattern.downcase)
+        return true if NSDataType2::ns2ToString(ns2).downcase.include?(pattern.downcase)
         if ns2["type"] == "unique-name" then
             return true if ns2["name"].downcase.include?(pattern.downcase)
         end
         false
     end
 
-    # NSDataType2s::searchNx1630(pattern)
+    # NSDataType2::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType2s::ns2s()
-            .select{|ns2| NSDataType2s::ns2MatchesPattern(ns2, pattern) }
+        NSDataType2::ns2s()
+            .select{|ns2| NSDataType2::ns2MatchesPattern(ns2, pattern) }
             .map{|ns2|
                 {
-                    "description"   => NSDataType2s::ns2ToString(ns2),
-                    "referencetime" => NSDataType2s::getNSDataType2ReferenceUnixtime(ns2),
-                    "dive"          => lambda{ NSDataType2s::landing(ns2) }
+                    "description"   => NSDataType2::ns2ToString(ns2),
+                    "referencetime" => NSDataType2::getNSDataType2ReferenceUnixtime(ns2),
+                    "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
             }
     end
 
-    # NSDataType2s::issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
+    # NSDataType2::issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
     def self.issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
         loop {
             payload = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
@@ -382,13 +373,13 @@ class NSDataType2s
         }
     end
 
-    # NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(ns2)
-    def self.attachNSDataType2ToZeroOrMoreCliquesInteractively(ns2)
-        Cliques::selectZeroOrMoreCliquesExistingOrCreated()
-            .each{|clique| Arrows::issue(clique, ns2) }
+    # NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
+    def self.attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
+        NSDataType3::selectZeroOrMoreNSDataType3sExistingOrCreated()
+            .each{|ns3| Arrows::issue(ns3, ns2) }
     end
 
-    # NSDataType2s::ensureNSDataType2Description(ns2)
+    # NSDataType2::ensureNSDataType2Description(ns2)
     def self.ensureNSDataType2Description(ns2)
         return if DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -397,14 +388,14 @@ class NSDataType2s
         Arrows::issue(ns2, descriptionz)
     end
 
-    # NSDataType2s::ensureAtLeastOneNSDataType2Cliques(ns2)
-    def self.ensureAtLeastOneNSDataType2Cliques(ns2)
-        if NSDataType2s::getNSDataType2Cliques(ns2).empty? then
-            NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(ns2)
+    # NSDataType2::ensureAtLeastOneNSDataType2NSDataType3s(ns2)
+    def self.ensureAtLeastOneNSDataType2NSDataType3s(ns2)
+        if NSDataType2::getNSDataType2NSDataType3s(ns2).empty? then
+            NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
         end
     end
 
-    # NSDataType2s::getNSDataType2Tags(ns2)
+    # NSDataType2::getNSDataType2Tags(ns2)
     def self.getNSDataType2Tags(ns2)
         Tags::getTagsForSource(ns2)
     end

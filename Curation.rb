@@ -23,25 +23,25 @@ class Curation
 
         time1 = Time.new.to_f
 
-        Cliques::getCliqueNavigationTargets(Cliques::getRootClique())
-        .each{|clique|
+        NSDataType3::getNSDataType3NavigationTargets(NSDataType3::getRootNSDataType3())
+        .each{|ns3|
             system("clear")
-            next if KeyValueStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{clique["uuid"]}")
+            next if KeyValueStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
 
             puts "Network placement curation"
-            puts Cliques::cliqueToString(clique)
+            puts NSDataType3::ns3ToString(ns3)
             puts ""
-            puts "First I am going to show you the clique so that you do a bit of cleaning there"
+            puts "First I am going to show you the ns3 so that you do a bit of cleaning there"
             LucilleCore::pressEnterToContinue()
-            Cliques::landing(clique)
+            NSDataType3::landing(ns3)
             puts ""
             puts "Now please select a parent for it (possibly the root node)"
-            parent = Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull()
+            parent = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
             if parent then
-                Arrows::make(parent, clique)
+                Arrows::make(parent, ns3)
             end
 
-            KeyValueStore::setFlagTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{clique["uuid"]}")
+            KeyValueStore::setFlagTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
             break
         }
 

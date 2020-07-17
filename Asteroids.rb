@@ -60,7 +60,7 @@ class Asteroids
         if option == "metal" then
             ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
             return nil if ns0.nil?
-            ns1 = NSDataType1s::issue()
+            ns1 = NSDataType1::issue()
             Arrows::issue(ns1, ns0)
             Arrows::issue({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
             return {
@@ -221,11 +221,11 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    ns1s = NSDataType1s::getNSDataType1sForSource(asteroid)
+                    ns1s = NSDataType1::getNSDataType1ForSource(asteroid)
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
-                    return " #{NSDataType1s::ns1ToString(ns1s[0])}"
+                    return " #{NSDataType1::ns1ToString(ns1s[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -361,20 +361,20 @@ class Asteroids
 
                 Miscellaneous::horizontalRule(true)
 
-                puts "NSDataType1s:"
+                puts "NSDataType1:"
 
-                NSDataType1s::getNSDataType1sForSource(asteroid).each{|ns1|
+                NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
                     menuitems.item(
-                        NSDataType1s::ns1ToString(ns1),
+                        NSDataType1::ns1ToString(ns1),
                         lambda { 
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
                                 "access ns0",
-                                lambda { NSDataType1s::openLastNSDataType0(ns1) }
+                                lambda { NSDataType1::openLastNSDataType0(ns1) }
                             )
                             ms.item(
                                 "landing",
-                                lambda { NSDataType1s::landing(ns1) }
+                                lambda { NSDataType1::landing(ns1) }
                             )
                             ms.prompt()
                          }
@@ -387,7 +387,7 @@ class Asteroids
                 menuitems.item(
                     "add new ns1",
                     lambda { 
-                        ns1 = NSDataType1s::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                        ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
                         return if ns1.nil?
                         Arrows::issue(asteroid, ns1)
                     }
@@ -723,13 +723,13 @@ class Asteroids
 
     # Asteroids::asteroidDestructionNSDataType2Handling(ns2)
     def self.asteroidDestructionNSDataType2Handling(ns2)
-        puts NSDataType2s::ns2ToString(ns2)
+        puts NSDataType2::ns2ToString(ns2)
         return if Arrows::getSourcesOfGivenSetsForTarget(ns2, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain ns2 ? ") then
-            NSDataType2s::ensureNSDataType2Description(ns2)
-            NSDataType2s::ensureAtLeastOneNSDataType2Cliques(ns2)
+            NSDataType2::ensureNSDataType2Description(ns2)
+            NSDataType2::ensureAtLeastOneNSDataType2NSDataType3s(ns2)
         else
-            NSDataType2s::destroyNSDataType2ByUUID(ns2["uuid"])
+            NSDataType2::destroyNSDataType2ByUUID(ns2["uuid"])
         end
     end
 
@@ -742,17 +742,17 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            ns1s = NSDataType1s::getNSDataType1sForSource(asteroid)
+            ns1s = NSDataType1::getNSDataType1ForSource(asteroid)
             if ns1s.size == 0 then
                 return
             end
             if ns1s.size == 1 then
-                NSDataType1s::openLastNSDataType0(ns1s[0])
+                NSDataType1::openLastNSDataType0(ns1s[0])
                 return
             end
-            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1s::ns1ToString(ns1) })
+            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::ns1ToString(ns1) })
             return if ns1.nil?
-            NSDataType1s::openLastNSDataType0(ns1)
+            NSDataType1::openLastNSDataType0(ns1)
         end
     end
 

@@ -9,7 +9,7 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
             ms.item(
                 "network navigation from [root]", 
-                lambda { Cliques::landing(Cliques::getRootClique()) }
+                lambda { NSDataType3::landing(NSDataType3::getRootNSDataType3()) }
             )
             ms.item(
                 "general search", 
@@ -19,13 +19,13 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "cliques (listing)", 
-                lambda { Cliques::cliquesListingAndLanding() }
+                "ns3s (listing)", 
+                lambda { NSDataType3::ns3sListingAndLanding() }
             )
 
             ms.item(
                 "ns2s (listing)", 
-                lambda { NSDataType2s::ns2sListingAndLanding() }
+                lambda { NSDataType2::ns2sListingAndLanding() }
             )
 
             ms.item(
@@ -51,20 +51,20 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "clique (new)",
+                "ns3 (new)",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("clique name: ")
+                    description = LucilleCore::askQuestionAnswerAsString("ns3 name: ")
                     return if description == ""
-                    clique = Cliques::issueClique(description)
-                    Cliques::landing(clique)
+                    ns3 = NSDataType3::issueNSDataType3(description)
+                    NSDataType3::landing(ns3)
                 }
             )
 
             ms.item(
                 "ns2 (new)",
                 lambda { 
-                    ns2 = NSDataType2s::issueNewNSDataType2Interactively()
-                    NSDataType2s::attachNSDataType2ToZeroOrMoreCliquesInteractively(ns2)
+                    ns2 = NSDataType2::issueNewNSDataType2Interactively()
+                    NSDataType2::attachNSDataType2ToZeroOrMoreNSDataType3sInteractively(ns2)
                 }
             )
 
@@ -79,9 +79,9 @@ class DataPortalUI
             )
 
             ms.item(
-                "merge two cliques",
+                "merge two ns3s",
                 lambda { 
-                    Cliques::interactivelySelectTwoCliquesAndMerge()
+                    NSDataType3::interactivelySelectTwoNSDataType3sAndMerge()
                 }
             )
 

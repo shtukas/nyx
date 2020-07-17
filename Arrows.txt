@@ -1,4 +1,4 @@
-Arrows , current used for the navigation network between cliques.
+Arrows , current used for the navigation network between ns3s.
 
 Arrows
 {

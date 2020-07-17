@@ -250,9 +250,9 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            ns0 = NSDataType0s::issueAionNSDataType2(namedhash)
+            ns0 = NSDataType0s::issueAionPoint(namedhash)
             puts JSON.pretty_generate(ns0)
-            ns1 = NSDataType1s::issue()
+            ns1 = NSDataType1::issue()
             Arrows::issue(ns1, ns0)
             asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
             puts JSON.pretty_generate(asteroid)

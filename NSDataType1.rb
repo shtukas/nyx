@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NSDataType1s
+class NSDataType1
 
-    # NSDataType1s::issue()
+    # NSDataType1::issue()
     def self.issue()
         object = {
             "uuid"     => SecureRandom.uuid,
@@ -14,14 +14,14 @@ class NSDataType1s
         object
     end
 
-    # NSDataType1s::ns1s()
+    # NSDataType1::ns1s()
     def self.ns1s()
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
-    # NSDataType1s::ns1ToString(ns1)
+    # NSDataType1::ns1ToString(ns1)
     def self.ns1ToString(ns1)
-        ns0s = NSDataType1s::getNSDataType0sForNSDataType1(ns1)
+        ns0s = NSDataType1::getNSDataType0sForNSDataType1(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
         if description then
             ns0type =
@@ -38,24 +38,24 @@ class NSDataType1s
         return "[ns1] no description and no ns0"
     end
 
-    # NSDataType1s::getNSDataType1sForSource(source)
-    def self.getNSDataType1sForSource(source)
+    # NSDataType1::getNSDataType1ForSource(source)
+    def self.getNSDataType1ForSource(source)
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # NSDataType1s::getNSDataType0sForNSDataType1(ns1)
+    # NSDataType1::getNSDataType0sForNSDataType1(ns1)
     def self.getNSDataType0sForNSDataType1(ns1)
         Arrows::getTargetsForSource(ns1)
     end
 
-    # NSDataType1s::getLastNSDataType1NSDataType0OrNull(ns1)
+    # NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
     def self.getLastNSDataType1NSDataType0OrNull(ns1)
-        NSDataType1s::getNSDataType0sForNSDataType1(ns1)
+        NSDataType1::getNSDataType0sForNSDataType1(ns1)
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
             .last
     end
 
-    # NSDataType1s::giveDescriptionToNSDataType1Interactively(ns1)
+    # NSDataType1::giveDescriptionToNSDataType1Interactively(ns1)
     def self.giveDescriptionToNSDataType1Interactively(ns1)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
@@ -63,31 +63,31 @@ class NSDataType1s
         Arrows::issue(ns1, descriptionz)
     end
 
-    # NSDataType1s::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+    # NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
     def self.issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
         puts "Making a new NSDataType1..."
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
-        ns1 = NSDataType1s::issue()
+        ns1 = NSDataType1::issue()
         Arrows::issue(ns1, ns0)
-        NSDataType1s::giveDescriptionToNSDataType1Interactively(ns1)
+        NSDataType1::giveDescriptionToNSDataType1Interactively(ns1)
         ns1
     end
 
-    # NSDataType1s::landing(ns1)
+    # NSDataType1::landing(ns1)
     def self.landing(ns1)
         loop {
             system("clear")
-            puts NSDataType1s::ns1ToString(ns1)
+            puts NSDataType1::ns1ToString(ns1)
             puts "uuid: #{ns1["uuid"]}"
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item(
                 "update description",
-                lambda { NSDataType1s::giveDescriptionToNSDataType1Interactively(ns1) }
+                lambda { NSDataType1::giveDescriptionToNSDataType1Interactively(ns1) }
             )
             menuitems.item(
                 "open",
-                lambda { NSDataType1s::openLastNSDataType0(ns1) }
+                lambda { NSDataType1::openLastNSDataType0(ns1) }
             )
             menuitems.item(
                 "destroy",
@@ -102,9 +102,9 @@ class NSDataType1s
         }
     end
 
-    # NSDataType1s::openLastNSDataType0(ns1)
+    # NSDataType1::openLastNSDataType0(ns1)
     def self.openLastNSDataType0(ns1)
-        ns0 = NSDataType1s::getLastNSDataType1NSDataType0OrNull(ns1)
+        ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
         if ns0.nil? then
             puts "I could not find ns0s for this ns1. Aborting"
             LucilleCore::pressEnterToContinue()

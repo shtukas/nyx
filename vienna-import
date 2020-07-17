@@ -46,7 +46,7 @@ loop {
     puts "vienna: #{link}"
 
     ns0 = NSDataType0s::issueUrl(link)
-    ns1 = NSDataType1s::issue()
+    ns1 = NSDataType1::issue()
     Arrows::issue(ns1, ns0)
     asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
     viennaLinkFeeder.done(link)

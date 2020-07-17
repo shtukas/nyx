@@ -12,10 +12,10 @@ Nyx
         NSDataType1         # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
 
-        Clique        # Cliques.txt
+        NSDataType3        # NSDataType3s.txt
                       # nyxNxSet: "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
 
-        NSDataType2     # NSDataType2s.txt
+        NSDataType2     # NSDataType2.txt
                       # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
 
         NSDataType0          # NSDataType0s.txt
@@ -29,11 +29,11 @@ Nyx
 
         DescriptionZ  # DescriptionZ.txt
                       # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # Clique, NSDataType2, NSDataType1
+                      # NSDataType3, NSDataType2, NSDataType1
 
         DateTimeZ     # DateTimeZ.txt
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"
-                      # NSDataType2, Clique
+                      # NSDataType2, NSDataType3
 
         Tag           # Tags.txt
                       # nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"

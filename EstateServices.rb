@@ -68,7 +68,7 @@ class EstateServices
     end
 
     # -------------------------------------------
-    # Clique Node management
+    # NSDataType3 Node management
 
     # EstateServices::getArchiveT1mel1neSizeInMegaBytes()
     def self.getArchiveT1mel1neSizeInMegaBytes()
