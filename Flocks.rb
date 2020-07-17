@@ -22,7 +22,7 @@ class Flocks
     # Flocks::flockToString(flock)
     def self.flockToString(flock)
         cubes = Flocks::getCubesForFlock(flock)
-        description = DescriptionZ::getLastDescriptionForTargetOrNull(flock["uuid"])
+        description = DescriptionZ::getLastDescriptionForSourceOrNull(flock)
         if description then
             cubetype =
                 if cubes.size > 0 then
@@ -40,12 +40,12 @@ class Flocks
 
     # Flocks::getFlocksForSource(source)
     def self.getFlocksForSource(source)
-        Arrows::getTargetOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
+        Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
     # Flocks::getHypercubesForFlock(flock)
     def self.getHypercubesForFlock(flock)
-        Arrows::getSourceOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
+        Arrows::getSourcesOfGivenSetsForTarget(flock, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
     # Flocks::getCubesForFlock(flock)
@@ -64,7 +64,8 @@ class Flocks
     def self.giveDescriptionToFlockInteractively(flock)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
-        DescriptionZ::issue(flock["uuid"], description)
+        descriptionz = DescriptionZ::issue(description)
+        Arrows::issue(flock, descriptionz)
     end
 
     # Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()

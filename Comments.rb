@@ -3,31 +3,34 @@
 
 class Comments
 
-    # Comments::make(targetuuid, author: null or String, text)
-    def self.make(targetuuid, author, text)
+    # Comments::make(text)
+    def self.make(text)
         namedhash = NyxBlobs::put(text)
         {
             "uuid"        => SecureRandom.uuid,
             "nyxNxSet"    => "7e99bb92-098d-4f84-a680-f158126aa3bf",
             "unixtime"    => Time.new.to_f,
-            "author"      => author,
-            "targetuuid"  => targetuuid,
             "namedhash"   => namedhash
         }
     end
 
-    # Comments::issue(targetuuid, author: null or String, text)
-    def self.issue(targetuuid, author, text)
-        object = Comments::make(targetuuid, author, text)
+    # Comments::issue(text)
+    def self.issue(text)
+        object = Comments::make(text)
         NyxObjects::put(object)
         object
     end
 
-    # Comments::getCommentsForTargetInTimeOrder(targetuuid)
-    def self.getCommentsForTargetInTimeOrder(targetuuid)
+    # Comments::comments()
+    def self.comments()
         NyxObjects::getSet("7e99bb92-098d-4f84-a680-f158126aa3bf")
-            .select{|object| object["targetuuid"] == targetuuid }
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
+    # Comments::getCommentsForSourceInTimeOrder(source)
+    def self.getCommentsForSourceInTimeOrder(source)
+        Arrows::getTargetsOfGivenSetsForSource(source, ["7e99bb92-098d-4f84-a680-f158126aa3bf"])
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # Comments::destroy(object)

@@ -1,10 +1,8 @@
 
-------------------------------------------------------
 Tag
 {
     "uuid"       : String
     "nyxNxSet"   : "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
     "unixtime"   : Float # Unixtime with decimals
-    "targetuuid" : String
     "payload"    : String
 }

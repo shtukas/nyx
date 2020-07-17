@@ -4,6 +4,5 @@ Note, used as way to give extra information about a hypercube. They target the h
     "uuid"       : String
     "nyxNxSet"   : "c6fad718-1306-49cf-a361-76ce85e909ca"
     "unixtime"   : Float
-    "targetuuid" : String
     "namedhash"  : String
 }

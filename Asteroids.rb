@@ -724,7 +724,7 @@ class Asteroids
     # Asteroids::asteroidDestructionHypercubeHandling(hypercube)
     def self.asteroidDestructionHypercubeHandling(hypercube)
         puts Hypercubes::hypercubeToString(hypercube)
-        return if Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
+        return if Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"]).size>0
         if LucilleCore::askQuestionAnswerAsBoolean("Retain hypercube ? ") then
             Hypercubes::ensureHypercubeDescription(hypercube)
             Hypercubes::ensureAtLeastOneHypercubeCliques(hypercube)
@@ -769,7 +769,7 @@ class Asteroids
 
     # Asteroids::getCubesForAsteroid(asteroid)
     def self.getCubesForAsteroid(asteroid)
-        Arrows::getTargetOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
     # Asteroids::getTopPriorityAsteroidsInPriorityOrder()

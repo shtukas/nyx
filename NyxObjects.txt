@@ -43,6 +43,9 @@ Nyx
                       # nyxNxSet: "c6fad718-1306-49cf-a361-76ce85e909ca"
                       # Hypercube
 
+        Comments      # Comments.txt
+                      # nyxNxSet: "7e99bb92-098d-4f84-a680-f158126aa3bf"
+
     Arrow # Arrows.txt
           # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
 

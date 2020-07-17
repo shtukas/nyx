@@ -3,8 +3,8 @@
 
 class DescriptionZ
 
-    # DescriptionZ::make(targetuuid, description)
-    def self.make(targetuuid, description)
+    # DescriptionZ::make(description)
+    def self.make(description)
         raise "[DescriptionZ error 9482c130]" if description.strip.size == 0
         if description.lines.to_a.size > 1 then
             description = description.lines.first.strip
@@ -18,34 +18,28 @@ class DescriptionZ
         }
     end
 
-    # DescriptionZ::issue(targetuuid, description)
-    def self.issue(targetuuid, description)
-        object = DescriptionZ::make(targetuuid, description)
+    # DescriptionZ::issue(description)
+    def self.issue(description)
+        object = DescriptionZ::make(description)
         NyxObjects::put(object)
         object
     end
 
-    # DescriptionZ::issue(targetuuid, description)
-    def self.issueReplacementOfAnyExisting(targetuuid, description)
-        existingobjects = DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
-        object = DescriptionZ::make(targetuuid, description)
-        NyxObjects::put(object)
-        existingobjects.each{|o|
-            DescriptionZ::destroy(o)
-        }
-        object
-    end
-
-    # DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
-    def self.getDescriptionZsForTargetInTimeOrder(targetuuid)
+    # DescriptionZ::descriptionz()
+    def self.descriptionz()
         NyxObjects::getSet("4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f")
-            .select{|object| object["targetuuid"] == targetuuid }
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # DescriptionZ::getLastDescriptionForTargetOrNull(targetuuid)
-    def self.getLastDescriptionForTargetOrNull(targetuuid)
-        zs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(targetuuid)
+    # DescriptionZ::getDescriptionZForSourceInTimeOrder(source)
+    def self.getDescriptionZForSourceInTimeOrder(source)
+        Arrows::getTargetsOfGivenSetsForSource(source, ["4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"])
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
+    # DescriptionZ::getLastDescriptionForSourceOrNull(source)
+    def self.getLastDescriptionForSourceOrNull(source)
+        zs = DescriptionZ::getDescriptionZForSourceInTimeOrder(source)
         return nil if zs.size == 0
         zs.last["description"]
     end

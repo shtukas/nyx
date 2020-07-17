@@ -12,7 +12,8 @@ class Cliques
             "unixtime" => Time.new.to_f
         }
         Cliques::commitToDisk(clique)
-        DescriptionZ::issue(uuid, description)
+        descriptionz = DescriptionZ::issue(description)
+        Arrows::issue(clique, descriptionz)
         clique
     end
 
@@ -65,12 +66,12 @@ class Cliques
 
             puts Cliques::cliqueToString(clique)
             puts "uuid: #{clique["uuid"]}"
-            description = DescriptionZ::getLastDescriptionForTargetOrNull(clique["uuid"])
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(clique)
             if description then
                 puts "description: #{description}"
             end
 
-            notetext = Notes::getMostRecentTextForTargetOrNull(clique["uuid"])
+            notetext = Notes::getMostRecentTextForSourceOrNull(clique)
             if notetext then
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
@@ -83,16 +84,18 @@ class Cliques
                 lambda{ 
                     description = Cliques::getCliqueDescriptionOrNull(clique)
                     description = Miscellaneous::editTextUsingTextmate(description).strip
-                    DescriptionZ::issue(clique["uuid"], description)
+                    descriptionz = DescriptionZ::issue(description)
+                    Arrows::issue(clique, descriptionz)
                 }
             )
 
             menuitems.item(
                 "note (edit)", 
                 lambda{ 
-                    text = Notes::getMostRecentTextForTargetOrNull(clique["uuid"]) || ""
+                    text = Notes::getMostRecentTextForSourceOrNull(clique) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issue(clique["uuid"], text)
+                    note = Notes::issue(text)
+                    Arrows::issue(clique, note)
                 }
             )
 
@@ -133,7 +136,7 @@ class Cliques
                 menuitems.item(
                     "graph maker: select multiple hypercube ; send to existing/new clique ; detach from this",
                     lambda {
-                        hypercubes = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+                        hypercubes = Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                         selectedHypercubes, _ = LucilleCore::selectZeroOrMore("hypercubes", [], hypercubes, toStringLambda = lambda{ |hypercube| Hypercubes::hypercubeToString(hypercube) })
                         return if selectedHypercubes.size == 0
                         puts "Now selecting/making the receiving clique"
@@ -235,19 +238,19 @@ class Cliques
 
     # Cliques::getCliqueNavigationSources(clique)
     def self.getCliqueNavigationSources(clique)
-        Arrows::getSourceOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+        Arrows::getSourcesOfGivenSetsForTarget(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
             .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
     end
 
     # Cliques::getCliqueNavigationTargets(clique)
     def self.getCliqueNavigationTargets(clique)
-        Arrows::getTargetOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+        Arrows::getTargetsOfGivenSetsForSource(clique, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
         .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
     end
 
     # Cliques::getCliqueHypercubesInTimeOrder(clique)
     def self.getCliqueHypercubesInTimeOrder(clique)
-        Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+        Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
@@ -270,16 +273,14 @@ class Cliques
 
     # Cliques::getCliqueDescriptionOrNull(clique)
     def self.getCliqueDescriptionOrNull(clique)
-        descriptionzs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(clique["uuid"])
-        return nil if descriptionzs.empty?
-        descriptionzs.last["description"]
+        DescriptionZ::getLastDescriptionForSourceOrNull(clique)
     end
 
     # Cliques::getCliqueReferenceDateTime(clique)
     def self.getCliqueReferenceDateTime(clique)
-        datetimezs = DateTimeZ::getDateTimeZsForTargetInTimeOrder(clique["uuid"])
-        return Time.at(clique["unixtime"]).utc.iso8601 if datetimezs.empty?
-        datetimezs.last["datetimeISO8601"]
+        datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(clique)
+        return datetime if datetime
+        Time.at(clique["unixtime"]).utc.iso8601
     end
 
     # Cliques::getCliqueReferenceUnixtime(clique)
@@ -326,7 +327,7 @@ class Cliques
     # Cliques::getLastActivityUnixtime(clique)
     def self.getLastActivityUnixtime(clique)
         times1 = [ Cliques::getCliqueReferenceUnixtime(clique) ] 
-        times2 = Arrows::getTargetOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
+        times2 = Arrows::getTargetsOfGivenSetsForSource(clique, ["6b240037-8f5f-4f52-841d-12106658171f"])
                     .map{|object| object["unixtime"] }
         (times1+times2).max
     end
@@ -370,7 +371,7 @@ class Cliques
     # Cliques::mergeCliques(clique1, clique2)
     def self.mergeCliques(clique1, clique2)
         # We take everything connected to clique2, link that to clique1 and delete clique2
-        Arrows::getTargetOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
+        Arrows::getTargetsOfGivenSetsForSource(clique2, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .each{|hypercube| Arrows::issue(clique1, hypercube) }
         NyxObjects::destroy(clique2["uuid"])
     end

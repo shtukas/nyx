@@ -77,8 +77,8 @@ class Arrows
             .compact
     end
 
-    # Arrows::getTargetOfGivenSetsForSource(source, setids)
-    def self.getTargetOfGivenSetsForSource(source, setids)
+    # Arrows::getTargetsOfGivenSetsForSource(source, setids)
+    def self.getTargetsOfGivenSetsForSource(source, setids)
         Arrows::getTargetsForSource(source).select{|object|
             setids.include?(object["nyxNxSet"])
         }
@@ -94,8 +94,8 @@ class Arrows
             .compact
     end
 
-    # Arrows::getTargetOfGivenSetsForSourceUUID(sourceuuid, setids)
-    def self.getTargetOfGivenSetsForSourceUUID(sourceuuid, setids)
+    # Arrows::getTargetsOfGivenSetsForSourceUUID(sourceuuid, setids)
+    def self.getTargetsOfGivenSetsForSourceUUID(sourceuuid, setids)
         Arrows::getTargetsForSourceUUID(sourceuuid).select{|object|
             setids.include?(object["nyxNxSet"])
         }
@@ -111,8 +111,8 @@ class Arrows
             .compact
     end
 
-    # Arrows::getSourceOfGivenSetsForTarget(target, setids)
-    def self.getSourceOfGivenSetsForTarget(target, setids)
+    # Arrows::getSourcesOfGivenSetsForTarget(target, setids)
+    def self.getSourcesOfGivenSetsForTarget(target, setids)
         Arrows::getSourcesForTarget(target).select{|object|
             setids.include?(object["nyxNxSet"])
         }

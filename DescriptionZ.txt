@@ -1,10 +1,8 @@
 
-------------------------------------------------------
 DescriptionZ
 {
     "uuid"        : String
     "nyxNxSet"    : "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
     "unixtime"    : Float # Unixtime with decimals
-    "targetuuid"  : String
     "description" : String
 }

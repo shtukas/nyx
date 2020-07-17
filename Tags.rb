@@ -2,28 +2,33 @@
 # encoding: UTF-8
 
 class Tags
-    # Tags::makeTag(targetuuid, payload)
-    def self.makeTag(targetuuid, payload)
+
+    # Tags::make(payload)
+    def self.make(payload)
         {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "4643abd2-fec6-4184-a9ad-5ad3df3257d6",
             "unixtime"   => Time.new.to_f,
-            "targetuuid" => targetuuid,
             "payload"    => payload
         }
     end
 
-    # Tags::issueTag(targetuuid, payload)
-    def self.issueTag(targetuuid, payload)
-        object = Tags::makeTag(targetuuid, payload)
+    # Tags::issue(payload)
+    def self.issue(payload)
+        object = Tags::make(payload)
         NyxObjects::put(object)
         object
     end
 
-    # Tags::getTagsForTargetUUID(targetuuid)
-    def self.getTagsForTargetUUID(targetuuid)
+    # Tags::tags()
+    def self.tags()
         NyxObjects::getSet("4643abd2-fec6-4184-a9ad-5ad3df3257d6")
-            .select{|tag| tag["targetuuid"] == targetuuid }
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
+    end
+
+    # Tags::getTagsForSource(source)
+    def self.getTagsForSource(source)
+        Arrows::getTargetsOfGivenSetsForSource(source, ["4643abd2-fec6-4184-a9ad-5ad3df3257d6"])
     end
 
     # Tags::destroyTag(tag)

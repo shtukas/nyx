@@ -35,8 +35,9 @@ class Hypercubes
 
         description = LucilleCore::askQuestionAnswerAsString("hypercube description: ")
         if description.size > 0 then
-            descriptionz = DescriptionZ::issue(hypercube["uuid"], description)
+            descriptionz = DescriptionZ::issue(description)
             puts JSON.pretty_generate(descriptionz)
+            Arrows::issue(hypercube, descriptionz)
         end
 
         Hypercubes::issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
@@ -65,7 +66,7 @@ class Hypercubes
         str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}")
         return str if str
 
-        description = Hypercubes::getHypercubeDescriptionZDescriptionOrNull(hypercube)
+        description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
         if description then
             str = "[hypercube] [#{hypercube["uuid"][0, 4]}] #{description}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}", str)
@@ -104,7 +105,7 @@ class Hypercubes
             # Hypercube metadata
             puts Hypercubes::hypercubeToString(hypercube)
 
-            description = DescriptionZ::getLastDescriptionForTargetOrNull(hypercube["uuid"])
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
             if description then
                 puts "description: #{description}"
             end
@@ -112,18 +113,12 @@ class Hypercubes
             puts "uuid: #{hypercube["uuid"]}"
             puts "date: #{Hypercubes::getHypercubeReferenceDateTime(hypercube)}"
 
-            notetext = Notes::getMostRecentTextForTargetOrNull(hypercube["uuid"])
+            notetext = Notes::getMostRecentTextForSourceOrNull(hypercube)
             if notetext then
                 puts ""
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
-
-            Comments::getCommentsForTargetInTimeOrder(hypercube["uuid"]).each{|comment|
-                puts ""
-                puts "Comment:"
-                puts NyxBlobs::getBlobOrNull(comment["namedhash"]).lines.map{|line| "    #{line}" }.join()
-            }
 
             Hypercubes::getHypercubeTags(hypercube)
                 .each{|tag|
@@ -132,18 +127,20 @@ class Hypercubes
 
             puts ""
 
-            if DescriptionZ::getDescriptionZsForTargetInTimeOrder(hypercube["uuid"]).last then
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
+            if description then
                 menuitems.item(
                     "description (update)",
                     lambda{
-                        description = Hypercubes::getHypercubeDescriptionZDescriptionOrNull(hypercube)
+                        description = DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
                         if description.nil? then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
                             description = Miscellaneous::editTextUsingTextmate(description).strip
                         end
                         return if description == ""
-                        DescriptionZ::issue(hypercube["uuid"], description)
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issue(hypercube, descriptionz)
                     }
                 )
             else
@@ -152,7 +149,8 @@ class Hypercubes
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        DescriptionZ::issue(hypercube["uuid"], description)
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issue(hypercube, descriptionz)
                     }
                 )
             end
@@ -162,24 +160,18 @@ class Hypercubes
                 lambda{
                     datetime = Miscellaneous::editTextUsingTextmate(Hypercubes::getHypercubeReferenceDateTime(hypercube)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-                    DateTimeZ::issue(hypercube["uuid"], datetime)
+                    datetimez = DateTimeZ::issue(datetime)
+                    Arrows::issue(hypercube, datetimez)
                 }
             )
 
             menuitems.item(
                 "top note (edit)", 
                 lambda{ 
-                    text = Notes::getMostRecentTextForTargetOrNull(hypercube["uuid"]) || ""
+                    text = Notes::getMostRecentTextForSourceOrNull(hypercube) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
-                    Notes::issue(hypercube["uuid"], text)
-                }
-            )
-
-            menuitems.item(
-                "comment (new)", 
-                lambda{ 
-                    text = Miscellaneous::editTextUsingTextmate("").strip
-                    Comments::issue(hypercube["uuid"], nil, text)
+                    note = Notes::issue(text)
+                    Arrows::issue(hypercube, note)
                 }
             )
 
@@ -188,7 +180,8 @@ class Hypercubes
                 lambda {
                     payload = LucilleCore::askQuestionAnswerAsString("tag: ")
                     return if payload.size == 0
-                    Tags::issueTag(hypercube["uuid"], payload)
+                    tag = Tags::issue(payload)
+                    Arrows::issue(hypercube, tag)
                 }
             )
 
@@ -230,7 +223,7 @@ class Hypercubes
 
             puts "Parent Cliques:"
 
-            Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+            Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
                 .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
                 .each{|clique|
                     menuitems.item(
@@ -280,12 +273,12 @@ class Hypercubes
 
     # Hypercubes::getHypercubeCliques(hypercube)
     def self.getHypercubeCliques(hypercube)
-        Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+        Arrows::getSourcesOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
     end
 
     # Hypercubes::getHypercubeCubesInTimeOrder(hypercube)
     def self.getHypercubeCubesInTimeOrder(hypercube)
-        Arrows::getTargetOfGivenSetsForSource(hypercube, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+        Arrows::getTargetsOfGivenSetsForSource(hypercube, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
@@ -296,21 +289,14 @@ class Hypercubes
 
     # Hypercubes::getHypercubeReferenceDateTime(hypercube)
     def self.getHypercubeReferenceDateTime(hypercube)
-        datetimezs = DateTimeZ::getDateTimeZsForTargetInTimeOrder(hypercube["uuid"])
-        return Time.at(hypercube["unixtime"]).utc.iso8601 if datetimezs.empty?
-        datetimezs.last["datetimeISO8601"]
+        datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(hypercube)
+        return datetime if datetime
+        Time.at(hypercube["unixtime"]).utc.iso8601
     end
 
     # Hypercubes::getHypercubeReferenceUnixtime(hypercube)
     def self.getHypercubeReferenceUnixtime(hypercube)
         DateTime.parse(Hypercubes::getHypercubeReferenceDateTime(hypercube)).to_time.to_f
-    end
-
-    # Hypercubes::getHypercubeDescriptionZDescriptionOrNull(hypercube)
-    def self.getHypercubeDescriptionZDescriptionOrNull(hypercube)
-        descriptionzs = DescriptionZ::getDescriptionZsForTargetInTimeOrder(hypercube["uuid"])
-        return nil if descriptionzs.empty?
-        descriptionzs.last["description"]
     end
 
     # Hypercubes::hypercubeuuidToString(hypercubeuuid)
@@ -390,7 +376,8 @@ class Hypercubes
         loop {
             payload = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
             break if payload.size == 0
-            Tags::issueTag(hypercube["uuid"], payload)
+            tag = Tags::issue(payload)
+            Arrows::issue(hypercube, tag)
         }
     end
 
@@ -402,10 +389,11 @@ class Hypercubes
 
     # Hypercubes::ensureHypercubeDescription(hypercube)
     def self.ensureHypercubeDescription(hypercube)
-        return if Hypercubes::getHypercubeDescriptionZDescriptionOrNull(hypercube)
+        return if DescriptionZ::getLastDescriptionForSourceOrNull(hypercube)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description.size == 0
-        DescriptionZ::issue(hypercube["uuid"], description)
+        descriptionz = DescriptionZ::issue(description)
+        Arrows::issue(hypercube, descriptionz)
     end
 
     # Hypercubes::ensureAtLeastOneHypercubeCliques(hypercube)
@@ -417,6 +405,6 @@ class Hypercubes
 
     # Hypercubes::getHypercubeTags(hypercube)
     def self.getHypercubeTags(hypercube)
-        Tags::getTagsForTargetUUID(hypercube["uuid"])
+        Tags::getTagsForSource(hypercube)
     end
 end
