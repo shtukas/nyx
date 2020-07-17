@@ -370,7 +370,7 @@ class Asteroids
                             ms = LCoreMenuItemsNX1.new()
                             ms.item(
                                 "view data",
-                                lambda { Flocks::openLastHypercube(flock) }
+                                lambda { Flocks::openLastCube(flock) }
                             )
                             ms.item(
                                 "landing",
@@ -747,12 +747,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                Flocks::openLastHypercube(flocks[0])
+                Flocks::openLastCube(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            Flocks::openLastHypercube(flock)
+            Flocks::openLastCube(flock)
         end
     end
 

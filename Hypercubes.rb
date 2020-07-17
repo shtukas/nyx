@@ -27,10 +27,10 @@ class Hypercubes
         puts JSON.pretty_generate(hypercube)
         Hypercubes::commitHypercubeToDisk(hypercube)
 
-        flock = Flocks::issueNewFlockAndItsFirstCubeInteractivelyOrNull()
-        if flock then
-            puts JSON.pretty_generate(flock)
-            Arrows::issue(hypercube, flock)
+        cube = Cubes::issueNewCubeInteractivelyOrNull()
+        if cube then
+            puts JSON.pretty_generate(cube)
+            Arrows::issue(hypercube, cube)
         end
 
         description = LucilleCore::askQuestionAnswerAsString("hypercube description: ")
@@ -39,7 +39,7 @@ class Hypercubes
             puts JSON.pretty_generate(descriptionz)
         end
 
-        Hypercubes::issueZeroOrMoreHypercubeTagsForHypercubeInteractively(hypercube)
+        Hypercubes::issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
 
         hypercube
     end
@@ -72,9 +72,9 @@ class Hypercubes
             return str
         end
 
-        flocks = Flocks::getFlocksForSource(hypercube)
-        if flocks.size > 0 then
-            str = "[hypercube] #{Flocks::flockToString(flocks[0])}"
+        cube = Hypercubes::getLastHypercubeCubeOrNull(hypercube)
+        if cube then
+            str = "[hypercube] #{Cubes::cubeToString(cube)}"
             InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{hypercube["uuid"]}", str)
             return str
         end
@@ -226,9 +226,9 @@ class Hypercubes
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Related
+            # Cliques
 
-            puts "Cliques:"
+            puts "Parent Cliques:"
 
             Arrows::getSourceOfGivenSetsForTarget(hypercube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
                 .sort{|o1, o2| Cliques::getLastActivityUnixtime(o1) <=> Cliques::getLastActivityUnixtime(o2) }
@@ -385,8 +385,8 @@ class Hypercubes
             }
     end
 
-    # Hypercubes::issueZeroOrMoreHypercubeTagsForHypercubeInteractively(hypercube)
-    def self.issueZeroOrMoreHypercubeTagsForHypercubeInteractively(hypercube)
+    # Hypercubes::issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
+    def self.issueZeroOrMoreTagsForHypercubeInteractively(hypercube)
         loop {
             payload = LucilleCore::askQuestionAnswerAsString("tag (empty to exit) : ")
             break if payload.size == 0

@@ -4,7 +4,7 @@
 class CubeCached
     # CubeCached::forget(cube)
     def self.forget(cube)
-        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}")
+        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{cube["uuid"]}")
     end
 end
 
@@ -127,7 +127,7 @@ class Cubes
 
     # Cubes::cubeToString(cube)
     def self.cubeToString(cube)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}")
+        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{cube["uuid"]}")
         return str if str
 
         str = (lambda{|cube|
@@ -153,7 +153,7 @@ class Cubes
             raise "[Cubes error 2c53b113-cc79]"
         }).call(cube)
 
-        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e8:#{cube["uuid"]}", str)
+        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{cube["uuid"]}", str)
         str
     end
 

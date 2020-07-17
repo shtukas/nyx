@@ -91,7 +91,7 @@ class Flocks
             )
             menuitems.item(
                 "open",
-                lambda { Flocks::openLastHypercube(flock) }
+                lambda { Flocks::openLastCube(flock) }
             )
             menuitems.item(
                 "destroy",
@@ -106,8 +106,8 @@ class Flocks
         }
     end
 
-    # Flocks::openLastHypercube(flock)
-    def self.quickDataAccess(flock)
+    # Flocks::openLastCube(flock)
+    def self.openLastCube(flock)
         cube = Flocks::getLastFlockCubeOrNull(flock)
         if cube.nil? then
             puts "I could not find cubes for this flock. Aborting"
