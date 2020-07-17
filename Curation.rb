@@ -35,7 +35,7 @@ class Curation
             puts ""
             puts "First I am going to show you the clique so that you do a bit of cleaning there"
             LucilleCore::pressEnterToContinue()
-            Cliques::dive(clique)
+            Cliques::landing(clique)
             puts ""
             puts "Now please select a parent for it (possibly the root node)"
             parent = Cliques::selectExistingOrNewCliqueFromRootNavigationOrNull()

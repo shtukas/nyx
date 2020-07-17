@@ -53,16 +53,6 @@ class Flocks
         Arrows::getTargetsForSourceUUID(flock["uuid"])
     end
 
-    # Flocks::getFlockForFrame(frame)
-    def self.getFlockForFrame(frame)
-        # Technically we could have a frame belonging to more than one Flock
-        # We could also have a frame belonging to zero Flock
-        # We are going to blatently assume that will never happen that the set of Flocks for a Frame is always only of size 1
-
-        # We are not going to assume that the sources of a frame are always a flock, because frames used to be targetted by other things
-        Arrows::getSourceOfGivenSetsForTarget(frame, ["c18e8093-63d6-4072-8827-14f238975d04"]).first
-    end
-
     # Flocks::getLastFlockFrameOrNull(flock)
     def self.getLastFlockFrameOrNull(flock)
         Flocks::getFramesForFlock(flock)
@@ -88,8 +78,8 @@ class Flocks
         flock
     end
 
-    # Flocks::dive(flock)
-    def self.dive(flock)
+    # Flocks::landing(flock)
+    def self.landing(flock)
         loop {
             system("clear")
             puts Flocks::flockToString(flock)
@@ -101,7 +91,7 @@ class Flocks
             )
             menuitems.item(
                 "open",
-                lambda { Flocks::quickDataAccess(flock) }
+                lambda { Flocks::openLastCube(flock) }
             )
             menuitems.item(
                 "destroy",
@@ -116,7 +106,7 @@ class Flocks
         }
     end
 
-    # Flocks::quickDataAccess(flock)
+    # Flocks::openLastCube(flock)
     def self.quickDataAccess(flock)
         frame = Flocks::getLastFlockFrameOrNull(flock)
         if frame.nil? then
@@ -126,34 +116,4 @@ class Flocks
         end
         Frames::openFrame(flock, frame)
     end
-
-    # Flocks::landing(flock)
-    def self.landing(flock)
-        loop {
-            system("clear")
-            puts Flocks::flockToString(flock)
-            puts ""
-            menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item(
-                "quick data access",
-                lambda { Flocks::quickDataAccess(flock) }
-            )
-            menuitems.item(
-                "dive",
-                lambda { Flocks::dive(flock) }
-            )
-            puts ""
-            Flocks::getCubesForFlock(flock)
-                .each{|cube|
-                    menuitems.item(
-                        "parent cube: #{Cubes::cubeToString(cube)}", 
-                        lambda { Cubes::landing(cube) }
-                    )
-                }
-            puts ""
-            status = menuitems.prompt()
-            break if !status
-        }
-    end
-
 end

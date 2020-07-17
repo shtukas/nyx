@@ -39,7 +39,7 @@ class DataPortalUI
                             .each{|asteroid|
                                 menuitems.item(
                                     Asteroids::asteroidToString(asteroid),
-                                    lambda { Asteroids::asteroidDive(asteroid) }
+                                    lambda { Asteroids::landing(asteroid) }
                                 )
                             }
                         status = menuitems.prompt()
@@ -56,7 +56,7 @@ class DataPortalUI
                     description = LucilleCore::askQuestionAnswerAsString("clique name: ")
                     return if description == ""
                     clique = Cliques::issueClique(description)
-                    Cliques::dive(clique)
+                    Cliques::landing(clique)
                 }
             )
 

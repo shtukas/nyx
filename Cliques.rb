@@ -47,8 +47,8 @@ class Cliques
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
-    # Cliques::dive(clique)
-    def self.dive(clique)
+    # Cliques::landing(clique)
+    def self.landing(clique)
         loop {
 
             clique = Cliques::getOrNull(clique["uuid"])
@@ -116,7 +116,7 @@ class Cliques
                 .each{|cube|
                     menuitems.item(
                         Cubes::cubeToString(cube), 
-                        lambda { Cubes::dive(cube) }
+                        lambda { Cubes::landing(cube) }
                     )
                 }
 
@@ -226,69 +226,6 @@ class Cliques
 
             Miscellaneous::horizontalRule(true)
 
-            status = menuitems.prompt()
-            break if !status
-        }
-    end
-
-    # Cliques::quickDataAccess(clique)
-    def self.quickDataAccess(clique)
-        cubes = Cliques::getCliqueCubesInTimeOrder(clique)
-        if cubes.size == 0 then
-            puts "Could not find cubes for clique: #{Cliques::cliqueToString(clique)}"
-            puts "Going to dive into it"
-            LucilleCore::pressEnterToContinue()
-            Cliques::dive(clique)
-            return
-        end
-        if cubes.size == 1 then
-            Cubes::landing(cubes[0])
-            return
-        end
-
-        loop {
-            break if Cliques::getOrNull(clique["uuid"]).nil?
-            system("clear")
-            puts Cliques::cliqueToString(clique)
-            puts ""
-            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| Cubes::cubeToString(cube) })
-            break if cube.nil?
-            Cubes::landing(cube)
-        }
-    end
-
-    # Cliques::landing(clique)
-    def self.landing(clique)
-        loop {
-            system("clear")
-            puts Cliques::cliqueToString(clique)
-            puts ""
-            menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item(
-                "quick data access",
-                lambda { Cliques::quickDataAccess(clique) }
-            )
-            menuitems.item(
-                "dive",
-                lambda { Cliques::dive(clique) }
-            )
-            puts ""
-            Cliques::getCliqueNavigationSources(clique)
-                .each{|c|
-                    menuitems.item(
-                        "navigation source: #{Cliques::cliqueToString(c)}", 
-                        lambda { Cliques::landing(c) }
-                    )
-                }
-            puts ""
-            Cliques::getCliqueNavigationTargets(clique)
-                .each{|c|
-                    menuitems.item(
-                        "navigation target: #{Cliques::cliqueToString(c)}", 
-                        lambda { Cliques::landing(c) }
-                    )
-                }
-            puts ""
             status = menuitems.prompt()
             break if !status
         }

@@ -85,7 +85,7 @@ class NyxPrimaryObjects
     end
 end
 
-NyxObjectsCachingKeyPrefix = "fd1c4b94-b6cb-4222-9715-fe201ed98016"
+NyxObjectsCachingKeyPrefix = "fd1c4b94-b6cb-4222-9715-fe201ed98017"
 
 class NyxObjectsCaching
 

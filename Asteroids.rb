@@ -269,8 +269,8 @@ class Asteroids
         Asteroids::reCommitToDisk(asteroid)
     end
 
-    # Asteroids::asteroidDive(asteroid)
-    def self.asteroidDive(asteroid)
+    # Asteroids::landing(asteroid)
+    def self.landing(asteroid)
         loop {
 
             asteroid = Asteroids::getOrNull(asteroid["uuid"])
@@ -300,7 +300,7 @@ class Asteroids
             menuitems.item(
                 "set asteroid description",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("frame series description: ")
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
                     return if description == ""
                     asteroid["payload"]["description"] = description
                     Asteroids::reCommitToDisk(asteroid)
@@ -362,13 +362,24 @@ class Asteroids
                 Miscellaneous::horizontalRule(true)
 
                 puts "Flocks:"
-                puts ""
 
                 Flocks::getFlocksForSource(asteroid).each{|flock|
                     menuitems.item(
                         Flocks::flockToString(flock),
-                        lambda { Flocks::landing(flock) }
+                        lambda { 
+                            ms = LCoreMenuItemsNX1.new()
+                            ms.item(
+                                "view data",
+                                lambda { Flocks::openLastCube(flock) }
+                            )
+                            ms.item(
+                                "landing",
+                                lambda { Flocks::landing(flock) }
+                            )
+                            ms.prompt()
+                         }
                     )
+
                 }
 
                 puts ""
@@ -649,7 +660,7 @@ class Asteroids
                     Asteroids::asteroidDoubleDotProcessing(asteroid)
                     return
                 end
-                Asteroids::asteroidDive(asteroid) 
+                Asteroids::landing(asteroid) 
             },
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
@@ -736,12 +747,12 @@ class Asteroids
                 return
             end
             if flocks.size == 1 then
-                Flocks::quickDataAccess(flocks[0])
+                Flocks::openLastCube(flocks[0])
                 return
             end
             flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{ |flock| Flocks::flockToString(flock) })
             return if flock.nil?
-            Flocks::quickDataAccess(flock)
+            Flocks::openLastCube(flock)
         end
     end
 
@@ -752,7 +763,7 @@ class Asteroids
             asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
             asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
             break if asteroid.nil?
-            Asteroids::asteroidDive(asteroid)
+            Asteroids::landing(asteroid)
         }
     end
 

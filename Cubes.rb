@@ -84,8 +84,8 @@ class Cubes
         str
     end
 
-    # Cubes::dive(cube)
-    def self.dive(cube)
+    # Cubes::landing(cube)
+    def self.landing(cube)
         loop {
 
             cube = Cubes::getOrNull(cube["uuid"])
@@ -212,26 +212,17 @@ class Cubes
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
-            # Operations
+            # Latest Cube
 
-            puts "Flocks:"
-
-            Flocks::getFlocksForSource(cube).each{|flock|
+            frame = Cubes::getLastCubeFrameOrNull(cube)
+            if frame then
                 menuitems.item(
-                    Flocks::flockToString(flock),
-                    lambda { Flocks::landing(flock) }
+                    "view data",
+                    lambda { Frames::openFrame(cube, frame) }
                 )
-            }
-
-            puts ""
-
-            menuitems.item(
-                "add new flock",
-                lambda { 
-                    flock = Flocks::issueNewFlockAndItsFirstFrameInteractivelyOrNull()
-                    Arrows::issue(cube, flock)
-                }
-            )
+            else
+                puts "No frame found for this cube"
+            end
 
             Miscellaneous::horizontalRule(true)
             # ----------------------------------------------------------
@@ -285,65 +276,22 @@ class Cubes
         }
     end
 
-    # Cubes::quickDataAccess(cube)
-    def self.quickDataAccess(cube)
-        flocks = Flocks::getFlocksForSource(cube)
-        if flocks.size == 0 then
-            puts "Could not find flocks for this cube: #{Cubes::cubeToString(cube)}"
-            puts "Going to dive into it"
-            LucilleCore::pressEnterToContinue()
-            Cubes::dive(cube)
-            return
-        end
-        if flocks.size == 1 then
-            Flocks::landing(flocks[0])
-            return
-        end
-        loop {
-            break if Cubes::getOrNull(cube["uuid"]).nil?
-            system("clear")
-            puts Cubes::cubeToString(cube)
-            puts ""
-            flock = LucilleCore::selectEntityFromListOfEntitiesOrNull("flock", flocks, lambda{|flock| Flocks::flockToString(flock) })
-            break if flock.nil?
-            Flocks::landing(flock)
-        }
-    end
-
-    # Cubes::landing(cube)
-    def self.landing(cube)
-        loop {
-            system("clear")
-            puts Cubes::cubeToString(cube)
-            puts ""
-            menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item(
-                "quick data access",
-                lambda { Cubes::quickDataAccess(cube) }
-            )
-            menuitems.item(
-                "dive",
-                lambda { Cubes::dive(cube) }
-            )
-            puts ""
-            Cubes::getCubeCliques(cube)
-                .each{|c|
-                    menuitems.item(
-                        "cliques: #{Cliques::cliqueToString(c)}", 
-                        lambda { Cliques::landing(c) }
-                    )
-                }
-            puts ""
-            status = menuitems.prompt()
-            break if !status
-        }
-    end
-
     # ---------------------------------------------
 
     # Cubes::getCubeCliques(cube)
     def self.getCubeCliques(cube)
         Arrows::getSourceOfGivenSetsForTarget(cube, ["4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+    end
+
+    # Cubes::getCubeFramesInTimeOrder(cube)
+    def self.getCubeFramesInTimeOrder(cube)
+        Arrows::getTargetOfGivenSetsForSource(cube, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+    end
+
+    # Cubes::getLastCubeFrameOrNull(cube)
+    def self.getLastCubeFrameOrNull(cube)
+        Cubes::getCubeFramesInTimeOrder(cube).last
     end
 
     # Cubes::getCubeReferenceDateTime(cube)

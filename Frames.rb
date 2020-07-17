@@ -157,12 +157,8 @@ class Frames
         str
     end
 
-    # Frames::openFrame(flock, frame)
-    def self.openFrame(flock, frame)
-        #puts "flock:"
-        #puts JSON.pretty_generate(flock)
-        #puts "frame:"
-        #puts JSON.pretty_generate(frame)
+    # Frames::openFrame(cube, frame)
+    def self.openFrame(cube, frame)
         if frame["type"] == "line" then
             puts frame["line"]
             LucilleCore::pressEnterToContinue()
@@ -181,7 +177,7 @@ class Frames
             return
         end
         if frame["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForFrameCreateIfNotExists(flock, frame)
+            folderpath = DeskOperator::deskFolderpathForFrameCreateIfNotExists(cube, frame)
             system("open '#{folderpath}'")
             return
         end
