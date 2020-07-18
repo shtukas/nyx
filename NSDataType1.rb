@@ -21,7 +21,7 @@ class NSDataType1
 
     # NSDataType1::ns1ToString(ns1)
     def self.ns1ToString(ns1)
-        ns0s = NSDataType1::getNSDataType0sForNSDataType1(ns1)
+        ns0s = NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
         if description then
             ns0type =
@@ -43,15 +43,15 @@ class NSDataType1
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # NSDataType1::getNSDataType0sForNSDataType1(ns1)
-    def self.getNSDataType0sForNSDataType1(ns1)
-        Arrows::getTargetsForSource(ns1)
+    # NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
+    def self.getNSDataType0sForNSDataType1InTimeOrder(ns1)
+        Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
     # NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
     def self.getLastNSDataType1NSDataType0OrNull(ns1)
-        NSDataType1::getNSDataType0sForNSDataType1(ns1)
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+        NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
             .last
     end
 
@@ -77,17 +77,20 @@ class NSDataType1
     # NSDataType1::landing(ns1)
     def self.landing(ns1)
         loop {
+            break if NyxObjects::getOrNull(ns1["uuid"]).nil?
             system("clear")
             puts NSDataType1::ns1ToString(ns1)
+            puts ""
             puts "uuid: #{ns1["uuid"]}"
+            puts ""
             menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item(
-                "update description",
-                lambda { NSDataType1::giveDescriptionToNSDataType1Interactively(ns1) }
-            )
             menuitems.item(
                 "open",
                 lambda { NSDataType1::openLastNSDataType0(ns1) }
+            )
+            menuitems.item(
+                "update description",
+                lambda { NSDataType1::giveDescriptionToNSDataType1Interactively(ns1) }
             )
             menuitems.item(
                 "destroy",

@@ -102,6 +102,11 @@ class DataPortalUI
                 "Print Generation Speed Report", 
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
             )
+            
+            ms.item(
+                "NetworkManager::performSecondaryNetworkMaintenance()", 
+                lambda { NetworkManager::performSecondaryNetworkMaintenance() }
+            )
 
             ms.item(
                 "Curation::run()", 

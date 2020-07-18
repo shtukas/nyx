@@ -366,18 +366,7 @@ class Asteroids
                 NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
                     menuitems.item(
                         NSDataType1::ns1ToString(ns1),
-                        lambda { 
-                            ms = LCoreMenuItemsNX1.new()
-                            ms.item(
-                                "access ns0",
-                                lambda { NSDataType1::openLastNSDataType0(ns1) }
-                            )
-                            ms.item(
-                                "landing",
-                                lambda { NSDataType1::landing(ns1) }
-                            )
-                            ms.prompt()
-                         }
+                        lambda { NSDataType1::landing(ns1) }
                     )
 
                 }
@@ -436,20 +425,20 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            x2 = Metrics::noMoreThanBankValueOverPeriodOtherwiseFall(0.69, "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860", 3600, 3*3600)
+            x2 = Metrics::noMoreThanBankValueOverPeriodOtherwiseFall(0.68, "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860", 3600, 3*3600)
             x3 = - 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
             return x2 + x3
         end
 
+        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+            return 0.66 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+        end
+
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.68, uuid, orbital["timeCommitmentInHours"]*3600)
+            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, orbital["timeCommitmentInHours"]*3600)
             x2 = - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2
-        end
- 
-        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.64 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then

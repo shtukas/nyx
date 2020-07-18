@@ -31,6 +31,7 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         NSDataType1::ns1s().each{|ns1|
+            puts "ns1: #{ns1["uuid"]}"
             ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
@@ -46,8 +47,8 @@ class DeskOperator
             end
             newns0 = NSDataType0s::issueAionPoint(namedhash)
             Arrows::issue(ns1, newns0)
-            #puts "new ns0:"
-            #puts JSON.pretty_generate(newns0)
+            puts "new ns0:"
+            puts JSON.pretty_generate(newns0)
             LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)
         }
     end

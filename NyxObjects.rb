@@ -85,7 +85,7 @@ class NyxPrimaryObjects
     end
 end
 
-NyxObjectsCacheKey = "fd1c4b94-b6cb-4222-9715-fe201ed98019"
+NyxObjectsCacheKey = "fd1c4b94-b6cb-4222-9715-fe201ed98020"
 
 $NyxObjectsStructure = nil # Each key is a setid
 

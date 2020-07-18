@@ -19,11 +19,6 @@ EstateServices::ensureReadiness()
 NetworkManager::ensureReadiness()
 
 Thread.new {
-    sleep 60
-    NetworkManager::performSecondaryNetworkMaintenance()
-}
-
-Thread.new {
     loop {
         sleep 10
         CatalystObjectsOperator::getCatalystListingObjectsOrdered()

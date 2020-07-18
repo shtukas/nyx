@@ -263,6 +263,13 @@ class NSDataType3
             .first
     end
 
+    # NSDataType3::getAwaitingCurationNSDataType3()
+    def self.getAwaitingCurationNSDataType3()
+        NSDataType3::ns3s()
+            .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == "[AwaitingCuration]" }
+            .first
+    end
+
     # NSDataType3::isRoot?(ns3)
     def self.isRoot?(ns3)
         NSDataType3::getNSDataType3DescriptionOrNull(ns3) == "[root]"

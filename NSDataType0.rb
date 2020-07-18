@@ -157,8 +157,8 @@ class NSDataType0s
         str
     end
 
-    # NSDataType0s::openNSDataType0(ns2, ns0)
-    def self.openNSDataType0(ns2, ns0)
+    # NSDataType0s::openNSDataType0(ns1, ns0)
+    def self.openNSDataType0(ns1, ns0)
         if ns0["type"] == "line" then
             puts ns0["line"]
             LucilleCore::pressEnterToContinue()
@@ -169,15 +169,16 @@ class NSDataType0s
             return
         end
         if ns0["type"] == "text" then
-            system("clear")
             namedhash = ns0["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash)
-            puts text
+            filepath = "/tmp/#{Miscellaneous::l22()}.txt"
+            File.open(filepath, "w"){|f| f.puts(text) }
+            system("open #{filepath}")
             LucilleCore::pressEnterToContinue()
             return
         end
         if ns0["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns2, ns0)
+            folderpath = DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns1, ns0)
             system("open '#{folderpath}'")
             return
         end
@@ -203,6 +204,7 @@ class NSDataType0s
             end
             return
         end
+        puts ns0
         raise "[NSDataType0 error 4bf5cfb1-c2a2]"
     end
 end
