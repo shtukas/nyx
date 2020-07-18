@@ -8,7 +8,6 @@ class NyxPrimaryObjects
         [
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
-            "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5", # NSDataType3s
             "6b240037-8f5f-4f52-841d-12106658171f", # NSDataType2
             "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
@@ -47,7 +46,7 @@ class NyxPrimaryObjects
         end
         filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
         if File.exists?(filepath) then
-            #raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
+            raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
         object
@@ -91,31 +90,36 @@ end
 
 class NyxObjects
 
+    # NyxObjects::cachingKeyPrefix()
+    def self.cachingKeyPrefix()
+        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EC"
+    end
+
     # NyxObjects::put(object)
     def self.put(object)
         NyxPrimaryObjects::put(object)
 
         uuid = object["uuid"]
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}", object)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}", object)
 
         # Then we put the object into its cached set
         setid = object["nyxNxSet"]
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
         return if set.nil?
         set = set.reject{|o| o["uuid"] == object["uuid"] }
         set << object
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        object = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}")
+        object = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}")
         return object if object 
 
         object = NyxPrimaryObjects::getOrNull(uuid)
 
         if object then
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}", object)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}", object)
         end
 
         object
@@ -123,11 +127,11 @@ class NyxObjects
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
         return set if set
         puts "-> loading set #{setid} from disk"
         set = NyxPrimaryObjects::objectsEnumerator().select{|object| object["nyxNxSet"] == setid }
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
         set
     end
 
@@ -136,13 +140,13 @@ class NyxObjects
         NyxPrimaryObjects::destroy(object["uuid"])
 
         uuid = object["uuid"]
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}")
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}")
 
         setid = object["nyxNxSet"]
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
         return if set.nil?
         set = set.reject{|o| o["uuid"] == object["uuid"] }
 
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
     end
 end

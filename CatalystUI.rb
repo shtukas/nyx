@@ -148,6 +148,9 @@ class CatalystUI
 
     # CatalystUI::standardUILoop()
     def self.standardUILoop()
+
+        haveStartedThreads = false
+
         loop {
 
             if STARTING_CODE_HASH != EstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
@@ -168,6 +171,34 @@ class CatalystUI
             end
             CatalystUI::standardDisplay(objects)
         }
+
+        if !haveStartedThreads then
+            Thread.new {
+                loop {
+                    sleep 10
+                    CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                        .select{|object| object["isRunningForLong"] }
+                        .first(1)
+                        .each{|object|
+                            Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
+                        }
+                    sleep 60
+                }
+            }
+            Thread.new {
+                loop {
+                    sleep 120
+                    Asteroids::asteroids()
+                        .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                        .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                        .reverse
+                        .first(50)
+                        .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
+                    sleep 1200
+                }
+            }
+        end
+
     end
 end
 

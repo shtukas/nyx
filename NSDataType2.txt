@@ -1,5 +1,5 @@
 
-NSDataType2, are the center of the Catalyst universe, the abstract data carriers. They are elements of NSDataType3s and contain one or more NSDataType1.
+NSDataType2
 
 {
     "uuid"             : String

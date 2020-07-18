@@ -3,24 +3,20 @@ Nyx
 
     Data
 
+        NSDataType0   # NSDataType0s.txt
+                      # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
+
+        NSDataType1   # NSDataType1.txt
+                      # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
+
+        NSDataType2   # NSDataType2.txt
+                      # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
+
         Wave          # Waves.txt
                       # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 
         Asteroid      # Asteroid.txt
                       # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
-
-        NSDataType1         # NSDataType1.txt
-                      # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
-
-        NSDataType3        # NSDataType3s.txt
-                      # nyxNxSet: "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"
-
-        NSDataType2     # NSDataType2.txt
-                      # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
-
-        NSDataType0          # NSDataType0s.txt
-                      # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
-                      # NSDataType2
 
         TextZ         # TextZ.txt
                       # nyxNxSet: "ab01a47c-bb91-4a15-93f5-b98cd3eb1866"
@@ -29,15 +25,15 @@ Nyx
 
         DescriptionZ  # DescriptionZ.txt
                       # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # NSDataType3, NSDataType2, NSDataType1
+                      # NSDataType2, NSDataType1
 
         DateTimeZ     # DateTimeZ.txt
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"
-                      # NSDataType2, NSDataType3
+                      # NSDataType2, NSDataType1
 
         Tag           # Tags.txt
                       # nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
-                      # NSDataType2
+                      # NSDataType2, NSDataType1
 
         Note          # Notes.txt
                       # nyxNxSet: "c6fad718-1306-49cf-a361-76ce85e909ca"

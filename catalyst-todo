@@ -16,21 +16,6 @@ STARTING_CODE_HASH = EstateServices::locationHashRecursively(CATALYST_CODE_FOLDE
 # -------------------------------------------------------------------------
 
 EstateServices::ensureReadiness()
-NetworkManager::ensureReadiness()
-
-Thread.new {
-    loop {
-        sleep 10
-        CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            .select{|object| object["isRunningForLong"] }
-            .first(1)
-            .each{|object|
-                Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
-            }
-        sleep 60
-    }
-}
-
 CatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------

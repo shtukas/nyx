@@ -10,7 +10,6 @@ class DateTimeZ
             "uuid"            => SecureRandom.uuid,
             "nyxNxSet"        => "1bc9b712-09be-44da-9551-f22d70a3f15d",
             "unixtime"        => Time.new.to_f,
-            "targetuuid"      => targetuuid,
             "datetimeISO8601" => datetime
         }
     end

@@ -7,16 +7,11 @@ NSDataType0 # Immutable Data Point
 
 NSDataType1: Array[NSDataType0] 
              Mutable Data Point
+             #Data
+
+NSDataType2 
+    Points to NSDataType1s and NSDataType2s
+    #Concept
 
 Asteroid 
     Contains Array[NSDataType1]
-
-NSDataType2 
-    Contains Array[NSDataType1] 
-    Aggregation of related mutable datpoints
-    Entity-ish level data
-
-NSDataType3 
-    Contains Array[NSDataType2]
-    Node of the Navigation Network (aka Knowledge Graph)
-

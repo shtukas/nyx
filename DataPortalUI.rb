@@ -14,16 +14,11 @@ class DataPortalUI
             )
 
             ms.item(
-                "network navigation from [root]", 
-                lambda { NSDataType3::landing(NSDataType3::getElementByNameOrNull("[root]")) }
-            )
-
-            ms.item(
-                "search ns3 by name", 
+                "select point by name", 
                 lambda { 
-                    ns3 = NSDataType3::picoStyleSelectNSDataType3PerNameOrNull()
-                    return if ns3.nil?
-                    NSDataType3::landing(ns3)
+                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    return if ns.nil?
+                    NavigationPoint::navigationLambda(ns).call()
                 }
             )
 
@@ -52,12 +47,11 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "ns3 (new)",
+                "ns1 (new)",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("ns3 name: ")
-                    return if description == ""
-                    ns3 = NSDataType3::issueNSDataType3(description)
-                    NSDataType3::landing(ns3)
+                    ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    return if ns1.nil?
+                    NSDataType1::landing(ns1)
                 }
             )
 
@@ -77,13 +71,6 @@ class DataPortalUI
                     return if asteroid.nil?
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            ms.item(
-                "merge two ns3s",
-                lambda { 
-                    NSDataType3::interactivelySelectTwoNSDataType3sAndMerge()
                 }
             )
 
@@ -113,11 +100,6 @@ class DataPortalUI
             ms.item(
                 "Print Generation Speed Report", 
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
-            )
-            
-            ms.item(
-                "NetworkManager::performSecondaryNetworkMaintenance()", 
-                lambda { NetworkManager::performSecondaryNetworkMaintenance() }
             )
 
             ms.item(

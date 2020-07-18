@@ -821,16 +821,3 @@ class AsteroidsOfInterest
         AsteroidsOfInterest::getCollection().values.map{|item|  item["uuid"] }
     end
 end
-
-Thread.new {
-    loop {
-        sleep 120
-        Asteroids::asteroids()
-            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-            .first(50)
-            .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
-        sleep 1200
-    }
-}

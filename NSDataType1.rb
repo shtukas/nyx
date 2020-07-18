@@ -38,11 +38,6 @@ class NSDataType1
         return "[ns1] no description and no ns0"
     end
 
-    # NSDataType1::getNSDataTypesParentsForNSDataType1(ns1)
-    def self.getNSDataTypesParentsForNSDataType1(ns1)
-        Arrows::getSourcesOfGivenSetsForTarget(ns1, ["6b240037-8f5f-4f52-841d-12106658171f", "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
-    end
-
     # NSDataType1::getNSDataType1ForSource(source)
     def self.getNSDataType1ForSource(source)
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
@@ -84,18 +79,91 @@ class NSDataType1
         loop {
             break if NyxObjects::getOrNull(ns1["uuid"]).nil?
             system("clear")
+
+            Miscellaneous::horizontalRule(false)
+
             puts NSDataType1::ns1ToString(ns1)
+
             puts ""
+
             puts "uuid: #{ns1["uuid"]}"
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+            if description then
+                puts "description: #{description}"
+            end
+            puts "date: #{NavigationPoint::getReferenceDateTime(ns1)}"
+            notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
+            if notetext then
+                puts ""
+                puts "Note:"
+                puts notetext.lines.map{|line| "    #{line}" }.join()
+            end
+            Tags::getTagsForSource(ns1)
+                .each{|tag|
+                    puts "tag: #{tag["payload"]}"
+                }
+
             puts ""
+
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item(
                 "open",
                 lambda { NSDataType1::openLastNSDataType0(ns1) }
             )
+            puts ""
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+            if description then
+                menuitems.item(
+                    "description (update)",
+                    lambda{
+                        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+                        if description.nil? then
+                            description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        else
+                            description = Miscellaneous::editTextUsingTextmate(description).strip
+                        end
+                        return if description == ""
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issue(ns1, descriptionz)
+                    }
+                )
+            else
+                menuitems.item(
+                    "description (set)",
+                    lambda{
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        return if description == ""
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issue(ns1, descriptionz)
+                    }
+                )
+            end
             menuitems.item(
-                "update description",
-                lambda { NSDataType1::giveDescriptionToNSDataType1Interactively(ns1) }
+                "datetime (update)",
+                lambda{
+                    datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns1)).strip
+                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
+                    datetimez = DateTimeZ::issue(datetime)
+                    Arrows::issue(ns1, datetimez)
+                }
+            )
+            menuitems.item(
+                "top note (edit)", 
+                lambda{ 
+                    text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    note = Notes::issue(text)
+                    Arrows::issue(ns1, note)
+                }
+            )
+            menuitems.item(
+                "tag (add)",
+                lambda {
+                    payload = LucilleCore::askQuestionAnswerAsString("tag: ")
+                    return if payload.size == 0
+                    tag = Tags::issue(payload)
+                    Arrows::issue(ns1, tag)
+                }
             )
             menuitems.item(
                 "destroy",
@@ -105,21 +173,63 @@ class NSDataType1
                     end
                 }
             )
-            puts ""
-            NSDataType1::getNSDataTypesParentsForNSDataType1(ns1).each{|ns|
-                if ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
-                    menuitems.item(
-                        "parent (type2): #{NSDataType2::ns2ToString(ns)}",
-                        lambda { NSDataType2::landing(ns) }
-                    )
-                end
-                if ns["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
-                    menuitems.item(
-                        "parent (type3): #{NSDataType3::ns3ToString(ns)}",
-                        lambda { NSDataType3::landing(ns) }
-                    )
-                end
+
+            Miscellaneous::horizontalRule(false)
+
+            NavigationPoint::navigationComingFrom(ns1).each{|ns|
+                menuitems.item(
+                    NavigationPoint::toString("upstream   : ", ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
             }
+
+            puts ""
+            NavigationPoint::navigationGoingTo(ns1).each{|ns|
+                menuitems.item(
+                    NavigationPoint::toString("downstream : ", ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
+            }
+
+            puts ""
+
+            menuitems.item(
+                "add upstream",
+                lambda {
+                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    return if ns.nil?
+                    Arrows::issue(ns, ns1)
+                }
+            )
+
+            menuitems.item(
+                "add downstream",
+                lambda {
+                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    return if ns.nil?
+                    Arrows::issue(ns1, ns)
+                }
+            )
+
+            menuitems.item(
+                "remove upstream",
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationComingFrom(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
+                    return if ns.nil?
+                    Arrows::remove(ns, ns1)
+                }
+            )
+
+            menuitems.item(
+                "remove downstream",
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationGoingTo(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
+                    return if ns.nil?
+                    Arrows::remove(ns1, ns)
+                }
+            )
+
+            puts ""
 
             status = menuitems.prompt()
             break if !status
