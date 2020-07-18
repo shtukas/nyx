@@ -7,13 +7,24 @@ class DataPortalUI
             system("clear")
 
             ms = LCoreMenuItemsNX1.new()
+
+            ms.item(
+                "general search", 
+                lambda { GeneralSearch::searchAndDive() }
+            )
+
             ms.item(
                 "network navigation from [root]", 
                 lambda { NSDataType3::landing(NSDataType3::getElementByNameOrNull("[root]")) }
             )
+
             ms.item(
-                "general search", 
-                lambda { GeneralSearch::searchAndDive() }
+                "search ns3 by name", 
+                lambda { 
+                    ns3 = NSDataType3::picoStyleSelectNSDataType3PerNameOrNull()
+                    return if ns3.nil?
+                    NSDataType3::landing(ns3)
+                }
             )
 
             puts ""

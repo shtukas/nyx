@@ -258,9 +258,20 @@ class NSDataType3
 
     # NSDataType3::getElementByNameOrNull(namex)
     def self.getElementByNameOrNull(namex)
-        NSDataType3::ns3s()
-            .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == namex }
-            .first
+        if namex == "[root]" then
+            ns3 = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("a695aa59-876a-4bb0-afc7-b1f8e9da0d66")
+            return ns3 if ns3
+        end
+
+        ns3 = NSDataType3::ns3s()
+                .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == namex }
+                .first
+
+        if ns3 and namex == "[root]" then
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("a695aa59-876a-4bb0-afc7-b1f8e9da0d66", ns3)
+        end
+
+        ns3
     end
 
     # NSDataType3::isRoot?(ns3)
