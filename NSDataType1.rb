@@ -38,6 +38,11 @@ class NSDataType1
         return "[ns1] no description and no ns0"
     end
 
+    # NSDataType1::getNSDataTypesParentsForNSDataType1(ns1)
+    def self.getNSDataTypesParentsForNSDataType1(ns1)
+        Arrows::getSourcesOfGivenSetsForTarget(ns1, ["6b240037-8f5f-4f52-841d-12106658171f", "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5"])
+    end
+
     # NSDataType1::getNSDataType1ForSource(source)
     def self.getNSDataType1ForSource(source)
         Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
@@ -100,6 +105,22 @@ class NSDataType1
                     end
                 }
             )
+            puts ""
+            NSDataType1::getNSDataTypesParentsForNSDataType1(ns1).each{|ns|
+                if ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
+                    menuitems.item(
+                        "parent (type2): #{NSDataType2::ns2ToString(ns)}",
+                        lambda { NSDataType2::landing(ns) }
+                    )
+                end
+                if ns["nyxNxSet"] == "4ebd0da9-6fe4-442e-81b9-eda8343fc1e5" then
+                    menuitems.item(
+                        "parent (type3): #{NSDataType3::ns3ToString(ns)}",
+                        lambda { NSDataType3::landing(ns) }
+                    )
+                end
+            }
+
             status = menuitems.prompt()
             break if !status
         }

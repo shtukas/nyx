@@ -117,15 +117,30 @@ class NSDataType3
             puts "NSDataType2:"
 
             # NSDataType2
-            NSDataType3::getNSDataType3NSDataType2InTimeOrder(ns3)
-                .each{|ns2|
-                    menuitems.item(
-                        NSDataType2::ns2ToString(ns2), 
-                        lambda { NSDataType2::landing(ns2) }
-                    )
+            NSDataType3::getNSDataType3ContentInTimeOrder(ns3)
+                .each{|ns|
+                    if ns["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04" then
+                        menuitems.item(
+                            NSDataType1::ns1ToString(ns), 
+                            lambda { NSDataType1::landing(ns) }
+                        )
+                    end
+                    if ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
+                        menuitems.item(
+                            NSDataType2::ns2ToString(ns), 
+                            lambda { NSDataType2::landing(ns) }
+                        )
+                    end
                 }
 
             puts ""
+            menuitems.item(
+                "add new ns1", 
+                lambda{
+                    ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    Arrows::issue(ns3, ns1)
+                }
+            )
             menuitems.item(
                 "add new ns2", 
                 lambda{
@@ -136,21 +151,29 @@ class NSDataType3
 
             if NSDataType3::canShowDiveOperations(ns3) then
                 menuitems.item(
-                    "graph maker: select multiple ns2 ; send to existing/new ns3 ; detach from this",
+                    "graph maker: select multiple ns content ; select existing/new ns3 as new target of [this] ; send selected ns to new target ; detach ns from [this]",
                     lambda {
-                        ns2s = Arrows::getTargetsOfGivenSetsForSource(ns3, ["6b240037-8f5f-4f52-841d-12106658171f"])
-                        selectedNSDataType2, _ = LucilleCore::selectZeroOrMore("ns2s", [], ns2s, toStringLambda = lambda{ |ns2| NSDataType2::ns2ToString(ns2) })
-                        return if selectedNSDataType2.size == 0
+                        toString = lambda{|ns|
+                            if ns["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04" then
+                                return NSDataType1::ns1ToString(ns)
+                            end
+                            if ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f" then
+                                return NSDataType2::ns2ToString(ns)
+                            end
+                        }
+                        nsmultiple = NSDataType3::getNSDataType3ContentInTimeOrder(ns3)
+                        selected, _ = LucilleCore::selectZeroOrMore("ns2s", [], nsmultiple, toString)
+                        return if selected.size == 0
                         puts "Now selecting/making the receiving ns3"
                         LucilleCore::pressEnterToContinue()
-                        c = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
-                        return if c.nil?
+                        new_ns3_home = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
+                        return if new_ns3_home.nil?
                         puts "Making the new ns3 a target of this"
-                        Arrows::issue(source, c)
-                        puts "Linking ns2s to ns3"
-                        selectedNSDataType2.each{|ns2| Arrows::issue(c, ns2) }
-                        puts "Unlinking ns2s from (this)"
-                        selectedNSDataType2.each{|ns2| Arrows::remove(ns3, ns2) }
+                        Arrows::issue(ns3, new_ns3_home)
+                        puts "Linking ns content to ns3"
+                        selected.each{|ns| Arrows::issue(new_ns3_home, ns) }
+                        puts "Unlinking ns content from (this)"
+                        selected.each{|ns| Arrows::remove(ns3, ns) }
                     }
                 )
             end
@@ -250,9 +273,9 @@ class NSDataType3
         .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"]}
     end
 
-    # NSDataType3::getNSDataType3NSDataType2InTimeOrder(ns3)
-    def self.getNSDataType3NSDataType2InTimeOrder(ns3)
-        Arrows::getTargetsOfGivenSetsForSource(ns3, ["6b240037-8f5f-4f52-841d-12106658171f"])
+    # NSDataType3::getNSDataType3ContentInTimeOrder(ns3)
+    def self.getNSDataType3ContentInTimeOrder(ns3)
+        Arrows::getTargetsOfGivenSetsForSource(ns3, ["6b240037-8f5f-4f52-841d-12106658171f", "c18e8093-63d6-4072-8827-14f238975d04"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
