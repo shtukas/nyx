@@ -221,7 +221,7 @@ class NSDataType2
 
             NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("content #{NavigationPoint::ufn("Type1")}: ", ns),
+                    NavigationPoint::toString("content: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
