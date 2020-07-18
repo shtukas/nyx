@@ -689,7 +689,33 @@ class Asteroids
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-        NyxObjects::destroy(asteroid)
+        Asteroids::asteroidDestroySequence(asteroid)
+    end
+
+    # Asteroids::asteroidDestroySequence(asteroid)
+    def self.asteroidDestroySequence(asteroid)
+        # The main purpose of the destroy sequence is a try and preserve data which might be useful
+        if asteroid["payload"]["type"] == "description" then
+            puts "description: #{asteroid["payload"]["description"]}"
+            if LucilleCore::askQuestionAnswerAsBoolean("should preserve description ? : ") then
+                
+                puts "Description preserving has not been implemented yet."
+                LucilleCore::pressEnterToContinue()
+            end
+        end
+
+        if asteroid["payload"]["type"] == "metal" then
+            puts Asteroids::asteroidToString(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("should preserve contents ? : ") then
+                puts "I am going to make you land on it for curation"
+                LucilleCore::pressEnterToContinue()
+                Asteroids::landing(asteroid)
+            end
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
+            NyxObjects::destroy(asteroid)
+        end
     end
 
     # Asteroids::openPayload(asteroid)

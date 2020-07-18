@@ -64,7 +64,8 @@ class DataPortalUI
             ms.item(
                 "ns2 (new)",
                 lambda { 
-                    ns2 = NSDataType2::issueNewNSDataType2Interactively()
+                    ns2 = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    return if ns2.nil?
                     NSDataType2::landing(ns2)
                 }
             )

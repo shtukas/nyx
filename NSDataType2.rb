@@ -3,14 +3,10 @@
 
 class NSDataType2
 
-    # NSDataType2::commitNSDataType2ToDisk(ns2)
-    def self.commitNSDataType2ToDisk(ns2)
-        NyxObjects::put(ns2)
-    end
-
-    # NSDataType2::issueNewNSDataType2Interactively()
-    def self.issueNewNSDataType2Interactively()
-        puts "Issuing a new NSDataType2..."
+    # NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+    def self.issueNewNSDataType2InteractivelyOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
+        return nil if description.size == 0
 
         ns2 = {
             "uuid"      => SecureRandom.uuid,
@@ -18,22 +14,11 @@ class NSDataType2
             "unixtime"  => Time.new.to_f
         }
         puts JSON.pretty_generate(ns2)
-        NSDataType2::commitNSDataType2ToDisk(ns2)
+        NyxObjects::put(ns2)
 
-        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-        if ns0 then
-            puts JSON.pretty_generate(ns0)
-            Arrows::issue(ns2, ns0)
-        end
-
-        description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
-        if description.size > 0 then
-            descriptionz = DescriptionZ::issue(description)
-            puts JSON.pretty_generate(descriptionz)
-            Arrows::issue(ns2, descriptionz)
-        end
-
-        NSDataType2::issueZeroOrMoreTagsForNSDataType2Interactively(ns2)
+        descriptionz = DescriptionZ::issue(description)
+        puts JSON.pretty_generate(descriptionz)
+        Arrows::issue(ns2, descriptionz)
 
         ns2
     end

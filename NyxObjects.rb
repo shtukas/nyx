@@ -135,6 +135,9 @@ class NyxObjects
     def self.destroy(object)
         NyxPrimaryObjects::destroy(object["uuid"])
 
+        uuid = object["uuid"]
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}")
+
         setid = object["nyxNxSet"]
         set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
         return if set.nil?

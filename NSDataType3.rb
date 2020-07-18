@@ -114,7 +114,7 @@ class NSDataType3
             # ----------------------------------------------------------
             # Contents
 
-            puts "NSDataType2:"
+            puts "Content:"
 
             # NSDataType2
             NSDataType3::getNSDataType3ContentInTimeOrder(ns3)
@@ -144,8 +144,12 @@ class NSDataType3
             menuitems.item(
                 "add new ns2", 
                 lambda{
-                    ns2 = NSDataType2::issueNewNSDataType2Interactively()
+                    puts "Going to create and empty ns2 and then we will dive into it"
+                    LucilleCore.pressEnterToContinue()
+                    ns2 = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    return if ns2.nil?
                     Arrows::issue(ns3, ns2)
+                    NSDataType2::landing(ns2)
                 }
             )
 
