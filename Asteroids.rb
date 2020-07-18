@@ -261,7 +261,6 @@ class Asteroids
             Miscellaneous::horizontalRule()
 
             puts Asteroids::asteroidToString(asteroid)
-            puts ""
 
             puts "uuid: #{asteroid["uuid"]}"
             puts "orbital type: #{asteroid["orbital"]["type"]}"
@@ -272,7 +271,6 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
-            puts ""
             menuitems.item(
                 "set asteroid description",
                 lambda { 
@@ -345,8 +343,6 @@ class Asteroids
                         lambda { NSDataType1::landing(ns1) }
                     )
                 }
-
-                puts ""
 
                 menuitems.item(
                     "add new ns1",

@@ -83,8 +83,6 @@ class NSDataType1
 
             puts NSDataType1::ns1ToString(ns1)
 
-            puts ""
-
             puts "uuid: #{ns1["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then

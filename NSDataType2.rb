@@ -91,8 +91,6 @@ class NSDataType2
 
             puts NSDataType2::ns2ToString(ns2)
 
-            puts ""
-
             puts "uuid: #{ns2["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
             if description then
@@ -105,8 +103,6 @@ class NSDataType2
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
-
-            puts ""
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
             if description then
