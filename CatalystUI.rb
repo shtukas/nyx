@@ -113,11 +113,13 @@ class CatalystUI
         if command == "::" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
+            return
         end
 
         if command == "[]" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             CatalystUI::applyNextTransformationToFile(filepath)
+            return
         end
 
         if command == "l+" then
