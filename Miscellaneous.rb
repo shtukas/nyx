@@ -113,11 +113,8 @@ class Miscellaneous
         `/usr/bin/env tput cols`.to_i
     end
 
-    # Miscellaneous::horizontalRule(withLineSkip)
-    def self.horizontalRule(withLineSkip)
-      if withLineSkip then
-        puts ""
-      end
+    # Miscellaneous::horizontalRule()
+    def self.horizontalRule()
       puts "-" * (Miscellaneous::screenWidth()-1)
     end
 

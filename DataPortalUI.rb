@@ -16,7 +16,7 @@ class DataPortalUI
             ms.item(
                 "select point by name", 
                 lambda { 
-                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    ns = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
                     return if ns.nil?
                     NavigationPoint::navigationLambda(ns).call()
                 }

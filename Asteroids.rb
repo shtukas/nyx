@@ -258,7 +258,7 @@ class Asteroids
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            Miscellaneous::horizontalRule(false)
+            Miscellaneous::horizontalRule()
 
             puts Asteroids::asteroidToString(asteroid)
             puts ""
@@ -335,7 +335,7 @@ class Asteroids
 
             if asteroid["payload"]["type"] == "metal" then
 
-                Miscellaneous::horizontalRule(true)
+                Miscellaneous::horizontalRule()
 
                 puts "NSDataType1:"
 
@@ -344,7 +344,6 @@ class Asteroids
                         NSDataType1::ns1ToString(ns1),
                         lambda { NSDataType1::landing(ns1) }
                     )
-
                 }
 
                 puts ""
@@ -360,13 +359,13 @@ class Asteroids
 
             end
 
-            Miscellaneous::horizontalRule(true)
+            Miscellaneous::horizontalRule()
 
             puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
             puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
             puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
-            Miscellaneous::horizontalRule(true)
+            Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
             break if !status
@@ -697,7 +696,6 @@ class Asteroids
         if asteroid["payload"]["type"] == "description" then
             puts "description: #{asteroid["payload"]["description"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("should preserve description ? : ", false) then
-                
                 puts "Description preserving has not been implemented yet."
                 LucilleCore::pressEnterToContinue()
             end
@@ -709,6 +707,12 @@ class Asteroids
                 puts "I am going to make you land on it for curation"
                 LucilleCore::pressEnterToContinue()
                 Asteroids::landing(asteroid)
+            else
+                # destruction of the ns1s
+                NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
+                    puts "destroying ns1: #{ns1}"
+                    NyxObjects::destroy(ns1)
+                }
             end
         end
 

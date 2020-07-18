@@ -266,7 +266,7 @@ class Waves
             wave = Waves::getOrNull(wave["uuid"])
             return if wave.nil?
 
-            Miscellaneous::horizontalRule(false)
+            Miscellaneous::horizontalRule()
 
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
@@ -278,7 +278,7 @@ class Waves
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            Miscellaneous::horizontalRule(true)
+            Miscellaneous::horizontalRule()
 
             menuitems.item(
                 "start",
@@ -329,7 +329,7 @@ class Waves
                 }
             )
 
-            Miscellaneous::horizontalRule(true)
+            Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
             break if !status

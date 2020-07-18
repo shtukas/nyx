@@ -87,7 +87,7 @@ class NSDataType2
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            Miscellaneous::horizontalRule(false)
+            Miscellaneous::horizontalRule()
 
             puts NSDataType2::ns2ToString(ns2)
 
@@ -165,7 +165,7 @@ class NSDataType2
                 }
             )
 
-            Miscellaneous::horizontalRule(true)
+            Miscellaneous::horizontalRule()
 
             NavigationPoint::navigationComingFrom(ns2).each{|ns|
                 menuitems.item(
@@ -173,53 +173,75 @@ class NSDataType2
                     NavigationPoint::navigationLambda(ns)
                 )
             }
+            menuitems.item(
+                "add upstream ns2",
+                lambda {
+                    x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    return if x.nil?
+                    Arrows::issue(x, ns2)
+                }
+            )
+            menuitems.item(
+                "remove upstream",
+                lambda {
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationComingFrom(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    return if x.nil?
+                    Arrows::remove(x, ns2)
+                }
+            )
 
-            puts ""
+            Miscellaneous::horizontalRule()
 
-            NavigationPoint::navigationGoingTo(ns2).each{|ns|
+            NavigationPoint::navigationGoingToType1(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("downstream : ", ns),
+                    NavigationPoint::toString("content ns1    : ", ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
+            }
+            menuitems.item(
+                "add existing content ns1",
+                lambda {
+                    x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
+                    return if x1.nil?
+                    Arrows::issue(ns2, x1)
+                }
+            )
+            menuitems.item(
+                "add new content ns1",
+                lambda {
+                    x1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    return if x1.nil?
+                    Arrows::issue(ns2, x1)
+                }
+            )
+
+            Miscellaneous::horizontalRule()
+
+            NavigationPoint::navigationGoingToType2(ns2).each{|ns|
+                menuitems.item(
+                    NavigationPoint::toString("downstream ns2 : ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
 
+            menuitems.item(
+                "add downstream ns2",
+                lambda {
+                    x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    return if x2.nil?
+                    Arrows::issue(ns2, x2)
+                }
+            )
+            menuitems.item(
+                "remove downstream ns2",
+                lambda {
+                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationGoingTo(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    return if x2.nil?
+                    Arrows::remove(ns2, x2)
+                }
+            )
+
             puts ""
-
-            menuitems.item(
-                "add upstream",
-                lambda {
-                    ns = NavigationPoint::selectExistingOrMakeNewNavigationPointOrNull()
-                    return if ns.nil?
-                    Arrows::issue(ns, ns2)
-                }
-            )
-
-            menuitems.item(
-                "add downstream",
-                lambda {
-                    ns = NavigationPoint::selectExistingOrMakeNewNavigationPointOrNull()
-                    return if ns.nil?
-                    Arrows::issue(ns2, ns)
-                }
-            )
-
-            menuitems.item(
-                "remove upstream",
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationComingFrom(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
-                    return if ns.nil?
-                    Arrows::remove(ns, ns2)
-                }
-            )
-
-            menuitems.item(
-                "remove downstream",
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationGoingTo(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
-                    return if ns.nil?
-                    Arrows::remove(ns2, ns)
-                }
-            )
 
             menuitems.item(
                 "/", 
