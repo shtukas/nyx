@@ -335,8 +335,6 @@ class Asteroids
 
                 Miscellaneous::horizontalRule()
 
-                puts "NSDataType1:"
-
                 NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
                     menuitems.item(
                         NSDataType1::ns1ToString(ns1),
