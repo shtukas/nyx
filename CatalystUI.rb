@@ -197,6 +197,12 @@ class CatalystUI
                     sleep 1200
                 }
             }
+            Thread.new {
+                loop {
+                    sleep 36
+                    system("#{File.dirname(__File__)}/vienna-import")
+                }
+            }
         end
 
     end

@@ -176,7 +176,7 @@ class NSDataType1
                 }
             )
 
-            Miscellaneous::horizontalRule(false)
+            Miscellaneous::horizontalRule(true)
 
             NavigationPoint::navigationComingFrom(ns1).each{|ns|
                 menuitems.item(
