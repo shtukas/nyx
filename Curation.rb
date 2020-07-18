@@ -23,6 +23,7 @@ class Curation
 
         NSDataType2::ns2s().each{|ns2|
             next if !DescriptionZ::getLastDescriptionForSourceOrNull(ns2).nil?
+            system("clear")
             puts "n2 needs description"
             sleep 2
             NSDataType2::landing(ns2)
