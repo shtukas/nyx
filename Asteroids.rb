@@ -713,9 +713,7 @@ class Asteroids
             end
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-            NyxObjects::destroy(asteroid)
-        end
+        NyxObjects::destroy(asteroid)
     end
 
     # Asteroids::openPayload(asteroid)
