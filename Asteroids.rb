@@ -173,6 +173,11 @@ class Asteroids
         asteroid
     end
 
+    # Asteroids::getNSDataType1ForAsteroid(asteroid)
+    def self.getNSDataType1ForAsteroid(asteroid)
+        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
+    end
+
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
@@ -197,7 +202,7 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    ns1s = NSDataType1::getNSDataType1ForSource(asteroid)
+                    ns1s = Asteroids::getNSDataType1ForAsteroid(asteroid)
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
@@ -271,15 +276,17 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
-            menuitems.item(
-                "set asteroid description",
-                lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                    return if description == ""
-                    asteroid["payload"]["description"] = description
-                    Asteroids::reCommitToDisk(asteroid)
-                }
-            )
+            if asteroid["payload"]["type"] == "description" then
+                menuitems.item(
+                    "set asteroid description",
+                    lambda { 
+                        description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                        return if description == ""
+                        asteroid["payload"]["description"] = description
+                        Asteroids::reCommitToDisk(asteroid)
+                    }
+                )
+            end
 
             menuitems.item(
                 "start",
@@ -335,7 +342,7 @@ class Asteroids
 
                 Miscellaneous::horizontalRule()
 
-                NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
+                Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
                     menuitems.item(
                         NSDataType1::ns1ToString(ns1),
                         lambda { NSDataType1::landing(ns1) }
@@ -703,7 +710,7 @@ class Asteroids
                 Asteroids::landing(asteroid)
             else
                 # destruction of the ns1s
-                NSDataType1::getNSDataType1ForSource(asteroid).each{|ns1|
+                Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
                     puts "destroying ns1: #{ns1}"
                     NyxObjects::destroy(ns1)
                 }
@@ -716,7 +723,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            ns1s = NSDataType1::getNSDataType1ForSource(asteroid)
+            ns1s = Asteroids::getNSDataType1ForAsteroid(asteroid)
             if ns1s.size == 0 then
                 return
             end

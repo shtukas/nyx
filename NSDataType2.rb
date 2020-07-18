@@ -57,18 +57,18 @@ class NSDataType2
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
-            str = "[ns2] [#{ns2["uuid"][0, 4]}] #{description}"
+            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         end
 
-        NavigationPoint::navigationGoingToType1(ns2).each{|ns1|
-            str = "[ns2] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
+        NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns1|
+            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         }
 
-        str = "[ns2] [#{ns2["uuid"][0, 4]}] [no description]"
+        str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] [no description]"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
         str
     end
@@ -163,14 +163,15 @@ class NSDataType2
 
             Miscellaneous::horizontalRule()
 
-            NavigationPoint::navigationComingFrom(ns2).each{|ns|
+            # We are only expecting Type2 here because Type1 don't link down to Type2
+            NavigationPoint::getUpstreamNavigationPoints(ns2).each{|ns|
                 menuitems.item(
                     NavigationPoint::toString("upstream: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
             menuitems.item(
-                "add upstream ns2",
+                "add upstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
                     x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if x.nil?
@@ -178,9 +179,9 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "remove upstream",
+                "remove upstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationComingFrom(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
                     return if x.nil?
                     Arrows::remove(x, ns2)
                 }
@@ -188,14 +189,42 @@ class NSDataType2
 
             Miscellaneous::horizontalRule()
 
-            NavigationPoint::navigationGoingToType1(ns2).each{|ns|
+            # Type2 can down stream to Type2 and Type1, we display them separately
+
+            NavigationPoint::getDownstreamNavigationPointsType2(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("content ns1: ", ns),
+                    NavigationPoint::toString("downstream #{NavigationPoint::ufn("Type2")}: ", ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
+            }
+
+            menuitems.item(
+                "add downstream #{NavigationPoint::ufn("Type2")}",
+                lambda {
+                    x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    return if x2.nil?
+                    Arrows::issue(ns2, x2)
+                }
+            )
+            menuitems.item(
+                "remove downstream #{NavigationPoint::ufn("Type2")}",
+                lambda {
+                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    return if x2.nil?
+                    Arrows::remove(ns2, x2)
+                }
+            )
+
+            Miscellaneous::horizontalRule()
+
+            NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns|
+                menuitems.item(
+                    NavigationPoint::toString("content #{NavigationPoint::ufn("Type1")}: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
             menuitems.item(
-                "add existing content ns1",
+                "add from existing #{NavigationPoint::ufn("Type1")}",
                 lambda {
                     x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
                     return if x1.nil?
@@ -203,7 +232,7 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "add new content ns1",
+                "add new #{NavigationPoint::ufn("Type1")}",
                 lambda {
                     x1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
                     return if x1.nil?
@@ -212,32 +241,6 @@ class NSDataType2
             )
 
             Miscellaneous::horizontalRule()
-
-            NavigationPoint::navigationGoingToType2(ns2).each{|ns|
-                menuitems.item(
-                    NavigationPoint::toString("downstream ns2: ", ns),
-                    NavigationPoint::navigationLambda(ns)
-                )
-            }
-
-            menuitems.item(
-                "add downstream ns2",
-                lambda {
-                    x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
-                    return if x2.nil?
-                    Arrows::issue(ns2, x2)
-                }
-            )
-            menuitems.item(
-                "remove downstream ns2",
-                lambda {
-                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationGoingTo(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
-                    return if x2.nil?
-                    Arrows::remove(ns2, x2)
-                }
-            )
-
-            puts ""
 
             menuitems.item(
                 "/", 

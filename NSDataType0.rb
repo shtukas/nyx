@@ -125,23 +125,23 @@ class NSDataType0s
 
         str = (lambda{|ns0|
             if ns0["type"] == "line" then
-                return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
+                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
             end
             if ns0["type"] == "url" then
-                return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["url"]}"
+                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["url"]}"
             end
             if ns0["type"] == "text" then
                 namedhashToFirstLine = lambda {|namedhash|
                     text = NyxBlobs::getBlobOrNull(namedhash).strip
                     line = text.size>0 ? "#{text.lines.first.strip} [* more lines *]" : "[empty text]"
                 }
-                return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
+                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
             end
             if ns0["type"] == "aion-point" then
-                return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["namedhash"]}"
+                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["namedhash"]}"
             end
             if ns0["type"] == "unique-name" then
-                return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["name"]}"
+                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["name"]}"
             end
             raise "[NSDataType0s error 2c53b113-cc79]"
         }).call(ns0)

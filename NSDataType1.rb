@@ -21,36 +21,31 @@ class NSDataType1
 
     # NSDataType1::ns1ToString(ns1)
     def self.ns1ToString(ns1)
-        ns0s = NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
+        ns0s = NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
         if description and ns0s.size > 0 then
-            return "[ns1] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
+            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
         end
         if description and ns0s.size == 0 then
-            return "[ns1] [#{ns1["uuid"][0, 4]}] #{description}"
+            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{description}"
         end
         if description.nil? and ns0s.size > 0 then
-            return "[ns1] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::ns0ToString(ns0s.last)}"
+            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::ns0ToString(ns0s.last)}"
         end
         if description.nil? and ns0s.size == 0 then
-            return "[ns1] [#{ns1["uuid"][0, 4]}] no description and no frame"
+            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] no description and no frame"
         end
     end
 
-    # NSDataType1::getNSDataType1ForSource(source)
-    def self.getNSDataType1ForSource(source)
-        Arrows::getTargetsOfGivenSetsForSource(source, ["c18e8093-63d6-4072-8827-14f238975d04"])
-    end
-
-    # NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
-    def self.getNSDataType0sForNSDataType1InTimeOrder(ns1)
+    # NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
+    def self.nsDataType1ToNSDataType0sInTimeOrder(ns1)
         Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
-    def self.getLastNSDataType1NSDataType0OrNull(ns1)
-        NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
+    # NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
+    def self.nsDataType1ToLastNSDataType0OrNull(ns1)
+        NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
             .last
     end
 
@@ -71,6 +66,17 @@ class NSDataType1
         Arrows::issue(ns1, ns0)
         NSDataType1::giveDescriptionToNSDataType1Interactively(ns1)
         ns1
+    end
+
+    # NSDataType1::openLastNSDataType0(ns1)
+    def self.openLastNSDataType0(ns1)
+        ns0 = NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
+        if ns0.nil? then
+            puts "I could not find ns0s for this ns1. Aborting"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NSDataType0s::openNSDataType0(ns1, ns0)
     end
 
     # NSDataType1::landing(ns1)
@@ -154,14 +160,14 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
+            ns0 = NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
             if ns0 then
                 menuitems.item(
                     "open: #{NSDataType0s::ns0ToString(ns0)}",
                     lambda { NSDataType1::openLastNSDataType0(ns1) }
                 )
             else
-                puts "No frame found"
+                puts "No ns0|frame found"
                 menuitems.item(
                     "create ns0|frame",
                     lambda {
@@ -174,14 +180,15 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            NavigationPoint::navigationComingFrom(ns1).each{|ns|
+            NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
+                # Because we are a Type1, we only expect Type2s here
                 menuitems.item(
-                    NavigationPoint::toString("upstream: ", ns),
+                    NavigationPoint::toString("", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
             menuitems.item(
-                "add upstream",
+                "add #{NavigationPoint::ufn("Type2")}",
                 lambda {
                     ns = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if ns.nil?
@@ -189,9 +196,9 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "remove upstream",
+                "remove #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationComingFrom(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }
@@ -199,55 +206,8 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            NavigationPoint::navigationGoingTo(ns1).each{|ns|
-                menuitems.item(
-                    NavigationPoint::toString("downstream: ", ns),
-                    NavigationPoint::navigationLambda(ns)
-                )
-            }
-
-            menuitems.item(
-                "add downstream ns1",
-                lambda {
-                    x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
-                    return if x1.nil?
-                    Arrows::issue(ns1, x1)
-                }
-            )
-
-            menuitems.item(
-                "add downstream ns2",
-                lambda {
-                    x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
-                    return if x2.nil?
-                    Arrows::issue(ns1, x2)
-                }
-            )
-
-            menuitems.item(
-                "remove downstream",
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::navigationGoingTo(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
-                    return if ns.nil?
-                    Arrows::remove(ns1, ns)
-                }
-            )
-
-            puts ""
-
             status = menuitems.prompt()
             break if !status
         }
-    end
-
-    # NSDataType1::openLastNSDataType0(ns1)
-    def self.openLastNSDataType0(ns1)
-        ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
-        if ns0.nil? then
-            puts "I could not find ns0s for this ns1. Aborting"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        NSDataType0s::openNSDataType0(ns1, ns0)
     end
 end

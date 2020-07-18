@@ -1,0 +1,18 @@
+
+Even though there can technically be an arrow between any two Nyx Objects, the program ignores the ones it doesn't expect. In prctice the current version of catalyst only expect the current topology
+
+NSDataType1
+    -> NSDataType0
+    -> DescriptionZ
+    -> DateTimeZ
+    -> Note
+
+Asteroid
+    -> NSDataType1
+
+NSDataType2
+    -> NSDataType1
+    -> NSDataType2
+    -> DescriptionZ
+    -> DateTimeZ
+    -> Note
