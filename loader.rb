@@ -129,7 +129,6 @@ require_relative "Runner.rb"
 require_relative "SectionsType0141.rb"
 require_relative "ShadowFS.rb"
 
-require_relative "Tags.rb"
 require_relative "TextZs.rb"
 
 require_relative "VideoStream.rb"

@@ -98,10 +98,6 @@ class NSDataType1
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
-            Tags::getTagsForSource(ns1)
-                .each{|tag|
-                    puts "tag: #{tag["payload"]}"
-                }
 
             puts ""
 
@@ -154,15 +150,6 @@ class NSDataType1
                     text = Miscellaneous::editTextUsingTextmate(text).strip
                     note = Notes::issue(text)
                     Arrows::issue(ns1, note)
-                }
-            )
-            menuitems.item(
-                "tag (add)",
-                lambda {
-                    payload = LucilleCore::askQuestionAnswerAsString("tag: ")
-                    return if payload.size == 0
-                    tag = Tags::issue(payload)
-                    Arrows::issue(ns1, tag)
                 }
             )
             menuitems.item(

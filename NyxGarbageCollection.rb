@@ -29,12 +29,6 @@ class NyxGarbageCollection
             NyxObjects::destroy(datetimez)
         }
 
-        Tags::tags().each{|tag|
-            next if Arrows::getSourcesForTarget(tag).size > 0
-            puts "removing tag: #{tag}"
-            NyxObjects::destroy(tag)
-        }
-
         Notes::notes().each{|note|
             next if Arrows::getSourcesForTarget(note).size > 0
             puts "removing note: #{note}"

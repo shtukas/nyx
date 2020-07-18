@@ -31,10 +31,6 @@ Nyx
                       # nyxNxSet: "1bc9b712-09be-44da-9551-f22d70a3f15d"
                       # NSDataType2, NSDataType1
 
-        Tag           # Tags.txt
-                      # nyxNxSet: "4643abd2-fec6-4184-a9ad-5ad3df3257d6"
-                      # NSDataType2, NSDataType1
-
         Note          # Notes.txt
                       # nyxNxSet: "c6fad718-1306-49cf-a361-76ce85e909ca"
                       # NSDataType2

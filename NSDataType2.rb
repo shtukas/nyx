@@ -3,6 +3,22 @@
 
 class NSDataType2
 
+    # NSDataType2::issueNewNSDataType2WithDescription(description)
+    def self.issueNewNSDataType2WithDescription(description)
+        ns2 = {
+            "uuid"      => SecureRandom.uuid,
+            "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
+            "unixtime"  => Time.new.to_f
+        }
+        puts JSON.pretty_generate(ns2)
+        NyxObjects::put(ns2)
+
+        descriptionz = DescriptionZ::issue(description)
+        puts JSON.pretty_generate(descriptionz)
+        Arrows::issue(ns2, descriptionz)
+        ns2
+    end
+
     # NSDataType2::issueNewNSDataType2InteractivelyOrNull()
     def self.issueNewNSDataType2InteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
@@ -61,7 +77,7 @@ class NSDataType2
 
             system("clear")
 
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
+            # KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -83,10 +99,6 @@ class NSDataType2
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
-            Tags::getTagsForSource(ns2)
-                .each{|tag|
-                    puts "tag: #{tag["payload"]}"
-                }
 
             puts ""
 
@@ -135,25 +147,6 @@ class NSDataType2
                     text = Miscellaneous::editTextUsingTextmate(text).strip
                     note = Notes::issue(text)
                     Arrows::issue(ns2, note)
-                }
-            )
-
-            menuitems.item(
-                "tag (add)",
-                lambda {
-                    payload = LucilleCore::askQuestionAnswerAsString("tag: ")
-                    return if payload.size == 0
-                    tag = Tags::issue(payload)
-                    Arrows::issue(ns2, tag)
-                }
-            )
-
-            menuitems.item(
-                "tag (select and remove)",
-                lambda {
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", Tags::getTagsForSource(ns2), lambda{|tag| tag["payload"] })
-                    return if tag.nil?
-                    Tags::destroyTag(tag)
                 }
             )
 

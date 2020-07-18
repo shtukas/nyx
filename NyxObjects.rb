@@ -9,7 +9,6 @@ class NyxPrimaryObjects
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "6b240037-8f5f-4f52-841d-12106658171f", # NSDataType2
-            "4643abd2-fec6-4184-a9ad-5ad3df3257d6", # Tags
             "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
