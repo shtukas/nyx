@@ -23,19 +23,18 @@ class NSDataType1
     def self.ns1ToString(ns1)
         ns0s = NSDataType1::getNSDataType0sForNSDataType1InTimeOrder(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
-        if description then
-            ns0type =
-                if ns0s.size > 0 then
-                    ns0type = " [#{ns0s.last["type"]}]"
-                else
-                    ""
-                end
-            return "[ns1]#{ns0type} #{description}"
+        if description and ns0s.size > 0 then
+            return "[ns1] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
         end
-        if ns0s.size > 0 then
-            return "[ns1] #{NSDataType0s::ns0ToString(ns0s[0])}"
+        if description and ns0s.size == 0 then
+            return "[ns1] [#{ns1["uuid"][0, 4]}] #{description}"
         end
-        return "[ns1] no description and no ns0"
+        if description.nil? and ns0s.size > 0 then
+            return "[ns1] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::ns0ToString(ns0s.last)}"
+        end
+        if description.nil? and ns0s.size == 0 then
+            return "[ns1] [#{ns1["uuid"][0, 4]}] no description and no frame"
+        end
     end
 
     # NSDataType1::getNSDataType1ForSource(source)
@@ -102,10 +101,25 @@ class NSDataType1
             puts ""
 
             menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item(
-                "open",
-                lambda { NSDataType1::openLastNSDataType0(ns1) }
-            )
+
+            ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
+            if ns0 then
+                menuitems.item(
+                    "open: #{NSDataType0s::ns0ToString(ns0)}",
+                    lambda { NSDataType1::openLastNSDataType0(ns1) }
+                )
+            else
+                puts "No frame found"
+                menuitems.item(
+                    "create ns0|frame",
+                    lambda {
+                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+                        return if ns0.nil?
+                        Arrows::issue(ns1, ns0)
+                    }
+                )
+            end
+
             puts ""
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then

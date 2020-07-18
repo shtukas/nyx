@@ -62,6 +62,12 @@ class NSDataType2
             return str
         end
 
+        NavigationPoint::navigationGoingToType1(ns2).each{|ns1|
+            str = "[ns2] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+            return str
+        }
+
         str = "[ns2] [#{ns2["uuid"][0, 4]}] [no description]"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
         str
@@ -77,7 +83,7 @@ class NSDataType2
 
             system("clear")
 
-            # KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 

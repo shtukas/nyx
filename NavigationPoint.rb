@@ -48,6 +48,11 @@ class NavigationPoint
         Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
+    # NavigationPoint::navigationGoingToType1(ns)
+    def self.navigationGoingToType1(ns)
+        Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04"])
+    end
+
     # NavigationPoint::picoStyleSelectOrNull()
     def self.picoStyleSelectOrNull()
         points = NSDataType2::ns2s()
