@@ -98,29 +98,7 @@ class NSDataType1
                 puts notetext.lines.map{|line| "    #{line}" }.join()
             end
 
-            puts ""
-
             menuitems = LCoreMenuItemsNX1.new()
-
-            ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
-            if ns0 then
-                menuitems.item(
-                    "open: #{NSDataType0s::ns0ToString(ns0)}",
-                    lambda { NSDataType1::openLastNSDataType0(ns1) }
-                )
-            else
-                puts "No frame found"
-                menuitems.item(
-                    "create ns0|frame",
-                    lambda {
-                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-                        return if ns0.nil?
-                        Arrows::issue(ns1, ns0)
-                    }
-                )
-            end
-
-            puts ""
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then
@@ -178,9 +156,29 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
+            ns0 = NSDataType1::getLastNSDataType1NSDataType0OrNull(ns1)
+            if ns0 then
+                menuitems.item(
+                    "open: #{NSDataType0s::ns0ToString(ns0)}",
+                    lambda { NSDataType1::openLastNSDataType0(ns1) }
+                )
+            else
+                puts "No frame found"
+                menuitems.item(
+                    "create ns0|frame",
+                    lambda {
+                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+                        return if ns0.nil?
+                        Arrows::issue(ns1, ns0)
+                    }
+                )
+            end
+
+            Miscellaneous::horizontalRule()
+
             NavigationPoint::navigationComingFrom(ns1).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("upstream   : ", ns),
+                    NavigationPoint::toString("upstream: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -201,16 +199,14 @@ class NSDataType1
                 }
             )
 
-            puts ""
+            Miscellaneous::horizontalRule()
 
             NavigationPoint::navigationGoingTo(ns1).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("downstream : ", ns),
+                    NavigationPoint::toString("downstream: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
-
-            puts ""
 
             menuitems.item(
                 "add downstream ns1",

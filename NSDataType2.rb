@@ -169,7 +169,7 @@ class NSDataType2
 
             NavigationPoint::navigationComingFrom(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("upstream   : ", ns),
+                    NavigationPoint::toString("upstream: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -194,7 +194,7 @@ class NSDataType2
 
             NavigationPoint::navigationGoingToType1(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("content ns1    : ", ns),
+                    NavigationPoint::toString("content ns1: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -219,7 +219,7 @@ class NSDataType2
 
             NavigationPoint::navigationGoingToType2(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("downstream ns2 : ", ns),
+                    NavigationPoint::toString("downstream ns2: ", ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
