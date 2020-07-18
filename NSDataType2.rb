@@ -52,24 +52,26 @@ class NSDataType2
 
     # NSDataType2::ns2ToString(ns2)
     def self.ns2ToString(ns2)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}")
+        cachePrefix = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82"
+
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}")
         return str if str
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
             str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
             return str
         end
 
         NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns1|
             str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
             return str
         }
 
         str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] [no description]"
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
         str
     end
 
