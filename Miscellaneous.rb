@@ -127,6 +127,11 @@ class Miscellaneous
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
+    # Miscellaneous::today()
+    def self.today()
+        Time.new.to_s[0, 10]
+    end
+
     # Miscellaneous::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
         (Time.now+86400*n).utc.iso8601[0,10]

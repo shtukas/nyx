@@ -1,13 +1,6 @@
 
 # encoding: UTF-8
 
-class NSDataType2Cached
-    # NSDataType2Cached::forget(ns2)
-    def self.forget(ns2)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # toString
-    end
-end
-
 class NSDataType2
 
     # NSDataType2::commitNSDataType2ToDisk(ns2)
@@ -90,7 +83,7 @@ class NSDataType2
 
             system("clear")
 
-            NSDataType2Cached::forget(ns2)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 

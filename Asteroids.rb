@@ -1,29 +1,5 @@
 # encoding: UTF-8
 
-class AsteroidsOfInterest
-
-    # AsteroidsOfInterest::getCollection()
-    def self.getCollection()
-        collection = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f")
-        if collection.nil? then
-            collection = {}
-        end
-        collection
-    end
-
-    # AsteroidsOfInterest::register(uuid)
-    def self.register(uuid)
-        collection = AsteroidsOfInterest::getCollection()
-        collection[uuid] = { "uuid" => uuid, "unixtime" => Time.new.to_i }
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("5d114a38-f86a-46db-a33b-747c8d7ec22f", collection)
-    end
-
-    # AsteroidsOfInterest::getUUIDs()
-    def self.getUUIDs()
-        AsteroidsOfInterest::getCollection().values.map{|item|  item["uuid"] }
-    end
-end
-
 class Asteroids
 
     # Asteroids::getOrNull(uuid)
@@ -793,6 +769,30 @@ class Asteroids
                 }
             end
         }
+    end
+end
+
+class AsteroidsOfInterest
+
+    # AsteroidsOfInterest::getCollection()
+    def self.getCollection()
+        collection = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f:#{Miscellaneous::today()}")
+        if collection.nil? then
+            collection = {}
+        end
+        collection
+    end
+
+    # AsteroidsOfInterest::register(uuid)
+    def self.register(uuid)
+        collection = AsteroidsOfInterest::getCollection()
+        collection[uuid] = { "uuid" => uuid, "unixtime" => Time.new.to_i }
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("5d114a38-f86a-46db-a33b-747c8d7ec22f:#{Miscellaneous::today()}", collection)
+    end
+
+    # AsteroidsOfInterest::getUUIDs()
+    def self.getUUIDs()
+        AsteroidsOfInterest::getCollection().values.map{|item|  item["uuid"] }
     end
 end
 
