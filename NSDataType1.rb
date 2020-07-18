@@ -121,6 +121,7 @@ class NSDataType1
             end
 
             puts ""
+
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then
                 menuitems.item(
@@ -185,6 +186,7 @@ class NSDataType1
             }
 
             puts ""
+
             NavigationPoint::navigationGoingTo(ns1).each{|ns|
                 menuitems.item(
                     NavigationPoint::toString("downstream : ", ns),

@@ -133,7 +133,7 @@ class NSDataType0s
             if ns0["type"] == "text" then
                 namedhashToFirstLine = lambda {|namedhash|
                     text = NyxBlobs::getBlobOrNull(namedhash).strip
-                    line = text.size>0 ? text.lines.first.strip : "[empty text]"
+                    line = text.size>0 ? "#{text.lines.first.strip} [* more lines *]" : "[empty text]"
                 }
                 return "[ns0] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
             end
