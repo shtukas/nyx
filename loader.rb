@@ -75,7 +75,6 @@ require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
 
-require_relative "InMemoryValueCache.rb"
 require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
 
 require_relative "KeyValueStore.rb"
