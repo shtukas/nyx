@@ -9,7 +9,7 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
             ms.item(
                 "network navigation from [root]", 
-                lambda { NSDataType3::landing(NSDataType3::getRootNSDataType3()) }
+                lambda { NSDataType3::landing(NSDataType3::getElementByNameOrNull("[root]")) }
             )
             ms.item(
                 "general search", 

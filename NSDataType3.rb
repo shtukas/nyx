@@ -256,17 +256,10 @@ class NSDataType3
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType3::getRootNSDataType3()
-    def self.getRootNSDataType3()
+    # NSDataType3::getElementByNameOrNull(namex)
+    def self.getElementByNameOrNull(namex)
         NSDataType3::ns3s()
-            .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == "[root]" }
-            .first
-    end
-
-    # NSDataType3::getAwaitingCurationNSDataType3()
-    def self.getAwaitingCurationNSDataType3()
-        NSDataType3::ns3s()
-            .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == "[AwaitingCuration]" }
+            .select{|ns3| NSDataType3::getNSDataType3DescriptionOrNull(ns3) == namex }
             .first
     end
 
@@ -355,71 +348,138 @@ class NSDataType3
         NSDataType3::mergeNSDataType3s(ns31, ns32)
     end
 
+    # NSDataType3::picoStyleSelectNSDataType3PerNameOrNull()
+    def self.picoStyleSelectNSDataType3PerNameOrNull()
+        cliquestrings = NSDataType3::ns3s().map{|ns3| NSDataType3::ns3ToString(ns3) }
+        cliquestring = Miscellaneous::chooseALinePecoStyle("clique:", [""]+cliquestrings)
+        return nil if cliquestring == ""
+        NSDataType3::ns3s()
+            .select{|ns3| NSDataType3::ns3ToString(ns3) == cliquestring }
+            .first
+    end
+
+    # NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(ns3)
+    def self.selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(ns3)
+        # This function returns
+
+        # ["operation-aborted"]
+        # ["undecided"]
+        # ["selected", ns3]
+
+        loop {
+
+            system("clear")
+            puts "-> You are looking for a ns3"
+            puts ""
+
+            puts NSDataType3::ns3ToString(ns3)
+            puts ""
+
+            options = []
+
+            options << ["select and return [this]"]
+            NSDataType3::getNSDataType3NavigationTargets(ns3).each{|c|
+                options << ["focus on", c]
+            }
+            options << ["make new target ns3 for [this] and focus on that"]
+            options << ["feeling lucky and search by name"]
+            options << ["back one step"]
+            options << ["abort search and return null"]
+
+            optionToString = lambda {|option|
+                if option.size == 1 then
+                    return option[0]
+                end
+                if option[0] == "focus on" then
+                    return "focus on: #{NSDataType3::ns3ToString(option[1])}"
+                end
+            }
+
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options, optionToString)
+            next if option.nil?
+            if option[0] == "select and return [this]" then
+                return ["selected", ns3]
+            end
+            if option[0] == "select and return" then
+                return ["selected", option[1]]
+            end
+            if option[0] == "focus on" then
+                answer = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(option[1])
+                if answer[0] == "operation-aborted" then
+                    return nil
+                end
+                if answer[0] == "undecided" then
+                    next
+                end
+                if answer[0] == "selected" then
+                    return answer
+                end
+            end
+            if option[0] == "make new target ns3 for [this] and focus on that" then
+                target = NSDataType3::issueNSDataType3InteractivelyOrNull()
+                next if target.nil?
+                Arrows::make(ns3, target)
+                answer = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(target)
+                if answer[0] == "operation-aborted" then
+                    return nil
+                end
+                if answer[0] == "undecided" then
+                    next
+                end
+                if answer[0] == "selected" then
+                    return answer
+                end
+            end
+            if option[0] == "feeling lucky and search by name" then
+                x3 = NSDataType3::picoStyleSelectNSDataType3PerNameOrNull()
+                next if x3.nil?
+                answer = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(x3)
+                if answer[0] == "operation-aborted" then
+                    return nil
+                end
+                if answer[0] == "undecided" then
+                    next
+                end
+                if answer[0] == "selected" then
+                    return answer
+                end
+            end
+            if option[0] == "back one step" then
+                return ["undecided"]
+            end
+            if option[0] == "abort search and return null" then
+                return ["operation-aborted"]
+            end
+
+        }
+
+    end
+
     # NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3 = nil)
     def self.selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3 = nil)
         if ns3.nil? then
-            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(NSDataType3::getRootNSDataType3())
+            ns3 = NSDataType3::getElementByNameOrNull("[root]")
         end
-        system("clear")
-        puts NSDataType3::ns3ToString(ns3)
-        puts ""
 
-        options = []
+        answer = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(ns3)
+        # The answer is either of
 
-        options << ["select and return current"]
-        NSDataType3::getNSDataType3NavigationTargets(ns3).each{|c|
-            options << ["select and return this target", c]
-        }
-        NSDataType3::getNSDataType3NavigationTargets(ns3).each{|c|
-            options << ["search into", c]
-        }
-        options << ["make new target ns3 for current and move to that"]
-        options << ["back to source"]
-        options << ["abort search and return null"]
+        # ["operation-aborted"]
+        # ["undecided"]
+        # ["selected", ns3]
 
-        optionToString = lambda {|option|
-            if option.size == 1 then
-                return option[0]
-            end
-            if option[0] == "select and return this target" then
-                return "select and return this target: #{NSDataType3::ns3ToString(option[1])}"
-            end
-            if option[0] == "search into" then
-                return "search into: #{NSDataType3::ns3ToString(option[1])}"
-            end
-        }
-
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options, optionToString)
-        if option.nil? then
-            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3)
-        end
-        if option[0] == "select and return current" then
-            return ns3
-        end
-        if option[0] == "select and return this target" then
-            return option[1]
-        end
-        if option[0] == "search into" then
-            resultSearch = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(option[1])
-            if resultSearch == "back to source" then
-                return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3)
-            end
-            return resultSearch # which can be a ns3 or nil
-        end
-        if option[0] == "make new target ns3 for current and move to that" then
-            target = NSDataType3::issueNSDataType3InteractivelyOrNull()
-            if target.nil? then
-                return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(ns3)
-            end
-            Arrows::make(ns3, target)
-            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull(target)
-        end
-        if option[0] == "back to source" then
-            return "back to source"
-        end
-        if option[0] == "abort search and return null" then
+        if answer[0] == "operation-aborted" then
             return nil
         end
-        raise "[43fd640a-b070-46b8] #{JSON.generate(option)}"
+
+        if answer[0] == "undecided" then
+            return NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNullXCore(NSDataType3::getElementByNameOrNull("[root]"))
+        end
+
+        if answer[0] == "selected" then
+            return answer[1]
+        end
+
+        raise "[error: de07b53b-902b]"
     end
 end

@@ -23,7 +23,7 @@ class Curation
 
         time1 = Time.new.to_f
 
-        NSDataType3::getNSDataType3NavigationTargets(NSDataType3::getRootNSDataType3())
+        NSDataType3::getNSDataType3NavigationTargets(NSDataType3::getElementByNameOrNull("[root]"))
         .each{|ns3|
             system("clear")
             next if KeyValueStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
