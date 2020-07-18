@@ -542,8 +542,8 @@ class Asteroids
             Asteroids::openPayload(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
             end
+            return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
@@ -551,8 +551,8 @@ class Asteroids
             Asteroids::openPayload(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
             end
+            return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
@@ -560,15 +560,14 @@ class Asteroids
             Asteroids::openPayload(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
             end
+            return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "description" then
             Asteroids::asteroidStartSequence(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
             end
             return
         end
