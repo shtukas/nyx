@@ -85,32 +85,6 @@ class NyxPrimaryObjects
     end
 end
 
-NyxObjectsCacheKey = "fd1c4b94-b6cb-4222-9715-fe201ed98023"
-
-$NyxObjectsStructure = nil # Each key is a setid
-
-if $NyxObjectsStructure.nil? then
-    structure = KeyToStringOnDiskStore::getOrNull(nil, NyxObjectsCacheKey)
-    if structure then
-        puts "-> Loading from cache"
-        $NyxObjectsStructure = JSON.parse(structure)
-    end
-end
-
-if $NyxObjectsStructure.nil? then
-    puts "-> Loading from primary store"
-    structure = {}
-    NyxPrimaryObjects::objectsEnumerator().each{|object|
-        setid = object["nyxNxSet"]
-        if structure[setid].nil? then
-            structure[setid] = {}
-        end
-        structure[setid][object["uuid"]] = object
-    }
-    $NyxObjectsStructure = structure
-    KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate(structure))
-end
-
 # ------------------------------------------------------------------------------
 # The rest of Catalyst should not know anything of what happens before this line
 # ------------------------------------------------------------------------------
@@ -121,66 +95,51 @@ class NyxObjects
     def self.put(object)
         NyxPrimaryObjects::put(object)
 
+        uuid = object["uuid"]
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}", object)
+
         # Then we put the object into its cached set
         setid = object["nyxNxSet"]
-        if $NyxObjectsStructure[setid].nil? then
-            $NyxObjectsStructure[setid] = {}
-        end
-        $NyxObjectsStructure[setid][object["uuid"]] = object
-        KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
-    end
-
-    # NyxObjects::objects()
-    def self.objects()
-        # NyxPrimaryObjects::objects()
-
-        NyxPrimaryObjects::nyxNxSets()
-            .map{|setid| 
-                if $NyxObjectsStructure[setid].nil? then
-                    $NyxObjectsStructure[setid] = {}
-                end
-                $NyxObjectsStructure[setid].values
-            }
-            .flatten
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        return if set.nil?
+        set = set.reject{|o| o["uuid"] == object["uuid"] }
+        set << object
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
     end
 
     # NyxObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        # NyxPrimaryObjects::getOrNull(uuid)
-        
-        NyxPrimaryObjects::nyxNxSets()
-            .each{|setid|
-                if $NyxObjectsStructure[setid].nil? then
-                    $NyxObjectsStructure[setid] = {}
-                end
-                if $NyxObjectsStructure[setid][uuid] then
-                    return $NyxObjectsStructure[setid][uuid]
-                end
-            }
-        nil
+        object = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}")
+        return object if object 
+
+        object = NyxPrimaryObjects::getOrNull(uuid)
+
+        if object then
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("E28D1A03-C8B8-4FE2-81F3-48FEF9E476EA:object:#{uuid}", object)
+        end
+
+        object
     end
 
     # NyxObjects::getSet(setid)
     def self.getSet(setid)
-        #NyxObjects::objects().select{|object| object["nyxNxSet"] == setid }
-
-        if $NyxObjectsStructure[setid].nil? then
-            $NyxObjectsStructure[setid] = {}
-        end
-        $NyxObjectsStructure[setid].values
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        return set if set
+        puts "-> loading set #{setid} from disk"
+        set = NyxPrimaryObjects::objectsEnumerator().select{|object| object["nyxNxSet"] == setid }
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
+        set
     end
 
     # NyxObjects::destroy(object)
     def self.destroy(object)
         NyxPrimaryObjects::destroy(object["uuid"])
 
-        NyxPrimaryObjects::nyxNxSets()
-            .each{|setid|
-                if $NyxObjectsStructure[setid].nil? then
-                    $NyxObjectsStructure[setid] = {}
-                end
-                $NyxObjectsStructure[setid].delete(object["uuid"])
-            }
-        KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
+        setid = object["nyxNxSet"]
+        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}")
+        return if set.nil?
+        set = set.reject{|o| o["uuid"] == object["uuid"] }
+
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("168EA117-DF10-449E-BF6F-B7E037F8B837:set:#{setid}", set)
     end
 end

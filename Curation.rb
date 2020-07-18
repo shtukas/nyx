@@ -23,10 +23,11 @@ class Curation
 
         time1 = Time.new.to_f
 
-        NSDataType3::getNSDataType3NavigationTargets(NSDataType3::getElementByNameOrNull("[root]"))
+        unconnected = NSDataType3::getElementByNameOrNull("[unconnected]")
+
+        NSDataType3::getNSDataType3NavigationTargets(unconnected)
         .each{|ns3|
             system("clear")
-            next if KeyToStringOnDiskStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
 
             puts "Network placement curation"
             puts NSDataType3::ns3ToString(ns3)
@@ -39,9 +40,8 @@ class Curation
             parent = NSDataType3::selectExistingOrNewNSDataType3FromRootNavigationOrNull()
             if parent then
                 Arrows::make(parent, ns3)
+                Arrows::remove(unconnected, ns3)
             end
-
-            KeyToStringOnDiskStore::setFlagTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
             break
         }
 
