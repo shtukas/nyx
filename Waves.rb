@@ -324,7 +324,7 @@ class Waves
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                        NyxObjects::destroy(wave["uuid"])
+                        NyxObjects::destroy(wave)
                     end
                 }
             )

@@ -36,7 +36,7 @@ class Arrows
                 b2 = (arrow["targetuuid"] == target["uuid"])
                 b1 and b2
             }
-            .each{|arrow| NyxObjects::destroy(arrow["uuid"]) }
+            .each{|arrow| NyxObjects::destroy(arrow) }
     end
 
     # Arrows::exists?(source, target)

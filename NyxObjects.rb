@@ -90,7 +90,7 @@ NyxObjectsCacheKey = "fd1c4b94-b6cb-4222-9715-fe201ed98023"
 $NyxObjectsStructure = nil # Each key is a setid
 
 if $NyxObjectsStructure.nil? then
-    structure = KeyValueStore::getOrNull(nil, NyxObjectsCacheKey)
+    structure = KeyToStringOnDiskStore::getOrNull(nil, NyxObjectsCacheKey)
     if structure then
         puts "-> Loading from cache"
         $NyxObjectsStructure = JSON.parse(structure)
@@ -108,7 +108,7 @@ if $NyxObjectsStructure.nil? then
         structure[setid][object["uuid"]] = object
     }
     $NyxObjectsStructure = structure
-    KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate(structure))
+    KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate(structure))
 end
 
 # ------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ class NyxObjects
             $NyxObjectsStructure[setid] = {}
         end
         $NyxObjectsStructure[setid][object["uuid"]] = object
-        KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
+        KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
     end
 
     # NyxObjects::objects()
@@ -170,17 +170,17 @@ class NyxObjects
         $NyxObjectsStructure[setid].values
     end
 
-    # NyxObjects::destroy(uuid)
-    def self.destroy(uuid)
-        NyxPrimaryObjects::destroy(uuid)
+    # NyxObjects::destroy(object)
+    def self.destroy(object)
+        NyxPrimaryObjects::destroy(object["uuid"])
 
         NyxPrimaryObjects::nyxNxSets()
             .each{|setid|
                 if $NyxObjectsStructure[setid].nil? then
                     $NyxObjectsStructure[setid] = {}
                 end
-                $NyxObjectsStructure[setid].delete(uuid)
+                $NyxObjectsStructure[setid].delete(object["uuid"])
             }
-        KeyValueStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
+        KeyToStringOnDiskStore::set(nil, NyxObjectsCacheKey, JSON.generate($NyxObjectsStructure))
     end
 end

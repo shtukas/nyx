@@ -2,14 +2,14 @@
 # encoding: UTF-8
 
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::setFlagTrue(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::setFlagFalse(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::flagIsTrue(repositorylocation or nil, key)
 
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::set(repositorylocation or nil, key, value)
+    KeyToStringOnDiskStore::getOrNull(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyToStringOnDiskStore::destroy(repositorylocation or nil, key)
 =end
 
 class Curation
@@ -26,7 +26,7 @@ class Curation
         NSDataType3::getNSDataType3NavigationTargets(NSDataType3::getElementByNameOrNull("[root]"))
         .each{|ns3|
             system("clear")
-            next if KeyValueStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
+            next if KeyToStringOnDiskStore::flagIsTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
 
             puts "Network placement curation"
             puts NSDataType3::ns3ToString(ns3)
@@ -41,7 +41,7 @@ class Curation
                 Arrows::make(parent, ns3)
             end
 
-            KeyValueStore::setFlagTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
+            KeyToStringOnDiskStore::setFlagTrue(nil, "8f392e54-db01-477a-b923-39c345c66f01:#{ns3["uuid"]}")
             break
         }
 

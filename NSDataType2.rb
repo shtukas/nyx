@@ -4,7 +4,7 @@
 class NSDataType2Cached
     # NSDataType2Cached::forget(ns2)
     def self.forget(ns2)
-        InMemoryWithOnDiskPersistenceValueCache::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # toString
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # toString
     end
 end
 
@@ -56,32 +56,27 @@ class NSDataType2
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType2::destroyNSDataType2ByUUID(uuid)
-    def self.destroyNSDataType2ByUUID(uuid)
-        NyxObjects::destroy(uuid)
-    end
-
     # NSDataType2::ns2ToString(ns2)
     def self.ns2ToString(ns2)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}")
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}")
         return str if str
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
             str = "[ns2] [#{ns2["uuid"][0, 4]}] #{description}"
-            InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         end
 
         ns1 = NSDataType2::getNSDataType2NSDataType1sInTimeOrder(ns2).last
         if ns1 then
             str = "[ns2] #{NSDataType1::ns1ToString(ns1)}"
-            InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
             return str
         end
 
         str = "[ns2] [#{ns2["uuid"][0, 4]}] [no description]"
-        InMemoryWithOnDiskPersistenceValueCache::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}", str)
         str
     end
 
@@ -199,7 +194,7 @@ class NSDataType2
                 "ns2 (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
-                        NyxObjects::destroy(ns2["uuid"])
+                        NyxObjects::destroy(ns2)
                     end
                 }
             )

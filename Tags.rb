@@ -32,6 +32,6 @@ class Tags
 
     # Tags::destroyTag(tag)
     def self.destroyTag(tag)
-        NyxObjects::destroy(tag["uuid"])
+        NyxObjects::destroy(tag)
     end
 end

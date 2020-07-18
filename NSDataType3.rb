@@ -105,7 +105,7 @@ class NSDataType3
                 "ns3 (destroy)", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns3 ? ") then
-                        NyxObjects::destroy(ns3["uuid"])
+                        NyxObjects::destroy(ns3)
                     end
                 }
             )
@@ -321,7 +321,7 @@ class NSDataType3
         # We take everything connected to ns32, link that to ns31 and delete ns32
         Arrows::getTargetsOfGivenSetsForSource(ns32, ["6b240037-8f5f-4f52-841d-12106658171f"])
             .each{|ns2| Arrows::issue(ns31, ns2) }
-        NyxObjects::destroy(ns32["uuid"])
+        NyxObjects::destroy(ns32)
     end
 
     # NSDataType3::interactivelySelectTwoNSDataType3sAndMerge()

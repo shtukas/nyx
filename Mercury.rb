@@ -20,7 +20,7 @@ class Mercury
 
     # Mercury::getIndexObject(channel)
     def self.getIndexObject(channel)
-        obj = KeyValueStore::getOrNull(nil, "#{Mercury::prefix(channel)}:9c0587c3-cdab-4404-a3c0-ba3cc744766c")
+        obj = KeyToStringOnDiskStore::getOrNull(nil, "#{Mercury::prefix(channel)}:9c0587c3-cdab-4404-a3c0-ba3cc744766c")
         if obj.nil? then
             obj = {
                 "index"  => 0,
@@ -37,7 +37,7 @@ class Mercury
         if iobject["length"] == 0 then
             iobject["index"] == 0
         end
-        KeyValueStore::set(nil, "#{Mercury::prefix(channel)}:9c0587c3-cdab-4404-a3c0-ba3cc744766c", JSON.generate(iobject))
+        KeyToStringOnDiskStore::set(nil, "#{Mercury::prefix(channel)}:9c0587c3-cdab-4404-a3c0-ba3cc744766c", JSON.generate(iobject))
     end
 
     # Mercury::setValue(channel, indx, value)
@@ -46,12 +46,12 @@ class Mercury
             "unixtime" => Time.new.to_i,
             "value"    => value
         }
-        KeyValueStore::set(nil, "#{Mercury::prefix(channel)}:1485aa79-e621-4ab1-9ed1-4b8c60137d3d:#{indx}", JSON.generate(envelop))
+        KeyToStringOnDiskStore::set(nil, "#{Mercury::prefix(channel)}:1485aa79-e621-4ab1-9ed1-4b8c60137d3d:#{indx}", JSON.generate(envelop))
     end
 
     # Mercury::getValueEnvelop(channel, indx)
     def self.getValueEnvelop(channel, indx)
-        envelop = KeyValueStore::getOrNull(nil, "#{Mercury::prefix(channel)}:1485aa79-e621-4ab1-9ed1-4b8c60137d3d:#{indx}")
+        envelop = KeyToStringOnDiskStore::getOrNull(nil, "#{Mercury::prefix(channel)}:1485aa79-e621-4ab1-9ed1-4b8c60137d3d:#{indx}")
         # We are making the assumption that the index object is correct and that therefore
         # the envelop is not null
         raise "Mercury getValueEnvelop error (e4ad6a5e)" if envelop.nil?

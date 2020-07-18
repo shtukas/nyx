@@ -22,7 +22,7 @@ class BTreeSetsInternals
     # BTreeSetsInternals::getRootNode(repositorylocation, setuuid)
     def self.getRootNode(repositorylocation, setuuid)
         rootkey = BTreeSetsInternals::getRootNodeLocationKey(setuuid)
-        treenode = KeyValueStore::getOrNull(repositorylocation, rootkey)
+        treenode = KeyToStringOnDiskStore::getOrNull(repositorylocation, rootkey)
         return JSON.parse(treenode) if treenode
         treenode = {
             "locationKey"           => rootkey,
@@ -31,14 +31,14 @@ class BTreeSetsInternals
             "leftChildLocationKey"  => nil,
             "rightChildLocationKey" => nil
         }
-        KeyValueStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
+        KeyToStringOnDiskStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
         treenode
     end
 
     # BTreeSetsInternals::recursivelyExtractTreeNodeOrNull(repositorylocation, nextLocationKeyToLookAt, nodeuuid)
     def self.recursivelyExtractTreeNodeOrNull(repositorylocation, nextLocationKeyToLookAt, nodeuuid)
         #puts "BTreeSetsInternals::recursivelyExtractTreeNodeOrNull(#{repositorylocation}, #{nextLocationKeyToLookAt}, #{nodeuuid})"
-        treenode = KeyValueStore::getOrNull(repositorylocation, nextLocationKeyToLookAt)
+        treenode = KeyToStringOnDiskStore::getOrNull(repositorylocation, nextLocationKeyToLookAt)
         return nil if treenode.nil?
         treenode = JSON.parse(treenode)
         if treenode["nodeuuid"] == nodeuuid then
@@ -58,7 +58,7 @@ class BTreeSetsInternals
     # BTreeSetsInternals::recursivelyExtractValues(repositorylocation, nextLocationKeyToLookAtOrNull): Array[Value]
     def self.recursivelyExtractValues(repositorylocation, nextLocationKeyToLookAtOrNull)
         return [] if nextLocationKeyToLookAtOrNull.nil?
-        treenode = KeyValueStore::getOrNull(repositorylocation, nextLocationKeyToLookAtOrNull)
+        treenode = KeyToStringOnDiskStore::getOrNull(repositorylocation, nextLocationKeyToLookAtOrNull)
         return [] if treenode.nil?
         treenode = JSON.parse(treenode)
         ( [ treenode["nodevalue"] ] + BTreeSetsInternals::recursivelyExtractValues(repositorylocation, treenode["leftChildLocationKey"]) + BTreeSetsInternals::recursivelyExtractValues(repositorylocation, treenode["rightChildLocationKey"]) ).compact
@@ -69,13 +69,13 @@ class BTreeSetsInternals
         #puts "BTreeSetsInternals::putValue(#{repositorylocation}, #{focusTreeNode}, #{nodeuuid}, #{value})"
         if focusTreeNode["nodeuuid"] == nodeuuid then
             focusTreeNode["nodevalue"] = value
-            KeyValueStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
+            KeyToStringOnDiskStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
             return
         end
         if focusTreeNode["nodeuuid"] < nodeuuid then
             # We put the value on the right hand side of the node, we might have to actually create the child
             if focusTreeNode["rightChildLocationKey"] then
-                treenode = KeyValueStore::getOrNull(repositorylocation, focusTreeNode["rightChildLocationKey"])
+                treenode = KeyToStringOnDiskStore::getOrNull(repositorylocation, focusTreeNode["rightChildLocationKey"])
                 if treenode.nil? then
                     puts "TreeSets: condition e359b4cd, this is not supposed to happen. Exiting."
                     exit
@@ -90,15 +90,15 @@ class BTreeSetsInternals
                     "leftChildLocationKey"  => nil,
                     "rightChildLocationKey" => nil
                 }
-                KeyValueStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
+                KeyToStringOnDiskStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
                 focusTreeNode["rightChildLocationKey"] = treenode["locationKey"]
-                KeyValueStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
+                KeyToStringOnDiskStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
             end
         end
         if focusTreeNode["nodeuuid"] > nodeuuid then
             # We put the value on the right hand side of the node, we might have to actually create the child
             if focusTreeNode["leftChildLocationKey"] then
-                treenode = KeyValueStore::getOrNull(repositorylocation, focusTreeNode["leftChildLocationKey"])
+                treenode = KeyToStringOnDiskStore::getOrNull(repositorylocation, focusTreeNode["leftChildLocationKey"])
                 if treenode.nil? then
                     puts "TreeSets: condition 7cb1afba, this is not supposed to happen. Exiting."
                     exit
@@ -113,9 +113,9 @@ class BTreeSetsInternals
                     "leftChildLocationKey"  => nil,
                     "rightChildLocationKey" => nil
                 }
-                KeyValueStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
+                KeyToStringOnDiskStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
                 focusTreeNode["leftChildLocationKey"] = treenode["locationKey"]
-                KeyValueStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
+                KeyToStringOnDiskStore::set(repositorylocation, focusTreeNode["locationKey"], JSON.generate(focusTreeNode))
             end            
         end
     end
@@ -171,7 +171,7 @@ class BTreeSets
         treenode = BTreeSetsInternals::recursivelyExtractTreeNodeOrNull(repositorylocation, nextLocationKeyToLookAt, nodeuuid)
         return if treenode.nil?
         treenode["nodevalue"] = nil
-        KeyValueStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
+        KeyToStringOnDiskStore::set(repositorylocation, treenode["locationKey"], JSON.generate(treenode))
     end
 
 end

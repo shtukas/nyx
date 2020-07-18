@@ -44,6 +44,6 @@ class DescriptionZ
 
     # DescriptionZ::destroy(object)
     def self.destroy(object)
-        NyxObjects::destroy(object["uuid"])
+        NyxObjects::destroy(object)
     end
 end

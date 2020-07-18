@@ -4,7 +4,7 @@ class AsteroidsOfInterest
 
     # AsteroidsOfInterest::getCollection()
     def self.getCollection()
-        collection = InMemoryWithOnDiskPersistenceValueCache::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f")
+        collection = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f")
         if collection.nil? then
             collection = {}
         end
@@ -15,7 +15,7 @@ class AsteroidsOfInterest
     def self.register(uuid)
         collection = AsteroidsOfInterest::getCollection()
         collection[uuid] = { "uuid" => uuid, "unixtime" => Time.new.to_i }
-        InMemoryWithOnDiskPersistenceValueCache::set("5d114a38-f86a-46db-a33b-747c8d7ec22f", collection)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("5d114a38-f86a-46db-a33b-747c8d7ec22f", collection)
     end
 
     # AsteroidsOfInterest::getUUIDs()
@@ -38,7 +38,7 @@ class Asteroids
 
     # Asteroids::reCommitToDisk(asteroid)
     def self.reCommitToDisk(asteroid)
-        NyxObjects::destroy(asteroid["uuid"])
+        NyxObjects::destroy(asteroid)
         NyxObjects::put(asteroid)
     end
 
@@ -713,7 +713,7 @@ class Asteroids
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-        NyxObjects::destroy(asteroid["uuid"])
+        NyxObjects::destroy(asteroid)
     end
 
     # Asteroids::openPayload(asteroid)

@@ -96,7 +96,7 @@ class NSDataType1
                 "destroy",
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                        NyxObjects::destroy(ns1["uuid"])
+                        NyxObjects::destroy(ns1)
                     end
                 }
             )

@@ -22,7 +22,7 @@ class Drives
                     puts "nhash          : #{nhash}"
                     rootlocationkey = "2722ef66-6375-484d-8ee8-e0a4147d94aa:#{drive["drivename"]}:#{shadowpath}"
                     puts "rootlocationkey: #{rootlocationkey}"
-                    KeyValueStore::set(nil, rootlocationkey, nhash)
+                    KeyToStringOnDiskStore::set(nil, rootlocationkey, nhash)
                 end
             }
         }

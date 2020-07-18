@@ -210,7 +210,7 @@ class ShadowFSOperator
 
     def commitBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
+        KeyToStringOnDiskStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
         nhash
     end
 
@@ -219,7 +219,7 @@ class ShadowFSOperator
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = KeyValueStore::getOrNull(nil, nhash)
+        blob = KeyToStringOnDiskStore::getOrNull(nil, nhash)
         raise "[ShadowFSOperator error: fc1dd1aa]" if blob.nil?
         blob
     end

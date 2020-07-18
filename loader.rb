@@ -75,18 +75,18 @@ require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
 
-require_relative "InMemoryWithOnDiskPersistenceValueCache.rb"
+require_relative "KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore.rb"
 
-require_relative "KeyValueStore.rb"
+require_relative "KeyToStringOnDiskStore.rb"
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::setFlagTrue(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::setFlagFalse(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::flagIsTrue(repositorylocation or nil, key)
 
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::set(repositorylocation or nil, key, value)
+    KeyToStringOnDiskStore::getOrNull(repositorylocation or nil, key)
+    KeyToStringOnDiskStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyToStringOnDiskStore::destroy(repositorylocation or nil, key)
 =end
 
 require_relative "Librarian.rb"

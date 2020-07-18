@@ -4,7 +4,7 @@
 class NSDataType0Cached
     # NSDataType0Cached::forget(ns0)
     def self.forget(ns0)
-        InMemoryWithOnDiskPersistenceValueCache::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}")
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}")
     end
 end
 
@@ -127,7 +127,7 @@ class NSDataType0s
 
     # NSDataType0s::ns0ToString(ns0)
     def self.ns0ToString(ns0)
-        str = InMemoryWithOnDiskPersistenceValueCache::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}")
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}")
         return str if str
 
         str = (lambda{|ns0|
@@ -153,7 +153,7 @@ class NSDataType0s
             raise "[NSDataType0s error 2c53b113-cc79]"
         }).call(ns0)
 
-        InMemoryWithOnDiskPersistenceValueCache::set("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}", str)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{ns0["uuid"]}", str)
         str
     end
 

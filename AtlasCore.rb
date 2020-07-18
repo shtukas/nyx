@@ -44,7 +44,7 @@ class AtlasCore
         AtlasCore::locationEnumerator(AtlasCore::allPossibleStandardScanRoots())
             .each{|location|
                 if AtlasCore::locationIsTarget(location, uniquestring) then
-                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
+                    KeyToStringOnDiskStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
                     return location
                 end
             }
@@ -53,13 +53,13 @@ class AtlasCore
 
     # AtlasCore::uniqueStringToLocationOrNull(uniquestring)
     def self.uniqueStringToLocationOrNull(uniquestring)
-        maybefilepath = KeyValueStore::getOrNull(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
+        maybefilepath = KeyToStringOnDiskStore::getOrNull(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
         if maybefilepath and File.exists?(maybefilepath) and AtlasCore::locationIsTarget(maybefilepath, uniquestring) then
             return maybefilepath
         end
         maybefilepath = AtlasCore::uniqueStringToLocationOrNullUseTheForce(uniquestring)
         if maybefilepath then
-            KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", maybefilepath)
+            KeyToStringOnDiskStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", maybefilepath)
         end
         maybefilepath
     end
