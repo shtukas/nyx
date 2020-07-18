@@ -697,7 +697,7 @@ class Asteroids
         # The main purpose of the destroy sequence is a try and preserve data which might be useful
         if asteroid["payload"]["type"] == "description" then
             puts "description: #{asteroid["payload"]["description"]}"
-            if LucilleCore::askQuestionAnswerAsBoolean("should preserve description ? : ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("should preserve description ? : ", false) then
                 
                 puts "Description preserving has not been implemented yet."
                 LucilleCore::pressEnterToContinue()
