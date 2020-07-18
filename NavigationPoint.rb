@@ -69,6 +69,14 @@ class NavigationPoint
         NavigationPoint::picoStyleSelectOrNull()
     end
 
+    # NavigationPoint::selectExistingOrMakeNewNavigationPointOrNull()
+    def self.selectExistingOrMakeNewNavigationPointOrNull()
+        ns2 = NavigationPoint::selectExistingNavigationPointOrNull()
+        return ns2 if ns2
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
+        NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+    end
+
     # NavigationPoint::getReferenceDateTime(ns)
     def self.getReferenceDateTime(ns)
         datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)

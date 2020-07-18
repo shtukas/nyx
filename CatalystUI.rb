@@ -199,7 +199,7 @@ class CatalystUI
             }
             Thread.new {
                 loop {
-                    sleep 36
+                    sleep 3600
                     system("#{File.dirname(__File__)}/vienna-import")
                 }
             }

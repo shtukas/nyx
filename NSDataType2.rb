@@ -188,7 +188,7 @@ class NSDataType2
             menuitems.item(
                 "add upstream",
                 lambda {
-                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    ns = NavigationPoint::selectExistingOrMakeNewNavigationPointOrNull()
                     return if ns.nil?
                     Arrows::issue(ns, ns2)
                 }
@@ -197,7 +197,7 @@ class NSDataType2
             menuitems.item(
                 "add downstream",
                 lambda {
-                    ns = NavigationPoint::selectExistingNavigationPointOrNull()
+                    ns = NavigationPoint::selectExistingOrMakeNewNavigationPointOrNull()
                     return if ns.nil?
                     Arrows::issue(ns2, ns)
                 }
