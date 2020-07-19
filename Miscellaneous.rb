@@ -255,7 +255,7 @@ class Miscellaneous
             ns0 = NSDataType0s::issueAionPoint(namedhash)
             puts JSON.pretty_generate(ns0)
             ns1 = NSDataType1::issue()
-            Arrows::issue(ns1, ns0)
+            Arrows::issueOrException(ns1, ns0)
             asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)

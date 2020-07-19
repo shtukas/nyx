@@ -70,11 +70,11 @@ class DataPortalUI
 
                     # Moving all the page upstreams of page2 towards page 1
                     NavigationPoint::getUpstreamNavigationPoints(page2).each{|x|
-                        Arrows::issue(x, page1)
+                        Arrows::issueOrException(x, page1)
                     }
                     # Moving all the downstreams of page2 toward page 1
                     NavigationPoint::getDownstreamNavigationPoints(page2).each{|x|
-                        Arrows::issue(page1, x)
+                        Arrows::issueOrException(page1, x)
                     }
                     NyxObjects::destroy(page2)
                 }

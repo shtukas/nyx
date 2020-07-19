@@ -47,7 +47,7 @@ loop {
 
     ns0 = NSDataType0s::issueUrl(link)
     ns1 = NSDataType1::issue()
-    Arrows::issue(ns1, ns0)
+    Arrows::issueOrException(ns1, ns0)
     asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
     viennaLinkFeeder.done(link)
 }

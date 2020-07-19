@@ -46,7 +46,7 @@ class DeskOperator
                 next
             end
             newns0 = NSDataType0s::issueAionPoint(namedhash)
-            Arrows::issue(ns1, newns0)
+            Arrows::issueOrException(ns1, newns0)
             puts "new ns0:"
             puts JSON.pretty_generate(newns0)
             LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)

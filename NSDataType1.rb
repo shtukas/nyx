@@ -59,7 +59,7 @@ class NSDataType1
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
         descriptionz = DescriptionZ::issue(description)
-        Arrows::issue(ns1, descriptionz)
+        Arrows::issueOrException(ns1, descriptionz)
     end
 
     # NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
@@ -68,7 +68,7 @@ class NSDataType1
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
         ns1 = NSDataType1::issue()
-        Arrows::issue(ns1, ns0)
+        Arrows::issueOrException(ns1, ns0)
         NSDataType1::giveDescriptionToCubeInteractively(ns1)
         ns1
     end
@@ -122,7 +122,7 @@ class NSDataType1
                         end
                         return if description == ""
                         descriptionz = DescriptionZ::issue(description)
-                        Arrows::issue(ns1, descriptionz)
+                        Arrows::issueOrException(ns1, descriptionz)
                     }
                 )
             else
@@ -132,7 +132,7 @@ class NSDataType1
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
                         descriptionz = DescriptionZ::issue(description)
-                        Arrows::issue(ns1, descriptionz)
+                        Arrows::issueOrException(ns1, descriptionz)
                     }
                 )
             end
@@ -142,7 +142,7 @@ class NSDataType1
                     datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns1)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
-                    Arrows::issue(ns1, datetimez)
+                    Arrows::issueOrException(ns1, datetimez)
                 }
             )
             menuitems.item(
@@ -151,7 +151,7 @@ class NSDataType1
                     text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
                     note = Notes::issue(text)
-                    Arrows::issue(ns1, note)
+                    Arrows::issueOrException(ns1, note)
                 }
             )
             menuitems.item(
@@ -178,7 +178,7 @@ class NSDataType1
                     lambda {
                         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
                         return if ns0.nil?
-                        Arrows::issue(ns1, ns0)
+                        Arrows::issueOrException(ns1, ns0)
                     }
                 )
             end
@@ -204,7 +204,7 @@ class NSDataType1
                 lambda {
                     ns = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if ns.nil?
-                    Arrows::issue(ns, ns1)
+                    Arrows::issueOrException(ns, ns1)
                 }
             )
             menuitems.item(

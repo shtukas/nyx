@@ -15,7 +15,7 @@ class NSDataType2
 
         descriptionz = DescriptionZ::issue(description)
         puts JSON.pretty_generate(descriptionz)
-        Arrows::issue(ns2, descriptionz)
+        Arrows::issueOrException(ns2, descriptionz)
         ns2
     end
 
@@ -34,7 +34,7 @@ class NSDataType2
 
         descriptionz = DescriptionZ::issue(description)
         puts JSON.pretty_generate(descriptionz)
-        Arrows::issue(ns2, descriptionz)
+        Arrows::issueOrException(ns2, descriptionz)
 
         ns2
     end
@@ -122,7 +122,7 @@ class NSDataType2
                         end
                         return if description == ""
                         descriptionz = DescriptionZ::issue(description)
-                        Arrows::issue(ns2, descriptionz)
+                        Arrows::issueOrException(ns2, descriptionz)
                     }
                 )
             else
@@ -132,7 +132,7 @@ class NSDataType2
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
                         descriptionz = DescriptionZ::issue(description)
-                        Arrows::issue(ns2, descriptionz)
+                        Arrows::issueOrException(ns2, descriptionz)
                     }
                 )
             end
@@ -143,7 +143,7 @@ class NSDataType2
                     datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns2)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
-                    Arrows::issue(ns2, datetimez)
+                    Arrows::issueOrException(ns2, datetimez)
                 }
             )
 
@@ -153,7 +153,7 @@ class NSDataType2
                     text = Notes::getMostRecentTextForSourceOrNull(ns2) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
                     note = Notes::issue(text)
-                    Arrows::issue(ns2, note)
+                    Arrows::issueOrException(ns2, note)
                 }
             )
 
@@ -170,7 +170,7 @@ class NSDataType2
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary page ? ")
                     NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
                         NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
-                            Arrows::issue(upstreampage, downstreampoint)
+                            Arrows::issueOrException(upstreampage, downstreampoint)
                         }
                     }
                     NyxObjects::destroy(ns2)
@@ -200,7 +200,7 @@ class NSDataType2
                 lambda {
                     x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if x.nil?
-                    Arrows::issue(x, ns2)
+                    Arrows::issueOrException(x, ns2)
                 }
             )
             menuitems.item(
@@ -228,7 +228,7 @@ class NSDataType2
                 lambda {
                     x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if x2.nil?
-                    Arrows::issue(ns2, x2)
+                    Arrows::issueOrException(ns2, x2)
                 }
             )
             menuitems.item(
@@ -253,7 +253,7 @@ class NSDataType2
                 lambda {
                     x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
                     return if x1.nil?
-                    Arrows::issue(ns2, x1)
+                    Arrows::issueOrException(ns2, x1)
                 }
             )
             menuitems.item(
@@ -261,7 +261,7 @@ class NSDataType2
                 lambda {
                     x1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
-                    Arrows::issue(ns2, x1)
+                    Arrows::issueOrException(ns2, x1)
                 }
             )
 
@@ -278,11 +278,11 @@ class NSDataType2
                     newpage = NSDataType2::issueNewPageInteractivelyOrNull()
 
                     # Setting the page as target of this one
-                    Arrows::issue(ns, newpage)
+                    Arrows::issueOrException(ns, newpage)
 
                     # Moving the cubes
                     cubes.each{|cube|
-                        Arrows::issue(newpage, cube)
+                        Arrows::issueOrException(newpage, cube)
                     }
                     cubes.each{|cube|
                         Arrows::remove(ns, cube)
@@ -304,7 +304,7 @@ class NSDataType2
 
                     # Moving the cubes
                     cubes.each{|cube|
-                        Arrows::issue(newpage, cube)
+                        Arrows::issueOrException(newpage, cube)
                     }
                     cubes.each{|cube|
                         Arrows::remove(ns, cube)

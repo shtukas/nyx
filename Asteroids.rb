@@ -37,8 +37,8 @@ class Asteroids
             ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
             return nil if ns0.nil?
             ns1 = NSDataType1::issue()
-            Arrows::issue(ns1, ns0)
-            Arrows::issue({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
+            Arrows::issueOrException(ns1, ns0)
+            Arrows::issueOrException({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
             return {
                 "type"        => "metal",
                 "description" => nil
@@ -169,7 +169,7 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issue(asteroid, ns1)
+        Arrows::issueOrException(asteroid, ns1)
         asteroid
     end
 
@@ -350,11 +350,11 @@ class Asteroids
                 }
 
                 menuitems.item(
-                    "add new ns1",
+                    "add new #{NavigationPoint::ufn("Type1")}",
                     lambda { 
                         ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                         return if ns1.nil?
-                        Arrows::issue(asteroid, ns1)
+                        Arrows::issueOrException(asteroid, ns1)
                     }
                 )
 
