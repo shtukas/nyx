@@ -50,28 +50,31 @@ class NSDataType2
         NyxObjects::getOrNull(uuid)
     end
 
+    # NSDataType2::toStringCacheKey(ns2)
+    def self.toStringCacheKey(ns2)
+        "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
+    end
+
     # NSDataType2::ns2ToString(ns2)
     def self.ns2ToString(ns2)
-        cachePrefix = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82"
-
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}")
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(NSDataType2::toStringCacheKey(ns2))
         return str if str
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
             str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
             return str
         end
 
         NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns1|
             str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
             return str
         }
 
         str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] [no description]"
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{cachePrefix}:#{Miscellaneous::today()}:#{ns2["uuid"]}", str)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
         str
     end
 
@@ -85,7 +88,7 @@ class NSDataType2
 
             system("clear")
 
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{ns2["uuid"]}") # decaching the toString
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete(NSDataType2::toStringCacheKey(ns2)) # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -151,6 +154,26 @@ class NSDataType2
                     text = Miscellaneous::editTextUsingTextmate(text).strip
                     note = Notes::issue(text)
                     Arrows::issue(ns2, note)
+                }
+            )
+
+            menuitems.item(
+                "remove as intermediary page", 
+                lambda { 
+                    puts "intermediary node removal simulation"
+                    NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
+                        puts "upstreampage   : #{NavigationPoint::toString("", upstreampage)}"
+                    }
+                    NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
+                        puts "downstreampoint: #{NavigationPoint::toString("", downstreampoint)}"
+                    }
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary page ? ")
+                    NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
+                        NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
+                            Arrows::issue(upstreampage, downstreampoint)
+                        }
+                    }
+                    NyxObjects::destroy(ns2)
                 }
             )
 

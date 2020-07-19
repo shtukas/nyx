@@ -183,8 +183,16 @@ class Waves
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
+
+
     # Waves::commitToDisk(wave)
     def self.commitToDisk(wave)
+        NyxObjects::put(wave)
+    end
+
+    # Waves::recommitToDisk(wave)
+    def self.recommitToDisk(wave)
+        NyxObjects::destroy(wave)
         NyxObjects::put(wave)
     end
 
@@ -306,7 +314,7 @@ class Waves
                     description = Miscellaneous::editTextUsingTextmate(wave["description"])
                     return if description.nil?
                     wave["description"] = description
-                    Waves::commitToDisk(wave)
+                    Waves::recommitToDisk(wave)
                 }
             )
 
@@ -316,7 +324,7 @@ class Waves
                     schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                     return if schedule.nil?
                     wave["schedule"] = schedule
-                    Waves::commitToDisk(wave)
+                    Waves::recommitToDisk(wave)
                 }
             )
 
