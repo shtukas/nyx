@@ -129,6 +129,11 @@ class Miscellaneous
         Time.new.to_s[0, 10]
     end
 
+    # Miscellaneous::todayAsLowercaseEnglishWeekDayName()
+    def self.todayAsLowercaseEnglishWeekDayName()
+        ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
+    end
+
     # Miscellaneous::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
         (Time.now+86400*n).utc.iso8601[0,10]

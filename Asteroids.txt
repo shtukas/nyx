@@ -36,6 +36,8 @@ Asteroid
         {
             "type"                  : "repeating-daily-time-commitment-8123956c-05"
             "timeCommitmentInHours" : Float
+            "days"                  : nil or Array[String] 
+                                      Week days that we are "on" (was introduced for Guardian Work)
         }
         {
             "type"                  : "on-going-until-completion-5b26f145-7ebf-498"

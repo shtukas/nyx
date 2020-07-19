@@ -288,6 +288,12 @@ class Asteroids
                 )
             end
 
+            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+                if asteroid["orbital"]["days"] then
+                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
+                end
+            end
+
             menuitems.item(
                 "start",
                 lambda { Asteroids::asteroidStartSequence(asteroid) }
@@ -412,6 +418,15 @@ class Asteroids
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
+            if orbital["days"] then
+                if !orbital["days"].include?(Miscellaneous::todayAsLowercaseEnglishWeekDayName()) then
+                    if Asteroids::isRunning?(asteroid) then
+                        # This happens if we started before midnight and it's now after midnight
+                        Asteroids::asteroidStopSequence(asteroid)
+                    end
+                    return 0
+                end
+            end
             x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, orbital["timeCommitmentInHours"]*3600)
             x2 = - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
             return x1 + x2

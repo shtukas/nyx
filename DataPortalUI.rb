@@ -22,6 +22,20 @@ class DataPortalUI
                 }
             )
 
+            ms.item(
+                "dangerously edit a nyx object by uuid", 
+                lambda { 
+                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                    return if uuid == ""
+                    object = NyxObjects::getOrNull(uuid)
+                    return if object.nil?
+                    object = Miscellaneous::editTextUsingTextmate(JSON.pretty_generate(object))
+                    object = JSON.parse(object)
+                    NyxObjects::destroy(object)
+                    NyxObjects::put(object)
+                }
+            )
+
             puts ""
 
             ms.item(
