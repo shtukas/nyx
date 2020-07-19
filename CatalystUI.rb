@@ -146,6 +146,48 @@ class CatalystUI
         catalystObjects.first["execute"].call(command)
     end
 
+    @@haveStartedThreads = false
+
+    # CatalystUI::startThreadsIfNotStarted()
+    def self.startThreadsIfNotStarted()
+        return if @@haveStartedThreads
+        puts "-> starting Threads"
+        Thread.new {
+            loop {
+                sleep 10
+                CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                    .select{|object| object["isRunningForLong"] }
+                    .first(1)
+                    .each{|object|
+                        Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
+                    }
+                sleep 60
+            }
+        }
+        Thread.new {
+            loop {
+                sleep 20
+                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("4b5acaf4-00da-4b81-92c2-9ca6ef0c7c4a", 3600) then
+                    Asteroids::asteroids()
+                        .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                        .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                        .reverse
+                        .first(50)
+                        .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
+                end
+            }
+        }
+        Thread.new {
+            loop {
+                sleep 30
+                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
+                    system("#{File.dirname(__FILE__)}/vienna-import")
+                end
+            }
+        }
+        @@haveStartedThreads = true
+    end
+
     # CatalystUI::standardUILoop()
     def self.standardUILoop()
 
@@ -170,40 +212,9 @@ class CatalystUI
                 return
             end
             CatalystUI::standardDisplay(objects)
-        }
 
-        if !haveStartedThreads then
-            Thread.new {
-                loop {
-                    sleep 10
-                    CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                        .select{|object| object["isRunningForLong"] }
-                        .first(1)
-                        .each{|object|
-                            Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
-                        }
-                    sleep 60
-                }
-            }
-            Thread.new {
-                loop {
-                    sleep 120
-                    Asteroids::asteroids()
-                        .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-                        .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                        .reverse
-                        .first(50)
-                        .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
-                    sleep 1200
-                }
-            }
-            Thread.new {
-                loop {
-                    sleep 3600
-                    system("#{File.dirname(__File__)}/vienna-import")
-                }
-            }
-        end
+            CatalystUI::startThreadsIfNotStarted()
+        }
 
     end
 end

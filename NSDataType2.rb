@@ -226,7 +226,7 @@ class NSDataType2
                 )
             }
             menuitems.item(
-                "add from existing #{NavigationPoint::ufn("Type1")}",
+                "add existing #{NavigationPoint::ufn("Type1")}",
                 lambda {
                     x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
                     return if x1.nil?
