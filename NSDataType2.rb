@@ -162,10 +162,10 @@ class NSDataType2
                 lambda { 
                     puts "intermediary node removal simulation"
                     NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
-                        puts "upstreampage   : #{NavigationPoint::toString("", upstreampage)}"
+                        puts "upstreampage   : #{NavigationPoint::toString(upstreampage)}"
                     }
                     NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
-                        puts "downstreampoint: #{NavigationPoint::toString("", downstreampoint)}"
+                        puts "downstreampoint: #{NavigationPoint::toString(downstreampoint)}"
                     }
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary page ? ")
                     NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
@@ -191,7 +191,7 @@ class NSDataType2
             # We are only expecting Type2 here because Type1 don't link down to Type2
             NavigationPoint::getUpstreamNavigationPoints(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("upstream: ", ns),
+                    "upstream: #{NavigationPoint::toString(ns)}",
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -206,7 +206,7 @@ class NSDataType2
             menuitems.item(
                 "remove upstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
                     return if x.nil?
                     Arrows::remove(x, ns2)
                 }
@@ -218,7 +218,7 @@ class NSDataType2
 
             NavigationPoint::getDownstreamNavigationPointsType2(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("downstream #{NavigationPoint::ufn("Type2")}: ", ns),
+                    "downstream #{NavigationPoint::ufn("Type2")}: #{NavigationPoint::toString(ns)}",
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -234,7 +234,7 @@ class NSDataType2
             menuitems.item(
                 "remove downstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString("", ns) })
+                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
                     return if x2.nil?
                     Arrows::remove(ns2, x2)
                 }
@@ -244,7 +244,7 @@ class NSDataType2
 
             NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns|
                 menuitems.item(
-                    NavigationPoint::toString("content: ", ns),
+                    "content: #{NavigationPoint::toString(ns)}",
                     NavigationPoint::navigationLambda(ns)
                 )
             }

@@ -183,7 +183,7 @@ class NSDataType1
             NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
                 # Because we are a Type1, we only expect Type2s here
                 menuitems.item(
-                    NavigationPoint::toString("", ns),
+                    NavigationPoint::toString(ns),
                     NavigationPoint::navigationLambda(ns)
                 )
             }
@@ -198,7 +198,7 @@ class NSDataType1
             menuitems.item(
                 "remove #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns1), lambda{|ns| NavigationPoint::toString("", ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns1), lambda{|ns| NavigationPoint::toString(ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }

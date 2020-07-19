@@ -23,6 +23,7 @@ class Curation
 
         NSDataType2::ns2s().each{|ns2|
             next if !DescriptionZ::getLastDescriptionForSourceOrNull(ns2).nil?
+            next if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size <= 1
             system("clear")
             puts "n2 needs description"
             sleep 2

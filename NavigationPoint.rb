@@ -16,13 +16,13 @@ class NavigationPoint
         ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
     end
 
-    # NavigationPoint::toString(prefix, ns)
-    def self.toString(prefix, ns)
+    # NavigationPoint::toString(ns)
+    def self.toString(ns)
         if NavigationPoint::objectIsType1(ns) then
-            return "#{prefix}#{NSDataType1::ns1ToString(ns)}"
+            return NSDataType1::ns1ToString(ns)
         end
         if NavigationPoint::objectIsType2(ns) then
-            return "#{prefix}#{NSDataType2::ns2ToString(ns)}"
+            return NSDataType2::ns2ToString(ns)
         end
         raise "[error: dd0dce2a]"
     end
@@ -69,6 +69,11 @@ class NavigationPoint
     # NavigationPoint::getUpstreamNavigationPoints(ns)
     def self.getUpstreamNavigationPoints(ns)
         Arrows::getSourcesOfGivenSetsForTarget(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f"])
+    end
+
+    # NavigationPoint::getUpstreamNavigationPointsType2(ns)
+    def self.getUpstreamNavigationPointsType2(ns)
+        Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
     # NavigationPoint::getDownstreamNavigationPoints(ns)

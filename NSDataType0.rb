@@ -118,35 +118,51 @@ class NSDataType0s
         NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
+    # NSDataType0s::extractADescriptionFromAionPointOrNull(point)
+    def self.extractADescriptionFromAionPointOrNull(point)
+        if point["aionType"] == "file" then
+            return point["name"]
+        end
+        if point["aionType"] == "directory" then
+            return nil if point["items"].size != 0
+            aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(point["items"][0]))
+            return NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint)
+        end
+        return "[unknown aion point]"
+    end
+
+    # NSDataType0s::ns0ToStringUseTheForce(ns0)
+    def self.ns0ToStringUseTheForce(ns0)
+        if ns0["type"] == "line" then
+            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
+        end
+        if ns0["type"] == "url" then
+            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["url"]}"
+        end
+        if ns0["type"] == "text" then
+            namedhashToFirstLine = lambda {|namedhash|
+                text = NyxBlobs::getBlobOrNull(namedhash).strip
+                line = text.size>0 ? "#{text.lines.first.strip} [* more lines *]" : "[empty text]"
+            }
+            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
+        end
+        if ns0["type"] == "aion-point" then
+            aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
+            description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
+            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{description}"
+        end
+        if ns0["type"] == "unique-name" then
+            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["name"]}"
+        end
+        raise "[NSDataType0s error 2c53b113-cc79]"
+    end
+
     # NSDataType0s::ns0ToString(ns0)
     def self.ns0ToString(ns0)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{Miscellaneous::today()}:#{ns0["uuid"]}")
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}")
         return str if str
-
-        str = (lambda{|ns0|
-            if ns0["type"] == "line" then
-                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
-            end
-            if ns0["type"] == "url" then
-                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["url"]}"
-            end
-            if ns0["type"] == "text" then
-                namedhashToFirstLine = lambda {|namedhash|
-                    text = NyxBlobs::getBlobOrNull(namedhash).strip
-                    line = text.size>0 ? "#{text.lines.first.strip} [* more lines *]" : "[empty text]"
-                }
-                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
-            end
-            if ns0["type"] == "aion-point" then
-                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["namedhash"]}"
-            end
-            if ns0["type"] == "unique-name" then
-                return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["name"]}"
-            end
-            raise "[NSDataType0s error 2c53b113-cc79]"
-        }).call(ns0)
-
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-1dbec629d9e9:#{Miscellaneous::today()}:#{ns0["uuid"]}", str)
+        str = NSDataType0s::ns0ToStringUseTheForce(ns0)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}", str)
         str
     end
 
