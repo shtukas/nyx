@@ -14,14 +14,9 @@
 
 class Curation
 
-    # Curation::run()
-    def self.run()
-
-        curationTimeControlUUID = "56995147-b264-49fb-955c-d5a919395ea3"
-        return if (rand*rand) < BankExtended::recoveredDailyTimeInHours(curationTimeControlUUID)
-        time1 = Time.new.to_f
-
-        NSDataType2::ns2s().each{|ns2|
+    # Curation::oneCurationStep()
+    def self.oneCurationStep()
+        NSDataType2::pages().each{|ns2|
             next if !DescriptionZ::getLastDescriptionForSourceOrNull(ns2).nil?
             system("clear")
             puts "n2 needs description"
@@ -29,9 +24,16 @@ class Curation
             NSDataType2::landing(ns2)
             return
         }
+    end
+
+    # Curation::run()
+    def self.run()
+        return if (rand*rand) < BankExtended::recoveredDailyTimeInHours("56995147-b264-49fb-955c-d5a919395ea3")
+        time1 = Time.new.to_f
+
+        Curation::oneCurationStep()
 
         time2 = Time.new.to_f
-        Bank::put(curationTimeControlUUID, time2-time1)
-
+        Bank::put("56995147-b264-49fb-955c-d5a919395ea3", time2-time1)
     end
 end

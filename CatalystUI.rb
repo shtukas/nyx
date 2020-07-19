@@ -15,10 +15,12 @@ class CatalystUI
 
         system("clear")
 
-        startTime = Time.new.to_f
-
         verticalSpaceLeft = Miscellaneous::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
+
+        puts ""
+        puts "Curation Index: #{BankExtended::recoveredDailyTimeInHours("56995147-b264-49fb-955c-d5a919395ea3")}"
+        verticalSpaceLeft = verticalSpaceLeft - 2
 
         filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
         text = IO.read(filepath).strip

@@ -3,7 +3,7 @@ class NavigationPoint
 
     # NavigationPoint::points()
     def self.points()
-        NSDataType1::ns1s() + NSDataType2::ns2s()
+        NSDataType1::cubes() + NSDataType2::pages()
     end
 
     # NavigationPoint::objectIsType1(ns)
@@ -19,10 +19,10 @@ class NavigationPoint
     # NavigationPoint::toString(ns)
     def self.toString(ns)
         if NavigationPoint::objectIsType1(ns) then
-            return NSDataType1::ns1ToString(ns)
+            return NSDataType1::cubeToString(ns)
         end
         if NavigationPoint::objectIsType2(ns) then
-            return NSDataType2::ns2ToString(ns)
+            return NSDataType2::pageToString(ns)
         end
         raise "[error: dd0dce2a]"
     end
@@ -91,12 +91,12 @@ class NavigationPointSelection
 
     # NavigationPointSelection::selectExistingNavigationPointType2OrNull()
     def self.selectExistingNavigationPointType2OrNull()
-        points = NSDataType2::ns2s()
-        cliquestrings = points.map{|ns| NSDataType2::ns2ToString(ns) }
+        points = NSDataType2::pages()
+        cliquestrings = points.map{|ns| NSDataType2::pageToString(ns) }
         cliquestring = Miscellaneous::chooseALinePecoStyle("navigation point:", [""]+cliquestrings)
         return nil if cliquestring == ""
         points
-            .select{|ns| NSDataType2::ns2ToString(ns) == cliquestring }
+            .select{|ns| NSDataType2::pageToString(ns) == cliquestring }
             .first
     end
 
@@ -105,17 +105,17 @@ class NavigationPointSelection
         ns2 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
         return ns2 if ns2
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
-        NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+        NSDataType2::issueNewPageInteractivelyOrNull()
     end
 
     # NavigationPointSelection::selectExistingNavigationPointType1OrNull()
     def self.selectExistingNavigationPointType1OrNull()
-        points = NSDataType1::ns1s()
-        cliquestrings = points.map{|ns| NSDataType2::ns2ToString(ns) }
+        points = NSDataType1::cubes()
+        cliquestrings = points.map{|ns| NSDataType2::pageToString(ns) }
         cliquestring = Miscellaneous::chooseALinePecoStyle("navigation point:", [""]+cliquestrings)
         return nil if cliquestring == ""
         points
-            .select{|ns| NSDataType2::ns2ToString(ns) == cliquestring }
+            .select{|ns| NSDataType2::pageToString(ns) == cliquestring }
             .first
     end
 

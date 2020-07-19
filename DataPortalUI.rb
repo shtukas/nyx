@@ -27,7 +27,7 @@ class DataPortalUI
             ms.item(
                 "new #{NavigationPoint::ufn("Type1")}",
                 lambda { 
-                    ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
                 }
@@ -36,7 +36,7 @@ class DataPortalUI
             ms.item(
                 "new #{NavigationPoint::ufn("Type2")}",
                 lambda { 
-                    ns2 = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    ns2 = NSDataType2::issueNewPageInteractivelyOrNull()
                     return if ns2.nil?
                     NSDataType2::landing(ns2)
                 }

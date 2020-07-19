@@ -30,9 +30,9 @@ class DeskOperator
 
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
-        NSDataType1::ns1s().each{|ns1|
+        NSDataType1::cubes().each{|ns1|
             puts "ns1: #{ns1["uuid"]}"
-            ns0 = NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
+            ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
             desk_folderpath_for_ns1 = DeskOperator::deskFolderpathForNSDataType1(ns1)

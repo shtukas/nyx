@@ -206,7 +206,7 @@ class Asteroids
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
-                    return " #{NSDataType1::ns1ToString(ns1s[0])}"
+                    return " #{NSDataType1::cubeToString(ns1s[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -344,7 +344,7 @@ class Asteroids
 
                 Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
                     menuitems.item(
-                        NSDataType1::ns1ToString(ns1),
+                        NSDataType1::cubeToString(ns1),
                         lambda { NSDataType1::landing(ns1) }
                     )
                 }
@@ -352,7 +352,7 @@ class Asteroids
                 menuitems.item(
                     "add new ns1",
                     lambda { 
-                        ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                        ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                         return if ns1.nil?
                         Arrows::issue(asteroid, ns1)
                     }
@@ -728,12 +728,12 @@ class Asteroids
                 return
             end
             if ns1s.size == 1 then
-                NSDataType1::openLastNSDataType0(ns1s[0])
+                NSDataType1::openLastCubeFrame(ns1s[0])
                 return
             end
-            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::ns1ToString(ns1) })
+            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::cubeToString(ns1) })
             return if ns1.nil?
-            NSDataType1::openLastNSDataType0(ns1)
+            NSDataType1::openLastCubeFrame(ns1)
         end
     end
 

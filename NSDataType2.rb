@@ -3,8 +3,8 @@
 
 class NSDataType2
 
-    # NSDataType2::issueNewNSDataType2WithDescription(description)
-    def self.issueNewNSDataType2WithDescription(description)
+    # NSDataType2::issueNewPageWithDescription(description)
+    def self.issueNewPageWithDescription(description)
         ns2 = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
@@ -19,8 +19,8 @@ class NSDataType2
         ns2
     end
 
-    # NSDataType2::issueNewNSDataType2InteractivelyOrNull()
-    def self.issueNewNSDataType2InteractivelyOrNull()
+    # NSDataType2::issueNewPageInteractivelyOrNull()
+    def self.issueNewPageInteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
         return nil if description.size == 0
 
@@ -39,8 +39,8 @@ class NSDataType2
         ns2
     end
 
-    # NSDataType2::ns2s()
-    def self.ns2s()
+    # NSDataType2::pages()
+    def self.pages()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
@@ -55,8 +55,8 @@ class NSDataType2
         "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
     end
 
-    # NSDataType2::ns2ToString(ns2)
-    def self.ns2ToString(ns2)
+    # NSDataType2::pageToString(ns2)
+    def self.pageToString(ns2)
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(NSDataType2::toStringCacheKey(ns2))
         return str if str
 
@@ -68,7 +68,7 @@ class NSDataType2
         end
 
         NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns1|
-            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::ns1ToString(ns1)}"
+            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
             return str
         }
@@ -94,7 +94,7 @@ class NSDataType2
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataType2::ns2ToString(ns2)
+            puts NSDataType2::pageToString(ns2)
 
             puts "uuid: #{ns2["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
@@ -259,7 +259,7 @@ class NSDataType2
             menuitems.item(
                 "add new #{NavigationPoint::ufn("Type1")}",
                 lambda {
-                    x1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    x1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
                     Arrows::issue(ns2, x1)
                 }
@@ -275,7 +275,7 @@ class NSDataType2
                     return if cubes.size == 0
 
                     # Creating the page
-                    newpage = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    newpage = NSDataType2::issueNewPageInteractivelyOrNull()
 
                     # Setting the page as target of this one
                     Arrows::issue(ns, newpage)
@@ -300,7 +300,7 @@ class NSDataType2
                     return if cubes.size == 0
 
                     # Creating the page
-                    newpage = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    newpage = NSDataType2::issueNewPageInteractivelyOrNull()
 
                     # Moving the cubes
                     cubes.each{|cube|
@@ -330,20 +330,20 @@ class NSDataType2
 
     # ---------------------------------------------
 
-    # NSDataType2::ns2MatchesPattern(ns2, pattern)
-    def self.ns2MatchesPattern(ns2, pattern)
+    # NSDataType2::pageMatchesPattern(ns2, pattern)
+    def self.pageMatchesPattern(ns2, pattern)
         return true if ns2["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType2::ns2ToString(ns2).downcase.include?(pattern.downcase)
+        return true if NSDataType2::pageToString(ns2).downcase.include?(pattern.downcase)
         false
     end
 
     # NSDataType2::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType2::ns2s()
-            .select{|ns2| NSDataType2::ns2MatchesPattern(ns2, pattern) }
+        NSDataType2::pages()
+            .select{|ns2| NSDataType2::pageMatchesPattern(ns2, pattern) }
             .map{|ns2|
                 {
-                    "description"   => NSDataType2::ns2ToString(ns2),
+                    "description"   => NSDataType2::pageToString(ns2),
                     "referencetime" => NavigationPoint::getReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }

@@ -14,14 +14,14 @@ class NSDataType1
         object
     end
 
-    # NSDataType1::ns1s()
-    def self.ns1s()
+    # NSDataType1::cubes()
+    def self.cubes()
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
-    # NSDataType1::ns1ToString(ns1)
-    def self.ns1ToString(ns1)
-        ns0s = NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
+    # NSDataType1::cubeToString(ns1)
+    def self.cubeToString(ns1)
+        ns0s = NSDataType1::cubeToFramesInTimeOrder(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
         if description and ns0s.size > 0 then
             return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
@@ -30,64 +30,69 @@ class NSDataType1
             return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{description}"
         end
         if description.nil? and ns0s.size > 0 then
-            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::ns0ToString(ns0s.last)}"
+            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
         end
         if description.nil? and ns0s.size == 0 then
             return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] no description and no frame"
         end
     end
 
-    # NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
-    def self.nsDataType1ToNSDataType0sInTimeOrder(ns1)
+    # NSDataType1::cubeToFramesInTimeOrder(ns1)
+    def self.cubeToFramesInTimeOrder(ns1)
         Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
-    def self.nsDataType1ToLastNSDataType0OrNull(ns1)
-        NSDataType1::nsDataType1ToNSDataType0sInTimeOrder(ns1)
+    # NSDataType1::cubeToLastFramesOrNull(ns1)
+    def self.cubeToLastFramesOrNull(ns1)
+        NSDataType1::cubeToFramesInTimeOrder(ns1)
             .last
     end
 
-    # NSDataType1::giveDescriptionToNSDataType1Interactively(ns1)
-    def self.giveDescriptionToNSDataType1Interactively(ns1)
+    # NSDataType1::getAsteroidsForCube(ns1)
+    def self.getAsteroidsForCube(ns1)
+        Arrows::getSourcesOfGivenSetsForTarget(ns1, ["b66318f4-2662-4621-a991-a6b966fb4398"])
+    end
+
+    # NSDataType1::giveDescriptionToCubeInteractively(ns1)
+    def self.giveDescriptionToCubeInteractively(ns1)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
         descriptionz = DescriptionZ::issue(description)
         Arrows::issue(ns1, descriptionz)
     end
 
-    # NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
-    def self.issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+    # NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+    def self.issueNewCubeAndItsFirstFrameInteractivelyOrNull()
         puts "Making a new NSDataType1..."
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
         ns1 = NSDataType1::issue()
         Arrows::issue(ns1, ns0)
-        NSDataType1::giveDescriptionToNSDataType1Interactively(ns1)
+        NSDataType1::giveDescriptionToCubeInteractively(ns1)
         ns1
     end
 
-    # NSDataType1::openLastNSDataType0(ns1)
-    def self.openLastNSDataType0(ns1)
-        ns0 = NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
+    # NSDataType1::openLastCubeFrame(ns1)
+    def self.openLastCubeFrame(ns1)
+        ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
         if ns0.nil? then
             puts "I could not find ns0s for this ns1. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NSDataType0s::openNSDataType0(ns1, ns0)
+        NSDataType0s::openFrame(ns1, ns0)
     end
 
     # NSDataType1::landing(ns1)
     def self.landing(ns1)
         loop {
-            break if NyxObjects::getOrNull(ns1["uuid"]).nil?
+            return if NyxObjects::getOrNull(ns1["uuid"]).nil?
             system("clear")
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataType1::ns1ToString(ns1)
+            puts NSDataType1::cubeToString(ns1)
 
             puts "uuid: #{ns1["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
@@ -160,11 +165,11 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            ns0 = NSDataType1::nsDataType1ToLastNSDataType0OrNull(ns1)
+            ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
             if ns0 then
                 menuitems.item(
-                    "open: #{NSDataType0s::ns0ToString(ns0)}",
-                    lambda { NSDataType1::openLastNSDataType0(ns1) }
+                    "open: #{NSDataType0s::frameToString(ns0)}",
+                    lambda { NSDataType1::openLastCubeFrame(ns1) }
                 )
             else
                 puts "No ns0|frame found"
@@ -179,6 +184,13 @@ class NSDataType1
             end
 
             Miscellaneous::horizontalRule()
+
+            NSDataType1::getAsteroidsForCube(ns1).each{|asteroid|
+                menuitems.item(
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
 
             NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
                 # Because we are a Type1, we only expect Type2s here

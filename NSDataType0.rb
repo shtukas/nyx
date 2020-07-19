@@ -113,8 +113,8 @@ class NSDataType0s
         end
     end
 
-    # NSDataType0s::ns0s()
-    def self.ns0s()
+    # NSDataType0s::frames()
+    def self.frames()
         NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
@@ -132,8 +132,8 @@ class NSDataType0s
         return "[unknown aion point]"
     end
 
-    # NSDataType0s::ns0ToStringUseTheForce(ns0)
-    def self.ns0ToStringUseTheForce(ns0)
+    # NSDataType0s::frameToStringUseTheForce(ns0)
+    def self.frameToStringUseTheForce(ns0)
         if ns0["type"] == "line" then
             return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
         end
@@ -158,17 +158,17 @@ class NSDataType0s
         raise "[NSDataType0s error 2c53b113-cc79]"
     end
 
-    # NSDataType0s::ns0ToString(ns0)
-    def self.ns0ToString(ns0)
+    # NSDataType0s::frameToString(ns0)
+    def self.frameToString(ns0)
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}")
         return str if str
-        str = NSDataType0s::ns0ToStringUseTheForce(ns0)
+        str = NSDataType0s::frameToStringUseTheForce(ns0)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}", str)
         str
     end
 
-    # NSDataType0s::openNSDataType0(ns1, ns0)
-    def self.openNSDataType0(ns1, ns0)
+    # NSDataType0s::openFrame(ns1, ns0)
+    def self.openFrame(ns1, ns0)
         if ns0["type"] == "line" then
             puts ns0["line"]
             LucilleCore::pressEnterToContinue()
