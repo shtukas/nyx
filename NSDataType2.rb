@@ -200,6 +200,7 @@ class NSDataType2
                 lambda {
                     x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
                     return if x.nil?
+                    return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(x, ns2)
                 }
             )
@@ -226,17 +227,18 @@ class NSDataType2
             menuitems.item(
                 "add downstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x2 = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
-                    return if x2.nil?
-                    Arrows::issueOrException(ns2, x2)
+                    x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    return if x.nil?
+                    return if x["uuid"] == ns2["uuid"]
+                    Arrows::issueOrException(ns2, x)
                 }
             )
             menuitems.item(
                 "remove downstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x2 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
-                    return if x2.nil?
-                    Arrows::remove(ns2, x2)
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
+                    return if x.nil?
+                    Arrows::remove(ns2, x)
                 }
             )
 
