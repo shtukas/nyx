@@ -25,6 +25,79 @@ class DataPortalUI
             puts ""
 
             ms.item(
+                "new #{NavigationPoint::ufn("Type1")}",
+                lambda { 
+                    ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
+                    return if ns1.nil?
+                    NSDataType1::landing(ns1)
+                }
+            )
+
+            ms.item(
+                "new #{NavigationPoint::ufn("Type2")}",
+                lambda { 
+                    ns2 = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+                    return if ns2.nil?
+                    NSDataType2::landing(ns2)
+                }
+            )
+
+            ms.item(
+                "merge two #{NavigationPoint::ufn("Type2")}s",
+                lambda { 
+                    puts "Merging two #{NavigationPoint::ufn("Type2")}s"
+                    puts "Selecting one after the other and then will merge"
+                    page1 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+                    return if page1.nil?
+                    page2 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+                    return if page2.nil?
+                    if page1["uuid"] == page2["uuid"] then
+                        puts "You have selected the same #{NavigationPoint::ufn("Type2")} twice. Aborting merge operation."
+                        LucilleCore::pressEnterToContinue()
+                        return
+                    end
+
+                    # Moving all the page upstreams of page2 towards page 1
+                    NavigationPoint::getUpstreamNavigationPoints(page2).each{|x|
+                        puts "arrow (1): #{NavigationPoint::toString(x)} -> #{NavigationPoint::toString(page1)}"
+                    }
+                    # Moving all the downstreams of page2 toward page 1
+                    NavigationPoint::getDownstreamNavigationPoints(page2).each{|x|
+                        puts "arrow (2): #{NavigationPoint::toString(page1)} -> #{NavigationPoint::toString(x)}"
+                    }
+
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
+
+                    # Moving all the page upstreams of page2 towards page 1
+                    NavigationPoint::getUpstreamNavigationPoints(page2).each{|x|
+                        Arrows::issue(x, page1)
+                    }
+                    # Moving all the downstreams of page2 toward page 1
+                    NavigationPoint::getDownstreamNavigationPoints(page2).each{|x|
+                        Arrows::issue(page1, x)
+                    }
+                    NyxObjects::destroy(page2)
+                }
+            )
+
+            puts ""
+
+            ms.item(
+                "Asteroids",
+                lambda { Asteroids::main() }
+            )
+
+            ms.item(
+                "asteroid (new)",
+                lambda { 
+                    asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
+                    return if asteroid.nil?
+                    puts JSON.pretty_generate(asteroid)
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            ms.item(
                 "asteroid floats open-project-in-the-background", 
                 lambda { 
                     loop {
@@ -47,41 +120,6 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "ns1 (new)",
-                lambda { 
-                    ns1 = NSDataType1::issueNewNSDataType1AndItsFirstNSDataType0InteractivelyOrNull()
-                    return if ns1.nil?
-                    NSDataType1::landing(ns1)
-                }
-            )
-
-            ms.item(
-                "ns2 (new)",
-                lambda { 
-                    ns2 = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
-                    return if ns2.nil?
-                    NSDataType2::landing(ns2)
-                }
-            )
-
-            ms.item(
-                "asteroid (new)",
-                lambda { 
-                    asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
-                    return if asteroid.nil?
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            puts ""
-
-            ms.item(
-                "Asteroids",
-                lambda { Asteroids::main() }
-            )
-
-            ms.item(
                 "Calendar",
                 lambda { 
                     system("open '#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items'") 
@@ -94,8 +132,6 @@ class DataPortalUI
             )
 
             puts ""
-
-
 
             ms.item(
                 "Print Generation Speed Report", 

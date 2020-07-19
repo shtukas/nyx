@@ -71,14 +71,9 @@ class NavigationPoint
         Arrows::getSourcesOfGivenSetsForTarget(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
-    # NavigationPoint::getUpstreamNavigationPointsType2(ns)
-    def self.getUpstreamNavigationPointsType2(ns)
-        Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
-    end
-
     # NavigationPoint::getDownstreamNavigationPoints(ns)
     def self.getDownstreamNavigationPoints(ns)
-        Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04"])
+        Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
     # NavigationPoint::getDownstreamNavigationPointsType1(ns)

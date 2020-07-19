@@ -125,6 +125,7 @@ class NSDataType0s
         end
         if point["aionType"] == "directory" then
             return nil if point["items"].size != 0
+            return nil if point["items"].size == 0
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(point["items"][0]))
             return NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint)
         end

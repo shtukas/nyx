@@ -265,6 +265,55 @@ class NSDataType2
                 }
             )
 
+            menuitems.item(
+                "move selected cubes to a child page",
+                lambda {
+                    return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
+
+                    # Selecting the cubes
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], NavigationPoint::getDownstreamNavigationPointsType1(ns2), lambda{ |ns| NavigationPoint::toString(ns) })
+                    return if cubes.size == 0
+
+                    # Creating the page
+                    newpage = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+
+                    # Setting the page as target of this one
+                    Arrows::issue(ns, newpage)
+
+                    # Moving the cubes
+                    cubes.each{|cube|
+                        Arrows::issue(newpage, cube)
+                    }
+                    cubes.each{|cube|
+                        Arrows::remove(ns, cube)
+                    }
+                }
+            )
+
+            menuitems.item(
+                "move selected cubes to an unconnected page ; and land on that page",
+                lambda {
+                    return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
+
+                    # Selecting the cubes
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], NavigationPoint::getDownstreamNavigationPointsType1(ns2), lambda{ |ns| NavigationPoint::toString(ns) })
+                    return if cubes.size == 0
+
+                    # Creating the page
+                    newpage = NSDataType2::issueNewNSDataType2InteractivelyOrNull()
+
+                    # Moving the cubes
+                    cubes.each{|cube|
+                        Arrows::issue(newpage, cube)
+                    }
+                    cubes.each{|cube|
+                        Arrows::remove(ns, cube)
+                    }
+                    
+                    NSDataType2::landing(newpage)
+                }
+            )
+
             Miscellaneous::horizontalRule()
 
             menuitems.item(
