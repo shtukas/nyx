@@ -36,7 +36,8 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.55, "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 0.5*3600)
+        return 0 if BankExtended::hasReachedDailyTimeTargetInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 0.5)
+        0.55
     end
 
     # VideoStream::catalystObjects()

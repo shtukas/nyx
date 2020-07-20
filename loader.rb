@@ -104,7 +104,7 @@ require_relative "Mercury.rb"
     Mercury::getQueueSize(channel)
     Mercury::getAllValues(channel)
 =end
-require_relative "Metrics.rb"
+
 require_relative "Miscellaneous.rb"
 
 require_relative "NavigationPoint.rb"

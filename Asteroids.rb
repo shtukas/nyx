@@ -381,12 +381,10 @@ class Asteroids
         }
     end
 
-    # Asteroids::unixtimeShift_OlderTimesShiftLess(unixtime)
-    def self.unixtimeShift_OlderTimesShiftLess(unixtime)
+    # Asteroids::unixtimedrift(unixtime)
+    def self.unixtimedrift(unixtime)
         # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
-        unixtimeAtNextMidnightIsh = (1+Time.now.utc.to_i/86400) * 86400
-        positiveDatationInMonths = unixtimeAtNextMidnightIsh-unixtime
-        1 - positiveDatationInMonths.to_f/(86400*365*100)
+        (Time.new.to_f-unixtime).to_f/(86400*365*100)
     end
 
     # Asteroids::metric(asteroid)
@@ -408,13 +406,12 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            x2 = Metrics::noMoreThanBankValueOverPeriodOtherwiseFall(0.68, "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860", 3600, 3*3600)
-            x3 = - 0.001*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
-            return x2 + x3
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours("inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860", 1)
+            return 0.68 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.66 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return 0.66 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
@@ -428,31 +425,28 @@ class Asteroids
                     return 0
                 end
             end
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.64, uuid, orbital["timeCommitmentInHours"]*3600)
-            x2 = - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
-            return x1 + x2
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, orbital["timeCommitmentInHours"])
+            return 0.64 - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.62, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
-            return x1 + x2
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            return 0.62 -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
         end
 
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            x1 = Metrics::achieveDataComputedDailyExpectationInSecondsThenFall(0.60, uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
-            x2 = -0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
-            return x1 + x2
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            return 0.60 - 0.1*BankExtended::best7SamplesTimeRatioOverPeriod(uuid, 86400*7)
         end
 
         if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then
-            return 0.21 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return 0.21 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-            return 0.49 - 0.01*Asteroids::unixtimeShift_OlderTimesShiftLess(asteroid["unixtime"])
+            return 0.49 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         puts asteroid
