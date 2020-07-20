@@ -716,26 +716,15 @@ class Asteroids
     def self.asteroidDestroySequence(asteroid)
         # The main purpose of the destroy sequence is a try and preserve data which might be useful
         if asteroid["payload"]["type"] == "description" then
-            puts "description: #{asteroid["payload"]["description"]}"
-            if LucilleCore::askQuestionAnswerAsBoolean("should preserve description ? : ", false) then
-                puts "Description preserving has not been implemented yet."
-                LucilleCore::pressEnterToContinue()
-            end
+            # nothing
         end
 
         if asteroid["payload"]["type"] == "metal" then
-            puts Asteroids::asteroidToString(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("should preserve contents ? : ") then
-                puts "I am going to make you land on it for curation"
-                LucilleCore::pressEnterToContinue()
-                Asteroids::landing(asteroid)
-            else
-                # destruction of the ns1s
-                Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                    puts "destroying ns1: #{ns1}"
-                    NyxObjects::destroy(ns1)
-                }
-            end
+            Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
+                next if NavigationPoint::getUpstreamNavigationPoints(ns1).size > 0
+                puts "destroying ns1: #{ns1}"
+                NyxObjects::destroy(ns1)
+            }
         end
 
         NyxObjects::destroy(asteroid)
