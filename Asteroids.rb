@@ -269,7 +269,8 @@ class Asteroids
             puts Asteroids::asteroidToString(asteroid)
 
             puts "uuid: #{asteroid["uuid"]}"
-            puts "orbital type: #{asteroid["orbital"]["type"]}"
+            puts "payload: #{JSON.generate(asteroid["payload"])}"
+            puts "orbital: #{JSON.generate(asteroid["orbital"])}"
             puts "metric: #{Asteroids::metric(asteroid)}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
@@ -288,6 +289,16 @@ class Asteroids
                     }
                 )
             end
+
+            menuitems.item(
+                "set asteroid description",
+                lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                    return if description == ""
+                    asteroid["payload"]["description"] = description
+                    Asteroids::reCommitToDisk(asteroid)
+                }
+            )
 
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
                 if asteroid["orbital"]["days"] then
@@ -384,7 +395,7 @@ class Asteroids
     # Asteroids::unixtimedrift(unixtime)
     def self.unixtimedrift(unixtime)
         # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
-        (Time.new.to_f-unixtime).to_f/(86400*365*100)
+        0.00000000001*(Time.new.to_f-unixtime).to_f
     end
 
     # Asteroids::metric(asteroid)
