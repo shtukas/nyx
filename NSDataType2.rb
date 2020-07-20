@@ -198,7 +198,7 @@ class NSDataType2
             menuitems.item(
                 "add upstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    x = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(x, ns2)
@@ -227,7 +227,7 @@ class NSDataType2
             menuitems.item(
                 "add downstream #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    x = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(ns2, x)

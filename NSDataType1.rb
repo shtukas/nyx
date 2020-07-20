@@ -202,7 +202,7 @@ class NSDataType1
             menuitems.item(
                 "add #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    ns = NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
+                    ns = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
                     return if ns.nil?
                     Arrows::issueOrException(ns, ns1)
                 }

@@ -131,18 +131,19 @@ class Asteroids
 
     # Asteroids::issueAsteroidInteractivelyOrNull()
     def self.issueAsteroidInteractivelyOrNull()
-        payload = Asteroids::makePayloadInteractivelyOrNull(SecureRandom.uuid)
+        uuid = SecureRandom.uuid
+        payload = Asteroids::makePayloadInteractivelyOrNull(uuid)
         return if payload.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
-        asteroid = Asteroids::issue(payload, orbital)
+        asteroid = Asteroids::issueWithUUID(uuid, payload, orbital)
         AsteroidsOfInterest::register(asteroid["uuid"])
     end
 
-    # Asteroids::issue(payload, orbital)
-    def self.issue(payload, orbital)
+    # Asteroids::issueWithUUID(uuid, payload, orbital)
+    def self.issueWithUUID(uuid, payload, orbital)
         asteroid = {
-            "uuid"     => SecureRandom.uuid,
+            "uuid"     => uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "payload"  => payload,

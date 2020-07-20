@@ -100,8 +100,8 @@ class NavigationPointSelection
             .first
     end
 
-    # NavigationPointSelection::selectExistingNavigationPointType2OrMakeNewType2OrNull()
-    def self.selectExistingNavigationPointType2OrMakeNewType2OrNull()
+    # NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
+    def self.selectExistingPageOrMakeNewPageOrNull()
         ns2 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
         return ns2 if ns2
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
