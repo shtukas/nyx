@@ -251,6 +251,26 @@ class Asteroids
         Asteroids::reCommitToDisk(asteroid)
     end
 
+    # Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
+    def self.getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
+        Asteroids::getNSDataType1ForAsteroid(asteroid)
+            .map{|cube| [ Asteroids::getPositionOrdinalForCubeAtAsteroid(asteroid, cube), cube] }
+            .sort{|p1, p2| p1[0] <=> p2[0] }
+    end
+
+    # Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
+    def self.selectOneCubeOfAsteroidOrNull(asteroid)
+        ps = Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
+        toStringLambda = lambda{|p| 
+            ordinal = p[0]
+            cube    = p[1]
+            "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}"
+        }
+        p = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", ps, toStringLambda)
+        return nil if p.nil?
+        p[1]
+    end
+
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
         loop {
@@ -360,19 +380,30 @@ class Asteroids
 
                 Miscellaneous::horizontalRule()
 
-                Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
+                Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, cube = packet
                     menuitems.item(
-                        NSDataType1::cubeToString(ns1),
-                        lambda { NSDataType1::landing(ns1) }
+                        "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}",
+                        lambda { NSDataType1::landing(cube) }
                     )
                 }
 
                 menuitems.item(
                     "add new #{NavigationPoint::ufn("Type1")}",
                     lambda { 
-                        ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-                        return if ns1.nil?
-                        Arrows::issueOrException(asteroid, ns1)
+                        cube = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                        return if cube.nil?
+                        Arrows::issueOrException(asteroid, cube)
+                    }
+                )
+
+                menuitems.item(
+                    "select #{NavigationPoint::ufn("Type1")} ; set ordinal",
+                    lambda { 
+                        cube = Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
+                        return if cube.nil?
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
                     }
                 )
 
@@ -617,6 +648,11 @@ class Asteroids
             return
         end
 
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
+            Asteroids::asteroidStopSequence(asteroid)
+            return
+        end
+
         typesThatAreMeantToTerminate = [
             "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
             "float-to-do-today-b0d902a8-3184-45fa-9808-1",
@@ -782,6 +818,23 @@ class Asteroids
             puts ""
             return LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         end
+    end
+
+    # Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+    def self.setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{cube["uuid"]}"
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(key, ordinal)
+    end
+
+    # Asteroids::getPositionOrdinalForCubeAtAsteroid(asteroid, cube)
+    def self.getPositionOrdinalForCubeAtAsteroid(asteroid, cube)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{cube["uuid"]}"
+        ordinal = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(key)
+        if ordinal.nil? then
+            ordinal = rand
+            Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+        end
+        ordinal
     end
 
     # Asteroids::main()
