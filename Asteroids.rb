@@ -271,158 +271,6 @@ class Asteroids
         p[1]
     end
 
-    # Asteroids::landing(asteroid)
-    def self.landing(asteroid)
-        loop {
-
-            asteroid = Asteroids::getOrNull(asteroid["uuid"])
-            return if asteroid.nil?
-
-            AsteroidsOfInterest::register(asteroid["uuid"])
-
-            system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            Miscellaneous::horizontalRule()
-
-            puts Asteroids::asteroidToString(asteroid)
-
-            puts "uuid: #{asteroid["uuid"]}"
-            puts "payload: #{JSON.generate(asteroid["payload"])}"
-            puts "orbital: #{JSON.generate(asteroid["orbital"])}"
-            puts "metric: #{Asteroids::metric(asteroid)}"
-
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
-            if unixtime and (Time.new.to_i < unixtime) then
-                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
-            end
-
-            if asteroid["payload"]["type"] == "description" then
-                menuitems.item(
-                    "set asteroid description",
-                    lambda { 
-                        description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                        return if description == ""
-                        asteroid["payload"]["description"] = description
-                        Asteroids::reCommitToDisk(asteroid)
-                    }
-                )
-            end
-
-            menuitems.item(
-                "set asteroid description",
-                lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                    return if description == ""
-                    asteroid["payload"]["description"] = description
-                    Asteroids::reCommitToDisk(asteroid)
-                }
-            )
-
-            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                if asteroid["orbital"]["days"] then
-                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
-                end
-            end
-
-            menuitems.item(
-                "start",
-                lambda { Asteroids::asteroidStartSequence(asteroid) }
-            )
-
-            menuitems.item(
-                "stop",
-                lambda { Asteroids::asteroidStopSequence(asteroid) }
-            )
-
-            if asteroid["payload"]["type"] == "description" then
-                menuitems.item(
-                    "edit description",
-                    lambda {
-                        asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
-                        Asteroids::reCommitToDisk(asteroid)
-                    }
-                )
-            end
-
-            menuitems.item(
-                "re-orbital",
-                lambda { Asteroids::reOrbitalOrNothing(asteroid) }
-            )
-
-            menuitems.item(
-                "show json",
-                lambda {
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            menuitems.item(
-                "add time",
-                lambda {
-                    timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
-                }
-            )
-
-            menuitems.item(
-                "destroy",
-                lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
-                        Asteroids::asteroidStopAndDestroySequence(asteroid)
-                    end
-                }
-            )
-
-            if asteroid["payload"]["type"] == "metal" then
-
-                Miscellaneous::horizontalRule()
-
-                Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, cube = packet
-                    menuitems.item(
-                        "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}",
-                        lambda { NSDataType1::landing(cube) }
-                    )
-                }
-
-                menuitems.item(
-                    "add new #{NavigationPoint::ufn("Type1")}",
-                    lambda { 
-                        cube = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-                        return if cube.nil?
-                        Arrows::issueOrException(asteroid, cube)
-                    }
-                )
-
-                menuitems.item(
-                    "select #{NavigationPoint::ufn("Type1")} ; set ordinal",
-                    lambda { 
-                        cube = Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
-                        return if cube.nil?
-                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
-                    }
-                )
-
-            end
-
-            Miscellaneous::horizontalRule()
-
-            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
-
-            Miscellaneous::horizontalRule()
-
-            status = menuitems.prompt()
-            break if !status
-
-        }
-    end
-
     # Asteroids::unixtimedrift(unixtime)
     def self.unixtimedrift(unixtime)
         # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
@@ -835,6 +683,160 @@ class Asteroids
             Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
         end
         ordinal
+    end
+
+    # Asteroids::landing(asteroid)
+    def self.landing(asteroid)
+        loop {
+
+            asteroid = Asteroids::getOrNull(asteroid["uuid"])
+            return if asteroid.nil?
+
+            AsteroidsOfInterest::register(asteroid["uuid"])
+
+            system("clear")
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            Miscellaneous::horizontalRule()
+
+            puts Asteroids::asteroidToString(asteroid)
+
+            puts "uuid: #{asteroid["uuid"]}"
+            puts "payload: #{JSON.generate(asteroid["payload"])}"
+            puts "orbital: #{JSON.generate(asteroid["orbital"])}"
+            puts "metric: #{Asteroids::metric(asteroid)}"
+
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
+            if unixtime and (Time.new.to_i < unixtime) then
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+            end
+
+            if asteroid["payload"]["type"] == "description" then
+                menuitems.item(
+                    "set asteroid description",
+                    lambda { 
+                        description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                        return if description == ""
+                        asteroid["payload"]["description"] = description
+                        Asteroids::reCommitToDisk(asteroid)
+                    }
+                )
+            end
+
+            menuitems.item(
+                "set asteroid description",
+                lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                    return if description == ""
+                    asteroid["payload"]["description"] = description
+                    Asteroids::reCommitToDisk(asteroid)
+                }
+            )
+
+            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+                if asteroid["orbital"]["days"] then
+                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
+                end
+            end
+
+            menuitems.item(
+                "start",
+                lambda { Asteroids::asteroidStartSequence(asteroid) }
+            )
+
+            menuitems.item(
+                "stop",
+                lambda { Asteroids::asteroidStopSequence(asteroid) }
+            )
+
+            if asteroid["payload"]["type"] == "description" then
+                menuitems.item(
+                    "edit description",
+                    lambda {
+                        asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
+                        Asteroids::reCommitToDisk(asteroid)
+                    }
+                )
+            end
+
+            menuitems.item(
+                "re-orbital",
+                lambda { Asteroids::reOrbitalOrNothing(asteroid) }
+            )
+
+            menuitems.item(
+                "show json",
+                lambda {
+                    puts JSON.pretty_generate(asteroid)
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            menuitems.item(
+                "add time",
+                lambda {
+                    timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                    Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
+                }
+            )
+
+            menuitems.item(
+                "destroy",
+                lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
+                        Asteroids::asteroidStopAndDestroySequence(asteroid)
+                    end
+                }
+            )
+
+            if asteroid["payload"]["type"] == "metal" then
+
+                Miscellaneous::horizontalRule()
+
+                Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, cube = packet
+                    menuitems.item(
+                        "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}",
+                        lambda { NSDataType1::landing(cube) }
+                    )
+                }
+
+                menuitems.item(
+                    "add new #{NavigationPoint::ufn("Type1")}",
+                    lambda { 
+                        cube = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                        return if cube.nil?
+                        Arrows::issueOrException(asteroid, cube)
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+                    }
+                )
+
+                menuitems.item(
+                    "select #{NavigationPoint::ufn("Type1")} ; set ordinal",
+                    lambda { 
+                        cube = Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
+                        return if cube.nil?
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+                    }
+                )
+
+            end
+
+            Miscellaneous::horizontalRule()
+
+            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
+            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
+            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
+
+            Miscellaneous::horizontalRule()
+
+            status = menuitems.prompt()
+            break if !status
+
+        }
     end
 
     # Asteroids::main()

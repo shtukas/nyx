@@ -183,8 +183,6 @@ class Waves
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
-
-
     # Waves::commitToDisk(wave)
     def self.commitToDisk(wave)
         NyxObjects::put(wave)
@@ -360,6 +358,52 @@ class Waves
             }
     end
 
+    # Waves::selectWaveOrNull()
+    def self.selectWaveOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
+    end
+
+    # Waves::waveDive(wave)
+    def self.waveDive(wave)
+        loop {
+            system("clear")
+            puts Waves::waveToString(wave)
+            if DoNotShowUntil::isVisible(wave["uuid"]) then
+                puts "active"
+            else
+                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
+            end
+            ops = [
+                "perform done",
+                "edit description",
+                "recast"
+            ]
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+            break if op.nil?
+            if op == "perform done" then
+                Waves::performDone(wave)
+            end
+            if op == "edit description" then
+                wave["description"] = Miscellaneous::editTextUsingTextmate(wave["description"])
+                Waves::commitToDisk(wave)
+            end
+            if op == "recast" then
+                schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+                next if schedule.nil?
+                wave["schedule"] = schedule
+                Waves::commitToDisk(wave)
+            end
+        }
+    end
+
+    # Waves::wavesDive()
+    def self.wavesDive()
+        system("clear")
+        wave = Waves::selectWaveOrNull()
+        return if wave.nil?
+        Waves::waveDive(wave)
+    end
+
     # Waves::main()
     def self.main()
         loop {
@@ -375,21 +419,7 @@ class Waves
                 Waves::issueNewWaveInteractivelyOrNull()
             end
             if option == "waves dive" then
-                obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
-                next if obj.nil?
-                ops = ["edit description", "recast"]
-                op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
-                next if op.nil?
-                if op == "edit description" then
-                    obj["description"] = Miscellaneous::editTextUsingTextmate(obj["description"])
-                    Waves::commitToDisk(obj)
-                end
-                if op == "recast" then
-                    schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-                    next if schedule.nil?
-                    obj["schedule"] = schedule
-                    Waves::commitToDisk(obj)
-                end
+                Waves::wavesDive()
             end
         }
     end
