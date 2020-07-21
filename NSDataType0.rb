@@ -217,4 +217,43 @@ class NSDataType0s
         puts ns0
         raise "[NSDataType0 error 4bf5cfb1-c2a2]"
     end
+
+    # NSDataType0s::editFrame(ns1, ns0)
+    def self.editFrame(ns1, ns0)
+        if ns0["type"] == "line" then
+            line = ns0["line"]
+            line = Miscellaneous::editTextUsingTextmate(line).strip
+            newframe = NSDataType0s::issueLine(line)
+            Arrows::issueOrException(ns1, newframe)
+            return
+        end
+        if ns0["type"] == "url" then
+            url = ns0["url"]
+            url = Miscellaneous::editTextUsingTextmate(url).strip
+            newframe = NSDataType0s::issueUrl(url)
+            Arrows::issueOrException(ns1, newframe)
+            return
+        end
+        if ns0["type"] == "text" then
+            namedhash = ns0["namedhash"]
+            text = NyxBlobs::getBlobOrNull(namedhash)
+            text = Miscellaneous::editTextUsingTextmate(text)
+            newframe = NSDataType0s::issueText(text)
+            Arrows::issueOrException(ns1, newframe)
+            return
+        end
+        if ns0["type"] == "aion-point" then
+            puts "aion points are edited through the desk management"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if ns0["type"] == "unique-name" then
+            uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
+            newframe = NSDataType0s::issueUniqueName(uniquename)
+            Arrows::issueOrException(ns1, newframe)
+            return
+        end
+        puts ns0
+        raise "[NSDataType0 error 93e453d8]"
+    end
 end

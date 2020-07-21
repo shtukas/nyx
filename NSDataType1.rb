@@ -73,15 +73,26 @@ class NSDataType1
         ns1
     end
 
-    # NSDataType1::openLastCubeFrame(ns1)
-    def self.openLastCubeFrame(ns1)
-        ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
-        if ns0.nil? then
-            puts "I could not find ns0s for this ns1. Aborting"
+    # NSDataType1::openLastCubeFrame(cube)
+    def self.openLastCubeFrame(cube)
+        frame = NSDataType1::cubeToLastFramesOrNull(cube)
+        if frame.nil? then
+            puts "I could not find #{NavigationPoint::ufn("Type0")}s for this #{NavigationPoint::ufn("Type1")}. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NSDataType0s::openFrame(ns1, ns0)
+        NSDataType0s::openFrame(cube, frame)
+    end
+
+    # NSDataType1::editLastCubeFrame(cube)
+    def self.editLastCubeFrame(cube)
+        frame = NSDataType1::cubeToLastFramesOrNull(cube)
+        if frame.nil? then
+            puts "I could not find #{NavigationPoint::ufn("Type0")}s for this #{NavigationPoint::ufn("Type1")}. Aborting"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NSDataType0s::editFrame(cube, frame)
     end
 
     # NSDataType1::landing(ns1)
@@ -167,9 +178,14 @@ class NSDataType1
 
             ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
             if ns0 then
+                puts NSDataType0s::frameToString(ns0)
                 menuitems.item(
-                    "open: #{NSDataType0s::frameToString(ns0)}",
+                    "open",
                     lambda { NSDataType1::openLastCubeFrame(ns1) }
+                )
+                menuitems.item(
+                    "edit",
+                    lambda { NSDataType1::editLastCubeFrame(ns1) }
                 )
             else
                 puts "No ns0|frame found"

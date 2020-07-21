@@ -299,6 +299,15 @@ class LCoreMenuItemsNX1
         puts "[#{@position.to_s.rjust(2)}] #{description}"
     end
 
+    def print(description, xlambda)
+        @position = @position + 1
+        @items << {
+            "position" => @position,
+            "lambda"   => xlambda
+        }
+        print "[#{@position.to_s.rjust(2)}] #{description}"
+    end
+
     def prompt() # return whether should loop
         position = LucilleCore::askQuestionAnswerAsString("-> ")
         return false if position.size == 0
