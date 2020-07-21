@@ -163,7 +163,7 @@ class CatalystUI
                     .each{|object|
                         Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
                     }
-                sleep 60
+                sleep 120
             }
         }
         Thread.new {
@@ -172,11 +172,13 @@ class CatalystUI
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("4b5acaf4-00da-4b81-92c2-9ca6ef0c7c4a", 3600) then
                     Asteroids::asteroids()
                         .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                        .select{|object| DoNotShowUntil::isVisible(object["uuid"]) }
                         .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                         .reverse
                         .first(50)
-                        .each{|object| AsteroidsOfInterest::register(object["x-asteroid"]["uuid"]) }
+                        .each{|object| AsteroidsOfInterest::register(object["uuid"]) }
                 end
+                sleep 3600
             }
         }
         Thread.new {
@@ -185,6 +187,7 @@ class CatalystUI
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
                     system("#{File.dirname(__FILE__)}/vienna-import")
                 end
+                sleep 3600
             }
         }
         @@haveStartedThreads = true
