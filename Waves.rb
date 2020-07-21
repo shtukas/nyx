@@ -156,8 +156,8 @@ class Waves
         JSON.generate(schedule)
     end
 
-    # Waves::makeCatalystObject(wave)
-    def self.makeCatalystObject(wave)
+    # Waves::waveToCatalystObject(wave)
+    def self.waveToCatalystObject(wave)
         uuid = wave["uuid"]
         schedule = wave["schedule"]
         announce = Waves::announce(wave["description"], schedule)
@@ -233,7 +233,7 @@ class Waves
     # Waves::catalystObjects()
     def self.catalystObjects()
         Waves::waves()
-            .map{|obj| Waves::makeCatalystObject(obj) }
+            .map{|obj| Waves::waveToCatalystObject(obj) }
     end
 
     # Waves::openItem(wave)
