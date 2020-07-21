@@ -218,9 +218,9 @@ class NSDataType1
             menuitems.item(
                 "add #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    ns = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
-                    return if ns.nil?
-                    Arrows::issueOrException(ns, ns1)
+                    page = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
+                    return if page.nil?
+                    Arrows::issueOrException(page, ns1)
                 }
             )
             menuitems.item(
@@ -237,5 +237,27 @@ class NSDataType1
             status = menuitems.prompt()
             break if !status
         }
+    end
+
+    # ---------------------------------------------
+
+    # NSDataType1::cubeMatchesPattern(cube, pattern)
+    def self.cubeMatchesPattern(cube, pattern)
+        return true if cube["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType1::cubeToString(cube).downcase.include?(pattern.downcase)
+        false
+    end
+
+    # NSDataType1::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        NSDataType1::cubes()
+            .select{|cube| NSDataType1::cubeMatchesPattern(cube, pattern) }
+            .map{|cube|
+                {
+                    "description"   => NSDataType1::cubeToString(cube),
+                    "referencetime" => NavigationPoint::getReferenceUnixtime(cube),
+                    "dive"          => lambda{ NSDataType1::landing(cube) }
+                }
+            }
     end
 end
