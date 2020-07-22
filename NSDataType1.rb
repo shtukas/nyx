@@ -155,12 +155,13 @@ class NSDataType1
                     lambda { NSDataType1::openLastCubeFrame(ns1) }
                 )
                 print " "
+                print NSDataType0s::frameToString(ns0)
+                puts ""
+                print "    "
                 menuitems.raw(
                     "edit",
                     lambda { NSDataType1::editLastCubeFrame(ns1) }
                 )
-                print " "
-                print NSDataType0s::frameToString(ns0)
                 puts ""
             else
                 puts "No ns0|frame found"
