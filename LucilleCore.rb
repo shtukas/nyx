@@ -299,7 +299,7 @@ class LCoreMenuItemsNX1
         puts "[#{@position.to_s.rjust(2)}] #{description}"
     end
 
-    def print(description, xlambda)
+    def raw(description, xlambda)
         @position = @position + 1
         @items << {
             "position" => @position,

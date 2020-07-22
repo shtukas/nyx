@@ -105,88 +105,63 @@ class NSDataType1
 
             puts NSDataType1::cubeToString(ns1)
 
-            puts "uuid: #{ns1["uuid"]}"
+            puts "    uuid: #{ns1["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then
-                puts "description: #{description}"
+                puts "    description: #{description}"
             end
-            puts "date: #{NavigationPoint::getReferenceDateTime(ns1)}"
+            puts "    date: #{NavigationPoint::getReferenceDateTime(ns1)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
             if notetext then
                 puts ""
-                puts "Note:"
-                puts notetext.lines.map{|line| "    #{line}" }.join()
+                puts "    Note:"
+                puts notetext.lines.map{|line| "        #{line}" }.join()
             end
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
-            if description then
-                menuitems.item(
-                    "description (update)",
-                    lambda{
-                        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
-                        if description.nil? then
-                            description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        else
-                            description = Miscellaneous::editTextUsingTextmate(description).strip
-                        end
-                        return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns1, descriptionz)
-                    }
-                )
-            else
-                menuitems.item(
-                    "description (set)",
-                    lambda{
-                        description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns1, descriptionz)
-                    }
-                )
-            end
-            menuitems.item(
-                "datetime (update)",
-                lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns1)).strip
-                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-                    datetimez = DateTimeZ::issue(datetime)
-                    Arrows::issueOrException(ns1, datetimez)
-                }
-            )
-            menuitems.item(
-                "top note (edit)", 
-                lambda{ 
-                    text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
-                    text = Miscellaneous::editTextUsingTextmate(text).strip
-                    note = Notes::issue(text)
-                    Arrows::issueOrException(ns1, note)
-                }
-            )
-            menuitems.item(
-                "destroy",
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                        NyxObjects::destroy(ns1)
-                    end
-                }
-            )
+            puts ""
+            puts "Parents:"
 
-            Miscellaneous::horizontalRule()
+            asteroids = NSDataType1::getAsteroidsForCube(ns1)
+            if asteroids.size > 0 then
+                asteroids.each{|asteroid|
+                    print "    "
+                    menuitems.raw(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                    puts ""
+                }
+            end
+
+            NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
+                print "    "
+                menuitems.raw(
+                    NavigationPoint::toString(ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
+                puts ""
+            }
+
+            puts ""
+            puts "Frame:"
 
             ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
             if ns0 then
-                puts NSDataType0s::frameToString(ns0)
-                menuitems.item(
+                print "    "
+                menuitems.raw(
                     "open",
                     lambda { NSDataType1::openLastCubeFrame(ns1) }
                 )
-                menuitems.item(
+                print " "
+                menuitems.raw(
                     "edit",
                     lambda { NSDataType1::editLastCubeFrame(ns1) }
                 )
+                print " "
+                print NSDataType0s::frameToString(ns0)
+                puts ""
             else
                 puts "No ns0|frame found"
                 menuitems.item(
@@ -201,22 +176,62 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            NSDataType1::getAsteroidsForCube(ns1).each{|asteroid|
+            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+            if description then
                 menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
+                    "[this cube] description update",
+                    lambda{
+                        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+                        if description.nil? then
+                            description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        else
+                            description = Miscellaneous::editTextUsingTextmate(description).strip
+                        end
+                        return if description == ""
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issueOrException(ns1, descriptionz)
+                    }
                 )
-            }
-
-            NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
-                # Because we are a Type1, we only expect Type2s here
+            else
                 menuitems.item(
-                    NavigationPoint::toString(ns),
-                    NavigationPoint::navigationLambda(ns)
+                    "[this cube] description set",
+                    lambda{
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        return if description == ""
+                        descriptionz = DescriptionZ::issue(description)
+                        Arrows::issueOrException(ns1, descriptionz)
+                    }
                 )
-            }
+            end
             menuitems.item(
-                "add #{NavigationPoint::ufn("Type2")}",
+                "[this cube] datetime update",
+                lambda{
+                    datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns1)).strip
+                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
+                    datetimez = DateTimeZ::issue(datetime)
+                    Arrows::issueOrException(ns1, datetimez)
+                }
+            )
+            menuitems.item(
+                "[this cube] top note edit", 
+                lambda{ 
+                    text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
+                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    note = Notes::issue(text)
+                    Arrows::issueOrException(ns1, note)
+                }
+            )
+            menuitems.item(
+                "[this cube] destroy",
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
+                        NyxObjects::destroy(ns1)
+                    end
+                }
+            )
+
+            menuitems.item(
+                "[parent #{NavigationPoint::ufn("Type2")}] add",
                 lambda {
                     page = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
                     return if page.nil?
@@ -224,7 +239,7 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "remove #{NavigationPoint::ufn("Type2")}",
+                "[parent #{NavigationPoint::ufn("Type2")}] remove",
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns1), lambda{|ns| NavigationPoint::toString(ns) })
                     return if ns.nil?

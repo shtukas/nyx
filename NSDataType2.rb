@@ -96,23 +96,53 @@ class NSDataType2
 
             puts NSDataType2::pageToString(ns2)
 
-            puts "uuid: #{ns2["uuid"]}"
+            puts "    uuid: #{ns2["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
             if description then
-                puts "description: #{description}"
+                puts "    description: #{description}"
             end
-            puts "date: #{NavigationPoint::getReferenceDateTime(ns2)}"
+            puts "    date: #{NavigationPoint::getReferenceDateTime(ns2)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns2)
             if notetext then
                 puts ""
-                puts "Note:"
-                puts notetext.lines.map{|line| "    #{line}" }.join()
+                puts "    Note:"
+                puts notetext.lines.map{|line| "        #{line}" }.join()
             end
+
+            puts ""
+            puts "Parents:"
+
+
+            # We are only expecting Type2 here because Type1 don't link down to Type2
+            NavigationPoint::getUpstreamNavigationPoints(ns2).each{|ns|
+                print "    "
+                menuitems.raw(
+                    "#{NavigationPoint::toString(ns)}",
+                    NavigationPoint::navigationLambda(ns)
+                )
+                puts ""
+            }
+
+            puts ""
+            puts "Contents:"
+
+            # Type2 can down stream to Type2 and Type1, we display them separately
+
+            NavigationPoint::getDownstreamNavigationPoints(ns2).each{|ns|
+                print "    "
+                menuitems.raw(
+                    NavigationPoint::toString(ns),
+                    NavigationPoint::navigationLambda(ns)
+                )
+                puts ""
+            }
+
+            Miscellaneous::horizontalRule()
 
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
             if description then
                 menuitems.item(
-                    "description (update)",
+                    "[this page] description update",
                     lambda{
                         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
                         if description.nil? then
@@ -127,7 +157,7 @@ class NSDataType2
                 )
             else
                 menuitems.item(
-                    "description (set)",
+                    "[this page] description set",
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
@@ -138,7 +168,7 @@ class NSDataType2
             end
 
             menuitems.item(
-                "datetime (update)",
+                "[this page] datetime update",
                 lambda{
                     datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns2)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
@@ -148,7 +178,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "top note (edit)", 
+                "[this page] top note edit", 
                 lambda{ 
                     text = Notes::getMostRecentTextForSourceOrNull(ns2) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
@@ -158,7 +188,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "remove as intermediary page", 
+                "[this page] remove as intermediary page", 
                 lambda { 
                     puts "intermediary node removal simulation"
                     NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
@@ -178,7 +208,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "destroy", 
+                "[this page] destroy", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
                         NyxObjects::destroy(ns2)
@@ -186,17 +216,8 @@ class NSDataType2
                 }
             )
 
-            Miscellaneous::horizontalRule()
-
-            # We are only expecting Type2 here because Type1 don't link down to Type2
-            NavigationPoint::getUpstreamNavigationPoints(ns2).each{|ns|
-                menuitems.item(
-                    "upstream: #{NavigationPoint::toString(ns)}",
-                    NavigationPoint::navigationLambda(ns)
-                )
-            }
             menuitems.item(
-                "add upstream #{NavigationPoint::ufn("Type2")}",
+                "[upstream] add #{NavigationPoint::ufn("Type2")}",
                 lambda {
                     x = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
                     return if x.nil?
@@ -205,7 +226,7 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "remove upstream #{NavigationPoint::ufn("Type2")}",
+                "[upstream] remove #{NavigationPoint::ufn("Type2")}",
                 lambda {
                     x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
                     return if x.nil?
@@ -213,45 +234,8 @@ class NSDataType2
                 }
             )
 
-            Miscellaneous::horizontalRule()
-
-            # Type2 can down stream to Type2 and Type1, we display them separately
-
-            NavigationPoint::getDownstreamNavigationPointsType2(ns2).each{|ns|
-                menuitems.item(
-                    "downstream #{NavigationPoint::ufn("Type2")}: #{NavigationPoint::toString(ns)}",
-                    NavigationPoint::navigationLambda(ns)
-                )
-            }
-
             menuitems.item(
-                "add downstream #{NavigationPoint::ufn("Type2")}",
-                lambda {
-                    x = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
-                    return if x.nil?
-                    return if x["uuid"] == ns2["uuid"]
-                    Arrows::issueOrException(ns2, x)
-                }
-            )
-            menuitems.item(
-                "remove downstream #{NavigationPoint::ufn("Type2")}",
-                lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
-                    return if x.nil?
-                    Arrows::remove(ns2, x)
-                }
-            )
-
-            Miscellaneous::horizontalRule()
-
-            NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns|
-                menuitems.item(
-                    "content: #{NavigationPoint::toString(ns)}",
-                    NavigationPoint::navigationLambda(ns)
-                )
-            }
-            menuitems.item(
-                "add existing #{NavigationPoint::ufn("Type1")}",
+                "[#{NavigationPoint::ufn("Type1")}] add existing",
                 lambda {
                     x1 = NavigationPointSelection::selectExistingCubeOrNull()
                     return if x1.nil?
@@ -259,7 +243,7 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "add new #{NavigationPoint::ufn("Type1")}",
+                "[#{NavigationPoint::ufn("Type1")}] add new",
                 lambda {
                     x1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
@@ -268,7 +252,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "move selected cubes to a child page",
+                "[selected cubes] move to a child page",
                 lambda {
                     return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
 
@@ -293,7 +277,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "move selected cubes to an unconnected page ; and land on that page",
+                "[selected cubes] move to an unconnected page ; and land on that page",
                 lambda {
                     return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
 
@@ -316,14 +300,25 @@ class NSDataType2
                 }
             )
 
-            Miscellaneous::horizontalRule()
-
             menuitems.item(
-                "/", 
-                lambda { DataPortalUI::dataPortalFront() }
+                "[downstream #{NavigationPoint::ufn("Type2")}] add from existing",
+                lambda {
+                    x = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
+                    return if x.nil?
+                    return if x["uuid"] == ns2["uuid"]
+                    Arrows::issueOrException(ns2, x)
+                }
+            )
+            menuitems.item(
+                "[downstream #{NavigationPoint::ufn("Type2")}] remove",
+                lambda {
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
+                    return if x.nil?
+                    Arrows::remove(ns2, x)
+                }
             )
 
-            puts ""
+            Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
             break if !status
