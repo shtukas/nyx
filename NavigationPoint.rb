@@ -89,27 +89,42 @@ end
 
 class NavigationPointSelection
 
-    # NavigationPointSelection::selectExistingNavigationPointType2OrNull()
-    def self.selectExistingNavigationPointType2OrNull()
-        points = NSDataType2::pages()
-        cliquestrings = points.map{|ns| NSDataType2::pageToString(ns) }
+    # NavigationPointSelection::selectExistingPageOrNull_standard(pages)
+    def self.selectExistingPageOrNull_standard(pages)
+        cliquestrings = pages.map{|ns| NSDataType2::pageToString(ns) }
         cliquestring = Miscellaneous::chooseALinePecoStyle("navigation point:", [""]+cliquestrings)
         return nil if cliquestring == ""
-        points
+        pages
             .select{|ns| NSDataType2::pageToString(ns) == cliquestring }
             .first
     end
 
+    # NavigationPointSelection::selectExistingPageOrNull()
+    def self.selectExistingPageOrNull()
+        pages = NSDataType2::pages()
+        if pages.size <= 1000 then
+            return NavigationPointSelection::selectExistingPageOrNull_standard(pages)
+        end
+        puts "I am going to make you make that selection in several stages"
+        LucilleCore::pressEnterToContinue()
+        while pages.size > 0 do
+            subset = pages.shift(1000)
+            answer = NavigationPointSelection::selectExistingPageOrNull_standard(subset)
+            return answer if answer
+        end
+        nil
+    end
+
     # NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
     def self.selectExistingPageOrMakeNewPageOrNull()
-        ns2 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+        ns2 = NavigationPointSelection::selectExistingPageOrNull()
         return ns2 if ns2
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
         NSDataType2::issueNewPageInteractivelyOrNull()
     end
 
-    # NavigationPointSelection::selectExistingNavigationPointType1OrNull()
-    def self.selectExistingNavigationPointType1OrNull()
+    # NavigationPointSelection::selectExistingCubeOrNull()
+    def self.selectExistingCubeOrNull()
         points = NSDataType1::cubes()
         cliquestrings = points.map{|ns| NSDataType2::pageToString(ns) }
         cliquestring = Miscellaneous::chooseALinePecoStyle("navigation point:", [""]+cliquestrings)

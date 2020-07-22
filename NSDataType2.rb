@@ -253,7 +253,7 @@ class NSDataType2
             menuitems.item(
                 "add existing #{NavigationPoint::ufn("Type1")}",
                 lambda {
-                    x1 = NavigationPointSelection::selectExistingNavigationPointType1OrNull()
+                    x1 = NavigationPointSelection::selectExistingCubeOrNull()
                     return if x1.nil?
                     Arrows::issueOrException(ns2, x1)
                 }

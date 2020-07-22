@@ -16,7 +16,7 @@ class DataPortalUI
             ms.item(
                 "select point by name", 
                 lambda { 
-                    ns = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+                    ns = NavigationPointSelection::selectExistingPageOrNull()
                     return if ns.nil?
                     NavigationPoint::navigationLambda(ns).call()
                 }
@@ -61,9 +61,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two #{NavigationPoint::ufn("Type2")}s"
                     puts "Selecting one after the other and then will merge"
-                    page1 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+                    page1 = NavigationPointSelection::selectExistingPageOrNull()
                     return if page1.nil?
-                    page2 = NavigationPointSelection::selectExistingNavigationPointType2OrNull()
+                    page2 = NavigationPointSelection::selectExistingPageOrNull()
                     return if page2.nil?
                     if page1["uuid"] == page2["uuid"] then
                         puts "You have selected the same #{NavigationPoint::ufn("Type2")} twice. Aborting merge operation."
