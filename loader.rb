@@ -30,6 +30,8 @@ require 'thread'
 
 require "time"
 
+require 'curses'
+
 # ------------------------------------------------------------
 
 require_relative "AionCore.rb"

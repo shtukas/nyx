@@ -9,3 +9,9 @@ It started with [Nyx](http://blog.alseyn.net/index.php?uuid=40bd59d4-48de-454a-9
 Then in early 2016, Catalyst [was born](http://blog.alseyn.net/index.php?uuid=16a853b0-18c1-46b7-a6bd-392b4df98e5e) as the web interface of a pre-existing todo list management tool.
 
 The current Catalyst is a command line tool which fuses the functions of both Nyx and the old Catalyst (they share the same underlying unified dataset).
+
+### Prerequisites
+
+```
+$ gem install curses # or sudo gem install curses
+```

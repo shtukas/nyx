@@ -95,6 +95,121 @@ class NSDataType1
         NSDataType0s::editFrame(cube, frame)
     end
 
+    # NSDataType1::cubeMatchesPattern(cube, pattern)
+    def self.cubeMatchesPattern(cube, pattern)
+        return true if cube["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType1::cubeToString(cube).downcase.include?(pattern.downcase)
+        false
+    end
+
+    # NSDataType2::selectCubesPerPattern(pattern)
+    def self.selectCubesPerPattern(pattern)
+        NSDataType1::cubes()
+            .select{|cube| NSDataType1::cubeMatchesPattern(cube, pattern) }
+    end
+
+    # NSDataType1::selectCubeBySearchStringInteractively()
+    def self.selectCubeBySearchStringInteractively()
+
+        Curses::init_screen
+        # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
+
+        Curses::noecho
+        # Disables characters typed by the user to be echoed by Curses.getch as they are typed.
+
+        win1 = Curses::Window.new(1, 80, 0, 0)
+        win2 = Curses::Window.new(1, 80, 1, 0)
+        win3 = Curses::Window.new(40, 80, 2, 0)
+
+        ns_search_string       = ""
+        last_searched_string   = ""
+        searching              = false
+        selected_cubes         = []
+        has_new_selected_cubes = false
+
+        thread1 = Thread.new {
+            loop {
+                win1.setpos(0,0) # we set the cursor on the starting position
+                win1.deleteln()
+                win1 << "search: #{ns_search_string}"
+                win1.refresh
+                sleep 0.01
+            }
+        }
+
+        thread2 = Thread.new {
+            loop {
+                win2.setpos(0,0)
+                win2.deleteln()
+                if searching then
+                    win2 << "searching..."
+                end
+                win2.refresh
+                sleep 0.1
+            }
+        }
+
+        thread3 = Thread.new {
+            loop {
+                sleep 1
+                next if !has_new_selected_cubes
+                has_new_selected_cubes = false
+                next if selected_cubes.size == 0
+                win3.setpos(0,0)
+                selected_cubes.first(40).each{|page|
+                    win3.deleteln()
+                    win3 << "#{NSDataType1::cubeToString(page)}\n"
+                }
+                (win3.maxy - win3.cury).times {win3.deleteln()}
+                win3.refresh
+            }
+        }
+
+        thread4 = Thread.new {
+            loop {
+                sleep 0.1
+                next if ns_search_string.length < 3
+                next if ns_search_string == last_searched_string
+                searching = true
+                last_searched_string = ns_search_string
+                selected_cubes = NSDataType1::selectCubesPerPattern(ns_search_string)
+                has_new_selected_cubes = true
+                searching = false
+            }
+        }
+
+        loop {
+            char = win1.getch.to_s # Reads and returns a character
+            if char == '127' then
+                # delete
+                ns_search_string = ns_search_string[0, ns_search_string.length-1].strip
+                next
+            end
+            if char == '10' then
+                # enter
+                break
+            end
+            ns_search_string << char.strip
+        }
+
+        Thread.kill(thread1)
+        Thread.kill(thread2)
+        Thread.kill(thread3)
+        Thread.kill(thread4)
+
+        Curses::close_screen # this method restore our terminal's settings
+
+        return (selected_cubes || [])
+    end
+
+    # NSDataType1::selectExistingCubeInteractivelyOrNull()
+    def self.selectExistingCubeInteractivelyOrNull()
+        cubes = NSDataType1::selectCubeBySearchStringInteractively()
+        return nil if cubes.empty?
+        system("clear")
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
+    end
+
     # NSDataType1::landing(ns1)
     def self.landing(ns1)
         loop {
@@ -234,7 +349,7 @@ class NSDataType1
             menuitems.item(
                 "[parent #{NavigationPoint::ufn("Type2")}] add",
                 lambda {
-                    page = NavigationPointSelection::selectExistingPageOrMakeNewPageOrNull()
+                    page = NSDataType2::selectExistingPageOrMakeNewPageOrNull()
                     return if page.nil?
                     Arrows::issueOrException(page, ns1)
                 }
@@ -257,17 +372,9 @@ class NSDataType1
 
     # ---------------------------------------------
 
-    # NSDataType1::cubeMatchesPattern(cube, pattern)
-    def self.cubeMatchesPattern(cube, pattern)
-        return true if cube["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType1::cubeToString(cube).downcase.include?(pattern.downcase)
-        false
-    end
-
     # NSDataType1::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType1::cubes()
-            .select{|cube| NSDataType1::cubeMatchesPattern(cube, pattern) }
+        NSDataType2::selectCubesPerPattern(pattern)
             .map{|cube|
                 {
                     "description"   => NSDataType1::cubeToString(cube),

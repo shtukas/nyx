@@ -135,25 +135,25 @@ class NSDataType0s
     # NSDataType0s::frameToStringUseTheForce(ns0)
     def self.frameToStringUseTheForce(ns0)
         if ns0["type"] == "line" then
-            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["line"]}"
+            return "[#{ns0["type"]}] #{ns0["line"]}"
         end
         if ns0["type"] == "url" then
-            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["url"]}"
+            return "#{ns0["url"]}"
         end
         if ns0["type"] == "text" then
             namedhashToFirstLine = lambda {|namedhash|
                 text = NyxBlobs::getBlobOrNull(namedhash).strip
                 line = text.size>0 ? "#{text.lines.first.strip} [* more lines *]" : "[empty text]"
             }
-            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
+            return "[#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
             description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
-            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{description}"
+            return "[#{ns0["type"]}] #{description}"
         end
         if ns0["type"] == "unique-name" then
-            return "[#{NavigationPoint::userFriendlyName(ns0)}] [#{ns0["uuid"][0, 4]}] [#{ns0["type"]}] #{ns0["name"]}"
+            return "[#{ns0["type"]}] #{ns0["name"]}"
         end
         raise "[NSDataType0s error 2c53b113-cc79]"
     end
