@@ -19,7 +19,7 @@ class Arrows
         raise "[error: bc82b3b6]" if (source["uuid"] == target["uuid"])
         if Arrows::exists?(source, target) then
             arrow = NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-                        .select?{|arrow|  
+                        .select{|arrow|  
                             b1 = (arrow["sourceuuid"] == source["uuid"])
                             b2 = (arrow["targetuuid"] == target["uuid"])
                             b1 and b2
