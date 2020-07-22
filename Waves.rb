@@ -367,6 +367,7 @@ class Waves
     def self.waveDive(wave)
         loop {
             system("clear")
+            return if NyxObjects::getOrNull(wave["uuid"]) # Could hve been destroyed in the previous loop
             puts Waves::waveToString(wave)
             if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
@@ -376,7 +377,8 @@ class Waves
             ops = [
                 "perform done",
                 "edit description",
-                "recast"
+                "recast",
+                "destroy"
             ]
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
             break if op.nil?
@@ -392,6 +394,9 @@ class Waves
                 next if schedule.nil?
                 wave["schedule"] = schedule
                 Waves::commitToDisk(wave)
+            end
+            if op == "destroy" then
+                NyxObjects::destroy(wave)
             end
         }
     end
