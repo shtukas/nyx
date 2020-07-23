@@ -266,4 +266,9 @@ class Miscellaneous
             LucilleCore::removeFileSystemLocation(location)
         end
     end
+
+    # Miscellaneous::isAlexandra()
+    def self.isAlexandra()
+        File.exists?("/Users/pascal/Galaxy")
+    end
 end

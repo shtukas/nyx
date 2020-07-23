@@ -6,6 +6,11 @@ require_relative "src/Ruby/loader.rb"
 
 # -------------------------------------------------------------------------
 
+if !Miscellaneous::isAlexandra() then
+    puts "Catalyst is not meant to run on this computer. Bye."
+    exit
+end
+
 EstateServices::ensureReadiness()
 CatalystUI::standardUILoop()
 
