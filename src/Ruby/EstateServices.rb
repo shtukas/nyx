@@ -53,20 +53,6 @@ class EstateServices
         (Time.new.to_i - File.mtime(filepath).to_i).to_f/86400
     end
 
-    # EstateServices::locationHashRecursively(location)
-    def self.locationHashRecursively(location)
-        if File.file?(location) then
-            Digest::SHA1.hexdigest("#{location}:#{Digest::SHA1.file(location).hexdigest}")
-        else
-            trace = Dir.entries(location)
-                .reject{|filename| filename.start_with?(".") }
-                .map{|filename| "#{location}/#{filename}" }
-                .map{|location| EstateServices::locationHashRecursively(location) }
-                .join("::")
-            Digest::SHA1.hexdigest(trace)
-        end
-    end
-
     # -------------------------------------------
 
     # EstateServices::getArchiveT1mel1neSizeInMegaBytes()

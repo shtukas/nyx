@@ -200,11 +200,6 @@ class CatalystUI
 
         loop {
 
-            if STARTING_CODE_HASH != EstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-                puts "Code change detected. Exiting."
-                exit
-            end
-
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
             Curation::run()

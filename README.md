@@ -1,17 +1,14 @@
-## Catalyst
 
-Catalyst is both an advanced electronic secretary and a file system. 
+This repository contains two systems, one called **Catalyst** and the other one called **DocNet** (Multi-user Documentation Network). If you are coming from the Guardian, you are looking for DocNet 🙂
 
-### Origins
+Some documentation, including prerequisites and installation procedures, about Catalyst can be found [here](documentation/Catalyst.md), and similar documentation about DocNet can be found [here](documentation/DocNet.md). 
 
-It started with [Nyx](http://blog.alseyn.net/index.php?uuid=40bd59d4-48de-454a-9a50-2c2a1c919e32), which was at the time Pascal's [Personal Information Management system](https://en.wikipedia.org/wiki/Personal_information_management).
 
-Then in early 2016, Catalyst [was born](http://blog.alseyn.net/index.php?uuid=16a853b0-18c1-46b7-a6bd-392b4df98e5e) as the web interface of a pre-existing todo list management tool.
+Q: What exactly is the relationship betweeen Catalyst and DocNet ?
 
-The current Catalyst is a command line tool which fuses the functions of both Nyx and the old Catalyst (they share the same underlying unified dataset).
+A: DocNet is simply a limited version of Catalyst. They share the exact same code, but when DocNet runs, some features are not enabled.
 
-### Prerequisites
 
-```
-$ gem install curses # or sudo gem install curses
-```
+Q: What is the latest in terms of roadmap ?
+
+A: As of July 2020, most of the effort is put in reorganizing Catalyst's data model (including migrating its existing data to the new model) and make DocNet multi-user. Also Catalyst and DocNet are going to be re-written in Go by the end of 2020.

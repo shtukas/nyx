@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "src/Ruby/loader.rb"
+
+# -------------------------------------------------------------------------
+
+EstateServices::ensureReadiness()
+CatalystUI::standardUILoop()
+
+# -------------------------------------------------------------------------
