@@ -90,17 +90,19 @@ class EstateServices
 
     # EstateServices::ensureReadiness()
     def self.ensureReadiness()
-        userHomeDirectory = ENV['HOME']
-        userHomeDirectoryCatalystFolderPath = "#{userHomeDirectory}/.catalyst"
-        if !File.exists?(userHomeDirectoryCatalystFolderPath) then
-            puts "The folder '#{userHomeDirectoryCatalystFolderPath}' has not been created. I am going to create it."
-            LucilleCore::pressEnterToContinue()
-            FileUtils.mkdir(userHomeDirectoryCatalystFolderPath)
-        end
-        deskFolderPath = "#{userHomeDirectoryCatalystFolderPath}/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
-        if !File.exists?(deskFolderPath) then
-            FileUtils.mkdir(deskFolderPath)
-        end
+        realmConfig = Realms::getRealmConfig()
+        realmConfig["exitIfNotExist"].each{|path|
+            if !File.exists?(path) then
+                puts "We are expecting this location to exists: #{path}. This is a non recoverable error. Exiting"
+                exit
+            end
+        }
+        realmConfig["createIfNotExist"].each{|path|
+            if !File.exists?(path) then
+                puts "Creating missing location: #{path}"
+                FileUtils.mkdir(path)
+            end
+        }
     end
 
     # EstateServices::getDeskFolderpath()

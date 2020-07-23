@@ -11,6 +11,13 @@ if !Miscellaneous::isAlexandra() then
     exit
 end
 
+class ProgramVariant
+    # ProgramVariant::id()
+    def self.id()
+        "catalyst"
+    end
+end
+
 EstateServices::ensureReadiness()
 CatalystUI::standardUILoop()
 

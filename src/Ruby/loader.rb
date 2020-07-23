@@ -120,6 +120,7 @@ require_relative "NyxObjects.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
+require_relative "Realms.rb"
 require_relative "Runner.rb"
 =begin 
     Runner::isRunning?(uuid)

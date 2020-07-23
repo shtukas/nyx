@@ -25,7 +25,7 @@ class NyxPrimaryObjects
         hash1 = Digest::SHA256.hexdigest(uuid)
         ns01 = hash1[0, 2]
         ns02 = hash1[2, 2]
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects/#{ns01}/#{ns02}/#{hash1}.json"
+        filepath = "#{Realms::primaryDataStoreFolderPath()}/Nyx-Objects/#{ns01}/#{ns02}/#{hash1}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -54,7 +54,7 @@ class NyxPrimaryObjects
     # NyxPrimaryObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
-            Find.find("#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Objects") do |path|
+            Find.find("#{Realms::primaryDataStoreFolderPath()}/Nyx-Objects") do |path|
                 next if !File.file?(path)
                 next if path[-5, 5] != ".json"
                 object = JSON.parse(IO.read(path))
