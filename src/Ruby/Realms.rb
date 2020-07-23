@@ -67,4 +67,9 @@ class Realms
     def self.personalSpaceFolderPath()
         Realms::getRealmConfig()["personalSpaceFolderPath"]
     end
+
+    # Realms::getDeskFolderpath()
+    def self.getDeskFolderpath()
+        "#{Realms::personalSpaceFolderPath()}/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
+    end
 end

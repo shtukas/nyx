@@ -130,21 +130,23 @@ class NSDataType1
         Curses::noecho
         # Disables characters typed by the user to be echoed by Curses.getch as they are typed.
 
-        win1 = Curses::Window.new(1, 80, 0, 0)
-        win2 = Curses::Window.new(1, 80, 1, 0)
-        win3 = Curses::Window.new(40, 80, 2, 0)
+        win1 = Curses::Window.new(1, Miscellaneous::screenWidth(), 0, 0)
+        win2 = Curses::Window.new(1, Miscellaneous::screenWidth(), 1, 0)
+        win3 = Curses::Window.new(Miscellaneous::screenHeight()-1, Miscellaneous::screenWidth(), 2, 0)
 
-        ns_search_string       = ""
-        last_searched_string   = ""
-        searching              = false
+        win1.refresh
+        win2.refresh
+        win3.refresh
+
+        search_string_558ca20d = ""
+        search_queue           = []
         selected_cubes         = []
-        has_new_selected_cubes = false
 
         thread1 = Thread.new {
             loop {
                 win1.setpos(0,0) # we set the cursor on the starting position
                 win1.deleteln()
-                win1 << "search: #{ns_search_string}"
+                win1 << "search: #{search_string_558ca20d}"
                 win1.refresh
                 sleep 0.01
             }
@@ -154,9 +156,7 @@ class NSDataType1
             loop {
                 win2.setpos(0,0)
                 win2.deleteln()
-                if searching then
-                    win2 << "searching..."
-                end
+                win2 << "search_queue: #{search_queue.join(" | ")}"
                 win2.refresh
                 sleep 0.1
             }
@@ -165,9 +165,6 @@ class NSDataType1
         thread3 = Thread.new {
             loop {
                 sleep 1
-                next if !has_new_selected_cubes
-                has_new_selected_cubes = false
-                next if selected_cubes.size == 0
                 win3.setpos(0,0)
                 selected_cubes.first(40).each{|page|
                     win3.deleteln()
@@ -181,13 +178,10 @@ class NSDataType1
         thread4 = Thread.new {
             loop {
                 sleep 0.1
-                next if ns_search_string.length < 3
-                next if ns_search_string == last_searched_string
-                searching = true
-                last_searched_string = ns_search_string
-                selected_cubes = NSDataType1::selectCubesPerPattern(ns_search_string)
-                has_new_selected_cubes = true
-                searching = false
+                next if search_queue.empty?
+                str = search_queue.shift
+                next if str == 0
+                selected_cubes = NSDataType1::selectCubesPerPattern(str)
             }
         }
 
@@ -195,14 +189,17 @@ class NSDataType1
             char = win1.getch.to_s # Reads and returns a character
             if char == '127' then
                 # delete
-                ns_search_string = ns_search_string[0, ns_search_string.length-1]
+                next if search_string_558ca20d.length == 0
+                search_string_558ca20d = search_string_558ca20d[0, search_string_558ca20d.length-1]
+                search_queue << search_string_558ca20d
                 next
             end
             if char == '10' then
                 # enter
                 break
             end
-            ns_search_string << char
+            search_string_558ca20d << char
+            search_queue << search_string_558ca20d
         }
 
         Thread.kill(thread1)

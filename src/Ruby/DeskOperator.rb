@@ -5,7 +5,7 @@ class DeskOperator
 
     # DeskOperator::deskFolderpathForNSDataType1(ns1)
     def self.deskFolderpathForNSDataType1(ns1)
-        "#{EstateServices::getDeskFolderpath()}/#{ns1["uuid"]}"
+        "#{Realms::getDeskFolderpath()}/#{ns1["uuid"]}"
     end
 
     # DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns1, ns0)
@@ -20,7 +20,7 @@ class DeskOperator
             # In such a case we are going to remove the extra folder by moving thigs up...
             if File.exists?("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}") then
                 FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}", "#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting")
-                FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting", EstateServices::getDeskFolderpath())
+                FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting", Realms::getDeskFolderpath())
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)
                 FileUtils.mv("#{desk_folderpath_for_ns1}-lifting", desk_folderpath_for_ns1)
             end

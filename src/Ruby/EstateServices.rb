@@ -105,9 +105,4 @@ class EstateServices
         }
     end
 
-    # EstateServices::getDeskFolderpath()
-    def self.getDeskFolderpath()
-        "#{ENV['HOME']}/.catalyst/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f"
-    end
-
 end
