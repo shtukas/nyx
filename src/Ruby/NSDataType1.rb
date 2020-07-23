@@ -369,6 +369,11 @@ class NSDataType1
                 "[this cube] destroy",
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
+                        folderpath = DeskOperator::deskFolderpathForNSDataType1(ns1)
+                        if File.exists?(folderpath) then
+                            puts "Removing Desk folder"
+                            LucilleCore::removeFileSystemLocation(folderpath)
+                        end
                         NyxObjects::destroy(ns1)
                     end
                 }

@@ -6,6 +6,13 @@ require_relative "loader.rb"
 
 # -------------------------------------------------------------------------
 
+class ProgramVariant
+    # ProgramVariant::id()
+    def self.id()
+        "catalyst"
+    end
+end
+
 # ./shadowfs commit <location>
 # ./shadowfs get SHA256-f4b2ac2b19168a141f573e1d1dd6585e172d905d8b9d470b400760a19de63263
 
