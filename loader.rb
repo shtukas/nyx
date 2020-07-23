@@ -109,7 +109,7 @@ require_relative "Mercury.rb"
 
 require_relative "Miscellaneous.rb"
 
-require_relative "NavigationPoint.rb"
+require_relative "PageCubeCommonInterface.rb"
 require_relative "Notes.rb"
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"

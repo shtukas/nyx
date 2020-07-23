@@ -14,11 +14,70 @@ class DataPortalUI
             )
 
             ms.item(
-                "select point by name", 
+                "explore pages", 
+                lambda { NSDataType2::selectPagesByInteractiveSearchStringAndExploreThem() }
+            )
+
+            ms.item(
+                "explore cubes", 
+                lambda { NSDataType1::selectCubesByInteractiveSearchStringAndExploreThem() }
+            )
+
+            puts ""
+
+            ms.item(
+                "new cube",
                 lambda { 
-                    ns = NSDataType2::selectPageInteractivelyOrNull()
-                    return if ns.nil?
-                    NavigationPoint::navigationLambda(ns).call()
+                    ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                    return if ns1.nil?
+                    NSDataType1::landing(ns1)
+                }
+            )
+
+            ms.item(
+                "new page",
+                lambda { 
+                    ns2 = NSDataType2::issueNewPageInteractivelyOrNull()
+                    return if ns2.nil?
+                    NSDataType2::landing(ns2)
+                }
+            )
+
+            ms.item(
+                "merge two pages",
+                lambda { 
+                    puts "Merging two pages"
+                    puts "Selecting one after the other and then will merge"
+                    page1 = NSDataType2::selectPageInteractivelyOrNull()
+                    return if page1.nil?
+                    page2 = NSDataType2::selectPageInteractivelyOrNull()
+                    return if page2.nil?
+                    if page1["uuid"] == page2["uuid"] then
+                        puts "You have selected the same page twice. Aborting merge operation."
+                        LucilleCore::pressEnterToContinue()
+                        return
+                    end
+
+                    # Moving all the page upstreams of page2 towards page 1
+                    PageCubeCommonInterface::getUpstreamPages(page2).each{|x|
+                        puts "arrow (1): #{NSDataType2::pageToString(x)} -> #{NSDataType2::pageToString(page1)}"
+                    }
+                    # Moving all the downstreams of page2 toward page 1
+                    PageCubeCommonInterface::getDownstreamObjects(page2).each{|x|
+                        puts "arrow (2): #{NSDataType2::pageToString(page1)} -> #{NSDataType2::pageToString(x)}"
+                    }
+
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
+
+                    # Moving all the page upstreams of page2 towards page 1
+                    PageCubeCommonInterface::getUpstreamPages(page2).each{|x|
+                        Arrows::issueOrException(x, page1)
+                    }
+                    # Moving all the downstreams of page2 toward page 1
+                    PageCubeCommonInterface::getDownstreamObjects(page2).each{|x|
+                        Arrows::issueOrException(page1, x)
+                    }
+                    NyxObjects::destroy(page2)
                 }
             )
 
@@ -33,64 +92,6 @@ class DataPortalUI
                     object = JSON.parse(object)
                     NyxObjects::destroy(object)
                     NyxObjects::put(object)
-                }
-            )
-
-            puts ""
-
-            ms.item(
-                "new #{NavigationPoint::ufn("Type1")}",
-                lambda { 
-                    ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-                    return if ns1.nil?
-                    NSDataType1::landing(ns1)
-                }
-            )
-
-            ms.item(
-                "new #{NavigationPoint::ufn("Type2")}",
-                lambda { 
-                    ns2 = NSDataType2::issueNewPageInteractivelyOrNull()
-                    return if ns2.nil?
-                    NSDataType2::landing(ns2)
-                }
-            )
-
-            ms.item(
-                "merge two #{NavigationPoint::ufn("Type2")}s",
-                lambda { 
-                    puts "Merging two #{NavigationPoint::ufn("Type2")}s"
-                    puts "Selecting one after the other and then will merge"
-                    page1 = NSDataType2::selectPageInteractivelyOrNull()
-                    return if page1.nil?
-                    page2 = NSDataType2::selectPageInteractivelyOrNull()
-                    return if page2.nil?
-                    if page1["uuid"] == page2["uuid"] then
-                        puts "You have selected the same #{NavigationPoint::ufn("Type2")} twice. Aborting merge operation."
-                        LucilleCore::pressEnterToContinue()
-                        return
-                    end
-
-                    # Moving all the page upstreams of page2 towards page 1
-                    NavigationPoint::getUpstreamNavigationPoints(page2).each{|x|
-                        puts "arrow (1): #{NavigationPoint::toString(x)} -> #{NavigationPoint::toString(page1)}"
-                    }
-                    # Moving all the downstreams of page2 toward page 1
-                    NavigationPoint::getDownstreamNavigationPoints(page2).each{|x|
-                        puts "arrow (2): #{NavigationPoint::toString(page1)} -> #{NavigationPoint::toString(x)}"
-                    }
-
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
-
-                    # Moving all the page upstreams of page2 towards page 1
-                    NavigationPoint::getUpstreamNavigationPoints(page2).each{|x|
-                        Arrows::issueOrException(x, page1)
-                    }
-                    # Moving all the downstreams of page2 toward page 1
-                    NavigationPoint::getDownstreamNavigationPoints(page2).each{|x|
-                        Arrows::issueOrException(page1, x)
-                    }
-                    NyxObjects::destroy(page2)
                 }
             )
 

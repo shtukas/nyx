@@ -604,7 +604,7 @@ class Asteroids
 
         if asteroid["payload"]["type"] == "metal" then
             Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                next if NavigationPoint::getUpstreamNavigationPoints(ns1).size > 0
+                next if PageCubeCommonInterface::getUpstreamPages(ns1).size > 0
                 puts "destroying ns1: #{ns1}"
                 NyxObjects::destroy(ns1)
             }
@@ -802,7 +802,7 @@ class Asteroids
                 }
 
                 menuitems.item(
-                    "add new #{NavigationPoint::ufn("Type1")}",
+                    "add new cube",
                     lambda { 
                         cube = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                         return if cube.nil?
@@ -813,7 +813,7 @@ class Asteroids
                 )
 
                 menuitems.item(
-                    "select #{NavigationPoint::ufn("Type1")} ; set ordinal",
+                    "select cube ; set ordinal",
                     lambda { 
                         cube = Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
                         return if cube.nil?

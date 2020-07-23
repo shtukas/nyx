@@ -21,20 +21,33 @@ class NSDataType1
 
     # NSDataType1::cubeToString(ns1)
     def self.cubeToString(ns1)
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}"
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
+        return str if str
+
         ns0s = NSDataType1::cubeToFramesInTimeOrder(ns1)
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
         if description and ns0s.size > 0 then
-            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
+            str = "[cube] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            return str
         end
         if description and ns0s.size == 0 then
-            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{description}"
+            str = "[cube] [#{ns1["uuid"][0, 4]}] #{description}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            return str
         end
         if description.nil? and ns0s.size > 0 then
-            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+            str = "[cube] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            return str
         end
         if description.nil? and ns0s.size == 0 then
-            return "[#{NavigationPoint::userFriendlyName(ns1)}] [#{ns1["uuid"][0, 4]}] no description and no frame"
+            str = "[cube] [#{ns1["uuid"][0, 4]}] no description and no frame"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            return str
         end
+        "[cube] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological cube: #{ns1["uuid"]}]"
     end
 
     # NSDataType1::cubeToFramesInTimeOrder(ns1)
@@ -77,7 +90,7 @@ class NSDataType1
     def self.openLastCubeFrame(cube)
         frame = NSDataType1::cubeToLastFramesOrNull(cube)
         if frame.nil? then
-            puts "I could not find #{NavigationPoint::ufn("Type0")}s for this #{NavigationPoint::ufn("Type1")}. Aborting"
+            puts "I could not find any frames for this cube. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -88,7 +101,7 @@ class NSDataType1
     def self.editLastCubeFrame(cube)
         frame = NSDataType1::cubeToLastFramesOrNull(cube)
         if frame.nil? then
-            puts "I could not find #{NavigationPoint::ufn("Type0")}s for this #{NavigationPoint::ufn("Type1")}. Aborting"
+            puts "I could not find any frames for this cube. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -102,14 +115,14 @@ class NSDataType1
         false
     end
 
-    # NSDataType2::selectCubesPerPattern(pattern)
+    # NSDataType1::selectCubesPerPattern(pattern)
     def self.selectCubesPerPattern(pattern)
         NSDataType1::cubes()
             .select{|cube| NSDataType1::cubeMatchesPattern(cube, pattern) }
     end
 
-    # NSDataType1::selectCubeBySearchStringInteractively()
-    def self.selectCubeBySearchStringInteractively()
+    # NSDataType1::selectCubeByInteractiveSearchString()
+    def self.selectCubeByInteractiveSearchString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -197,14 +210,30 @@ class NSDataType1
         Thread.kill(thread3)
         Thread.kill(thread4)
 
+        win1.close
+        win2.close
+        win3.close
+
         Curses::close_screen # this method restore our terminal's settings
 
         return (selected_cubes || [])
     end
 
+    # NSDataType1::selectCubesByInteractiveSearchStringAndExploreThem()
+    def self.selectCubesByInteractiveSearchStringAndExploreThem()
+        cubes = NSDataType1::selectCubeByInteractiveSearchString()
+        return if cubes.empty?
+        loop {
+            system("clear")
+            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
+            break if cube.nil?
+            NSDataType1::landing(cube)
+        }
+    end
+
     # NSDataType1::selectExistingCubeInteractivelyOrNull()
     def self.selectExistingCubeInteractivelyOrNull()
-        cubes = NSDataType1::selectCubeBySearchStringInteractively()
+        cubes = NSDataType1::selectCubeByInteractiveSearchString()
         return nil if cubes.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
@@ -216,6 +245,8 @@ class NSDataType1
             return if NyxObjects::getOrNull(ns1["uuid"]).nil?
             system("clear")
 
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}") # decaching the toString
+
             Miscellaneous::horizontalRule()
 
             puts NSDataType1::cubeToString(ns1)
@@ -225,7 +256,7 @@ class NSDataType1
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{NavigationPoint::getReferenceDateTime(ns1)}"
+            puts "    date: #{PageCubeCommonInterface::getReferenceDateTime(ns1)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
             if notetext then
                 puts ""
@@ -250,11 +281,11 @@ class NSDataType1
                 }
             end
 
-            NavigationPoint::getUpstreamNavigationPoints(ns1).each{|ns|
+            PageCubeCommonInterface::getUpstreamPages(ns1).each{|ns|
                 print "    "
                 menuitems.raw(
-                    NavigationPoint::toString(ns),
-                    NavigationPoint::navigationLambda(ns)
+                    NSDataType2::pageToString(ns),
+                    lambda { NSDataType2::landing(ns) }
                 )
                 puts ""
             }
@@ -322,7 +353,7 @@ class NSDataType1
             menuitems.item(
                 "[this cube] datetime update",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns1)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(PageCubeCommonInterface::getReferenceDateTime(ns1)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issueOrException(ns1, datetimez)
@@ -347,7 +378,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "[parent #{NavigationPoint::ufn("Type2")}] add",
+                "[parent page] add",
                 lambda {
                     page = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if page.nil?
@@ -355,9 +386,9 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "[parent #{NavigationPoint::ufn("Type2")}] remove",
+                "[parent page] remove",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns1), lambda{|ns| NavigationPoint::toString(ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::pageToString(ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }
@@ -374,11 +405,11 @@ class NSDataType1
 
     # NSDataType1::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType2::selectCubesPerPattern(pattern)
+        NSDataType1::selectCubesPerPattern(pattern)
             .map{|cube|
                 {
                     "description"   => NSDataType1::cubeToString(cube),
-                    "referencetime" => NavigationPoint::getReferenceUnixtime(cube),
+                    "referencetime" => PageCubeCommonInterface::getReferenceUnixtime(cube),
                     "dive"          => lambda{ NSDataType1::landing(cube) }
                 }
             }

@@ -50,31 +50,27 @@ class NSDataType2
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType2::toStringCacheKey(ns2)
-    def self.toStringCacheKey(ns2)
-        "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
-    end
-
     # NSDataType2::pageToString(ns2)
     def self.pageToString(ns2)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(NSDataType2::toStringCacheKey(ns2))
+        cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
-            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
+            str = "[page] [#{ns2["uuid"][0, 4]}] #{description}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
 
-        NavigationPoint::getDownstreamNavigationPointsType1(ns2).each{|ns1|
-            str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
+        PageCubeCommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
+            str = "[page] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         }
 
-        str = "[#{NavigationPoint::userFriendlyName(ns2)}] [#{ns2["uuid"][0, 4]}] [no description]"
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(NSDataType2::toStringCacheKey(ns2), str)
+        str = "[page] [#{ns2["uuid"][0, 4]}] [no description]"
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
         str
     end
 
@@ -91,8 +87,8 @@ class NSDataType2
             .select{|page| NSDataType2::pageMatchesPattern(page, pattern) }
     end
 
-    # NSDataType2::selectPagesBySearchStringInteractively()
-    def self.selectPagesBySearchStringInteractively()
+    # NSDataType2::selectPagesByInteractiveSearchString()
+    def self.selectPagesByInteractiveSearchString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -180,14 +176,30 @@ class NSDataType2
         Thread.kill(thread3)
         Thread.kill(thread4)
 
+        win1.close
+        win2.close
+        win3.close
+
         Curses::close_screen # this method restore our terminal's settings
 
         return (selected_pages || [])
     end
 
+    # NSDataType2::selectPagesByInteractiveSearchStringAndExploreThem()
+    def self.selectPagesByInteractiveSearchStringAndExploreThem()
+        pages = NSDataType2::selectPagesByInteractiveSearchString()
+        return if pages.empty?
+        loop {
+            system("clear")
+            page = LucilleCore::selectEntityFromListOfEntitiesOrNull("page", pages, lambda{|page| NSDataType2::pageToString(page) })
+            break if page.nil?
+            NSDataType2::landing(page)
+        }
+    end
+
     # NSDataType2::selectPageInteractivelyOrNull()
     def self.selectPageInteractivelyOrNull()
-        pages = NSDataType2::selectPagesBySearchStringInteractively()
+        pages = NSDataType2::selectPagesByInteractiveSearchString()
         return nil if pages.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("page", pages, lambda{|page| NSDataType2::pageToString(page) })
@@ -211,7 +223,7 @@ class NSDataType2
 
             system("clear")
 
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete(NSDataType2::toStringCacheKey(ns2)) # decaching the toString
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}") # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -224,7 +236,7 @@ class NSDataType2
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{NavigationPoint::getReferenceDateTime(ns2)}"
+            puts "    date: #{PageCubeCommonInterface::getReferenceDateTime(ns2)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns2)
             if notetext then
                 puts ""
@@ -235,13 +247,11 @@ class NSDataType2
             puts ""
             puts "Parents:"
 
-
-            # We are only expecting Type2 here because Type1 don't link down to Type2
-            NavigationPoint::getUpstreamNavigationPoints(ns2).each{|ns|
+            PageCubeCommonInterface::getUpstreamPages(ns2).each{|ns|
                 print "    "
                 menuitems.raw(
-                    "#{NavigationPoint::toString(ns)}",
-                    NavigationPoint::navigationLambda(ns)
+                    NSDataType2::pageToString(ns),
+                    NSDataType2::landing(ns)
                 )
                 puts ""
             }
@@ -249,13 +259,11 @@ class NSDataType2
             puts ""
             puts "Contents:"
 
-            # Type2 can down stream to Type2 and Type1, we display them separately
-
-            NavigationPoint::getDownstreamNavigationPoints(ns2).each{|ns|
+            PageCubeCommonInterface::getDownstreamObjects(ns2).each{|ns|
                 print "    "
                 menuitems.raw(
-                    NavigationPoint::toString(ns),
-                    NavigationPoint::navigationLambda(ns)
+                    PageCubeCommonInterface::toString(ns),
+                    PageCubeCommonInterface::navigationLambda(ns)
                 )
                 puts ""
             }
@@ -293,7 +301,7 @@ class NSDataType2
             menuitems.item(
                 "[this page] datetime update",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(NavigationPoint::getReferenceDateTime(ns2)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(PageCubeCommonInterface::getReferenceDateTime(ns2)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issueOrException(ns2, datetimez)
@@ -314,15 +322,15 @@ class NSDataType2
                 "[this page] remove as intermediary page", 
                 lambda { 
                     puts "intermediary node removal simulation"
-                    NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
-                        puts "upstreampage   : #{NavigationPoint::toString(upstreampage)}"
+                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreampage|
+                        puts "upstreampage   : #{NSDataType2::pageToString(upstreampage)}"
                     }
-                    NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
-                        puts "downstreampoint: #{NavigationPoint::toString(downstreampoint)}"
+                    PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                        puts "downstreampoint: #{PageCubeCommonInterface::toString(downstreampoint)}"
                     }
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary page ? ")
-                    NavigationPoint::getUpstreamNavigationPoints(ns2).each{|upstreampage|
-                        NavigationPoint::getDownstreamNavigationPoints(ns2).each{|downstreampoint|
+                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreampage|
+                        PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
                             Arrows::issueOrException(upstreampage, downstreampoint)
                         }
                     }
@@ -340,7 +348,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[upstream] add #{NavigationPoint::ufn("Type2")}",
+                "[upstream] add page",
                 lambda {
                     x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if x.nil?
@@ -349,16 +357,16 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "[upstream] remove #{NavigationPoint::ufn("Type2")}",
+                "[upstream] remove page",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getUpstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns2), lambda{|ns| NSDataType2::pageToString(ns) })
                     return if x.nil?
                     Arrows::remove(x, ns2)
                 }
             )
 
             menuitems.item(
-                "[#{NavigationPoint::ufn("Type1")}] add existing",
+                "[cube] add existing",
                 lambda {
                     x1 = NSDataType1::selectExistingCubeInteractivelyOrNull()
                     return if x1.nil?
@@ -366,7 +374,7 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "[#{NavigationPoint::ufn("Type1")}] add new",
+                "[cube] add new",
                 lambda {
                     x1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
@@ -377,10 +385,10 @@ class NSDataType2
             menuitems.item(
                 "[selected cubes] move to a child page",
                 lambda {
-                    return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
+                    return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
                     # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], NavigationPoint::getDownstreamNavigationPointsType1(ns2), lambda{ |ns| NavigationPoint::toString(ns) })
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
                     # Creating the page
@@ -402,10 +410,10 @@ class NSDataType2
             menuitems.item(
                 "[selected cubes] move to an unconnected page ; and land on that page",
                 lambda {
-                    return if NavigationPoint::getDownstreamNavigationPointsType1(ns2).size == 0
+                    return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
                     # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], NavigationPoint::getDownstreamNavigationPointsType1(ns2), lambda{ |ns| NavigationPoint::toString(ns) })
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
                     # Creating the page
@@ -424,7 +432,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[downstream #{NavigationPoint::ufn("Type2")}] add from existing",
+                "[downstream page] add from existing",
                 lambda {
                     x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if x.nil?
@@ -433,9 +441,9 @@ class NSDataType2
                 }
             )
             menuitems.item(
-                "[downstream #{NavigationPoint::ufn("Type2")}] remove",
+                "[downstream page] remove",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", NavigationPoint::getDownstreamNavigationPoints(ns2), lambda{|ns| NavigationPoint::toString(ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getDownstreamObjects(ns2), lambda{|ns| PageCubeCommonInterface::toString(ns) })
                     return if x.nil?
                     Arrows::remove(ns2, x)
                 }
@@ -456,7 +464,7 @@ class NSDataType2
             .map{|ns2|
                 {
                     "description"   => NSDataType2::pageToString(ns2),
-                    "referencetime" => NavigationPoint::getReferenceUnixtime(ns2),
+                    "referencetime" => PageCubeCommonInterface::getReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
             }
