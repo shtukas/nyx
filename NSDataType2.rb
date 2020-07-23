@@ -165,14 +165,14 @@ class NSDataType2
             char = win1.getch.to_s # Reads and returns a character
             if char == '127' then
                 # delete
-                ns_search_string = ns_search_string[0, ns_search_string.length-1].strip
+                ns_search_string = ns_search_string[0, ns_search_string.length-1]
                 next
             end
             if char == '10' then
                 # enter
                 break
             end
-            ns_search_string << char.strip
+            ns_search_string << char
         }
 
         Thread.kill(thread1)
@@ -185,7 +185,7 @@ class NSDataType2
         return (selected_pages || [])
     end
 
-     # NSDataType2::selectPageInteractivelyOrNull()
+    # NSDataType2::selectPageInteractivelyOrNull()
     def self.selectPageInteractivelyOrNull()
         pages = NSDataType2::selectPagesBySearchStringInteractively()
         return nil if pages.empty?
@@ -193,8 +193,8 @@ class NSDataType2
         LucilleCore::selectEntityFromListOfEntitiesOrNull("page", pages, lambda{|page| NSDataType2::pageToString(page) })
     end
 
-    # NSDataType2::selectExistingPageOrMakeNewPageOrNull()
-    def self.selectExistingPageOrMakeNewPageOrNull()
+    # NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
+    def self.selectExistingPageOrMakeNewPageInteractivelyOrNull()
         ns2 = NSDataType2::selectPageInteractivelyOrNull()
         return ns2 if ns2
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
@@ -342,7 +342,7 @@ class NSDataType2
             menuitems.item(
                 "[upstream] add #{NavigationPoint::ufn("Type2")}",
                 lambda {
-                    x = NSDataType2::selectExistingPageOrMakeNewPageOrNull()
+                    x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(x, ns2)
@@ -426,7 +426,7 @@ class NSDataType2
             menuitems.item(
                 "[downstream #{NavigationPoint::ufn("Type2")}] add from existing",
                 lambda {
-                    x = NSDataType2::selectExistingPageOrMakeNewPageOrNull()
+                    x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(ns2, x)

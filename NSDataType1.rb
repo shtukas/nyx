@@ -182,14 +182,14 @@ class NSDataType1
             char = win1.getch.to_s # Reads and returns a character
             if char == '127' then
                 # delete
-                ns_search_string = ns_search_string[0, ns_search_string.length-1].strip
+                ns_search_string = ns_search_string[0, ns_search_string.length-1]
                 next
             end
             if char == '10' then
                 # enter
                 break
             end
-            ns_search_string << char.strip
+            ns_search_string << char
         }
 
         Thread.kill(thread1)
@@ -349,7 +349,7 @@ class NSDataType1
             menuitems.item(
                 "[parent #{NavigationPoint::ufn("Type2")}] add",
                 lambda {
-                    page = NSDataType2::selectExistingPageOrMakeNewPageOrNull()
+                    page = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
                     return if page.nil?
                     Arrows::issueOrException(page, ns1)
                 }
