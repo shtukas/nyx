@@ -39,7 +39,7 @@ class Curation
             return if counter.hasReached(10)
 
             next if NSDataType1::getAsteroidsForCube(cube).size > 0
-            next if DescriptionZ::getLastDescriptionForSourceOrNull(cube)
+            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(cube)
             ns0 = NSDataType1::cubeToLastFrameOrNull(cube)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
@@ -56,8 +56,7 @@ class Curation
                 NSDataType1::landing(cube)
                 next
             end
-            descriptionz = DescriptionZ::issue(description)
-            Arrows::issueOrException(cube, descriptionz)
+            NSDataTypeXExtended::issueDescriptionForTarget(cube, description)
         }
 
         # Give a description to concepts which do not have one
@@ -65,7 +64,7 @@ class Curation
         NSDataType2::concepts()
         .each{|concept|
             return if counter.hasReached(10)
-            next if DescriptionZ::getLastDescriptionForSourceOrNull(concept)
+            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
             NSDataType2::landing(concept)
             counter.increment()
         }

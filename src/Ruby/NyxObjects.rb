@@ -13,10 +13,10 @@ class NyxPrimaryObjects
             "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f", # DescriptionZ
             "1bc9b712-09be-44da-9551-f22d70a3f15d", # DateTimeZ,
             "0f555c97-3843-4dfe-80c8-714d837eba69", # NSDataType0
-            "7e99bb92-098d-4f84-a680-f158126aa3bf", # Comment
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
             "c18e8093-63d6-4072-8827-14f238975d04", # NSDataType1
+            "5c99134b-2b61-4750-8519-49c1d896556f", # NSDataTypeX, attributes
         ]
     end
 

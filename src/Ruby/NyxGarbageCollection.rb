@@ -17,12 +17,6 @@ class NyxGarbageCollection
             end
         }
 
-        DescriptionZ::descriptionz().each{|descriptionz|
-            next if Arrows::getSourcesForTarget(descriptionz).size > 0
-            puts "removing descriptionz: #{descriptionz}"
-            NyxObjects::destroy(descriptionz)
-        }
-
         DateTimeZ::datetimez().each{|datetimez|
             next if Arrows::getSourcesForTarget(datetimez).size > 0
             puts "removing datetimez: #{datetimez}"

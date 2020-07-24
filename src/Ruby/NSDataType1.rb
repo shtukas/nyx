@@ -31,7 +31,7 @@ class NSDataType1
         return str if str
 
         ns0s = NSDataType1::cubeToFramesInTimeOrder(ns1)
-        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
         if description and ns0s.size > 0 then
             str = "[cube] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
@@ -57,7 +57,7 @@ class NSDataType1
 
     # NSDataType1::getCubeDescriptionOrNull(cube)
     def self.getCubeDescriptionOrNull(cube)
-        DescriptionZ::getLastDescriptionForSourceOrNull(cube)
+        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(cube)
     end
 
     # NSDataType1::getReferenceDateTime(ns)
@@ -93,8 +93,7 @@ class NSDataType1
     def self.giveDescriptionToCubeInteractively(ns1)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
-        descriptionz = DescriptionZ::issue(description)
-        Arrows::issueOrException(ns1, descriptionz)
+        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
     end
 
     # NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
@@ -351,20 +350,19 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
             if description then
                 menuitems.item(
                     "[this] description update",
                     lambda{
-                        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+                        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
                         if description.nil? then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
                             description = Miscellaneous::editTextUsingTextmate(description).strip
                         end
                         return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns1, descriptionz)
+                        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
                     }
                 )
             else
@@ -373,8 +371,7 @@ class NSDataType1
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns1, descriptionz)
+                        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
                     }
                 )
             end

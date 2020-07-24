@@ -12,10 +12,7 @@ class NSDataType2
         }
         puts JSON.pretty_generate(ns2)
         NyxObjects::put(ns2)
-
-        descriptionz = DescriptionZ::issue(description)
-        puts JSON.pretty_generate(descriptionz)
-        Arrows::issueOrException(ns2, descriptionz)
+        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
         ns2
     end
 
@@ -32,9 +29,7 @@ class NSDataType2
         puts JSON.pretty_generate(ns2)
         NyxObjects::put(ns2)
 
-        descriptionz = DescriptionZ::issue(description)
-        puts JSON.pretty_generate(descriptionz)
-        Arrows::issueOrException(ns2, descriptionz)
+        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
 
         ns2
     end
@@ -52,7 +47,7 @@ class NSDataType2
 
     # NSDataType2::getConceptDescriptionOrNull(concept)
     def self.getConceptDescriptionOrNull(concept)
-        DescriptionZ::getLastDescriptionForSourceOrNull(concept)
+        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
     end
 
     # NSDataType2::conceptToString(ns2)
@@ -61,7 +56,7 @@ class NSDataType2
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
-        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
         if description then
             str = "[concept] [#{ns2["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
@@ -265,20 +260,19 @@ class NSDataType2
 
             Miscellaneous::horizontalRule()
 
-            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
+            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
             if description then
                 menuitems.item(
                     "[this] description update",
                     lambda{
-                        description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
+                        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
                         if description.nil? then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
                             description = Miscellaneous::editTextUsingTextmate(description).strip
                         end
                         return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns2, descriptionz)
+                        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
                     }
                 )
             else
@@ -287,8 +281,7 @@ class NSDataType2
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        descriptionz = DescriptionZ::issue(description)
-                        Arrows::issueOrException(ns2, descriptionz)
+                        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
                     }
                 )
             end

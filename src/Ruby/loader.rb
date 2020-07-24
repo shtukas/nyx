@@ -59,13 +59,10 @@ require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 
-require_relative "Comments.rb"
-
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
 require_relative "DateTimeZ.rb"
-require_relative "DescriptionZ.rb"
 require_relative "DeskOperator.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -109,11 +106,11 @@ require_relative "Mercury.rb"
 
 require_relative "Miscellaneous.rb"
 
-require_relative "Type1Type2CommonInterface.rb"
 require_relative "Notes.rb"
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"
 require_relative "NSDataType2.rb"
+require_relative "NSDataTypeX.rb"
 require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"
@@ -133,6 +130,7 @@ require_relative "SectionsType0141.rb"
 require_relative "ShadowFS.rb"
 
 require_relative "TextZs.rb"
+require_relative "Type1Type2CommonInterface.rb"
 
 require_relative "VideoStream.rb"
 

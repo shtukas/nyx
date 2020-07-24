@@ -1,9 +1,0 @@
-
-------------------------------------------------------
-Comment
-{
-    "uuid"       : String
-    "nyxNxSet"   : "7e99bb92-098d-4f84-a680-f158126aa3bf"
-    "unixtime"   : Float
-    "namedhash"  : String
-}
