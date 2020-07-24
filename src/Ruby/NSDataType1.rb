@@ -409,7 +409,7 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "[upsream] remove concept",
+                "[upstream] remove concept",
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if ns.nil?
