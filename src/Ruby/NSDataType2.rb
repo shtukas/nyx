@@ -234,12 +234,6 @@ class NSDataType2
                 puts "    description: #{description}"
             end
             puts "    date: #{PageCubeCommonInterface::getReferenceDateTime(ns2)}"
-            notetext = Notes::getMostRecentTextForSourceOrNull(ns2)
-            if notetext then
-                puts ""
-                puts "    Note:"
-                puts notetext.lines.map{|line| "        #{line}" }.join()
-            end
 
             puts ""
             puts "Parents:"
@@ -302,16 +296,6 @@ class NSDataType2
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issueOrException(ns2, datetimez)
-                }
-            )
-
-            menuitems.item(
-                "[this page] top note edit", 
-                lambda{ 
-                    text = Notes::getMostRecentTextForSourceOrNull(ns2) || ""
-                    text = Miscellaneous::editTextUsingTextmate(text).strip
-                    note = Notes::issue(text)
-                    Arrows::issueOrException(ns2, note)
                 }
             )
 
