@@ -58,6 +58,11 @@ class Realms
         raise "[error: 371ce8ea]"
     end
 
+    # Realms::getRealmName()
+    def self.getRealmName()
+        Realms::getRealmConfig()["realmName"]
+    end
+
     # Realms::primaryDataStoreFolderPath()
     def self.primaryDataStoreFolderPath()
         Realms::getRealmConfig()["primaryDataStoreFolderPath"]
