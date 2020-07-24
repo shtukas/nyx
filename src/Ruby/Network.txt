@@ -8,7 +8,6 @@ NSDataType2
     -> NSDataType1
     -> NSDataType2
     -> DescriptionZ
-    -> DateTimeZ
 
 NSDataType1
     -> NSDataType0

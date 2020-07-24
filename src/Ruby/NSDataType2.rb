@@ -233,7 +233,6 @@ class NSDataType2
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{PageCubeCommonInterface::getReferenceDateTime(ns2)}"
 
             puts ""
             puts "Parents:"
@@ -288,16 +287,6 @@ class NSDataType2
                     }
                 )
             end
-
-            menuitems.item(
-                "[this page] datetime update",
-                lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(PageCubeCommonInterface::getReferenceDateTime(ns2)).strip
-                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-                    datetimez = DateTimeZ::issue(datetime)
-                    Arrows::issueOrException(ns2, datetimez)
-                }
-            )
 
             menuitems.item(
                 "[this page] remove as intermediary page", 
