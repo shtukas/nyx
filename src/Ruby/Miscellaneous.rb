@@ -34,8 +34,8 @@ class Miscellaneous
       IO.read(filepath)
     end
 
-    # Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-    def self.isProperDateTime_utc_iso8601(datetime)
+    # Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+    def self.isDateTime_UTC_ISO8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
     end
 

@@ -7,6 +7,16 @@ NSDataTypeX (attributes)
     "unixtime"       : Float # Unixtime with decimals
     "targetuuid"     : String
     "typeIdentifier" : "4868c01e-2621-4329-8602-6a6fc92bc51c"
-                       DESCRIPTION
+                       Description
+    "payload"        : String
+}
+
+{
+    "uuid"           : String
+    "nyxNxSet"       : "5c99134b-2b61-4750-8519-49c1d896556f"
+    "unixtime"       : Float # Unixtime with decimals
+    "targetuuid"     : String
+    "typeIdentifier" : "77b95849-efbb-4b3f-b353-347658486447"
+                       DateTime ISO 8601
     "payload"        : String
 }

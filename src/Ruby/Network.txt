@@ -7,13 +7,9 @@ Asteroid
 NSDataType2
     -> NSDataType1
     -> NSDataType2
-    -> DescriptionZ
 
 NSDataType1
     -> NSDataType0
-    -> DescriptionZ
-    -> DateTimeZ
-    -> Note
 
 
 

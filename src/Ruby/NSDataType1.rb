@@ -62,7 +62,7 @@ class NSDataType1
 
     # NSDataType1::getReferenceDateTime(ns)
     def self.getReferenceDateTime(ns)
-        datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)
+        datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(ns)
         return datetime if datetime
         Time.at(ns["unixtime"]).utc.iso8601
     end
@@ -379,9 +379,8 @@ class NSDataType1
                 "[this] datetime update",
                 lambda{
                     datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
-                    return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
-                    datetimez = DateTimeZ::issue(datetime)
-                    Arrows::issueOrException(ns1, datetimez)
+                    return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+                    NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
                 }
             )
             menuitems.item(

@@ -7,7 +7,8 @@ class NSDataTypeX
     def self.currentTypeIdentifiers()
         # NSDataTypeX with a type not in this list will be garbage collected.
         [
-            "4868c01e-2621-4329-8602-6a6fc92bc51c" # description
+            "4868c01e-2621-4329-8602-6a6fc92bc51c", # Description
+            "77b95849-efbb-4b3f-b353-347658486447" # DateTime ISO 8601
         ]
     end
 
@@ -51,6 +52,11 @@ end
 
 class NSDataTypeXExtended
 
+    # NSDataTypeXExtended::issueDescriptionForTarget(target, description)
+    def self.issueDescriptionForTarget(target, description)
+        NSDataTypeX::issue(target["uuid"], "4868c01e-2621-4329-8602-6a6fc92bc51c", description)
+    end
+
     # NSDataTypeXExtended::getLastDescriptionForTargetOrNull(target)
     def self.getLastDescriptionForTargetOrNull(target)
         attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "4868c01e-2621-4329-8602-6a6fc92bc51c")
@@ -58,8 +64,16 @@ class NSDataTypeXExtended
         attribute["payload"]
     end
 
-    # NSDataTypeXExtended::issueDescriptionForTarget(target, description)
-    def self.issueDescriptionForTarget(target, description)
-        NSDataTypeX::issue(target["uuid"], "4868c01e-2621-4329-8602-6a6fc92bc51c", description)
+    # NSDataTypeXExtended::issueDateTimeIso8601ForTarget(target, datetime)
+    def self.issueDateTimeIso8601ForTarget(target, datetime)
+        raise "[error: 94222cc7-d035-4d9d-a7a8-e351a6bd1d12]" if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+        NSDataTypeX::issue(target["uuid"], "77b95849-efbb-4b3f-b353-347658486447", datetime)
+    end
+
+    # NSDataTypeXExtended::getLastDateTimeForTargetOrNull(target)
+    def self.getLastDateTimeForTargetOrNull(target)
+        attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "77b95849-efbb-4b3f-b353-347658486447")
+        return nil if attribute.nil?
+        attribute["payload"]
     end
 end
