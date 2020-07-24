@@ -33,8 +33,8 @@ class Type1Type2CommonInterface
         raise "[error: fd3c6cff]"
     end
 
-    # Type1Type2CommonInterface::getUpstreamPages(ns)
-    def self.getUpstreamPages(ns)
+    # Type1Type2CommonInterface::getUpstreamConcepts(ns)
+    def self.getUpstreamConcepts(ns)
         Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 

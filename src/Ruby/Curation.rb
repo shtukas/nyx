@@ -75,7 +75,7 @@ class Curation
         NSDataType1::cubes()
         .each{|cube|
             return if counter.hasReached(10)
-            next if Type1Type2CommonInterface::getUpstreamPages(cube).size > 0
+            next if Type1Type2CommonInterface::getUpstreamConcepts(cube).size > 0
             NSDataType2::landing(cube)
             counter.increment()
         }

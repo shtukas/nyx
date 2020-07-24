@@ -59,7 +59,7 @@ class DataPortalUI
                     end
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    Type1Type2CommonInterface::getUpstreamPages(concept2).each{|x|
+                    Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
                         puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                     }
                     # Moving all the downstreams of concept2 toward concept 1
@@ -70,7 +70,7 @@ class DataPortalUI
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    Type1Type2CommonInterface::getUpstreamPages(concept2).each{|x|
+                    Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
                         Arrows::issueOrException(x, concept1)
                     }
                     # Moving all the downstreams of concept2 toward concept 1

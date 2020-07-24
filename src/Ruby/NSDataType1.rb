@@ -55,6 +55,11 @@ class NSDataType1
         "[cube] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological cube: #{ns1["uuid"]}]"
     end
 
+    # NSDataType1::getCubeDescriptionOrNull(cube)
+    def self.getCubeDescriptionOrNull(cube)
+        DescriptionZ::getLastDescriptionForSourceOrNull(cube)
+    end
+
     # NSDataType1::getReferenceDateTime(ns)
     def self.getReferenceDateTime(ns)
         datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)
@@ -275,7 +280,7 @@ class NSDataType1
             puts NSDataType1::cubeToString(ns1)
 
             puts "    uuid: #{ns1["uuid"]}"
-            description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
+            description = NSDataType1::getCubeDescriptionOrNull(ns1)
             if description then
                 puts "    description: #{description}"
             end
@@ -304,7 +309,7 @@ class NSDataType1
                 }
             end
 
-            Type1Type2CommonInterface::getUpstreamPages(ns1).each{|ns|
+            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
                 print "    "
                 menuitems.raw(
                     NSDataType2::conceptToString(ns),
@@ -349,7 +354,7 @@ class NSDataType1
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
             if description then
                 menuitems.item(
-                    "[this cube] description update",
+                    "[this] description update",
                     lambda{
                         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns1)
                         if description.nil? then
@@ -364,7 +369,7 @@ class NSDataType1
                 )
             else
                 menuitems.item(
-                    "[this cube] description set",
+                    "[this] description set",
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
@@ -374,7 +379,7 @@ class NSDataType1
                 )
             end
             menuitems.item(
-                "[this cube] datetime update",
+                "[this] datetime update",
                 lambda{
                     datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
@@ -383,7 +388,7 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "[this cube] top note edit", 
+                "[this] top note edit", 
                 lambda{ 
                     text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
@@ -392,7 +397,7 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "[this cube] destroy",
+                "[this] destroy",
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
                         NSDataType1::cubeDestroyProcedure(ns1)
@@ -401,7 +406,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "[parent concept] add",
+                "[upstream] add concept",
                 lambda {
                     concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if concept.nil?
@@ -409,9 +414,9 @@ class NSDataType1
                 }
             )
             menuitems.item(
-                "[parent concept] remove",
+                "[upsream] remove concept",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }
