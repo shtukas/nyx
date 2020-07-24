@@ -14,8 +14,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "explore pages", 
-                lambda { NSDataType2::selectPagesByInteractiveSearchStringAndExploreThem() }
+                "explore concepts", 
+                lambda { NSDataType2::selectConceptsUsingInteractiveSearchStringAndExploreThem() }
             )
 
             ms.item(
@@ -35,49 +35,49 @@ class DataPortalUI
             )
 
             ms.item(
-                "new page",
+                "new concept",
                 lambda { 
-                    ns2 = NSDataType2::issueNewPageInteractivelyOrNull()
+                    ns2 = NSDataType2::issueNewConceptInteractivelyOrNull()
                     return if ns2.nil?
                     NSDataType2::landing(ns2)
                 }
             )
 
             ms.item(
-                "merge two pages",
+                "merge two concepts",
                 lambda { 
-                    puts "Merging two pages"
+                    puts "Merging two concepts"
                     puts "Selecting one after the other and then will merge"
-                    page1 = NSDataType2::selectPageInteractivelyOrNull()
-                    return if page1.nil?
-                    page2 = NSDataType2::selectPageInteractivelyOrNull()
-                    return if page2.nil?
-                    if page1["uuid"] == page2["uuid"] then
-                        puts "You have selected the same page twice. Aborting merge operation."
+                    concept1 = NSDataType2::selectConceptInteractivelyOrNull()
+                    return if concept1.nil?
+                    concept2 = NSDataType2::selectConceptInteractivelyOrNull()
+                    return if concept2.nil?
+                    if concept1["uuid"] == concept2["uuid"] then
+                        puts "You have selected the same concept twice. Aborting merge operation."
                         LucilleCore::pressEnterToContinue()
                         return
                     end
 
-                    # Moving all the page upstreams of page2 towards page 1
-                    PageCubeCommonInterface::getUpstreamPages(page2).each{|x|
-                        puts "arrow (1): #{NSDataType2::pageToString(x)} -> #{NSDataType2::pageToString(page1)}"
+                    # Moving all the concept upstreams of concept2 towards concept 1
+                    PageCubeCommonInterface::getUpstreamPages(concept2).each{|x|
+                        puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                     }
-                    # Moving all the downstreams of page2 toward page 1
-                    PageCubeCommonInterface::getDownstreamObjects(page2).each{|x|
-                        puts "arrow (2): #{NSDataType2::pageToString(page1)} -> #{NSDataType2::pageToString(x)}"
+                    # Moving all the downstreams of concept2 toward concept 1
+                    PageCubeCommonInterface::getDownstreamObjects(concept2).each{|x|
+                        puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
-                    # Moving all the page upstreams of page2 towards page 1
-                    PageCubeCommonInterface::getUpstreamPages(page2).each{|x|
-                        Arrows::issueOrException(x, page1)
+                    # Moving all the concept upstreams of concept2 towards concept 1
+                    PageCubeCommonInterface::getUpstreamPages(concept2).each{|x|
+                        Arrows::issueOrException(x, concept1)
                     }
-                    # Moving all the downstreams of page2 toward page 1
-                    PageCubeCommonInterface::getDownstreamObjects(page2).each{|x|
-                        Arrows::issueOrException(page1, x)
+                    # Moving all the downstreams of concept2 toward concept 1
+                    PageCubeCommonInterface::getDownstreamObjects(concept2).each{|x|
+                        Arrows::issueOrException(concept1, x)
                     }
-                    NyxObjects::destroy(page2)
+                    NyxObjects::destroy(concept2)
                 }
             )
 

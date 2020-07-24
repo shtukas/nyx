@@ -17,7 +17,7 @@ class PageCubeCommonInterface
             return NSDataType1::cubeToString(ns)
         end
         if PageCubeCommonInterface::objectIsType2(ns) then
-            return NSDataType2::pageToString(ns)
+            return NSDataType2::conceptToString(ns)
         end
         raise "[error: dd0dce2a]"
     end

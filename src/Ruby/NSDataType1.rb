@@ -171,9 +171,9 @@ class NSDataType1
             loop {
                 sleep 1
                 win3.setpos(0,0)
-                selected_cubes.first(40).each{|page|
+                selected_cubes.first(40).each{|concept|
                     win3.deleteln()
-                    win3 << "#{NSDataType1::cubeToString(page)}\n"
+                    win3 << "#{NSDataType1::cubeToString(concept)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh
@@ -295,7 +295,7 @@ class NSDataType1
             PageCubeCommonInterface::getUpstreamPages(ns1).each{|ns|
                 print "    "
                 menuitems.raw(
-                    NSDataType2::pageToString(ns),
+                    NSDataType2::conceptToString(ns),
                     lambda { NSDataType2::landing(ns) }
                 )
                 puts ""
@@ -389,17 +389,17 @@ class NSDataType1
             )
 
             menuitems.item(
-                "[parent page] add",
+                "[parent concept] add",
                 lambda {
-                    page = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
-                    return if page.nil?
-                    Arrows::issueOrException(page, ns1)
+                    concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
+                    return if concept.nil?
+                    Arrows::issueOrException(concept, ns1)
                 }
             )
             menuitems.item(
-                "[parent page] remove",
+                "[parent concept] remove",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::pageToString(ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }

@@ -60,17 +60,17 @@ class Curation
             Arrows::issueOrException(cube, descriptionz)
         }
 
-        # Give a description to pages which do not have one
+        # Give a description to concepts which do not have one
 
-        NSDataType2::pages()
-        .each{|page|
+        NSDataType2::concepts()
+        .each{|concept|
             return if counter.hasReached(10)
-            next if DescriptionZ::getLastDescriptionForSourceOrNull(page)
-            NSDataType2::landing(page)
+            next if DescriptionZ::getLastDescriptionForSourceOrNull(concept)
+            NSDataType2::landing(concept)
             counter.increment()
         }
 
-        # Give a upstream pages to cubes which do not have one
+        # Give a upstream concepts to cubes which do not have one
 
         NSDataType1::cubes()
         .each{|cube|

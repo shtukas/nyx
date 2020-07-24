@@ -3,8 +3,8 @@
 
 class NSDataType2
 
-    # NSDataType2::issueNewPageWithDescription(description)
-    def self.issueNewPageWithDescription(description)
+    # NSDataType2::issueNewConceptWithDescription(description)
+    def self.issueNewConceptWithDescription(description)
         ns2 = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
@@ -19,8 +19,8 @@ class NSDataType2
         ns2
     end
 
-    # NSDataType2::issueNewPageInteractivelyOrNull()
-    def self.issueNewPageInteractivelyOrNull()
+    # NSDataType2::issueNewConceptInteractivelyOrNull()
+    def self.issueNewConceptInteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
         return nil if description.size == 0
 
@@ -39,8 +39,8 @@ class NSDataType2
         ns2
     end
 
-    # NSDataType2::pages()
-    def self.pages()
+    # NSDataType2::concepts()
+    def self.concepts()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
@@ -50,45 +50,45 @@ class NSDataType2
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType2::pageToString(ns2)
-    def self.pageToString(ns2)
+    # NSDataType2::conceptToString(ns2)
+    def self.conceptToString(ns2)
         cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
         if description then
-            str = "[page] [#{ns2["uuid"][0, 4]}] #{description}"
+            str = "[concept] [#{ns2["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
 
         PageCubeCommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
-            str = "[page] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
+            str = "[concept] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         }
 
-        str = "[page] [#{ns2["uuid"][0, 4]}] [no description]"
+        str = "[concept] [#{ns2["uuid"][0, 4]}] [no description]"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
         str
     end
 
-    # NSDataType2::pageMatchesPattern(ns2, pattern)
-    def self.pageMatchesPattern(ns2, pattern)
+    # NSDataType2::conceptMatchesPattern(ns2, pattern)
+    def self.conceptMatchesPattern(ns2, pattern)
         return true if ns2["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType2::pageToString(ns2).downcase.include?(pattern.downcase)
+        return true if NSDataType2::conceptToString(ns2).downcase.include?(pattern.downcase)
         false
     end
 
-    # NSDataType2::selectPagesPerPattern(pattern)
-    def self.selectPagesPerPattern(pattern)
-        NSDataType2::pages()
-            .select{|page| NSDataType2::pageMatchesPattern(page, pattern) }
+    # NSDataType2::selectConceptsUsingPattern(pattern)
+    def self.selectConceptsUsingPattern(pattern)
+        NSDataType2::concepts()
+            .select{|concept| NSDataType2::conceptMatchesPattern(concept, pattern) }
     end
 
-    # NSDataType2::selectPagesByInteractiveSearchString()
-    def self.selectPagesByInteractiveSearchString()
+    # NSDataType2::selectConceptsUsingInteractiveSearchString()
+    def self.selectConceptsUsingInteractiveSearchString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -106,7 +106,7 @@ class NSDataType2
 
         search_string_558ca20d = ""
         search_queue           = []
-        selected_pages         = []
+        selected_concepts         = []
 
         thread1 = Thread.new {
             loop {
@@ -132,9 +132,9 @@ class NSDataType2
             loop {
                 sleep 1
                 win3.setpos(0,0)
-                selected_pages.first(40).each{|page|
+                selected_concepts.first(40).each{|concept|
                     win3.deleteln()
-                    win3 << "#{NSDataType2::pageToString(page)}\n"
+                    win3 << "#{NSDataType2::conceptToString(concept)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh
@@ -147,7 +147,7 @@ class NSDataType2
                 next if search_queue.empty?
                 str = search_queue.shift
                 next if str == 0
-                selected_pages = NSDataType2::selectPagesPerPattern(str)
+                selected_concepts = NSDataType2::selectConceptsUsingPattern(str)
             }
         }
 
@@ -179,35 +179,35 @@ class NSDataType2
 
         Curses::close_screen # this method restore our terminal's settings
 
-        return (selected_pages || [])
+        return (selected_concepts || [])
     end
 
-    # NSDataType2::selectPagesByInteractiveSearchStringAndExploreThem()
-    def self.selectPagesByInteractiveSearchStringAndExploreThem()
-        pages = NSDataType2::selectPagesByInteractiveSearchString()
-        return if pages.empty?
+    # NSDataType2::selectConceptsUsingInteractiveSearchStringAndExploreThem()
+    def self.selectConceptsUsingInteractiveSearchStringAndExploreThem()
+        concepts = NSDataType2::selectConceptsUsingInteractiveSearchString()
+        return if concepts.empty?
         loop {
             system("clear")
-            page = LucilleCore::selectEntityFromListOfEntitiesOrNull("page", pages, lambda{|page| NSDataType2::pageToString(page) })
-            break if page.nil?
-            NSDataType2::landing(page)
+            concept = LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", concepts, lambda{|concept| NSDataType2::conceptToString(concept) })
+            break if concept.nil?
+            NSDataType2::landing(concept)
         }
     end
 
-    # NSDataType2::selectPageInteractivelyOrNull()
-    def self.selectPageInteractivelyOrNull()
-        pages = NSDataType2::selectPagesByInteractiveSearchString()
-        return nil if pages.empty?
+    # NSDataType2::selectConceptInteractivelyOrNull()
+    def self.selectConceptInteractivelyOrNull()
+        concepts = NSDataType2::selectConceptsUsingInteractiveSearchString()
+        return nil if concepts.empty?
         system("clear")
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("page", pages, lambda{|page| NSDataType2::pageToString(page) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", concepts, lambda{|concept| NSDataType2::conceptToString(concept) })
     end
 
-    # NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
-    def self.selectExistingPageOrMakeNewPageInteractivelyOrNull()
-        ns2 = NSDataType2::selectPageInteractivelyOrNull()
+    # NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
+    def self.selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
+        ns2 = NSDataType2::selectConceptInteractivelyOrNull()
         return ns2 if ns2
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
-        NSDataType2::issueNewPageInteractivelyOrNull()
+        NSDataType2::issueNewConceptInteractivelyOrNull()
     end
 
     # NSDataType2::landing(ns2)
@@ -226,7 +226,7 @@ class NSDataType2
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataType2::pageToString(ns2)
+            puts NSDataType2::conceptToString(ns2)
 
             puts "    uuid: #{ns2["uuid"]}"
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
@@ -240,7 +240,7 @@ class NSDataType2
             PageCubeCommonInterface::getUpstreamPages(ns2).each{|ns|
                 print "    "
                 menuitems.raw(
-                    NSDataType2::pageToString(ns),
+                    NSDataType2::conceptToString(ns),
                     lambda { NSDataType2::landing(ns) }
                 )
                 puts ""
@@ -263,7 +263,7 @@ class NSDataType2
             description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
             if description then
                 menuitems.item(
-                    "[this page] description update",
+                    "[this concept] description update",
                     lambda{
                         description = DescriptionZ::getLastDescriptionForSourceOrNull(ns2)
                         if description.nil? then
@@ -278,7 +278,7 @@ class NSDataType2
                 )
             else
                 menuitems.item(
-                    "[this page] description set",
+                    "[this concept] description set",
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
@@ -289,19 +289,19 @@ class NSDataType2
             end
 
             menuitems.item(
-                "[this page] remove as intermediary page", 
+                "[this concept] remove as intermediary concept", 
                 lambda { 
                     puts "intermediary node removal simulation"
-                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreampage|
-                        puts "upstreampage   : #{NSDataType2::pageToString(upstreampage)}"
+                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
+                        puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
                     }
                     PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
                         puts "downstreampoint: #{PageCubeCommonInterface::toString(downstreampoint)}"
                     }
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary page ? ")
-                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreampage|
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
+                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
                         PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
-                            Arrows::issueOrException(upstreampage, downstreampoint)
+                            Arrows::issueOrException(upstreamconcept, downstreampoint)
                         }
                     }
                     NyxObjects::destroy(ns2)
@@ -309,7 +309,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[this page] destroy", 
+                "[this concept] destroy", 
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
                         NyxObjects::destroy(ns2)
@@ -318,18 +318,18 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[upstream] add page",
+                "[upstream] add concept",
                 lambda {
-                    x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
+                    x = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(x, ns2)
                 }
             )
             menuitems.item(
-                "[upstream] remove page",
+                "[upstream] remove concept",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns2), lambda{|ns| NSDataType2::pageToString(ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if x.nil?
                     Arrows::remove(x, ns2)
                 }
@@ -353,7 +353,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[selected cubes] move to a child page",
+                "[selected cubes] move to a child concept",
                 lambda {
                     return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
@@ -361,15 +361,15 @@ class NSDataType2
                     cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
-                    # Creating the page
-                    newpage = NSDataType2::issueNewPageInteractivelyOrNull()
+                    # Creating the concept
+                    newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
 
-                    # Setting the page as target of this one
-                    Arrows::issueOrException(ns, newpage)
+                    # Setting the concept as target of this one
+                    Arrows::issueOrException(ns, newconcept)
 
                     # Moving the cubes
                     cubes.each{|cube|
-                        Arrows::issueOrException(newpage, cube)
+                        Arrows::issueOrException(newconcept, cube)
                     }
                     cubes.each{|cube|
                         Arrows::remove(ns, cube)
@@ -378,7 +378,7 @@ class NSDataType2
             )
 
             menuitems.item(
-                "[selected cubes] move to an unconnected page ; and land on that page",
+                "[selected cubes] move to an unconnected concept ; and land on that concept",
                 lambda {
                     return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
@@ -386,32 +386,32 @@ class NSDataType2
                     cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
-                    # Creating the page
-                    newpage = NSDataType2::issueNewPageInteractivelyOrNull()
+                    # Creating the concept
+                    newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
 
                     # Moving the cubes
                     cubes.each{|cube|
-                        Arrows::issueOrException(newpage, cube)
+                        Arrows::issueOrException(newconcept, cube)
                     }
                     cubes.each{|cube|
                         Arrows::remove(ns, cube)
                     }
                     
-                    NSDataType2::landing(newpage)
+                    NSDataType2::landing(newconcept)
                 }
             )
 
             menuitems.item(
-                "[downstream page] add from existing",
+                "[downstream concept] add from existing",
                 lambda {
-                    x = NSDataType2::selectExistingPageOrMakeNewPageInteractivelyOrNull()
+                    x = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if x.nil?
                     return if x["uuid"] == ns2["uuid"]
                     Arrows::issueOrException(ns2, x)
                 }
             )
             menuitems.item(
-                "[downstream page] remove",
+                "[downstream concept] remove",
                 lambda {
                     x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getDownstreamObjects(ns2), lambda{|ns| PageCubeCommonInterface::toString(ns) })
                     return if x.nil?
@@ -430,10 +430,10 @@ class NSDataType2
 
     # NSDataType2::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType2::selectPagesPerPattern(pattern)
+        NSDataType2::selectConceptsUsingPattern(pattern)
             .map{|ns2|
                 {
-                    "description"   => NSDataType2::pageToString(ns2),
+                    "description"   => NSDataType2::conceptToString(ns2),
                     "referencetime" => PageCubeCommonInterface::getReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
