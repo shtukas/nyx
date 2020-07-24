@@ -267,7 +267,7 @@ class NSDataType1
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{PageCubeCommonInterface::getReferenceDateTime(ns1)}"
+            puts "    date: #{Type1Type2CommonInterface::getReferenceDateTime(ns1)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
             if notetext then
                 puts ""
@@ -292,7 +292,7 @@ class NSDataType1
                 }
             end
 
-            PageCubeCommonInterface::getUpstreamPages(ns1).each{|ns|
+            Type1Type2CommonInterface::getUpstreamPages(ns1).each{|ns|
                 print "    "
                 menuitems.raw(
                     NSDataType2::conceptToString(ns),
@@ -364,7 +364,7 @@ class NSDataType1
             menuitems.item(
                 "[this cube] datetime update",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(PageCubeCommonInterface::getReferenceDateTime(ns1)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(Type1Type2CommonInterface::getReferenceDateTime(ns1)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issueOrException(ns1, datetimez)
@@ -399,7 +399,7 @@ class NSDataType1
             menuitems.item(
                 "[parent concept] remove",
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamPages(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if ns.nil?
                     Arrows::remove(ns, ns1)
                 }
@@ -420,7 +420,7 @@ class NSDataType1
             .map{|cube|
                 {
                     "description"   => NSDataType1::cubeToString(cube),
-                    "referencetime" => PageCubeCommonInterface::getReferenceUnixtime(cube),
+                    "referencetime" => Type1Type2CommonInterface::getReferenceUnixtime(cube),
                     "dive"          => lambda{ NSDataType1::landing(cube) }
                 }
             }

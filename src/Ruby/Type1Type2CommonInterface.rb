@@ -1,66 +1,66 @@
 
-class PageCubeCommonInterface
+class Type1Type2CommonInterface
 
-    # PageCubeCommonInterface::objectIsType1(ns)
+    # Type1Type2CommonInterface::objectIsType1(ns)
     def self.objectIsType1(ns)
         ns["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
     end
 
-    # PageCubeCommonInterface::objectIsType2(ns)
+    # Type1Type2CommonInterface::objectIsType2(ns)
     def self.objectIsType2(ns)
         ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
     end
 
-    # PageCubeCommonInterface::toString(ns)
+    # Type1Type2CommonInterface::toString(ns)
     def self.toString(ns)
-        if PageCubeCommonInterface::objectIsType1(ns) then
+        if Type1Type2CommonInterface::objectIsType1(ns) then
             return NSDataType1::cubeToString(ns)
         end
-        if PageCubeCommonInterface::objectIsType2(ns) then
+        if Type1Type2CommonInterface::objectIsType2(ns) then
             return NSDataType2::conceptToString(ns)
         end
         raise "[error: dd0dce2a]"
     end
 
-    # PageCubeCommonInterface::navigationLambda(ns)
+    # Type1Type2CommonInterface::navigationLambda(ns)
     def self.navigationLambda(ns)
-        if PageCubeCommonInterface::objectIsType1(ns) then
+        if Type1Type2CommonInterface::objectIsType1(ns) then
             return lambda { NSDataType1::landing(ns) }
         end
-        if PageCubeCommonInterface::objectIsType2(ns) then
+        if Type1Type2CommonInterface::objectIsType2(ns) then
             return lambda { NSDataType2::landing(ns) }
         end
         raise "[error: fd3c6cff]"
     end
 
-    # PageCubeCommonInterface::getReferenceDateTime(ns)
+    # Type1Type2CommonInterface::getReferenceDateTime(ns)
     def self.getReferenceDateTime(ns)
         datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)
         return datetime if datetime
         Time.at(ns["unixtime"]).utc.iso8601
     end
 
-    # PageCubeCommonInterface::getReferenceUnixtime(ns)
+    # Type1Type2CommonInterface::getReferenceUnixtime(ns)
     def self.getReferenceUnixtime(ns)
-        DateTime.parse(PageCubeCommonInterface::getReferenceDateTime(ns)).to_time.to_f
+        DateTime.parse(Type1Type2CommonInterface::getReferenceDateTime(ns)).to_time.to_f
     end
 
-    # PageCubeCommonInterface::getUpstreamPages(ns)
+    # Type1Type2CommonInterface::getUpstreamPages(ns)
     def self.getUpstreamPages(ns)
         Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
-    # PageCubeCommonInterface::getDownstreamObjects(ns)
+    # Type1Type2CommonInterface::getDownstreamObjects(ns)
     def self.getDownstreamObjects(ns)
         Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f"])
     end
 
-    # PageCubeCommonInterface::getDownstreamObjectsType1(ns)
+    # Type1Type2CommonInterface::getDownstreamObjectsType1(ns)
     def self.getDownstreamObjectsType1(ns)
         Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # PageCubeCommonInterface::getDownstreamObjectsType2(ns)
+    # Type1Type2CommonInterface::getDownstreamObjectsType2(ns)
     def self.getDownstreamObjectsType2(ns)
         Arrows::getTargetsOfGivenSetsForSource(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
     end

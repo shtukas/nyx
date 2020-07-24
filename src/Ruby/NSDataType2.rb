@@ -63,7 +63,7 @@ class NSDataType2
             return str
         end
 
-        PageCubeCommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
+        Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
             str = "[concept] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
@@ -237,7 +237,7 @@ class NSDataType2
             puts ""
             puts "Parents:"
 
-            PageCubeCommonInterface::getUpstreamPages(ns2).each{|ns|
+            Type1Type2CommonInterface::getUpstreamPages(ns2).each{|ns|
                 print "    "
                 menuitems.raw(
                     NSDataType2::conceptToString(ns),
@@ -249,11 +249,11 @@ class NSDataType2
             puts ""
             puts "Contents:"
 
-            PageCubeCommonInterface::getDownstreamObjects(ns2).each{|ns|
+            Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|ns|
                 print "    "
                 menuitems.raw(
-                    PageCubeCommonInterface::toString(ns),
-                    PageCubeCommonInterface::navigationLambda(ns)
+                    Type1Type2CommonInterface::toString(ns),
+                    Type1Type2CommonInterface::navigationLambda(ns)
                 )
                 puts ""
             }
@@ -292,15 +292,15 @@ class NSDataType2
                 "[this concept] remove as intermediary concept", 
                 lambda { 
                     puts "intermediary node removal simulation"
-                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
+                    Type1Type2CommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
                         puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
                     }
-                    PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
-                        puts "downstreampoint: #{PageCubeCommonInterface::toString(downstreampoint)}"
+                    Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                        puts "downstreampoint: #{Type1Type2CommonInterface::toString(downstreampoint)}"
                     }
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
-                    PageCubeCommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
-                        PageCubeCommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                    Type1Type2CommonInterface::getUpstreamPages(ns2).each{|upstreamconcept|
+                        Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
                             Arrows::issueOrException(upstreamconcept, downstreampoint)
                         }
                     }
@@ -329,7 +329,7 @@ class NSDataType2
             menuitems.item(
                 "[upstream] remove concept",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getUpstreamPages(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamPages(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
                     return if x.nil?
                     Arrows::remove(x, ns2)
                 }
@@ -355,10 +355,10 @@ class NSDataType2
             menuitems.item(
                 "[selected cubes] move to a child concept",
                 lambda {
-                    return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
+                    return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
                     # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
                     # Creating the concept
@@ -380,10 +380,10 @@ class NSDataType2
             menuitems.item(
                 "[selected cubes] move to an unconnected concept ; and land on that concept",
                 lambda {
-                    return if PageCubeCommonInterface::getDownstreamObjectsType1(ns2).size == 0
+                    return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
                     # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], PageCubeCommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
                     return if cubes.size == 0
 
                     # Creating the concept
@@ -413,7 +413,7 @@ class NSDataType2
             menuitems.item(
                 "[downstream concept] remove",
                 lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", PageCubeCommonInterface::getDownstreamObjects(ns2), lambda{|ns| PageCubeCommonInterface::toString(ns) })
+                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getDownstreamObjects(ns2), lambda{|ns| Type1Type2CommonInterface::toString(ns) })
                     return if x.nil?
                     Arrows::remove(ns2, x)
                 }
@@ -434,7 +434,7 @@ class NSDataType2
             .map{|ns2|
                 {
                     "description"   => NSDataType2::conceptToString(ns2),
-                    "referencetime" => PageCubeCommonInterface::getReferenceUnixtime(ns2),
+                    "referencetime" => Type1Type2CommonInterface::getReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
             }
