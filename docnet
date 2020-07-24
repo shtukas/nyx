@@ -13,8 +13,6 @@ class ProgramVariant
     end
 end
 
-
-
 EstateServices::ensureReadiness()
 DataPortalUI::dataPortalFront()
 

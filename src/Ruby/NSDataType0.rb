@@ -79,10 +79,21 @@ class NSDataType0s
         object
     end
 
+    # NSDataType0s::getNSDataType0Types()
+    def self.getNSDataType0Types()
+        if Realms::isCatalyst() then
+            return ["line", "url", "text", "fs-location aion-point", "unique-name"]
+        end
+        if Realms::isDocnet() then
+            return ["line", "url", "text", "fs-location aion-point"]
+        end
+        Realms::raiseException()
+    end
+
     # NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
     def self.issueNewNSDataType0InteractivelyOrNull()
         puts "Making a new NSDataType0..."
-        types = ["line", "url", "text", "fs-location aion-point", "unique-name"]
+        types = NSDataType0s::getNSDataType0Types()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -111,11 +122,6 @@ class NSDataType0s
             return nil if uniquename.size == 0
             return NSDataType0s::issueUniqueName(uniquename)
         end
-    end
-
-    # NSDataType0s::frames()
-    def self.frames()
-        NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
     # NSDataType0s::extractADescriptionFromAionPointOrNull(point)

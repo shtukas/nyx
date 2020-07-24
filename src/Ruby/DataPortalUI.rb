@@ -298,92 +298,16 @@ class DataPortalUI
             end
 
             if Miscellaneous::isAlexandra() then
-                puts ""
-
-                ms.item(
-                    "Asteroids",
-                    lambda { Asteroids::main() }
-                )
-
-                ms.item(
-                    "asteroid (new)",
-                    lambda { 
-                        asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
-                        return if asteroid.nil?
-                        puts JSON.pretty_generate(asteroid)
-                        LucilleCore::pressEnterToContinue()
-                    }
-                )
-
-                ms.item(
-                    "asteroid floats open-project-in-the-background", 
-                    lambda { 
-                        loop {
-                            system("clear")
-                            menuitems = LCoreMenuItemsNX1.new()
-                            Asteroids::asteroids()
-                                .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
-                                .each{|asteroid|
-                                    menuitems.item(
-                                        Asteroids::asteroidToString(asteroid),
-                                        lambda { Asteroids::landing(asteroid) }
-                                    )
-                                }
-                            status = menuitems.prompt()
-                            break if !status
-                        }
-                    }
-                )
-
-                puts ""
-
-                ms.item(
-                    "Calendar",
-                    lambda { 
-                        system("open '#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items'") 
-                    }
-                )
-
-                ms.item(
-                    "Waves",
-                    lambda { Waves::main() }
-                )
-
-                puts ""
-
-                ms.item(
-                    "Print Generation Speed Report", 
-                    lambda { CatalystObjectsOperator::generationSpeedReport() }
-                )
-
                 ms.item(
                     "Curation::session()", 
                     lambda { Curation::session() }
                 )
-
-                ms.item(
-                    "DeskOperator::commitDeskChangesToPrimaryRepository()", 
-                    lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
-                )
-
-                ms.item(
-                    "Drives::runShadowUpdate()", 
-                    lambda { Drives::runShadowUpdate() }
-                )
-
-                ms.item(
-                    "NyxGarbageCollection::run()", 
-                    lambda { NyxGarbageCollection::run() }
-                )
-
-                ms.item(
-                    "Archive timeline garbage collection", 
-                    lambda { 
-                        puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
-                        EstateServices::binTimelineGarbageCollectionEnvelop(true)
-                    }
-                )
             end
+
+            ms.item(
+                "DeskOperator::commitDeskChangesToPrimaryRepository()", 
+                lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
+            )
 
             status = ms.prompt()
             # break if !status
@@ -392,12 +316,15 @@ class DataPortalUI
 
     # DataPortalUI::dataPortalFront()
     def self.dataPortalFront()
-        if Realms::getRealmName() == "catalyst" then
+        if Realms::isCatalyst() then
             DataPortalUI::dataPortalFrontCatalyst()
+            return
         end
-        if Realms::getRealmName() == "docnet" then
+        if Realms::isDocnet() then
             DataPortalUI::dataPortalFrontDocNet()
+            return
         end
+        Realms::raiseException()
     end
 end
 

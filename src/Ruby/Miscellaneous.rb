@@ -269,7 +269,6 @@ class Miscellaneous
 
     # Miscellaneous::isAlexandra()
     def self.isAlexandra()
-        return false
         File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/is-alexandra.txt")
     end
 end

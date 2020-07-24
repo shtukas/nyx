@@ -1,17 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-    KeyToStringOnDiskStore::setFlagTrue(repositorylocation or nil, key)
-    KeyToStringOnDiskStore::setFlagFalse(repositorylocation or nil, key)
-    KeyToStringOnDiskStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyToStringOnDiskStore::set(repositorylocation or nil, key, value)
-    KeyToStringOnDiskStore::getOrNull(repositorylocation or nil, key)
-    KeyToStringOnDiskStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyToStringOnDiskStore::destroy(repositorylocation or nil, key)
-=end
-
 class Counter0731
     def initialize()
         @count = 0

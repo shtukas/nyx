@@ -90,19 +90,6 @@ require_relative "KeyToStringOnDiskStore.rb"
 require_relative "Librarian.rb"
 require_relative "LucilleCore.rb"
 
-require_relative "Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-=end
-
 require_relative "Miscellaneous.rb"
 
 require_relative "NSDataType0.rb"

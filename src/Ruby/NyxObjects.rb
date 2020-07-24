@@ -89,7 +89,7 @@ class NyxObjects
 
     # NyxObjects::cachingKeyPrefix()
     def self.cachingKeyPrefix()
-        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EC"
+        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EC:#{Realms::getRealmUniqueId()}"
     end
 
     # NyxObjects::put(object)

@@ -103,6 +103,10 @@ class EstateServices
                 FileUtils.mkdir(path)
             end
         }
+        # We are also going to prelad the sets.
+        NyxPrimaryObjects::nyxNxSets().each{|setid|
+            NyxObjects::getSet(setid).size
+        }
     end
 
 end
