@@ -113,6 +113,7 @@ require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxObjects.rb"
 
+require_relative "Page.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Realms.rb"
@@ -127,7 +128,6 @@ require_relative "Runner.rb"
 require_relative "SectionsType0141.rb"
 require_relative "ShadowFS.rb"
 
-require_relative "TextZs.rb"
 require_relative "Type1Type2CommonInterface.rb"
 
 require_relative "VideoStream.rb"

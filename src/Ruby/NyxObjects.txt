@@ -18,7 +18,7 @@ Nyx
         Asteroid      # Asteroid.txt
                       # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
-        TextZ         # TextZ.txt
+        Page          # Page.txt
                       # nyxNxSet: "ab01a47c-bb91-4a15-93f5-b98cd3eb1866"
 
     Arrow # Arrows.txt
