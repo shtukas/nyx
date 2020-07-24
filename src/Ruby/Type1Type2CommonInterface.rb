@@ -33,18 +33,6 @@ class Type1Type2CommonInterface
         raise "[error: fd3c6cff]"
     end
 
-    # Type1Type2CommonInterface::getReferenceDateTime(ns)
-    def self.getReferenceDateTime(ns)
-        datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)
-        return datetime if datetime
-        Time.at(ns["unixtime"]).utc.iso8601
-    end
-
-    # Type1Type2CommonInterface::getReferenceUnixtime(ns)
-    def self.getReferenceUnixtime(ns)
-        DateTime.parse(Type1Type2CommonInterface::getReferenceDateTime(ns)).to_time.to_f
-    end
-
     # Type1Type2CommonInterface::getUpstreamPages(ns)
     def self.getUpstreamPages(ns)
         Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])

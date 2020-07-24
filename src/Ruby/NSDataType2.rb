@@ -434,7 +434,7 @@ class NSDataType2
             .map{|ns2|
                 {
                     "description"   => NSDataType2::conceptToString(ns2),
-                    "referencetime" => Type1Type2CommonInterface::getReferenceUnixtime(ns2),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
             }

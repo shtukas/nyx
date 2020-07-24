@@ -55,6 +55,18 @@ class NSDataType1
         "[cube] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological cube: #{ns1["uuid"]}]"
     end
 
+    # NSDataType1::getReferenceDateTime(ns)
+    def self.getReferenceDateTime(ns)
+        datetime = DateTimeZ::getLastDateTimeISO8601ForSourceOrNull(ns)
+        return datetime if datetime
+        Time.at(ns["unixtime"]).utc.iso8601
+    end
+
+    # NSDataType1::getReferenceUnixtime(ns)
+    def self.getReferenceUnixtime(ns)
+        DateTime.parse(NSDataType1::getReferenceDateTime(ns)).to_time.to_f
+    end
+
     # NSDataType1::cubeToFramesInTimeOrder(ns1)
     def self.cubeToFramesInTimeOrder(ns1)
         Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
@@ -267,7 +279,7 @@ class NSDataType1
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{Type1Type2CommonInterface::getReferenceDateTime(ns1)}"
+            puts "    date: #{NSDataType1::getReferenceDateTime(ns1)}"
             notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
             if notetext then
                 puts ""
@@ -364,7 +376,7 @@ class NSDataType1
             menuitems.item(
                 "[this cube] datetime update",
                 lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(Type1Type2CommonInterface::getReferenceDateTime(ns1)).strip
+                    datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
                     return if !Miscellaneous::isProperDateTime_utc_iso8601(datetime)
                     datetimez = DateTimeZ::issue(datetime)
                     Arrows::issueOrException(ns1, datetimez)
@@ -420,7 +432,7 @@ class NSDataType1
             .map{|cube|
                 {
                     "description"   => NSDataType1::cubeToString(cube),
-                    "referencetime" => Type1Type2CommonInterface::getReferenceUnixtime(cube),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(cube),
                     "dive"          => lambda{ NSDataType1::landing(cube) }
                 }
             }
