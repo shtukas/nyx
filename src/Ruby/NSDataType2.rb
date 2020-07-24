@@ -248,7 +248,7 @@ class NSDataType2
                 print "    "
                 menuitems.raw(
                     NSDataType2::pageToString(ns),
-                    NSDataType2::landing(ns)
+                    lambda { NSDataType2::landing(ns) }
                 )
                 puts ""
             }

@@ -81,8 +81,9 @@ class Curation
         }
     end
 
-    # Curation::timeControlledProbabilisticalyRunOneStepWithTimeMonitoring()
-    def self.timeControlledProbabilisticalyRunOneStepWithTimeMonitoring()
+    # Curation::catalystTodoListingCurationOpportunity()
+    def self.catalystTodoListingCurationOpportunity()
+        return if !LucilleCore::askQuestionAnswerAsBoolean("spare some time for curation ? ", true)
         return if (rand*rand) < BankExtended::recoveredDailyTimeInHours("56995147-b264-49fb-955c-d5a919395ea3")
         time1 = Time.new.to_f
 
