@@ -284,7 +284,7 @@ class NSDataType1
                 puts "    description: #{description}"
             end
             puts "    date: #{NSDataType1::getReferenceDateTime(ns1)}"
-            notetext = Notes::getMostRecentTextForSourceOrNull(ns1)
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1)
             if notetext then
                 puts ""
                 puts "    Note:"
@@ -386,10 +386,9 @@ class NSDataType1
             menuitems.item(
                 "[this] top note edit", 
                 lambda{ 
-                    text = Notes::getMostRecentTextForSourceOrNull(ns1) || ""
+                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1) || ""
                     text = Miscellaneous::editTextUsingTextmate(text).strip
-                    note = Notes::issue(text)
-                    Arrows::issueOrException(ns1, note)
+                    NSDataTypeXExtended::issueNoteForTarget(ns1, text)
                 }
             )
             menuitems.item(

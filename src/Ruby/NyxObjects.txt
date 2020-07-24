@@ -21,18 +21,11 @@ Nyx
         TextZ         # TextZ.txt
                       # nyxNxSet: "ab01a47c-bb91-4a15-93f5-b98cd3eb1866"
 
-    Metadata
-
-        DescriptionZ  # DescriptionZ.txt
-                      # nyxNxSet: "4f5ae9bc-9b2a-46ff-9f8b-49bfcabc5a9f"
-                      # NSDataType2, NSDataType1
-
-        Note          # Notes.txt
-                      # nyxNxSet: "c6fad718-1306-49cf-a361-76ce85e909ca"
-                      # NSDataType2
-
     Arrow # Arrows.txt
           # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
+
+    NSDataTypeX
+
 
 All Nyx Objects 
 

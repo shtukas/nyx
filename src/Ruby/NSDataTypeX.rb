@@ -8,7 +8,8 @@ class NSDataTypeX
         # NSDataTypeX with a type not in this list will be garbage collected.
         [
             "4868c01e-2621-4329-8602-6a6fc92bc51c", # Description
-            "77b95849-efbb-4b3f-b353-347658486447" # DateTime ISO 8601
+            "77b95849-efbb-4b3f-b353-347658486447", # DateTime ISO 8601
+            "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8", # Note
         ]
     end
 
@@ -75,5 +76,19 @@ class NSDataTypeXExtended
         attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "77b95849-efbb-4b3f-b353-347658486447")
         return nil if attribute.nil?
         attribute["payload"]
+    end
+
+    # NSDataTypeXExtended::issueNoteForTarget(target, text)
+    def self.issueNoteForTarget(target, text)
+        namedhash = NyxBlobs::put(text)
+        NSDataTypeX::issue(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8", namedhash)
+    end
+
+    # NSDataTypeXExtended::getLastNoteTextForTargetOrNull(target)
+    def self.getLastNoteTextForTargetOrNull(target)
+        attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8")
+        return nil if attribute.nil?
+        namedhash = attribute["payload"]
+        NyxBlobs::getBlobOrNull(namedhash)
     end
 end

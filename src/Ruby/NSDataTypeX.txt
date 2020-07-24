@@ -20,3 +20,13 @@ NSDataTypeX (attributes)
                        DateTime ISO 8601
     "payload"        : String
 }
+
+{
+    "uuid"           : String
+    "nyxNxSet"       : "5c99134b-2b61-4750-8519-49c1d896556f"
+    "unixtime"       : Float # Unixtime with decimals
+    "targetuuid"     : String
+    "typeIdentifier" : "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8"
+                       Note
+    "payload"        : NamedHash
+}

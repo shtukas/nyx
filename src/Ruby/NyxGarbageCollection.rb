@@ -17,12 +17,6 @@ class NyxGarbageCollection
             end
         }
 
-        Notes::notes().each{|note|
-            next if Arrows::getSourcesForTarget(note).size > 0
-            puts "removing note: #{note}"
-            NyxObjects::destroy(note)
-        }
-
         Comments::comments().each{|comment|
             next if Arrows::getSourcesForTarget(comment).size > 0
             puts "removing comment: #{comment}"
