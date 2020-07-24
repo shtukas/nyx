@@ -50,10 +50,10 @@ class Curation
 
             counter.increment()
 
-            description = LucilleCore::askQuestionAnswerAsString("description (or type 'destroy'): ")
+            description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
-            if description == "destroy" then
-                NyxObjects::destroy(cube)
+            if description == "dive" then
+                NSDataType1::landing(cube)
                 next
             end
             descriptionz = DescriptionZ::issue(description)
