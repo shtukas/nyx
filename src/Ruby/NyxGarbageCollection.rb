@@ -7,6 +7,12 @@ class NyxGarbageCollection
         
         puts "NyxGarbageCollection::run()"
         
+        NyxPrimaryObjects::objectsEnumerator().each{|object|
+            next if NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"])
+            puts "removing invalid setid : #{object}"
+            NyxObjects::destroy(object)
+        }
+
         Arrows::arrows().each{|arrow|
             b1 = NyxPrimaryObjects::getOrNull(arrow["sourceuuid"]).nil?
             b2 = NyxPrimaryObjects::getOrNull(arrow["targetuuid"]).nil?
@@ -17,10 +23,10 @@ class NyxGarbageCollection
             end
         }
 
-        Comments::comments().each{|comment|
-            next if Arrows::getSourcesForTarget(comment).size > 0
-            puts "removing comment: #{comment}"
-            NyxObjects::destroy(comment)
+        NSDataTypeX::attributes().each{|attribute|
+            next if NyxPrimaryObjects::getOrNull(attribute["targetuuid"])
+            puts "removing attribute without a target: #{attribute}"
+            NyxObjects::destroy(attribute)
         }
 
     end
