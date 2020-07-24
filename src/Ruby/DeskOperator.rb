@@ -30,26 +30,27 @@ class DeskOperator
 
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
-        NSDataType1::cubes().each{|ns1|
-            puts "ns1: #{ns1["uuid"]}"
-            ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
+        LucilleCore::locationsAtFolder(Realms::getDeskFolderpath()).each{|location|
+            cubeuuid = File.basename(location)
+            cube = NSDataType1::getCubeOrNull(cubeuuid)
+            next if cube.nil?
+            puts NSDataType1::cubeToString(cube)
+            ns0 = NSDataType1::cubeToLastFrameOrNull(cube)
             next if ns0.nil?
-            next if ns0["type"] != "aion-point"
-            desk_folderpath_for_ns1 = DeskOperator::deskFolderpathForNSDataType1(ns1)
-            next if !File.exists?(desk_folderpath_for_ns1)
-            #puts "ns0:"
-            #puts JSON.pretty_generate(ns0)
-            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(desk_folderpath_for_ns1)
-            #puts "namedhash from folder: #{namedhash}"
-            if namedhash == ns0["namedhash"] then
-                LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)
+            if ns0["type"] != "aion-point" then # Looks like the cube has been transmuted after it was exported as a aion-point
+                LucilleCore::removeFileSystemLocation(location)
+                next
+            end
+            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
+            if namedhash == ns0["namedhash"] then # No change since exported
+                LucilleCore::removeFileSystemLocation(location)
                 next
             end
             newns0 = NSDataType0s::issueAionPoint(namedhash)
-            Arrows::issueOrException(ns1, newns0)
+            Arrows::issueOrException(cube, newns0)
             puts "new ns0:"
             puts JSON.pretty_generate(newns0)
-            LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)
+            LucilleCore::removeFileSystemLocation(location)
         }
     end
 end

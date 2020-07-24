@@ -154,12 +154,12 @@ class DataPortalUI
             )
 
             ms.item(
-                "Curation::run()", 
-                lambda { Curation::run() }
+                "Curation::session()", 
+                lambda { Curation::session() }
             )
 
             ms.item(
-                "Commit desk changes to primary repository", 
+                "DeskOperator::commitDeskChangesToPrimaryRepository()", 
                 lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
             )
 
@@ -169,7 +169,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "NyxGarbageCollection", 
+                "NyxGarbageCollection::run()", 
                 lambda { NyxGarbageCollection::run() }
             )
 
@@ -177,7 +177,7 @@ class DataPortalUI
                 "Archive timeline garbage collection", 
                 lambda { 
                     puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
-                    EstateServices::binT1mel1neGarbageCollectionEnvelop(true)
+                    EstateServices::binTimelineGarbageCollectionEnvelop(true)
                 }
             )
 

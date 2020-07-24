@@ -18,8 +18,8 @@ class Miscellaneous
         `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
     end
 
-    # Miscellaneous::binT1mel1neFolderpath()
-    def self.binT1mel1neFolderpath()
+    # Miscellaneous::binTimelineFolderpath()
+    def self.binTimelineFolderpath()
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Bin-T1mel1ne"
     end
 
@@ -53,7 +53,7 @@ class Miscellaneous
     def self.copyLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        folder1 = "#{Miscellaneous::binT1mel1neFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{Miscellaneous::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)
@@ -62,7 +62,7 @@ class Miscellaneous
 
     # Miscellaneous::commitTextToCatalystBin(filename, text)
     def self.commitTextToCatalystBin(filename, text)
-        folder1 = "#{Miscellaneous::binT1mel1neFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{Miscellaneous::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)

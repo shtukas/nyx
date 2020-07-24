@@ -202,7 +202,7 @@ class CatalystUI
 
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
-            Curation::run()
+            Curation::timeControlledProbabilisticalyRunOneStepWithTimeMonitoring()
 
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()

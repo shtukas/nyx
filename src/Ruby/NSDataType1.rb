@@ -19,6 +19,11 @@ class NSDataType1
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
+    # NSDataType1::getCubeOrNull(uuid)
+    def self.getCubeOrNull(uuid)
+        NyxObjects::getOrNull(uuid)
+    end
+
     # NSDataType1::cubeToString(ns1)
     def self.cubeToString(ns1)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}"
@@ -56,8 +61,8 @@ class NSDataType1
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType1::cubeToLastFramesOrNull(ns1)
-    def self.cubeToLastFramesOrNull(ns1)
+    # NSDataType1::cubeToLastFrameOrNull(ns1)
+    def self.cubeToLastFrameOrNull(ns1)
         NSDataType1::cubeToFramesInTimeOrder(ns1)
             .last
     end
@@ -88,7 +93,7 @@ class NSDataType1
 
     # NSDataType1::openLastCubeFrame(cube)
     def self.openLastCubeFrame(cube)
-        frame = NSDataType1::cubeToLastFramesOrNull(cube)
+        frame = NSDataType1::cubeToLastFrameOrNull(cube)
         if frame.nil? then
             puts "I could not find any frames for this cube. Aborting"
             LucilleCore::pressEnterToContinue()
@@ -99,7 +104,7 @@ class NSDataType1
 
     # NSDataType1::editLastCubeFrame(cube)
     def self.editLastCubeFrame(cube)
-        frame = NSDataType1::cubeToLastFramesOrNull(cube)
+        frame = NSDataType1::cubeToLastFrameOrNull(cube)
         if frame.nil? then
             puts "I could not find any frames for this cube. Aborting"
             LucilleCore::pressEnterToContinue()
@@ -156,7 +161,7 @@ class NSDataType1
             loop {
                 win2.setpos(0,0)
                 win2.deleteln()
-                win2 << "search_queue: #{search_queue.join(" | ")}"
+                win2 << "search queue: #{search_queue.join(" | ")}"
                 win2.refresh
                 sleep 0.1
             }
@@ -236,6 +241,15 @@ class NSDataType1
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
     end
 
+    # NSDataType1::cubeDestroyProcedure(cube)
+    def self.cubeDestroyProcedure(cube)
+        folderpath = DeskOperator::deskFolderpathForNSDataType1(cube)
+        if File.exists?(folderpath) then
+            LucilleCore::removeFileSystemLocation(folderpath)
+        end
+        NyxObjects::destroy(cube)
+    end
+
     # NSDataType1::landing(ns1)
     def self.landing(ns1)
         loop {
@@ -290,7 +304,7 @@ class NSDataType1
             puts ""
             puts "Frame:"
 
-            ns0 = NSDataType1::cubeToLastFramesOrNull(ns1)
+            ns0 = NSDataType1::cubeToLastFrameOrNull(ns1)
             if ns0 then
                 print "    "
                 menuitems.raw(
@@ -369,12 +383,7 @@ class NSDataType1
                 "[this cube] destroy",
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                        folderpath = DeskOperator::deskFolderpathForNSDataType1(ns1)
-                        if File.exists?(folderpath) then
-                            puts "Removing Desk folder"
-                            LucilleCore::removeFileSystemLocation(folderpath)
-                        end
-                        NyxObjects::destroy(ns1)
+                        NSDataType1::cubeDestroyProcedure(ns1)
                     end
                 }
             )

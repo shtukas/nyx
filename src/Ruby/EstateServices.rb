@@ -57,7 +57,7 @@ class EstateServices
 
     # EstateServices::getArchiveT1mel1neSizeInMegaBytes()
     def self.getArchiveT1mel1neSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(Miscellaneous::binT1mel1neFolderpath()).to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize(Miscellaneous::binTimelineFolderpath()).to_f/(1024*1024)
     end
 
     # EstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
@@ -66,8 +66,8 @@ class EstateServices
             sizeEstimationInMegaBytes = EstateServices::getArchiveT1mel1neSizeInMegaBytes()
         end
         return if sizeEstimationInMegaBytes <= 1024
-        location = EstateServices::getFirstDiveFirstLocationAtLocation(Miscellaneous::binT1mel1neFolderpath())
-        return if location == Miscellaneous::binT1mel1neFolderpath()
+        location = EstateServices::getFirstDiveFirstLocationAtLocation(Miscellaneous::binTimelineFolderpath())
+        return if location == Miscellaneous::binTimelineFolderpath()
         if File.file?(location) then
             sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
         end
@@ -76,11 +76,11 @@ class EstateServices
         EstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
     end
 
-    # EstateServices::binT1mel1neGarbageCollectionEnvelop(verbose)
-    def self.binT1mel1neGarbageCollectionEnvelop(verbose)
+    # EstateServices::binTimelineGarbageCollectionEnvelop(verbose)
+    def self.binTimelineGarbageCollectionEnvelop(verbose)
         return if EstateServices::getArchiveT1mel1neSizeInMegaBytes() <= 1024
         loop {
-            location = EstateServices::getLocationFileBiggerThan10MegaBytesOrNull(Miscellaneous::binT1mel1neFolderpath())
+            location = EstateServices::getLocationFileBiggerThan10MegaBytesOrNull(Miscellaneous::binTimelineFolderpath())
             break if location.nil?
             puts "garbage collection (big file): #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
