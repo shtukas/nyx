@@ -305,8 +305,8 @@ class DataPortalUI
             end
 
             ms.item(
-                "DeskOperator::commitDeskChangesToPrimaryRepository()", 
-                lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
+                "Run network synchronization", 
+                lambda { DataStoresOrchestration::fullSync() }
             )
 
             ms.item(
