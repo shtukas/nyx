@@ -1,14 +1,18 @@
 
-This repository contains two systems, one called **Catalyst** and the other one called **DocNet** (Multi-user Documentation Network). If you are coming from the Guardian, you are looking for DocNet 🙂
-
-DocNet's documentation, including prerequisites and installation procedures can be found [here](documentation/DocNet.md).
+This repository has two independently branded systems, one called **Catalyst** and the other one called **DocNet** (Multi-user **Doc**umentation **Net**work). If you are coming from the Guardian, you are looking for [DocNet](documentation/DocNet.md) 🙂
 
 
-Q: What exactly is the relationship betweeen Catalyst and DocNet ?
+Q: What exactly is the relationship betweeen Catalyst and DocNet ? 🤔
 
-- A: DocNet is simply a limited version of Catalyst. They share the exact same code, but when DocNet runs, some features are not enabled.
+- DocNet is simply a limited version of Catalyst that runs on an independent DataStore. They share the same code, but when DocNet runs, some features are not enabled (and not all the data model is used).
 
 
-Q: What is the latest in terms of roadmap ?
+Q: What is the latest in terms of roadmap ? 👩‍💻
 
-- A: As of July 2020, most of the effort is put in reorganizing Catalyst's data model (including migrating its existing data to the new model) and make DocNet multi-user. Note that Catalyst and DocNet are going to be re-written in Go by the end of 2020.
+- As of July 2020, most of the effort has recently been put into reorganizing Catalyst's data model and make its DocNet subset multi-user. 
+- Catalyst and DocNet are going to be re-written in Go by the end of 2020.
+- DocNet features that may appear in the future include, but are not limited to:
+	- Enablying end to end encryption between users.
+	- Possibly user credentials management. 
+	- Possibly some sort of a web interface (for better knowledge graph visualisation).
+	- Shipping DocNet as an independant program independant of Catalyst, but this will only happen after the entire system has been rewritten in Go.
