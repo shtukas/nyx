@@ -92,7 +92,6 @@ class NSDataType0s
 
     # NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
     def self.issueNewNSDataType0InteractivelyOrNull()
-        puts "Making a new NSDataType0..."
         types = NSDataType0s::getNSDataType0Types()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?

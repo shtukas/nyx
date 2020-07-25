@@ -309,6 +309,11 @@ class DataPortalUI
                 lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
             )
 
+            ms.item(
+                "exit", 
+                lambda { exit }
+            )
+
             status = ms.prompt()
             # break if !status
         }

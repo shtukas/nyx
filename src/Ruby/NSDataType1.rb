@@ -98,7 +98,6 @@ class NSDataType1
 
     # NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
     def self.issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-        puts "Making a new NSDataType1..."
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
         ns1 = NSDataType1::issue()
