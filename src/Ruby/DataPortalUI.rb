@@ -313,7 +313,9 @@ class DataPortalUI
                 "Show dataset statistics", 
                 lambda { 
                     system("clear")
-                    
+                    NyxPrimaryObjects::nyxNxSets().each{|setid|
+                        puts "-> setid: #{setid}, count:#{NyxObjects::getSet(setid).size}"
+                    }
                     LucilleCore::pressEnterToContinue()
                 }
             )
