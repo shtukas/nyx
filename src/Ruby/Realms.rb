@@ -66,7 +66,7 @@ class Realms
                     "#{ENV['HOME']}/.docnet/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c",
                     "#{ENV['HOME']}/.docnet/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c",
                 ],
-                "primaryDataStoreFolderPath" => "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93",
+                "primaryDataStoreFolderPath" => "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93/Nyx",
                 "personalSpaceFolderPath" => "#{ENV['HOME']}/.docnet"
             }
         end
