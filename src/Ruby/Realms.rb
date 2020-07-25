@@ -11,13 +11,15 @@
             - the primary data store in ~/DataBank/Catalyst/Nyx/
             - the desk in               ~/.catalyst/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f
             - the key-value store on disk repository at
-                                       ~/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
+                                        ~/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
+            - the git data repository   ~/.catalyst/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c
 
         DocNet expects:
             - the primary data store in ~/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93
             - the desk in               ~/.docnet/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f
             - the key-value store on disk repository at
-                                       ~/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
+                                        ~/.docnet/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
+            - the git data repository   ~/.docnet/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c
 
     When the program starts
         - We first check that "exitIfNotExist" elements are all there otherwise we exit
@@ -40,7 +42,8 @@ class Realms
                 "createIfNotExist" =>[
                     "#{ENV['HOME']}/.catalyst",
                     "#{ENV['HOME']}/.catalyst/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f",
-                    "#{ENV['HOME']}/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c"
+                    "#{ENV['HOME']}/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c",
+                    "#{ENV['HOME']}/.catalyst/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c"
                 ],
                 "primaryDataStoreFolderPath" => "#{ENV['HOME']}/Galaxy/DataBank/Catalyst/Nyx",
                 "personalSpaceFolderPath" => "#{ENV['HOME']}/.catalyst"
@@ -59,7 +62,8 @@ class Realms
                     "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93",
                     "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93/Nyx-Blobs",
                     "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93/Nyx-Objects",
-                    "#{ENV['HOME']}/.docnet/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c"
+                    "#{ENV['HOME']}/.docnet/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c",
+                    "#{ENV['HOME']}/.docnet/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c",
                 ],
                 "primaryDataStoreFolderPath" => "#{ENV['HOME']}/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93",
                 "personalSpaceFolderPath" => "#{ENV['HOME']}/.docnet"
@@ -121,5 +125,10 @@ class Realms
     # Realms::getKeyValueStoreFolderpath()
     def self.getKeyValueStoreFolderpath()
         "#{Realms::personalSpaceFolderPath()}/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c"
+    end
+
+    # Realms::gitDataRepositoryParentFolderpath()
+    def self.gitDataRepositoryParentFolderpath()
+        "#{Realms::personalSpaceFolderPath()}/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c"
     end
 end

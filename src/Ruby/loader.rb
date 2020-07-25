@@ -91,6 +91,7 @@ require_relative "Librarian.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "Miscellaneous.rb"
+require_relative "GitRepository1SyncOperator.rb"
 
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"

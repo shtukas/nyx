@@ -35,3 +35,19 @@ All Nyx Objects
         - nyxNxSet            : String
 
     2. The nyxNxSet need to be a valid setid.
+
+
+
+Even though there can technically be an arrow between any two Nyx Objects, the program ignores the ones it doesn't expect. In practice the current version of catalyst only expect the current topology
+
+Asteroid
+    -> NSDataType1
+
+NSDataType2
+    -> NSDataType1
+    -> NSDataType2
+
+NSDataType1
+    -> NSDataType0
+
+
