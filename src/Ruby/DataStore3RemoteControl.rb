@@ -24,7 +24,7 @@ class DataStore3RemoteControl
 
     # DataStore3RemoteControl::cloneRepositoryIfNotDoneYet()
     def self.cloneRepositoryIfNotDoneYet()
-        if !File.exists?(Realms::pathToGitHubRepositoryDataStore1()) then
+        if !File.exists?(Realms::pathToDataStore3()) then
             DataStore3RemoteControl::doCloneRepository()
         end
     end

@@ -106,8 +106,8 @@ class Realms
         "#{Realms::personalSpaceFolderPath()}/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c"
     end
 
-    # Realms::pathToGitHubRepositoryDataStore1()
-    def self.pathToGitHubRepositoryDataStore1()
+    # Realms::pathToDataStore3()
+    def self.pathToDataStore3()
         "#{Realms::gitHubDataRepositoryParentFolderpath()}/docnet-data-store-1"
     end
 end
