@@ -61,6 +61,8 @@ require_relative "CatalystUI.rb"
 
 require_relative "Curation.rb"
 
+require_relative "DataStoresOrchestration"
+require_relative "DataStore2DataStore3DirectionalSyncs.rb"
 require_relative "DataPortalUI.rb"
 require_relative "DeskOperator.rb"
 require_relative "DoNotShowUntil.rb"
@@ -91,7 +93,7 @@ require_relative "Librarian.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "Miscellaneous.rb"
-require_relative "GitRepository1SyncOperator.rb"
+require_relative "DataStore3RemoteControl.rb"
 
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"

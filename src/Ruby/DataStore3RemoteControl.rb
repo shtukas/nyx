@@ -14,41 +14,36 @@ https://github.com/shtukas/docnet-data-store-1
 
 =end
 
-class GitRepository1SyncOperator
+class DataStore3RemoteControl
 
-    # GitRepository1SyncOperator::pathToGithubRepository()
-    def self.pathToGithubRepository()
-        "#{Realms::gitDataRepositoryParentFolderpath()}/docnet-data-store-1"
-    end
-
-    # GitRepository1SyncOperator::doCloneRepository()
+    # DataStore3RemoteControl::doCloneRepository()
     def self.doCloneRepository()
         pathToScript = File.expand_path("#{File.dirname(__FILE__)}/../shell-scripts/001-clone-docnet-data-store-1")
         system(pathToScript)
     end
 
-    # GitRepository1SyncOperator::cloneRepositoryIfNotDoneYet()
+    # DataStore3RemoteControl::cloneRepositoryIfNotDoneYet()
     def self.cloneRepositoryIfNotDoneYet()
-        if !File.exists?(GitRepository1SyncOperator::pathToGithubRepository()) then
-            GitRepository1SyncOperator::doCloneRepository()
+        if !File.exists?(Realms::pathToGitHubRepositoryDataStore1()) then
+            DataStore3RemoteControl::doCloneRepository()
         end
     end
 
-    # GitRepository1SyncOperator::doPullRepositoryData()
+    # DataStore3RemoteControl::doPullRepositoryData()
     def self.doPullRepositoryData()
         pathToScript = File.expand_path("#{File.dirname(__FILE__)}/../shell-scripts/002-pull")
         system(pathToScript)
     end
 
-    # GitRepository1SyncOperator::doPushRepositoryData()
+    # DataStore3RemoteControl::doPushRepositoryData()
     def self.doPushRepositoryData()
         pathToScript = File.expand_path("#{File.dirname(__FILE__)}/../shell-scripts/003-push")
         system(pathToScript)
     end
 
-    # GitRepository1SyncOperator::doSynchronizeRepositoryData()
+    # DataStore3RemoteControl::doSynchronizeRepositoryData()
     def self.doSynchronizeRepositoryData()
-        GitRepository1SyncOperator::doPullRepositoryData()
-        GitRepository1SyncOperator::doPushRepositoryData()
+        DataStore3RemoteControl::doPullRepositoryData()
+        DataStore3RemoteControl::doPushRepositoryData()
     end
 end
