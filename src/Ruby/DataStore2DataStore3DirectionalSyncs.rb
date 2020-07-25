@@ -102,9 +102,6 @@ class DataStore2DataStore3DirectionalSyncs
             targetFilepath = DataStore2DataStore3DirectionalSyncs::store3NyxObjectFilenameToStore2Filepath(filename)
             next if File.file?(targetFilepath)
             puts "copying: #{File.basename(path)}"
-            puts path
-            puts targetFilepath
-            next
             FileUtils.cp(path, targetFilepath)
         end
         return
