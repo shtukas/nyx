@@ -45,7 +45,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "merge two concepts",
+                "Merge two concepts",
                 lambda { 
                     puts "Merging two concepts"
                     puts "Selecting one after the other and then will merge"
@@ -243,7 +243,7 @@ class DataPortalUI
 
             if Miscellaneous::isAlexandra() then
                 ms.item(
-                    "merge two concepts",
+                    "Merge two concepts",
                     lambda { 
                         puts "Merging two concepts"
                         puts "Selecting one after the other and then will merge"

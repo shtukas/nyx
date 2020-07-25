@@ -374,14 +374,18 @@ class NSDataType1
                     }
                 )
             end
-            menuitems.item(
-                "[this] datetime update",
-                lambda{
-                    datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
-                    return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                    NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
-                }
-            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[this] datetime update",
+                    lambda{
+                        datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
+                        return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
+                    }
+                )
+            end
+
             menuitems.item(
                 "[this] top note edit", 
                 lambda{ 
@@ -390,14 +394,17 @@ class NSDataType1
                     NSDataTypeXExtended::issueNoteForTarget(ns1, text)
                 }
             )
-            menuitems.item(
-                "[this] destroy",
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                        NSDataType1::cubeDestroyProcedure(ns1)
-                    end
-                }
-            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[this] destroy",
+                    lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
+                            NSDataType1::cubeDestroyProcedure(ns1)
+                        end
+                    }
+                )
+            end
 
             menuitems.item(
                 "[upstream] add concept",
@@ -407,14 +414,17 @@ class NSDataType1
                     Arrows::issueOrException(concept, ns1)
                 }
             )
-            menuitems.item(
-                "[upstream] remove concept",
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
-                    return if ns.nil?
-                    Arrows::remove(ns, ns1)
-                }
-            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[upstream] remove concept",
+                    lambda {
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
+                        return if ns.nil?
+                        Arrows::remove(ns, ns1)
+                    }
+                )
+            end
 
             Miscellaneous::horizontalRule()
 

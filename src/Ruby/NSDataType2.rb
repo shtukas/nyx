@@ -286,34 +286,38 @@ class NSDataType2
                 )
             end
 
-            menuitems.item(
-                "[this] remove as intermediary concept", 
-                lambda { 
-                    puts "intermediary node removal simulation"
-                    Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
-                        puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
-                    }
-                    Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
-                        puts "downstreampoint: #{Type1Type2CommonInterface::toString(downstreampoint)}"
-                    }
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
-                    Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
-                        Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
-                            Arrows::issueOrException(upstreamconcept, downstreampoint)
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[this] remove as intermediary concept", 
+                    lambda { 
+                        puts "intermediary node removal simulation"
+                        Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
+                            puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
                         }
-                    }
-                    NyxObjects::destroy(ns2)
-                }
-            )
-
-            menuitems.item(
-                "[this] destroy", 
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
+                        Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                            puts "downstreampoint: #{Type1Type2CommonInterface::toString(downstreampoint)}"
+                        }
+                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
+                        Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
+                            Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                                Arrows::issueOrException(upstreamconcept, downstreampoint)
+                            }
+                        }
                         NyxObjects::destroy(ns2)
-                    end
-                }
-            )
+                    }
+                )
+            end
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[this] destroy", 
+                    lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
+                            NyxObjects::destroy(ns2)
+                        end
+                    }
+                )
+            end
 
             menuitems.item(
                 "[upstream] add concept",
@@ -324,14 +328,17 @@ class NSDataType2
                     Arrows::issueOrException(x, ns2)
                 }
             )
-            menuitems.item(
-                "[upstream] remove concept",
-                lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
-                    return if x.nil?
-                    Arrows::remove(x, ns2)
-                }
-            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[upstream] remove concept",
+                    lambda {
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
+                        return if x.nil?
+                        Arrows::remove(x, ns2)
+                    }
+                )
+            end
 
             menuitems.item(
                 "[downstream] add cube (chosen from existing cubes)",
@@ -350,30 +357,32 @@ class NSDataType2
                 }
             )
 
-            menuitems.item(
-                "[downstream] select cubes ; move to a new downstream concept",
-                lambda {
-                    return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[downstream] select cubes ; move to a new downstream concept",
+                    lambda {
+                        return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
-                    # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
-                    return if cubes.size == 0
+                        # Selecting the cubes
+                        cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        return if cubes.size == 0
 
-                    # Creating the concept
-                    newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
+                        # Creating the concept
+                        newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
 
-                    # Setting the concept as target of this one
-                    Arrows::issueOrException(ns, newconcept)
+                        # Setting the concept as target of this one
+                        Arrows::issueOrException(ns, newconcept)
 
-                    # Moving the cubes
-                    cubes.each{|cube|
-                        Arrows::issueOrException(newconcept, cube)
+                        # Moving the cubes
+                        cubes.each{|cube|
+                            Arrows::issueOrException(newconcept, cube)
+                        }
+                        cubes.each{|cube|
+                            Arrows::remove(ns, cube)
+                        }
                     }
-                    cubes.each{|cube|
-                        Arrows::remove(ns, cube)
-                    }
-                }
-            )
+                )
+            end
 
             menuitems.item(
                 "[downstream] add concept",
@@ -384,38 +393,43 @@ class NSDataType2
                     Arrows::issueOrException(ns2, x)
                 }
             )
-            menuitems.item(
-                "[downstream] remove concept",
-                lambda {
-                    x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getDownstreamObjects(ns2), lambda{|ns| Type1Type2CommonInterface::toString(ns) })
-                    return if x.nil?
-                    Arrows::remove(ns2, x)
-                }
-            )
 
-            menuitems.item(
-                "[network] select cubes ; move to an unconnected concept ; and land on that concept",
-                lambda {
-                    return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
-
-                    # Selecting the cubes
-                    cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
-                    return if cubes.size == 0
-
-                    # Creating the concept
-                    newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
-
-                    # Moving the cubes
-                    cubes.each{|cube|
-                        Arrows::issueOrException(newconcept, cube)
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[downstream] remove concept",
+                    lambda {
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getDownstreamObjects(ns2), lambda{|ns| Type1Type2CommonInterface::toString(ns) })
+                        return if x.nil?
+                        Arrows::remove(ns2, x)
                     }
-                    cubes.each{|cube|
-                        Arrows::remove(ns, cube)
+                )
+            end
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[network] select cubes ; move to an unconnected concept ; and land on that concept",
+                    lambda {
+                        return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
+
+                        # Selecting the cubes
+                        cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        return if cubes.size == 0
+
+                        # Creating the concept
+                        newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
+
+                        # Moving the cubes
+                        cubes.each{|cube|
+                            Arrows::issueOrException(newconcept, cube)
+                        }
+                        cubes.each{|cube|
+                            Arrows::remove(ns, cube)
+                        }
+                        
+                        NSDataType2::landing(newconcept)
                     }
-                    
-                    NSDataType2::landing(newconcept)
-                }
-            )
+                )
+            end
 
             Miscellaneous::horizontalRule()
 
