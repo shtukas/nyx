@@ -31,12 +31,14 @@ class DataStore3RemoteControl
 
     # DataStore3RemoteControl::doPullRepositoryData()
     def self.doPullRepositoryData()
+        DataStore3RemoteControl::cloneRepositoryIfNotDoneYet()
         pathToScript = File.expand_path("#{File.dirname(__FILE__)}/../shell-scripts/002-pull")
         system(pathToScript)
     end
 
     # DataStore3RemoteControl::doPushRepositoryData()
     def self.doPushRepositoryData()
+        DataStore3RemoteControl::cloneRepositoryIfNotDoneYet()
         pathToScript = File.expand_path("#{File.dirname(__FILE__)}/../shell-scripts/003-push")
         system(pathToScript)
     end
