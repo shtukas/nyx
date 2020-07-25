@@ -310,6 +310,15 @@ class DataPortalUI
             )
 
             ms.item(
+                "Show dataset statistics", 
+                lambda { 
+                    system("clear")
+                    
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            ms.item(
                 "exit", 
                 lambda { exit }
             )

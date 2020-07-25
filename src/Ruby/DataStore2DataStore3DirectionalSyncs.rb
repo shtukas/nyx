@@ -1,12 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-
-Here we perform the synchronization between the primary docnet repository and the local github repository.
-
-=end
-
 class DataStore2DataStore3DirectionalSyncs
 
     # DataStore2DataStore3DirectionalSyncs::store2NyxObjectFilenameToStore3Filepath(filename)
@@ -123,6 +117,7 @@ class DataStore2DataStore3DirectionalSyncs
             puts "copying: #{File.basename(path)}"
             FileUtils.cp(path, targetFilepath)
         end
+        NyxObjects::resetCacheKeySynchronizationMovingFragment()
     end
 
 end

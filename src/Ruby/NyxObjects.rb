@@ -87,9 +87,24 @@ end
 
 class NyxObjects
 
+    # NyxObjects::getCacheKeySynchronizationMovingFragment()
+    def self.getCacheKeySynchronizationMovingFragment()
+        filepath = "#{Realms::personalSpaceFolderPath()}/006-nyx-objects-moving-cache-key-c7598b3d-d56a-4b97-b435-69649fc6fe94"
+        if !File.exists?(filepath) then
+            File.open(filepath, "w"){|f| f.write(SecureRandom.hex) }
+        end
+        IO.read(filepath).strip
+    end
+
+    # NyxObjects::resetCacheKeySynchronizationMovingFragment()
+    def self.resetCacheKeySynchronizationMovingFragment()
+        filepath = "#{Realms::personalSpaceFolderPath()}/006-nyx-objects-moving-cache-key-c7598b3d-d56a-4b97-b435-69649fc6fe94"
+        File.open(filepath, "w"){|f| f.write(SecureRandom.hex) }
+    end
+
     # NyxObjects::cachingKeyPrefix()
     def self.cachingKeyPrefix()
-        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EC:#{Realms::getRealmUniqueId()}"
+        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EC:#{NyxObjects::getCacheKeySynchronizationMovingFragment()}"
     end
 
     # NyxObjects::put(object)

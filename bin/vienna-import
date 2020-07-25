@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "loader.rb"
+require_relative "../scr/Ruby/loader.rb"
 
 class ProgramVariant
     # ProgramVariant::id()
