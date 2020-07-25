@@ -269,7 +269,7 @@ class NSDataType2
                         if description.nil? then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
-                            description = Miscellaneous::editTextUsingTextmate(description).strip
+                            description = Miscellaneous::editTextSynchronously(description).strip
                         end
                         return if description == ""
                         NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)

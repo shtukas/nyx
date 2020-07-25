@@ -753,7 +753,7 @@ class Asteroids
                 menuitems.item(
                     "edit description",
                     lambda {
-                        asteroid["payload"]["description"] = Miscellaneous::editTextUsingTextmate(asteroid["payload"]["description"]).strip
+                        asteroid["payload"]["description"] = Miscellaneous::editTextSynchronously(asteroid["payload"]["description"]).strip
                         Asteroids::reCommitToDisk(asteroid)
                     }
                 )

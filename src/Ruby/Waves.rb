@@ -309,7 +309,7 @@ class Waves
             menuitems.item(
                 "description",
                 lambda { 
-                    description = Miscellaneous::editTextUsingTextmate(wave["description"])
+                    description = Miscellaneous::editTextSynchronously(wave["description"])
                     return if description.nil?
                     wave["description"] = description
                     Waves::recommitToDisk(wave)
@@ -386,7 +386,7 @@ class Waves
                 Waves::performDone(wave)
             end
             if op == "edit description" then
-                wave["description"] = Miscellaneous::editTextUsingTextmate(wave["description"])
+                wave["description"] = Miscellaneous::editTextSynchronously(wave["description"])
                 Waves::commitToDisk(wave)
             end
             if op == "recast" then

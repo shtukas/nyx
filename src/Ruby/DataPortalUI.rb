@@ -89,7 +89,7 @@ class DataPortalUI
                     return if uuid == ""
                     object = NyxObjects::getOrNull(uuid)
                     return if object.nil?
-                    object = Miscellaneous::editTextUsingTextmate(JSON.pretty_generate(object))
+                    object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                     object = JSON.parse(object)
                     NyxObjects::destroy(object)
                     NyxObjects::put(object)
@@ -289,7 +289,7 @@ class DataPortalUI
                         return if uuid == ""
                         object = NyxObjects::getOrNull(uuid)
                         return if object.nil?
-                        object = Miscellaneous::editTextUsingTextmate(JSON.pretty_generate(object))
+                        object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                         object = JSON.parse(object)
                         NyxObjects::destroy(object)
                         NyxObjects::put(object)

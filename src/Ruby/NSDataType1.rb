@@ -358,7 +358,7 @@ class NSDataType1
                         if description.nil? then
                             description = LucilleCore::askQuestionAnswerAsString("description: ")
                         else
-                            description = Miscellaneous::editTextUsingTextmate(description).strip
+                            description = Miscellaneous::editTextSynchronously(description).strip
                         end
                         return if description == ""
                         NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
@@ -379,7 +379,7 @@ class NSDataType1
                 menuitems.item(
                     "[this] datetime update",
                     lambda{
-                        datetime = Miscellaneous::editTextUsingTextmate(NSDataType1::getReferenceDateTime(ns1)).strip
+                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getReferenceDateTime(ns1)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
                         NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
                     }
@@ -390,7 +390,7 @@ class NSDataType1
                 "[this] top note edit", 
                 lambda{ 
                     text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1) || ""
-                    text = Miscellaneous::editTextUsingTextmate(text).strip
+                    text = Miscellaneous::editTextSynchronously(text).strip
                     NSDataTypeXExtended::issueNoteForTarget(ns1, text)
                 }
             )

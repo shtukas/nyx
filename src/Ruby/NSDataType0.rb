@@ -106,7 +106,7 @@ class NSDataType0s
             return NSDataType0s::issueUrl(url)
         end
         if type == "text" then
-            text = Miscellaneous::editTextUsingTextmate("").strip
+            text = Miscellaneous::editTextSynchronously("").strip
             return nil if text.size == 0
             return NSDataType0s::issueText(text)
         end
@@ -227,14 +227,14 @@ class NSDataType0s
     def self.editFrame(ns1, ns0)
         if ns0["type"] == "line" then
             line = ns0["line"]
-            line = Miscellaneous::editTextUsingTextmate(line).strip
+            line = Miscellaneous::editTextSynchronously(line).strip
             newframe = NSDataType0s::issueLine(line)
             Arrows::issueOrException(ns1, newframe)
             return
         end
         if ns0["type"] == "url" then
             url = ns0["url"]
-            url = Miscellaneous::editTextUsingTextmate(url).strip
+            url = Miscellaneous::editTextSynchronously(url).strip
             newframe = NSDataType0s::issueUrl(url)
             Arrows::issueOrException(ns1, newframe)
             return
@@ -242,7 +242,7 @@ class NSDataType0s
         if ns0["type"] == "text" then
             namedhash = ns0["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash)
-            text = Miscellaneous::editTextUsingTextmate(text)
+            text = Miscellaneous::editTextSynchronously(text)
             newframe = NSDataType0s::issueText(text)
             Arrows::issueOrException(ns1, newframe)
             return

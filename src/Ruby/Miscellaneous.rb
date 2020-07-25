@@ -23,17 +23,6 @@ class Miscellaneous
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Bin-T1mel1ne"
     end
 
-    # Miscellaneous::editTextUsingTextmate(text)
-    def self.editTextUsingTextmate(text)
-      filename = SecureRandom.hex
-      filepath = "/tmp/#{filename}"
-      File.open(filepath, 'w') {|f| f.write(text)}
-      system("/usr/local/bin/mate \"#{filepath}\"")
-      print "> press enter when done: "
-      input = STDIN.gets
-      IO.read(filepath)
-    end
-
     # Miscellaneous::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
@@ -214,17 +203,6 @@ class Miscellaneous
         nil
     end
 
-    # Miscellaneous::editTextUsingTextmate(text)
-    def self.editTextUsingTextmate(text)
-      filename = SecureRandom.hex
-      filepath = "/tmp/#{filename}"
-      File.open(filepath, 'w') {|f| f.write(text)}
-      system("/usr/local/bin/mate \"#{filepath}\"")
-      print "> press enter when done: "
-      input = STDIN.gets
-      IO.read(filepath)
-    end
-
     # Miscellaneous::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
@@ -270,5 +248,27 @@ class Miscellaneous
     # Miscellaneous::isAlexandra()
     def self.isAlexandra()
         File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/is-alexandra.txt")
+    end
+
+    # Miscellaneous::openFilepathWithInvite(filepath)
+    def self.openFilepathWithInvite(filepath)
+        system("open '#{filepath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Miscellaneous::openFilepath(filepath)
+    def self.openFilepath(filepath)
+        system("open '#{filepath}'")
+    end
+
+    # Miscellaneous::editTextSynchronously(text)
+    def self.editTextSynchronously(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("open '#{filepath}'")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
     end
 end

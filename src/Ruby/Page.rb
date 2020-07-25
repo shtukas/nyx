@@ -39,7 +39,7 @@ class Page
     # Page::issueNewTextWithNewId()
     def self.issueNewTextWithNewId()
         textid = SecureRandom.uuid
-        text = Miscellaneous::editTextUsingTextmate("")
+        text = Miscellaneous::editTextSynchronously("")
         Page::make(textid, text)
     end
 end
