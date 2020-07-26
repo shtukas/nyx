@@ -20,32 +20,32 @@ class Curation
 
         counter = Counter0731.new()
 
-        # Give a description to the aion-point cubes which do not have one
+        # Give a description to the aion-point points which do not have one
 
-        NSDataType1::cubes()
-        .each{|cube|
+        NSDataType1::points()
+        .each{|point|
 
             return if counter.hasReached(10)
 
-            next if NSDataType1::getAsteroidsForCube(cube).size > 0
-            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(cube)
-            ns0 = NSDataType1::cubeToLastFrameOrNull(cube)
+            next if NSDataType1::getAsteroidsForPoint(point).size > 0
+            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
+            ns0 = NSDataType1::pointToLastFrameOrNull(point)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
 
             system("clear")
 
-            NSDataType0s::openFrame(cube, ns0)
+            NSDataType0s::openFrame(point, ns0)
 
             counter.increment()
 
             description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
             if description == "dive" then
-                NSDataType1::landing(cube)
+                NSDataType1::landing(point)
                 next
             end
-            NSDataTypeXExtended::issueDescriptionForTarget(cube, description)
+            NSDataTypeXExtended::issueDescriptionForTarget(point, description)
         }
 
         # Give a description to concepts which do not have one
@@ -58,13 +58,13 @@ class Curation
             counter.increment()
         }
 
-        # Give a upstream concepts to cubes which do not have one
+        # Give a upstream concepts to points which do not have one
 
-        NSDataType1::cubes()
-        .each{|cube|
+        NSDataType1::points()
+        .each{|point|
             return if counter.hasReached(10)
-            next if Type1Type2CommonInterface::getUpstreamConcepts(cube).size > 0
-            NSDataType2::landing(cube)
+            next if Type1Type2CommonInterface::getUpstreamConcepts(point).size > 0
+            NSDataType2::landing(point)
             counter.increment()
         }
     end

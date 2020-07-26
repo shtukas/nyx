@@ -31,13 +31,13 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         LucilleCore::locationsAtFolder(Realms::getDeskFolderpath()).each{|location|
-            cubeuuid = File.basename(location)
-            cube = NSDataType1::getCubeOrNull(cubeuuid)
-            next if cube.nil?
-            puts NSDataType1::cubeToString(cube)
-            ns0 = NSDataType1::cubeToLastFrameOrNull(cube)
+            pointuuid = File.basename(location)
+            point = NSDataType1::getPointOrNull(pointuuid)
+            next if point.nil?
+            puts NSDataType1::pointToString(point)
+            ns0 = NSDataType1::pointToLastFrameOrNull(point)
             next if ns0.nil?
-            if ns0["type"] != "aion-point" then # Looks like the cube has been transmuted after it was exported as a aion-point
+            if ns0["type"] != "aion-point" then # Looks like the point has been transmuted after it was exported as a aion-point
                 LucilleCore::removeFileSystemLocation(location)
                 next
             end
@@ -47,7 +47,7 @@ class DeskOperator
                 next
             end
             newns0 = NSDataType0s::issueAionPoint(namedhash)
-            Arrows::issueOrException(cube, newns0)
+            Arrows::issueOrException(point, newns0)
             puts "new ns0:"
             puts JSON.pretty_generate(newns0)
             LucilleCore::removeFileSystemLocation(location)

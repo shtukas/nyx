@@ -64,7 +64,7 @@ class NSDataType2
         end
 
         Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
-            str = "[concept] [#{ns2["uuid"][0, 4]}] #{NSDataType1::cubeToString(ns1)}"
+            str = "[concept] [#{ns2["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         }
@@ -341,17 +341,17 @@ class NSDataType2
             end
 
             menuitems.item(
-                "[downstream] add cube (chosen from existing cubes)",
+                "[downstream] add point (chosen from existing points)",
                 lambda {
-                    x1 = NSDataType1::selectExistingCubeInteractivelyOrNull()
+                    x1 = NSDataType1::selectExistingPointInteractivelyOrNull()
                     return if x1.nil?
                     Arrows::issueOrException(ns2, x1)
                 }
             )
             menuitems.item(
-                "[downstream] add new cube",
+                "[downstream] add new point",
                 lambda {
-                    x1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                    x1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
                     Arrows::issueOrException(ns2, x1)
                 }
@@ -359,13 +359,13 @@ class NSDataType2
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "[downstream] select cubes ; move to a new downstream concept",
+                    "[downstream] select points ; move to a new downstream concept",
                     lambda {
                         return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
-                        # Selecting the cubes
-                        cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
-                        return if cubes.size == 0
+                        # Selecting the points
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        return if points.size == 0
 
                         # Creating the concept
                         newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
@@ -373,12 +373,12 @@ class NSDataType2
                         # Setting the concept as target of this one
                         Arrows::issueOrException(ns, newconcept)
 
-                        # Moving the cubes
-                        cubes.each{|cube|
-                            Arrows::issueOrException(newconcept, cube)
+                        # Moving the points
+                        points.each{|point|
+                            Arrows::issueOrException(newconcept, point)
                         }
-                        cubes.each{|cube|
-                            Arrows::remove(ns, cube)
+                        points.each{|point|
+                            Arrows::remove(ns, point)
                         }
                     }
                 )
@@ -407,23 +407,23 @@ class NSDataType2
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "[network] select cubes ; move to an unconnected concept ; and land on that concept",
+                    "[network] select points ; move to an unconnected concept ; and land on that concept",
                     lambda {
                         return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
 
-                        # Selecting the cubes
-                        cubes, _ = LucilleCore::selectZeroOrMore("cube", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
-                        return if cubes.size == 0
+                        # Selecting the points
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        return if points.size == 0
 
                         # Creating the concept
                         newconcept = NSDataType2::issueNewConceptInteractivelyOrNull()
 
-                        # Moving the cubes
-                        cubes.each{|cube|
-                            Arrows::issueOrException(newconcept, cube)
+                        # Moving the points
+                        points.each{|point|
+                            Arrows::issueOrException(newconcept, point)
                         }
-                        cubes.each{|cube|
-                            Arrows::remove(ns, cube)
+                        points.each{|point|
+                            Arrows::remove(ns, point)
                         }
                         
                         NSDataType2::landing(newconcept)
@@ -446,7 +446,7 @@ class NSDataType2
             .map{|ns2|
                 {
                     "description"   => NSDataType2::conceptToString(ns2),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(ns2),
+                    "referencetime" => NSDataType1::getPointReferenceUnixtime(ns2),
                     "dive"          => lambda{ NSDataType2::landing(ns2) }
                 }
             }

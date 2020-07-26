@@ -20,16 +20,16 @@ class DataPortalUI
             )
 
             ms.item(
-                "explore cubes", 
-                lambda { NSDataType1::selectCubesByInteractiveSearchStringAndExploreThem() }
+                "explore points", 
+                lambda { NSDataType1::selectPointByInteractiveSearchStringAndExploreThem() }
             )
 
             puts ""
 
             ms.item(
-                "new cube",
+                "new point",
                 lambda { 
-                    ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                    ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
                 }
@@ -219,14 +219,14 @@ class DataPortalUI
             )
 
             ms.item(
-                "Explore cubes", 
-                lambda { NSDataType1::selectCubesByInteractiveSearchStringAndExploreThem() }
+                "Explore points", 
+                lambda { NSDataType1::selectPointByInteractiveSearchStringAndExploreThem() }
             )
 
             ms.item(
-                "Make new cube",
+                "Make new point",
                 lambda { 
-                    ns1 = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+                    ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
                 }

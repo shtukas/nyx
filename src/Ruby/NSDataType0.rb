@@ -113,10 +113,10 @@ class NSDataType0s
     # NSDataType0s::getNSDataType0Types()
     def self.getNSDataType0Types()
         if Realms::isCatalyst() then
-            return ["line", "url", "text", "picture+", "fs-location aion-point", "unique-name"]
+            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "unique-name"]
         end
         if Realms::isDocnet() then
-            return ["line", "url", "text", "picture+", "fs-location aion-point"]
+            return ["line", "url", "text", "picture(+)", "fs-location aion-point"]
         end
         Realms::raiseException()
     end
@@ -164,7 +164,7 @@ class NSDataType0s
             return nil if text.size == 0
             return NSDataType0s::issueText(text)
         end
-        if type == "picture+" then
+        if type == "picture(+)" then
             return NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
         end
         if type == "fs-location aion-point" then
@@ -318,7 +318,7 @@ class NSDataType0s
         end
         if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
             puts "pictures(+) are not directly editable"
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same cube ? : ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same point ? : ") then
                 newframe = NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
                 return if newframe.nil?
                 Arrows::issueOrException(ns1, newframe)

@@ -14,135 +14,135 @@ class NSDataType1
         object
     end
 
-    # NSDataType1::cubes()
-    def self.cubes()
+    # NSDataType1::points()
+    def self.points()
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
-    # NSDataType1::getCubeOrNull(uuid)
-    def self.getCubeOrNull(uuid)
+    # NSDataType1::getPointOrNull(uuid)
+    def self.getPointOrNull(uuid)
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType1::cubeToString(ns1)
-    def self.cubeToString(ns1)
+    # NSDataType1::pointToString(ns1)
+    def self.pointToString(ns1)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
-        ns0s = NSDataType1::cubeToFramesInTimeOrder(ns1)
+        ns0s = NSDataType1::pointToFramesInTimeOrder(ns1)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
         if description and ns0s.size > 0 then
-            str = "[cube] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
+            str = "[point] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description and ns0s.size == 0 then
-            str = "[cube] [#{ns1["uuid"][0, 4]}] #{description}"
+            str = "[point] [#{ns1["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size > 0 then
-            str = "[cube] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+            str = "[point] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size == 0 then
-            str = "[cube] [#{ns1["uuid"][0, 4]}] no description and no frame"
+            str = "[point] [#{ns1["uuid"][0, 4]}] no description and no frame"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        "[cube] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological cube: #{ns1["uuid"]}]"
+        "[point] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological point: #{ns1["uuid"]}]"
     end
 
-    # NSDataType1::getCubeDescriptionOrNull(cube)
-    def self.getCubeDescriptionOrNull(cube)
-        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(cube)
+    # NSDataType1::getPointDescriptionOrNull(point)
+    def self.getPointDescriptionOrNull(point)
+        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
     end
 
-    # NSDataType1::getReferenceDateTime(ns)
-    def self.getReferenceDateTime(ns)
+    # NSDataType1::getPointReferenceDateTime(ns)
+    def self.getPointReferenceDateTime(ns)
         datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(ns)
         return datetime if datetime
         Time.at(ns["unixtime"]).utc.iso8601
     end
 
-    # NSDataType1::getReferenceUnixtime(ns)
-    def self.getReferenceUnixtime(ns)
-        DateTime.parse(NSDataType1::getReferenceDateTime(ns)).to_time.to_f
+    # NSDataType1::getPointReferenceUnixtime(ns)
+    def self.getPointReferenceUnixtime(ns)
+        DateTime.parse(NSDataType1::getPointReferenceDateTime(ns)).to_time.to_f
     end
 
-    # NSDataType1::cubeToFramesInTimeOrder(ns1)
-    def self.cubeToFramesInTimeOrder(ns1)
+    # NSDataType1::pointToFramesInTimeOrder(ns1)
+    def self.pointToFramesInTimeOrder(ns1)
         Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType1::cubeToLastFrameOrNull(ns1)
-    def self.cubeToLastFrameOrNull(ns1)
-        NSDataType1::cubeToFramesInTimeOrder(ns1)
+    # NSDataType1::pointToLastFrameOrNull(ns1)
+    def self.pointToLastFrameOrNull(ns1)
+        NSDataType1::pointToFramesInTimeOrder(ns1)
             .last
     end
 
-    # NSDataType1::getAsteroidsForCube(ns1)
-    def self.getAsteroidsForCube(ns1)
+    # NSDataType1::getAsteroidsForPoint(ns1)
+    def self.getAsteroidsForPoint(ns1)
         Arrows::getSourcesOfGivenSetsForTarget(ns1, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
-    # NSDataType1::giveDescriptionToCubeInteractively(ns1)
-    def self.giveDescriptionToCubeInteractively(ns1)
+    # NSDataType1::giveDescriptionToPointInteractively(ns1)
+    def self.giveDescriptionToPointInteractively(ns1)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
         NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
     end
 
-    # NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-    def self.issueNewCubeAndItsFirstFrameInteractivelyOrNull()
+    # NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+    def self.issueNewPointAndItsFirstFrameInteractivelyOrNull()
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
         ns1 = NSDataType1::issue()
         Arrows::issueOrException(ns1, ns0)
-        NSDataType1::giveDescriptionToCubeInteractively(ns1)
+        NSDataType1::giveDescriptionToPointInteractively(ns1)
         ns1
     end
 
-    # NSDataType1::openLastCubeFrame(cube)
-    def self.openLastCubeFrame(cube)
-        frame = NSDataType1::cubeToLastFrameOrNull(cube)
+    # NSDataType1::openLastPointFrame(point)
+    def self.openLastPointFrame(point)
+        frame = NSDataType1::pointToLastFrameOrNull(point)
         if frame.nil? then
-            puts "I could not find any frames for this cube. Aborting"
+            puts "I could not find any frames for this point. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NSDataType0s::openFrame(cube, frame)
+        NSDataType0s::openFrame(point, frame)
     end
 
-    # NSDataType1::editLastCubeFrame(cube)
-    def self.editLastCubeFrame(cube)
-        frame = NSDataType1::cubeToLastFrameOrNull(cube)
+    # NSDataType1::editLastPointFrame(point)
+    def self.editLastPointFrame(point)
+        frame = NSDataType1::pointToLastFrameOrNull(point)
         if frame.nil? then
-            puts "I could not find any frames for this cube. Aborting"
+            puts "I could not find any frames for this point. Aborting"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NSDataType0s::editFrame(cube, frame)
+        NSDataType0s::editFrame(point, frame)
     end
 
-    # NSDataType1::cubeMatchesPattern(cube, pattern)
-    def self.cubeMatchesPattern(cube, pattern)
-        return true if cube["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType1::cubeToString(cube).downcase.include?(pattern.downcase)
+    # NSDataType1::pointMatchesPattern(point, pattern)
+    def self.pointMatchesPattern(point, pattern)
+        return true if point["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType1::pointToString(point).downcase.include?(pattern.downcase)
         false
     end
 
-    # NSDataType1::selectCubesPerPattern(pattern)
-    def self.selectCubesPerPattern(pattern)
-        NSDataType1::cubes()
-            .select{|cube| NSDataType1::cubeMatchesPattern(cube, pattern) }
+    # NSDataType1::selectPointPerPattern(pattern)
+    def self.selectPointPerPattern(pattern)
+        NSDataType1::points()
+            .select{|point| NSDataType1::pointMatchesPattern(point, pattern) }
     end
 
-    # NSDataType1::selectCubeByInteractiveSearchString()
-    def self.selectCubeByInteractiveSearchString()
+    # NSDataType1::selectPointByInteractiveSearchString()
+    def self.selectPointByInteractiveSearchString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -160,7 +160,7 @@ class NSDataType1
 
         search_string_558ca20d = ""
         search_queue           = []
-        selected_cubes         = []
+        selected_points         = []
 
         thread1 = Thread.new {
             loop {
@@ -186,9 +186,9 @@ class NSDataType1
             loop {
                 sleep 1
                 win3.setpos(0,0)
-                selected_cubes.first(40).each{|concept|
+                selected_points.first(40).each{|concept|
                     win3.deleteln()
-                    win3 << "#{NSDataType1::cubeToString(concept)}\n"
+                    win3 << "#{NSDataType1::pointToString(concept)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh
@@ -201,7 +201,7 @@ class NSDataType1
                 next if search_queue.empty?
                 str = search_queue.shift
                 next if str == 0
-                selected_cubes = NSDataType1::selectCubesPerPattern(str)
+                selected_points = NSDataType1::selectPointPerPattern(str)
             }
         }
 
@@ -233,36 +233,36 @@ class NSDataType1
 
         Curses::close_screen # this method restore our terminal's settings
 
-        return (selected_cubes || [])
+        return (selected_points || [])
     end
 
-    # NSDataType1::selectCubesByInteractiveSearchStringAndExploreThem()
-    def self.selectCubesByInteractiveSearchStringAndExploreThem()
-        cubes = NSDataType1::selectCubeByInteractiveSearchString()
-        return if cubes.empty?
+    # NSDataType1::selectPointByInteractiveSearchStringAndExploreThem()
+    def self.selectPointByInteractiveSearchStringAndExploreThem()
+        points = NSDataType1::selectPointByInteractiveSearchString()
+        return if points.empty?
         loop {
             system("clear")
-            cube = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
-            break if cube.nil?
-            NSDataType1::landing(cube)
+            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NSDataType1::pointToString(point) })
+            break if point.nil?
+            NSDataType1::landing(point)
         }
     end
 
-    # NSDataType1::selectExistingCubeInteractivelyOrNull()
-    def self.selectExistingCubeInteractivelyOrNull()
-        cubes = NSDataType1::selectCubeByInteractiveSearchString()
-        return nil if cubes.empty?
+    # NSDataType1::selectExistingPointInteractivelyOrNull()
+    def self.selectExistingPointInteractivelyOrNull()
+        points = NSDataType1::selectPointByInteractiveSearchString()
+        return nil if points.empty?
         system("clear")
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", cubes, lambda{|cube| NSDataType1::cubeToString(cube) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NSDataType1::pointToString(point) })
     end
 
-    # NSDataType1::cubeDestroyProcedure(cube)
-    def self.cubeDestroyProcedure(cube)
-        folderpath = DeskOperator::deskFolderpathForNSDataType1(cube)
+    # NSDataType1::pointDestroyProcedure(point)
+    def self.pointDestroyProcedure(point)
+        folderpath = DeskOperator::deskFolderpathForNSDataType1(point)
         if File.exists?(folderpath) then
             LucilleCore::removeFileSystemLocation(folderpath)
         end
-        NyxObjects::destroy(cube)
+        NyxObjects::destroy(point)
     end
 
     # NSDataType1::landing(ns1)
@@ -275,14 +275,14 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataType1::cubeToString(ns1)
+            puts NSDataType1::pointToString(ns1)
 
             puts "    uuid: #{ns1["uuid"]}"
-            description = NSDataType1::getCubeDescriptionOrNull(ns1)
+            description = NSDataType1::getPointDescriptionOrNull(ns1)
             if description then
                 puts "    description: #{description}"
             end
-            puts "    date: #{NSDataType1::getReferenceDateTime(ns1)}"
+            puts "    date: #{NSDataType1::getPointReferenceDateTime(ns1)}"
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1)
             if notetext then
                 puts ""
@@ -295,7 +295,7 @@ class NSDataType1
             puts ""
             puts "Parents:"
 
-            asteroids = NSDataType1::getAsteroidsForCube(ns1)
+            asteroids = NSDataType1::getAsteroidsForPoint(ns1)
             if asteroids.size > 0 then
                 asteroids.each{|asteroid|
                     print "    "
@@ -319,12 +319,12 @@ class NSDataType1
             puts ""
             puts "Frame:"
 
-            ns0 = NSDataType1::cubeToLastFrameOrNull(ns1)
+            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
             if ns0 then
                 print "    "
                 menuitems.raw(
                     "open",
-                    lambda { NSDataType1::openLastCubeFrame(ns1) }
+                    lambda { NSDataType1::openLastPointFrame(ns1) }
                 )
                 print " "
                 print NSDataType0s::frameToString(ns0)
@@ -332,7 +332,7 @@ class NSDataType1
                 print "    "
                 menuitems.raw(
                     "edit",
-                    lambda { NSDataType1::editLastCubeFrame(ns1) }
+                    lambda { NSDataType1::editLastPointFrame(ns1) }
                 )
                 puts ""
             else
@@ -379,7 +379,7 @@ class NSDataType1
                 menuitems.item(
                     "[this] datetime update",
                     lambda{
-                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getReferenceDateTime(ns1)).strip
+                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getPointReferenceDateTime(ns1)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
                         NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
                     }
@@ -400,7 +400,7 @@ class NSDataType1
                     "[this] destroy",
                     lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                            NSDataType1::cubeDestroyProcedure(ns1)
+                            NSDataType1::pointDestroyProcedure(ns1)
                         end
                     }
                 )
@@ -437,12 +437,12 @@ class NSDataType1
 
     # NSDataType1::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType1::selectCubesPerPattern(pattern)
-            .map{|cube|
+        NSDataType1::selectPointPerPattern(pattern)
+            .map{|point|
                 {
-                    "description"   => NSDataType1::cubeToString(cube),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(cube),
-                    "dive"          => lambda{ NSDataType1::landing(cube) }
+                    "description"   => NSDataType1::pointToString(point),
+                    "referencetime" => NSDataType1::getPointReferenceUnixtime(point),
+                    "dive"          => lambda{ NSDataType1::landing(point) }
                 }
             }
     end

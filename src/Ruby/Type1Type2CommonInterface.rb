@@ -14,7 +14,7 @@ class Type1Type2CommonInterface
     # Type1Type2CommonInterface::toString(ns)
     def self.toString(ns)
         if Type1Type2CommonInterface::objectIsType1(ns) then
-            return NSDataType1::cubeToString(ns)
+            return NSDataType1::pointToString(ns)
         end
         if Type1Type2CommonInterface::objectIsType2(ns) then
             return NSDataType2::conceptToString(ns)

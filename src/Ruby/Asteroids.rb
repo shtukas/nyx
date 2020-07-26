@@ -207,7 +207,7 @@ class Asteroids
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
-                    return " #{NSDataType1::cubeToString(ns1s[0])}"
+                    return " #{NSDataType1::pointToString(ns1s[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -251,22 +251,22 @@ class Asteroids
         Asteroids::reCommitToDisk(asteroid)
     end
 
-    # Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
-    def self.getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
+    # Asteroids::getOrdinalsWithPointsPairsForAsteroidInOrdinalOrder(asteroid)
+    def self.getOrdinalsWithPointsPairsForAsteroidInOrdinalOrder(asteroid)
         Asteroids::getNSDataType1ForAsteroid(asteroid)
-            .map{|cube| [ Asteroids::getPositionOrdinalForCubeAtAsteroid(asteroid, cube), cube] }
+            .map{|point| [ Asteroids::getPositionOrdinalForPointAtAsteroid(asteroid, point), point] }
             .sort{|p1, p2| p1[0] <=> p2[0] }
     end
 
-    # Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
-    def self.selectOneCubeOfAsteroidOrNull(asteroid)
-        ps = Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid)
+    # Asteroids::selectOnePointOfAsteroidOrNull(asteroid)
+    def self.selectOnePointOfAsteroidOrNull(asteroid)
+        ps = Asteroids::getOrdinalsWithPointsPairsForAsteroidInOrdinalOrder(asteroid)
         toStringLambda = lambda{|p| 
             ordinal = p[0]
-            cube    = p[1]
-            "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}"
+            point    = p[1]
+            "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}"
         }
-        p = LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", ps, toStringLambda)
+        p = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", ps, toStringLambda)
         return nil if p.nil?
         p[1]
     end
@@ -621,12 +621,12 @@ class Asteroids
                 return
             end
             if ns1s.size == 1 then
-                NSDataType1::openLastCubeFrame(ns1s[0])
+                NSDataType1::openLastPointFrame(ns1s[0])
                 return
             end
-            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::cubeToString(ns1) })
+            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::pointToString(ns1) })
             return if ns1.nil?
-            NSDataType1::openLastCubeFrame(ns1)
+            NSDataType1::openLastPointFrame(ns1)
         end
     end
 
@@ -667,19 +667,19 @@ class Asteroids
         end
     end
 
-    # Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
-    def self.setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{cube["uuid"]}"
+    # Asteroids::setPositionOrdinalForPointAtAsteroid(asteroid, point, ordinal)
+    def self.setPositionOrdinalForPointAtAsteroid(asteroid, point, ordinal)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{point["uuid"]}"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(key, ordinal)
     end
 
-    # Asteroids::getPositionOrdinalForCubeAtAsteroid(asteroid, cube)
-    def self.getPositionOrdinalForCubeAtAsteroid(asteroid, cube)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{cube["uuid"]}"
+    # Asteroids::getPositionOrdinalForPointAtAsteroid(asteroid, point)
+    def self.getPositionOrdinalForPointAtAsteroid(asteroid, point)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{point["uuid"]}"
         ordinal = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(key)
         if ordinal.nil? then
             ordinal = rand
-            Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+            Asteroids::setPositionOrdinalForPointAtAsteroid(asteroid, point, ordinal)
         end
         ordinal
     end
@@ -793,32 +793,32 @@ class Asteroids
 
                 Miscellaneous::horizontalRule()
 
-                Asteroids::getOrdinalsWithCubesPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, cube = packet
+                Asteroids::getOrdinalsWithPointsPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, point = packet
                     menuitems.item(
-                        "(#{"%.5f" % ordinal}) #{NSDataType1::cubeToString(cube)}",
-                        lambda { NSDataType1::landing(cube) }
+                        "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}",
+                        lambda { NSDataType1::landing(point) }
                     )
                 }
 
                 menuitems.item(
-                    "add new cube",
+                    "add new point",
                     lambda { 
-                        cube = NSDataType1::issueNewCubeAndItsFirstFrameInteractivelyOrNull()
-                        return if cube.nil?
-                        Arrows::issueOrException(asteroid, cube)
+                        point = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+                        return if point.nil?
+                        Arrows::issueOrException(asteroid, point)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+                        Asteroids::setPositionOrdinalForPointAtAsteroid(asteroid, point, ordinal)
                     }
                 )
 
                 menuitems.item(
-                    "select cube ; set ordinal",
+                    "select point ; set ordinal",
                     lambda { 
-                        cube = Asteroids::selectOneCubeOfAsteroidOrNull(asteroid)
-                        return if cube.nil?
+                        point = Asteroids::selectOnePointOfAsteroidOrNull(asteroid)
+                        return if point.nil?
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForCubeAtAsteroid(asteroid, cube, ordinal)
+                        Asteroids::setPositionOrdinalForPointAtAsteroid(asteroid, point, ordinal)
                     }
                 )
 
