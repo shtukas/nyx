@@ -107,11 +107,11 @@ class GraphTypes
                 puts "    child: #{GraphTypes::toString(o)}"
             }
 
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object).strip
-            if notetext and notetext.size > 0 then
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object)
+            if notetext and notetext.strip.size > 0 then
                 Miscellaneous::horizontalRule()
                 puts "Note:"
-                puts notetext.lines.map{|line| "    #{line}" }.join()
+                puts notetext.strip.lines.map{|line| "    #{line}" }.join()
             end
 
             Miscellaneous::horizontalRule()
