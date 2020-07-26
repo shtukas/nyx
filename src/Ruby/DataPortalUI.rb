@@ -16,7 +16,7 @@ class DataPortalUI
 
             ms.item(
                 "Graph Types Interactive Search", 
-                lambda { GraphTypes::interactiveSearchAndExplore() }
+                lambda { NavigationTypes::interactiveSearchAndExplore() }
             )
 
             puts ""
@@ -26,7 +26,7 @@ class DataPortalUI
                 lambda { 
                     point = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if point.nil?
-                    GraphTypes::landing(point)
+                    NavigationTypes::landing(point)
                 }
             )
 
@@ -35,7 +35,7 @@ class DataPortalUI
                 lambda { 
                     node = NSDataType2::issueNewNodeInteractivelyOrNull()
                     return if node.nil?
-                    GraphTypes::landing(node)
+                    NavigationTypes::landing(node)
                 }
             )
 
@@ -45,9 +45,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                    node1 = NavigationTypes::selectExistingObjectInteractivelyOrNull()
                     return if node1.nil?
-                    node2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                    node2 = NavigationTypes::selectExistingObjectInteractivelyOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."
@@ -56,22 +56,22 @@ class DataPortalUI
                     end
 
                     # Moving all the node upstreams of node2 towards node 1
-                    GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                    NavigationTypes::getUpstreamNavigationTypes(node2).each{|x|
                         puts "arrow (1): #{NSDataType2::nodeToString(x)} -> #{NSDataType2::nodeToString(node1)}"
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                    NavigationTypes::getDownstreamNavigationTypes(node2).each{|x|
                         puts "arrow (2): #{NSDataType2::nodeToString(node1)} -> #{NSDataType2::nodeToString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the node upstreams of node2 towards node 1
-                    GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                    NavigationTypes::getUpstreamNavigationTypes(node2).each{|x|
                         Arrows::issueOrException(x, node1)
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                    NavigationTypes::getDownstreamNavigationTypes(node2).each{|x|
                         Arrows::issueOrException(node1, x)
                     }
                     NyxObjects::destroy(node2)
@@ -211,7 +211,7 @@ class DataPortalUI
 
             ms.item(
                 "Network Interactive Search", 
-                lambda { GraphTypes::interactiveSearchAndExplore() } # "GraphTypes" are called Network in the DocNet context.
+                lambda { NavigationTypes::interactiveSearchAndExplore() } # "NavigationTypes" are called Network in the DocNet context.
             )
 
             ms.item(
@@ -219,7 +219,7 @@ class DataPortalUI
                 lambda { 
                     ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
-                    GraphTypes::landing(ns1)
+                    NavigationTypes::landing(ns1)
                 }
             )
 
@@ -228,7 +228,7 @@ class DataPortalUI
                 lambda { 
                     ns2 = NSDataType2::issueNewNodeInteractivelyOrNull()
                     return if ns2.nil?
-                    GraphTypes::landing(ns2)
+                    NavigationTypes::landing(ns2)
                 }
             )
 
@@ -238,9 +238,9 @@ class DataPortalUI
                     lambda { 
                         puts "Merging two nodes"
                         puts "Selecting one after the other and then will merge"
-                        node1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                        node1 = NavigationTypes::selectExistingObjectInteractivelyOrNull()
                         return if node1.nil?
-                        node2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                        node2 = NavigationTypes::selectExistingObjectInteractivelyOrNull()
                         return if node2.nil?
                         if node1["uuid"] == node2["uuid"] then
                             puts "You have selected the same node twice. Aborting merge operation."
@@ -249,22 +249,22 @@ class DataPortalUI
                         end
 
                         # Moving all the node upstreams of node2 towards node 1
-                        GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                        NavigationTypes::getUpstreamNavigationTypes(node2).each{|x|
                             puts "arrow (1): #{NSDataType2::nodeToString(x)} -> #{NSDataType2::nodeToString(node1)}"
                         }
                         # Moving all the downstreams of node2 toward node 1
-                        GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                        NavigationTypes::getDownstreamNavigationTypes(node2).each{|x|
                             puts "arrow (2): #{NSDataType2::nodeToString(node1)} -> #{NSDataType2::nodeToString(x)}"
                         }
 
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                         # Moving all the node upstreams of node2 towards node 1
-                        GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                        NavigationTypes::getUpstreamNavigationTypes(node2).each{|x|
                             Arrows::issueOrException(x, node1)
                         }
                         # Moving all the downstreams of node2 toward node 1
-                        GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                        NavigationTypes::getDownstreamNavigationTypes(node2).each{|x|
                             Arrows::issueOrException(node1, x)
                         }
                         NyxObjects::destroy(node2)

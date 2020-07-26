@@ -61,6 +61,7 @@ require_relative "CatalystUI.rb"
 
 require_relative "Curation.rb"
 
+require_relative "DataStore3RemoteControl.rb"
 require_relative "DataStoresOrchestration"
 require_relative "DataStore2DataStore3DirectionalSyncs.rb"
 require_relative "DataPortalUI.rb"
@@ -74,7 +75,6 @@ require_relative "Drives.rb"
 require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
-require_relative "GraphTypes.rb"
 
 require_relative "KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore.rb"
 
@@ -94,8 +94,8 @@ require_relative "Librarian.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "Miscellaneous.rb"
-require_relative "DataStore3RemoteControl.rb"
 
+require_relative "NavigationTypes.rb"
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"
 require_relative "NSDataType2.rb"

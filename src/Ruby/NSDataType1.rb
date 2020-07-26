@@ -57,7 +57,7 @@ class NSDataType1
 
     # NSDataType1::getPointReferenceUnixtime(ns)
     def self.getPointReferenceUnixtime(ns)
-        DateTime.parse(GraphTypes::getObjectReferenceDateTime(ns)).to_time.to_f
+        DateTime.parse(NavigationTypes::getObjectReferenceDateTime(ns)).to_time.to_f
     end
 
     # NSDataType1::pointToFramesInTimeOrder(point)
@@ -145,7 +145,7 @@ class NSDataType1
                 {
                     "description"   => NSDataType1::pointToString(point),
                     "referencetime" => NSDataType1::getPointReferenceUnixtime(point),
-                    "dive"          => lambda{ GraphTypes::landing(point) }
+                    "dive"          => lambda{ NavigationTypes::landing(point) }
                 }
             }
     end

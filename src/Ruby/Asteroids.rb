@@ -609,7 +609,7 @@ class Asteroids
 
         if asteroid["payload"]["type"] == "metal" then
             Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                next if GraphTypes::getUpstreamGraphTypes(ns1).size > 0
+                next if NavigationTypes::getUpstreamNavigationTypes(ns1).size > 0
                 puts "destroying ns1: #{ns1}"
                 NyxObjects::destroy(ns1)
             }
@@ -802,7 +802,7 @@ class Asteroids
                     ordinal, point = packet
                     menuitems.item(
                         "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}",
-                        lambda { GraphTypes::landing(point) }
+                        lambda { NavigationTypes::landing(point) }
                     )
                 }
 

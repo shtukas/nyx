@@ -1,3 +1,3 @@
-GraphTypes refer to 
+NavigationTypes refer to 
     - NSDataType1 # Data Point
     - NSDataType2 # Navigation Node, they are the types that constitute the semantic network mentally manipulated by the users.

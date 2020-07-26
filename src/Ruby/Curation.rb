@@ -42,7 +42,7 @@ class Curation
             description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
             if description == "dive" then
-                GraphTypes::landing(point)
+                NavigationTypes::landing(point)
                 next
             end
             NSDataTypeXExtended::issueDescriptionForTarget(point, description)
@@ -54,7 +54,7 @@ class Curation
         .each{|node|
             return if counter.hasReached(10)
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-            GraphTypes::landing(node)
+            NavigationTypes::landing(node)
             counter.increment()
         }
 
@@ -63,8 +63,8 @@ class Curation
         NSDataType1::points()
         .each{|point|
             return if counter.hasReached(10)
-            next if GraphTypes::getUpstreamGraphTypes(point).size > 0
-            GraphTypes::landing(point)
+            next if NavigationTypes::getUpstreamNavigationTypes(point).size > 0
+            NavigationTypes::landing(point)
             counter.increment()
         }
     end

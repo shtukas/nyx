@@ -58,7 +58,7 @@ class NSDataType2
             return str
         end
 
-        GraphTypes::getDownstreamGraphTypes(node).each{|ns1|
+        NavigationTypes::getDownstreamNavigationTypes(node).each{|ns1|
             str = "[node] [#{node["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
@@ -91,7 +91,7 @@ class NSDataType2
                 {
                     "description"   => NSDataType2::nodeToString(node),
                     "referencetime" => node["unixtime"],
-                    "dive"          => lambda{ GraphTypes::landing(node) }
+                    "dive"          => lambda{ NavigationTypes::landing(node) }
                 }
             }
     end

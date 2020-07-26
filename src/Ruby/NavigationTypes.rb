@@ -1,17 +1,17 @@
 
-class GraphTypes
+class NavigationTypes
 
-    # GraphTypes::objectIsType1(object)
+    # NavigationTypes::objectIsType1(object)
     def self.objectIsType1(object)
         object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
     end
 
-    # GraphTypes::objectIsType2(object)
+    # NavigationTypes::objectIsType2(object)
     def self.objectIsType2(object)
         object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
     end
 
-    # GraphTypes::setIds()
+    # NavigationTypes::setIds()
     def self.setIds()
         [
             "c18e8093-63d6-4072-8827-14f238975d04", # Type1
@@ -19,41 +19,41 @@ class GraphTypes
         ]
     end
 
-    # GraphTypes::objectToNicknameForToString(object)
+    # NavigationTypes::objectToNicknameForToString(object)
     def self.objectToNicknameForToString(object)
-        if GraphTypes::objectIsType1(object) then
+        if NavigationTypes::objectIsType1(object) then
             return "point"
         end
-        if GraphTypes::objectIsType2(object) then
+        if NavigationTypes::objectIsType2(object) then
             return "node"
         end
         raise "[error: 8bc70a04]"
     end
 
-    # GraphTypes::toString(object)
+    # NavigationTypes::toString(object)
     def self.toString(object)
-        if GraphTypes::objectIsType1(object) then
+        if NavigationTypes::objectIsType1(object) then
             return NSDataType1::pointToString(object)
         end
-        if GraphTypes::objectIsType2(object) then
+        if NavigationTypes::objectIsType2(object) then
             return NSDataType2::nodeToString(object)
         end
         raise "[error: dd0dce2a]"
     end
 
-    # GraphTypes::getObjectDescriptionOrNull(object)
+    # NavigationTypes::getObjectDescriptionOrNull(object)
     def self.getObjectDescriptionOrNull(object)
         NSDataTypeXExtended::getLastDescriptionForTargetOrNull(object)
     end
 
-    # GraphTypes::getObjectReferenceDateTime(object)
+    # NavigationTypes::getObjectReferenceDateTime(object)
     def self.getObjectReferenceDateTime(object)
         datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(object)
         return datetime if datetime
         Time.at(object["unixtime"]).utc.iso8601
     end
 
-    # GraphTypes::landing(object)
+    # NavigationTypes::landing(object)
     def self.landing(object)
 
         loop {
@@ -67,16 +67,16 @@ class GraphTypes
 
             Miscellaneous::horizontalRule()
 
-            puts "[#{GraphTypes::objectToNicknameForToString(object)}]"
+            puts "[#{NavigationTypes::objectToNicknameForToString(object)}]"
 
-            description = GraphTypes::getObjectDescriptionOrNull(object)
+            description = NavigationTypes::getObjectDescriptionOrNull(object)
             if description then
                 puts "    description: #{description}"
             end
             puts "    uuid: #{object["uuid"]}"
-            puts "    date: #{GraphTypes::getObjectReferenceDateTime(object)}"
+            puts "    date: #{NavigationTypes::getObjectReferenceDateTime(object)}"
 
-            if GraphTypes::objectIsType1(object) then
+            if NavigationTypes::objectIsType1(object) then
                 ns0 = NSDataType1::pointToLastFrameOrNull(object)
                 if ns0 then
                     puts "    point data: #{NSDataType0s::frameToString(ns0)}"
@@ -87,12 +87,12 @@ class GraphTypes
                 puts "    parent: #{Asteroids::asteroidToString(asteroid)}"
             }
 
-            GraphTypes::getUpstreamGraphTypes(object).each{|o|
-                puts "    parent: #{GraphTypes::toString(o)}"
+            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
+                puts "    parent: #{NavigationTypes::toString(o)}"
             }
 
-            GraphTypes::getDownstreamGraphTypes(object).each{|o|
-                puts "    child: #{GraphTypes::toString(o)}"
+            NavigationTypes::getDownstreamNavigationTypes(object).each{|o|
+                puts "    child: #{NavigationTypes::toString(o)}"
             }
 
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object)
@@ -104,7 +104,7 @@ class GraphTypes
 
             Miscellaneous::horizontalRule()
 
-            if GraphTypes::objectIsType1(object) then
+            if NavigationTypes::objectIsType1(object) then
                 ns0 = NSDataType1::pointToLastFrameOrNull(object)
                 if ns0 then
                     menuitems.item(
@@ -114,7 +114,7 @@ class GraphTypes
                 end
             end
 
-            description = GraphTypes::getObjectDescriptionOrNull(object)
+            description = NavigationTypes::getObjectDescriptionOrNull(object)
             if description then
                 menuitems.item(
                     "edit description",
@@ -135,7 +135,7 @@ class GraphTypes
                 )
             end
 
-            if GraphTypes::objectIsType1(object) then
+            if NavigationTypes::objectIsType1(object) then
                 ns0 = NSDataType1::pointToLastFrameOrNull(object)
                 if ns0 then
                     menuitems.item(
@@ -158,7 +158,7 @@ class GraphTypes
                 menuitems.item(
                     "edit reference datetime",
                     lambda{
-                        datetime = Miscellaneous::editTextSynchronously(GraphTypes::getObjectReferenceDateTime(object)).strip
+                        datetime = Miscellaneous::editTextSynchronously(NavigationTypes::getObjectReferenceDateTime(object)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
                         NSDataTypeXExtended::issueDateTimeIso8601ForTarget(object, datetime)
                     }
@@ -179,7 +179,7 @@ class GraphTypes
             menuitems.item(
                 "add parent object",
                 lambda {
-                    node = GraphTypes::selectExistingOrNewGraphTypeObject()
+                    node = NavigationTypes::selectExistingOrNewGraphTypeObject()
                     return if node.nil?
                     Arrows::issueOrException(node, object)
                 }
@@ -189,7 +189,7 @@ class GraphTypes
                 menuitems.item(
                     "remove parent object",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getUpstreamGraphTypes(object), lambda{|o| GraphTypes::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NavigationTypes::getUpstreamNavigationTypes(object), lambda{|o| NavigationTypes::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, object)
                     }
@@ -199,7 +199,7 @@ class GraphTypes
             menuitems.item(
                 "add child object (chosen from existing points)",
                 lambda {
-                    o = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                    o = NavigationTypes::selectExistingObjectInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(object, o)
                 }
@@ -208,7 +208,7 @@ class GraphTypes
             menuitems.item(
                 "add child object (new)",
                 lambda {
-                    o = GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
+                    o = NavigationTypes::issueNewGraphTypeObjectInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(object, o)
                 }
@@ -218,7 +218,7 @@ class GraphTypes
                 menuitems.item(
                     "remove child object",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getDownstreamGraphTypes(object), lambda{|o| GraphTypes::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NavigationTypes::getDownstreamNavigationTypes(object), lambda{|o| NavigationTypes::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, object)
                     }
@@ -232,27 +232,27 @@ class GraphTypes
                 )
             }
 
-            GraphTypes::getUpstreamGraphTypes(object).each{|o|
+            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
                 menuitems.item(
-                    "access: #{GraphTypes::toString(o)}",
-                    lambda { GraphTypes::landing(o) }
+                    "access: #{NavigationTypes::toString(o)}",
+                    lambda { NavigationTypes::landing(o) }
                 )
             }
 
-            if GraphTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+            if NavigationTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
                 menuitems.item(
                     "remove [this] as intermediary object", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamnode|
-                            puts "upstreamnode   : #{GraphTypes::toString(upstreamnode)}"
+                        NavigationTypes::getUpstreamNavigationTypes(object).each{|upstreamnode|
+                            puts "upstreamnode   : #{NavigationTypes::toString(upstreamnode)}"
                         }
-                        GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
-                            puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
+                        NavigationTypes::getDownstreamNavigationTypes(object).each{|downstreampoint|
+                            puts "downstreampoint: #{NavigationTypes::toString(downstreampoint)}"
                         }
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary object ? ")
-                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamnode|
-                            GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
+                        NavigationTypes::getUpstreamNavigationTypes(object).each{|upstreamnode|
+                            NavigationTypes::getDownstreamNavigationTypes(object).each{|downstreampoint|
                                 Arrows::issueOrException(upstreamnode, downstreampoint)
                             }
                         }
@@ -261,18 +261,18 @@ class GraphTypes
                 )
             end
 
-            if GraphTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+            if NavigationTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
                 menuitems.item(
                     "[downstream] select points ; move to a new downstream object",
                     lambda {
-                        return if GraphTypes::getDownstreamGraphTypes(object).size == 0
+                        return if NavigationTypes::getDownstreamNavigationTypes(object).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("object", [], GraphTypes::getDownstreamGraphTypes(object), lambda{ |o| GraphTypes::toString(o) })
+                        points, _ = LucilleCore::selectZeroOrMore("object", [], NavigationTypes::getDownstreamNavigationTypes(object), lambda{ |o| NavigationTypes::toString(o) })
                         return if points.size == 0
 
                         # Creating the object
-                        newobject = GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
+                        newobject = NavigationTypes::issueNewGraphTypeObjectInteractivelyOrNull()
 
                         # Setting the object as target of this one
                         Arrows::issueOrException(object, newobject)
@@ -293,7 +293,7 @@ class GraphTypes
                     "destroy point",
                     lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this object ? ") then
-                            if GraphTypes::objectIsType1(object) then
+                            if NavigationTypes::objectIsType1(object) then
                                 NSDataType1::pointDestroyProcedure(object)
                                 return
                             end
@@ -311,33 +311,33 @@ class GraphTypes
         }
     end
 
-    # GraphTypes::landingLambda(object)
+    # NavigationTypes::landingLambda(object)
     def self.landingLambda(object)
-        if GraphTypes::objectIsType1(object) then
-            return lambda { GraphTypes::landing(object) }
+        if NavigationTypes::objectIsType1(object) then
+            return lambda { NavigationTypes::landing(object) }
         end
-        if GraphTypes::objectIsType2(object) then
-            return lambda { GraphTypes::landing(object) }
+        if NavigationTypes::objectIsType2(object) then
+            return lambda { NavigationTypes::landing(object) }
         end
         raise "[error: c3c51548]"
     end
 
-    # GraphTypes::getUpstreamGraphTypes(object)
-    def self.getUpstreamGraphTypes(object)
-        Arrows::getSourcesOfGivenSetsForTarget(object, GraphTypes::setIds())
+    # NavigationTypes::getUpstreamNavigationTypes(object)
+    def self.getUpstreamNavigationTypes(object)
+        Arrows::getSourcesOfGivenSetsForTarget(object, NavigationTypes::setIds())
     end
 
-    # GraphTypes::getDownstreamGraphTypes(object)
-    def self.getDownstreamGraphTypes(object)
-        Arrows::getTargetsOfGivenSetsForSource(object, GraphTypes::setIds())
+    # NavigationTypes::getDownstreamNavigationTypes(object)
+    def self.getDownstreamNavigationTypes(object)
+        Arrows::getTargetsOfGivenSetsForSource(object, NavigationTypes::setIds())
     end
 
-    # GraphTypes::selectObjectsUsingPattern(pattern)
+    # NavigationTypes::selectObjectsUsingPattern(pattern)
     def self.selectObjectsUsingPattern(pattern)
         NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectNodesUsingPattern(pattern)
     end
 
-    # GraphTypes::interactiveSearch()
+    # NavigationTypes::interactiveSearch()
     def self.interactiveSearch()
 
         Curses::init_screen
@@ -392,12 +392,12 @@ class GraphTypes
                 search_string = nil
 
                 display_searching_on.call()
-                selected_objects = GraphTypes::selectObjectsUsingPattern(pattern)
+                selected_objects = NavigationTypes::selectObjectsUsingPattern(pattern)
 
                 win3.setpos(0,0)
                 selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
                     win3.deleteln()
-                    win3 << "#{GraphTypes::toString(object)}\n"
+                    win3 << "#{NavigationTypes::toString(object)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh
@@ -447,15 +447,15 @@ class GraphTypes
         return (selected_objects || [])
     end
 
-    # GraphTypes::selectExistingObjectInteractivelyOrNull()
+    # NavigationTypes::selectExistingObjectInteractivelyOrNull()
     def self.selectExistingObjectInteractivelyOrNull()
-        points = GraphTypes::interactiveSearch()
+        points = NavigationTypes::interactiveSearch()
         return nil if points.empty?
         system("clear")
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| GraphTypes::toString(point) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NavigationTypes::toString(point) })
     end
 
-    # GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
+    # NavigationTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     def self.issueNewGraphTypeObjectInteractivelyOrNull()
         types = ["point", "node"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
@@ -468,23 +468,23 @@ class GraphTypes
         end
     end
 
-    # GraphTypes::selectExistingOrNewGraphTypeObject()
+    # NavigationTypes::selectExistingOrNewGraphTypeObject()
     def self.selectExistingOrNewGraphTypeObject()
-        object = GraphTypes::selectExistingObjectInteractivelyOrNull()
+        object = NavigationTypes::selectExistingObjectInteractivelyOrNull()
         return object if object
         return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing object. Would you like to make a new one ? : ")
-        GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
+        NavigationTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     end
 
-    # GraphTypes::interactiveSearchAndExplore()
+    # NavigationTypes::interactiveSearchAndExplore()
     def self.interactiveSearchAndExplore()
-        objects = GraphTypes::interactiveSearch()
+        objects = NavigationTypes::interactiveSearch()
         return if objects.empty?
         loop {
             system("clear")
-            object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object",  objects, lambda{|object| GraphTypes::toString(object) })
+            object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object",  objects, lambda{|object| NavigationTypes::toString(object) })
             break if object.nil?
-            GraphTypes::landing(object)
+            NavigationTypes::landing(object)
         }
     end
 end
