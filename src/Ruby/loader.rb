@@ -74,6 +74,7 @@ require_relative "Drives.rb"
 require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
+require_relative "GraphTypes.rb"
 
 require_relative "KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore.rb"
 
@@ -98,6 +99,7 @@ require_relative "DataStore3RemoteControl.rb"
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"
 require_relative "NSDataType2.rb"
+require_relative "NSDataType3.rb"
 require_relative "NSDataTypeX.rb"
 require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"
@@ -117,8 +119,6 @@ require_relative "Runner.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "ShadowFS.rb"
-
-require_relative "Type1Type2CommonInterface.rb"
 
 require_relative "VideoStream.rb"
 

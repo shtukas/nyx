@@ -24,35 +24,35 @@ class NSDataType1
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType1::pointToString(ns1)
-    def self.pointToString(ns1)
-        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}"
+    # NSDataType1::pointToString(point)
+    def self.pointToString(point)
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{point["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
-        ns0s = NSDataType1::pointToFramesInTimeOrder(ns1)
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
+        ns0s = NSDataType1::pointToFramesInTimeOrder(point)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
         if description and ns0s.size > 0 then
-            str = "[point] [#{ns1["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
+            str = "[point] [#{point["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description and ns0s.size == 0 then
-            str = "[point] [#{ns1["uuid"][0, 4]}] #{description}"
+            str = "[point] [#{point["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size > 0 then
-            str = "[point] [#{ns1["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+            str = "[point] [#{point["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size == 0 then
-            str = "[point] [#{ns1["uuid"][0, 4]}] no description and no frame"
+            str = "[point] [#{point["uuid"][0, 4]}] no description and no frame"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        "[point] [#{ns1["uuid"][0, 4]}] [error: 752a3db2 ; pathological point: #{ns1["uuid"]}]"
+        "[point] [#{point["uuid"][0, 4]}] [error: 752a3db2 ; pathological point: #{point["uuid"]}]"
     end
 
     # NSDataType1::getPointDescriptionOrNull(point)
@@ -72,38 +72,38 @@ class NSDataType1
         DateTime.parse(NSDataType1::getPointReferenceDateTime(ns)).to_time.to_f
     end
 
-    # NSDataType1::pointToFramesInTimeOrder(ns1)
-    def self.pointToFramesInTimeOrder(ns1)
-        Arrows::getTargetsOfGivenSetsForSource(ns1, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+    # NSDataType1::pointToFramesInTimeOrder(point)
+    def self.pointToFramesInTimeOrder(point)
+        Arrows::getTargetsOfGivenSetsForSource(point, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
-    # NSDataType1::pointToLastFrameOrNull(ns1)
-    def self.pointToLastFrameOrNull(ns1)
-        NSDataType1::pointToFramesInTimeOrder(ns1)
+    # NSDataType1::pointToLastFrameOrNull(point)
+    def self.pointToLastFrameOrNull(point)
+        NSDataType1::pointToFramesInTimeOrder(point)
             .last
     end
 
-    # NSDataType1::getAsteroidsForPoint(ns1)
-    def self.getAsteroidsForPoint(ns1)
-        Arrows::getSourcesOfGivenSetsForTarget(ns1, ["b66318f4-2662-4621-a991-a6b966fb4398"])
+    # NSDataType1::getAsteroidsForPoint(point)
+    def self.getAsteroidsForPoint(point)
+        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
-    # NSDataType1::giveDescriptionToPointInteractively(ns1)
-    def self.giveDescriptionToPointInteractively(ns1)
+    # NSDataType1::giveDescriptionToPointInteractively(point)
+    def self.giveDescriptionToPointInteractively(point)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
-        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
+        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
     end
 
     # NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
     def self.issueNewPointAndItsFirstFrameInteractivelyOrNull()
         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
         return nil if ns0.nil?
-        ns1 = NSDataType1::issue()
-        Arrows::issueOrException(ns1, ns0)
-        NSDataType1::giveDescriptionToPointInteractively(ns1)
-        ns1
+        point = NSDataType1::issue()
+        Arrows::issueOrException(point, ns0)
+        NSDataType1::giveDescriptionToPointInteractively(point)
+        point
     end
 
     # NSDataType1::openLastPointFrame(point)
@@ -141,8 +141,8 @@ class NSDataType1
             .select{|point| NSDataType1::pointMatchesPattern(point, pattern) }
     end
 
-    # NSDataType1::selectPointByInteractiveSearchString()
-    def self.selectPointByInteractiveSearchString()
+    # NSDataType1::selectPointByGraphTypesString()
+    def self.selectPointByGraphTypesString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -236,21 +236,9 @@ class NSDataType1
         return (selected_points || [])
     end
 
-    # NSDataType1::selectPointByInteractiveSearchStringAndExploreThem()
-    def self.selectPointByInteractiveSearchStringAndExploreThem()
-        points = NSDataType1::selectPointByInteractiveSearchString()
-        return if points.empty?
-        loop {
-            system("clear")
-            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NSDataType1::pointToString(point) })
-            break if point.nil?
-            NSDataType1::landing(point)
-        }
-    end
-
     # NSDataType1::selectExistingPointInteractivelyOrNull()
     def self.selectExistingPointInteractivelyOrNull()
-        points = NSDataType1::selectPointByInteractiveSearchString()
+        points = NSDataType1::selectPointByGraphTypesString()
         return nil if points.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NSDataType1::pointToString(point) })
@@ -265,40 +253,40 @@ class NSDataType1
         NyxObjects::destroy(point)
     end
 
-    # NSDataType1::landing(ns1)
-    def self.landing(ns1)
+    # NSDataType1::landing(point)
+    def self.landing(point)
         loop {
-            return if NyxObjects::getOrNull(ns1["uuid"]).nil?
+            return if NyxObjects::getOrNull(point["uuid"]).nil?
             system("clear")
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}") # decaching the toString
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{point["uuid"]}") # decaching the toString
 
             Miscellaneous::horizontalRule()
 
             puts "[point]"
 
-            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
+            description = NSDataType1::getPointDescriptionOrNull(point)
             if description then
                 puts "    description: #{description}"
             end
-            puts "    uuid: #{ns1["uuid"]}"
-            puts "    date: #{NSDataType1::getPointReferenceDateTime(ns1)}"
+            puts "    uuid: #{point["uuid"]}"
+            puts "    date: #{NSDataType1::getPointReferenceDateTime(point)}"
 
-            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            ns0 = NSDataType1::pointToLastFrameOrNull(point)
             if ns0 then
                 puts "    point data: #{NSDataType0s::frameToString(ns0)}"
             end
-            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
+            NSDataType1::getAsteroidsForPoint(point).each{|asteroid|
                 puts "    belongs to: #{Asteroids::asteroidToString(asteroid)}"
             }
 
-            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
+            GraphTypes::getUpstreamConcepts(point).each{|ns|
                 puts "    belongs to: #{NSDataType2::conceptToString(ns)}"
             }
 
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1).strip
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(point).strip
             if notetext and notetext.size > 0 then
                 Miscellaneous::horizontalRule()
                 puts "Note:"
@@ -307,27 +295,22 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            ns0 = NSDataType1::pointToLastFrameOrNull(point)
             if ns0 then
                 menuitems.item(
                     "open point data: #{NSDataType0s::frameToString(ns0)}",
-                    lambda { NSDataType1::openLastPointFrame(ns1) }
+                    lambda { NSDataType1::openLastPointFrame(point) }
                 )
             end
 
-            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
+            description = NSDataType1::getPointDescriptionOrNull(point)
             if description then
                 menuitems.item(
                     "edit description",
                     lambda{
-                        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
-                        if description.nil? then
-                            description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        else
-                            description = Miscellaneous::editTextSynchronously(description).strip
-                        end
+                        description = Miscellaneous::editTextSynchronously(description).strip
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
                     }
                 )
             else
@@ -336,16 +319,16 @@ class NSDataType1
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
                     }
                 )
             end
 
-            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            ns0 = NSDataType1::pointToLastFrameOrNull(point)
             if ns0 then
                 menuitems.item(
                     "edit point data",
-                    lambda { NSDataType1::editLastPointFrame(ns1) }
+                    lambda { NSDataType1::editLastPointFrame(point) }
                 )
             else
                 menuitems.item(
@@ -353,7 +336,7 @@ class NSDataType1
                     lambda {
                         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
                         return if ns0.nil?
-                        Arrows::issueOrException(ns1, ns0)
+                        Arrows::issueOrException(point, ns0)
                     }
                 )
             end
@@ -362,9 +345,9 @@ class NSDataType1
                 menuitems.item(
                     "edit reference datetime",
                     lambda{
-                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getPointReferenceDateTime(ns1)).strip
+                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getPointReferenceDateTime(point)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
+                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(point, datetime)
                     }
                 )
             end
@@ -372,9 +355,9 @@ class NSDataType1
             menuitems.item(
                 "edit note",
                 lambda{ 
-                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1) || ""
+                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(point) || ""
                     text = Miscellaneous::editTextSynchronously(text).strip
-                    NSDataTypeXExtended::issueNoteForTarget(ns1, text)
+                    NSDataTypeXExtended::issueNoteForTarget(point, text)
                 }
             )
 
@@ -383,7 +366,7 @@ class NSDataType1
                 lambda {
                     concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if concept.nil?
-                    Arrows::issueOrException(concept, ns1)
+                    Arrows::issueOrException(concept, point)
                 }
             )
 
@@ -391,21 +374,21 @@ class NSDataType1
                 menuitems.item(
                     "remove upstream concept",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getUpstreamConcepts(point), lambda{|ns| NSDataType2::conceptToString(ns) })
                         return if ns.nil?
-                        Arrows::remove(ns, ns1)
+                        Arrows::remove(ns, point)
                     }
                 )
             end
 
-            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
+            NSDataType1::getAsteroidsForPoint(point).each{|asteroid|
                 ordinal = menuitems.item(
                     "access: #{Asteroids::asteroidToString(asteroid)}",
                     lambda { Asteroids::landing(asteroid) }
                 )
             }
 
-            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
+            GraphTypes::getUpstreamConcepts(point).each{|ns|
                 menuitems.item(
                     "access: #{NSDataType2::conceptToString(ns)}",
                     lambda { NSDataType2::landing(ns) }
@@ -416,8 +399,8 @@ class NSDataType1
                 menuitems.item(
                     "destroy point",
                     lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
-                            NSDataType1::pointDestroyProcedure(ns1)
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this point ? ") then
+                            NSDataType1::pointDestroyProcedure(point)
                         end
                     }
                 )

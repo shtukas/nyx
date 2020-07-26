@@ -299,15 +299,6 @@ class LCoreMenuItemsNX1
         puts "[#{@position.to_s.rjust(2)}] #{description}"
     end
 
-    def itemNoPadding(description, xlambda)
-        @position = @position + 1
-        @items << {
-            "position" => @position,
-            "lambda"   => xlambda
-        }
-        puts "[#{@position}] #{description}"
-    end
-
     def raw(description, xlambda)
         @position = @position + 1
         @items << {

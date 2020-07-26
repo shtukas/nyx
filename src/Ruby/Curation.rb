@@ -63,7 +63,7 @@ class Curation
         NSDataType1::points()
         .each{|point|
             return if counter.hasReached(10)
-            next if Type1Type2CommonInterface::getUpstreamConcepts(point).size > 0
+            next if GraphTypes::getUpstreamConcepts(point).size > 0
             NSDataType2::landing(point)
             counter.increment()
         }

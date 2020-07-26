@@ -10,18 +10,13 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "general search", 
+                "General Search (synchronous)", 
                 lambda { GeneralSearch::searchAndDive() }
             )
 
             ms.item(
-                "explore concepts", 
-                lambda { NSDataType2::selectConceptsUsingInteractiveSearchStringAndExploreThem() }
-            )
-
-            ms.item(
-                "explore points", 
-                lambda { NSDataType1::selectPointByInteractiveSearchStringAndExploreThem() }
+                "Graph Types Interactive Search", 
+                lambda { GraphTypes::interactiveSearchAndExplore() }
             )
 
             puts ""
@@ -29,20 +24,30 @@ class DataPortalUI
             ms.item(
                 "new point",
                 lambda { 
-                    ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
-                    return if ns1.nil?
-                    NSDataType1::landing(ns1)
+                    point = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+                    return if point.nil?
+                    NSDataType1::landing(point)
+                }
+            )
+
+            ms.item(
+                "new story",
+                lambda { 
+                    story = NSDataType3::issueNewStoryInteractivelyOrNull()
+                    return if story.nil?
+                    NSDataType3::landing(story)
                 }
             )
 
             ms.item(
                 "new concept",
                 lambda { 
-                    ns2 = NSDataType2::issueNewConceptInteractivelyOrNull()
-                    return if ns2.nil?
-                    NSDataType2::landing(ns2)
+                    concept = NSDataType2::issueNewConceptInteractivelyOrNull()
+                    return if concept.nil?
+                    NSDataType2::landing(concept)
                 }
             )
+
 
             ms.item(
                 "Merge two concepts",
@@ -60,22 +65,22 @@ class DataPortalUI
                     end
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
+                    GraphTypes::getUpstreamConcepts(concept2).each{|x|
                         puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                     }
                     # Moving all the downstreams of concept2 toward concept 1
-                    Type1Type2CommonInterface::getDownstreamObjects(concept2).each{|x|
+                    GraphTypes::getDownstreamObjects(concept2).each{|x|
                         puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
+                    GraphTypes::getUpstreamConcepts(concept2).each{|x|
                         Arrows::issueOrException(x, concept1)
                     }
                     # Moving all the downstreams of concept2 toward concept 1
-                    Type1Type2CommonInterface::getDownstreamObjects(concept2).each{|x|
+                    GraphTypes::getDownstreamObjects(concept2).each{|x|
                         Arrows::issueOrException(concept1, x)
                     }
                     NyxObjects::destroy(concept2)
@@ -214,13 +219,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "Explore concepts", 
-                lambda { NSDataType2::selectConceptsUsingInteractiveSearchStringAndExploreThem() }
-            )
-
-            ms.item(
-                "Explore points", 
-                lambda { NSDataType1::selectPointByInteractiveSearchStringAndExploreThem() }
+                "Network Interactive Search", 
+                lambda { GraphTypes::interactiveSearchAndExplore() } # "GraphTypes" are called Network in the DocNet context.
             )
 
             ms.item(
@@ -229,6 +229,15 @@ class DataPortalUI
                     ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
+                }
+            )
+
+            ms.item(
+                "Make new story",
+                lambda { 
+                    story = NSDataType3::issueNewStoryInteractivelyOrNull()
+                    return if story.nil?
+                    NSDataType3::landing(story)
                 }
             )
 
@@ -258,22 +267,22 @@ class DataPortalUI
                         end
 
                         # Moving all the concept upstreams of concept2 towards concept 1
-                        Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
+                        GraphTypes::getUpstreamConcepts(concept2).each{|x|
                             puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                         }
                         # Moving all the downstreams of concept2 toward concept 1
-                        Type1Type2CommonInterface::getDownstreamObjects(concept2).each{|x|
+                        GraphTypes::getDownstreamObjects(concept2).each{|x|
                             puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
                         }
 
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                         # Moving all the concept upstreams of concept2 towards concept 1
-                        Type1Type2CommonInterface::getUpstreamConcepts(concept2).each{|x|
+                        GraphTypes::getUpstreamConcepts(concept2).each{|x|
                             Arrows::issueOrException(x, concept1)
                         }
                         # Moving all the downstreams of concept2 toward concept 1
-                        Type1Type2CommonInterface::getDownstreamObjects(concept2).each{|x|
+                        GraphTypes::getDownstreamObjects(concept2).each{|x|
                             Arrows::issueOrException(concept1, x)
                         }
                         NyxObjects::destroy(concept2)

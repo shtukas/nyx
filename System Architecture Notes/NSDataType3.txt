@@ -1,8 +1,8 @@
 
-NSDataType2 # Concepts
+NSDataType3 # Stories
 
 {
     "uuid"             : String
-    "nyxNxSet"         : "6b240037-8f5f-4f52-841d-12106658171f"
+    "nyxNxSet"         : "5f98770b-ee31-4c67-9d7c-509c89618ea6"
     "unixtime"         : Float # Unixtime with decimals
 }

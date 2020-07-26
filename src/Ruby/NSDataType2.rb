@@ -5,33 +5,33 @@ class NSDataType2
 
     # NSDataType2::issueNewConceptWithDescription(description)
     def self.issueNewConceptWithDescription(description)
-        ns2 = {
+        concept = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
-        puts JSON.pretty_generate(ns2)
-        NyxObjects::put(ns2)
-        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
-        ns2
+        puts JSON.pretty_generate(concept)
+        NyxObjects::put(concept)
+        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
+        concept
     end
 
     # NSDataType2::issueNewConceptInteractivelyOrNull()
     def self.issueNewConceptInteractivelyOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("ns2 description: ")
+        description = LucilleCore::askQuestionAnswerAsString("concept description: ")
         return nil if description.size == 0
 
-        ns2 = {
+        concept = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
-        puts JSON.pretty_generate(ns2)
-        NyxObjects::put(ns2)
+        puts JSON.pretty_generate(concept)
+        NyxObjects::put(concept)
 
-        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
+        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
 
-        ns2
+        concept
     end
 
     # NSDataType2::concepts()
@@ -50,34 +50,34 @@ class NSDataType2
         NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
     end
 
-    # NSDataType2::conceptToString(ns2)
-    def self.conceptToString(ns2)
-        cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}"
+    # NSDataType2::conceptToString(concept)
+    def self.conceptToString(concept)
+        cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{concept["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
         if description then
-            str = "[concept] [#{ns2["uuid"][0, 4]}] #{description}"
+            str = "[concept] [#{concept["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
 
-        Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).each{|ns1|
-            str = "[concept] [#{ns2["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
+        GraphTypes::getDownstreamObjectsType1(concept).each{|ns1|
+            str = "[concept] [#{concept["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         }
 
-        str = "[concept] [#{ns2["uuid"][0, 4]}] [no description]"
+        str = "[concept] [#{concept["uuid"][0, 4]}] [no description]"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
         str
     end
 
-    # NSDataType2::conceptMatchesPattern(ns2, pattern)
-    def self.conceptMatchesPattern(ns2, pattern)
-        return true if ns2["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType2::conceptToString(ns2).downcase.include?(pattern.downcase)
+    # NSDataType2::conceptMatchesPattern(concept, pattern)
+    def self.conceptMatchesPattern(concept, pattern)
+        return true if concept["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType2::conceptToString(concept).downcase.include?(pattern.downcase)
         false
     end
 
@@ -87,8 +87,8 @@ class NSDataType2
             .select{|concept| NSDataType2::conceptMatchesPattern(concept, pattern) }
     end
 
-    # NSDataType2::selectConceptsUsingInteractiveSearchString()
-    def self.selectConceptsUsingInteractiveSearchString()
+    # NSDataType2::selectConceptsUsingGraphTypesString()
+    def self.selectConceptsUsingGraphTypesString()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -182,21 +182,9 @@ class NSDataType2
         return (selected_concepts || [])
     end
 
-    # NSDataType2::selectConceptsUsingInteractiveSearchStringAndExploreThem()
-    def self.selectConceptsUsingInteractiveSearchStringAndExploreThem()
-        concepts = NSDataType2::selectConceptsUsingInteractiveSearchString()
-        return if concepts.empty?
-        loop {
-            system("clear")
-            concept = LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", concepts, lambda{|concept| NSDataType2::conceptToString(concept) })
-            break if concept.nil?
-            NSDataType2::landing(concept)
-        }
-    end
-
     # NSDataType2::selectConceptInteractivelyOrNull()
     def self.selectConceptInteractivelyOrNull()
-        concepts = NSDataType2::selectConceptsUsingInteractiveSearchString()
+        concepts = NSDataType2::selectConceptsUsingGraphTypesString()
         return nil if concepts.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", concepts, lambda{|concept| NSDataType2::conceptToString(concept) })
@@ -204,32 +192,32 @@ class NSDataType2
 
     # NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
     def self.selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
-        ns2 = NSDataType2::selectConceptInteractivelyOrNull()
-        return ns2 if ns2
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a ns2, would you like to make one ? : ")
+        concept = NSDataType2::selectConceptInteractivelyOrNull()
+        return concept if concept
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("You did not select a concept, would you like to make one ? : ")
         NSDataType2::issueNewConceptInteractivelyOrNull()
     end
 
-    # NSDataType2::landing(ns2)
-    def self.landing(ns2)
+    # NSDataType2::landing(concept)
+    def self.landing(concept)
         loop {
 
-            ns2 = NSDataType2::getOrNull(ns2["uuid"])
+            concept = NSDataType2::getOrNull(concept["uuid"])
 
-            return if ns2.nil? # Could have been destroyed in the previous loop
+            return if concept.nil? # Could have been destroyed in the previous loop
 
             system("clear")
 
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{ns2["uuid"]}") # decaching the toString
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{concept["uuid"]}") # decaching the toString
 
             menuitems = LCoreMenuItemsNX1.new()
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataType2::conceptToString(ns2)
+            puts "[concept]"
 
-            puts "    uuid: #{ns2["uuid"]}"
-            description = NSDataType2::getConceptDescriptionOrNull(ns2)
+            puts "    uuid: #{concept["uuid"]}"
+            description = NSDataType2::getConceptDescriptionOrNull(concept)
             if description then
                 puts "    description: #{description}"
             end
@@ -237,7 +225,7 @@ class NSDataType2
             puts ""
             puts "Parents:"
 
-            Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|ns|
+            GraphTypes::getUpstreamConcepts(concept).each{|ns|
                 print "    "
                 menuitems.raw(
                     NSDataType2::conceptToString(ns),
@@ -247,32 +235,27 @@ class NSDataType2
             }
 
             puts ""
-            puts "Contents:"
+            puts "Children:"
 
-            Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|ns|
+            GraphTypes::getDownstreamObjects(concept).each{|ns|
                 print "    "
                 menuitems.raw(
-                    Type1Type2CommonInterface::toString(ns),
-                    Type1Type2CommonInterface::navigationLambda(ns)
+                    GraphTypes::toString(ns),
+                    GraphTypes::navigationLambda(ns)
                 )
                 puts ""
             }
 
             Miscellaneous::horizontalRule()
 
-            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
+            description = NSDataType2::getConceptDescriptionOrNull(concept)
             if description then
                 menuitems.item(
                     "[this] description update",
                     lambda{
-                        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns2)
-                        if description.nil? then
-                            description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        else
-                            description = Miscellaneous::editTextSynchronously(description).strip
-                        end
+                        description = Miscellaneous::editTextSynchronously(description).strip
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
                     }
                 )
             else
@@ -281,7 +264,7 @@ class NSDataType2
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(ns2, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
                     }
                 )
             end
@@ -291,19 +274,19 @@ class NSDataType2
                     "[this] remove as intermediary concept", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
+                        GraphTypes::getUpstreamConcepts(concept).each{|upstreamconcept|
                             puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
                         }
-                        Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
-                            puts "downstreampoint: #{Type1Type2CommonInterface::toString(downstreampoint)}"
+                        GraphTypes::getDownstreamObjects(concept).each{|downstreampoint|
+                            puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
                         }
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
-                        Type1Type2CommonInterface::getUpstreamConcepts(ns2).each{|upstreamconcept|
-                            Type1Type2CommonInterface::getDownstreamObjects(ns2).each{|downstreampoint|
+                        GraphTypes::getUpstreamConcepts(concept).each{|upstreamconcept|
+                            GraphTypes::getDownstreamObjects(concept).each{|downstreampoint|
                                 Arrows::issueOrException(upstreamconcept, downstreampoint)
                             }
                         }
-                        NyxObjects::destroy(ns2)
+                        NyxObjects::destroy(concept)
                     }
                 )
             end
@@ -312,8 +295,8 @@ class NSDataType2
                 menuitems.item(
                     "[this] destroy", 
                     lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns2 ? ") then
-                            NyxObjects::destroy(ns2)
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this concept ? ") then
+                            NyxObjects::destroy(concept)
                         end
                     }
                 )
@@ -324,8 +307,8 @@ class NSDataType2
                 lambda {
                     x = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if x.nil?
-                    return if x["uuid"] == ns2["uuid"]
-                    Arrows::issueOrException(x, ns2)
+                    return if x["uuid"] == concept["uuid"]
+                    Arrows::issueOrException(x, concept)
                 }
             )
 
@@ -333,9 +316,9 @@ class NSDataType2
                 menuitems.item(
                     "[upstream] remove concept",
                     lambda {
-                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns2), lambda{|ns| NSDataType2::conceptToString(ns) })
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getUpstreamConcepts(concept), lambda{|ns| NSDataType2::conceptToString(ns) })
                         return if x.nil?
-                        Arrows::remove(x, ns2)
+                        Arrows::remove(x, concept)
                     }
                 )
             end
@@ -345,7 +328,7 @@ class NSDataType2
                 lambda {
                     x1 = NSDataType1::selectExistingPointInteractivelyOrNull()
                     return if x1.nil?
-                    Arrows::issueOrException(ns2, x1)
+                    Arrows::issueOrException(concept, x1)
                 }
             )
             menuitems.item(
@@ -353,7 +336,7 @@ class NSDataType2
                 lambda {
                     x1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if x1.nil?
-                    Arrows::issueOrException(ns2, x1)
+                    Arrows::issueOrException(concept, x1)
                 }
             )
 
@@ -361,10 +344,10 @@ class NSDataType2
                 menuitems.item(
                     "[downstream] select points ; move to a new downstream concept",
                     lambda {
-                        return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
+                        return if GraphTypes::getDownstreamObjectsType1(concept).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("point", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamObjectsType1(concept), lambda{ |ns| NSDataType1::toString(ns) })
                         return if points.size == 0
 
                         # Creating the concept
@@ -389,8 +372,8 @@ class NSDataType2
                 lambda {
                     x = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if x.nil?
-                    return if x["uuid"] == ns2["uuid"]
-                    Arrows::issueOrException(ns2, x)
+                    return if x["uuid"] == concept["uuid"]
+                    Arrows::issueOrException(concept, x)
                 }
             )
 
@@ -398,9 +381,9 @@ class NSDataType2
                 menuitems.item(
                     "[downstream] remove concept",
                     lambda {
-                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getDownstreamObjects(ns2), lambda{|ns| Type1Type2CommonInterface::toString(ns) })
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getDownstreamObjects(concept), lambda{|ns| GraphTypes::toString(ns) })
                         return if x.nil?
-                        Arrows::remove(ns2, x)
+                        Arrows::remove(concept, x)
                     }
                 )
             end
@@ -409,10 +392,10 @@ class NSDataType2
                 menuitems.item(
                     "[network] select points ; move to an unconnected concept ; and land on that concept",
                     lambda {
-                        return if Type1Type2CommonInterface::getDownstreamObjectsType1(ns2).size == 0
+                        return if GraphTypes::getDownstreamObjectsType1(concept).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("point", [], Type1Type2CommonInterface::getDownstreamObjectsType1(ns2), lambda{ |ns| NSDataType1::toString(ns) })
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamObjectsType1(concept), lambda{ |ns| NSDataType1::toString(ns) })
                         return if points.size == 0
 
                         # Creating the concept
@@ -443,11 +426,11 @@ class NSDataType2
     # NSDataType2::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         NSDataType2::selectConceptsUsingPattern(pattern)
-            .map{|ns2|
+            .map{|concept|
                 {
-                    "description"   => NSDataType2::conceptToString(ns2),
-                    "referencetime" => NSDataType1::getPointReferenceUnixtime(ns2),
-                    "dive"          => lambda{ NSDataType2::landing(ns2) }
+                    "description"   => NSDataType2::conceptToString(concept),
+                    "referencetime" => concept["unixtime"],
+                    "dive"          => lambda{ NSDataType2::landing(concept) }
                 }
             }
     end
