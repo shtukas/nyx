@@ -53,6 +53,37 @@ class NSDataType0s
         object
     end
 
+    # NSDataType0s::typeA02CB78ERegularExtensions()
+    def self.typeA02CB78ERegularExtensions()
+        [".jpg", ".jpeg", ".png", ".pdf"]
+    end
+
+    # NSDataType0s::issueTypeA02CB78E(filepath)
+    def self.issueTypeA02CB78E(filepath)
+        raise "[error: 060bc858-c5ff-4e23-bbbf-5e0e81911476]" if !File.exists?(filepath)
+        extensionWithDot = File.extname(filepath).downcase
+        raise "[error: 8f3fe3ad-2073-4f28-a75b-1df882ea59be]" if extensionWithDot.size == 0
+        namedhash = NyxBlobs::put(IO.read(filepath))
+        object = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"   => Time.new.to_f,
+            "type"       => "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1",
+            "extensionWithDot" => extensionWithDot,
+            "namedhash"  => namedhash
+        }
+        #{
+        #    "uuid" => "6f29d4e3-dc55-4ed4-91db-ecadcc400a74", 
+        #    "nyxNxSet" => "0f555c97-3843-4dfe-80c8-714d837eba69", 
+        #    "unixtime" => 1595751407.256643, 
+        #    "type" => "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", 
+        #    "extensionWithDot" => ".png", 
+        #    "namedhash" => "SHA256-f0c8fc5c14372e502a0412b3d3a7d87af53ffd5571ab1d0121f6eddb6e0188b6"
+        #}
+        NyxObjects::put(object)
+        object
+    end
+
     # NSDataType0s::issueAionPoint(namedhash)
     def self.issueAionPoint(namedhash)
         object = {
@@ -82,12 +113,35 @@ class NSDataType0s
     # NSDataType0s::getNSDataType0Types()
     def self.getNSDataType0Types()
         if Realms::isCatalyst() then
-            return ["line", "url", "text", "fs-location aion-point", "unique-name"]
+            return ["line", "url", "text", "picture+", "fs-location aion-point", "unique-name"]
         end
         if Realms::isDocnet() then
-            return ["line", "url", "text", "fs-location aion-point"]
+            return ["line", "url", "text", "picture+", "fs-location aion-point"]
         end
         Realms::raiseException()
+    end
+
+    # NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
+    def self.issueTypeA02CB78EInteractivelyOrNull()
+        filepath = NSDataType0s::selectOneLocationOnTheDesktopOrNull()
+        return nil if filepath.nil?
+        extension = File.extname(filepath).downcase
+        if extension == "" then
+            puts "I could not determine an extension for this file. Aborting."
+            LucilleCore::pressEnterToContinue()
+            return nil
+        end
+        if !NSDataType0s::typeA02CB78ERegularExtensions().include?(extension) then
+            puts "I can see that the extension of this file is not... registered."
+            status = LucilleCore::askQuestionAnswerAsBoolean("Continue ? : ")
+            if status then
+                puts "Very well, but feel free to patch the code to regiter: #{extension}"
+                LucilleCore::pressEnterToContinue()
+            else
+                return nil
+            end
+        end
+        return NSDataType0s::issueTypeA02CB78E(filepath)
     end
 
     # NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
@@ -109,6 +163,9 @@ class NSDataType0s
             text = Miscellaneous::editTextSynchronously("").strip
             return nil if text.size == 0
             return NSDataType0s::issueText(text)
+        end
+        if type == "picture+" then
+            return NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
         end
         if type == "fs-location aion-point" then
             location = NSDataType0s::selectOneLocationOnTheDesktopOrNull()
@@ -152,6 +209,9 @@ class NSDataType0s
             }
             return "[#{ns0["type"]}] #{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
+        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
+            return "file#{ns0["extensionWithDot"]}"
+        end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
             description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
@@ -188,6 +248,15 @@ class NSDataType0s
             text = NyxBlobs::getBlobOrNull(namedhash)
             filepath = "/tmp/#{Miscellaneous::l22()}.txt"
             File.open(filepath, "w"){|f| f.puts(text) }
+            system("open #{filepath}")
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
+            namedhash = ns0["namedhash"]
+            filedata = NyxBlobs::getBlobOrNull(namedhash)
+            filepath = "/tmp/#{namedhash}#{ns0["extensionWithDot"]}"
+            File.open(filepath, "w"){|f| f.write(filedata) }
             system("open #{filepath}")
             LucilleCore::pressEnterToContinue()
             return
@@ -245,6 +314,15 @@ class NSDataType0s
             text = Miscellaneous::editTextSynchronously(text)
             newframe = NSDataType0s::issueText(text)
             Arrows::issueOrException(ns1, newframe)
+            return
+        end
+        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
+            puts "pictures(+) are not directly editable"
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same cube ? : ") then
+                newframe = NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
+                return if newframe.nil?
+                Arrows::issueOrException(ns1, newframe)
+            end
             return
         end
         if ns0["type"] == "aion-point" then
