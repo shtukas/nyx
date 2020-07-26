@@ -31,15 +31,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "new story",
-                lambda { 
-                    story = NSDataType3::issueNewStoryInteractivelyOrNull()
-                    return if story.nil?
-                    GraphTypes::landing(story)
-                }
-            )
-
-            ms.item(
                 "new concept",
                 lambda { 
                     concept = NSDataType2::issueNewConceptInteractivelyOrNull()
@@ -229,15 +220,6 @@ class DataPortalUI
                     ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     GraphTypes::landing(ns1)
-                }
-            )
-
-            ms.item(
-                "Make new story",
-                lambda { 
-                    story = NSDataType3::issueNewStoryInteractivelyOrNull()
-                    return if story.nil?
-                    GraphTypes::landing(story)
                 }
             )
 

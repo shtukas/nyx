@@ -15,7 +15,6 @@ class NyxPrimaryObjects
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow
             "c18e8093-63d6-4072-8827-14f238975d04", # NSDataType1
             "5c99134b-2b61-4750-8519-49c1d896556f", # NSDataTypeX, attributes
-            "5f98770b-ee31-4c67-9d7c-509c89618ea6", # NSDataType3
         ]
     end
 

@@ -45,7 +45,7 @@ Note that DocNet will store its data here: `~/.docnet`.
 
 ### Where to go from here?
 
-- [DocNet Navigation](DocNetNavigation.md) To learn how to navigate the knowledge graph (**concepts** and **points**) 💡
+- [DocNet Navigation](DocNetSearchAndNavigation.md) To learn how to navigate the knowledge graph (**concepts** and **points**) 💡
 - [DocNet Edition](DocNetEdition.md) To learn how to edit the data points (called **points**) and become an awesome contributor of the knowledge network 👏
 - [DocNet Datamodel](DocNetDatamodel.md) To learn more about the data model 📐
 - [Doc Network](DocNetwork.md) To discover how DocNet performs communication between users 🛰

@@ -11,17 +11,11 @@ class GraphTypes
         object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
     end
 
-    # GraphTypes::objectIsType3(object)
-    def self.objectIsType3(object)
-        object["nyxNxSet"] == "5f98770b-ee31-4c67-9d7c-509c89618ea6"
-    end
-
     # GraphTypes::setIds()
     def self.setIds()
         [
             "c18e8093-63d6-4072-8827-14f238975d04", # Type1
             "6b240037-8f5f-4f52-841d-12106658171f", # Type2
-            "5f98770b-ee31-4c67-9d7c-509c89618ea6", # Type3
         ]
     end
 
@@ -33,9 +27,6 @@ class GraphTypes
         if GraphTypes::objectIsType2(object) then
             return "concept"
         end
-        if GraphTypes::objectIsType3(object) then
-            return "story"
-        end
         raise "[error: 8bc70a04]"
     end
 
@@ -46,9 +37,6 @@ class GraphTypes
         end
         if GraphTypes::objectIsType2(object) then
             return NSDataType2::conceptToString(object)
-        end
-        if GraphTypes::objectIsType3(object) then
-            return NSDataType3::storyToString(object)
         end
         raise "[error: dd0dce2a]"
     end
@@ -331,9 +319,6 @@ class GraphTypes
         if GraphTypes::objectIsType2(object) then
             return lambda { GraphTypes::landing(object) }
         end
-        if GraphTypes::objectIsType3(object) then
-            return lambda { GraphTypes::landing(object) }
-        end
         raise "[error: c3c51548]"
     end
 
@@ -349,7 +334,7 @@ class GraphTypes
 
     # GraphTypes::selectObjectsUsingPattern(pattern)
     def self.selectObjectsUsingPattern(pattern)
-        NSDataType2::selectConceptsUsingPattern(pattern) + NSDataType3::selectStorysUsingPattern(pattern) + NSDataType1::selectPointPerPattern(pattern)
+        NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectConceptsUsingPattern(pattern)
     end
 
     # GraphTypes::interactiveSearch()
@@ -472,14 +457,11 @@ class GraphTypes
 
     # GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     def self.issueNewGraphTypeObjectInteractivelyOrNull()
-        types = ["point", "story", "concept"]
+        types = ["point", "concept"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return nil if type.nil?
         if type == "point" then
             return NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
-        end
-        if type == "story" then
-            return NSDataType3::issueNewStoryInteractivelyOrNull()
         end
         if type == "concept" then
             return NSDataType2::issueNewConceptInteractivelyOrNull()

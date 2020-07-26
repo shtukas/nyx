@@ -1,1 +1,1 @@
-GraphTypes refer to NSDataType1 (Point), NSDataType2 (Concept) and NSDataType3 (Story), they are the types that constitute the semantic knowledge network.
+GraphTypes refer to NSDataType1 (Point), NSDataType2 (Concept), they are the types that constitute the semantic knowledge network.
