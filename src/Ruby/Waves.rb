@@ -263,28 +263,41 @@ class Waves
         end
     end
 
+    # Waves::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Waves::waves()
+            .select{|wave|
+                wave["description"].downcase.include?(pattern.downcase)
+            }
+            .map{|wave|
+                {
+                    "description"   => "[wave] #{wave["description"]}",
+                    "referencetime" => wave["unixtime"],
+                    "dive"          => lambda { Waves::waveDive(wave) }
+                }
+            }
+    end
+
+    # Waves::selectWaveOrNull()
+    def self.selectWaveOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
+    end
+
     # Waves::waveDive(wave)
     def self.waveDive(wave)
         loop {
-
             system("clear")
-
-            wave = Waves::getOrNull(wave["uuid"])
-            return if wave.nil?
-
-            Miscellaneous::horizontalRule()
-
+            return if NyxObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
-
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])
-            if unixtime then
-                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+            if DoNotShowUntil::isVisible(wave["uuid"]) then
+                puts "active"
+            else
+                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
+            Miscellaneous::horizontalRule()
 
             menuitems = LCoreMenuItemsNX1.new()
-
-            Miscellaneous::horizontalRule()
 
             menuitems.item(
                 "start",
@@ -339,65 +352,6 @@ class Waves
 
             status = menuitems.prompt()
             break if !status
-
-        }
-    end
-
-    # Waves::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        Waves::waves()
-            .select{|wave|
-                wave["description"].downcase.include?(pattern.downcase)
-            }
-            .map{|wave|
-                {
-                    "description"   => "[wave] #{wave["description"]}",
-                    "referencetime" => wave["unixtime"],
-                    "dive"          => lambda { Waves::waveDive(wave) }
-                }
-            }
-    end
-
-    # Waves::selectWaveOrNull()
-    def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
-    end
-
-    # Waves::waveDive(wave)
-    def self.waveDive(wave)
-        loop {
-            system("clear")
-            return if NyxObjects::getOrNull(wave["uuid"]) # Could hve been destroyed in the previous loop
-            puts Waves::waveToString(wave)
-            if DoNotShowUntil::isVisible(wave["uuid"]) then
-                puts "active"
-            else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
-            end
-            ops = [
-                "perform done",
-                "edit description",
-                "recast",
-                "destroy"
-            ]
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
-            break if op.nil?
-            if op == "perform done" then
-                Waves::performDone(wave)
-            end
-            if op == "edit description" then
-                wave["description"] = Miscellaneous::editTextSynchronously(wave["description"])
-                Waves::commitToDisk(wave)
-            end
-            if op == "recast" then
-                schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-                next if schedule.nil?
-                wave["schedule"] = schedule
-                Waves::commitToDisk(wave)
-            end
-            if op == "destroy" then
-                NyxObjects::destroy(wave)
-            end
         }
     end
 
