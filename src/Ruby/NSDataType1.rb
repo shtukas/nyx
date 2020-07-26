@@ -85,7 +85,10 @@ class NSDataType1
         return nil if ns0.nil?
         point = NSDataType1::issue()
         Arrows::issueOrException(point, ns0)
-        NSDataType1::giveDescriptionToPointInteractively(point)
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        if description == "" then
+            NSDataTypeXExtended::issueDescriptionForTarget(point, description)
+        end
         point
     end
 
@@ -122,109 +125,6 @@ class NSDataType1
     def self.selectPointPerPattern(pattern)
         NSDataType1::points()
             .select{|point| NSDataType1::pointMatchesPattern(point, pattern) }
-    end
-
-    # NSDataType1::selectPointByGraphTypesString()
-    def self.selectPointByGraphTypesString()
-
-        Curses::init_screen
-        # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
-
-        Curses::noecho
-        # Disables characters typed by the user to be echoed by Curses.getch as they are typed.
-
-        win1 = Curses::Window.new(1, Miscellaneous::screenWidth(), 0, 0)
-        win2 = Curses::Window.new(1, Miscellaneous::screenWidth(), 1, 0)
-        win3 = Curses::Window.new(Miscellaneous::screenHeight()-1, Miscellaneous::screenWidth(), 2, 0)
-
-        win1.refresh
-        win2.refresh
-        win3.refresh
-
-        search_string_558ca20d = ""
-        search_queue           = []
-        selected_points         = []
-
-        thread1 = Thread.new {
-            loop {
-                win1.setpos(0,0) # we set the cursor on the starting position
-                win1.deleteln()
-                win1 << "search: #{search_string_558ca20d}"
-                win1.refresh
-                sleep 0.01
-            }
-        }
-
-        thread2 = Thread.new {
-            loop {
-                win2.setpos(0,0)
-                win2.deleteln()
-                win2 << "search queue: #{search_queue.join(" | ")}"
-                win2.refresh
-                sleep 0.1
-            }
-        }
-
-        thread3 = Thread.new {
-            loop {
-                sleep 1
-                win3.setpos(0,0)
-                selected_points.first(40).each{|concept|
-                    win3.deleteln()
-                    win3 << "#{NSDataType1::pointToString(concept)}\n"
-                }
-                (win3.maxy - win3.cury).times {win3.deleteln()}
-                win3.refresh
-            }
-        }
-
-        thread4 = Thread.new {
-            loop {
-                sleep 0.1
-                next if search_queue.empty?
-                str = search_queue.shift
-                next if str == 0
-                selected_points = NSDataType1::selectPointPerPattern(str)
-            }
-        }
-
-        loop {
-            char = win1.getch.to_s # Reads and returns a character
-            if char == '127' then
-                # delete
-                next if search_string_558ca20d.length == 0
-                search_string_558ca20d = search_string_558ca20d[0, search_string_558ca20d.length-1]
-                search_queue << search_string_558ca20d
-                next
-            end
-            if char == '10' then
-                # enter
-                break
-            end
-            search_string_558ca20d << char
-            search_queue << search_string_558ca20d
-        }
-
-        Thread.kill(thread1)
-        Thread.kill(thread2)
-        Thread.kill(thread3)
-        Thread.kill(thread4)
-
-        win1.close
-        win2.close
-        win3.close
-
-        Curses::close_screen # this method restore our terminal's settings
-
-        return (selected_points || [])
-    end
-
-    # NSDataType1::selectExistingPointInteractivelyOrNull()
-    def self.selectExistingPointInteractivelyOrNull()
-        points = NSDataType1::selectPointByGraphTypesString()
-        return nil if points.empty?
-        system("clear")
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| NSDataType1::pointToString(point) })
     end
 
     # NSDataType1::pointDestroyProcedure(point)

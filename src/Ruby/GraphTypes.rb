@@ -191,7 +191,7 @@ class GraphTypes
             menuitems.item(
                 "add parent object",
                 lambda {
-                    concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
+                    concept = GraphTypes::selectExistingOrNewGraphTypeObject()
                     return if concept.nil?
                     Arrows::issueOrException(concept, object)
                 }
@@ -201,7 +201,7 @@ class GraphTypes
                 menuitems.item(
                     "remove parent object",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getUpstreamGraphTypes(object), lambda{|o| NSDataType2::conceptToString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getUpstreamGraphTypes(object), lambda{|o| GraphTypes::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, object)
                     }
@@ -211,7 +211,7 @@ class GraphTypes
             menuitems.item(
                 "add child object (chosen from existing points)",
                 lambda {
-                    o = NSDataType1::selectExistingPointInteractivelyOrNull()
+                    o = GraphTypes::selectExistingObjectInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(object, o)
                 }
@@ -220,7 +220,7 @@ class GraphTypes
             menuitems.item(
                 "add child object (new)",
                 lambda {
-                    o = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+                    o = GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(object, o)
                 }
@@ -230,7 +230,7 @@ class GraphTypes
                 menuitems.item(
                     "remove child object",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getDownstreamGraphTypes(object), lambda{|o| NSDataType2::conceptToString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getDownstreamGraphTypes(object), lambda{|o| GraphTypes::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, object)
                     }
@@ -257,7 +257,7 @@ class GraphTypes
                     lambda { 
                         puts "intermediary node removal simulation"
                         GraphTypes::getUpstreamGraphTypes(object).each{|upstreamconcept|
-                            puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
+                            puts "upstreamconcept   : #{GraphTypes::toString(upstreamconcept)}"
                         }
                         GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
                             puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
@@ -280,11 +280,11 @@ class GraphTypes
                         return if GraphTypes::getDownstreamGraphTypes(object).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("object", [], GraphTypes::getDownstreamGraphTypes(object), lambda{ |o| NSDataType1::toString(o) })
+                        points, _ = LucilleCore::selectZeroOrMore("object", [], GraphTypes::getDownstreamGraphTypes(object), lambda{ |o| GraphTypes::toString(o) })
                         return if points.size == 0
 
                         # Creating the object
-                        newobject = NSDataType2::issueNewConceptInteractivelyOrNull()
+                        newobject = GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
 
                         # Setting the object as target of this one
                         Arrows::issueOrException(object, newobject)
@@ -305,7 +305,11 @@ class GraphTypes
                     "destroy point",
                     lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this object ? ") then
-                            NSDataType1::pointDestroyProcedure(object)
+                            if GraphTypes::objectIsType1(object) then
+                                NSDataType1::pointDestroyProcedure(object)
+                                return
+                            end
+                            NyxObjects::destroy(point)
                         end
                     }
                 )
@@ -317,7 +321,6 @@ class GraphTypes
             break if !status
 
         }
-
     end
 
     # GraphTypes::landingLambda(object)
@@ -366,7 +369,7 @@ class GraphTypes
         win2.refresh
         win3.refresh
 
-        search_string_558ca20d = ""
+        display_string_558ca20d = ""
         search_queue           = []
         selected_objects         = []
 
@@ -374,7 +377,7 @@ class GraphTypes
             loop {
                 win1.setpos(0,0) # we set the cursor on the starting position
                 win1.deleteln()
-                win1 << "search: #{search_string_558ca20d}"
+                win1 << "search: #{display_string_558ca20d}"
                 win1.refresh
                 sleep 0.01
             }
@@ -417,17 +420,17 @@ class GraphTypes
             char = win1.getch.to_s # Reads and returobject a character
             if char == '127' then
                 # delete
-                next if search_string_558ca20d.length == 0
-                search_string_558ca20d = search_string_558ca20d[0, search_string_558ca20d.length-1]
-                search_queue << search_string_558ca20d
+                next if display_string_558ca20d.length == 0
+                display_string_558ca20d = display_string_558ca20d[0, display_string_558ca20d.length-1]
+                search_queue << display_string_558ca20d
                 next
             end
             if char == '10' then
                 # enter
                 break
             end
-            search_string_558ca20d << char
-            search_queue << search_string_558ca20d
+            display_string_558ca20d << char
+            search_queue << display_string_558ca20d
         }
 
         Thread.kill(thread1)
@@ -442,6 +445,38 @@ class GraphTypes
         Curses::close_screen # this method restore our terminal's settings
 
         return (selected_objects || [])
+    end
+
+    # GraphTypes::selectExistingObjectInteractivelyOrNull()
+    def self.selectExistingObjectInteractivelyOrNull()
+        points = GraphTypes::interactiveSearch()
+        return nil if points.empty?
+        system("clear")
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| GraphTypes::toString(point) })
+    end
+
+    # GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
+    def self.issueNewGraphTypeObjectInteractivelyOrNull()
+        types = ["point", "story", "concept"]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
+        return nil if type.nil?
+        if type == "point" then
+            return NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+        end
+        if type == "story" then
+            return NSDataType3::issueNewStoryInteractivelyOrNull()
+        end
+        if type == "concept" then
+            return NSDataType2::issueNewConceptInteractivelyOrNull()
+        end
+    end
+
+    # GraphTypes::selectExistingOrNewGraphTypeObject()
+    def self.selectExistingOrNewGraphTypeObject()
+        object = GraphTypes::selectExistingObjectInteractivelyOrNull()
+        return object if object
+        return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing object. Would you like to make a new one ? : ")
+        GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     end
 
     # GraphTypes::interactiveSearchAndExplore()

@@ -54,9 +54,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two concepts"
                     puts "Selecting one after the other and then will merge"
-                    concept1 = NSDataType2::selectConceptInteractivelyOrNull()
+                    concept1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
                     return if concept1.nil?
-                    concept2 = NSDataType2::selectConceptInteractivelyOrNull()
+                    concept2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
                     return if concept2.nil?
                     if concept1["uuid"] == concept2["uuid"] then
                         puts "You have selected the same concept twice. Aborting merge operation."
@@ -256,9 +256,9 @@ class DataPortalUI
                     lambda { 
                         puts "Merging two concepts"
                         puts "Selecting one after the other and then will merge"
-                        concept1 = NSDataType2::selectConceptInteractivelyOrNull()
+                        concept1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
                         return if concept1.nil?
-                        concept2 = NSDataType2::selectConceptInteractivelyOrNull()
+                        concept2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
                         return if concept2.nil?
                         if concept1["uuid"] == concept2["uuid"] then
                             puts "You have selected the same concept twice. Aborting merge operation."

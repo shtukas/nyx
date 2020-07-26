@@ -45,11 +45,6 @@ class NSDataType3
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType3::getStoryDescriptionOrNull(story)
-    def self.getStoryDescriptionOrNull(story)
-        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(story)
-    end
-
     # NSDataType3::storyToString(story)
     def self.storyToString(story)
         cacheKey = "6517beea-cf36-4d71-ad7a-917ee97522ea:#{Miscellaneous::today()}:#{story["uuid"]}"
