@@ -35,7 +35,7 @@ class DataPortalUI
                 lambda { 
                     story = NSDataType3::issueNewStoryInteractivelyOrNull()
                     return if story.nil?
-                    NSDataType3::landing(story)
+                    GraphTypes::landing(story)
                 }
             )
 
@@ -44,7 +44,7 @@ class DataPortalUI
                 lambda { 
                     concept = NSDataType2::issueNewConceptInteractivelyOrNull()
                     return if concept.nil?
-                    NSDataType2::landing(concept)
+                    GraphTypes::landing(concept)
                 }
             )
 
@@ -237,7 +237,7 @@ class DataPortalUI
                 lambda { 
                     story = NSDataType3::issueNewStoryInteractivelyOrNull()
                     return if story.nil?
-                    NSDataType3::landing(story)
+                    GraphTypes::landing(story)
                 }
             )
 
@@ -246,7 +246,7 @@ class DataPortalUI
                 lambda { 
                     ns2 = NSDataType2::issueNewConceptInteractivelyOrNull()
                     return if ns2.nil?
-                    NSDataType2::landing(ns2)
+                    GraphTypes::landing(ns2)
                 }
             )
 

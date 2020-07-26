@@ -103,6 +103,10 @@ class GraphTypes
                 puts "    parent: #{GraphTypes::toString(o)}"
             }
 
+            GraphTypes::getDownstreamGraphTypes(object).each{|o|
+                puts "    child: #{GraphTypes::toString(o)}"
+            }
+
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object).strip
             if notetext and notetext.size > 0 then
                 Miscellaneous::horizontalRule()
@@ -185,7 +189,7 @@ class GraphTypes
 
 
             menuitems.item(
-                "add upstream concept",
+                "add parent object",
                 lambda {
                     concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
                     return if concept.nil?
@@ -195,9 +199,38 @@ class GraphTypes
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove upstream concept",
+                    "remove parent object",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getUpstreamGraphTypes(object), lambda{|o| NSDataType2::conceptToString(o) })
+                        return if ns.nil?
+                        Arrows::remove(ns, object)
+                    }
+                )
+            end
+
+            menuitems.item(
+                "add child object (chosen from existing points)",
+                lambda {
+                    o = NSDataType1::selectExistingPointInteractivelyOrNull()
+                    return if o.nil?
+                    Arrows::issueOrException(object, o)
+                }
+            )
+
+            menuitems.item(
+                "add child object (new)",
+                lambda {
+                    o = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+                    return if o.nil?
+                    Arrows::issueOrException(object, o)
+                }
+            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "remove child object",
+                    lambda {
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getDownstreamGraphTypes(object), lambda{|o| NSDataType2::conceptToString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, object)
                     }
@@ -217,6 +250,55 @@ class GraphTypes
                     lambda { GraphTypes::landing(o) }
                 )
             }
+
+            if GraphTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "remove [this] as intermediary object", 
+                    lambda { 
+                        puts "intermediary node removal simulation"
+                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamconcept|
+                            puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
+                        }
+                        GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
+                            puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
+                        }
+                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary object ? ")
+                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamconcept|
+                            GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
+                                Arrows::issueOrException(upstreamconcept, downstreampoint)
+                            }
+                        }
+                        NyxObjects::destroy(object)
+                    }
+                )
+            end
+
+            if GraphTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "[downstream] select points ; move to a new downstream object",
+                    lambda {
+                        return if GraphTypes::getDownstreamGraphTypes(object).size == 0
+
+                        # Selecting the points
+                        points, _ = LucilleCore::selectZeroOrMore("object", [], GraphTypes::getDownstreamGraphTypes(object), lambda{ |o| NSDataType1::toString(o) })
+                        return if points.size == 0
+
+                        # Creating the object
+                        newobject = NSDataType2::issueNewConceptInteractivelyOrNull()
+
+                        # Setting the object as target of this one
+                        Arrows::issueOrException(object, newobject)
+
+                        # Moving the points
+                        points.each{|o|
+                            Arrows::issueOrException(newobject, o)
+                        }
+                        points.each{|o|
+                            Arrows::remove(object, o)
+                        }
+                    }
+                )
+            end
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
@@ -244,10 +326,10 @@ class GraphTypes
             return lambda { GraphTypes::landing(object) }
         end
         if GraphTypes::objectIsType2(object) then
-            return lambda { NSDataType2::landing(object) }
+            return lambda { GraphTypes::landing(object) }
         end
         if GraphTypes::objectIsType3(object) then
-            return lambda { NSDataType3::landing(object) }
+            return lambda { GraphTypes::landing(object) }
         end
         raise "[error: c3c51548]"
     end

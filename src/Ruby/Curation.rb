@@ -54,7 +54,7 @@ class Curation
         .each{|concept|
             return if counter.hasReached(10)
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
-            NSDataType2::landing(concept)
+            GraphTypes::landing(concept)
             counter.increment()
         }
 
@@ -64,7 +64,7 @@ class Curation
         .each{|point|
             return if counter.hasReached(10)
             next if GraphTypes::getUpstreamGraphTypes(point).size > 0
-            NSDataType2::landing(point)
+            GraphTypes::landing(point)
             counter.increment()
         }
     end
