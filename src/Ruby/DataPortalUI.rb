@@ -31,50 +31,50 @@ class DataPortalUI
             )
 
             ms.item(
-                "new concept",
+                "new node",
                 lambda { 
-                    concept = NSDataType2::issueNewConceptInteractivelyOrNull()
-                    return if concept.nil?
-                    GraphTypes::landing(concept)
+                    node = NSDataType2::issueNewNodeInteractivelyOrNull()
+                    return if node.nil?
+                    GraphTypes::landing(node)
                 }
             )
 
 
             ms.item(
-                "Merge two concepts",
+                "Merge two nodes",
                 lambda { 
-                    puts "Merging two concepts"
+                    puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    concept1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
-                    return if concept1.nil?
-                    concept2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
-                    return if concept2.nil?
-                    if concept1["uuid"] == concept2["uuid"] then
-                        puts "You have selected the same concept twice. Aborting merge operation."
+                    node1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                    return if node1.nil?
+                    node2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                    return if node2.nil?
+                    if node1["uuid"] == node2["uuid"] then
+                        puts "You have selected the same node twice. Aborting merge operation."
                         LucilleCore::pressEnterToContinue()
                         return
                     end
 
-                    # Moving all the concept upstreams of concept2 towards concept 1
-                    GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
-                        puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
+                    # Moving all the node upstreams of node2 towards node 1
+                    GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                        puts "arrow (1): #{NSDataType2::nodeToString(x)} -> #{NSDataType2::nodeToString(node1)}"
                     }
-                    # Moving all the downstreams of concept2 toward concept 1
-                    GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
-                        puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
+                    # Moving all the downstreams of node2 toward node 1
+                    GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                        puts "arrow (2): #{NSDataType2::nodeToString(node1)} -> #{NSDataType2::nodeToString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
-                    # Moving all the concept upstreams of concept2 towards concept 1
-                    GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
-                        Arrows::issueOrException(x, concept1)
+                    # Moving all the node upstreams of node2 towards node 1
+                    GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                        Arrows::issueOrException(x, node1)
                     }
-                    # Moving all the downstreams of concept2 toward concept 1
-                    GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
-                        Arrows::issueOrException(concept1, x)
+                    # Moving all the downstreams of node2 toward node 1
+                    GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                        Arrows::issueOrException(node1, x)
                     }
-                    NyxObjects::destroy(concept2)
+                    NyxObjects::destroy(node2)
                 }
             )
 
@@ -224,9 +224,9 @@ class DataPortalUI
             )
 
             ms.item(
-                "Make new concept",
+                "Make new node",
                 lambda { 
-                    ns2 = NSDataType2::issueNewConceptInteractivelyOrNull()
+                    ns2 = NSDataType2::issueNewNodeInteractivelyOrNull()
                     return if ns2.nil?
                     GraphTypes::landing(ns2)
                 }
@@ -234,40 +234,40 @@ class DataPortalUI
 
             if Miscellaneous::isAlexandra() then
                 ms.item(
-                    "Merge two concepts",
+                    "Merge two nodes",
                     lambda { 
-                        puts "Merging two concepts"
+                        puts "Merging two nodes"
                         puts "Selecting one after the other and then will merge"
-                        concept1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
-                        return if concept1.nil?
-                        concept2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
-                        return if concept2.nil?
-                        if concept1["uuid"] == concept2["uuid"] then
-                            puts "You have selected the same concept twice. Aborting merge operation."
+                        node1 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                        return if node1.nil?
+                        node2 = GraphTypes::selectExistingObjectInteractivelyOrNull()
+                        return if node2.nil?
+                        if node1["uuid"] == node2["uuid"] then
+                            puts "You have selected the same node twice. Aborting merge operation."
                             LucilleCore::pressEnterToContinue()
                             return
                         end
 
-                        # Moving all the concept upstreams of concept2 towards concept 1
-                        GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
-                            puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
+                        # Moving all the node upstreams of node2 towards node 1
+                        GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                            puts "arrow (1): #{NSDataType2::nodeToString(x)} -> #{NSDataType2::nodeToString(node1)}"
                         }
-                        # Moving all the downstreams of concept2 toward concept 1
-                        GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
-                            puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
+                        # Moving all the downstreams of node2 toward node 1
+                        GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                            puts "arrow (2): #{NSDataType2::nodeToString(node1)} -> #{NSDataType2::nodeToString(x)}"
                         }
 
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
-                        # Moving all the concept upstreams of concept2 towards concept 1
-                        GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
-                            Arrows::issueOrException(x, concept1)
+                        # Moving all the node upstreams of node2 towards node 1
+                        GraphTypes::getUpstreamGraphTypes(node2).each{|x|
+                            Arrows::issueOrException(x, node1)
                         }
-                        # Moving all the downstreams of concept2 toward concept 1
-                        GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
-                            Arrows::issueOrException(concept1, x)
+                        # Moving all the downstreams of node2 toward node 1
+                        GraphTypes::getDownstreamGraphTypes(node2).each{|x|
+                            Arrows::issueOrException(node1, x)
                         }
-                        NyxObjects::destroy(concept2)
+                        NyxObjects::destroy(node2)
                     }
                 )
             end

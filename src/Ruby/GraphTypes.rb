@@ -25,7 +25,7 @@ class GraphTypes
             return "point"
         end
         if GraphTypes::objectIsType2(object) then
-            return "concept"
+            return "node"
         end
         raise "[error: 8bc70a04]"
     end
@@ -36,7 +36,7 @@ class GraphTypes
             return NSDataType1::pointToString(object)
         end
         if GraphTypes::objectIsType2(object) then
-            return NSDataType2::conceptToString(object)
+            return NSDataType2::nodeToString(object)
         end
         raise "[error: dd0dce2a]"
     end
@@ -179,9 +179,9 @@ class GraphTypes
             menuitems.item(
                 "add parent object",
                 lambda {
-                    concept = GraphTypes::selectExistingOrNewGraphTypeObject()
-                    return if concept.nil?
-                    Arrows::issueOrException(concept, object)
+                    node = GraphTypes::selectExistingOrNewGraphTypeObject()
+                    return if node.nil?
+                    Arrows::issueOrException(node, object)
                 }
             )
 
@@ -244,16 +244,16 @@ class GraphTypes
                     "remove [this] as intermediary object", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamconcept|
-                            puts "upstreamconcept   : #{GraphTypes::toString(upstreamconcept)}"
+                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamnode|
+                            puts "upstreamnode   : #{GraphTypes::toString(upstreamnode)}"
                         }
                         GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
                             puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
                         }
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary object ? ")
-                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamconcept|
+                        GraphTypes::getUpstreamGraphTypes(object).each{|upstreamnode|
                             GraphTypes::getDownstreamGraphTypes(object).each{|downstreampoint|
-                                Arrows::issueOrException(upstreamconcept, downstreampoint)
+                                Arrows::issueOrException(upstreamnode, downstreampoint)
                             }
                         }
                         NyxObjects::destroy(object)
@@ -334,7 +334,7 @@ class GraphTypes
 
     # GraphTypes::selectObjectsUsingPattern(pattern)
     def self.selectObjectsUsingPattern(pattern)
-        NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectConceptsUsingPattern(pattern)
+        NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectNodesUsingPattern(pattern)
     end
 
     # GraphTypes::interactiveSearch()
@@ -457,14 +457,14 @@ class GraphTypes
 
     # GraphTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     def self.issueNewGraphTypeObjectInteractivelyOrNull()
-        types = ["point", "concept"]
+        types = ["point", "node"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return nil if type.nil?
         if type == "point" then
             return NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
         end
-        if type == "concept" then
-            return NSDataType2::issueNewConceptInteractivelyOrNull()
+        if type == "node" then
+            return NSDataType2::issueNewNodeInteractivelyOrNull()
         end
     end
 

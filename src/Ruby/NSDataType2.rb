@@ -3,39 +3,39 @@
 
 class NSDataType2
 
-    # NSDataType2::issueNewConceptWithDescription(description)
-    def self.issueNewConceptWithDescription(description)
-        concept = {
+    # NSDataType2::issueNewNodeWithDescription(description)
+    def self.issueNewNodeWithDescription(description)
+        node = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
-        puts JSON.pretty_generate(concept)
-        NyxObjects::put(concept)
-        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
-        concept
+        puts JSON.pretty_generate(node)
+        NyxObjects::put(node)
+        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+        node
     end
 
-    # NSDataType2::issueNewConceptInteractivelyOrNull()
-    def self.issueNewConceptInteractivelyOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("concept description: ")
+    # NSDataType2::issueNewNodeInteractivelyOrNull()
+    def self.issueNewNodeInteractivelyOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("node description: ")
         return nil if description.size == 0
 
-        concept = {
+        node = {
             "uuid"      => SecureRandom.uuid,
             "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
             "unixtime"  => Time.new.to_f
         }
-        puts JSON.pretty_generate(concept)
-        NyxObjects::put(concept)
+        puts JSON.pretty_generate(node)
+        NyxObjects::put(node)
 
-        NSDataTypeXExtended::issueDescriptionForTarget(concept, description)
+        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
 
-        concept
+        node
     end
 
-    # NSDataType2::concepts()
-    def self.concepts()
+    # NSDataType2::nodes()
+    def self.nodes()
         NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
@@ -45,53 +45,53 @@ class NSDataType2
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType2::conceptToString(concept)
-    def self.conceptToString(concept)
-        cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{concept["uuid"]}"
+    # NSDataType2::nodeToString(node)
+    def self.nodeToString(node)
+        cacheKey = "9c26b6e2-ab55-4fed-a632-b8b1bdbc6e82:#{Miscellaneous::today()}:#{node["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(concept)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then
-            str = "[concept] [#{concept["uuid"][0, 4]}] #{description}"
+            str = "[node] [#{node["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
 
-        GraphTypes::getDownstreamGraphTypes(concept).each{|ns1|
-            str = "[concept] [#{concept["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
+        GraphTypes::getDownstreamGraphTypes(node).each{|ns1|
+            str = "[node] [#{node["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         }
 
-        str = "[concept] [#{concept["uuid"][0, 4]}] [no description]"
+        str = "[node] [#{node["uuid"][0, 4]}] [no description]"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
         str
     end
 
-    # NSDataType2::conceptMatchesPattern(concept, pattern)
-    def self.conceptMatchesPattern(concept, pattern)
-        return true if concept["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType2::conceptToString(concept).downcase.include?(pattern.downcase)
+    # NSDataType2::nodeMatchesPattern(node, pattern)
+    def self.nodeMatchesPattern(node, pattern)
+        return true if node["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType2::nodeToString(node).downcase.include?(pattern.downcase)
         false
     end
 
-    # NSDataType2::selectConceptsUsingPattern(pattern)
-    def self.selectConceptsUsingPattern(pattern)
-        NSDataType2::concepts()
-            .select{|concept| NSDataType2::conceptMatchesPattern(concept, pattern) }
+    # NSDataType2::selectNodesUsingPattern(pattern)
+    def self.selectNodesUsingPattern(pattern)
+        NSDataType2::nodes()
+            .select{|node| NSDataType2::nodeMatchesPattern(node, pattern) }
     end
 
     # ---------------------------------------------
 
     # NSDataType2::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType2::selectConceptsUsingPattern(pattern)
-            .map{|concept|
+        NSDataType2::selectNodesUsingPattern(pattern)
+            .map{|node|
                 {
-                    "description"   => NSDataType2::conceptToString(concept),
-                    "referencetime" => concept["unixtime"],
-                    "dive"          => lambda{ GraphTypes::landing(concept) }
+                    "description"   => NSDataType2::nodeToString(node),
+                    "referencetime" => node["unixtime"],
+                    "dive"          => lambda{ GraphTypes::landing(node) }
                 }
             }
     end

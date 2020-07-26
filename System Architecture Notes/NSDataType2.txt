@@ -1,5 +1,5 @@
 
-NSDataType2 # Concepts
+NSDataType2 # Nodes
 
 {
     "uuid"             : String

@@ -1,8 +1,0 @@
-
-Universe
-{
-    "uuid"          : String
-    "name"          : String
-    "privateFolder" : String # Path to the private data and operations folder
-    "githubFolder"  : null or String
-}

@@ -1,5 +1,0 @@
-
-Among other things EstateServices ensure the creation and existence of the following locations
-
-~/.catalyst
-~/.catalyst/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f
