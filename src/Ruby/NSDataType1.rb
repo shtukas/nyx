@@ -275,45 +275,16 @@ class NSDataType1
 
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}") # decaching the toString
 
-            puts NSDataType1::pointToString(ns1)
-            puts "uuid: #{ns1["uuid"]}"
+            puts "point uuid: #{ns1["uuid"]}"
+
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1).strip
             if notetext and notetext.size > 0 then
-                puts ""
+                puts "------------------------------------------------------"
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
+                puts "------------------------------------------------------"
+                puts ""
             end
-            puts ""
-
-            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
-            if ns0 then
-                ordinalopen = menuitems.ordinal( lambda { NSDataType1::openLastPointFrame(ns1) } )
-                ordinaledit = menuitems.ordinal( lambda { NSDataType1::editLastPointFrame(ns1) } )
-                puts "[#{ordinalopen}:open] [#{ordinaledit}:edit] #{NSDataType0s::frameToString(ns0)}"
-            else
-                menuitems.itemNoPadding(
-                    "set data",
-                    lambda {
-                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-                        return if ns0.nil?
-                        Arrows::issueOrException(ns1, ns0)
-                    }
-                )
-            end
-
-            puts ""
-
-            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
-                ordinal = menuitems.ordinal( lambda { Asteroids::landing(asteroid) } )
-                puts "[#{ordinal}:access] #{Asteroids::asteroidToString(asteroid)}"
-            }
-
-            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
-                ordinal = menuitems.ordinal( lambda { NSDataType2::landing(ns) } )
-                puts "[#{ordinal}:access] #{NSDataType2::conceptToString(ns)}"
-            }
-
-            puts ""
 
             description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
             if description then
@@ -340,6 +311,40 @@ class NSDataType1
                     }
                 )
             end
+
+            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            if ns0 then
+                ordinalopen = menuitems.ordinal( lambda { NSDataType1::openLastPointFrame(ns1) } )
+                ordinaledit = menuitems.ordinal( lambda { NSDataType1::editLastPointFrame(ns1) } )
+                puts "[#{ordinalopen}:open] [#{ordinaledit}:edit] #{NSDataType0s::frameToString(ns0)}"
+            else
+                menuitems.itemNoPadding(
+                    "set data",
+                    lambda {
+                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+                        return if ns0.nil?
+                        Arrows::issueOrException(ns1, ns0)
+                    }
+                )
+            end
+
+
+
+            puts ""
+
+            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
+                ordinal = menuitems.ordinal( lambda { Asteroids::landing(asteroid) } )
+                puts "[#{ordinal}:access] #{Asteroids::asteroidToString(asteroid)}"
+            }
+
+            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
+                ordinal = menuitems.ordinal( lambda { NSDataType2::landing(ns) } )
+                puts "[#{ordinal}:access] #{NSDataType2::conceptToString(ns)}"
+            }
+
+            puts ""
+
+
 
             if Miscellaneous::isAlexandra() then
                 ordinal = menuitems.ordinal(
