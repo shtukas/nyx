@@ -299,13 +299,31 @@ class LCoreMenuItemsNX1
         puts "[#{@position.to_s.rjust(2)}] #{description}"
     end
 
+    def itemNoPadding(description, xlambda)
+        @position = @position + 1
+        @items << {
+            "position" => @position,
+            "lambda"   => xlambda
+        }
+        puts "[#{@position}] #{description}"
+    end
+
     def raw(description, xlambda)
         @position = @position + 1
         @items << {
             "position" => @position,
             "lambda"   => xlambda
         }
-        print "[#{@position.to_s.rjust(2)}] #{description}"
+        print "[#{@position}] #{description}"
+    end
+
+    def ordinal(xlambda)
+        @position = @position + 1
+        @items << {
+            "position" => @position,
+            "lambda"   => xlambda
+        }
+        @position
     end
 
     def prompt() # return whether should loop
