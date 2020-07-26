@@ -83,24 +83,35 @@ class NavigationTypes
                 end
             end
 
-            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
-                puts "    parent: #{Asteroids::asteroidToString(asteroid)}"
-            }
-
-            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
-                puts "    parent: #{NavigationTypes::toString(o)}"
-            }
-
-            NavigationTypes::getDownstreamNavigationTypes(object).each{|o|
-                puts "    child: #{NavigationTypes::toString(o)}"
-            }
-
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object)
             if notetext and notetext.strip.size > 0 then
                 Miscellaneous::horizontalRule()
                 puts "Note:"
                 puts notetext.strip.lines.map{|line| "    #{line}" }.join()
             end
+
+            Miscellaneous::horizontalRule()
+
+            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+                menuitems.item(
+                    "parent: #{Asteroids::asteroidToString(asteroid)}",
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
+                menuitems.item(
+                    "parent: #{NavigationTypes::toString(o)}",
+                    lambda { NavigationTypes::landing(o) }
+                )
+            }
+
+            NavigationTypes::getDownstreamNavigationTypes(object).each{|o|
+                menuitems.item(
+                    "child: #{NavigationTypes::toString(o)}",
+                    lambda { NavigationTypes::landing(o) }
+                )
+            }
 
             Miscellaneous::horizontalRule()
 
@@ -224,20 +235,6 @@ class NavigationTypes
                     }
                 )
             end
-
-            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
-                ordinal = menuitems.item(
-                    "access: #{Asteroids::asteroidToString(asteroid)}",
-                    lambda { Asteroids::landing(asteroid) }
-                )
-            }
-
-            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
-                menuitems.item(
-                    "access: #{NavigationTypes::toString(o)}",
-                    lambda { NavigationTypes::landing(o) }
-                )
-            }
 
             if NavigationTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
                 menuitems.item(
