@@ -27,7 +27,7 @@ class Curation
 
             return if counter.hasReached(10)
 
-            next if NSDataType1::getAsteroidsForPoint(point).size > 0
+            next if Asteroids::getAsteroidsForGraphType(point).size > 0
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
             ns0 = NSDataType1::pointToLastFrameOrNull(point)
             next if ns0.nil?
@@ -42,7 +42,7 @@ class Curation
             description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
             if description == "dive" then
-                NSDataType1::landing(point)
+                GraphTypes::landing(point)
                 next
             end
             NSDataTypeXExtended::issueDescriptionForTarget(point, description)
@@ -63,7 +63,7 @@ class Curation
         NSDataType1::points()
         .each{|point|
             return if counter.hasReached(10)
-            next if GraphTypes::getUpstreamConcepts(point).size > 0
+            next if GraphTypes::getUpstreamGraphTypes(point).size > 0
             NSDataType2::landing(point)
             counter.increment()
         }

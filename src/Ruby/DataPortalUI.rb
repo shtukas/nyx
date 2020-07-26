@@ -26,7 +26,7 @@ class DataPortalUI
                 lambda { 
                     point = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if point.nil?
-                    NSDataType1::landing(point)
+                    GraphTypes::landing(point)
                 }
             )
 
@@ -65,22 +65,22 @@ class DataPortalUI
                     end
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    GraphTypes::getUpstreamConcepts(concept2).each{|x|
+                    GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
                         puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                     }
                     # Moving all the downstreams of concept2 toward concept 1
-                    GraphTypes::getDownstreamObjects(concept2).each{|x|
+                    GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
                         puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the concept upstreams of concept2 towards concept 1
-                    GraphTypes::getUpstreamConcepts(concept2).each{|x|
+                    GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
                         Arrows::issueOrException(x, concept1)
                     }
                     # Moving all the downstreams of concept2 toward concept 1
-                    GraphTypes::getDownstreamObjects(concept2).each{|x|
+                    GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
                         Arrows::issueOrException(concept1, x)
                     }
                     NyxObjects::destroy(concept2)
@@ -228,7 +228,7 @@ class DataPortalUI
                 lambda { 
                     ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
-                    NSDataType1::landing(ns1)
+                    GraphTypes::landing(ns1)
                 }
             )
 
@@ -267,22 +267,22 @@ class DataPortalUI
                         end
 
                         # Moving all the concept upstreams of concept2 towards concept 1
-                        GraphTypes::getUpstreamConcepts(concept2).each{|x|
+                        GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
                             puts "arrow (1): #{NSDataType2::conceptToString(x)} -> #{NSDataType2::conceptToString(concept1)}"
                         }
                         # Moving all the downstreams of concept2 toward concept 1
-                        GraphTypes::getDownstreamObjects(concept2).each{|x|
+                        GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
                             puts "arrow (2): #{NSDataType2::conceptToString(concept1)} -> #{NSDataType2::conceptToString(x)}"
                         }
 
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                         # Moving all the concept upstreams of concept2 towards concept 1
-                        GraphTypes::getUpstreamConcepts(concept2).each{|x|
+                        GraphTypes::getUpstreamGraphTypes(concept2).each{|x|
                             Arrows::issueOrException(x, concept1)
                         }
                         # Moving all the downstreams of concept2 toward concept 1
-                        GraphTypes::getDownstreamObjects(concept2).each{|x|
+                        GraphTypes::getDownstreamGraphTypes(concept2).each{|x|
                             Arrows::issueOrException(concept1, x)
                         }
                         NyxObjects::destroy(concept2)

@@ -1,76 +1,265 @@
 
 class GraphTypes
 
-    # GraphTypes::objectIsType1(ns)
-    def self.objectIsType1(ns)
-        ns["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
+    # GraphTypes::objectIsType1(object)
+    def self.objectIsType1(object)
+        object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
     end
 
-    # GraphTypes::objectIsType2(ns)
-    def self.objectIsType2(ns)
-        ns["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
+    # GraphTypes::objectIsType2(object)
+    def self.objectIsType2(object)
+        object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
     end
 
-    # GraphTypes::objectIsType3(ns)
-    def self.objectIsType3(ns)
-        ns["nyxNxSet"] == "5f98770b-ee31-4c67-9d7c-509c89618ea6"
+    # GraphTypes::objectIsType3(object)
+    def self.objectIsType3(object)
+        object["nyxNxSet"] == "5f98770b-ee31-4c67-9d7c-509c89618ea6"
     end
 
-    # GraphTypes::toString(ns)
-    def self.toString(ns)
-        if GraphTypes::objectIsType1(ns) then
-            return NSDataType1::pointToString(ns)
+    # GraphTypes::setIds()
+    def self.setIds()
+        [
+            "c18e8093-63d6-4072-8827-14f238975d04", # Type1
+            "6b240037-8f5f-4f52-841d-12106658171f", # Type2
+            "5f98770b-ee31-4c67-9d7c-509c89618ea6", # Type3
+        ]
+    end
+
+    # GraphTypes::objectToNicknameForToString(object)
+    def self.objectToNicknameForToString(object)
+        if GraphTypes::objectIsType1(object) then
+            return "point"
         end
-        if GraphTypes::objectIsType2(ns) then
-            return NSDataType2::conceptToString(ns)
+        if GraphTypes::objectIsType2(object) then
+            return "concept"
         end
-        if GraphTypes::objectIsType3(ns) then
-            return NSDataType3::storyToString(ns)
+        if GraphTypes::objectIsType3(object) then
+            return "story"
+        end
+        raise "[error: 8bc70a04]"
+    end
+
+    # GraphTypes::toString(object)
+    def self.toString(object)
+        if GraphTypes::objectIsType1(object) then
+            return NSDataType1::pointToString(object)
+        end
+        if GraphTypes::objectIsType2(object) then
+            return NSDataType2::conceptToString(object)
+        end
+        if GraphTypes::objectIsType3(object) then
+            return NSDataType3::storyToString(object)
         end
         raise "[error: dd0dce2a]"
     end
 
-    # GraphTypes::navigationLambda(ns)
-    def self.navigationLambda(ns)
-        if GraphTypes::objectIsType1(ns) then
-            return lambda { NSDataType1::landing(ns) }
+    # GraphTypes::getObjectDescriptionOrNull(object)
+    def self.getObjectDescriptionOrNull(object)
+        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(object)
+    end
+
+    # GraphTypes::getObjectReferenceDateTime(object)
+    def self.getObjectReferenceDateTime(object)
+        datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(object)
+        return datetime if datetime
+        Time.at(object["unixtime"]).utc.iso8601
+    end
+
+    # GraphTypes::landing(object)
+    def self.landing(object)
+
+        loop {
+
+            return if NyxObjects::getOrNull(object["uuid"]).nil?
+            system("clear")
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            # Decache the object
+
+            Miscellaneous::horizontalRule()
+
+            puts "[#{GraphTypes::objectToNicknameForToString(object)}]"
+
+            description = GraphTypes::getObjectDescriptionOrNull(object)
+            if description then
+                puts "    description: #{description}"
+            end
+            puts "    uuid: #{object["uuid"]}"
+            puts "    date: #{GraphTypes::getObjectReferenceDateTime(object)}"
+
+            if GraphTypes::objectIsType1(object) then
+                ns0 = NSDataType1::pointToLastFrameOrNull(object)
+                if ns0 then
+                    puts "    point data: #{NSDataType0s::frameToString(ns0)}"
+                end
+            end
+
+            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+                puts "    parent: #{Asteroids::asteroidToString(asteroid)}"
+            }
+
+            GraphTypes::getUpstreamGraphTypes(object).each{|o|
+                puts "    parent: #{GraphTypes::toString(o)}"
+            }
+
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object).strip
+            if notetext and notetext.size > 0 then
+                Miscellaneous::horizontalRule()
+                puts "Note:"
+                puts notetext.lines.map{|line| "    #{line}" }.join()
+            end
+
+            Miscellaneous::horizontalRule()
+
+            if GraphTypes::objectIsType1(object) then
+                ns0 = NSDataType1::pointToLastFrameOrNull(object)
+                if ns0 then
+                    menuitems.item(
+                        "open point data: #{NSDataType0s::frameToString(ns0)}",
+                        lambda { NSDataType1::openLastPointFrame(object) }
+                    )
+                end
+            end
+
+            description = GraphTypes::getObjectDescriptionOrNull(object)
+            if description then
+                menuitems.item(
+                    "edit description",
+                    lambda{
+                        description = Miscellaneous::editTextSynchronously(description).strip
+                        return if description == ""
+                        NSDataTypeXExtended::issueDescriptionForTarget(object, description)
+                    }
+                )
+            else
+                menuitems.item(
+                    "set description",
+                    lambda{
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        return if description == ""
+                        NSDataTypeXExtended::issueDescriptionForTarget(object, description)
+                    }
+                )
+            end
+
+            if GraphTypes::objectIsType1(object) then
+                ns0 = NSDataType1::pointToLastFrameOrNull(object)
+                if ns0 then
+                    menuitems.item(
+                        "edit point data",
+                        lambda { NSDataType1::editLastPointFrame(object) }
+                    )
+                else
+                    menuitems.item(
+                        "set data",
+                        lambda {
+                            ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+                            return if ns0.nil?
+                            Arrows::issueOrException(object, ns0)
+                        }
+                    )
+                end
+            end
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "edit reference datetime",
+                    lambda{
+                        datetime = Miscellaneous::editTextSynchronously(GraphTypes::getObjectReferenceDateTime(object)).strip
+                        return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(object, datetime)
+                    }
+                )
+            end
+
+
+            menuitems.item(
+                "edit note",
+                lambda{ 
+                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object) || ""
+                    text = Miscellaneous::editTextSynchronously(text).strip
+                    NSDataTypeXExtended::issueNoteForTarget(object, text)
+                }
+            )
+
+
+            menuitems.item(
+                "add upstream concept",
+                lambda {
+                    concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
+                    return if concept.nil?
+                    Arrows::issueOrException(concept, object)
+                }
+            )
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "remove upstream concept",
+                    lambda {
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", GraphTypes::getUpstreamGraphTypes(object), lambda{|o| NSDataType2::conceptToString(o) })
+                        return if ns.nil?
+                        Arrows::remove(ns, object)
+                    }
+                )
+            end
+
+            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+                ordinal = menuitems.item(
+                    "access: #{Asteroids::asteroidToString(asteroid)}",
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+            GraphTypes::getUpstreamGraphTypes(object).each{|o|
+                menuitems.item(
+                    "access: #{GraphTypes::toString(o)}",
+                    lambda { GraphTypes::landing(o) }
+                )
+            }
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "destroy point",
+                    lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this object ? ") then
+                            NSDataType1::pointDestroyProcedure(object)
+                        end
+                    }
+                )
+            end
+
+            Miscellaneous::horizontalRule()
+
+            status = menuitems.prompt()
+            break if !status
+
+        }
+
+    end
+
+    # GraphTypes::landingLambda(object)
+    def self.landingLambda(object)
+        if GraphTypes::objectIsType1(object) then
+            return lambda { GraphTypes::landing(object) }
         end
-        if GraphTypes::objectIsType2(ns) then
-            return lambda { NSDataType2::landing(ns) }
+        if GraphTypes::objectIsType2(object) then
+            return lambda { NSDataType2::landing(object) }
         end
-        if GraphTypes::objectIsType3(ns) then
-            return lambda { NSDataType3::landing(ns) }
+        if GraphTypes::objectIsType3(object) then
+            return lambda { NSDataType3::landing(object) }
         end
         raise "[error: c3c51548]"
     end
 
-    # GraphTypes::landing(ns)
-    def self.landing(ns)
-        if GraphTypes::objectIsType1(ns) then
-            NSDataType1::landing(ns)
-        end
-        if GraphTypes::objectIsType2(ns) then
-            NSDataType2::landing(ns)
-        end
-        if GraphTypes::objectIsType3(ns) then
-            NSDataType3::landing(ns)
-        end
-        raise "[error: fd3c6cff]"
+    # GraphTypes::getUpstreamGraphTypes(object)
+    def self.getUpstreamGraphTypes(object)
+        Arrows::getSourcesOfGivenSetsForTarget(object, GraphTypes::setIds())
     end
 
-    # GraphTypes::getUpstreamConcepts(ns)
-    def self.getUpstreamConcepts(ns)
-        Arrows::getSourcesOfGivenSetsForTarget(ns, ["6b240037-8f5f-4f52-841d-12106658171f"])
-    end
-
-    # GraphTypes::getDownstreamObjects(ns)
-    def self.getDownstreamObjects(ns)
-        Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04", "6b240037-8f5f-4f52-841d-12106658171f", "5f98770b-ee31-4c67-9d7c-509c89618ea6"])
-    end
-
-    # GraphTypes::getDownstreamObjectsType1(ns)
-    def self.getDownstreamObjectsType1(ns)
-        Arrows::getTargetsOfGivenSetsForSource(ns, ["c18e8093-63d6-4072-8827-14f238975d04"])
+    # GraphTypes::getDownstreamGraphTypes(object)
+    def self.getDownstreamGraphTypes(object)
+        Arrows::getTargetsOfGivenSetsForSource(object, GraphTypes::setIds())
     end
 
     # GraphTypes::selectObjectsUsingPattern(pattern)
@@ -143,7 +332,7 @@ class GraphTypes
         }
 
         loop {
-            char = win1.getch.to_s # Reads and returns a character
+            char = win1.getch.to_s # Reads and returobject a character
             if char == '127' then
                 # delete
                 next if search_string_558ca20d.length == 0

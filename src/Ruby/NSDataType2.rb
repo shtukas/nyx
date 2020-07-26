@@ -63,7 +63,7 @@ class NSDataType2
             return str
         end
 
-        GraphTypes::getDownstreamObjectsType1(concept).each{|ns1|
+        GraphTypes::getDownstreamGraphTypes(concept).each{|ns1|
             str = "[concept] [#{concept["uuid"][0, 4]}] #{NSDataType1::pointToString(ns1)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
@@ -225,7 +225,7 @@ class NSDataType2
             puts ""
             puts "Parents:"
 
-            GraphTypes::getUpstreamConcepts(concept).each{|ns|
+            GraphTypes::getUpstreamGraphTypes(concept).each{|ns|
                 print "    "
                 menuitems.raw(
                     NSDataType2::conceptToString(ns),
@@ -237,11 +237,11 @@ class NSDataType2
             puts ""
             puts "Children:"
 
-            GraphTypes::getDownstreamObjects(concept).each{|ns|
+            GraphTypes::getDownstreamGraphTypes(concept).each{|ns|
                 print "    "
                 menuitems.raw(
                     GraphTypes::toString(ns),
-                    GraphTypes::navigationLambda(ns)
+                    GraphTypes::landingLambda(ns)
                 )
                 puts ""
             }
@@ -274,15 +274,15 @@ class NSDataType2
                     "[this] remove as intermediary concept", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        GraphTypes::getUpstreamConcepts(concept).each{|upstreamconcept|
+                        GraphTypes::getUpstreamGraphTypes(concept).each{|upstreamconcept|
                             puts "upstreamconcept   : #{NSDataType2::conceptToString(upstreamconcept)}"
                         }
-                        GraphTypes::getDownstreamObjects(concept).each{|downstreampoint|
+                        GraphTypes::getDownstreamGraphTypes(concept).each{|downstreampoint|
                             puts "downstreampoint: #{GraphTypes::toString(downstreampoint)}"
                         }
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary concept ? ")
-                        GraphTypes::getUpstreamConcepts(concept).each{|upstreamconcept|
-                            GraphTypes::getDownstreamObjects(concept).each{|downstreampoint|
+                        GraphTypes::getUpstreamGraphTypes(concept).each{|upstreamconcept|
+                            GraphTypes::getDownstreamGraphTypes(concept).each{|downstreampoint|
                                 Arrows::issueOrException(upstreamconcept, downstreampoint)
                             }
                         }
@@ -316,7 +316,7 @@ class NSDataType2
                 menuitems.item(
                     "[upstream] remove concept",
                     lambda {
-                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getUpstreamConcepts(concept), lambda{|ns| NSDataType2::conceptToString(ns) })
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getUpstreamGraphTypes(concept), lambda{|ns| NSDataType2::conceptToString(ns) })
                         return if x.nil?
                         Arrows::remove(x, concept)
                     }
@@ -344,10 +344,10 @@ class NSDataType2
                 menuitems.item(
                     "[downstream] select points ; move to a new downstream concept",
                     lambda {
-                        return if GraphTypes::getDownstreamObjectsType1(concept).size == 0
+                        return if GraphTypes::getDownstreamGraphTypes(concept).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamObjectsType1(concept), lambda{ |ns| NSDataType1::toString(ns) })
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamGraphTypes(concept), lambda{ |ns| NSDataType1::toString(ns) })
                         return if points.size == 0
 
                         # Creating the concept
@@ -381,7 +381,7 @@ class NSDataType2
                 menuitems.item(
                     "[downstream] remove concept",
                     lambda {
-                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getDownstreamObjects(concept), lambda{|ns| GraphTypes::toString(ns) })
+                        x = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getDownstreamGraphTypes(concept), lambda{|ns| GraphTypes::toString(ns) })
                         return if x.nil?
                         Arrows::remove(concept, x)
                     }
@@ -392,10 +392,10 @@ class NSDataType2
                 menuitems.item(
                     "[network] select points ; move to an unconnected concept ; and land on that concept",
                     lambda {
-                        return if GraphTypes::getDownstreamObjectsType1(concept).size == 0
+                        return if GraphTypes::getDownstreamGraphTypes(concept).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamObjectsType1(concept), lambda{ |ns| NSDataType1::toString(ns) })
+                        points, _ = LucilleCore::selectZeroOrMore("point", [], GraphTypes::getDownstreamGraphTypes(concept), lambda{ |ns| NSDataType1::toString(ns) })
                         return if points.size == 0
 
                         # Creating the concept

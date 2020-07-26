@@ -55,21 +55,9 @@ class NSDataType1
         "[point] [#{point["uuid"][0, 4]}] [error: 752a3db2 ; pathological point: #{point["uuid"]}]"
     end
 
-    # NSDataType1::getPointDescriptionOrNull(point)
-    def self.getPointDescriptionOrNull(point)
-        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
-    end
-
-    # NSDataType1::getPointReferenceDateTime(ns)
-    def self.getPointReferenceDateTime(ns)
-        datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(ns)
-        return datetime if datetime
-        Time.at(ns["unixtime"]).utc.iso8601
-    end
-
     # NSDataType1::getPointReferenceUnixtime(ns)
     def self.getPointReferenceUnixtime(ns)
-        DateTime.parse(NSDataType1::getPointReferenceDateTime(ns)).to_time.to_f
+        DateTime.parse(GraphTypes::getObjectReferenceDateTime(ns)).to_time.to_f
     end
 
     # NSDataType1::pointToFramesInTimeOrder(point)
@@ -82,11 +70,6 @@ class NSDataType1
     def self.pointToLastFrameOrNull(point)
         NSDataType1::pointToFramesInTimeOrder(point)
             .last
-    end
-
-    # NSDataType1::getAsteroidsForPoint(point)
-    def self.getAsteroidsForPoint(point)
-        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
     # NSDataType1::giveDescriptionToPointInteractively(point)
@@ -253,166 +236,6 @@ class NSDataType1
         NyxObjects::destroy(point)
     end
 
-    # NSDataType1::landing(point)
-    def self.landing(point)
-        loop {
-            return if NyxObjects::getOrNull(point["uuid"]).nil?
-            system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{point["uuid"]}") # decaching the toString
-
-            Miscellaneous::horizontalRule()
-
-            puts "[point]"
-
-            description = NSDataType1::getPointDescriptionOrNull(point)
-            if description then
-                puts "    description: #{description}"
-            end
-            puts "    uuid: #{point["uuid"]}"
-            puts "    date: #{NSDataType1::getPointReferenceDateTime(point)}"
-
-            ns0 = NSDataType1::pointToLastFrameOrNull(point)
-            if ns0 then
-                puts "    point data: #{NSDataType0s::frameToString(ns0)}"
-            end
-            NSDataType1::getAsteroidsForPoint(point).each{|asteroid|
-                puts "    belongs to: #{Asteroids::asteroidToString(asteroid)}"
-            }
-
-            GraphTypes::getUpstreamConcepts(point).each{|ns|
-                puts "    belongs to: #{NSDataType2::conceptToString(ns)}"
-            }
-
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(point).strip
-            if notetext and notetext.size > 0 then
-                Miscellaneous::horizontalRule()
-                puts "Note:"
-                puts notetext.lines.map{|line| "    #{line}" }.join()
-            end
-
-            Miscellaneous::horizontalRule()
-
-            ns0 = NSDataType1::pointToLastFrameOrNull(point)
-            if ns0 then
-                menuitems.item(
-                    "open point data: #{NSDataType0s::frameToString(ns0)}",
-                    lambda { NSDataType1::openLastPointFrame(point) }
-                )
-            end
-
-            description = NSDataType1::getPointDescriptionOrNull(point)
-            if description then
-                menuitems.item(
-                    "edit description",
-                    lambda{
-                        description = Miscellaneous::editTextSynchronously(description).strip
-                        return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
-                    }
-                )
-            else
-                menuitems.item(
-                    "set description",
-                    lambda{
-                        description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
-                    }
-                )
-            end
-
-            ns0 = NSDataType1::pointToLastFrameOrNull(point)
-            if ns0 then
-                menuitems.item(
-                    "edit point data",
-                    lambda { NSDataType1::editLastPointFrame(point) }
-                )
-            else
-                menuitems.item(
-                    "set data",
-                    lambda {
-                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-                        return if ns0.nil?
-                        Arrows::issueOrException(point, ns0)
-                    }
-                )
-            end
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "edit reference datetime",
-                    lambda{
-                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getPointReferenceDateTime(point)).strip
-                        return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(point, datetime)
-                    }
-                )
-            end
-
-            menuitems.item(
-                "edit note",
-                lambda{ 
-                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(point) || ""
-                    text = Miscellaneous::editTextSynchronously(text).strip
-                    NSDataTypeXExtended::issueNoteForTarget(point, text)
-                }
-            )
-
-            menuitems.item(
-                "add upstream concept",
-                lambda {
-                    concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
-                    return if concept.nil?
-                    Arrows::issueOrException(concept, point)
-                }
-            )
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "remove upstream concept",
-                    lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", GraphTypes::getUpstreamConcepts(point), lambda{|ns| NSDataType2::conceptToString(ns) })
-                        return if ns.nil?
-                        Arrows::remove(ns, point)
-                    }
-                )
-            end
-
-            NSDataType1::getAsteroidsForPoint(point).each{|asteroid|
-                ordinal = menuitems.item(
-                    "access: #{Asteroids::asteroidToString(asteroid)}",
-                    lambda { Asteroids::landing(asteroid) }
-                )
-            }
-
-            GraphTypes::getUpstreamConcepts(point).each{|ns|
-                menuitems.item(
-                    "access: #{NSDataType2::conceptToString(ns)}",
-                    lambda { NSDataType2::landing(ns) }
-                )
-            }
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "destroy point",
-                    lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this point ? ") then
-                            NSDataType1::pointDestroyProcedure(point)
-                        end
-                    }
-                )
-            end
-
-            Miscellaneous::horizontalRule()
-
-            status = menuitems.prompt()
-            break if !status
-        }
-    end
-
     # ---------------------------------------------
 
     # NSDataType1::searchNx1630(pattern)
@@ -422,7 +245,7 @@ class NSDataType1
                 {
                     "description"   => NSDataType1::pointToString(point),
                     "referencetime" => NSDataType1::getPointReferenceUnixtime(point),
-                    "dive"          => lambda{ NSDataType1::landing(point) }
+                    "dive"          => lambda{ GraphTypes::landing(point) }
                 }
             }
     end

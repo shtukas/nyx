@@ -104,11 +104,11 @@ class NSDataType3
             puts ""
             puts "Parents:"
 
-            GraphTypes::getUpstreamConcepts(story).each{|ns|
+            GraphTypes::getUpstreamGraphTypes(story).each{|ns|
                 print "    "
                 menuitems.raw(
                     GraphTypes::toString(ns),
-                    GraphTypes::navigationLambda(ns)
+                    GraphTypes::landingLambda(ns)
                 )
                 puts ""
             }
@@ -116,11 +116,11 @@ class NSDataType3
             puts ""
             puts "Children:"
 
-            GraphTypes::getDownstreamObjects(story).each{|ns|
+            GraphTypes::getDownstreamGraphTypes(story).each{|ns|
                 print "    "
                 menuitems.raw(
                     GraphTypes::toString(ns),
-                    GraphTypes::navigationLambda(ns)
+                    GraphTypes::landingLambda(ns)
                 )
                 puts ""
             }
@@ -172,7 +172,7 @@ class NSDataType3
                 menuitems.item(
                     "[upstream] remove concept",
                     lambda {
-                        concept = LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", GraphTypes::getUpstreamConcepts(story), lambda{|concept| NSDataType3::storyToString(concept) })
+                        concept = LucilleCore::selectEntityFromListOfEntitiesOrNull("concept", GraphTypes::getUpstreamGraphTypes(story), lambda{|concept| NSDataType3::storyToString(concept) })
                         return if concept.nil?
                         Arrows::remove(concept, story)
                     }

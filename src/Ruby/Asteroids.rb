@@ -174,6 +174,11 @@ class Asteroids
         asteroid
     end
 
+    # Asteroids::getAsteroidsForGraphType(point)
+    def self.getAsteroidsForGraphType(point)
+        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
+    end
+
     # Asteroids::getNSDataType1ForAsteroid(asteroid)
     def self.getNSDataType1ForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
@@ -604,7 +609,7 @@ class Asteroids
 
         if asteroid["payload"]["type"] == "metal" then
             Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                next if GraphTypes::getUpstreamConcepts(ns1).size > 0
+                next if GraphTypes::getUpstreamGraphTypes(ns1).size > 0
                 puts "destroying ns1: #{ns1}"
                 NyxObjects::destroy(ns1)
             }
@@ -797,7 +802,7 @@ class Asteroids
                     ordinal, point = packet
                     menuitems.item(
                         "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}",
-                        lambda { NSDataType1::landing(point) }
+                        lambda { GraphTypes::landing(point) }
                     )
                 }
 
