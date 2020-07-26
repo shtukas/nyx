@@ -275,20 +275,50 @@ class NSDataType1
 
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{ns1["uuid"]}") # decaching the toString
 
-            puts "point uuid: #{ns1["uuid"]}"
+            Miscellaneous::horizontalRule()
+
+            puts "[point]"
+
+            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
+            if description then
+                puts "    description: #{description}"
+            end
+            puts "    uuid: #{ns1["uuid"]}"
+            puts "    date: #{NSDataType1::getPointReferenceDateTime(ns1)}"
+
+            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            if ns0 then
+                puts "    point data: #{NSDataType0s::frameToString(ns0)}"
+            end
+            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
+                puts "    belongs to: #{Asteroids::asteroidToString(asteroid)}"
+            }
+
+            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
+                puts "    belongs to: #{NSDataType2::conceptToString(ns)}"
+            }
 
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1).strip
             if notetext and notetext.size > 0 then
-                puts "------------------------------------------------------"
+                Miscellaneous::horizontalRule()
                 puts "Note:"
                 puts notetext.lines.map{|line| "    #{line}" }.join()
-                puts "------------------------------------------------------"
-                puts ""
+            end
+
+            Miscellaneous::horizontalRule()
+
+            ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
+            if ns0 then
+                menuitems.item(
+                    "open point data: #{NSDataType0s::frameToString(ns0)}",
+                    lambda { NSDataType1::openLastPointFrame(ns1) }
+                )
             end
 
             description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
             if description then
-                ordinal = menuitems.ordinal(
+                menuitems.item(
+                    "edit description",
                     lambda{
                         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(ns1)
                         if description.nil? then
@@ -300,7 +330,6 @@ class NSDataType1
                         NSDataTypeXExtended::issueDescriptionForTarget(ns1, description)
                     }
                 )
-                puts "[#{ordinal}:edit] #{description}"
             else
                 menuitems.item(
                     "set description",
@@ -314,11 +343,12 @@ class NSDataType1
 
             ns0 = NSDataType1::pointToLastFrameOrNull(ns1)
             if ns0 then
-                ordinalopen = menuitems.ordinal( lambda { NSDataType1::openLastPointFrame(ns1) } )
-                ordinaledit = menuitems.ordinal( lambda { NSDataType1::editLastPointFrame(ns1) } )
-                puts "[#{ordinalopen}:open] [#{ordinaledit}:edit] #{NSDataType0s::frameToString(ns0)}"
+                menuitems.item(
+                    "edit point data",
+                    lambda { NSDataType1::editLastPointFrame(ns1) }
+                )
             else
-                menuitems.itemNoPadding(
+                menuitems.item(
                     "set data",
                     lambda {
                         ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
@@ -328,39 +358,19 @@ class NSDataType1
                 )
             end
 
-
-
-            puts ""
-
-            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
-                ordinal = menuitems.ordinal( lambda { Asteroids::landing(asteroid) } )
-                puts "[#{ordinal}:access] #{Asteroids::asteroidToString(asteroid)}"
-            }
-
-            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
-                ordinal = menuitems.ordinal( lambda { NSDataType2::landing(ns) } )
-                puts "[#{ordinal}:access] #{NSDataType2::conceptToString(ns)}"
-            }
-
-            puts ""
-
-
-
             if Miscellaneous::isAlexandra() then
-                ordinal = menuitems.ordinal(
+                menuitems.item(
+                    "edit reference datetime",
                     lambda{
                         datetime = Miscellaneous::editTextSynchronously(NSDataType1::getPointReferenceDateTime(ns1)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
                         NSDataTypeXExtended::issueDateTimeIso8601ForTarget(ns1, datetime)
                     }
                 )
-                puts "[#{ordinal}:edit] #{NSDataType1::getPointReferenceDateTime(ns1)}"
-            else
-                puts "date: #{NSDataType1::getPointReferenceDateTime(ns1)}"
             end
 
-            menuitems.itemNoPadding(
-                "edit note", 
+            menuitems.item(
+                "edit note",
                 lambda{ 
                     text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(ns1) || ""
                     text = Miscellaneous::editTextSynchronously(text).strip
@@ -368,7 +378,7 @@ class NSDataType1
                 }
             )
 
-            menuitems.itemNoPadding(
+            menuitems.item(
                 "add upstream concept",
                 lambda {
                     concept = NSDataType2::selectExistingConceptOrMakeNewConceptInteractivelyOrNull()
@@ -378,7 +388,7 @@ class NSDataType1
             )
 
             if Miscellaneous::isAlexandra() then
-                menuitems.itemNoPadding(
+                menuitems.item(
                     "remove upstream concept",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns", Type1Type2CommonInterface::getUpstreamConcepts(ns1), lambda{|ns| NSDataType2::conceptToString(ns) })
@@ -388,9 +398,23 @@ class NSDataType1
                 )
             end
 
+            NSDataType1::getAsteroidsForPoint(ns1).each{|asteroid|
+                ordinal = menuitems.item(
+                    "access: #{Asteroids::asteroidToString(asteroid)}",
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+            Type1Type2CommonInterface::getUpstreamConcepts(ns1).each{|ns|
+                menuitems.item(
+                    "access: #{NSDataType2::conceptToString(ns)}",
+                    lambda { NSDataType2::landing(ns) }
+                )
+            }
+
             if Miscellaneous::isAlexandra() then
-                menuitems.itemNoPadding(
-                    "destroy",
+                menuitems.item(
+                    "destroy point",
                     lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this ns1 ? ") then
                             NSDataType1::pointDestroyProcedure(ns1)
@@ -399,7 +423,7 @@ class NSDataType1
                 )
             end
 
-            puts ""
+            Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
             break if !status
