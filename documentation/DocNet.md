@@ -16,6 +16,7 @@ DocNet...
 - Was born as a terminal application (a purposeful choice by its author, Pascal), but will acquire other interfaces as time goes on. 
 - Is written in Ruby (because the program is a child of, Catalyst, is written in Ruby), but Catalyst (and therefore DocNet) is going to be rewritten in Go.
 - Has an interesting data model. The reader is invited to get familiar with it to better understand the user interface. See [DocNet Datamodel](DocNetDatamodel.md).
+- Makes no assumption about the documentation files. Text, pictures, .md files, Word documents, anything goes... So you do not need to convert your existing files to anything. Also, if you already have documentation written in Google Docs, just link to that, in this case DocNet acts as an index.
 
 ### Installation and running
 
