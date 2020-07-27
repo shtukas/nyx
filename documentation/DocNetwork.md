@@ -1,3 +1,3 @@
-## The Doc Network
+## DocNet: The Communication Network
 
 

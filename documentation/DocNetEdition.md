@@ -1,4 +1,0 @@
-## The DocNet Edition Model
-
-
-

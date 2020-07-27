@@ -1,3 +1,3 @@
-## The DocNet User Interface Navigation
+## DocNet: Search and Navigation
 
 
