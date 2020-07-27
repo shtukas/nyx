@@ -6,11 +6,12 @@ class GeneralSearch
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            NSDataType1::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
-            NSDataType2::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] },
-            Waves::searchNx1630(pattern).sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
+            NSDataType1::searchNx1630(pattern),
+            NSDataType2::searchNx1630(pattern),
+            Waves::searchNx1630(pattern)
         ]
             .flatten
+            .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
     end
 
     # GeneralSearch::searchAndDive()
