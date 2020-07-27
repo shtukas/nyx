@@ -112,6 +112,16 @@ class NavigationTypes
 
             Miscellaneous::horizontalRule()
 
+            if NavigationTypes::objectIsType1(object) then
+                ns0 = NSDataType1::pointToLastFrameOrNull(object)
+                if ns0 then
+                    menuitems.item(
+                        NSDataType0s::frameToString(ns0),
+                        lambda { NSDataType1::openLastPointFrame(object) }
+                    )
+                end
+            end
+
             downstream = NavigationTypes::getDownstreamNavigationTypes(object)
             downstream = NavigationTypes::applyDateTimeOrderToNavigationObjects(downstream)
             downstream.each{|o|
@@ -122,16 +132,6 @@ class NavigationTypes
             }
 
             Miscellaneous::horizontalRule()
-
-            if NavigationTypes::objectIsType1(object) then
-                ns0 = NSDataType1::pointToLastFrameOrNull(object)
-                if ns0 then
-                    menuitems.item(
-                        "open point data: #{NSDataType0s::frameToString(ns0)}",
-                        lambda { NSDataType1::openLastPointFrame(object) }
-                    )
-                end
-            end
 
             description = NavigationTypes::getObjectDescriptionOrNull(object)
             if description then

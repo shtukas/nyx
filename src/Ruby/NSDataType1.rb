@@ -32,27 +32,22 @@ class NSDataType1
 
         ns0s = NSDataType1::pointToFramesInTimeOrder(point)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
-        if description and ns0s.size > 0 then
-            str = "[point] [#{point["uuid"][0, 4]}] [#{ns0s.last["type"]}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
-            return str
-        end
-        if description and ns0s.size == 0 then
-            str = "[point] [#{point["uuid"][0, 4]}] #{description}"
+        if description then
+            str = "[node] [#{point["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size > 0 then
-            str = "[point] [#{point["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+            str = "[node] [#{point["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and ns0s.size == 0 then
-            str = "[point] [#{point["uuid"][0, 4]}] no description and no frame"
+            str = "[node] [#{point["uuid"][0, 4]}]"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        "[point] [#{point["uuid"][0, 4]}] [error: 752a3db2 ; pathological point: #{point["uuid"]}]"
+        "[node] [#{point["uuid"][0, 4]}] [error: 752a3db2 ; pathological node: #{point["uuid"]}]"
     end
 
     # NSDataType1::getPointReferenceUnixtime(ns)
