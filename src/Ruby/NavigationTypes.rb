@@ -6,16 +6,10 @@ class NavigationTypes
         object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
     end
 
-    # NavigationTypes::objectIsType2(object)
-    def self.objectIsType2(object)
-        object["nyxNxSet"] == "6b240037-8f5f-4f52-841d-12106658171f"
-    end
-
     # NavigationTypes::setIds()
     def self.setIds()
         [
             "c18e8093-63d6-4072-8827-14f238975d04", # Type1
-            "6b240037-8f5f-4f52-841d-12106658171f", # Type2
         ]
     end
 
@@ -24,9 +18,6 @@ class NavigationTypes
         if NavigationTypes::objectIsType1(object) then
             return "point"
         end
-        if NavigationTypes::objectIsType2(object) then
-            return "node"
-        end
         raise "[error: 8bc70a04]"
     end
 
@@ -34,9 +25,6 @@ class NavigationTypes
     def self.toString(object)
         if NavigationTypes::objectIsType1(object) then
             return NSDataType1::pointToString(object)
-        end
-        if NavigationTypes::objectIsType2(object) then
-            return NSDataType2::nodeToString(object)
         end
         raise "[error: dd0dce2a]"
     end
@@ -244,7 +232,7 @@ class NavigationTypes
                 )
             end
 
-            if NavigationTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+            if Miscellaneous::isAlexandra() then
                 menuitems.item(
                     "remove [this] as intermediary object", 
                     lambda { 
@@ -266,7 +254,7 @@ class NavigationTypes
                 )
             end
 
-            if NavigationTypes::objectIsType2(object) and Miscellaneous::isAlexandra() then
+            if Miscellaneous::isAlexandra() then
                 menuitems.item(
                     "[downstream] select points ; move to a new downstream object",
                     lambda {
@@ -321,9 +309,6 @@ class NavigationTypes
         if NavigationTypes::objectIsType1(object) then
             return lambda { NavigationTypes::landing(object) }
         end
-        if NavigationTypes::objectIsType2(object) then
-            return lambda { NavigationTypes::landing(object) }
-        end
         raise "[error: c3c51548]"
     end
 
@@ -339,7 +324,7 @@ class NavigationTypes
 
     # NavigationTypes::selectObjectsUsingPattern(pattern)
     def self.selectObjectsUsingPattern(pattern)
-        NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectNodesUsingPattern(pattern)
+        NSDataType1::selectPointPerPattern(pattern)
     end
 
     # NavigationTypes::applyDateTimeOrderToNavigationObjects(objects)
@@ -477,14 +462,11 @@ class NavigationTypes
 
     # NavigationTypes::issueNewGraphTypeObjectInteractivelyOrNull()
     def self.issueNewGraphTypeObjectInteractivelyOrNull()
-        types = ["point", "node"]
+        types = ["point"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return nil if type.nil?
         if type == "point" then
             return NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
-        end
-        if type == "node" then
-            return NSDataType2::issueNewNodeInteractivelyOrNull()
         end
     end
 

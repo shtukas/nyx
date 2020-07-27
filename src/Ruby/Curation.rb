@@ -48,16 +48,6 @@ class Curation
             NSDataTypeXExtended::issueDescriptionForTarget(point, description)
         }
 
-        # Give a description to nodes which do not have one
-
-        NSDataType2::nodes()
-        .each{|node|
-            return if counter.hasReached(10)
-            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-            NavigationTypes::landing(node)
-            counter.increment()
-        }
-
         # Give a upstream nodes to points which do not have one
 
         NSDataType1::points()

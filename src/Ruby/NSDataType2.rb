@@ -3,43 +3,6 @@
 
 class NSDataType2
 
-    # NSDataType2::issueNewNodeWithDescription(description)
-    def self.issueNewNodeWithDescription(description)
-        node = {
-            "uuid"      => SecureRandom.uuid,
-            "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"  => Time.new.to_f
-        }
-        puts JSON.pretty_generate(node)
-        NyxObjects::put(node)
-        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-        node
-    end
-
-    # NSDataType2::issueNewNodeInteractivelyOrNull()
-    def self.issueNewNodeInteractivelyOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("node description: ")
-        return nil if description.size == 0
-
-        node = {
-            "uuid"      => SecureRandom.uuid,
-            "nyxNxSet"  => "6b240037-8f5f-4f52-841d-12106658171f",
-            "unixtime"  => Time.new.to_f
-        }
-        puts JSON.pretty_generate(node)
-        NyxObjects::put(node)
-
-        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-
-        node
-    end
-
-    # NSDataType2::nodes()
-    def self.nodes()
-        NyxObjects::getSet("6b240037-8f5f-4f52-841d-12106658171f")
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
-    end
-
     # NSDataType2::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxObjects::getOrNull(uuid)
@@ -74,25 +37,5 @@ class NSDataType2
         return true if node["uuid"].downcase.include?(pattern.downcase)
         return true if NSDataType2::nodeToString(node).downcase.include?(pattern.downcase)
         false
-    end
-
-    # NSDataType2::selectNodesUsingPattern(pattern)
-    def self.selectNodesUsingPattern(pattern)
-        NSDataType2::nodes()
-            .select{|node| NSDataType2::nodeMatchesPattern(node, pattern) }
-    end
-
-    # ---------------------------------------------
-
-    # NSDataType2::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        NSDataType2::selectNodesUsingPattern(pattern)
-            .map{|node|
-                {
-                    "description"   => NSDataType2::nodeToString(node),
-                    "referencetime" => node["unixtime"],
-                    "dive"          => lambda{ NavigationTypes::landing(node) }
-                }
-            }
     end
 end

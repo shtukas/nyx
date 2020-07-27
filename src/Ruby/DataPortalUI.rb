@@ -31,16 +31,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "new node",
-                lambda { 
-                    node = NSDataType2::issueNewNodeInteractivelyOrNull()
-                    return if node.nil?
-                    NavigationTypes::landing(node)
-                }
-            )
-
-
-            ms.item(
                 "Merge two nodes",
                 lambda { 
                     puts "Merging two nodes"
@@ -220,15 +210,6 @@ class DataPortalUI
                     ns1 = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
                     return if ns1.nil?
                     NavigationTypes::landing(ns1)
-                }
-            )
-
-            ms.item(
-                "Make new node",
-                lambda { 
-                    ns2 = NSDataType2::issueNewNodeInteractivelyOrNull()
-                    return if ns2.nil?
-                    NavigationTypes::landing(ns2)
                 }
             )
 

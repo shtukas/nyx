@@ -9,9 +9,6 @@ Nyx
         NSDataType1   # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
 
-        NSDataType2   # NSDataType2.txt
-                      # nyxNxSet: "6b240037-8f5f-4f52-841d-12106658171f"
-
         Wave          # Waves.txt
                       # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 
