@@ -4,7 +4,7 @@ This repository has two independently branded systems, one called **Catalyst** a
 
 Q: What exactly is the relationship betweeen Catalyst and DocNet ? 🤔
 
-- DocNet is simply a limited version of Catalyst that runs on an independent DataStore. They share the same code, but when DocNet runs, some features are not enabled (and not all the data model is used).
+- DocNet is simply a limited version of Catalyst that runs on an independent DataStore. They share the same code, but when DocNet runs, some features are not enabled (and not all the data model is used). Note that despite being a *limited version*, DocNet has an important ability that Catalyst doesn't: multiple instances of DocNet can synchronise and share their data updates. (Giving DocNet its distributed multi-users capabilities.) 
 
 
 Q: What is the latest in terms of roadmap ? 👩‍💻
