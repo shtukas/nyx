@@ -20,6 +20,8 @@ DocNet...
 
 ### Installation and running
 
+Currently the shared store is a github repository [shtukas/docnet-data-store-1](https://github.com/shtukas/docnet-data-store-1). You need to ask Pascal to add you as a collaborator.
+
 There is only one dependency that you might not already have installed: the `curses` gem.
 
 ```
