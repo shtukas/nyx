@@ -212,7 +212,7 @@ class Asteroids
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
-                    return " #{NSDataType1::pointToString(ns1s[0])}"
+                    return " #{NSDataType1::toString(ns1s[0])}"
                 end
             end
             puts JSON.pretty_generate(asteroid)
@@ -269,7 +269,7 @@ class Asteroids
         toStringLambda = lambda{|p| 
             ordinal = p[0]
             point    = p[1]
-            "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}"
+            "(#{"%.5f" % ordinal}) #{NSDataType1::toString(point)}"
         }
         p = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", ps, toStringLambda)
         return nil if p.nil?
@@ -609,7 +609,7 @@ class Asteroids
 
         if asteroid["payload"]["type"] == "metal" then
             Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                next if NavigationTypes::getUpstreamNavigationTypes(ns1).size > 0
+                next if NSDataType1::getUpstreamType1s(ns1).size > 0
                 puts "destroying ns1: #{ns1}"
                 NyxObjects::destroy(ns1)
             }
@@ -626,12 +626,12 @@ class Asteroids
                 return
             end
             if ns1s.size == 1 then
-                NSDataType1::openLastPointFrame(ns1s[0])
+                NSDataType1::openLastFrame(ns1s[0])
                 return
             end
-            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::pointToString(ns1) })
+            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::toString(ns1) })
             return if ns1.nil?
-            NSDataType1::openLastPointFrame(ns1)
+            NSDataType1::openLastFrame(ns1)
         end
     end
 
@@ -801,15 +801,15 @@ class Asteroids
                 Asteroids::getOrdinalsWithPointsPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
                     menuitems.item(
-                        "(#{"%.5f" % ordinal}) #{NSDataType1::pointToString(point)}",
-                        lambda { NavigationTypes::landing(point) }
+                        "(#{"%.5f" % ordinal}) #{NSDataType1::toString(point)}",
+                        lambda { NSDataType1::landing(point) }
                     )
                 }
 
                 menuitems.item(
                     "add new point",
                     lambda { 
-                        point = NSDataType1::issueNewPointAndItsFirstFrameInteractivelyOrNull()
+                        point = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
                         return if point.nil?
                         Arrows::issueOrException(asteroid, point)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f

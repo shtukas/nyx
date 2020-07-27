@@ -32,10 +32,10 @@ class DeskOperator
     def self.commitDeskChangesToPrimaryRepository()
         LucilleCore::locationsAtFolder(Realms::getDeskFolderpath()).each{|location|
             pointuuid = File.basename(location)
-            point = NSDataType1::getPointOrNull(pointuuid)
+            point = NSDataType1::getOrNull(pointuuid)
             next if point.nil?
-            puts NSDataType1::pointToString(point)
-            ns0 = NSDataType1::pointToLastFrameOrNull(point)
+            puts NSDataType1::toString(point)
+            ns0 = NSDataType1::getLastFrameOrNull(point)
             next if ns0.nil?
             if ns0["type"] != "aion-point" then # Looks like the point has been transmuted after it was exported as a aion-point
                 LucilleCore::removeFileSystemLocation(location)

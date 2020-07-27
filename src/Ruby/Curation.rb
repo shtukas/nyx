@@ -22,14 +22,14 @@ class Curation
 
         # Give a description to the aion-point points which do not have one
 
-        NSDataType1::points()
+        NSDataType1::objects()
         .each{|point|
 
             return if counter.hasReached(10)
 
             next if Asteroids::getAsteroidsForGraphType(point).size > 0
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
-            ns0 = NSDataType1::pointToLastFrameOrNull(point)
+            ns0 = NSDataType1::getLastFrameOrNull(point)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
 
@@ -42,7 +42,7 @@ class Curation
             description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
             if description == "dive" then
-                NavigationTypes::landing(point)
+                NSDataType1::landing(point)
                 next
             end
             NSDataTypeXExtended::issueDescriptionForTarget(point, description)
@@ -50,11 +50,11 @@ class Curation
 
         # Give a upstream nodes to points which do not have one
 
-        NSDataType1::points()
+        NSDataType1::objects()
         .each{|point|
             return if counter.hasReached(10)
-            next if NavigationTypes::getUpstreamNavigationTypes(point).size > 0
-            NavigationTypes::landing(point)
+            next if NSDataType1::getUpstreamType1s(point).size > 0
+            NSDataType1::landing(point)
             counter.increment()
         }
     end

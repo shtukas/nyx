@@ -35,5 +35,5 @@ The DocNet user interface remains faithful to that view and when focusing on a n
 
 ![](images/1595832406.png) 
 
-See the [Points](DocNetPoints.md) documentation for more details about this screenshot, but for the moment we are focusing on a point called "dotcom rota management", which have two parents, one called "rota" and the other one called "Dotcom Team". The data carried by this point is a text file where I manage the rota system of the dotcom team. Also note that your display of this node might be slightly different (less operations avalaible to some users).
+See the [Points](DocNetNodes.md) documentation for more details about this screenshot, but for the moment we are focusing on a node called "dotcom rota management", which have two parents, one called "rota" and the other one called "Dotcom Team". The data carried by this node is a text file where I manage the rota system of the dotcom team. Also note that your display of this node might be slightly different (less operations avalaible to some users).
 

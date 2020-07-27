@@ -95,10 +95,9 @@ require_relative "LucilleCore.rb"
 
 require_relative "Miscellaneous.rb"
 
-require_relative "NavigationTypes.rb"
+require_relative "NSDT1Extended.rb"
 require_relative "NSDataType0.rb"
 require_relative "NSDataType1.rb"
-require_relative "NSDataType2.rb"
 require_relative "NSDataTypeX.rb"
 require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"

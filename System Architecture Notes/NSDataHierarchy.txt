@@ -6,13 +6,7 @@ NSDataType0 # Immutable Data Point
     -> aion-point
     -> unique-name
 
-NSDataType1: Array[NSDataType0] # Mutable Data Point 
-             Mutable Data Point
-             # Data
-
-NSDataType2 # Navigation Node
-    Points to NSDataType1s and NSDataType2s
-    # Node
+NSDataType1: Mutable Data Point & Navigation Node
 
 Asteroid 
     Contains Array[NSDataType1]
