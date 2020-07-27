@@ -5,7 +5,7 @@ class NSDataType0s
 
     # NSDataType0s::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+        desktopLocations = LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
                             .select{|filepath| File.basename(filepath) != 'pascal.png' }
                             .select{|filepath| File.basename(filepath) != 'Todo-Inbox' }
