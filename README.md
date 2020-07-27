@@ -6,7 +6,7 @@ This repository has two independently branded systems, one called **Catalyst** a
 
 - DocNet and Catalyst are actually the same program, with the following differences 
 	- DocNet uses a limited set of features and a limited data model.
-	- They both on different data stores. At the time those lines are written (July 2020), the DocNet data store is still mostly empty, while Catalyst manages 30Gb+ of Pascal's personal data.
+	- They run on different data stores. At the time those lines are written (July 2020), the DocNet data store is still mostly empty, while Catalyst manages 30Gb+ of Pascal's personal data.
 	- Note that despite being a *limited version*, DocNet has an important ability that Catalyst doesn't: multiple instances of DocNet can synchronise and share their data updates. (Giving DocNet its distributed multi-users capabilities.) 
 
 ![](documentation/images/1595879632.png)
