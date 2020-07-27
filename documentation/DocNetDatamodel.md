@@ -27,7 +27,7 @@ Another way to represent that mini network is like this:
 
 ![](images/1595833644.png)
 
-The aboe graph is how we mentally intuitively represents the nodes and the arrows. 
+The above graph is how we mentally intuitively represents the nodes and the arrows. 
 
 Note that DocNet makes no attempt whatsoever at capturing the different kinds of arrows. That difference exists in the mind of whomever navigates the network (and varies from one person to another). From DocNet's point of view there is one type of arrow.
 
