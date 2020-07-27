@@ -334,6 +334,21 @@ class NavigationTypes
         NSDataType1::selectPointPerPattern(pattern) + NSDataType2::selectNodesUsingPattern(pattern)
     end
 
+    # NavigationTypes::applyDateTimeOrderToNavigationObjects(objects)
+    def self.applyDateTimeOrderToNavigationObjects(objects)
+        objects
+            .map{|object|
+                {
+                    "object"   => object,
+                    "datetime" => NavigationTypes::getObjectReferenceDateTime(object)
+                }
+            }
+            .sort{|i1, i2|
+                i1["datetime"] <=> i2["datetime"]
+            }
+            .map{|i| i["object"] }
+    end
+
     # NavigationTypes::interactiveSearch()
     def self.interactiveSearch()
 
@@ -389,7 +404,7 @@ class NavigationTypes
                 search_string = nil
 
                 display_searching_on.call()
-                selected_objects = NavigationTypes::selectObjectsUsingPattern(pattern)
+                selected_objects = NavigationTypes::applyDateTimeOrderToNavigationObjects(NavigationTypes::selectObjectsUsingPattern(pattern))
 
                 win3.setpos(0,0)
                 selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
