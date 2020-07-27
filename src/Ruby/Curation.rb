@@ -27,7 +27,7 @@ class Curation
 
             return if counter.hasReached(10)
 
-            next if Asteroids::getAsteroidsForGraphType(point).size > 0
+            next if Asteroids::getAsteroidsForType1(point).size > 0
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
             ns0 = NSDataType1::getLastFrameOrNull(point)
             next if ns0.nil?

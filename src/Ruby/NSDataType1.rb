@@ -160,7 +160,7 @@ class NSDataType1
             Miscellaneous::horizontalRule()
 
             if Miscellaneous::isAlexandra() then
-                Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+                Asteroids::getAsteroidsForType1(object).each{|asteroid|
                     menuitems.item(
                         "parent: #{Asteroids::asteroidToString(asteroid)}",
                         lambda { Asteroids::landing(asteroid) }

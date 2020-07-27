@@ -22,7 +22,7 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "new point",
+                "new node",
                 lambda { 
                     point = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
                     return if point.nil?
@@ -64,7 +64,7 @@ class DataPortalUI
                     NSDataType1::getDownstreamType1s(node2).each{|x|
                         Arrows::issueOrException(node1, x)
                     }
-                    NyxObjects::destroy(node2)
+                    NyxObjects::destroy(node2) # Simple destroy, not the procedure,what happens if node2 had some contents ?
                 }
             )
 
