@@ -27,7 +27,7 @@ Another way to represent that mini network is like this:
 
 ![](images/1595833644.png)
 
-The above graph is how we mentally intuitively represent the nodes and the arrows. 
+This last picture is how we mentally intuitively represent the nodes and the arrows. 
 
 Note that DocNet makes no attempt whatsoever at capturing the different kinds of arrows. That difference exists in the mind of whomever navigates the network (and varies from one person to another). From DocNet's point of view there is one type of arrow.
 
@@ -35,5 +35,5 @@ The DocNet user interface remains faithful to that view and when focusing on a n
 
 ![](images/1595832406.png) 
 
-See the [Points](DocNetNodes.md) documentation for more details about this screenshot, but for the moment we are focusing on a node called "dotcom rota management", which have two parents, one called "rota" and the other one called "Dotcom Team". The data carried by this node is a text file where I manage the rota system of the dotcom team. Also note that your display of this node might be slightly different (less operations avalaible to some users).
+See the [Nodes](DocNetNodes.md) documentation for more details about this screenshot, but for the moment we are focusing on a node called "dotcom rota management", which have two parents, one called "rota" and the other one called "Dotcom Team". The data carried by this node is a text file where I manage the rota system of the dotcom team. Also note that your display of this node might be slightly different (less operations avalaible to some users).
 

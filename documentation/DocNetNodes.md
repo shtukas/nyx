@@ -1,3 +1,3 @@
-## DocNet: The Data Points
+## DocNet: The Nodes
 
 
