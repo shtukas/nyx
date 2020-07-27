@@ -1,5 +1,5 @@
 
-This repository has two independently branded systems, one called **Catalyst** and the other one called **DocNet** (Multi-user **Doc**umentation **Net**work). If you are coming from the Guardian, you are looking for [DocNet](documentation/DocNet.md) 🙂
+This software, for some reasons, is known under two different name: **Catalyst** and **DocNet** (Multi-user **Doc**umentation **Net**work). If you are coming from the Guardian, you are looking for [DocNet](documentation/DocNet.md) 🙂
 
 
 **Q: What exactly is the relationship betweeen Catalyst and DocNet ?** 🤔
