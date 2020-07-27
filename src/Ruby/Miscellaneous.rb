@@ -13,11 +13,6 @@ class Miscellaneous
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # Miscellaneous::chooseALinePecoStyle(announce: String, strs: Array[String]): String
-    def self.chooseALinePecoStyle(announce, strs)
-        `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
-    end
-
     # Miscellaneous::binTimelineFolderpath()
     def self.binTimelineFolderpath()
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Bin-T1mel1ne"
