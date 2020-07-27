@@ -67,6 +67,26 @@ class NavigationTypes
 
             Miscellaneous::horizontalRule()
 
+            if Miscellaneous::isAlexandra() then
+                Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+                    menuitems.item(
+                        "parent: #{Asteroids::asteroidToString(asteroid)}",
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                }
+            end
+
+            upstream = NavigationTypes::getUpstreamNavigationTypes(object)
+            upstream = NavigationTypes::applyDateTimeOrderToNavigationObjects(upstream)
+            upstream.each{|o|
+                menuitems.item(
+                    "parent: #{NavigationTypes::toString(o)}",
+                    lambda { NavigationTypes::landing(o) }
+                )
+            }
+
+            Miscellaneous::horizontalRule()
+
             puts "[#{NavigationTypes::objectToNicknameForToString(object)}]"
 
             description = NavigationTypes::getObjectDescriptionOrNull(object)
@@ -92,23 +112,11 @@ class NavigationTypes
 
             Miscellaneous::horizontalRule()
 
-            Asteroids::getAsteroidsForGraphType(object).each{|asteroid|
+            downstream = NavigationTypes::getDownstreamNavigationTypes(object)
+            downstream = NavigationTypes::applyDateTimeOrderToNavigationObjects(downstream)
+            downstream.each{|o|
                 menuitems.item(
-                    "parent: #{Asteroids::asteroidToString(asteroid)}",
-                    lambda { Asteroids::landing(asteroid) }
-                )
-            }
-
-            NavigationTypes::getUpstreamNavigationTypes(object).each{|o|
-                menuitems.item(
-                    "parent: #{NavigationTypes::toString(o)}",
-                    lambda { NavigationTypes::landing(o) }
-                )
-            }
-
-            NavigationTypes::getDownstreamNavigationTypes(object).each{|o|
-                menuitems.item(
-                    "child: #{NavigationTypes::toString(o)}",
+                    NavigationTypes::toString(o),
                     lambda { NavigationTypes::landing(o) }
                 )
             }
