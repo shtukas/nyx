@@ -301,6 +301,7 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(asteroid["orbital"]["type"], 1)
             return 0.68 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
@@ -400,30 +401,31 @@ class Asteroids
     def self.tryAndMoveThisInboxItem(asteroid)
         return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
+        Asteroids::asteroidStopSequence(asteroid)
+
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-            Asteroids::asteroidStopAndDestroySequence(asteroid)
+            Asteroids::asteroidDestroySequence(asteroid)
             return
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("move to todo today ? (if no, will propose to move to queue) : ") then
-            Asteroids::asteroidStopSequence(asteroid)
-            asteroid["orbital"] = {
-                "type" => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+        ms = LCoreMenuItemsNX1.new()
+
+        ms.item(
+            "ReOrbital", 
+            lambda { Asteroids::reOrbitalOrNothing(asteroid) }
+        )
+
+        ms.item(
+            "Hide for a time", 
+            lambda {
+                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
             }
-            Asteroids::reCommitToDisk(asteroid)
-            return
-        end
+        )
 
-        if LucilleCore::askQuestionAnswerAsBoolean("move to queue ? (if no, will give you all orbital options) : ") then
-            Asteroids::asteroidStopSequence(asteroid)
-            asteroid["orbital"] = {
-                "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-            }
-            Asteroids::reCommitToDisk(asteroid)
-            return
-        end
+        status = ms.prompt()
+        #break if !status
 
-        Asteroids::reOrbitalOrNothing(asteroid)
     end
 
     # Asteroids::asteroidDoubleDotProcessing(asteroid)
@@ -486,10 +488,6 @@ class Asteroids
         # Running
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::asteroidStopAndDestroySequence(asteroid)
-                return
-            end
             Asteroids::asteroidStopSequence(asteroid)
             Asteroids::tryAndMoveThisInboxItem(asteroid)
             return
@@ -597,22 +595,41 @@ class Asteroids
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-        Asteroids::asteroidDestroySequence(asteroid)
+
+        if asteroid["payload"]["type"] == "metal" then
+            if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
+                puts "Ok, you want to keep them, I am going to make them review them one by one"
+                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, point = packet
+                    NSDataType1::landing(point)
+                }
+            else
+                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, point = packet
+                    NSDataType1::destroyProcedure(point)
+                }
+            end
+        end
+
+        NyxObjects::destroy(asteroid)
     end
 
     # Asteroids::asteroidDestroySequence(asteroid)
     def self.asteroidDestroySequence(asteroid)
-        # The main purpose of the destroy sequence is a try and preserve data which might be useful
-        if asteroid["payload"]["type"] == "description" then
-            # nothing
-        end
 
         if asteroid["payload"]["type"] == "metal" then
-            Asteroids::getNSDataType1ForAsteroid(asteroid).each{|ns1|
-                next if NSDataType1::getUpstreamType1s(ns1).size > 0
-                puts "destroying ns1: #{ns1}"
-                NyxObjects::destroy(ns1)
-            }
+            if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
+                puts "Ok, you want to keep them, I am going to make them review them one by one"
+                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, point = packet
+                    NSDataType1::landing(point)
+                }
+            else
+                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, point = packet
+                    NSDataType1::destroyProcedure(point)
+                }
+            end
         end
 
         NyxObjects::destroy(asteroid)
