@@ -78,6 +78,8 @@ class Curation
             Curation::oneCurationStep()
             break if ((Time.new.to_i-time1) > 1200)
         }
+        time2 = Time.new.to_f
+        Bank::put("56995147-b264-49fb-955c-d5a919395ea3", time2-time1)
     end
 
 end
