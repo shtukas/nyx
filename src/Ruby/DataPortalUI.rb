@@ -19,6 +19,17 @@ class DataPortalUI
                 lambda { NSDT1Extended::interactiveSearchAndExplore() }
             )
 
+            ms.item(
+                "node listing", 
+                lambda { 
+                    nodes = NSDataType1::objects()
+                    nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
+                    return if node.nil?
+                    NSDataType1::landing(node)
+                }
+            )
+
             puts ""
 
             ms.item(
@@ -202,6 +213,17 @@ class DataPortalUI
             ms.item(
                 "Network Interactive Search", 
                 lambda { NSDT1Extended::interactiveSearchAndExplore() } # "NSDT1Extended" are called Network in the DocNet context.
+            )
+
+            ms.item(
+                "node listing", 
+                lambda { 
+                    nodes = NSDataType1::objects()
+                    nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
+                    return if node.nil?
+                    NSDataType1::landing(node)
+                }
             )
 
             ms.item(
