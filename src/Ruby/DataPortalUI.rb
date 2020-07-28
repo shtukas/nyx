@@ -38,7 +38,7 @@ class DataPortalUI
             ms.item(
                 "new node",
                 lambda { 
-                    point = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+                    point = NSDataType1::issueNewType1InteractivelyOrNull()
                     return if point.nil?
                     NSDataType1::landing(point)
                 }
@@ -235,7 +235,7 @@ class DataPortalUI
             ms.item(
                 "Make new point",
                 lambda { 
-                    ns1 = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+                    ns1 = NSDataType1::issueNewType1InteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
                 }

@@ -124,7 +124,7 @@ class NSDT1Extended
         object = NSDT1Extended::selectExistingType1InteractivelyOrNull()
         return object if object
         return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing object. Would you like to make a new one ? : ")
-        NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+        NSDataType1::issueNewType1InteractivelyOrNull()
     end
 
     # NSDT1Extended::interactiveSearchAndExplore()

@@ -74,17 +74,20 @@ class NSDataType1
         NSDataTypeXExtended::issueDescriptionForTarget(point, description)
     end
 
-    # NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
-    def self.issueNewType1AndItsFirstFrameInteractivelyOrNull()
-        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-        return nil if ns0.nil?
-        point = NSDataType1::issue()
-        Arrows::issueOrException(point, ns0)
+    # NSDataType1::issueNewType1InteractivelyOrNull()
+    def self.issueNewType1InteractivelyOrNull()
+        node = NSDataType1::issue()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         if description == "" then
-            NSDataTypeXExtended::issueDescriptionForTarget(point, description)
+            NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         end
-        point
+        if LucilleCore::askQuestionAnswerAsBoolean("Create node content frame ? : ") then
+            ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+            if ns0 then
+                Arrows::issueOrException(node, ns0)
+            end
+        end
+        node
     end
 
     # NSDataType1::openLastFrame(point)
@@ -282,7 +285,7 @@ class NSDataType1
 
 
             menuitems.item(
-                "add parent object",
+                "add parent node",
                 lambda {
                     node = NSDT1Extended::selectExistingOrMakeNewType1()
                     return if node.nil?
@@ -292,7 +295,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove parent object",
+                    "remove parent node",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getUpstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
@@ -302,7 +305,7 @@ class NSDataType1
             end
 
             menuitems.item(
-                "add child object (chosen from existing points)",
+                "add child node (chosen from existing nodes)",
                 lambda {
                     o = NSDT1Extended::selectExistingType1InteractivelyOrNull()
                     return if o.nil?
@@ -311,9 +314,9 @@ class NSDataType1
             )
 
             menuitems.item(
-                "add child object (new)",
+                "add child node (new)",
                 lambda {
-                    o = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+                    o = NSDataType1::issueNewType1InteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(object, o)
                 }
@@ -321,7 +324,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove child object",
+                    "remove child node",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getDownstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
@@ -363,7 +366,7 @@ class NSDataType1
                         return if points.size == 0
 
                         # Creating the object
-                        newobject = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+                        newobject = NSDataType1::issueNewType1InteractivelyOrNull()
 
                         # Setting the object as target of this one
                         Arrows::issueOrException(object, newobject)

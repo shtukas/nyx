@@ -826,7 +826,7 @@ class Asteroids
                 menuitems.item(
                     "add new node",
                     lambda { 
-                        point = NSDataType1::issueNewType1AndItsFirstFrameInteractivelyOrNull()
+                        point = NSDataType1::issueNewType1InteractivelyOrNull()
                         return if point.nil?
                         Arrows::issueOrException(asteroid, point)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
