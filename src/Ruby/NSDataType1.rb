@@ -381,7 +381,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "destroy point",
+                    "destroy [this]",
                     lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this object ? ") then
                             NSDataType1::destroyProcedure(object)
