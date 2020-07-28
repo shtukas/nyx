@@ -4,7 +4,7 @@ This software, for some reasons, is known under two different name: **Catalyst**
 
 **Q: What exactly is the relationship betweeen Catalyst and DocNet ?** 🤔
 
-- DocNet and Catalyst are actually the same program, with the following differences 
+- DocNet and Catalyst are actually the same program, with the following differences: 
 	- DocNet uses a limited set of features and a limited data model.
 	- They run on different data stores. At the time those lines are written (July 2020), the DocNet data store is still mostly empty, while Catalyst manages 30Gb+ of Pascal's personal data.
 	- Note that despite being a *limited version*, DocNet has an important ability that Catalyst doesn't: multiple instances of DocNet can synchronise and share their data updates. (Giving DocNet its distributed multi-users capabilities.) 
