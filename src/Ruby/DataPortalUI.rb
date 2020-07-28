@@ -21,12 +21,15 @@ class DataPortalUI
 
             ms.item(
                 "node listing", 
-                lambda { 
+                lambda {
                     nodes = NSDataType1::objects()
                     nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
-                    return if node.nil?
-                    NSDataType1::landing(node)
+                    loop {
+                        system("clear")
+                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
+                        break if node.nil?
+                        NSDataType1::landing(node)
+                    }
                 }
             )
 
@@ -216,13 +219,16 @@ class DataPortalUI
             )
 
             ms.item(
-                "node listing", 
-                lambda { 
+                "node listing",
+                lambda {
                     nodes = NSDataType1::objects()
                     nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
-                    return if node.nil?
-                    NSDataType1::landing(node)
+                    loop {
+                        system("clear")
+                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
+                        break if node.nil?
+                        NSDataType1::landing(node)
+                    }
                 }
             )
 
