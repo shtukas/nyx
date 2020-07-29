@@ -55,7 +55,7 @@ class Curation
             return if counter.hasReached(10)
             next if Asteroids::getAsteroidsForType1(node).size > 0
             next if NSDataType1::getUpstreamType1s(node).size > 0
-            next if NSDataType1::getDownstreamType1s(node).size == 0
+            next if NSDataType1::getLastFrameOrNull(node).nil?
             system("clear")
             puts "Give a upstream node to the next node"
             LucilleCore::pressEnterToContinue()
