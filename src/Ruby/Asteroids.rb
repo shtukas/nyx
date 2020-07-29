@@ -425,7 +425,6 @@ class Asteroids
 
         status = ms.prompt()
         #break if !status
-
     end
 
     # Asteroids::asteroidDoubleDotProcessing(asteroid)

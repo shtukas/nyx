@@ -23,38 +23,42 @@ class Curation
         # Give a description to the aion-point points which do not have one
 
         NSDataType1::objects()
-        .each{|point|
+        .each{|node|
 
             return if counter.hasReached(10)
 
-            next if Asteroids::getAsteroidsForType1(point).size > 0
-            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
-            ns0 = NSDataType1::getLastFrameOrNull(point)
+            next if Asteroids::getAsteroidsForType1(node).size > 0
+            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
+            ns0 = NSDataType1::getLastFrameOrNull(node)
             next if ns0.nil?
             next if ns0["type"] != "aion-point"
 
             system("clear")
 
-            NSDataType0s::openFrame(point, ns0)
+            NSDataType0s::openFrame(node, ns0)
 
             counter.increment()
 
             description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
             next if description == ""
             if description == "dive" then
-                NSDataType1::landing(point)
+                NSDataType1::landing(node)
                 next
             end
-            NSDataTypeXExtended::issueDescriptionForTarget(point, description)
+            NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         }
 
         # Give a upstream nodes to points which do not have one
 
         NSDataType1::objects()
-        .each{|point|
+        .each{|node|
             return if counter.hasReached(10)
-            next if NSDataType1::getUpstreamType1s(point).size > 0
-            NSDataType1::landing(point)
+            next if NSDataType1::getUpstreamType1s(node).size > 0
+            next if Asteroids::getAsteroidsForType1(node).size > 0
+            system("clear")
+            puts "Give a upstream node to the next node"
+            LucilleCore::pressEnterToContinue()
+            NSDataType1::landing(node)
             counter.increment()
         }
     end
