@@ -148,6 +148,11 @@ class NSDataType1
         Time.at(object["unixtime"]).utc.iso8601
     end
 
+    # NSDataType1::decacheObjectMetadata(node)
+    def self.decacheObjectMetadata(node)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{node["uuid"]}") # flush the cached toString
+    end
+
     # NSDataType1::landing(object)
     def self.landing(object)
 
@@ -156,8 +161,7 @@ class NSDataType1
             return if NyxObjects::getOrNull(object["uuid"]).nil?
             system("clear")
 
-            cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{object["uuid"]}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete(cacheKey) # flush the cached toString
+            NSDataType1::decacheObjectMetadata(object)
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -210,10 +214,9 @@ class NSDataType1
 
             ns0 = NSDataType1::getLastFrameOrNull(object)
             if ns0 then
-                menuitems.item(
-                    NSDataType0s::frameToString(ns0),
-                    lambda { NSDataType1::openLastFrame(object) }
-                )
+                NSDataType0s::decacheObjectMetadata(ns0)
+                ordinal = menuitems.ordinal( lambda { NSDataType1::openLastFrame(object) })
+                puts "[ #{ordinal}] #{NSDataType0s::frameToString(ns0)}"
             end
 
             downstream = NSDataType1::getDownstreamType1s(object)
@@ -434,11 +437,15 @@ class NSDataType1
     # NSDataType1::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         NSDataType1::selectType1sPerPattern(pattern)
-            .map{|point|
+            .map{|node|
+                NSDataType1::decacheObjectMetadata(node)
+                node
+            }
+            .map{|node|
                 {
-                    "description"   => NSDataType1::toString(point),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(point),
-                    "dive"          => lambda{ NSDataType1::landing(point) }
+                    "description"   => NSDataType1::toString(node),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
+                    "dive"          => lambda{ NSDataType1::landing(node) }
                 }
             }
     end

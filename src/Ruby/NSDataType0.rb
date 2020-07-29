@@ -194,31 +194,36 @@ class NSDataType0s
         return "[unknown aion point]"
     end
 
+    # NSDataType0s::decacheObjectMetadata(ns0)
+    def self.decacheObjectMetadata(ns0)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}")
+    end
+
     # NSDataType0s::frameToStringUseTheForce(ns0)
     def self.frameToStringUseTheForce(ns0)
         if ns0["type"] == "line" then
-            return "#{ns0["line"]}"
+            return "[frame] #{ns0["line"]}"
         end
         if ns0["type"] == "url" then
-            return "#{ns0["url"]}"
+            return "[frame] #{ns0["url"]}"
         end
         if ns0["type"] == "text" then
             namedhashToFirstLine = lambda {|namedhash|
                 text = NyxBlobs::getBlobOrNull(namedhash).strip
-                line = text.size>0 ? "[text] #{text.lines.first.strip}" : "[text] [empty]"
+                line = text.size>0 ? "[frame] [text] #{text.lines.first.strip}" : "[frame] [text] [empty]"
             }
             return "#{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
         if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            return "[file] #{ns0["extensionWithDot"]}"
+            return "[frame] [file] #{ns0["extensionWithDot"]}"
         end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
             description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
-            return "[aion tree] #{description}"
+            return "[frame] [aion tree] #{description}"
         end
         if ns0["type"] == "unique-name" then
-            return "unique name: #{ns0["name"]}"
+            return "[frame] unique name: #{ns0["name"]}"
         end
         raise "[NSDataType0s error 2c53b113-cc79]"
     end

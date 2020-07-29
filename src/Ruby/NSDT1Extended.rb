@@ -113,30 +113,32 @@ class NSDT1Extended
 
     # NSDT1Extended::selectExistingType1InteractivelyOrNull()
     def self.selectExistingType1InteractivelyOrNull()
-        points = NSDT1Extended::interactiveSearch()
-        return nil if points.empty?
+        nodes = NSDT1Extended::interactiveSearch()
+        nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
+        return nil if nodes.empty?
         system("clear")
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", points, lambda{|point| NSDataType1::toString(point) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NSDataType1::toString(node) })
     end
 
     # NSDT1Extended::selectExistingOrMakeNewType1()
     def self.selectExistingOrMakeNewType1()
-        object = NSDT1Extended::selectExistingType1InteractivelyOrNull()
-        return object if object
-        return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing object. Would you like to make a new one ? : ")
+        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+        return node if node
+        return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing node. Would you like to make a new one ? : ")
         NSDataType1::issueNewType1InteractivelyOrNull()
     end
 
     # NSDT1Extended::interactiveSearchAndExplore()
     def self.interactiveSearchAndExplore()
-        objects = NSDT1Extended::interactiveSearch()
-        return if objects.empty?
+        nodes = NSDT1Extended::interactiveSearch()
+        nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
+        return if nodes.empty?
         loop {
-            objects = objects.select{|o| NSDataType1::getOrNull(o["uuid"]) } # In case an object has been deleted in the previous loop
+            nodes = nodes.select{|o| NSDataType1::getOrNull(o["uuid"]) } # In case a node has been deleted in the previous loop
             system("clear")
-            object = LucilleCore::selectEntityFromListOfEntitiesOrNull("node",  objects, lambda{|object| NSDataType1::toString(object) })
-            break if object.nil?
-            NSDataType1::landing(object)
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node",  nodes, lambda{|node| NSDataType1::toString(node) })
+            break if node.nil?
+            NSDataType1::landing(node)
         }
     end
 end
