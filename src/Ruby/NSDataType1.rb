@@ -215,8 +215,13 @@ class NSDataType1
             ns0 = NSDataType1::getLastFrameOrNull(object)
             if ns0 then
                 NSDataType0s::decacheObjectMetadata(ns0)
-                ordinal = menuitems.ordinal( lambda { NSDataType1::openLastFrame(object) })
+                ordinal = menuitems.ordinal(lambda { NSDataType1::openLastFrame(object) })
                 puts "[ #{ordinal}] #{NSDataType0s::frameToString(ns0)}"
+
+                ordinal = menuitems.ordinal(lambda {
+                    NSDataType0s::editFrame(object, ns0)
+                })
+                puts "[ #{ordinal}] edit frame"
             end
 
             downstream = NSDataType1::getDownstreamType1s(object)
@@ -291,7 +296,7 @@ class NSDataType1
 
 
             menuitems.item(
-                "add parent node",
+                "attach parent node",
                 lambda {
                     node = NSDT1Extended::selectExistingOrMakeNewType1()
                     return if node.nil?
@@ -301,7 +306,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove parent node",
+                    "detach parent node",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getUpstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
@@ -311,7 +316,7 @@ class NSDataType1
             end
 
             menuitems.item(
-                "add child node (chosen from existing nodes)",
+                "attach child node (chosen from existing nodes)",
                 lambda {
                     o = NSDT1Extended::selectExistingType1InteractivelyOrNull()
                     return if o.nil?
@@ -320,7 +325,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "add child node (new)",
+                "attach child node (new)",
                 lambda {
                     o = NSDataType1::issueNewType1InteractivelyOrNull()
                     return if o.nil?
@@ -330,7 +335,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove child node",
+                    "detach child node",
                     lambda {
                         ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getDownstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
@@ -363,7 +368,7 @@ class NSDataType1
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "[downstream] select points ; move to a new downstream object",
+                    "select nodes ; move to a new child node",
                     lambda {
                         return if NSDataType1::getDownstreamType1s(object).size == 0
 
