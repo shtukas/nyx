@@ -56,6 +56,7 @@ class Curation
             next if Asteroids::getAsteroidsForType1(node).size > 0
             next if NSDataType1::getUpstreamType1s(node).size > 0
             next if NSDataType1::getLastFrameOrNull(node).nil?
+            next if NSDataType1::getLastFrameOrNull(node)["type"] == "unique-name"
             system("clear")
             puts "Give a upstream node to the next node"
             LucilleCore::pressEnterToContinue()

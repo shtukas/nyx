@@ -132,6 +132,7 @@ class NSDT1Extended
         objects = NSDT1Extended::interactiveSearch()
         return if objects.empty?
         loop {
+            objects = objects.select{|o| NSDataType1::getOrNull(o["uuid"]) } # In case an object has been deleted in the previous loop
             system("clear")
             object = LucilleCore::selectEntityFromListOfEntitiesOrNull("node",  objects, lambda{|object| NSDataType1::toString(object) })
             break if object.nil?
