@@ -156,6 +156,9 @@ class NSDataType1
             return if NyxObjects::getOrNull(object["uuid"]).nil?
             system("clear")
 
+            cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{object["uuid"]}"
+            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete(cacheKey) # flush the cached toString
+
             menuitems = LCoreMenuItemsNX1.new()
 
             # Decache the object
