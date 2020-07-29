@@ -48,13 +48,14 @@ class Curation
             NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         }
 
-        # Give a upstream nodes to points which do not have one
+        # Give a upstream nodes to content nodes which do not have one
 
         NSDataType1::objects()
         .each{|node|
             return if counter.hasReached(10)
-            next if NSDataType1::getUpstreamType1s(node).size > 0
             next if Asteroids::getAsteroidsForType1(node).size > 0
+            next if NSDataType1::getUpstreamType1s(node).size > 0
+            next if NSDataType1::getDownstreamType1s(node).size == 0
             system("clear")
             puts "Give a upstream node to the next node"
             LucilleCore::pressEnterToContinue()
