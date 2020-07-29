@@ -305,10 +305,6 @@ class Asteroids
             return 0.68 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
-        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.66 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
             uuid = asteroid["uuid"]
             if orbital["days"] then
@@ -321,7 +317,11 @@ class Asteroids
                 end
             end
             return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, orbital["timeCommitmentInHours"])
-            return 0.64 - 0.001*BankExtended::recoveredDailyTimeInHours(uuid)
+            return 0.66 - 0.001*BankExtended::recoveredDailyTimeInHours(uuid)
+        end
+
+        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+            return 0.64 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
