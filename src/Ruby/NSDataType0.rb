@@ -202,28 +202,28 @@ class NSDataType0s
     # NSDataType0s::frameToStringUseTheForce(ns0)
     def self.frameToStringUseTheForce(ns0)
         if ns0["type"] == "line" then
-            return "[frame] #{ns0["line"]}"
+            return "[data] #{ns0["line"]}"
         end
         if ns0["type"] == "url" then
-            return "[frame] #{ns0["url"]}"
+            return "[data] #{ns0["url"]}"
         end
         if ns0["type"] == "text" then
             namedhashToFirstLine = lambda {|namedhash|
                 text = NyxBlobs::getBlobOrNull(namedhash).strip
-                line = text.size>0 ? "[frame] [text] #{text.lines.first.strip}" : "[frame] [text] [empty]"
+                line = text.size>0 ? "[data] [text] #{text.lines.first.strip}" : "[data] [text] [empty]"
             }
             return "#{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
         if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            return "[frame] [file] #{ns0["extensionWithDot"]}"
+            return "[data] [file] #{ns0["extensionWithDot"]}"
         end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
             description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
-            return "[frame] [aion tree] #{description}"
+            return "[data] [aion tree] #{description}"
         end
         if ns0["type"] == "unique-name" then
-            return "[frame] unique name: #{ns0["name"]}"
+            return "[data] unique name: #{ns0["name"]}"
         end
         raise "[NSDataType0s error 2c53b113-cc79]"
     end

@@ -198,11 +198,6 @@ class NSDataType1
             puts "    uuid: #{object["uuid"]}"
             puts "    date: #{NSDataType1::getObjectReferenceDateTime(object)}"
 
-            ns0 = NSDataType1::getLastFrameOrNull(object)
-            if ns0 then
-                puts "    point data: #{NSDataType0s::frameToString(ns0)}"
-            end
-
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object)
             if notetext and notetext.strip.size > 0 then
                 Miscellaneous::horizontalRule()
