@@ -96,9 +96,9 @@ class Waves
         end
     end
 
-    # Waves::scheduleToMetric(object, schedule)
-    def self.scheduleToMetric(object, schedule)
-        return 0 if !DoNotShowUntil::isVisible(object["uuid"])
+    # Waves::scheduleToMetric(wave, schedule)
+    def self.scheduleToMetric(wave, schedule)
+        return 0 if !DoNotShowUntil::isVisible(wave["uuid"])
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
             if schedule['from-hour'].nil? then
@@ -113,10 +113,10 @@ class Waves
             return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
+            return 0.65 + 0.05*Miscellaneous::metricCircle(wave["unixtime"])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
+            return 0.65 + 0.05*Miscellaneous::metricCircle(wave["unixtime"])
         end
         1
     end

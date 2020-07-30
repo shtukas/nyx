@@ -11,17 +11,17 @@
 
         0.72          Asteroids "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
 
-        0.70          Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
+        0.65+0.5(sin) Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
 
-        0.68          Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        0.65 (sin)    Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
-        0.66  -> 0.20 Asteroids "repeating-daily-time-commitment-8123956c-05"
+        0.65 (sin)    Asteroids "repeating-daily-time-commitment-8123956c-05"
 
-        0.64          Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+        0.65 (sin)    Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
 
-        0.62  -> 0.20 Asteroids "on-going-until-completion-5b26f145-7ebf-498"
+        0.65 (sin)    Asteroids "on-going-until-completion-5b26f145-7ebf-498"
 
-        0.60  -> 0.20 Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
+        0.65 (sin)    Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
 
         0.55  -> 0.20 VideoStream
 

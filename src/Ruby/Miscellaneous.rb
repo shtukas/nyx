@@ -266,4 +266,10 @@ class Miscellaneous
       input = STDIN.gets
       IO.read(filepath)
     end
+
+    # Miscellaneous::metricCircle(phase)
+    def self.metricCircle(phase)
+        Math.sin((Time.new.to_f + phase).to_f/3600)
+    end
+
 end
