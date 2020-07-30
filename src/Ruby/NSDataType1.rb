@@ -216,7 +216,7 @@ class NSDataType1
                 ordinal = menuitems.ordinal(lambda {
                     NSDataType0s::editFrame(object, ns0)
                 })
-                puts "[ #{ordinal}] edit frame"
+                puts "[ #{ordinal}] edit data"
             end
 
             downstream = NSDataType1::getDownstreamType1s(object)
