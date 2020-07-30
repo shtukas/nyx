@@ -43,7 +43,7 @@ class NSDataType1
             return str
         end
         if description.nil? and ns0s.size == 0 then
-            str = "[node] [#{point["uuid"][0, 4]}]"
+            str = "[node] [#{point["uuid"][0, 4]}] {no description, no frame}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
