@@ -196,7 +196,7 @@ class NSDataType0s
 
     # NSDataType0s::decacheObjectMetadata(ns0)
     def self.decacheObjectMetadata(ns0)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}")
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
     end
 
     # NSDataType0s::frameToStringUseTheForce(ns0)
@@ -230,10 +230,10 @@ class NSDataType0s
 
     # NSDataType0s::frameToString(ns0)
     def self.frameToString(ns0)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}")
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
         return str if str
         str = NSDataType0s::frameToStringUseTheForce(ns0)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-1dbec629d9eb:#{Miscellaneous::today()}:#{ns0["uuid"]}", str)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
         str
     end
 

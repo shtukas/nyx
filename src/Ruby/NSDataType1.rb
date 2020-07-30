@@ -26,7 +26,7 @@ class NSDataType1
 
     # NSDataType1::toString(point)
     def self.toString(point)
-        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{point["uuid"]}"
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{point["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
 
@@ -150,7 +150,7 @@ class NSDataType1
 
     # NSDataType1::decacheObjectMetadata(node)
     def self.decacheObjectMetadata(node)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e68:#{Miscellaneous::today()}:#{node["uuid"]}") # flush the cached toString
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
     end
 
     # NSDataType1::landing(object)
