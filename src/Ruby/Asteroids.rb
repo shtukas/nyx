@@ -834,6 +834,17 @@ class Asteroids
                 )
 
                 menuitems.item(
+                    "add node (chosen from existing nodes)",
+                    lambda {
+                        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                        return if node.nil?
+                        Arrows::issueOrException(asteroid, node)
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, node, ordinal)
+                    }
+                )
+
+                menuitems.item(
                     "select node ; set ordinal",
                     lambda { 
                         point = Asteroids::selectOneAsteroidNodeOrNull(asteroid)
