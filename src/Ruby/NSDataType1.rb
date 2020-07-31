@@ -214,9 +214,17 @@ class NSDataType1
                 puts "[ #{ordinal}] #{NSDataType0s::frameToString(ns0)}"
 
                 ordinal = menuitems.ordinal(lambda {
+                    ns0 = NSDataType1::getLastFrameOrNull(object)
                     NSDataType0s::editFrame(object, ns0)
                 })
-                puts "[ #{ordinal}] edit data"
+                puts "[ #{ordinal}] edit data point"
+
+                ordinal = menuitems.ordinal(lambda {
+                    ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+                    return if ns0.nil?
+                    Arrows::issueOrException(object, ns0)
+                })
+                puts "[ #{ordinal}] issue new data point"
             end
 
             downstream = NSDataType1::getDownstreamType1s(object)
@@ -247,23 +255,6 @@ class NSDataType1
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
                         NSDataTypeXExtended::issueDescriptionForTarget(object, description)
-                    }
-                )
-            end
-
-            ns0 = NSDataType1::getLastFrameOrNull(object)
-            if ns0 then
-                menuitems.item(
-                    "edit point data",
-                    lambda { NSDataType1::editLastFrame(object) }
-                )
-            else
-                menuitems.item(
-                    "set data",
-                    lambda {
-                        ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-                        return if ns0.nil?
-                        Arrows::issueOrException(object, ns0)
                     }
                 )
             end
