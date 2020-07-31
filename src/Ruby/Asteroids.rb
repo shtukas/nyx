@@ -326,13 +326,13 @@ class Asteroids
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
-            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInHours())
             return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
         end
 
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
-            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInSeconds())
+            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInHours())
             return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
         end
 
@@ -365,9 +365,9 @@ class Asteroids
         Runner::isRunning?(asteroid["uuid"])
     end
 
-    # Asteroids::onGoingUnilCompletionDailyExpectationInSeconds()
-    def self.onGoingUnilCompletionDailyExpectationInSeconds()
-        0.5*3600
+    # Asteroids::onGoingUnilCompletionDailyExpectationInHours()
+    def self.onGoingUnilCompletionDailyExpectationInHours()
+        0.5
     end
 
     # Asteroids::isRunningForLong?(asteroid)
@@ -725,6 +725,7 @@ class Asteroids
             puts "uuid: #{asteroid["uuid"]}"
             puts "payload: #{JSON.generate(asteroid["payload"])}"
             puts "orbital: #{JSON.generate(asteroid["orbital"])}"
+            puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}"
             puts "metric: #{Asteroids::metric(asteroid)}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])

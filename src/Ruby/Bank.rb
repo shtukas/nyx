@@ -60,8 +60,8 @@ class BankExtended
         (BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, 86400*7)*86400).to_f/3600
     end
 
-    # BankExtended::hasReachedDailyTimeTargetInHours(bankuuid, timeTarget)
-    def self.hasReachedDailyTimeTargetInHours(bankuuid, timeTarget)
-        BankExtended::recoveredDailyTimeInHours(bankuuid) >= timeTarget
+    # BankExtended::hasReachedDailyTimeTargetInHours(bankuuid, timeTargetInHours)
+    def self.hasReachedDailyTimeTargetInHours(bankuuid, timeTargetInHours)
+        BankExtended::recoveredDailyTimeInHours(bankuuid) >= timeTargetInHours
     end
 end
