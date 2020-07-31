@@ -76,11 +76,10 @@ class NSDataType1
 
     # NSDataType1::issueNewType1InteractivelyOrNull()
     def self.issueNewType1InteractivelyOrNull()
-        node = NSDataType1::issue()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
-        if description != "" then
-            NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-        end
+        return nil if description == "" 
+        node = NSDataType1::issue()
+        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         if LucilleCore::askQuestionAnswerAsBoolean("Create node content frame ? : ") then
             ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
             if ns0 then
