@@ -897,6 +897,29 @@ class Asteroids
             end
         }
     end
+
+    # -----------------------------------
+
+    # Asteroids::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["payload"]["type"] == "description"
+            }
+            .select{|asteroid|
+                !asteroid["payload"]["description"].nil?
+            }
+            .select{|asteroid|
+                asteroid["payload"]["description"].downcase.include?(pattern.downcase)
+            }
+            .map{|asteroid|
+                {
+                    "description"   => Asteroids::asteroidToString(asteroid),
+                    "referencetime" => asteroid["unixtime"],
+                    "dive"          => lambda { Asteroids::landing(asteroid) }
+                }
+            }
+    end
 end
 
 class AsteroidsOfInterest
