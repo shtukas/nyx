@@ -735,6 +735,14 @@ class Asteroids
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
             end
 
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(asteroid)
+            if notetext and notetext.strip.size > 0 then
+                Miscellaneous::horizontalRule()
+                puts "Note:"
+                puts notetext.strip.lines.map{|line| "    #{line}" }.join()
+                Miscellaneous::horizontalRule()
+            end
+
             if asteroid["payload"]["type"] == "description" then
                 menuitems.item(
                     "set asteroid description",
@@ -786,6 +794,15 @@ class Asteroids
             menuitems.item(
                 "re-orbital",
                 lambda { Asteroids::reOrbitalOrNothing(asteroid) }
+            )
+
+            menuitems.item(
+                "edit note",
+                lambda{ 
+                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(asteroid) || ""
+                    text = Miscellaneous::editTextSynchronously(text).strip
+                    NSDataTypeXExtended::issueNoteForTarget(asteroid, text)
+                }
             )
 
             menuitems.item(
