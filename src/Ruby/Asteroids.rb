@@ -448,6 +448,12 @@ class Asteroids
             return
         end
 
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            return
+        end
+
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
             Asteroids::asteroidStartSequence(asteroid)
             Asteroids::openPayload(asteroid)
