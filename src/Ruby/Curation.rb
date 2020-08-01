@@ -48,33 +48,6 @@ class Curation
             NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         }
 
-        # Give a upstream nodes to content nodes which do not have one
-
-        NSDataType1::objects()
-        .each{|node|
-            return if counter.hasReached(10)
-            next if Asteroids::getAsteroidsForType1(node).size > 0
-            next if NSDataType1::getUpstreamType1s(node).size > 0
-            next if NSDataType1::getLastFrameOrNull(node).nil?
-            next if NSDataType1::getLastFrameOrNull(node)["type"] == "unique-name"
-            system("clear")
-            puts "Give a upstream node to the next node"
-            LucilleCore::pressEnterToContinue()
-            NSDataType1::landing(node)
-            counter.increment()
-        }
-    end
-
-    # Curation::catalystTodoListingCurationOpportunity()
-    def self.catalystTodoListingCurationOpportunity()
-        return if rand < BankExtended::recoveredDailyTimeInHours("56995147-b264-49fb-955c-d5a919395ea3")
-        return if !LucilleCore::askQuestionAnswerAsBoolean("spare some time for curation ? ", true)
-        time1 = Time.new.to_f
-
-        Curation::oneCurationStep()
-
-        time2 = Time.new.to_f
-        Bank::put("56995147-b264-49fb-955c-d5a919395ea3", time2-time1)
     end
 
     # Curation::session()
@@ -85,7 +58,6 @@ class Curation
             break if ((Time.new.to_i-time1) > 1200)
         }
         time2 = Time.new.to_f
-        Bank::put("56995147-b264-49fb-955c-d5a919395ea3", time2-time1)
     end
 
 end
