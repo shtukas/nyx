@@ -179,9 +179,19 @@ class Asteroids
         Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
-    # Asteroids::getNSDataType1ForAsteroid(asteroid)
-    def self.getNSDataType1ForAsteroid(asteroid)
+    # Asteroids::getNodeForAsteroid(asteroid)
+    def self.getNodeForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
+    end
+
+    # Asteroids::getDatalineForAsteroid(asteroid)
+    def self.getDatalineForAsteroid(asteroid)
+        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
+    end
+
+    # Asteroids::getTargetsForAsteroid(asteroid)
+    def self.getTargetsForAsteroid(asteroid)
+        Asteroids::getNodeForAsteroid(asteroid) + Asteroids::getDatalineForAsteroid(asteroid)
     end
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
@@ -208,7 +218,7 @@ class Asteroids
                 if payload["description"] then
                     return " #{payload["description"]}"
                 else
-                    ns1s = Asteroids::getNSDataType1ForAsteroid(asteroid)
+                    ns1s = Asteroids::getNodeForAsteroid(asteroid)
                     if ns1s.size == 0 then
                         return " (no ns1 found)"
                     end
@@ -256,19 +266,19 @@ class Asteroids
         Asteroids::reCommitToDisk(asteroid)
     end
 
-    # Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid)
-    def self.getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid)
-        Asteroids::getNSDataType1ForAsteroid(asteroid)
-            .map{|point| [ Asteroids::getPositionOrdinalForNodeAtAsteroid(asteroid, point), point] }
+    # Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
+    def self.getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
+        Asteroids::getTargetsForAsteroid(asteroid)
+            .map{|target| [ Asteroids::getPositionOrdinalForAsteroidTarget(asteroid, target), target] }
             .sort{|p1, p2| p1[0] <=> p2[0] }
     end
 
-    # Asteroids::selectOneAsteroidNodeOrNull(asteroid)
-    def self.selectOneAsteroidNodeOrNull(asteroid)
-        ps = Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid)
+    # Asteroids::selectOneAsteroidTargetOrNull(asteroid)
+    def self.selectOneAsteroidTargetOrNull(asteroid)
+        ps = Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
         toStringLambda = lambda{|p| 
             ordinal = p[0]
-            point    = p[1]
+            point   = p[1]
             "(#{"%.5f" % ordinal}) #{NSDataType1::toString(point)}"
         }
         p = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", ps, toStringLambda)
@@ -600,12 +610,12 @@ class Asteroids
         if asteroid["payload"]["type"] == "metal" then
             if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
                 puts "Ok, you want to keep them, I am going to make them review them one by one"
-                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
                     NSDataType1::landing(point)
                 }
             else
-                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
                     NSDataType1::destroyProcedure(point)
                 }
@@ -621,12 +631,12 @@ class Asteroids
         if asteroid["payload"]["type"] == "metal" then
             if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
                 puts "Ok, you want to keep them, I am going to make them review them one by one"
-                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
                     NSDataType1::landing(point)
                 }
             else
-                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
                     NSDataType1::destroyProcedure(point)
                 }
@@ -639,7 +649,7 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            ns1s = Asteroids::getNSDataType1ForAsteroid(asteroid)
+            ns1s = Asteroids::getNodeForAsteroid(asteroid)
             if ns1s.size == 0 then
                 return
             end
@@ -690,21 +700,31 @@ class Asteroids
         end
     end
 
-    # Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, point, ordinal)
-    def self.setPositionOrdinalForNodeAtAsteroid(asteroid, point, ordinal)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{point["uuid"]}"
+    # Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
+    def self.setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{target["uuid"]}"
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(key, ordinal)
     end
 
-    # Asteroids::getPositionOrdinalForNodeAtAsteroid(asteroid, point)
-    def self.getPositionOrdinalForNodeAtAsteroid(asteroid, point)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{point["uuid"]}"
+    # Asteroids::getPositionOrdinalForAsteroidTarget(asteroid, target)
+    def self.getPositionOrdinalForAsteroidTarget(asteroid, target)
+        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{target["uuid"]}"
         ordinal = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(key)
         if ordinal.nil? then
             ordinal = rand
-            Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, point, ordinal)
+            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
         end
         ordinal
+    end
+
+    # Asteroids::isNode(target)
+    def self.isNode(target)
+        target["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
+    end
+
+    # Asteroids::isDataline(target)
+    def self.isDataline(target)
+        target["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
     end
 
     # Asteroids::landing(asteroid)
@@ -834,22 +854,41 @@ class Asteroids
 
                 Miscellaneous::horizontalRule()
 
-                Asteroids::getOrdinalNodePairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, point = packet
-                    menuitems.item(
-                        "(#{"%.5f" % ordinal}) #{NSDataType1::toString(point)}",
-                        lambda { NSDataType1::landing(point) }
-                    )
+                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                    ordinal, target = packet
+                    if Asteroids::isNode(target) then
+                        menuitems.item(
+                            "(#{"%.5f" % ordinal}) #{NSDataType1::toString(target)}",
+                            lambda { NSDataType1::landing(target) }
+                        )
+                    end
+                    if Asteroids::isDataline(target) then
+                        menuitems.item(
+                            "(#{"%.5f" % ordinal}) #{NSDataLine::toString(target)}",
+                            lambda { NSDataLine::openLastDataPointOrNothing(target) }
+                        )
+                    end
                 }
 
                 menuitems.item(
-                    "add new node",
+                    "add new target",
                     lambda { 
-                        node = NSDataType1::issueNewNodeInteractivelyOrNull()
-                        return if node.nil?
-                        Arrows::issueOrException(asteroid, node)
-                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, node, ordinal)
+                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline"])
+                        return if option.nil?
+                        if option == "node" then
+                            node = NSDataType1::issueNewNodeInteractivelyOrNull()
+                            return if node.nil?
+                            Arrows::issueOrException(asteroid, node)
+                            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
+                        end
+                        if option == "dataline" then
+                            dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+                            return if dataline.nil?
+                            Arrows::issueOrException(asteroid, dataline)
+                            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, dataline, ordinal)
+                        end
                     }
                 )
 
@@ -860,17 +899,17 @@ class Asteroids
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, node, ordinal)
+                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
                     }
                 )
 
                 menuitems.item(
-                    "select node ; set ordinal",
+                    "select target ; set ordinal",
                     lambda { 
-                        point = Asteroids::selectOneAsteroidNodeOrNull(asteroid)
-                        return if point.nil?
+                        target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
+                        return if target.nil?
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, point, ordinal)
+                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
                     }
                 )
 
