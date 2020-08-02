@@ -37,11 +37,13 @@ class CatalystUI
                 .each{|date|
                     next if date > Time.new.to_s[0, 10]
                     puts "🗓️  "+date
-                    puts IO.read(Calendar::dateToFilepath(date))
+                    str = IO.read(Calendar::dateToFilepath(date))
                         .strip
                         .lines
                         .map{|line| "    #{line}" }
                         .join()
+                    puts str
+                    verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(str) + 1)
                 }
         end
 
