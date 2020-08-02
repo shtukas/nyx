@@ -217,7 +217,7 @@ class Asteroids
     def self.asteroidToString(asteroid)
         payloadNSDataPoint = lambda{|asteroid|
             payload = asteroid["payload"]
-            return payload["description"] if payload["description"]
+            return " #{payload["description"]}" if payload["description"]
             targets = Asteroids::getTargetsForAsteroid(asteroid)
             if targets.size == 0 then
                 return " (no asteroid target found)"
