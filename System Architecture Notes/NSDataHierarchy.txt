@@ -12,6 +12,9 @@ NSDataLine # mutable data
 NSDataType1: Navigation Node
     -> NSDataType1
     -> NSDataLine
+    <- NSDataTypeX/Description
+    <- NSDataTypeX/DateTime
+    <- NSDataTypeX/Note
 
 Asteroid 
     -> Array[NSDataType1]

@@ -29,5 +29,9 @@ class NyxGarbageCollection
             NyxObjects::destroy(attribute)
         }
 
+        # remove datalines with parent node
+
+        # remove datapoints with parent dataline
+
     end
 end
