@@ -3,6 +3,16 @@
 
 class NSDataPoint
 
+    # NSDataPoint::datapoints()
+    def self.datapoints()
+        NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
+    end
+
+    # NSDataPoint::getDataPointParents(datapoint)
+    def self.getDataPointParents(datapoint)
+        Arrows::getSourcesForTarget(datapoint)
+    end
+
     # NSDataPoint::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop")

@@ -25,7 +25,7 @@ class Curation
         NSDataType1::objects()
         .each{|node|
             return if counter.hasReached(10)
-            next if Asteroids::getAsteroidsForType1(node).size > 0
+            next if NSDataType1::getAsteroidsForNode(node).size > 0
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
             counter.increment()
             system("clear")

@@ -137,7 +137,7 @@ class NSDataType1
             Miscellaneous::horizontalRule()
 
             if Miscellaneous::isAlexandra() then
-                Asteroids::getAsteroidsForType1(node).each{|asteroid|
+                NSDataType1::getAsteroidsForNode(node).each{|asteroid|
                     menuitems.item(
                         "parent: #{Asteroids::asteroidToString(asteroid)}",
                         lambda { Asteroids::landing(asteroid) }
@@ -358,6 +358,11 @@ class NSDataType1
             break if !status
 
         }
+    end
+
+    # NSDataType1::getAsteroidsForNode(point)
+    def self.getAsteroidsForNode(point)
+        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
     # NSDataType1::getUpstreamType1s(object)

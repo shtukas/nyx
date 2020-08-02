@@ -19,6 +19,11 @@ class NSDataLine
         NyxObjects::getOrNull(uuid)
     end
 
+    # NSDataLine::datalines()
+    def self.datalines()
+        NyxObjects::getSet("d319513e-1582-4c78-a4c4-bf3d72fb5b2d")
+    end
+
     # NSDataLine::interactivelyAddNewDataPointToDatalineOrNothing(dataline)
     def self.interactivelyAddNewDataPointToDatalineOrNothing(dataline)
         ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
@@ -69,17 +74,17 @@ class NSDataLine
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description then
-            str = "[line] [#{dataline["uuid"][0, 4]}] #{description}"
+            str = description
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[line] [#{dataline["uuid"][0, 4]}] #{NSDataPoint::pointToString(datapoints.last)}"
+            str = NSDataPoint::pointToString(datapoints.last)
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size == 0 then
-            str = "[line] [#{dataline["uuid"][0, 4]}] {no description, no point}"
+            str = "{no description, no data}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
@@ -92,6 +97,11 @@ class NSDataLine
         NSDataLine::getDatalineDataPointsInTimeOrder(dataline).each{|datapoint|
             NSDataPoint::decacheObjectMetadata(datapoint)
         }
+    end
+
+    # NSDataLine::getDatalineParents(dataline)
+    def self.getDatalineParents(dataline)
+        Arrows::getSourcesForTarget(dataline)
     end
 
 end

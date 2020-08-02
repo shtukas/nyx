@@ -174,11 +174,6 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::getAsteroidsForType1(point)
-    def self.getAsteroidsForType1(point)
-        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
-    end
-
     # Asteroids::getNodeForAsteroid(asteroid)
     def self.getNodeForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
@@ -192,6 +187,17 @@ class Asteroids
     # Asteroids::getTargetsForAsteroid(asteroid)
     def self.getTargetsForAsteroid(asteroid)
         Asteroids::getNodeForAsteroid(asteroid) + Asteroids::getDatalineForAsteroid(asteroid)
+    end
+
+    # Asteroids::targetToString(target)
+    def self.targetToString(target)
+        if Asteroids::isNode(target) then
+            return NSDataType1::toString(target)
+        end
+        if Asteroids::isDataline(target) then
+            return NSDataLine::toString(target)
+        end
+        raise "[error: caf124cb-cee8-47ea-9e73-a648f5c493c6]"
     end
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
@@ -211,22 +217,12 @@ class Asteroids
     def self.asteroidToString(asteroid)
         payloadNSDataPoint = lambda{|asteroid|
             payload = asteroid["payload"]
-            if payload["type"] == "description" then
-                return " " + payload["description"]
+            return payload["description"] if payload["description"]
+            targets = Asteroids::getTargetsForAsteroid(asteroid)
+            if targets.size == 0 then
+                return " (no asteroid target found)"
             end
-            if payload["type"] == "metal" then
-                if payload["description"] then
-                    return " #{payload["description"]}"
-                else
-                    ns1s = Asteroids::getNodeForAsteroid(asteroid)
-                    if ns1s.size == 0 then
-                        return " (no ns1 found)"
-                    end
-                    return " #{NSDataType1::toString(ns1s[0])}"
-                end
-            end
-            puts JSON.pretty_generate(asteroid)
-            raise "[Asteroids] error: CE8497BB"
+            return " #{Asteroids::targetToString(targets.first)}"
         }
         orbitalNSDataPoint = lambda{|asteroid|
             uuid = asteroid["uuid"]

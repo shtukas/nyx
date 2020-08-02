@@ -29,9 +29,21 @@ class NyxGarbageCollection
             NyxObjects::destroy(attribute)
         }
 
-        # remove datalines with parent node
+        # remove datalines without parent node or asteroid
+
+        NSDataLine::datalines().each{|dataline|
+            next if NSDataLine::getDatalineParents(dataline).size > 0
+            puts "removing dataline without parents: #{dataline}"
+            NyxObjects::destroy(dataline)
+        }
+        
 
         # remove datapoints with parent dataline
+        NSDataPoint::datapoints().each{|datapoint|
+            next if NSDataPoint::getDataPointParents(datapoint).size > 0
+            puts "removing datapoint without parents: #{datapoint}"
+            NyxObjects::destroy(datapoint)
+        }
 
     end
 end
