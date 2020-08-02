@@ -61,17 +61,17 @@ class NSDataLine
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description then
-            str = "[data] [#{dataline["uuid"][0, 4]}] #{description}"
+            str = "[line] [#{dataline["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[data] [#{dataline["uuid"][0, 4]}] #{NSDataPoint::pointToString(datapoints.last)}"
+            str = "[line] [#{dataline["uuid"][0, 4]}] #{NSDataPoint::pointToString(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size == 0 then
-            str = "[data] [#{dataline["uuid"][0, 4]}] {no description, no point}"
+            str = "[line] [#{dataline["uuid"][0, 4]}] {no description, no point}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
