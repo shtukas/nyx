@@ -153,8 +153,8 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromNSDataType1(ns1)
-    def self.issueAsteroidInboxFromNSDataType1(ns1)
+    # Asteroids::issueAsteroidInboxFromDataline(dataline)
+    def self.issueAsteroidInboxFromDataline(dataline)
         payload = {
             "type"         => "metal",
             "description"  => nil
@@ -170,7 +170,7 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issueOrException(asteroid, ns1)
+        Arrows::issueOrException(asteroid, dataline)
         asteroid
     end
 
