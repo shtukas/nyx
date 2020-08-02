@@ -24,28 +24,14 @@ class Curation
 
         NSDataType1::objects()
         .each{|node|
-
             return if counter.hasReached(10)
-
             next if Asteroids::getAsteroidsForType1(node).size > 0
             next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-            ns0 = NSDataType1::getLastFrameOrNull(node)
-            next if ns0.nil?
-            next if ns0["type"] != "aion-point"
-
-            system("clear")
-
-            NSDataType0s::openFrame(node, ns0)
-
             counter.increment()
-
-            description = LucilleCore::askQuestionAnswerAsString("description (or type 'dive'): ")
-            next if description == ""
-            if description == "dive" then
-                NSDataType1::landing(node)
-                next
-            end
-            NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+            system("clear")
+            puts "Update description of next node"
+            LucilleCore::pressEnterToContinue()
+            NSDataType1::landing(node)
         }
 
     end

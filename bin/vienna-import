@@ -52,7 +52,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    ns0 = NSDataType0s::issueUrl(link)
+    ns0 = NSDataPoint::issueUrl(link)
     ns1 = NSDataType1::issue()
     Arrows::issueOrException(ns1, ns0)
     asteroid = Asteroids::issueAsteroidInboxFromNSDataType1(ns1)

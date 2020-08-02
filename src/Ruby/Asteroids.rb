@@ -34,7 +34,7 @@ class Asteroids
             }
         end
         if option == "metal" then
-            ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+            ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
             return nil if ns0.nil?
             ns1 = NSDataType1::issue()
             Arrows::issueOrException(ns1, ns0)
@@ -199,7 +199,7 @@ class Asteroids
 
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
-        payloadNSDataType0 = lambda{|asteroid|
+        payloadNSDataPoint = lambda{|asteroid|
             payload = asteroid["payload"]
             if payload["type"] == "description" then
                 return " " + payload["description"]
@@ -218,7 +218,7 @@ class Asteroids
             puts JSON.pretty_generate(asteroid)
             raise "[Asteroids] error: CE8497BB"
         }
-        orbitalNSDataType0 = lambda{|asteroid|
+        orbitalNSDataPoint = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
                 return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
@@ -239,7 +239,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadNSDataType0.call(asteroid)}#{orbitalNSDataType0.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadNSDataPoint.call(asteroid)}#{orbitalNSDataPoint.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -644,12 +644,12 @@ class Asteroids
                 return
             end
             if ns1s.size == 1 then
-                NSDataType1::openLastFrame(ns1s[0])
+                NSDataType1::landing(ns1s[0])
                 return
             end
             ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::toString(ns1) })
             return if ns1.nil?
-            NSDataType1::openLastFrame(ns1)
+            NSDataType1::landing(ns1)
         end
     end
 
@@ -664,8 +664,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::getNSDataType0sForAsteroid(asteroid)
-    def self.getNSDataType0sForAsteroid(asteroid)
+    # Asteroids::getNSDataPointsForAsteroid(asteroid)
+    def self.getNSDataPointsForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 

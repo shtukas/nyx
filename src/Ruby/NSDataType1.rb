@@ -24,30 +24,29 @@ class NSDataType1
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataType1::toString(point)
-    def self.toString(point)
-        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{point["uuid"]}"
+    # NSDataType1::toString(node)
+    def self.toString(node)
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
-
-        ns0s = NSDataType1::getFramesInTimeOrder(point)
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(point)
+        datalines = NSDataType1::getNodeDatalinesInTimeOrder(node)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then
-            str = "[node] [#{point["uuid"][0, 4]}] #{description}"
+            str = "[node] [#{node["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        if description.nil? and ns0s.size > 0 then
-            str = "[node] [#{point["uuid"][0, 4]}] #{NSDataType0s::frameToString(ns0s.last)}"
+        if description.nil? and datalines.size > 0 then
+            str = "[node] [#{node["uuid"][0, 4]}] #{NSDataLine::toString(datalines.first)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        if description.nil? and ns0s.size == 0 then
-            str = "[node] [#{point["uuid"][0, 4]}] {no description, no frame}"
+        if description.nil? and datalines.size == 0 then
+            str = "[node] [#{node["uuid"][0, 4]}] {no description, no dataline}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        "[node] [#{point["uuid"][0, 4]}] [error: 752a3db2 ; pathological node: #{point["uuid"]}]"
+        raise "[error: 2b22ddb3-62c4-4940-987a-7a50330dcd36]"
     end
 
     # NSDataType1::getReferenceUnixtime(ns)
@@ -55,16 +54,10 @@ class NSDataType1
         DateTime.parse(NSDataType1::getObjectReferenceDateTime(ns)).to_time.to_f
     end
 
-    # NSDataType1::getFramesInTimeOrder(point)
-    def self.getFramesInTimeOrder(point)
-        Arrows::getTargetsOfGivenSetsForSource(point, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+    # NSDataType1::getNodeDatalinesInTimeOrder(node)
+    def self.getNodeDatalinesInTimeOrder(node)
+        Arrows::getTargetsOfGivenSetsForSource(node, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-    end
-
-    # NSDataType1::getLastFrameOrNull(point)
-    def self.getLastFrameOrNull(point)
-        NSDataType1::getFramesInTimeOrder(point)
-            .last
     end
 
     # NSDataType1::issueDescriptionInteractivelyOrNothing(point)
@@ -81,34 +74,12 @@ class NSDataType1
         node = NSDataType1::issue()
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         if LucilleCore::askQuestionAnswerAsBoolean("Create node content frame ? : ") then
-            ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
+            ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
             if ns0 then
                 Arrows::issueOrException(node, ns0)
             end
         end
         node
-    end
-
-    # NSDataType1::openLastFrame(point)
-    def self.openLastFrame(point)
-        frame = NSDataType1::getLastFrameOrNull(point)
-        if frame.nil? then
-            puts "I could not find any frames for this point. Aborting"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        NSDataType0s::openFrame(point, frame)
-    end
-
-    # NSDataType1::editLastFrame(point)
-    def self.editLastFrame(point)
-        frame = NSDataType1::getLastFrameOrNull(point)
-        if frame.nil? then
-            puts "I could not find any frames for this point. Aborting"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        NSDataType0s::editFrame(point, frame)
     end
 
     # NSDataType1::type1MatchesPattern(point, pattern)
@@ -126,7 +97,7 @@ class NSDataType1
 
     # NSDataType1::destroyProcedure(point)
     def self.destroyProcedure(point)
-        folderpath = DeskOperator::deskFolderpathForNSDataType1(point)
+        folderpath = DeskOperator::deskFolderpathForNSDataline(point)
         if File.exists?(folderpath) then
             LucilleCore::removeFileSystemLocation(folderpath)
         end
@@ -152,24 +123,24 @@ class NSDataType1
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
     end
 
-    # NSDataType1::landing(object)
-    def self.landing(object)
+    # NSDataType1::landing(node)
+    def self.landing(node)
 
         loop {
 
-            return if NyxObjects::getOrNull(object["uuid"]).nil?
+            return if NyxObjects::getOrNull(node["uuid"]).nil?
             system("clear")
 
-            NSDataType1::decacheObjectMetadata(object)
+            NSDataType1::decacheObjectMetadata(node)
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            # Decache the object
+            # Decache the node
 
             Miscellaneous::horizontalRule()
 
             if Miscellaneous::isAlexandra() then
-                Asteroids::getAsteroidsForType1(object).each{|asteroid|
+                Asteroids::getAsteroidsForType1(node).each{|asteroid|
                     menuitems.item(
                         "parent: #{Asteroids::asteroidToString(asteroid)}",
                         lambda { Asteroids::landing(asteroid) }
@@ -177,7 +148,7 @@ class NSDataType1
                 }
             end
 
-            upstream = NSDataType1::getUpstreamType1s(object)
+            upstream = NSDataType1::getUpstreamType1s(node)
             upstream = NSDataType1::applyDateTimeOrderToType1s(upstream)
             upstream.each{|o|
                 menuitems.item(
@@ -190,14 +161,14 @@ class NSDataType1
 
             puts "[node]"
 
-            description = NSDataType1::getObjectDescriptionOrNull(object)
+            description = NSDataType1::getObjectDescriptionOrNull(node)
             if description then
                 puts "    description: #{description}"
             end
-            puts "    uuid: #{object["uuid"]}"
-            puts "    date: #{NSDataType1::getObjectReferenceDateTime(object)}"
+            puts "    uuid: #{node["uuid"]}"
+            puts "    date: #{NSDataType1::getObjectReferenceDateTime(node)}"
 
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object)
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node)
             if notetext and notetext.strip.size > 0 then
                 Miscellaneous::horizontalRule()
                 puts "Note:"
@@ -205,28 +176,23 @@ class NSDataType1
             end
 
             Miscellaneous::horizontalRule()
+            NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
+                NSDataLine::decacheObjectMetadata(dataline)
+                ordinal1 = menuitems.ordinal(lambda { NSDataLine::openLastDataPointOrNothing(dataline) })
+                ordinal2 = menuitems.ordinal(lambda { NSDataLine::editLastDataPointOrNothing(dataline) })
+                puts "[open: #{ordinal1}] [edit: #{ordinal2}] #{NSDataLine::toString(dataline)}"
+            }
 
-            ns0 = NSDataType1::getLastFrameOrNull(object)
-            if ns0 then
-                NSDataType0s::decacheObjectMetadata(ns0)
-                ordinal = menuitems.ordinal(lambda { NSDataType1::openLastFrame(object) })
-                puts "[ #{ordinal}] #{NSDataType0s::frameToString(ns0)}"
+            ordinal = menuitems.ordinal(lambda {
+                ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
+                return if ns0.nil?
+                Arrows::issueOrException(node, ns0)
+            })
+            puts "[ #{ordinal}] issue new data point"
 
-                ordinal = menuitems.ordinal(lambda {
-                    ns0 = NSDataType1::getLastFrameOrNull(object)
-                    NSDataType0s::editFrame(object, ns0)
-                })
-                puts "[ #{ordinal}] edit data point"
+            Miscellaneous::horizontalRule()
 
-                ordinal = menuitems.ordinal(lambda {
-                    ns0 = NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-                    return if ns0.nil?
-                    Arrows::issueOrException(object, ns0)
-                })
-                puts "[ #{ordinal}] issue new data point"
-            end
-
-            downstream = NSDataType1::getDownstreamType1s(object)
+            downstream = NSDataType1::getDownstreamType1s(node)
             downstream = NSDataType1::applyDateTimeOrderToType1s(downstream)
             downstream.each{|o|
                 menuitems.item(
@@ -237,14 +203,14 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            description = NSDataType1::getObjectDescriptionOrNull(object)
+            description = NSDataType1::getObjectDescriptionOrNull(node)
             if description then
                 menuitems.item(
                     "edit description",
                     lambda{
                         description = Miscellaneous::editTextSynchronously(description).strip
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(object, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
                     }
                 )
             else
@@ -253,7 +219,7 @@ class NSDataType1
                     lambda{
                         description = LucilleCore::askQuestionAnswerAsString("description: ")
                         return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(object, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
                     }
                 )
             end
@@ -262,9 +228,9 @@ class NSDataType1
                 menuitems.item(
                     "edit reference datetime",
                     lambda{
-                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getObjectReferenceDateTime(object)).strip
+                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getObjectReferenceDateTime(node)).strip
                         return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(object, datetime)
+                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(node, datetime)
                     }
                 )
             end
@@ -273,9 +239,9 @@ class NSDataType1
             menuitems.item(
                 "edit note",
                 lambda{ 
-                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(object) || ""
+                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node) || ""
                     text = Miscellaneous::editTextSynchronously(text).strip
-                    NSDataTypeXExtended::issueNoteForTarget(object, text)
+                    NSDataTypeXExtended::issueNoteForTarget(node, text)
                 }
             )
 
@@ -283,9 +249,9 @@ class NSDataType1
             menuitems.item(
                 "attach parent node",
                 lambda {
-                    node = NSDT1Extended::selectExistingOrMakeNewType1()
-                    return if node.nil?
-                    Arrows::issueOrException(node, object)
+                    n = NSDT1Extended::selectExistingOrMakeNewType1()
+                    return if n.nil?
+                    Arrows::issueOrException(n, node)
                 }
             )
 
@@ -293,9 +259,9 @@ class NSDataType1
                 menuitems.item(
                     "detach parent node",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getUpstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getUpstreamType1s(node), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
-                        Arrows::remove(ns, object)
+                        Arrows::remove(ns, node)
                     }
                 )
             end
@@ -305,7 +271,7 @@ class NSDataType1
                 lambda {
                     o = NSDT1Extended::selectExistingType1InteractivelyOrNull()
                     return if o.nil?
-                    Arrows::issueOrException(object, o)
+                    Arrows::issueOrException(node, o)
                 }
             )
 
@@ -314,7 +280,7 @@ class NSDataType1
                 lambda {
                     o = NSDataType1::issueNewType1InteractivelyOrNull()
                     return if o.nil?
-                    Arrows::issueOrException(object, o)
+                    Arrows::issueOrException(node, o)
                 }
             )
 
@@ -322,31 +288,31 @@ class NSDataType1
                 menuitems.item(
                     "detach child node",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", NSDataType1::getDownstreamType1s(object), lambda{|o| NSDataType1::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getDownstreamType1s(node), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
-                        Arrows::remove(ns, object)
+                        Arrows::remove(ns, node)
                     }
                 )
             end
 
             if Miscellaneous::isAlexandra() then
                 menuitems.item(
-                    "remove [this] as intermediary object", 
+                    "remove [this] as intermediary node", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        NSDataType1::getUpstreamType1s(object).each{|upstreamnode|
+                        NSDataType1::getUpstreamType1s(node).each{|upstreamnode|
                             puts "upstreamnode   : #{NSDataType1::toString(upstreamnode)}"
                         }
-                        NSDataType1::getDownstreamType1s(object).each{|downstreampoint|
+                        NSDataType1::getDownstreamType1s(node).each{|downstreampoint|
                             puts "downstreampoint: #{NSDataType1::toString(downstreampoint)}"
                         }
-                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary object ? ")
-                        NSDataType1::getUpstreamType1s(object).each{|upstreamnode|
-                            NSDataType1::getDownstreamType1s(object).each{|downstreampoint|
+                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
+                        NSDataType1::getUpstreamType1s(node).each{|upstreamnode|
+                            NSDataType1::getDownstreamType1s(node).each{|downstreampoint|
                                 Arrows::issueOrException(upstreamnode, downstreampoint)
                             }
                         }
-                        NyxObjects::destroy(object)
+                        NyxObjects::destroy(node)
                     }
                 )
             end
@@ -355,24 +321,24 @@ class NSDataType1
                 menuitems.item(
                     "select nodes ; move to a new child node",
                     lambda {
-                        return if NSDataType1::getDownstreamType1s(object).size == 0
+                        return if NSDataType1::getDownstreamType1s(node).size == 0
 
                         # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("object", [], NSDataType1::getDownstreamType1s(object), lambda{ |o| NSDataType1::toString(o) })
+                        points, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamType1s(node), lambda{ |o| NSDataType1::toString(o) })
                         return if points.size == 0
 
-                        # Creating the object
-                        newobject = NSDataType1::issueNewType1InteractivelyOrNull()
+                        # Creating the node
+                        newnode = NSDataType1::issueNewType1InteractivelyOrNull()
 
-                        # Setting the object as target of this one
-                        Arrows::issueOrException(object, newobject)
+                        # Setting the node as target of this one
+                        Arrows::issueOrException(node, newnode)
 
                         # Moving the points
                         points.each{|o|
-                            Arrows::issueOrException(newobject, o)
+                            Arrows::issueOrException(newnode, o)
                         }
                         points.each{|o|
-                            Arrows::remove(object, o)
+                            Arrows::remove(node, o)
                         }
                     }
                 )
@@ -382,8 +348,8 @@ class NSDataType1
                 menuitems.item(
                     "destroy [this]",
                     lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this object ? ") then
-                            NSDataType1::destroyProcedure(object)
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
+                            NSDataType1::destroyProcedure(node)
                         end
                     }
                 )

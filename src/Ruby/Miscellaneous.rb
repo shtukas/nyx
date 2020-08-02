@@ -230,7 +230,7 @@ class Miscellaneous
             end
 
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            ns0 = NSDataType0s::issueAionPoint(namedhash)
+            ns0 = NSDataPoint::issueAionPoint(namedhash)
             puts JSON.pretty_generate(ns0)
             ns1 = NSDataType1::issue()
             Arrows::issueOrException(ns1, ns0)

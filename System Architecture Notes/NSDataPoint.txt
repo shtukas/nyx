@@ -1,7 +1,7 @@
 
-NSDataType0s are immutable data points.
+NSDataPoints are immutable data points.
 
-NSDataType0
+NSDataPoint
 
 {
     "uuid"         : String

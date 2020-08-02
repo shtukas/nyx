@@ -1,0 +1,8 @@
+
+NSDataLine define a sequence ordered by unixtimes of NSDataPoint, the relation is an arrow.
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
+    "unixtime"     : Float
+}

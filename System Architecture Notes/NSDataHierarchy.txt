@@ -1,4 +1,4 @@
-NSDataType0 # Immutable Data Point
+NSDataPoint # Immutable DataPoint
     -> line
     -> url
     -> text
@@ -6,7 +6,12 @@ NSDataType0 # Immutable Data Point
     -> aion-point
     -> unique-name
 
-NSDataType1: Mutable Data Point & Navigation Node
+NSDataLine # mutable data
+    -> Array[NSDataPoint]
+
+NSDataType1: Navigation Node
+    -> NSDataType1
+    -> NSDataLine
 
 Asteroid 
-    Contains Array[NSDataType1]
+    -> Array[NSDataType1]

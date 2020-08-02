@@ -3,14 +3,14 @@
 
 class DeskOperator
 
-    # DeskOperator::deskFolderpathForNSDataType1(ns1)
-    def self.deskFolderpathForNSDataType1(ns1)
+    # DeskOperator::deskFolderpathForNSDataline(ns1)
+    def self.deskFolderpathForNSDataline(ns1)
         "#{Realms::getDeskFolderpath()}/#{ns1["uuid"]}"
     end
 
-    # DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns1, ns0)
-    def self.deskFolderpathForNSDataType0CreateIfNotExists(ns1, ns0)
-        desk_folderpath_for_ns1 = DeskOperator::deskFolderpathForNSDataType1(ns1)
+    # DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(ns1, ns0)
+    def self.deskFolderpathForNSDatalineCreateIfNotExists(ns1, ns0)
+        desk_folderpath_for_ns1 = DeskOperator::deskFolderpathForNSDataline(ns1)
         if !File.exists?(desk_folderpath_for_ns1) then
             FileUtils.mkpath(desk_folderpath_for_ns1)
             namedhash = ns0["namedhash"]
@@ -31,25 +31,25 @@ class DeskOperator
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
         LucilleCore::locationsAtFolder(Realms::getDeskFolderpath()).each{|location|
-            pointuuid = File.basename(location)
-            point = NSDataType1::getOrNull(pointuuid)
-            next if point.nil?
-            puts NSDataType1::toString(point)
-            ns0 = NSDataType1::getLastFrameOrNull(point)
-            next if ns0.nil?
-            if ns0["type"] != "aion-point" then # Looks like the point has been transmuted after it was exported as a aion-point
+            datalineuuid = File.basename(location)
+            dataline = NSDataLine::getOrNull(datalineuuid)
+            next if dataline.nil?
+            puts NSDataLine::toString(dataline)
+            datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
+            next if datapoint.nil?
+            if datapoint["type"] != "aion-point" then # Looks like the point has been transmuted after it was exported as a aion-point
                 LucilleCore::removeFileSystemLocation(location)
                 next
             end
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            if namedhash == ns0["namedhash"] then # No change since exported
+            if namedhash == datapoint["namedhash"] then # No change since exported
                 LucilleCore::removeFileSystemLocation(location)
                 next
             end
-            newns0 = NSDataType0s::issueAionPoint(namedhash)
-            Arrows::issueOrException(point, newns0)
-            puts "new ns0:"
-            puts JSON.pretty_generate(newns0)
+            newdatapoint = NSDataPoint::issueAionPoint(namedhash)
+            Arrows::issueOrException(dataline, newdatapoint)
+            puts "new newdatapoint:"
+            puts JSON.pretty_generate(newdatapoint)
             LucilleCore::removeFileSystemLocation(location)
         }
     end

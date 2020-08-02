@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NSDataType0s
+class NSDataPoint
 
-    # NSDataType0s::selectOneLocationOnTheDesktopOrNull()
+    # NSDataPoint::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -13,7 +13,7 @@ class NSDataType0s
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # NSDataType0s::issueLine(line)
+    # NSDataPoint::issueLine(line)
     def self.issueLine(line)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -26,7 +26,7 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::issueUrl(url)
+    # NSDataPoint::issueUrl(url)
     def self.issueUrl(url)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -39,7 +39,7 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::issueText(text)
+    # NSDataPoint::issueText(text)
     def self.issueText(text)
         namedhash = NyxBlobs::put(text)
         object = {
@@ -53,12 +53,12 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::typeA02CB78ERegularExtensions()
+    # NSDataPoint::typeA02CB78ERegularExtensions()
     def self.typeA02CB78ERegularExtensions()
         [".jpg", ".jpeg", ".png", ".pdf"]
     end
 
-    # NSDataType0s::issueTypeA02CB78E(filepath)
+    # NSDataPoint::issueTypeA02CB78E(filepath)
     def self.issueTypeA02CB78E(filepath)
         raise "[error: 060bc858-c5ff-4e23-bbbf-5e0e81911476]" if !File.exists?(filepath)
         extensionWithDot = File.extname(filepath).downcase
@@ -84,7 +84,7 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::issueAionPoint(namedhash)
+    # NSDataPoint::issueAionPoint(namedhash)
     def self.issueAionPoint(namedhash)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -97,7 +97,7 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::issueUniqueName(uniquename)
+    # NSDataPoint::issueUniqueName(uniquename)
     def self.issueUniqueName(uniquename)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -110,8 +110,8 @@ class NSDataType0s
         object
     end
 
-    # NSDataType0s::getNSDataType0Types()
-    def self.getNSDataType0Types()
+    # NSDataPoint::getNSDataPointTypes()
+    def self.getNSDataPointTypes()
         if Realms::isCatalyst() then
             return ["line", "url", "text", "picture(+)", "fs-location aion-point", "unique-name"]
         end
@@ -121,9 +121,9 @@ class NSDataType0s
         Realms::raiseException()
     end
 
-    # NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
+    # NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
     def self.issueTypeA02CB78EInteractivelyOrNull()
-        filepath = NSDataType0s::selectOneLocationOnTheDesktopOrNull()
+        filepath = NSDataPoint::selectOneLocationOnTheDesktopOrNull()
         return nil if filepath.nil?
         extension = File.extname(filepath).downcase
         if extension == "" then
@@ -131,7 +131,7 @@ class NSDataType0s
             LucilleCore::pressEnterToContinue()
             return nil
         end
-        if !NSDataType0s::typeA02CB78ERegularExtensions().include?(extension) then
+        if !NSDataPoint::typeA02CB78ERegularExtensions().include?(extension) then
             puts "I can see that the extension of this file is not... registered."
             status = LucilleCore::askQuestionAnswerAsBoolean("Continue ? : ")
             if status then
@@ -141,46 +141,46 @@ class NSDataType0s
                 return nil
             end
         end
-        return NSDataType0s::issueTypeA02CB78E(filepath)
+        return NSDataPoint::issueTypeA02CB78E(filepath)
     end
 
-    # NSDataType0s::issueNewNSDataType0InteractivelyOrNull()
-    def self.issueNewNSDataType0InteractivelyOrNull()
-        types = NSDataType0s::getNSDataType0Types()
+    # NSDataPoint::issueNewPointInteractivelyOrNull()
+    def self.issueNewPointInteractivelyOrNull()
+        types = NSDataPoint::getNSDataPointTypes()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
-            return NSDataType0s::issueLine(line)
+            return NSDataPoint::issueLine(line)
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
-            return NSDataType0s::issueUrl(url)
+            return NSDataPoint::issueUrl(url)
         end
         if type == "text" then
             text = Miscellaneous::editTextSynchronously("").strip
             return nil if text.size == 0
-            return NSDataType0s::issueText(text)
+            return NSDataPoint::issueText(text)
         end
         if type == "picture(+)" then
-            return NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
+            return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
         end
         if type == "fs-location aion-point" then
-            location = NSDataType0s::selectOneLocationOnTheDesktopOrNull()
+            location = NSDataPoint::selectOneLocationOnTheDesktopOrNull()
             return nil if location.nil?
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return NSDataType0s::issueAionPoint(namedhash)
+            return NSDataPoint::issueAionPoint(namedhash)
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             return nil if uniquename.size == 0
-            return NSDataType0s::issueUniqueName(uniquename)
+            return NSDataPoint::issueUniqueName(uniquename)
         end
     end
 
-    # NSDataType0s::extractADescriptionFromAionPointOrNull(point)
+    # NSDataPoint::extractADescriptionFromAionPointOrNull(point)
     def self.extractADescriptionFromAionPointOrNull(point)
         if point["aionType"] == "file" then
             return point["name"]
@@ -189,18 +189,18 @@ class NSDataType0s
             return nil if point["items"].size != 0
             return nil if point["items"].size == 0
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(point["items"][0]))
-            return NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint)
+            return NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint)
         end
         return "[unknown aion point]"
     end
 
-    # NSDataType0s::decacheObjectMetadata(ns0)
+    # NSDataPoint::decacheObjectMetadata(ns0)
     def self.decacheObjectMetadata(ns0)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
     end
 
-    # NSDataType0s::frameToStringUseTheForce(ns0)
-    def self.frameToStringUseTheForce(ns0)
+    # NSDataPoint::pointToStringUseTheForce(ns0)
+    def self.pointToStringUseTheForce(ns0)
         if ns0["type"] == "line" then
             return "[data] #{ns0["line"]}"
         end
@@ -219,26 +219,26 @@ class NSDataType0s
         end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
-            description = NSDataType0s::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
+            description = NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
             return "[data] [aion tree] #{description}"
         end
         if ns0["type"] == "unique-name" then
             return "[data] unique name: #{ns0["name"]}"
         end
-        raise "[NSDataType0s error 2c53b113-cc79]"
+        raise "[NSDataPoint error 2c53b113-cc79]"
     end
 
-    # NSDataType0s::frameToString(ns0)
-    def self.frameToString(ns0)
+    # NSDataPoint::pointToString(ns0)
+    def self.pointToString(ns0)
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
         return str if str
-        str = NSDataType0s::frameToStringUseTheForce(ns0)
+        str = NSDataPoint::pointToStringUseTheForce(ns0)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
         str
     end
 
-    # NSDataType0s::openFrame(ns1, ns0)
-    def self.openFrame(ns1, ns0)
+    # NSDataPoint::openPoint(owner, ns0)
+    def self.openPoint(owner, ns0)
         if ns0["type"] == "line" then
             puts ns0["line"]
             LucilleCore::pressEnterToContinue()
@@ -267,7 +267,7 @@ class NSDataType0s
             return
         end
         if ns0["type"] == "aion-point" then
-            folderpath = DeskOperator::deskFolderpathForNSDataType0CreateIfNotExists(ns1, ns0)
+            folderpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(owner, ns0)
             system("open '#{folderpath}'")
             return
         end
@@ -294,22 +294,22 @@ class NSDataType0s
             return
         end
         puts ns0
-        raise "[NSDataType0 error 4bf5cfb1-c2a2]"
+        raise "[NSDataPoint error 4bf5cfb1-c2a2]"
     end
 
-    # NSDataType0s::editFrame(ns1, ns0)
-    def self.editFrame(ns1, ns0)
+    # NSDataPoint::editPoint(ns1, ns0)
+    def self.editPoint(ns1, ns0)
         if ns0["type"] == "line" then
             line = ns0["line"]
             line = Miscellaneous::editTextSynchronously(line).strip
-            newframe = NSDataType0s::issueLine(line)
+            newframe = NSDataPoint::issueLine(line)
             Arrows::issueOrException(ns1, newframe)
             return
         end
         if ns0["type"] == "url" then
             url = ns0["url"]
             url = Miscellaneous::editTextSynchronously(url).strip
-            newframe = NSDataType0s::issueUrl(url)
+            newframe = NSDataPoint::issueUrl(url)
             Arrows::issueOrException(ns1, newframe)
             return
         end
@@ -317,14 +317,14 @@ class NSDataType0s
             namedhash = ns0["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash)
             text = Miscellaneous::editTextSynchronously(text)
-            newframe = NSDataType0s::issueText(text)
+            newframe = NSDataPoint::issueText(text)
             Arrows::issueOrException(ns1, newframe)
             return
         end
         if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
             puts "pictures(+) are not directly editable"
             if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same point ? : ") then
-                newframe = NSDataType0s::issueTypeA02CB78EInteractivelyOrNull()
+                newframe = NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
                 return if newframe.nil?
                 Arrows::issueOrException(ns1, newframe)
             end
@@ -337,11 +337,11 @@ class NSDataType0s
         end
         if ns0["type"] == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-            newframe = NSDataType0s::issueUniqueName(uniquename)
+            newframe = NSDataPoint::issueUniqueName(uniquename)
             Arrows::issueOrException(ns1, newframe)
             return
         end
         puts ns0
-        raise "[NSDataType0 error 93e453d8]"
+        raise "[NSDataPoint error 93e453d8]"
     end
 end

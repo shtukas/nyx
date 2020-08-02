@@ -3,7 +3,7 @@ Nyx
 
     Data
 
-        NSDataType0   # NSDataType0s.txt
+        NSDataPoint   # NSDataPoint.txt
                       # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
 
         NSDataType1   # NSDataType1.txt

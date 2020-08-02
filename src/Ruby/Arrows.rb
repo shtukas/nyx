@@ -3,17 +3,6 @@
 
 class Arrows
 
-    # Arrows::make(source, target)
-    def self.make(source, target)
-        {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "d83a3ff5-023e-482c-8658-f7cfdbb6b738",
-            "unixtime"   => Time.new.to_f,
-            "sourceuuid" => source["uuid"],
-            "targetuuid" => target["uuid"]
-        }
-    end
-
     # Arrows::issueOrException(source, target)
     def self.issueOrException(source, target)
         raise "[error: bc82b3b6]" if (source["uuid"] == target["uuid"])
@@ -27,8 +16,13 @@ class Arrows
             raise "[error: 23b2e534]" if arrow.nil?
             return arrow
         end
-
-        arrow = Arrows::make(source, target)
+        arrow = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "d83a3ff5-023e-482c-8658-f7cfdbb6b738",
+            "unixtime"   => Time.new.to_f,
+            "sourceuuid" => source["uuid"],
+            "targetuuid" => target["uuid"]
+        }
         NyxObjects::put(arrow)
         arrow
     end
