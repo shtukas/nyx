@@ -121,6 +121,9 @@ class NSDataType1
     # NSDataType1::decacheObjectMetadata(node)
     def self.decacheObjectMetadata(node)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
+        NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
+            NSDataLine::decacheObjectMetadata(dataline)
+        }
     end
 
     # NSDataType1::landing(node)

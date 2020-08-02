@@ -210,7 +210,7 @@ class NSDataPoint
         if ns0["type"] == "text" then
             namedhashToFirstLine = lambda {|namedhash|
                 text = NyxBlobs::getBlobOrNull(namedhash).strip
-                line = text.size>0 ? "[data] [text] #{text.lines.first.strip}" : "[data] [text] [empty]"
+                line = text.size>0 ? "[point] [text] #{text.lines.first.strip}" : "[point] [text] [empty]"
             }
             return "#{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
@@ -343,5 +343,10 @@ class NSDataPoint
         end
         puts ns0
         raise "[NSDataPoint error 93e453d8]"
+    end
+
+    # NSDataPoint::decacheObjectMetadata(datapoint)
+    def self.decacheObjectMetadata(datapoint)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
     end
 end

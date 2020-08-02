@@ -81,6 +81,9 @@ class NSDataLine
     # NSDataLine::decacheObjectMetadata(dataline)
     def self.decacheObjectMetadata(dataline)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}")
+        NSDataLine::getDatalineDataPointsInTimeOrder(dataline).each{|datapoint|
+            NSDataPoint::decacheObjectMetadata(datapoint)
+        }
     end
 
 end
