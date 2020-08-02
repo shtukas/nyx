@@ -125,7 +125,7 @@ class NSDT1Extended
         node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
         return node if node
         return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing node. Would you like to make a new one ? : ")
-        NSDataType1::issueNewType1InteractivelyOrNull()
+        NSDataType1::issueNewNodeInteractivelyOrNull()
     end
 
     # NSDT1Extended::interactiveSearchAndExplore()

@@ -38,7 +38,7 @@ class DataPortalUI
             ms.item(
                 "new node",
                 lambda { 
-                    point = NSDataType1::issueNewType1InteractivelyOrNull()
+                    point = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if point.nil?
                     NSDataType1::landing(point)
                 }
@@ -233,9 +233,9 @@ class DataPortalUI
             )
 
             ms.item(
-                "Make new point",
+                "Make new node",
                 lambda { 
-                    ns1 = NSDataType1::issueNewType1InteractivelyOrNull()
+                    ns1 = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if ns1.nil?
                     NSDataType1::landing(ns1)
                 }
@@ -257,23 +257,22 @@ class DataPortalUI
                             return
                         end
 
-                        # Moving all the node upstreams of node2 towards node 1
-                        NSDataType1::getUpstreamType1s(node2).each{|x|
-                            puts "arrow (1): #{NSDataType1::toString(x)} -> #{NSDataType1::toString(node1)}"
-                        }
-                        # Moving all the downstreams of node2 toward node 1
-                        NSDataType1::getDownstreamType1s(node2).each{|x|
-                            puts "arrow (2): #{NSDataType1::toString(node1)} -> #{NSDataType1::toString(x)}"
-                        }
+                        puts "merging:"
+                        puts "    node1: #{NSDataType1::toString(node1)}"
+                        puts "    node2: #{NSDataType1::toString(node2)}"
 
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
-                        # Moving all the node upstreams of node2 towards node 1
+                        # Moving all the node upstreams of node2 towards node1
                         NSDataType1::getUpstreamType1s(node2).each{|x|
                             Arrows::issueOrException(x, node1)
                         }
-                        # Moving all the downstreams of node2 toward node 1
+                        # Moving all the downstreams of node2 toward node1
                         NSDataType1::getDownstreamType1s(node2).each{|x|
+                            Arrows::issueOrException(node1, x)
+                        }
+                        # Moving the datalines of node2 towards node1
+                        NSDataType1::getNodeDatalinesInTimeOrder(node2).each{|x|
                             Arrows::issueOrException(node1, x)
                         }
                         NyxObjects::destroy(node2)

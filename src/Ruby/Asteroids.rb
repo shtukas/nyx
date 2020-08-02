@@ -845,11 +845,11 @@ class Asteroids
                 menuitems.item(
                     "add new node",
                     lambda { 
-                        point = NSDataType1::issueNewType1InteractivelyOrNull()
-                        return if point.nil?
-                        Arrows::issueOrException(asteroid, point)
+                        node = NSDataType1::issueNewNodeInteractivelyOrNull()
+                        return if node.nil?
+                        Arrows::issueOrException(asteroid, node)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, point, ordinal)
+                        Asteroids::setPositionOrdinalForNodeAtAsteroid(asteroid, node, ordinal)
                     }
                 )
 

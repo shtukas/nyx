@@ -19,11 +19,19 @@ class NSDataLine
         NyxObjects::getOrNull(uuid)
     end
 
-    # NSDataLine::interactivelyAddNewDataPointToDataline(dataline)
-    def self.interactivelyAddNewDataPointToDataline(dataline)
+    # NSDataLine::interactivelyAddNewDataPointToDatalineOrNothing(dataline)
+    def self.interactivelyAddNewDataPointToDatalineOrNothing(dataline)
         ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
         return if ns0.nil?
         Arrows::issueOrException(dataline, ns0)
+    end
+
+    # NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+    def self.interactiveIssueNewDatalineWithItsFirstPointOrNull()
+        dataline = NSDataLine::issue()
+        NSDataLine::interactivelyAddNewDataPointToDatalineOrNothing(dataline)
+        return nil if NSDataLine::getDatalineDataPointsInTimeOrder(dataline).empty?
+        dataline
     end
 
     # NSDataLine::getDatalineDataPointsInTimeOrder(dataline)

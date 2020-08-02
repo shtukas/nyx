@@ -54,12 +54,6 @@ class NSDataType1
         DateTime.parse(NSDataType1::getObjectReferenceDateTime(ns)).to_time.to_f
     end
 
-    # NSDataType1::getNodeDatalinesInTimeOrder(node)
-    def self.getNodeDatalinesInTimeOrder(node)
-        Arrows::getTargetsOfGivenSetsForSource(node, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-    end
-
     # NSDataType1::issueDescriptionInteractivelyOrNothing(point)
     def self.issueDescriptionInteractivelyOrNothing(point)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -67,8 +61,8 @@ class NSDataType1
         NSDataTypeXExtended::issueDescriptionForTarget(point, description)
     end
 
-    # NSDataType1::issueNewType1InteractivelyOrNull()
-    def self.issueNewType1InteractivelyOrNull()
+    # NSDataType1::issueNewNodeInteractivelyOrNull()
+    def self.issueNewNodeInteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == "" 
         node = NSDataType1::issue()
@@ -187,11 +181,11 @@ class NSDataType1
             }
 
             ordinal = menuitems.ordinal(lambda {
-                ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
-                return if ns0.nil?
-                Arrows::issueOrException(node, ns0)
+                dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+                return if dataline.nil?
+                Arrows::issueOrException(node, dataline)
             })
-            puts "[ #{ordinal}] issue new data point"
+            puts "[ #{ordinal}] issue new dataline"
 
             Miscellaneous::horizontalRule()
 
@@ -281,7 +275,7 @@ class NSDataType1
             menuitems.item(
                 "attach child node (new)",
                 lambda {
-                    o = NSDataType1::issueNewType1InteractivelyOrNull()
+                    o = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
                 }
@@ -331,7 +325,7 @@ class NSDataType1
                         return if points.size == 0
 
                         # Creating the node
-                        newnode = NSDataType1::issueNewType1InteractivelyOrNull()
+                        newnode = NSDataType1::issueNewNodeInteractivelyOrNull()
 
                         # Setting the node as target of this one
                         Arrows::issueOrException(node, newnode)
@@ -389,6 +383,12 @@ class NSDataType1
                 i1["datetime"] <=> i2["datetime"]
             }
             .map{|i| i["object"] }
+    end
+
+    # NSDataType1::getNodeDatalinesInTimeOrder(node)
+    def self.getNodeDatalinesInTimeOrder(node)
+        Arrows::getTargetsOfGivenSetsForSource(node, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
     # ---------------------------------------------
