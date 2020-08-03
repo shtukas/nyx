@@ -60,22 +60,22 @@ class DataPortalUI
                     end
 
                     # Moving all the node upstreams of node2 towards node 1
-                    NSDataType1::getUpstreamType1s(node2).each{|x|
+                    NSDataType1::getUpstreamNodes(node2).each{|x|
                         puts "arrow (1): #{NSDataType1::toString(x)} -> #{NSDataType1::toString(node1)}"
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    NSDataType1::getDownstreamType1s(node2).each{|x|
+                    NSDataType1::getDownstreamNodes(node2).each{|x|
                         puts "arrow (2): #{NSDataType1::toString(node1)} -> #{NSDataType1::toString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the node upstreams of node2 towards node 1
-                    NSDataType1::getUpstreamType1s(node2).each{|x|
+                    NSDataType1::getUpstreamNodes(node2).each{|x|
                         Arrows::issueOrException(x, node1)
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    NSDataType1::getDownstreamType1s(node2).each{|x|
+                    NSDataType1::getDownstreamNodes(node2).each{|x|
                         Arrows::issueOrException(node1, x)
                     }
                     NyxObjects::destroy(node2) # Simple destroy, not the procedure,what happens if node2 had some contents ?
@@ -264,11 +264,11 @@ class DataPortalUI
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                         # Moving all the node upstreams of node2 towards node1
-                        NSDataType1::getUpstreamType1s(node2).each{|x|
+                        NSDataType1::getUpstreamNodes(node2).each{|x|
                             Arrows::issueOrException(x, node1)
                         }
                         # Moving all the downstreams of node2 toward node1
-                        NSDataType1::getDownstreamType1s(node2).each{|x|
+                        NSDataType1::getDownstreamNodes(node2).each{|x|
                             Arrows::issueOrException(node1, x)
                         }
                         # Moving the datalines of node2 towards node1

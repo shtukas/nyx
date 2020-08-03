@@ -145,7 +145,7 @@ class NSDataType1
                 }
             end
 
-            upstream = NSDataType1::getUpstreamType1s(node)
+            upstream = NSDataType1::getUpstreamNodes(node)
             upstream = NSDataType1::applyDateTimeOrderToType1s(upstream)
             upstream.each{|o|
                 menuitems.item(
@@ -189,7 +189,7 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            downstream = NSDataType1::getDownstreamType1s(node)
+            downstream = NSDataType1::getDownstreamNodes(node)
             downstream = NSDataType1::applyDateTimeOrderToType1s(downstream)
             downstream.each{|o|
                 menuitems.item(
@@ -256,7 +256,7 @@ class NSDataType1
                 menuitems.item(
                     "detach parent node",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getUpstreamType1s(node), lambda{|o| NSDataType1::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getUpstreamNodes(node), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, node)
                     }
@@ -285,7 +285,7 @@ class NSDataType1
                 menuitems.item(
                     "detach child node",
                     lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getDownstreamType1s(node), lambda{|o| NSDataType1::toString(o) })
+                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getDownstreamNodes(node), lambda{|o| NSDataType1::toString(o) })
                         return if ns.nil?
                         Arrows::remove(ns, node)
                     }
@@ -297,15 +297,15 @@ class NSDataType1
                     "remove [this] as intermediary node", 
                     lambda { 
                         puts "intermediary node removal simulation"
-                        NSDataType1::getUpstreamType1s(node).each{|upstreamnode|
+                        NSDataType1::getUpstreamNodes(node).each{|upstreamnode|
                             puts "upstreamnode   : #{NSDataType1::toString(upstreamnode)}"
                         }
-                        NSDataType1::getDownstreamType1s(node).each{|downstreampoint|
+                        NSDataType1::getDownstreamNodes(node).each{|downstreampoint|
                             puts "downstreampoint: #{NSDataType1::toString(downstreampoint)}"
                         }
                         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
-                        NSDataType1::getUpstreamType1s(node).each{|upstreamnode|
-                            NSDataType1::getDownstreamType1s(node).each{|downstreampoint|
+                        NSDataType1::getUpstreamNodes(node).each{|upstreamnode|
+                            NSDataType1::getDownstreamNodes(node).each{|downstreampoint|
                                 Arrows::issueOrException(upstreamnode, downstreampoint)
                             }
                         }
@@ -318,23 +318,50 @@ class NSDataType1
                 menuitems.item(
                     "select nodes ; move to a new child node",
                     lambda {
-                        return if NSDataType1::getDownstreamType1s(node).size == 0
+                        return if NSDataType1::getDownstreamNodes(node).size == 0
 
-                        # Selecting the points
-                        points, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamType1s(node), lambda{ |o| NSDataType1::toString(o) })
-                        return if points.size == 0
+                        # Selecting the nodes
+                        selectednodes, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamNodes(node), lambda{ |o| NSDataType1::toString(o) })
+                        return if selectednodes.size == 0
 
-                        # Creating the node
-                        newnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                        # Selecting or creating the node
+                        targetnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                        return if targetnode.nil?
 
                         # Setting the node as target of this one
-                        Arrows::issueOrException(node, newnode)
+                        Arrows::issueOrException(node, targetnode)
 
-                        # Moving the points
-                        points.each{|o|
-                            Arrows::issueOrException(newnode, o)
+                        # Moving the selectednodes
+                        selectednodes.each{|o|
+                            Arrows::issueOrException(targetnode, o)
                         }
-                        points.each{|o|
+                        selectednodes.each{|o|
+                            Arrows::remove(node, o)
+                        }
+                    }
+                )
+            end
+
+            if Miscellaneous::isAlexandra() then
+                menuitems.item(
+                    "select nodes ; move to an existing child node",
+                    lambda {
+                        return if NSDataType1::getDownstreamNodes(node).size == 0
+
+                        # Selecting the nodes to moves
+                        selectednodes, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamNodes(node), lambda{ |o| NSDataType1::toString(o) })
+                        return if selectednodes.size == 0
+
+                        # Selecting or creating the node
+                        possibleTargetNodes = NSDataType1::getDownstreamNodes(object)
+                        targetnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", possibleTargetNodes, lambda{|o| NSDataType1::toString(o) })
+                        return if targetnode.nil?
+
+                        # Moving the selectednodes
+                        selectednodes.each{|o|
+                            Arrows::issueOrException(targetnode, o)
+                        }
+                        selectednodes.each{|o|
                             Arrows::remove(node, o)
                         }
                     }
@@ -365,13 +392,13 @@ class NSDataType1
         Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
     end
 
-    # NSDataType1::getUpstreamType1s(object)
-    def self.getUpstreamType1s(object)
+    # NSDataType1::getUpstreamNodes(object)
+    def self.getUpstreamNodes(object)
         Arrows::getSourcesOfGivenSetsForTarget(object, [ "c18e8093-63d6-4072-8827-14f238975d04" ])
     end
 
-    # NSDataType1::getDownstreamType1s(object)
-    def self.getDownstreamType1s(object)
+    # NSDataType1::getDownstreamNodes(object)
+    def self.getDownstreamNodes(object)
         Arrows::getTargetsOfGivenSetsForSource(object, [ "c18e8093-63d6-4072-8827-14f238975d04" ])
     end
 
