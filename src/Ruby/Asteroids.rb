@@ -645,17 +645,19 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            ns1s = Asteroids::getNodeForAsteroid(asteroid)
-            if ns1s.size == 0 then
+            targets = Asteroids::getTargetsForAsteroid(asteroid)
+            if targets.size == 0 then
                 return
             end
-            if ns1s.size == 1 then
-                NSDataType1::landing(ns1s[0])
-                return
+            if targets.size == 1 then
+                target = targets.first
+                if Asteroids::isNode(target) then
+                    NSDataType1::landing(target)
+                end
+                if Asteroids::isDataline(target) then
+                    NSDataLine::openLastDataPointOrNothing(target)
+                end
             end
-            ns1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("ns1", ns1s, lambda{ |ns1| NSDataType1::toString(ns1) })
-            return if ns1.nil?
-            NSDataType1::landing(ns1)
         end
     end
 
