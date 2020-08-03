@@ -855,12 +855,14 @@ class Asteroids
                 Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, target = packet
                     if Asteroids::isNode(target) then
+                        NSDataType1::decacheObjectMetadata(target)
                         menuitems.item(
                             "(#{"%.5f" % ordinal}) #{NSDataType1::toString(target)}",
                             lambda { NSDataType1::landing(target) }
                         )
                     end
                     if Asteroids::isDataline(target) then
+                        NSDataLine::decacheObjectMetadata(target)
                         menuitems.item(
                             "(#{"%.5f" % ordinal}) #{NSDataLine::toString(target)}",
                             lambda { NSDataLine::openLastDataPointOrNothing(target) }

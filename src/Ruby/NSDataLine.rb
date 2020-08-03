@@ -79,7 +79,7 @@ class NSDataLine
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = NSDataPoint::pointToString(datapoints.last)
+            str = "[dataline] #{NSDataPoint::pointToString(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
