@@ -179,14 +179,14 @@ class Asteroids
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
     end
 
-    # Asteroids::getDatalineForAsteroid(asteroid)
-    def self.getDatalineForAsteroid(asteroid)
+    # Asteroids::getDatalinesForAsteroid(asteroid)
+    def self.getDatalinesForAsteroid(asteroid)
         Arrows::getTargetsOfGivenSetsForSource(asteroid, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
     end
 
     # Asteroids::getTargetsForAsteroid(asteroid)
     def self.getTargetsForAsteroid(asteroid)
-        Asteroids::getNodeForAsteroid(asteroid) + Asteroids::getDatalineForAsteroid(asteroid)
+        Asteroids::getNodeForAsteroid(asteroid) + Asteroids::getDatalinesForAsteroid(asteroid)
     end
 
     # Asteroids::targetToString(target)
@@ -904,6 +904,15 @@ class Asteroids
                 )
 
                 menuitems.item(
+                    "select dateline ; destroy",
+                    lambda {
+                        dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("dateline", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
+                        return if dataline.nil?
+                        NyxObjects::destroy(dataline)
+                    }
+                )
+
+                menuitems.item(
                     "select target ; set ordinal",
                     lambda { 
                         target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
@@ -946,6 +955,7 @@ class Asteroids
             end
             if option == "dive asteroids" then
                 loop {
+                    system("clear")
                     orbitalType = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", Asteroids::asteroidOrbitalTypes())
                     break if orbitalType.nil?
                     Asteroids::diveAsteroidOrbitalType(orbitalType)
