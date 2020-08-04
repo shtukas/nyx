@@ -67,7 +67,7 @@ class NSDataType1
         return nil if description == "" 
         node = NSDataType1::issue()
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-        if LucilleCore::askQuestionAnswerAsBoolean("Create node content frame ? : ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Create node data ? : ") then
             ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
             if ns0 then
                 Arrows::issueOrException(node, ns0)
