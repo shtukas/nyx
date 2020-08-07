@@ -120,10 +120,23 @@ class NSDataPoint
         object
     end
 
+    # NSDataPoint::issueNyxPod(nyxPodName)
+    def self.issueNyxPod(nyxPodName)
+        object = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"   => Time.new.to_f,
+            "type"       => "NyxPod",
+            "name"       => nyxPodName
+        }
+        NyxObjects::put(object)
+        object
+    end
+
     # NSDataPoint::getNSDataPointTypes()
     def self.getNSDataPointTypes()
         if Realms::isCatalyst() then
-            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "unique-name"]
+            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "unique-name", "NyxPod"]
         end
         if Realms::isDocnet() then
             return ["line", "url", "text", "picture(+)", "fs-location aion-point"]
@@ -188,6 +201,11 @@ class NSDataPoint
             return nil if uniquename.size == 0
             return NSDataPoint::issueUniqueName(uniquename)
         end
+        if type == "NyxPod" then
+            nyxpodname = LucilleCore::askQuestionAnswerAsString("pod name: ")
+            return nil if nyxpodname.size == 0
+            return NSDataPoint::issueNyxPod(nyxpodname)
+        end
     end
 
     # NSDataPoint::extractADescriptionFromAionPointOrNull(point)
@@ -234,6 +252,9 @@ class NSDataPoint
         end
         if ns0["type"] == "unique-name" then
             return "[datapoint] unique name: #{ns0["name"]}"
+        end
+        if ns0["type"] == "NyxPod" then
+            return "[datapoint] NyxPod: #{ns0["name"]}"
         end
         raise "[NSDataPoint error 2c53b113-cc79]"
     end
@@ -303,6 +324,29 @@ class NSDataPoint
             end
             return
         end
+        if ns0["type"] == "NyxPod" then
+            nyxpodname = ns0["name"]
+            location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
+            if location then
+                puts "location: #{location}"
+                if File.file?(location) then
+                    if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                        puts "opening safely openable file '#{location}'"
+                        system("open '#{location}'")
+                    else
+                        puts "opening parent folder of '#{location}'"
+                        system("open '#{File.dirname(location)}'")
+                    end
+                else
+                    puts "opening folder '#{location}'"
+                    system("open '#{location}'")
+                end
+            else
+                puts "I could not determine the location of #{nyxpodname}"
+                LucilleCore::pressEnterToContinue()
+            end
+            return
+        end
         puts ns0
         raise "[NSDataPoint error 4bf5cfb1-c2a2]"
     end
@@ -351,8 +395,12 @@ class NSDataPoint
             Arrows::issueOrException(ns1, newframe)
             return
         end
+        if ns0["type"] == "NyxPod" then
+            NSDataPoint::openPoint(ns1, ns0)
+            return
+        end
         puts ns0
-        raise "[NSDataPoint error 93e453d8]"
+        raise "[NSDataPoint error D1DC8EA1]"
     end
 
     # NSDataPoint::decacheObjectMetadata(datapoint)
