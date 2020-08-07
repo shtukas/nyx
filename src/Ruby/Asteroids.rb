@@ -602,35 +602,26 @@ class Asteroids
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-
-        if asteroid["payload"]["type"] == "metal" then
-            if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
-                puts "Ok, you want to keep them, I am going to make them review them one by one"
-                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, point = packet
-                    NSDataType1::landing(point)
-                }
-            else
-                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, point = packet
-                    NSDataType1::destroyProcedure(point)
-                }
-            end
-        end
-
-        NyxObjects::destroy(asteroid)
+        Asteroids::asteroidDestroySequence(asteroid)
     end
 
     # Asteroids::asteroidDestroySequence(asteroid)
     def self.asteroidDestroySequence(asteroid)
 
         if asteroid["payload"]["type"] == "metal" then
-            if LucilleCore::askQuestionAnswerAsBoolean("keep node(s) ? ") then
-                puts "Ok, you want to keep them, I am going to make them review them one by one"
-                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, point = packet
-                    NSDataType1::landing(point)
+            if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
+                puts Asteroids::asteroidToString(asteroid)
+                puts "Ok, you want to keep them, I am going to make them target of a new node"
+                LucilleCore::pressEnterToContinue()
+                # For this we are going to make a node with the same uuid as the asteroid and give into it
+                node = {
+                    "uuid"     => asteroid["uuid"],
+                    "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04", # node
+                    "unixtime" => Time.new.to_f
                 }
+                NyxObjects::reput(node)
+                NSDataType1::landing(node)
+
             else
                 Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, point = packet
