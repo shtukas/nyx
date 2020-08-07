@@ -5,12 +5,7 @@ class VideoStream
 
     # VideoStream::spaceFolderpath()
     def self.spaceFolderpath()
-        "/Users/pascal/x-space/YouTube Videos"
-    end
-
-    # VideoStream::energyGridFolderpath()
-    def self.energyGridFolderpath()
-        "/Volumes/EnergyGrid/Data/Pascal/01-Data/YouTube-Videos"
+        "/Users/pascal/Galaxy/YouTube Videos"
     end
 
     # VideoStream::videoFolderpathsAtFolder(folderpath)
@@ -36,25 +31,13 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        return 0 if BankExtended::hasReachedDailyTimeTargetInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 0.5)
-        0.55
+        0.2 + 0.7*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01")) - indx.to_f/1000000
     end
 
     # VideoStream::catalystObjects()
     def self.catalystObjects()
-        loop {
-            break if VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath()).size >= 40
-            break if VideoStream::videoFolderpathsAtFolder(VideoStream::energyGridFolderpath()).size == 0
-            filepath = VideoStream::videoFolderpathsAtFolder(VideoStream::energyGridFolderpath()).first
-            filename = File.basename(filepath)
-            targetFilepath = "#{VideoStream::spaceFolderpath()}/#{filename}"
-            FileUtils.mv(filepath, targetFilepath)
-            break if !File.exists?(targetFilepath)
-        }
 
-        if !File.exists?(VideoStream::spaceFolderpath()) then
-            return []
-        end
+        raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
 
         objects = []
 
