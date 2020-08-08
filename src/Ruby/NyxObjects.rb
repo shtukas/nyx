@@ -49,22 +49,6 @@ class NyxPrimaryObjects
         object
     end
 
-    # NyxPrimaryObjects::reput(object)
-    def self.reput(object)
-        if object["uuid"].nil? then
-            raise "[NyxPrimaryObjects::put 8d58ee87] #{object}"
-        end
-        if object["nyxNxSet"].nil? then
-            raise "[NyxPrimaryObjects::put d781f18f] #{object}"
-        end
-        if !NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxPrimaryObjects::nyxNxSets 50229c3e] #{object}"
-        end
-        filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
-        object
-    end
-
     # NyxPrimaryObjects::objectsEnumerator()
     def self.objectsEnumerator()
         Enumerator.new do |objects|
@@ -120,7 +104,7 @@ class NyxObjects
 
     # NyxObjects::cachingKeyPrefix()
     def self.cachingKeyPrefix()
-        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476ED:#{NyxObjects::getCacheKeySynchronizationMovingFragment()}"
+        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EE:#{NyxObjects::getCacheKeySynchronizationMovingFragment()}"
     end
 
     # NyxObjects::put(object)
@@ -142,18 +126,8 @@ class NyxObjects
     # NyxObjects::reput(object)
     # Only used by asteroids for recasting business stuff
     def self.reput(object)
-        NyxPrimaryObjects::reput(object)
-
-        uuid = object["uuid"]
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}", object)
-
-        # Then we put the object into its cached set
-        setid = object["nyxNxSet"]
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
-        return if set.nil?
-        set = set.reject{|o| o["uuid"] == object["uuid"] }
-        set << object
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
+        NyxObjects::destroy(object)
+        NyxObjects::put(object)
     end
 
     # NyxObjects::getOrNull(uuid)
