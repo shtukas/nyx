@@ -66,11 +66,12 @@ class NSDataType1
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == "" 
         node = NSDataType1::issue()
+        puts "node: #{JSON.pretty_generate(node)}"
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         if LucilleCore::askQuestionAnswerAsBoolean("Create node data ? : ") then
-            ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
-            if ns0 then
-                Arrows::issueOrException(node, ns0)
+            ns1 = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+            if ns1 then
+                Arrows::issueOrException(node, ns1)
             end
         end
         node
@@ -173,6 +174,7 @@ class NSDataType1
             end
 
             Miscellaneous::horizontalRule()
+
             NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
                 NSDataLine::decacheObjectMetadata(dataline)
                 ordinal1 = menuitems.ordinal(lambda { NSDataLine::openLastDataPointOrNothing(dataline) })
@@ -420,6 +422,12 @@ class NSDataType1
     # NSDataType1::getNodeDatalinesInTimeOrder(node)
     def self.getNodeDatalinesInTimeOrder(node)
         Arrows::getTargetsOfGivenSetsForSource(node, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
+            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+    end
+
+    # NSDataType1::getNodeDataPointsInTimeOrder(node)
+    def self.getNodeDataPointsInTimeOrder(node)
+        Arrows::getTargetsOfGivenSetsForSource(node, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 

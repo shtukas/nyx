@@ -310,13 +310,16 @@ class NSDataPoint
                     if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
                         puts "opening safely openable file '#{location}'"
                         system("open '#{location}'")
+                        LucilleCore::pressEnterToContinue()
                     else
                         puts "opening parent folder of '#{location}'"
                         system("open '#{File.dirname(location)}'")
+                        LucilleCore::pressEnterToContinue()
                     end
                 else
                     puts "opening folder '#{location}'"
                     system("open '#{location}'")
+                    LucilleCore::pressEnterToContinue()
                 end
             else
                 puts "I could not determine the location of unique name: #{uniquename}"
@@ -333,13 +336,16 @@ class NSDataPoint
                     if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
                         puts "opening safely openable file '#{location}'"
                         system("open '#{location}'")
+                        LucilleCore::pressEnterToContinue()
                     else
                         puts "opening parent folder of '#{location}'"
                         system("open '#{File.dirname(location)}'")
+                        LucilleCore::pressEnterToContinue()
                     end
                 else
                     puts "opening folder '#{location}'"
                     system("open '#{location}'")
+                    LucilleCore::pressEnterToContinue()
                 end
             else
                 puts "I could not determine the location of #{nyxpodname}"
