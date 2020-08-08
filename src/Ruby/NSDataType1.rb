@@ -14,6 +14,11 @@ class NSDataType1
         object
     end
 
+    # NSDataType1::isNode(target)
+    def self.isNode(target)
+        target["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
+    end
+
     # NSDataType1::objects()
     def self.objects()
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")

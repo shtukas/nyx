@@ -4,7 +4,8 @@ NSDataPoint # Immutable DataPoint
     -> text
     -> picture(+)
     -> aion-point
-    -> unique-name
+    -> NyxFile
+    -> NyxPod
 
 NSDataLine # mutable data
     -> Array[NSDataPoint]

@@ -13,7 +13,6 @@ class AtlasCore
     def self.allPossibleStandardScanRoots()
         roots = []
         roots << "/Users/pascal/Galaxy"
-        roots << "/Volumes/EnergyGrid/Data/Pascal/Galaxy"
         roots
     end
 

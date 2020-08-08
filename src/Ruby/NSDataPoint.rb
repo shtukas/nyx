@@ -107,19 +107,6 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueUniqueName(uniquename)
-    def self.issueUniqueName(uniquename)
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "unique-name",
-            "name"       => uniquename
-        }
-        NyxObjects::put(object)
-        object
-    end
-
     # NSDataPoint::issueNyxPod(nyxPodName)
     def self.issueNyxPod(nyxPodName)
         object = {
@@ -133,10 +120,23 @@ class NSDataPoint
         object
     end
 
+    # NSDataPoint::issueNyxFile(nyxFileName)
+    def self.issueNyxFile(nyxFileName)
+        object = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"   => Time.new.to_f,
+            "type"       => "NyxFile",
+            "name"       => nyxFileName
+        }
+        NyxObjects::put(object)
+        object
+    end
+
     # NSDataPoint::getNSDataPointTypes()
     def self.getNSDataPointTypes()
         if Realms::isCatalyst() then
-            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "unique-name", "NyxPod"]
+            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "NyxFile", "NyxPod"]
         end
         if Realms::isDocnet() then
             return ["line", "url", "text", "picture(+)", "fs-location aion-point"]
@@ -196,15 +196,15 @@ class NSDataPoint
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
             return NSDataPoint::issueAionPoint(namedhash)
         end
-        if type == "unique-name" then
-            uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-            return nil if uniquename.size == 0
-            return NSDataPoint::issueUniqueName(uniquename)
-        end
         if type == "NyxPod" then
-            nyxpodname = LucilleCore::askQuestionAnswerAsString("pod name: ")
+            nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
             return nil if nyxpodname.size == 0
             return NSDataPoint::issueNyxPod(nyxpodname)
+        end
+        if type == "NyxFile" then
+            nyxfilename = LucilleCore::askQuestionAnswerAsString("nyxfile name: ")
+            return nil if nyxfilename.size == 0
+            return NSDataPoint::issueNyxFile(nyxfilename)
         end
     end
 
@@ -250,8 +250,8 @@ class NSDataPoint
             description = NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
             return "[datapoint] [aion tree] #{description}"
         end
-        if ns0["type"] == "unique-name" then
-            return "[datapoint] unique name: #{ns0["name"]}"
+        if ns0["type"] == "NyxFile" then
+            return "[datapoint] NyxFile: #{ns0["name"]}"
         end
         if ns0["type"] == "NyxPod" then
             return "[datapoint] NyxPod: #{ns0["name"]}"
@@ -302,27 +302,22 @@ class NSDataPoint
             system("open '#{folderpath}'")
             return
         end
-        if ns0["type"] == "unique-name" then
-            uniquename = ns0["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
+        if ns0["type"] == "NyxFile" then
+            nyxfilename = ns0["name"]
+            location = AtlasCore::uniqueStringToLocationOrNull(nyxfilename)
             if location then
-                if File.file?(location) then
-                    if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
-                        puts "opening safely openable file '#{location}'"
-                        system("open '#{location}'")
-                        LucilleCore::pressEnterToContinue()
-                    else
-                        puts "opening parent folder of '#{location}'"
-                        system("open '#{File.dirname(location)}'")
-                        LucilleCore::pressEnterToContinue()
-                    end
-                else
-                    puts "opening folder '#{location}'"
+                puts "filepath: #{location}"
+                if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                    puts "opening safely openable file '#{location}'"
                     system("open '#{location}'")
+                    LucilleCore::pressEnterToContinue()
+                else
+                    puts "opening parent folder of '#{location}'"
+                    system("open '#{File.dirname(location)}'")
                     LucilleCore::pressEnterToContinue()
                 end
             else
-                puts "I could not determine the location of unique name: #{uniquename}"
+                puts "I could not determine the location of #{nyxfilename}"
                 LucilleCore::pressEnterToContinue()
             end
             return
@@ -331,22 +326,10 @@ class NSDataPoint
             nyxpodname = ns0["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
             if location then
-                puts "location: #{location}"
-                if File.file?(location) then
-                    if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
-                        puts "opening safely openable file '#{location}'"
-                        system("open '#{location}'")
-                        LucilleCore::pressEnterToContinue()
-                    else
-                        puts "opening parent folder of '#{location}'"
-                        system("open '#{File.dirname(location)}'")
-                        LucilleCore::pressEnterToContinue()
-                    end
-                else
-                    puts "opening folder '#{location}'"
-                    system("open '#{location}'")
-                    LucilleCore::pressEnterToContinue()
-                end
+                puts "folderpath: #{location}"
+                puts "opening folder '#{location}'"
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue()
             else
                 puts "I could not determine the location of #{nyxpodname}"
                 LucilleCore::pressEnterToContinue()
@@ -393,12 +376,6 @@ class NSDataPoint
         if ns0["type"] == "aion-point" then
             puts "aion points are edited through the desk management"
             LucilleCore::pressEnterToContinue()
-            return
-        end
-        if ns0["type"] == "unique-name" then
-            uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-            newframe = NSDataPoint::issueUniqueName(uniquename)
-            Arrows::issueOrException(ns1, newframe)
             return
         end
         if ns0["type"] == "NyxPod" then
