@@ -307,8 +307,7 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(asteroid["orbital"]["type"], 1)
-            return 0.65 + 0.05*Miscellaneous::metricCircle(1596122392)
+            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"]) - 0.1*BankExtended::recoveredDailyTimeInHours(asteroid["orbital"]["type"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
