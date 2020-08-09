@@ -118,6 +118,23 @@ class CatalystUI
                 verticalSpaceLeft = verticalSpaceLeft - 1
             end
 
+            Calendar::dates().each{|date|
+                next if verticalSpaceLeft <= 0
+                menuitems.item(
+                    "[calendar] #{date}",
+                    lambda { 
+                        filepath = Calendar::dateToFilepath(date)
+                        system("open '#{filepath}'")
+                    }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
+
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
+
             Asteroids::asteroids()
                 .select{|asteroid|
                     asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
