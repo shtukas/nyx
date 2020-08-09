@@ -308,11 +308,11 @@ class NSDataPoint
             if location then
                 puts "filepath: #{location}"
                 if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
-                    puts "opening safely openable file '#{location}'"
+                    puts "opening safely openable file"
                     system("open '#{location}'")
                     LucilleCore::pressEnterToContinue()
                 else
-                    puts "opening parent folder of '#{location}'"
+                    puts "opening parent folder"
                     system("open '#{File.dirname(location)}'")
                     LucilleCore::pressEnterToContinue()
                 end
@@ -326,7 +326,6 @@ class NSDataPoint
             nyxpodname = ns0["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
             if location then
-                puts "folderpath: #{location}"
                 puts "opening folder '#{location}'"
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
@@ -340,50 +339,74 @@ class NSDataPoint
         raise "[NSDataPoint error 4bf5cfb1-c2a2]"
     end
 
-    # NSDataPoint::editPoint(ns1, ns0)
-    def self.editPoint(ns1, ns0)
-        if ns0["type"] == "line" then
-            line = ns0["line"]
+    # NSDataPoint::editPointReturnNewPointOrNull(dataline, datapoint)
+    def self.editPointReturnNewPointOrNull(dataline, datapoint)
+        if datapoint["type"] == "line" then
+            line = datapoint["line"]
             line = Miscellaneous::editTextSynchronously(line).strip
-            newframe = NSDataPoint::issueLine(line)
-            Arrows::issueOrException(ns1, newframe)
-            return
+            return NSDataPoint::issueLine(line)
         end
-        if ns0["type"] == "url" then
-            url = ns0["url"]
+        if datapoint["type"] == "url" then
+            url = datapoint["url"]
             url = Miscellaneous::editTextSynchronously(url).strip
-            newframe = NSDataPoint::issueUrl(url)
-            Arrows::issueOrException(ns1, newframe)
-            return
+            return NSDataPoint::issueUrl(url)
         end
-        if ns0["type"] == "text" then
-            namedhash = ns0["namedhash"]
-            text = NyxBlobs::getBlobOrNull(namedhash)
+        if datapoint["type"] == "text" then
+            namedhash = datapoint["namedhash"]
+            text = NyxBlobs::getBlobOrNull(namedhash) # The code is currently written with the assumption that this always succeed.
             text = Miscellaneous::editTextSynchronously(text)
-            newframe = NSDataPoint::issueText(text)
-            Arrows::issueOrException(ns1, newframe)
-            return
+            return NSDataPoint::issueText(text)
         end
-        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
+        if datapoint["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
             puts "pictures(+) are not directly editable"
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same point ? : ") then
-                newframe = NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
-                return if newframe.nil?
-                Arrows::issueOrException(ns1, newframe)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same dataline ? : ") then
+                return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
+            else 
+                return nil
             end
-            return
         end
-        if ns0["type"] == "aion-point" then
-            puts "aion points are edited through the desk management"
-            LucilleCore::pressEnterToContinue()
-            return
+        if datapoint["type"] == "aion-point" then
+            exportpath = DeskOperator::deskexportpathForNSDatalineCreateIfNotExists(dataline, datapoint)
+            system("open '#{exportpath}'")
+            LucilleCore::pressEnterToContinue("Edit the aion-point and then press [enter] to continue: ")
+            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(exportpath)
+            if namedhash == datapoint["namedhash"] then
+                LucilleCore::removeFileSystemLocation(exportpath)
+                return nil
+            end
+            newdatapoint = NSDataPoint::issueAionPoint(namedhash)
+            LucilleCore::removeFileSystemLocation(exportpath) # some cleaning
+            return newdatapoint
         end
-        if ns0["type"] == "NyxPod" then
-            NSDataPoint::openPoint(ns1, ns0)
-            return
+        if ns0["type"] == "NyxFile" then
+            nyxfilename = ns0["name"]
+            location = AtlasCore::uniqueStringToLocationOrNull(nyxfilename)
+            if location then
+                puts "filepath: #{location}"
+                puts "opening parent folder"
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not determine the location of #{nyxfilename}"
+                LucilleCore::pressEnterToContinue()
+            end
+            return nil
         end
-        puts ns0
-        raise "[NSDataPoint error D1DC8EA1]"
+        if datapoint["type"] == "NyxPod" then
+            nyxpodname = ns0["name"]
+            location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
+            if location then
+                puts "opening folder '#{location}'"
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not determine the location of #{nyxpodname}"
+                LucilleCore::pressEnterToContinue()
+            end
+            return nil
+        end
+        puts datapoint
+        raise "[NSDataPoint error e12fc718]"
     end
 
     # NSDataPoint::decacheObjectMetadata(datapoint)

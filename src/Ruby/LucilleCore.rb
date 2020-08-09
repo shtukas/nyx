@@ -11,12 +11,13 @@ class LucilleCore
     # ------------------------------------------------------------------
     # MISC UTILS
 
-    #     # LucilleCore::pressEnterToContinue(announce = "")
-    def self.pressEnterToContinue(announce = "")
-        if announce.strip.size>0 then
-            print announce + ". "
+    # LucilleCore::pressEnterToContinue(text = "")
+    def self.pressEnterToContinue(text = "")
+        if text.strip.size>0 then
+            print text
+        else
+            print "Press [enter] to continue: "
         end
-        print "Press [enter] to continue: "
         STDIN.gets().strip
     end
 
