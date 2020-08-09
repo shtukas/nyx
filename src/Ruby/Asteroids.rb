@@ -752,22 +752,10 @@ class Asteroids
                 Miscellaneous::horizontalRule()
             end
 
-            if asteroid["payload"]["type"] == "description" then
-                menuitems.item(
-                    "set asteroid description",
-                    lambda { 
-                        description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
-                        return if description == ""
-                        asteroid["payload"]["description"] = description
-                        Asteroids::reCommitToDisk(asteroid)
-                    }
-                )
-            end
-
             menuitems.item(
-                "set asteroid description",
+                "update asteroid description",
                 lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+                    description = Miscellaneous::editTextSynchronously(asteroid["payload"]["description"]).strip
                     return if description == ""
                     asteroid["payload"]["description"] = description
                     Asteroids::reCommitToDisk(asteroid)
