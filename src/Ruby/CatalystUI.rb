@@ -61,10 +61,24 @@ class CatalystUI
                 )
             }
 
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
 
-            asteroids1 = 
+            DirectManagement::getLocations().each{|location|
+                next if verticalSpaceLeft <= 0
+                menuitems.item(
+                    DirectManagement::locationToString(location),
+                    lambda { DirectManagement::accessLocation(location) }
+                )
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
+
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
 
             Asteroids::asteroids()
                 .select{|asteroid|
