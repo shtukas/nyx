@@ -366,7 +366,7 @@ class NSDataPoint
             end
         end
         if datapoint["type"] == "aion-point" then
-            exportpath = DeskOperator::deskexportpathForNSDatalineCreateIfNotExists(dataline, datapoint)
+            exportpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(dataline, datapoint)
             system("open '#{exportpath}'")
             LucilleCore::pressEnterToContinue("Edit the aion-point and then press [enter] to continue: ")
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(exportpath)

@@ -844,7 +844,7 @@ class Asteroids
                         NSDataLine::decacheObjectMetadata(target)
                         menuitems.item(
                             "(#{"%.5f" % ordinal}) #{NSDataLine::toString(target)}",
-                            lambda { NSDataLine::openLastDataPointOrNothing(target) }
+                            lambda { NSDataLine::accessLastDataPoint(target) }
                         )
                     end
                 }

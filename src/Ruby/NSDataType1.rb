@@ -182,9 +182,8 @@ class NSDataType1
 
             NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
                 NSDataLine::decacheObjectMetadata(dataline)
-                ordinal1 = menuitems.ordinal(lambda { NSDataLine::openLastDataPointOrNothing(dataline) })
-                ordinal2 = menuitems.ordinal(lambda { NSDataLine::editLastDataPointOrNothing(dataline) })
-                puts "[open: #{ordinal1}] [edit: #{ordinal2}] #{NSDataLine::toString(dataline)}"
+                ordinal1 = menuitems.ordinal(lambda { NSDataLine::accessLastDataPoint(dataline) })
+                puts "[access: #{ordinal1}] #{NSDataLine::toString(dataline)}"
             }
 
             ordinal = menuitems.ordinal(lambda {

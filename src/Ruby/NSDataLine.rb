@@ -38,7 +38,7 @@ class NSDataLine
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[dataline] #{NSDataPoint::pointToString(datapoints.last)}"
+            str = "[dataline] [#{datapoints.size}] #{NSDataPoint::pointToString(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
@@ -91,6 +91,46 @@ class NSDataLine
         newdatapoint = NSDataPoint::editPointReturnNewPointOrNull(dataline, datapoint)
         return if newdatapoint.nil?
         Arrows::issueOrException(dataline, newdatapoint)
+    end
+
+    # NSDataLine::accessLastDataPoint(dataline)
+    def self.accessLastDataPoint(dataline)
+        datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
+        return if datapoint.nil?
+
+        modes = ["access read only", "access edit", "destroy"]
+
+        if datapoint["type"] == "text" then
+            # By default we edit texts
+            modes = ["access edit", "destroy"]
+        end
+        if datapoint["type"] == "aion-point" then
+            # By default we edit aion-points
+            modes = ["access edit", "destroy"]
+        end
+        if datapoint["type"] == "NyxFile" then
+            NSDataLine::editLastDataPointOrNothing(dataline)
+            return
+        end
+        if datapoint["type"] == "NyxPod" then
+            # By default we edit NyxPods
+            NSDataLine::editLastDataPointOrNothing(dataline)
+            return
+        end
+
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+        return if mode.nil?
+        if mode == "access read only" then
+            NSDataLine::openLastDataPointOrNothing(dataline)
+        end
+        if mode == "access edit" then
+            NSDataLine::editLastDataPointOrNothing(dataline)
+        end
+        if mode == "destroy" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                NyxObjects::destroy(dataline)
+            end
+        end
     end
 
     # NSDataLine::decacheObjectMetadata(dataline)
