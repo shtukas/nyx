@@ -50,7 +50,69 @@ class CatalystUI
         if verticalSpaceLeft > 0 then
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
-            catalystObjects.each_with_index{|object, indx| 
+
+            catalystObjects.first(10).each{|object| 
+                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+                menuitems.item(
+                    str,
+                    lambda { object["execute"].call(nil) }
+                )
+            }
+
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
+                }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - 1
+                }
+
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
+                }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - 1
+                }
+
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
+                }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                    verticalSpaceLeft = verticalSpaceLeft - 1
+                }
+
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+
+            catalystObjects.drop(10).each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
