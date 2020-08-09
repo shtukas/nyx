@@ -64,12 +64,15 @@ class CatalystUI
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
 
+            asteroids1 = 
+
             Asteroids::asteroids()
                 .select{|asteroid|
                     asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
                 }
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
+                    next if verticalSpaceLeft <= 0
                     menuitems.item(
                         Asteroids::asteroidToString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
@@ -77,8 +80,10 @@ class CatalystUI
                     verticalSpaceLeft = verticalSpaceLeft - 1
                 }
 
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
 
             Asteroids::asteroids()
                 .select{|asteroid|
@@ -86,6 +91,7 @@ class CatalystUI
                 }
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
+                    next if verticalSpaceLeft <= 0
                     menuitems.item(
                         Asteroids::asteroidToString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
@@ -93,8 +99,10 @@ class CatalystUI
                     verticalSpaceLeft = verticalSpaceLeft - 1
                 }
 
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
 
             Asteroids::asteroids()
                 .select{|asteroid|
@@ -102,6 +110,7 @@ class CatalystUI
                 }
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
+                    next if verticalSpaceLeft <= 0
                     menuitems.item(
                         Asteroids::asteroidToString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
@@ -109,8 +118,10 @@ class CatalystUI
                     verticalSpaceLeft = verticalSpaceLeft - 1
                 }
 
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
+            if verticalSpaceLeft >= 1 then
+                puts ""
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
 
             catalystObjects.drop(10).each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)

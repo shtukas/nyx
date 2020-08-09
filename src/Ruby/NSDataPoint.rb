@@ -378,7 +378,7 @@ class NSDataPoint
             LucilleCore::removeFileSystemLocation(exportpath) # some cleaning
             return newdatapoint
         end
-        if ns0["type"] == "NyxFile" then
+        if datapoint["type"] == "NyxFile" then
             nyxfilename = ns0["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(nyxfilename)
             if location then
@@ -393,7 +393,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxPod" then
-            nyxpodname = ns0["name"]
+            nyxpodname = datapoint["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
             if location then
                 puts "opening folder '#{location}'"

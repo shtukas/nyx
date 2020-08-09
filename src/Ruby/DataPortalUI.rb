@@ -165,11 +165,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "Drives::runShadowUpdate()", 
-                lambda { Drives::runShadowUpdate() }
-            )
-
-            ms.item(
                 "NyxGarbageCollection::run()", 
                 lambda { NyxGarbageCollection::run() }
             )
