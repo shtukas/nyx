@@ -26,4 +26,12 @@ class DirectManagement
         end
     end
 
+    # DirectManagement::identifyALocationByDescriptionOrNull(description)
+    def self.identifyALocationByDescriptionOrNull(description)
+        # In this first implementation we just expect it to be equal to a section of the base name
+        DirectManagement::getLocations()
+            .select{|location| File.basename(location).include?(description) }
+            .first
+    end
+
 end

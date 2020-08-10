@@ -22,7 +22,8 @@ class Asteroids
     def self.makePayloadInteractivelyOrNull(asteroiduuid)
         options = [
             "description",
-            "metal"
+            "metal",
+            "direct management"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
         return nil if option.nil?
@@ -42,6 +43,14 @@ class Asteroids
             return {
                 "type"        => "metal",
                 "description" => nil
+            }
+        end
+        if option == "direct management" then
+            basename = LucilleCore::askQuestionAnswerAsString("basename: ")
+            return nil if basename.size == 0
+            return {
+                "type"        => "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26",
+                "description" => basename
             }
         end
         nil
@@ -217,7 +226,12 @@ class Asteroids
     def self.asteroidToString(asteroid)
         payloadNSDataPoint = lambda{|asteroid|
             payload = asteroid["payload"]
-            return " #{payload["description"]}" if payload["description"]
+            if payload["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
+                return " [direct management] #{payload["description"]}"
+            end
+            if payload["description"] then
+                return " #{payload["description"]}"
+            end
             targets = Asteroids::getTargetsForAsteroid(asteroid)
             if targets.size == 0 then
                 return " (no asteroid target found)"
@@ -251,6 +265,15 @@ class Asteroids
     # Asteroids::asteroids()
     def self.asteroids()
         NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
+    end
+
+    # Asteroids::rePayloadOrNothing(asteroid)
+    def self.rePayloadOrNothing(asteroid)
+        payload = Asteroids::makePayloadInteractivelyOrNull(asteroid["uuid"])
+        return if payload.nil?
+        asteroid["payload"] = payload
+        puts JSON.pretty_generate(asteroid)
+        Asteroids::reCommitToDisk(asteroid)
     end
 
     # Asteroids::reOrbitalOrNothing(asteroid)
@@ -485,6 +508,12 @@ class Asteroids
             return
         end
 
+        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
+            Asteroids::asteroidStartSequence(asteroid)
+            Asteroids::openPayload(asteroid)
+            return
+        end
+
         # ----------------------------------------
         # Running
 
@@ -629,6 +658,11 @@ class Asteroids
             end
         end
 
+        if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
+            puts "I am destroying the asteroid, the direct management entity is still there for you"
+            LucilleCore::pressEnterToContinue()
+        end
+
         NyxObjects::destroy(asteroid)
     end
 
@@ -648,6 +682,13 @@ class Asteroids
                     NSDataLine::openLastDataPointOrNothing(target)
                 end
             end
+        end
+        if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
+            # We expect here that the description of the payload is the bane name of a DirectManagement location
+            description = asteroid["payload"]["description"]
+            location = DirectManagement::identifyALocationByDescriptionOrNull(description)
+            return if location.nil?
+            system("open '#{location}'")
         end
     end
 
@@ -751,6 +792,8 @@ class Asteroids
                 Miscellaneous::horizontalRule()
             end
 
+            puts ""
+
             menuitems.item(
                 "update asteroid description",
                 lambda { 
@@ -786,6 +829,11 @@ class Asteroids
                     }
                 )
             end
+
+            menuitems.item(
+                "re-payload",
+                lambda { Asteroids::rePayloadOrNothing(asteroid) }
+            )
 
             menuitems.item(
                 "re-orbital",
@@ -848,10 +896,12 @@ class Asteroids
                     end
                 }
 
+                puts ""
+
                 menuitems.item(
-                    "add new target",
+                    "add new contents",
                     lambda { 
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline"])
+                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline", "direct management"])
                         return if option.nil?
                         if option == "node" then
                             node = NSDataType1::issueNewNodeInteractivelyOrNull()
@@ -900,6 +950,14 @@ class Asteroids
                     }
                 )
 
+            end
+
+            if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
+                Miscellaneous::horizontalRule()
+                description = asteroid["payload"]["description"]
+                location = DirectManagement::identifyALocationByDescriptionOrNull(description)
+                return if location.nil?
+                system("open '#{location}'")
             end
 
             Miscellaneous::horizontalRule()

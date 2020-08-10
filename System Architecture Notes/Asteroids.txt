@@ -17,6 +17,10 @@ Asteroid
             "type"         : "metal"
             "description"  : null or String
         }
+        {
+            "type"         : "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26"
+            "description"  : null or String
+        }
 
     Orbital
 
