@@ -17,23 +17,7 @@ class Curation
 
     # Curation::oneCurationStep()
     def self.oneCurationStep()
-
         counter = Counter0731.new()
-
-        # Give a description to the aion-point points which do not have one
-
-        NSDataType1::objects()
-        .each{|node|
-            return if counter.hasReached(10)
-            next if NSDataType1::getAsteroidsForNode(node).size > 0
-            next if NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-            counter.increment()
-            system("clear")
-            puts "Update description of next node"
-            LucilleCore::pressEnterToContinue()
-            NSDataType1::landing(node)
-        }
-
     end
 
     # Curation::session()

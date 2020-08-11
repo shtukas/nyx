@@ -6,11 +6,6 @@ require_relative "src/Ruby/loader.rb"
 
 # -------------------------------------------------------------------------
 
-if !Miscellaneous::isAlexandra() then
-    puts "Catalyst is not meant to run on this computer. Bye."
-    exit
-end
-
 class ProgramVariant
     # ProgramVariant::id()
     def self.id()

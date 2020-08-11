@@ -227,8 +227,8 @@ class NSDataPoint
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
     end
 
-    # NSDataPoint::pointToStringUseTheForce(ns0)
-    def self.pointToStringUseTheForce(ns0)
+    # NSDataPoint::toStringUseTheForce(ns0)
+    def self.toStringUseTheForce(ns0)
         if ns0["type"] == "line" then
             return "[datapoint] #{ns0["line"]}"
         end
@@ -259,11 +259,11 @@ class NSDataPoint
         raise "[NSDataPoint error 2c53b113-cc79]"
     end
 
-    # NSDataPoint::pointToString(ns0)
-    def self.pointToString(ns0)
+    # NSDataPoint::toString(ns0)
+    def self.toString(ns0)
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
         return str if str
-        str = NSDataPoint::pointToStringUseTheForce(ns0)
+        str = NSDataPoint::toStringUseTheForce(ns0)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
         str
     end

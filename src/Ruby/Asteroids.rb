@@ -183,32 +183,6 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::getNodeForAsteroid(asteroid)
-    def self.getNodeForAsteroid(asteroid)
-        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["c18e8093-63d6-4072-8827-14f238975d04"])
-    end
-
-    # Asteroids::getDatalinesForAsteroid(asteroid)
-    def self.getDatalinesForAsteroid(asteroid)
-        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
-    end
-
-    # Asteroids::getTargetsForAsteroid(asteroid)
-    def self.getTargetsForAsteroid(asteroid)
-        Asteroids::getNodeForAsteroid(asteroid) + Asteroids::getDatalinesForAsteroid(asteroid)
-    end
-
-    # Asteroids::targetToString(target)
-    def self.targetToString(target)
-        if Asteroids::isNode(target) then
-            return NSDataType1::toString(target)
-        end
-        if Asteroids::isDataline(target) then
-            return NSDataLine::toString(target)
-        end
-        raise "[error: caf124cb-cee8-47ea-9e73-a648f5c493c6]"
-    end
-
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
@@ -232,11 +206,11 @@ class Asteroids
             if payload["description"] then
                 return " #{payload["description"]}"
             end
-            targets = Asteroids::getTargetsForAsteroid(asteroid)
+            targets = Arrows::getTargetsForSource(asteroid)
             if targets.size == 0 then
                 return " (no asteroid target found)"
             end
-            return " #{Asteroids::targetToString(targets.first)}"
+            return " #{GenericObjectInterface::toString(targets.first)}"
         }
         orbitalNSDataPoint = lambda{|asteroid|
             uuid = asteroid["uuid"]
@@ -287,7 +261,7 @@ class Asteroids
 
     # Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
     def self.getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
-        Asteroids::getTargetsForAsteroid(asteroid)
+        Arrows::getTargetsForSource(asteroid)
             .map{|target| [ Asteroids::getPositionOrdinalForAsteroidTarget(asteroid, target), target] }
             .sort{|p1, p2| p1[0] <=> p2[0] }
     end
@@ -669,16 +643,16 @@ class Asteroids
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
         if asteroid["payload"]["type"] == "metal" then
-            targets = Asteroids::getTargetsForAsteroid(asteroid)
+            targets = Arrows::getTargetsForSource(asteroid)
             if targets.size == 0 then
                 return
             end
             if targets.size == 1 then
                 target = targets.first
-                if Asteroids::isNode(target) then
+                if GenericObjectInterface::isNode(target) then
                     NSDataType1::landing(target)
                 end
-                if Asteroids::isDataline(target) then
+                if GenericObjectInterface::isDataline(target) then
                     NSDataLine::openLastDataPointOrNothing(target)
                 end
             end
@@ -701,11 +675,6 @@ class Asteroids
             break if asteroid.nil?
             Asteroids::landing(asteroid)
         }
-    end
-
-    # Asteroids::getNSDataPointsForAsteroid(asteroid)
-    def self.getNSDataPointsForAsteroid(asteroid)
-        Arrows::getTargetsOfGivenSetsForSource(asteroid, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
     end
 
     # Asteroids::getTopPriorityAsteroidsInPriorityOrder()
@@ -746,14 +715,8 @@ class Asteroids
         ordinal
     end
 
-    # Asteroids::isNode(target)
-    def self.isNode(target)
-        target["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
-    end
+    def self.generictoString()
 
-    # Asteroids::isDataline(target)
-    def self.isDataline(target)
-        target["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
     end
 
     # Asteroids::landing(asteroid)
@@ -880,20 +843,10 @@ class Asteroids
 
                 Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
                     ordinal, target = packet
-                    if Asteroids::isNode(target) then
-                        NSDataType1::decacheObjectMetadata(target)
-                        menuitems.item(
-                            "(#{"%.5f" % ordinal}) #{NSDataType1::toString(target)}",
-                            lambda { NSDataType1::landing(target) }
-                        )
-                    end
-                    if Asteroids::isDataline(target) then
-                        NSDataLine::decacheObjectMetadata(target)
-                        menuitems.item(
-                            "(#{"%.5f" % ordinal}) #{NSDataLine::toString(target)}",
-                            lambda { NSDataLine::accessLastDataPoint(target) }
-                        )
-                    end
+                    menuitems.item(
+                        "(#{"%.5f" % ordinal}) #{GenericObjectInterface::toString(target)}",
+                        lambda { GenericObjectInterface::landing(target) }
+                    )
                 }
 
                 puts ""
@@ -932,21 +885,21 @@ class Asteroids
                 )
 
                 menuitems.item(
-                    "select dateline ; destroy",
-                    lambda {
-                        dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("dateline", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
-                        return if dataline.nil?
-                        NyxObjects::destroy(dataline)
-                    }
-                )
-
-                menuitems.item(
                     "select target ; set ordinal",
                     lambda { 
                         target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
                         return if target.nil?
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                         Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
+                    }
+                )
+
+                menuitems.item(
+                    "select target ; destroy",
+                    lambda {
+                        dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
+                        return if dataline.nil?
+                        NyxObjects::destroy(dataline)
                     }
                 )
 

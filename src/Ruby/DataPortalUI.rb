@@ -23,7 +23,7 @@ class DataPortalUI
                 "node listing", 
                 lambda {
                     nodes = NSDataType1::objects()
-                    nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
+                    nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
@@ -60,22 +60,22 @@ class DataPortalUI
                     end
 
                     # Moving all the node upstreams of node2 towards node 1
-                    NSDataType1::getUpstreamNodes(node2).each{|x|
-                        puts "arrow (1): #{NSDataType1::toString(x)} -> #{NSDataType1::toString(node1)}"
+                    Arrows::getSourcesForTarget(node2).each{|x|
+                        puts "arrow (1): #{GenericObjectInterface::toString(x)} -> #{NSDataType1::toString(node1)}"
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    NSDataType1::getDownstreamNodes(node2).each{|x|
-                        puts "arrow (2): #{NSDataType1::toString(node1)} -> #{NSDataType1::toString(x)}"
+                    Arrows::getTargetsForSource(node2).each{|x|
+                        puts "arrow (2): #{NSDataType1::toString(node1)} -> #{GenericObjectInterface::toString(x)}"
                     }
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the node upstreams of node2 towards node 1
-                    NSDataType1::getUpstreamNodes(node2).each{|x|
+                    Arrows::getSourcesForTarget(node2).each{|x|
                         Arrows::issueOrException(x, node1)
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    NSDataType1::getDownstreamNodes(node2).each{|x|
+                    Arrows::getTargetsForSource(node2).each{|x|
                         Arrows::issueOrException(node1, x)
                     }
                     NyxObjects::destroy(node2) # Simple destroy, not the procedure,what happens if node2 had some contents ?
@@ -217,7 +217,7 @@ class DataPortalUI
                 "node listing",
                 lambda {
                     nodes = NSDataType1::objects()
-                    nodes = NSDataType1::applyDateTimeOrderToType1s(nodes)
+                    nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
@@ -236,67 +236,57 @@ class DataPortalUI
                 }
             )
 
-            if Miscellaneous::isAlexandra() then
-                ms.item(
-                    "Merge two nodes",
-                    lambda { 
-                        puts "Merging two nodes"
-                        puts "Selecting one after the other and then will merge"
-                        node1 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
-                        return if node1.nil?
-                        node2 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
-                        return if node2.nil?
-                        if node1["uuid"] == node2["uuid"] then
-                            puts "You have selected the same node twice. Aborting merge operation."
-                            LucilleCore::pressEnterToContinue()
-                            return
-                        end
+            ms.item(
+                "Merge two nodes",
+                lambda { 
+                    puts "Merging two nodes"
+                    puts "Selecting one after the other and then will merge"
+                    node1 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    return if node1.nil?
+                    node2 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    return if node2.nil?
+                    if node1["uuid"] == node2["uuid"] then
+                        puts "You have selected the same node twice. Aborting merge operation."
+                        LucilleCore::pressEnterToContinue()
+                        return
+                    end
 
-                        puts "merging:"
-                        puts "    node1: #{NSDataType1::toString(node1)}"
-                        puts "    node2: #{NSDataType1::toString(node2)}"
+                    puts "merging:"
+                    puts "    node1: #{NSDataType1::toString(node1)}"
+                    puts "    node2: #{NSDataType1::toString(node2)}"
 
-                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
-                        # Moving all the node upstreams of node2 towards node1
-                        NSDataType1::getUpstreamNodes(node2).each{|x|
-                            Arrows::issueOrException(x, node1)
-                        }
-                        # Moving all the downstreams of node2 toward node1
-                        NSDataType1::getDownstreamNodes(node2).each{|x|
-                            Arrows::issueOrException(node1, x)
-                        }
-                        # Moving the datalines of node2 towards node1
-                        NSDataType1::getNodeDatalinesInTimeOrder(node2).each{|x|
-                            Arrows::issueOrException(node1, x)
-                        }
-                        NyxObjects::destroy(node2)
+                    # Moving all the node upstreams of node2 towards node1
+                    Arrows::getSourcesForTarget(node2).each{|x|
+                        Arrows::issueOrException(x, node1)
                     }
-                )
-            end
-
-            if Miscellaneous::isAlexandra() then
-                ms.item(
-                    "dangerously edit a nyx object by uuid", 
-                    lambda { 
-                        uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                        return if uuid == ""
-                        object = NyxObjects::getOrNull(uuid)
-                        return if object.nil?
-                        object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
-                        object = JSON.parse(object)
-                        NyxObjects::destroy(object)
-                        NyxObjects::put(object)
+                    # Moving all the downstreams of node2 toward node1
+                    Arrows::getTargetsForSource(node2).each{|x|
+                        Arrows::issueOrException(node1, x)
                     }
-                )
-            end
+                    NyxObjects::destroy(node2)
+                }
+            )
 
-            if Miscellaneous::isAlexandra() then
-                ms.item(
-                    "Curation::session()", 
-                    lambda { Curation::session() }
-                )
-            end
+            ms.item(
+                "dangerously edit a nyx object by uuid", 
+                lambda { 
+                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                    return if uuid == ""
+                    object = NyxObjects::getOrNull(uuid)
+                    return if object.nil?
+                    object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
+                    object = JSON.parse(object)
+                    NyxObjects::destroy(object)
+                    NyxObjects::put(object)
+                }
+            )
+
+            ms.item(
+                "Curation::session()", 
+                lambda { Curation::session() }
+            )
 
             ms.item(
                 "Run network synchronization", 

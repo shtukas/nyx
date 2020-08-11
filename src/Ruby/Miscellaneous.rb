@@ -239,11 +239,6 @@ class Miscellaneous
         end
     end
 
-    # Miscellaneous::isAlexandra()
-    def self.isAlexandra()
-        File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/is-alexandra.txt")
-    end
-
     # Miscellaneous::openFilepathWithInvite(filepath)
     def self.openFilepathWithInvite(filepath)
         system("open '#{filepath}'")

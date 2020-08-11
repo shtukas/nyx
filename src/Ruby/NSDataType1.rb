@@ -14,11 +14,6 @@ class NSDataType1
         object
     end
 
-    # NSDataType1::isNode(target)
-    def self.isNode(target)
-        target["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
-    end
-
     # NSDataType1::objects()
     def self.objects()
         NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
@@ -34,19 +29,19 @@ class NSDataType1
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
-        datalines = NSDataType1::getNodeDatalinesInTimeOrder(node)
+        objects = Arrows::getTargetsForSource(node)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then
             str = "[node] [#{node["uuid"][0, 4]}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        if description.nil? and datalines.size > 0 then
-            str = "[node] [#{node["uuid"][0, 4]}] #{NSDataLine::toString(datalines.first)}"
+        if description.nil? and objects.size > 0 then
+            str = "[node] [#{node["uuid"][0, 4]}] #{GenericObjectInterface::toString(objects.first)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
-        if description.nil? and datalines.size == 0 then
+        if description.nil? and objects.size == 0 then
             str = "[node] [#{node["uuid"][0, 4]}] {no description, no dataline}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
@@ -56,7 +51,7 @@ class NSDataType1
 
     # NSDataType1::getReferenceUnixtime(ns)
     def self.getReferenceUnixtime(ns)
-        DateTime.parse(NSDataType1::getObjectReferenceDateTime(ns)).to_time.to_f
+        DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(ns)).to_time.to_f
     end
 
     # NSDataType1::issueDescriptionInteractivelyOrNothing(point)
@@ -111,19 +106,13 @@ class NSDataType1
         NSDataTypeXExtended::getLastDescriptionForTargetOrNull(object)
     end
 
-    # NSDataType1::getObjectReferenceDateTime(object)
-    def self.getObjectReferenceDateTime(object)
-        datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(object)
-        return datetime if datetime
-        Time.at(object["unixtime"]).utc.iso8601
-    end
-
     # NSDataType1::decacheObjectMetadata(node)
     def self.decacheObjectMetadata(node)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
-        NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
-            NSDataLine::decacheObjectMetadata(dataline)
-        }
+        Arrows::getTargetsForSource(node)
+            .each{|o|
+                NSDataLine::decacheObjectMetadata(o)
+            }
     end
 
     # NSDataType1::landing(node)
@@ -142,21 +131,12 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            if Miscellaneous::isAlexandra() then
-                NSDataType1::getAsteroidsForNode(node).each{|asteroid|
-                    menuitems.item(
-                        "parent: #{Asteroids::asteroidToString(asteroid)}",
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                }
-            end
-
-            upstream = NSDataType1::getUpstreamNodes(node)
-            upstream = NSDataType1::applyDateTimeOrderToType1s(upstream)
-            upstream.each{|o|
+            upstreams = Arrows::getSourcesForTarget(node)
+            upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
+            upstreams.each{|o|
                 menuitems.item(
-                    "parent: #{NSDataType1::toString(o)}",
-                    lambda { NSDataType1::landing(o) }
+                    "parent: #{GenericObjectInterface::toString(o)}",
+                    lambda { GenericObjectInterface::landing(o) }
                 )
             }
 
@@ -169,7 +149,7 @@ class NSDataType1
                 puts "    description: #{description}"
             end
             puts "    uuid: #{node["uuid"]}"
-            puts "    date: #{NSDataType1::getObjectReferenceDateTime(node)}"
+            puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}"
 
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node)
             if notetext and notetext.strip.size > 0 then
@@ -180,10 +160,9 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            NSDataType1::getNodeDatalinesInTimeOrder(node).each{|dataline|
-                NSDataLine::decacheObjectMetadata(dataline)
-                ordinal1 = menuitems.ordinal(lambda { NSDataLine::accessLastDataPoint(dataline) })
-                puts "[access: #{ordinal1}] #{NSDataLine::toString(dataline)}"
+            Arrows::getTargetsForSource(node).each{|object|
+                ordinal = menuitems.ordinal(lambda { GenericObjectInterface::access(object) })
+                puts "[access: #{ordinal}] #{GenericObjectInterface::toString(object)}"
             }
 
             ordinal = menuitems.ordinal(lambda {
@@ -195,12 +174,12 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            downstream = NSDataType1::getDownstreamNodes(node)
-            downstream = NSDataType1::applyDateTimeOrderToType1s(downstream)
+            downstream = Arrows::getTargetsForSource(node)
+            downstream = GenericObjectInterface::applyDateTimeOrderToObjects(downstream)
             downstream.each{|o|
                 menuitems.item(
-                    NSDataType1::toString(o),
-                    lambda { NSDataType1::landing(o) }
+                    GenericObjectInterface::toString(o),
+                    lambda { GenericObjectInterface::landing(o) }
                 )
             }
 
@@ -227,17 +206,14 @@ class NSDataType1
                 )
             end
 
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "edit reference datetime",
-                    lambda{
-                        datetime = Miscellaneous::editTextSynchronously(NSDataType1::getObjectReferenceDateTime(node)).strip
-                        return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                        NSDataTypeXExtended::issueDateTimeIso8601ForTarget(node, datetime)
-                    }
-                )
-            end
-
+            menuitems.item(
+                "edit reference datetime",
+                lambda{
+                    datetime = Miscellaneous::editTextSynchronously(GenericObjectInterface::getObjectReferenceDateTime(node)).strip
+                    return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
+                    NSDataTypeXExtended::issueDateTimeIso8601ForTarget(node, datetime)
+                }
+            )
 
             menuitems.item(
                 "edit note",
@@ -258,16 +234,14 @@ class NSDataType1
                 }
             )
 
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "detach parent node",
-                    lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getUpstreamNodes(node), lambda{|o| NSDataType1::toString(o) })
-                        return if ns.nil?
-                        Arrows::remove(ns, node)
-                    }
-                )
-            end
+            menuitems.item(
+                "detach parent",
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::remove(ns, node)
+                }
+            )
 
             menuitems.item(
                 "attach child node (chosen from existing nodes)",
@@ -287,152 +261,100 @@ class NSDataType1
                 }
             )
 
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "detach child node",
-                    lambda {
-                        ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NSDataType1::getDownstreamNodes(node), lambda{|o| NSDataType1::toString(o) })
-                        return if ns.nil?
-                        Arrows::remove(ns, node)
+            menuitems.item(
+                "detach child",
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::remove(ns, node)
+                }
+            )
+
+            menuitems.item(
+                "remove [this] as intermediary node", 
+                lambda { 
+                    puts "intermediary node removal simulation"
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
+                        puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
                     }
-                )
-            end
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "remove [this] as intermediary node", 
-                    lambda { 
-                        puts "intermediary node removal simulation"
-                        NSDataType1::getUpstreamNodes(node).each{|upstreamnode|
-                            puts "upstreamnode   : #{NSDataType1::toString(upstreamnode)}"
-                        }
-                        NSDataType1::getDownstreamNodes(node).each{|downstreampoint|
-                            puts "downstreampoint: #{NSDataType1::toString(downstreampoint)}"
-                        }
-                        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
-                        NSDataType1::getUpstreamNodes(node).each{|upstreamnode|
-                            NSDataType1::getDownstreamNodes(node).each{|downstreampoint|
-                                Arrows::issueOrException(upstreamnode, downstreampoint)
-                            }
-                        }
-                        NyxObjects::destroy(node)
+                    Arrows::getTargetsForSource(node).each{|downstreamobject|
+                        puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
                     }
-                )
-            end
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "select nodes ; move to a new child node",
-                    lambda {
-                        return if NSDataType1::getDownstreamNodes(node).size == 0
-
-                        # Selecting the nodes
-                        selectednodes, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamNodes(node), lambda{ |o| NSDataType1::toString(o) })
-                        return if selectednodes.size == 0
-
-                        # Selecting or creating the node
-                        targetnode = NSDataType1::issueNewNodeInteractivelyOrNull()
-                        return if targetnode.nil?
-
-                        # Setting the node as target of this one
-                        Arrows::issueOrException(node, targetnode)
-
-                        # Moving the selectednodes
-                        selectednodes.each{|o|
-                            Arrows::issueOrException(targetnode, o)
-                        }
-                        selectednodes.each{|o|
-                            Arrows::remove(node, o)
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
+                        Arrows::getTargetsForSource(node).each{|downstreamobject|
+                            Arrows::issueOrException(upstreamnode, downstreamobject)
                         }
                     }
-                )
-            end
+                    NyxObjects::destroy(node)
+                }
+            )
 
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "select nodes ; move to an existing child node",
-                    lambda {
-                        return if NSDataType1::getDownstreamNodes(node).size == 0
+            menuitems.item(
+                "select nodes ; move to a new child node",
+                lambda {
+                    return if Arrows::getTargetsForSource(node).size == 0
 
-                        # Selecting the nodes to moves
-                        selectednodes, _ = LucilleCore::selectZeroOrMore("node", [], NSDataType1::getDownstreamNodes(node), lambda{ |o| NSDataType1::toString(o) })
-                        return if selectednodes.size == 0
+                    # Selecting the nodes
+                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], Arrows::getTargetsForSource(node), lambda{ |o| GenericObjectInterface::toString(o) })
+                    return if selectednodes.size == 0
 
-                        # Selecting or creating the node
-                        possibleTargetNodes = NSDataType1::getDownstreamNodes(object)
-                        targetnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", possibleTargetNodes, lambda{|o| NSDataType1::toString(o) })
-                        return if targetnode.nil?
+                    # Selecting or creating the node
+                    targetnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                    return if targetnode.nil?
 
-                        # Moving the selectednodes
-                        selectednodes.each{|o|
-                            Arrows::issueOrException(targetnode, o)
-                        }
-                        selectednodes.each{|o|
-                            Arrows::remove(node, o)
-                        }
+                    # Setting the node as target of this one
+                    Arrows::issueOrException(node, targetnode)
+
+                    # Moving the selectednodes
+                    selectednodes.each{|o|
+                        Arrows::issueOrException(targetnode, o)
                     }
-                )
-            end
-
-            if Miscellaneous::isAlexandra() then
-                menuitems.item(
-                    "destroy [this]",
-                    lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
-                            NSDataType1::destroyProcedure(node)
-                        end
+                    selectednodes.each{|o|
+                        Arrows::remove(node, o)
                     }
-                )
-            end
+                }
+            )
+
+            menuitems.item(
+                "select nodes ; move to an existing child node",
+                lambda {
+                    return if Arrows::getTargetsForSource(node).size == 0
+
+                    # Selecting the nodes to moves
+                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], Arrows::getTargetsForSource(node), lambda{ |o| GenericObjectInterface::toString(o) })
+                    return if selectednodes.size == 0
+
+                    # Selecting or creating the node
+                    targetnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if targetnode.nil?
+
+                    # TODO: return if the selected new target is one of the nodes
+
+                    # Moving the selectednodes
+                    selectednodes.each{|o|
+                        Arrows::issueOrException(targetnode, o)
+                    }
+                    selectednodes.each{|o|
+                        Arrows::remove(node, o)
+                    }
+                }
+            )
+
+            menuitems.item(
+                "destroy [this]",
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
+                        NSDataType1::destroyProcedure(node)
+                    end
+                }
+            )
 
             Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
             break if !status
-
         }
-    end
-
-    # NSDataType1::getAsteroidsForNode(point)
-    def self.getAsteroidsForNode(point)
-        Arrows::getSourcesOfGivenSetsForTarget(point, ["b66318f4-2662-4621-a991-a6b966fb4398"])
-    end
-
-    # NSDataType1::getUpstreamNodes(object)
-    def self.getUpstreamNodes(object)
-        Arrows::getSourcesOfGivenSetsForTarget(object, [ "c18e8093-63d6-4072-8827-14f238975d04" ])
-    end
-
-    # NSDataType1::getDownstreamNodes(object)
-    def self.getDownstreamNodes(object)
-        Arrows::getTargetsOfGivenSetsForSource(object, [ "c18e8093-63d6-4072-8827-14f238975d04" ])
-    end
-
-    # NSDataType1::applyDateTimeOrderToType1s(objects)
-    def self.applyDateTimeOrderToType1s(objects)
-        objects
-            .map{|object|
-                {
-                    "object"   => object,
-                    "datetime" => NSDataType1::getObjectReferenceDateTime(object)
-                }
-            }
-            .sort{|i1, i2|
-                i1["datetime"] <=> i2["datetime"]
-            }
-            .map{|i| i["object"] }
-    end
-
-    # NSDataType1::getNodeDatalinesInTimeOrder(node)
-    def self.getNodeDatalinesInTimeOrder(node)
-        Arrows::getTargetsOfGivenSetsForSource(node, ["d319513e-1582-4c78-a4c4-bf3d72fb5b2d"])
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-    end
-
-    # NSDataType1::getNodeDataPointsInTimeOrder(node)
-    def self.getNodeDataPointsInTimeOrder(node)
-        Arrows::getTargetsOfGivenSetsForSource(node, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 
     # ---------------------------------------------

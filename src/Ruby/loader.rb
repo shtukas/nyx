@@ -75,6 +75,7 @@ require_relative "DisplayUtils.rb"
 require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
+require_relative "GenericObjectInterface.rb"
 
 require_relative "KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore.rb"
 

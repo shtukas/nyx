@@ -61,16 +61,6 @@ class Realms
         Realms::getRealmName() == "docnet"
     end
 
-    # Realms::isDocnetAlexandra()
-    def self.isDocnetAlexandra()
-        Realms::isDocnet() and Miscellaneous::isAlexandra()
-    end
-
-    # Realms::isDocnetNonAlexandra()
-    def self.isDocnetNonAlexandra()
-        Realms::isDocnet() and !Miscellaneous::isAlexandra()
-    end
-
     # Realms::raiseException()
     def self.raiseException()
         raise "[error: ce2d77de-504c-4a05-80a6-ea2c851131e3]"

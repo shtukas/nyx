@@ -38,7 +38,7 @@ class NSDataLine
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[dataline] [#{datapoints.size}] #{NSDataPoint::pointToString(datapoints.last)}"
+            str = "[dataline] [#{datapoints.size}] #{NSDataPoint::toString(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
@@ -67,7 +67,8 @@ class NSDataLine
 
     # NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
     def self.getDatalineDataPointsInTimeOrder(dataline)
-        Arrows::getTargetsOfGivenSetsForSource(dataline, ["0f555c97-3843-4dfe-80c8-714d837eba69"])
+        Arrows::getTargetsForSource(dataline)
+            .select{|object| object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
 

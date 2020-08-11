@@ -56,7 +56,7 @@ class NSDT1Extended
                 search_string = nil
 
                 display_searching_on.call()
-                selected_objects = NSDataType1::applyDateTimeOrderToType1s(NSDataType1::selectType1sPerPattern(pattern))
+                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDataType1::selectType1sPerPattern(pattern))
 
                 win3.setpos(0,0)
                 selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
