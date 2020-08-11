@@ -140,19 +140,18 @@ class Asteroids
 
     # Asteroids::issueAsteroidInteractivelyOrNull()
     def self.issueAsteroidInteractivelyOrNull()
-        puts "Asteroids::issueAsteroidInteractivelyOrNull() is not yet implemented"
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # Asteroids::issueWithUUID(uuid, orbital)
-    def self.issueWithUUID(uuid, orbital)
+        description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
+        return nil if (description == "")
+        orbital = Asteroids::makeOrbitalInteractivelyOrNull()
+        return nil if orbital.nil?
         asteroid = {
-            "uuid"     => uuid,
+            "uuid"     => SecureRandom.hex,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
+        NSDataTypeXExtended::issueDescriptionForTarget(asteroid, description)
         asteroid
     end
 
@@ -644,10 +643,6 @@ class Asteroids
         ordinal
     end
 
-    def self.generictoString()
-
-    end
-
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
         loop {
@@ -761,23 +756,24 @@ class Asteroids
             puts ""
 
             menuitems.item(
-                "add new contents",
+                "add new target",
                 lambda { 
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline", "direct management"])
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["new node", "existing node", "dataline"])
                     return if option.nil?
-                    if option == "node" then
+                    if option == "new node" then
                         node = NSDataType1::issueNewNodeInteractivelyOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
-                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
+                    end
+                    if option == "existing node" then
+                        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                        return if node.nil?
+                        Arrows::issueOrException(asteroid, node)
                     end
                     if option == "dataline" then
                         dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                         return if dataline.nil?
                         Arrows::issueOrException(asteroid, dataline)
-                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, dataline, ordinal)
                     end
                 }
             )
@@ -788,8 +784,6 @@ class Asteroids
                     node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
                     return if node.nil?
                     Arrows::issueOrException(asteroid, node)
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
                 }
             )
 
@@ -811,12 +805,6 @@ class Asteroids
                     NyxObjects::destroy(dataline)
                 }
             )
-
-            Miscellaneous::horizontalRule()
-
-            puts "Bank          : #{Bank::value(asteroid["uuid"]).to_f/3600} hours"
-            puts "Bank 7 days   : #{Bank::valueOverTimespan(asteroid["uuid"], 86400*7).to_f/3600} hours"
-            puts "Bank 24 hours : #{Bank::valueOverTimespan(asteroid["uuid"], 86400).to_f/3600} hours"
 
             Miscellaneous::horizontalRule()
 

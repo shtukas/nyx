@@ -18,6 +18,16 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+        text = IO.read(filepath).strip
+        if text.size > 0 then
+            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
+            puts ""
+            puts File.basename(filepath)
+            puts text
+            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
+        end
+
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
@@ -30,16 +40,6 @@ class CatalystUI
                 lambda { object["execute"].call(nil) }
             )
         }
-
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-        text = IO.read(filepath).strip
-        if text.size > 0 then
-            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-            puts ""
-            puts File.basename(filepath)
-            puts text
-            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
-        end
 
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
