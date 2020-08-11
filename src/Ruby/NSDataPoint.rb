@@ -368,15 +368,7 @@ class NSDataPoint
         if datapoint["type"] == "aion-point" then
             exportpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(dataline, datapoint)
             system("open '#{exportpath}'")
-            LucilleCore::pressEnterToContinue("Edit the aion-point and then press [enter] to continue: ")
-            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(exportpath)
-            if namedhash == datapoint["namedhash"] then
-                LucilleCore::removeFileSystemLocation(exportpath)
-                return nil
-            end
-            newdatapoint = NSDataPoint::issueAionPoint(namedhash)
-            LucilleCore::removeFileSystemLocation(exportpath) # some cleaning
-            return newdatapoint
+            return nil
         end
         if datapoint["type"] == "NyxFile" then
             nyxfilename = ns0["name"]
