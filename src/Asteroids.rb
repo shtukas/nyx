@@ -140,22 +140,16 @@ class Asteroids
 
     # Asteroids::issueAsteroidInteractivelyOrNull()
     def self.issueAsteroidInteractivelyOrNull()
-        uuid = SecureRandom.uuid
-        payload = Asteroids::makePayloadInteractivelyOrNull(uuid)
-        return if payload.nil?
-        orbital = Asteroids::makeOrbitalInteractivelyOrNull()
-        return if orbital.nil?
-        asteroid = Asteroids::issueWithUUID(uuid, payload, orbital)
-        AsteroidsOfInterest::register(asteroid["uuid"])
+        puts "Asteroids::issueAsteroidInteractivelyOrNull() is not yet implemented"
+        LucilleCore::pressEnterToContinue()
     end
 
-    # Asteroids::issueWithUUID(uuid, payload, orbital)
-    def self.issueWithUUID(uuid, payload, orbital)
+    # Asteroids::issueWithUUID(uuid, orbital)
+    def self.issueWithUUID(uuid, orbital)
         asteroid = {
             "uuid"     => uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
-            "payload"  => payload,
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
@@ -164,10 +158,6 @@ class Asteroids
 
     # Asteroids::issueAsteroidInboxFromDataline(dataline)
     def self.issueAsteroidInboxFromDataline(dataline)
-        payload = {
-            "type"         => "metal",
-            "description"  => nil
-        }
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
@@ -175,7 +165,6 @@ class Asteroids
             "uuid"     => SecureRandom.uuid,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
-            "payload"  => payload,
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
@@ -198,20 +187,6 @@ class Asteroids
 
     # Asteroids::asteroidToString(asteroid)
     def self.asteroidToString(asteroid)
-        payloadNSDataPoint = lambda{|asteroid|
-            payload = asteroid["payload"]
-            if payload["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
-                return " [direct management] #{payload["description"]}"
-            end
-            if payload["description"] then
-                return " #{payload["description"]}"
-            end
-            targets = Arrows::getTargetsForSource(asteroid)
-            if targets.size == 0 then
-                return " (no asteroid target found)"
-            end
-            return " #{GenericObjectInterface::toString(targets.first)}"
-        }
         orbitalNSDataPoint = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
@@ -233,21 +208,12 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}#{payloadNSDataPoint.call(asteroid)}#{orbitalNSDataPoint.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)} #{orbitalNSDataPoint.call(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
     def self.asteroids()
         NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
-    end
-
-    # Asteroids::rePayloadOrNothing(asteroid)
-    def self.rePayloadOrNothing(asteroid)
-        payload = Asteroids::makePayloadInteractivelyOrNull(asteroid["uuid"])
-        return if payload.nil?
-        asteroid["payload"] = payload
-        puts JSON.pretty_generate(asteroid)
-        Asteroids::reCommitToDisk(asteroid)
     end
 
     # Asteroids::reOrbitalOrNothing(asteroid)
@@ -468,26 +434,6 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "description" then
-            Asteroids::asteroidStartSequence(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::asteroidStopAndDestroySequence(asteroid)
-            end
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "metal" then
-            Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
-            Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
-            return
-        end
-
         # ----------------------------------------
         # Running
 
@@ -589,7 +535,6 @@ class Asteroids
 
         Asteroids::asteroidReceivesTime(asteroid, timespan)
 
-        payload = asteroid["payload"]
         orbital = asteroid["orbital"]
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
@@ -610,31 +555,24 @@ class Asteroids
     # Asteroids::asteroidDestroySequence(asteroid)
     def self.asteroidDestroySequence(asteroid)
 
-        if asteroid["payload"]["type"] == "metal" then
-            if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
-                puts Asteroids::asteroidToString(asteroid)
-                puts "Ok, you want to keep them, I am going to make them target of a new node"
-                LucilleCore::pressEnterToContinue()
-                # For this we are going to make a node with the same uuid as the asteroid and give into it
-                node = {
-                    "uuid"     => asteroid["uuid"],
-                    "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04", # node
-                    "unixtime" => Time.new.to_f
-                }
-                NyxObjects::reput(node)
-                NSDataType1::landing(node)
-
-            else
-                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, point = packet
-                    NSDataType1::destroyProcedure(point)
-                }
-            end
-        end
-
-        if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
-            puts "I am destroying the asteroid, the direct management entity is still there for you"
+        if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
+            puts Asteroids::asteroidToString(asteroid)
+            puts "Ok, you want to keep them, I am going to make them target of a new node"
             LucilleCore::pressEnterToContinue()
+            # For this we are going to make a node with the same uuid as the asteroid and give into it
+            node = {
+                "uuid"     => asteroid["uuid"],
+                "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04", # node
+                "unixtime" => Time.new.to_f
+            }
+            NyxObjects::reput(node)
+            NSDataType1::landing(node)
+
+        else
+            Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                ordinal, point = packet
+                NSDataType1::destroyProcedure(point)
+            }
         end
 
         NyxObjects::destroy(asteroid)
@@ -642,27 +580,18 @@ class Asteroids
 
     # Asteroids::openPayload(asteroid)
     def self.openPayload(asteroid)
-        if asteroid["payload"]["type"] == "metal" then
-            targets = Arrows::getTargetsForSource(asteroid)
-            if targets.size == 0 then
-                return
-            end
-            if targets.size == 1 then
-                target = targets.first
-                if GenericObjectInterface::isNode(target) then
-                    NSDataType1::landing(target)
-                end
-                if GenericObjectInterface::isDataline(target) then
-                    NSDataLine::openLastDataPointOrNothing(target)
-                end
-            end
+        targets = Arrows::getTargetsForSource(asteroid)
+        if targets.size == 0 then
+            return
         end
-        if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
-            # We expect here that the description of the payload is the bane name of a DirectManagement location
-            description = asteroid["payload"]["description"]
-            location = DirectManagement::identifyALocationByDescriptionOrNull(description)
-            return if location.nil?
-            system("open '#{location}'")
+        if targets.size == 1 then
+            target = targets.first
+            if GenericObjectInterface::isNode(target) then
+                NSDataType1::landing(target)
+            end
+            if GenericObjectInterface::isDataline(target) then
+                NSDataLine::openLastDataPointOrNothing(target)
+            end
         end
     end
 
@@ -737,7 +666,6 @@ class Asteroids
             puts Asteroids::asteroidToString(asteroid)
 
             puts "uuid: #{asteroid["uuid"]}"
-            puts "payload: #{JSON.generate(asteroid["payload"])}"
             puts "orbital: #{JSON.generate(asteroid["orbital"])}"
             puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}"
             puts "metric: #{Asteroids::metric(asteroid)}"
@@ -760,10 +688,8 @@ class Asteroids
             menuitems.item(
                 "update asteroid description",
                 lambda { 
-                    description = Miscellaneous::editTextSynchronously(asteroid["payload"]["description"]).strip
-                    return if description == ""
-                    asteroid["payload"]["description"] = description
-                    Asteroids::reCommitToDisk(asteroid)
+                    puts "Not yet implemented"
+                    LucilleCore::pressEnterToContinue()
                 }
             )
 
@@ -781,21 +707,6 @@ class Asteroids
             menuitems.item(
                 "stop",
                 lambda { Asteroids::asteroidStopSequence(asteroid) }
-            )
-
-            if asteroid["payload"]["type"] == "description" then
-                menuitems.item(
-                    "edit description",
-                    lambda {
-                        asteroid["payload"]["description"] = Miscellaneous::editTextSynchronously(asteroid["payload"]["description"]).strip
-                        Asteroids::reCommitToDisk(asteroid)
-                    }
-                )
-            end
-
-            menuitems.item(
-                "re-payload",
-                lambda { Asteroids::rePayloadOrNothing(asteroid) }
             )
 
             menuitems.item(
@@ -837,81 +748,69 @@ class Asteroids
                 }
             )
 
-            if asteroid["payload"]["type"] == "metal" then
+            Miscellaneous::horizontalRule()
 
-                Miscellaneous::horizontalRule()
-
-                Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                    ordinal, target = packet
-                    menuitems.item(
-                        "(#{"%.5f" % ordinal}) #{GenericObjectInterface::toString(target)}",
-                        lambda { GenericObjectInterface::landing(target) }
-                    )
-                }
-
-                puts ""
-
+            Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
+                ordinal, target = packet
                 menuitems.item(
-                    "add new contents",
-                    lambda { 
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline", "direct management"])
-                        return if option.nil?
-                        if option == "node" then
-                            node = NSDataType1::issueNewNodeInteractivelyOrNull()
-                            return if node.nil?
-                            Arrows::issueOrException(asteroid, node)
-                            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
-                        end
-                        if option == "dataline" then
-                            dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-                            return if dataline.nil?
-                            Arrows::issueOrException(asteroid, dataline)
-                            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, dataline, ordinal)
-                        end
-                    }
+                    "(#{"%.5f" % ordinal}) #{GenericObjectInterface::toString(target)}",
+                    lambda { GenericObjectInterface::landing(target) }
                 )
+            }
 
-                menuitems.item(
-                    "add node (chosen from existing nodes)",
-                    lambda {
-                        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+            puts ""
+
+            menuitems.item(
+                "add new contents",
+                lambda { 
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["node", "dataline", "direct management"])
+                    return if option.nil?
+                    if option == "node" then
+                        node = NSDataType1::issueNewNodeInteractivelyOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                         Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
-                    }
-                )
-
-                menuitems.item(
-                    "select target ; set ordinal",
-                    lambda { 
-                        target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
-                        return if target.nil?
-                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
-                    }
-                )
-
-                menuitems.item(
-                    "select target ; destroy",
-                    lambda {
-                        dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
+                    end
+                    if option == "dataline" then
+                        dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                         return if dataline.nil?
-                        NyxObjects::destroy(dataline)
-                    }
-                )
+                        Arrows::issueOrException(asteroid, dataline)
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, dataline, ordinal)
+                    end
+                }
+            )
 
-            end
+            menuitems.item(
+                "add node (chosen from existing nodes)",
+                lambda {
+                    node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    return if node.nil?
+                    Arrows::issueOrException(asteroid, node)
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, node, ordinal)
+                }
+            )
 
-            if asteroid["payload"]["type"] == "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26" then
-                Miscellaneous::horizontalRule()
-                description = asteroid["payload"]["description"]
-                location = DirectManagement::identifyALocationByDescriptionOrNull(description)
-                return if location.nil?
-                system("open '#{location}'")
-            end
+            menuitems.item(
+                "select target ; set ordinal",
+                lambda { 
+                    target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
+                    return if target.nil?
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
+                }
+            )
+
+            menuitems.item(
+                "select target ; destroy",
+                lambda {
+                    dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
+                    return if dataline.nil?
+                    NyxObjects::destroy(dataline)
+                }
+            )
 
             Miscellaneous::horizontalRule()
 
@@ -951,29 +850,6 @@ class Asteroids
                 }
             end
         }
-    end
-
-    # -----------------------------------
-
-    # Asteroids::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["payload"]["type"] == "description"
-            }
-            .select{|asteroid|
-                !asteroid["payload"]["description"].nil?
-            }
-            .select{|asteroid|
-                asteroid["payload"]["description"].downcase.include?(pattern.downcase)
-            }
-            .map{|asteroid|
-                {
-                    "description"   => Asteroids::asteroidToString(asteroid),
-                    "referencetime" => asteroid["unixtime"],
-                    "dive"          => lambda { Asteroids::landing(asteroid) }
-                }
-            }
     end
 end
 

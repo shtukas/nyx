@@ -18,6 +18,19 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        catalystObjects.first(5).each{|object|
+            str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+            break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+            verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+            menuitems.item(
+                str,
+                lambda { object["execute"].call(nil) }
+            )
+        }
+
         filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
         text = IO.read(filepath).strip
         if text.size > 0 then
@@ -128,7 +141,7 @@ class CatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        catalystObjects.each{|object|
+        catalystObjects.drop(5).each{|object|
             str = DisplayUtils::makeDisplayStringForCatalystListing(object)
             break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
             verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
@@ -289,7 +302,6 @@ class CatalystUI
 
             CatalystUI::startThreadsIfNotStarted()
         }
-
     end
 end
 
