@@ -662,6 +662,11 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}"
             puts "orbital: #{JSON.generate(asteroid["orbital"])}"
+            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+                if asteroid["orbital"]["days"] then
+                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
+                end
+            end
             puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}"
             puts "metric: #{Asteroids::metric(asteroid)}"
 
@@ -687,12 +692,6 @@ class Asteroids
                     LucilleCore::pressEnterToContinue()
                 }
             )
-
-            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                if asteroid["orbital"]["days"] then
-                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
-                end
-            end
 
             menuitems.item(
                 "start",

@@ -13,67 +13,70 @@ class CatalystUI
     # CatalystUI::accessProjects()
     def self.accessProjects()
 
-        system("clear")
+        loop {
+            system("clear")
 
-        menuitems = LCoreMenuItemsNX1.new()
+            menuitems = LCoreMenuItemsNX1.new()
 
-        puts ""
+            puts ""
 
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
-                menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
-                )
-            }
-
-        puts ""
-
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
-                menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
-                )
-            }
-
-        puts ""
-
-        Calendar::dates().each{|date|
-            menuitems.item(
-                "[calendar] #{date}",
-                lambda { 
-                    filepath = Calendar::dateToFilepath(date)
-                    system("open '#{filepath}'")
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
                 }
-            )
-        }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                }
 
-        puts ""
+            puts ""
 
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
+                }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                }
+
+            puts ""
+
+            Calendar::dates().each{|date|
                 menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
+                    "[calendar] #{date}",
+                    lambda { 
+                        filepath = Calendar::dateToFilepath(date)
+                        system("open '#{filepath}'")
+                    }
                 )
             }
 
-        puts ""
+            puts ""
 
-        menuitems.prompt()
+            Asteroids::asteroids()
+                .select{|asteroid|
+                    asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
+                }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                .each{|asteroid|
+                    menuitems.item(
+                        Asteroids::asteroidToString(asteroid),
+                        lambda { Asteroids::landing(asteroid) }
+                    )
+                }
+
+            puts ""
+
+            status = menuitems.prompt()
+            break if !status
+        }
     end
 
     # CatalystUI::standardDisplay(catalystObjects)
