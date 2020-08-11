@@ -9,13 +9,6 @@ Essentially:
                                     ~/.catalyst/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
         - the git data repository   ~/.catalyst/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c
 
-    DocNet expects:
-        - the primary data store in ~/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93
-        - the desk in               ~/.docnet/001-desk-85d03ad6-ba18-4b01-b9e3-8496eaab477f
-        - the key-value store on disk repository at
-                                    ~/.docnet/004-key-value-store-999a28e2-9d55-4f93-8a99-5e026512f43c
-        - the git data repository   ~/.docnet/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c
-
 When the program starts
     - We first check that "exitIfNotExist" elements are all there otherwise we exit
     - We check the "createIfNotExist" elements and create the missing ones

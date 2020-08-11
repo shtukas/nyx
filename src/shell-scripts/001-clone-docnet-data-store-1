@@ -1,5 +1,0 @@
-#!/bin/bash
-
-echo "clone-docnet-data-store-1"
-cd ~/.docnet/005-git-data-repository-a7da89f5-0a4a-4af0-92fc-6e150ac10e5c
-git clone https://github.com/shtukas/docnet-data-store-1.git

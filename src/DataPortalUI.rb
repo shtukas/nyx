@@ -289,11 +289,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "Run network synchronization", 
-                lambda { DataStoresOrchestration::fullSync() }
-            )
-
-            ms.item(
                 "Show dataset statistics", 
                 lambda { 
                     system("clear")

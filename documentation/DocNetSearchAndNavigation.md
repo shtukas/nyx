@@ -1,3 +1,0 @@
-## DocNet: Search and Navigation
-
-

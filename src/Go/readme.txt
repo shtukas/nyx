@@ -1,1 +1,0 @@
-Catalyst is going to be re-written in Go by the end of 2020.

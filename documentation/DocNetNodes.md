@@ -1,3 +1,0 @@
-## DocNet: The Nodes
-
-

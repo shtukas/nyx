@@ -2,14 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "../src/Ruby/loader.rb"
-
-class ProgramVariant
-    # ProgramVariant::id()
-    def self.id()
-        "catalyst"
-    end
-end
+require_relative "src/loader.rb"
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 

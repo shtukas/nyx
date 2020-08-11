@@ -47,123 +47,96 @@ class CatalystUI
                 }
         end
 
-        if verticalSpaceLeft > 0 then
-            puts ""
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        DirectManagement::getLocations().each{|location|
+            next if verticalSpaceLeft <= 0
+            menuitems.item(
+                DirectManagement::locationToString(location),
+                lambda { DirectManagement::accessLocation(location) }
+            )
             verticalSpaceLeft = verticalSpaceLeft - 1
+        }
 
-            catalystObjects.first(10).each{|object| 
-                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                menuitems.item(
-                    str,
-                    lambda { object["execute"].call(nil) }
-                )
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
             }
-
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
-
-            DirectManagement::getLocations().each{|location|
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
                 next if verticalSpaceLeft <= 0
                 menuitems.item(
-                    DirectManagement::locationToString(location),
-                    lambda { DirectManagement::accessLocation(location) }
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
                 )
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
-                }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    next if verticalSpaceLeft <= 0
-                    menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                }
-
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
-
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
-                }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    next if verticalSpaceLeft <= 0
-                    menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                }
-
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
-
-            Calendar::dates().each{|date|
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
+            }
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
                 next if verticalSpaceLeft <= 0
                 menuitems.item(
-                    "[calendar] #{date}",
-                    lambda { 
-                        filepath = Calendar::dateToFilepath(date)
-                        system("open '#{filepath}'")
-                    }
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
                 )
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
+        Calendar::dates().each{|date|
+            next if verticalSpaceLeft <= 0
+            menuitems.item(
+                "[calendar] #{date}",
+                lambda { 
+                    filepath = Calendar::dateToFilepath(date)
+                    system("open '#{filepath}'")
                 }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    next if verticalSpaceLeft <= 0
-                    menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                }
+            )
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        }
 
-            if verticalSpaceLeft >= 1 then
-                puts ""
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
-            catalystObjects.drop(10).each{|object|
-                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
+            }
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
+                next if verticalSpaceLeft <= 0
                 menuitems.item(
-                    str,
-                    lambda { object["execute"].call(nil) }
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
                 )
+                verticalSpaceLeft = verticalSpaceLeft - 1
             }
-        end 
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        catalystObjects.each{|object|
+            str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+            break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+            verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+            menuitems.item(
+                str,
+                lambda { object["execute"].call(nil) }
+            )
+        }
 
         # --------------------------------------------------------------------------
         # Prompt
@@ -287,7 +260,7 @@ class CatalystUI
             loop {
                 sleep 30
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
-                    system("#{File.dirname(__FILE__)}/../../bin/vienna-import")
+                    system("#{File.dirname(__FILE__)}/../vienna-import")
                 end
                 sleep 3600
             }
