@@ -8,7 +8,6 @@ class NyxPrimaryObjects
         [
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
-            "c6fad718-1306-49cf-a361-76ce85e909ca", # Notes
             "0f555c97-3843-4dfe-80c8-714d837eba69", # NSDataPoint
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "d83a3ff5-023e-482c-8658-f7cfdbb6b738", # Arrow

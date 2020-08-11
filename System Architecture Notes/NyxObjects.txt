@@ -1,10 +1,21 @@
 
+-------------------------------------------------------------------------
 Nyx
 
     Data
 
         NSDataPoint   # NSDataPoint.txt
-                      # nyxNxSet: "ae95948f-57ad-46c2-9871-69d5e7e50481"
+                      # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
+            -> line
+            -> url
+            -> text
+            -> picture(+)
+            -> aion-point
+            -> NyxFile
+            -> NyxPod
+
+        NSDataLine    # NSDataLine.txt
+                      # nyxNxSet: "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
 
         NSDataType1   # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
@@ -22,8 +33,12 @@ Nyx
           # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
 
     NSDataTypeX
+          # nyxNxSet: "5c99134b-2b61-4750-8519-49c1d896556f"
+                / Description
+                / DateTime
+                / Note
 
-
+-------------------------------------------------------------------------
 All Nyx Objects 
 
     1. Need to have the two following attributes
