@@ -64,7 +64,6 @@ require_relative "Curation.rb"
 require_relative "DataStore2DataStore3DirectionalSyncs.rb"
 require_relative "DataPortalUI.rb"
 require_relative "DeskOperator.rb"
-require_relative "DirectManagement.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)

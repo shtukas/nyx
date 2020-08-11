@@ -10,6 +10,72 @@ class CatalystUI
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
+    # CatalystUI::accessProjects()
+    def self.accessProjects()
+
+        system("clear")
+
+        menuitems = LCoreMenuItemsNX1.new()
+
+        puts ""
+
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
+            }
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
+                menuitems.item(
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+        puts ""
+
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
+            }
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
+                menuitems.item(
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+        puts ""
+
+        Calendar::dates().each{|date|
+            menuitems.item(
+                "[calendar] #{date}",
+                lambda { 
+                    filepath = Calendar::dateToFilepath(date)
+                    system("open '#{filepath}'")
+                }
+            )
+        }
+
+        puts ""
+
+        Asteroids::asteroids()
+            .select{|asteroid|
+                asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
+            }
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .each{|asteroid|
+                menuitems.item(
+                    Asteroids::asteroidToString(asteroid),
+                    lambda { Asteroids::landing(asteroid) }
+                )
+            }
+
+        puts ""
+
+        menuitems.prompt()
+    end
+
     # CatalystUI::standardDisplay(catalystObjects)
     def self.standardDisplay(catalystObjects)
 
@@ -28,18 +94,23 @@ class CatalystUI
             verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
         end
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        objects = catalystObjects
+            .take_while{|object| object["metric"] >= 0.8 }
 
-        catalystObjects.first(5).each{|object|
-            str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-            break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-            verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-            menuitems.item(
-                str,
-                lambda { object["execute"].call(nil) }
-            )
-        }
+        if objects.size > 0 then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            objects
+                .each{|object|
+                    str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                    break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                    verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+                    menuitems.item(
+                        str,
+                        lambda { object["execute"].call(nil) }
+                    )
+                }
+        end
 
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
@@ -56,100 +127,23 @@ class CatalystUI
                         .map{|line| "    #{line}" }
                         .join()
                     puts str
-                    verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(str) + 1)
                 }
         end
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        DirectManagement::getLocations().each{|location|
-            next if verticalSpaceLeft <= 0
-            menuitems.item(
-                DirectManagement::locationToString(location),
-                lambda { DirectManagement::accessLocation(location) }
-            )
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
-                next if verticalSpaceLeft <= 0
+        catalystObjects
+            .drop_while{|object| object["metric"] >= 0.8 }
+            .each{|object|
+                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
+                    str,
+                    lambda { object["execute"].call(nil) }
                 )
-                verticalSpaceLeft = verticalSpaceLeft - 1
             }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
-                next if verticalSpaceLeft <= 0
-                menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
-                )
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Calendar::dates().each{|date|
-            next if verticalSpaceLeft <= 0
-            menuitems.item(
-                "[calendar] #{date}",
-                lambda { 
-                    filepath = Calendar::dateToFilepath(date)
-                    system("open '#{filepath}'")
-                }
-            )
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Asteroids::asteroids()
-            .select{|asteroid|
-                asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
-            }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .each{|asteroid|
-                next if verticalSpaceLeft <= 0
-                menuitems.item(
-                    Asteroids::asteroidToString(asteroid),
-                    lambda { Asteroids::landing(asteroid) }
-                )
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        catalystObjects.drop(5).each{|object|
-            str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-            break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-            verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-            menuitems.item(
-                str,
-                lambda { object["execute"].call(nil) }
-            )
-        }
 
         # --------------------------------------------------------------------------
         # Prompt
@@ -228,6 +222,11 @@ class CatalystUI
 
         if command == "/" then
             DataPortalUI::dataPortalFront()
+            return
+        end
+
+        if command == ";" then
+            CatalystUI::accessProjects()
             return
         end
 
