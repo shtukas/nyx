@@ -141,6 +141,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
+            NyxObjects::destroy(object)
             return
         end
         puts object
