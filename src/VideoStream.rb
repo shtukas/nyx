@@ -56,7 +56,7 @@ class VideoStream
                 objects << {
                     "uuid"        => uuid,
                     "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
-                    "metric"      => VideoStream::metric(indx),
+                    "metric"      => isRunning ? 1 : VideoStream::metric(indx),
                     "execute"     => lambda { |command| VideoStream::execute(filepath) },
                     "x-video-stream" => true,
                     "x-filepath"  => filepath
