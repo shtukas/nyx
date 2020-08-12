@@ -87,4 +87,13 @@ class GenericObjectInterface
         raise "[error: 2b802546-eb97-433f-a3d4-5bd76892db84]"
     end
 
+    # GenericObjectInterface::destroyProcedure(object)
+    def self.destroyProcedure(object)
+        if GenericObjectInterface::isNode(object) then
+            NSDataType1::destroyProcedure(object)
+            return
+        end
+        puts object
+        raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
+    end
 end

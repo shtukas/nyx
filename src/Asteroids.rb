@@ -224,26 +224,6 @@ class Asteroids
         Asteroids::reCommitToDisk(asteroid)
     end
 
-    # Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
-    def self.getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
-        Arrows::getTargetsForSource(asteroid)
-            .map{|target| [ Asteroids::getPositionOrdinalForAsteroidTarget(asteroid, target), target] }
-            .sort{|p1, p2| p1[0] <=> p2[0] }
-    end
-
-    # Asteroids::selectOneAsteroidTargetOrNull(asteroid)
-    def self.selectOneAsteroidTargetOrNull(asteroid)
-        ps = Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid)
-        toStringLambda = lambda{|p| 
-            ordinal = p[0]
-            point   = p[1]
-            "(#{"%.5f" % ordinal}) #{NSDataType1::toString(point)}"
-        }
-        p = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", ps, toStringLambda)
-        return nil if p.nil?
-        p[1]
-    end
-
     # Asteroids::unixtimedrift(unixtime)
     def self.unixtimedrift(unixtime)
         # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
@@ -566,11 +546,9 @@ class Asteroids
             }
             NyxObjects::reput(node)
             NSDataType1::landing(node)
-
         else
-            Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                ordinal, point = packet
-                NSDataType1::destroyProcedure(point)
+            Arrows::getTargetsForSource(asteroid).each{|target|
+                GenericObjectInterface::destroyProcedure(target)
             }
         end
 
@@ -624,23 +602,6 @@ class Asteroids
             puts ""
             return LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         end
-    end
-
-    # Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
-    def self.setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{target["uuid"]}"
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(key, ordinal)
-    end
-
-    # Asteroids::getPositionOrdinalForAsteroidTarget(asteroid, target)
-    def self.getPositionOrdinalForAsteroidTarget(asteroid, target)
-        key = "491d8eec-27ae-4860-96d8-95d3fce2fb3c:#{asteroid["uuid"]}:#{target["uuid"]}"
-        ordinal = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(key)
-        if ordinal.nil? then
-            ordinal = rand
-            Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
-        end
-        ordinal
     end
 
     # Asteroids::landing(asteroid)
@@ -744,10 +705,9 @@ class Asteroids
 
             Miscellaneous::horizontalRule()
 
-            Asteroids::getOrdinalTargetPairsForAsteroidInOrdinalOrder(asteroid).each{|packet|
-                ordinal, target = packet
+            Arrows::getTargetsForSource(asteroid).each{|target|
                 menuitems.item(
-                    "(#{"%.5f" % ordinal}) #{GenericObjectInterface::toString(target)}",
+                    GenericObjectInterface::toString(target),
                     lambda { GenericObjectInterface::landing(target) }
                 )
             }
@@ -787,21 +747,11 @@ class Asteroids
             )
 
             menuitems.item(
-                "select target ; set ordinal",
-                lambda { 
-                    target = Asteroids::selectOneAsteroidTargetOrNull(asteroid)
-                    return if target.nil?
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    Asteroids::setPositionOrdinalForAsteroidTarget(asteroid, target, ordinal)
-                }
-            )
-
-            menuitems.item(
                 "select target ; destroy",
                 lambda {
-                    dataline = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getDatalinesForAsteroid(asteroid), lambda { |dataline| NSDataLine::toString(dataline) })
-                    return if dataline.nil?
-                    NyxObjects::destroy(dataline)
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
+                    return if target.nil?
+                    GenericObjectInterface::destroyProcedure(target)
                 }
             )
 
