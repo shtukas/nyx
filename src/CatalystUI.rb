@@ -110,7 +110,7 @@ class CatalystUI
                     verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                     menuitems.item(
                         str,
-                        lambda { object["execute"].call(nil) }
+                        lambda { object["execute"].call("landing-ec23a3a3-bfa0-45db-a162-fdd92da87f64") }
                     )
                 }
         end
@@ -144,7 +144,7 @@ class CatalystUI
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 menuitems.item(
                     str,
-                    lambda { object["execute"].call(nil) }
+                    lambda { object["execute"].call("landing-ec23a3a3-bfa0-45db-a162-fdd92da87f64") }
                 )
             }
 
@@ -168,7 +168,7 @@ class CatalystUI
         if command == ".." then
             object = catalystObjects.first
             return if object.nil?
-            object["execute"].call("..")
+            object["execute"].call("access-c2c799b1-bcb9-4963-98d5-494a5a76e2e6")
             return
         end
 
@@ -233,9 +233,6 @@ class CatalystUI
             return
         end
 
-        return if catalystObjects.size == 0
-
-        catalystObjects.first["execute"].call(command)
     end
 
     @@haveStartedThreads = false

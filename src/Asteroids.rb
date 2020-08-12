@@ -4,7 +4,10 @@ class Asteroids
 
     # Asteroids::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
+        object = NyxObjects::getOrNull(uuid)
+        return nil if object.nil?
+        return nil if (object["nyxNxSet"] != "b66318f4-2662-4621-a991-a6b966fb4398")
+        object
     end
 
     # Asteroids::commitToDisk(asteroid)
@@ -374,8 +377,8 @@ class Asteroids
         #break if !status
     end
 
-    # Asteroids::asteroidDoubleDotProcessing(asteroid)
-    def self.asteroidDoubleDotProcessing(asteroid)
+    # Asteroids::access(asteroid)
+    def self.access(asteroid)
 
         uuid = asteroid["uuid"]
 
@@ -384,32 +387,32 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
             Asteroids::tryAndMoveThisInboxItem(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openPayload(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
             return
         end
 
@@ -460,12 +463,13 @@ class Asteroids
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
-            "execute"          => lambda { |input|
-                if input == ".." then
-                    Asteroids::asteroidDoubleDotProcessing(asteroid)
-                    return
+            "execute"          => lambda { |command| 
+                if command == "access-c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
+                    Asteroids::access(asteroid) 
                 end
-                Asteroids::landing(asteroid) 
+                if command == "landing-ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
+                    Asteroids::landing(asteroid) 
+                end
             },
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
@@ -555,20 +559,18 @@ class Asteroids
         NyxObjects::destroy(asteroid)
     end
 
-    # Asteroids::openPayload(asteroid)
-    def self.openPayload(asteroid)
+    # Asteroids::openTargetOrTargets(asteroid)
+    def self.openTargetOrTargets(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size == 0 then
             return
         end
         if targets.size == 1 then
             target = targets.first
-            if GenericObjectInterface::isNode(target) then
-                NSDataType1::landing(target)
-            end
-            if GenericObjectInterface::isDataline(target) then
-                NSDataLine::openLastDataPointOrNothing(target)
-            end
+            GenericObjectInterface::access(target)
+        end
+       if targets.size > 1 then
+            Asteroids::landing(asteroid)
         end
     end
 
@@ -812,6 +814,8 @@ class AsteroidsOfInterest
 
     # AsteroidsOfInterest::getUUIDs()
     def self.getUUIDs()
-        AsteroidsOfInterest::getCollection().values.map{|item|  item["uuid"] }
+        AsteroidsOfInterest::getCollection()
+            .values
+            .map{|item|  item["uuid"] }
     end
 end

@@ -78,62 +78,44 @@ class NSDataLine
             .last
     end
 
-    # NSDataLine::openLastDataPointOrNothing(dataline)
-    def self.openLastDataPointOrNothing(dataline)
+    # NSDataLine::readWriteLastDataPointOrNothing(dataline)
+    def self.readWriteLastDataPointOrNothing(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
-        NSDataPoint::openPoint(dataline, datapoint)
-    end
-
-    # NSDataLine::editLastDataPointOrNothing(dataline)
-    def self.editLastDataPointOrNothing(dataline)
-        datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
-        return if datapoint.nil?
-        newdatapoint = NSDataPoint::editPointReturnNewPointOrNull(dataline, datapoint)
+        newdatapoint = NSDataPoint::readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
         return if newdatapoint.nil?
         Arrows::issueOrException(dataline, newdatapoint)
     end
 
-    # NSDataLine::accessLastDataPoint(dataline)
-    def self.accessLastDataPoint(dataline)
+    # NSDataLine::envelop(dataline)
+    def self.envelop(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
 
-        modes = ["access read only", "access edit", "destroy"]
-
-        if datapoint["type"] == "text" then
-            # By default we edit texts
-            modes = ["access edit", "destroy"]
-        end
-        if datapoint["type"] == "aion-point" then
-            # By default we edit aion-points
-            modes = ["access edit", "destroy"]
-        end
-        if datapoint["type"] == "NyxFile" then
-            NSDataLine::editLastDataPointOrNothing(dataline)
-            return
-        end
-        if datapoint["type"] == "NyxPod" then
-            # By default we edit NyxPods
-            NSDataLine::editLastDataPointOrNothing(dataline)
-            return
-        end
-
-        loop {
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-            return if mode.nil?
-            if mode == "access read only" then
-                NSDataLine::openLastDataPointOrNothing(dataline)
-            end
-            if mode == "access edit" then
-                NSDataLine::editLastDataPointOrNothing(dataline)
-            end
-            if mode == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                    NyxObjects::destroy(dataline)
+        if ["line", "url", "text", "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", "aion-point"].include?(datapoint["type"]) then
+            modes = ["open", "destroy"]
+            loop {
+                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+                return if mode.nil?
+                if mode == "open" then
+                    NSDataLine::readWriteLastDataPointOrNothing(dataline)
                 end
-            end
-        }
+                if mode == "destroy" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                        NyxObjects::destroy(dataline)
+                        return
+                    end
+                end
+            }
+            return
+        end
+
+        if ["NyxFile", "NyxFile"].include?(datapoint["type"]) then
+            NSDataLine::readWriteLastDataPointOrNothing(dataline)
+            return
+        end
+
+        raise "[NSDataPoint error 2c53b113-cc79]"
     end
 
     # NSDataLine::decacheObjectMetadata(dataline)

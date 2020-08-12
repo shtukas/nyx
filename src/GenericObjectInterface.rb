@@ -69,12 +69,16 @@ class GenericObjectInterface
             Asteroids::landing(object)
             return
         end
-        if GenericObjectInterface::isAsteroid(object) then
-            Asteroids::landing(object)
+        if GenericObjectInterface::isNode(object) then
+            NSDataType1::landing(object)
             return
         end
         if GenericObjectInterface::isDataline(object) then
-            NSDataLine::accessLastDataPoint(object)
+            NSDataLine::envelop(object)
+            return
+        end
+        if GenericObjectInterface::isDataPoint(object) then
+            NSDataPoint::access(object)
             return
         end
         puts object
@@ -92,7 +96,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataline(object) then
-            NSDataLine::accessLastDataPoint(object)
+            NSDataLine::envelop(object)
             return
         end
         puts object
@@ -103,6 +107,10 @@ class GenericObjectInterface
     def self.destroyProcedure(object)
         if GenericObjectInterface::isNode(object) then
             NSDataType1::destroyProcedure(object)
+            return
+        end
+        if GenericObjectInterface::isDataline(object) then
+            NyxObjects::destroy(object)
             return
         end
         puts object

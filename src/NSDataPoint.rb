@@ -268,8 +268,8 @@ class NSDataPoint
         str
     end
 
-    # NSDataPoint::openPoint(owner, ns0)
-    def self.openPoint(owner, ns0)
+    # NSDataPoint::access(ns0)
+    def self.access(ns0)
         if ns0["type"] == "line" then
             puts ns0["line"]
             LucilleCore::pressEnterToContinue()
@@ -298,6 +298,23 @@ class NSDataPoint
             return
         end
         if ns0["type"] == "aion-point" then
+            owners = Arrows::getSourcesForTarget(ns0)
+            owner = nil
+            if owners.size == 0 then
+                puts "Could not find any owner for #{NSDataPoint::toString(ns0)}"
+                puts "Aborting opening"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if owners.size == 1 then
+                owner = owners.first
+            end
+            if owners.size > 1 then
+                puts "We have more than one owner for this aion point (how did that happen?...)"
+                puts "Choose one for the desk management"
+                owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|owner| GenericObjectInterface::toString(owner) })
+            end
+            return nil if owner.nil?
             folderpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(owner, ns0)
             system("open '#{folderpath}'")
             return
@@ -339,8 +356,8 @@ class NSDataPoint
         raise "[NSDataPoint error 4bf5cfb1-c2a2]"
     end
 
-    # NSDataPoint::editPointReturnNewPointOrNull(dataline, datapoint)
-    def self.editPointReturnNewPointOrNull(dataline, datapoint)
+    # NSDataPoint::readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
+    def self.readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
         if datapoint["type"] == "line" then
             line = datapoint["line"]
             line = Miscellaneous::editTextSynchronously(line).strip
