@@ -248,15 +248,10 @@ class Asteroids
         end
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"]) - 0.40*Math.exp(-BankExtended::recoveredDailyTimeInHours(asteroid["orbital"]["type"]))
+            return 0.70 - 0.1*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            uuid = asteroid["uuid"]
             if orbital["days"] then
                 if !orbital["days"].include?(Miscellaneous::todayAsLowercaseEnglishWeekDayName()) then
                     if Asteroids::isRunning?(asteroid) then
@@ -266,24 +261,32 @@ class Asteroids
                     return 0
                 end
             end
-            return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, orbital["timeCommitmentInHours"])
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
+            metric = 0.70 - 0.1*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
+            if metric < 0.6 then
+                ex = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) - orbital["timeCommitmentInHours"]
+                0.20 + 0.4*Math.exp(-ex*3)
+            end
+            return metric
+        end
+
+        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return 0.55 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"]) - 0.40*Math.exp(-BankExtended::recoveredDailyTimeInHours(asteroid["orbital"]["type"]))
         end
 
         if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
+            return 0.55 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
         end
 
         if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
             uuid = asteroid["uuid"]
             return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInHours())
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
+            return 0.55 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
         end
 
         if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
             uuid = asteroid["uuid"]
             return 0 if BankExtended::hasReachedDailyTimeTargetInHours(uuid, Asteroids::onGoingUnilCompletionDailyExpectationInHours())
-            return 0.65 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
+            return 0.55 + 0.05*Miscellaneous::metricCircle(asteroid["unixtime"])
         end
 
         if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then

@@ -5,23 +5,22 @@
         0.90  -> 0.20 VideoStream
 
 💫
-        0.82+         Waves sticky
-        0.80+         Waves every-this-day-of-the-month / every-this-day-of-the-week
+        0.84+         Waves sticky
+        0.82+         Waves every-this-day-of-the-month
+        0.80+         Waves every-this-day-of-the-week
+        0.78+         Waves every-n-hours / every-n-days
 
 👩‍💻
 
         0.72          Asteroids "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
 
-        0.65+0.5(sin) Waves every-n-hours / every-n-days
-
-        0.65+0.5(sin) Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
+        0.70 ->       Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
                       Asteroids "repeating-daily-time-commitment-8123956c-05"
+
+        0.60 <-> 0.5  Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
                       Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
                       Asteroids "on-going-until-completion-5b26f145-7ebf-498"
                       Asteroids "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
-
-        0.65+0.5(sin) -> 0.2
-                      Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
         0.50          Backups Monitor
 

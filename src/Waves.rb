@@ -104,19 +104,19 @@ class Waves
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? ( 0.82 + Waves::traceToMetricShift(schedule["uuid"]) ) : 0
+            return Time.new.hour >= schedule['from-hour'] ? ( 0.84 + Waves::traceToMetricShift(schedule["uuid"]) ) : 0
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
+            return 0.82 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-this-day-of-the-week' then
             return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.65 + 0.05*Miscellaneous::metricCircle(wave["unixtime"])
+            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.65 + 0.05*Miscellaneous::metricCircle(wave["unixtime"])
+            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
         end
         1
     end
