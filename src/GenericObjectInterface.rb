@@ -3,6 +3,11 @@
 
 class GenericObjectInterface
 
+    # GenericObjectInterface::isAsteroid(object)
+    def self.isAsteroid(object)
+        object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
+    end
+
     # GenericObjectInterface::isNode(object)
     def self.isNode(object)
         object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
@@ -13,11 +18,6 @@ class GenericObjectInterface
         object["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
     end
 
-    # GenericObjectInterface::isAsteroid(object)
-    def self.isAsteroid(object)
-        object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
-    end
-
     # GenericObjectInterface::isDataPoint(object)
     def self.isDataPoint(object)
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
@@ -25,6 +25,9 @@ class GenericObjectInterface
 
     # GenericObjectInterface::toString(object)
     def self.toString(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            return Asteroids::toString(object)
+        end
         if GenericObjectInterface::isNode(object) then
             return NSDataType1::toString(object)
         end

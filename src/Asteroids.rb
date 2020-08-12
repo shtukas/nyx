@@ -184,8 +184,8 @@ class Asteroids
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
-    # Asteroids::asteroidToString(asteroid)
-    def self.asteroidToString(asteroid)
+    # Asteroids::toString(asteroid)
+    def self.toString(asteroid)
         orbitalNSDataPoint = lambda{|asteroid|
             uuid = asteroid["uuid"]
             if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
@@ -478,7 +478,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         {
             "uuid"             => uuid,
-            "body"             => Asteroids::asteroidToString(asteroid),
+            "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |input|
                 if input == ".." then
@@ -520,7 +520,7 @@ class Asteroids
 
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
     def self.asteroidReceivesTime(asteroid, timespanInSeconds)
-        puts "Adding #{timespanInSeconds} seconds to #{Asteroids::asteroidToString(asteroid)}"
+        puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
     end
@@ -555,7 +555,7 @@ class Asteroids
     def self.asteroidDestroySequence(asteroid)
 
         if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
-            puts Asteroids::asteroidToString(asteroid)
+            puts Asteroids::toString(asteroid)
             puts "Ok, you want to keep them, I am going to make them target of a new node"
             LucilleCore::pressEnterToContinue()
             # For this we are going to make a node with the same uuid as the asteroid and give into it
@@ -599,7 +599,7 @@ class Asteroids
         loop {
             system("clear")
             asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
-            asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::asteroidToString(asteroid) })
+            asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
             break if asteroid.nil?
             Asteroids::landing(asteroid)
         }
@@ -620,7 +620,7 @@ class Asteroids
         else
             puts ""
             Asteroids::getTopPriorityAsteroidsInPriorityOrder()
-                .each{|asteroid| puts Asteroids::asteroidToString(asteroid) }
+                .each{|asteroid| puts Asteroids::toString(asteroid) }
             puts ""
             return LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         end
@@ -658,7 +658,7 @@ class Asteroids
 
             Miscellaneous::horizontalRule()
 
-            puts Asteroids::asteroidToString(asteroid)
+            puts Asteroids::toString(asteroid)
 
             puts "uuid: #{asteroid["uuid"]}"
             puts "orbital: #{JSON.generate(asteroid["orbital"])}"

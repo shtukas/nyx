@@ -27,7 +27,7 @@ class CatalystUI
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
                     menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
+                        Asteroids::toString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
                     )
                 }
@@ -41,7 +41,7 @@ class CatalystUI
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
                     menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
+                        Asteroids::toString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
                     )
                 }
@@ -67,7 +67,7 @@ class CatalystUI
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .each{|asteroid|
                     menuitems.item(
-                        Asteroids::asteroidToString(asteroid),
+                        Asteroids::toString(asteroid),
                         lambda { Asteroids::landing(asteroid) }
                     )
                 }

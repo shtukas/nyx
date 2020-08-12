@@ -123,7 +123,7 @@ class DataPortalUI
                             .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
                             .each{|asteroid|
                                 menuitems.item(
-                                    Asteroids::asteroidToString(asteroid),
+                                    Asteroids::toString(asteroid),
                                     lambda { Asteroids::landing(asteroid) }
                                 )
                             }
