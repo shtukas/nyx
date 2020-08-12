@@ -119,19 +119,21 @@ class NSDataLine
             return
         end
 
-        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-        return if mode.nil?
-        if mode == "access read only" then
-            NSDataLine::openLastDataPointOrNothing(dataline)
-        end
-        if mode == "access edit" then
-            NSDataLine::editLastDataPointOrNothing(dataline)
-        end
-        if mode == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                NyxObjects::destroy(dataline)
+        loop {
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+            return if mode.nil?
+            if mode == "access read only" then
+                NSDataLine::openLastDataPointOrNothing(dataline)
             end
-        end
+            if mode == "access edit" then
+                NSDataLine::editLastDataPointOrNothing(dataline)
+            end
+            if mode == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                    NyxObjects::destroy(dataline)
+                end
+            end
+        }
     end
 
     # NSDataLine::decacheObjectMetadata(dataline)

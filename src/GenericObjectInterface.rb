@@ -65,6 +65,14 @@ class GenericObjectInterface
 
     # GenericObjectInterface::access(object)
     def self.access(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if GenericObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
         if GenericObjectInterface::isDataline(object) then
             NSDataLine::accessLastDataPoint(object)
             return
@@ -75,12 +83,16 @@ class GenericObjectInterface
 
     # GenericObjectInterface::landing(object)
     def self.landing(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
         if GenericObjectInterface::isNode(object) then
             NSDataType1::landing(object)
             return
         end
-        if GenericObjectInterface::isAsteroid(object) then
-            Asteroids::landing(object)
+        if GenericObjectInterface::isDataline(object) then
+            NSDataLine::accessLastDataPoint(object)
             return
         end
         puts object

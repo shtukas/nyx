@@ -705,10 +705,12 @@ class Asteroids
 
             Miscellaneous::horizontalRule()
 
-            Arrows::getTargetsForSource(asteroid).each{|target|
+            targets = Arrows::getTargetsForSource(asteroid)
+            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets.each{|target|
                 menuitems.item(
                     GenericObjectInterface::toString(target),
-                    lambda { GenericObjectInterface::landing(target) }
+                    lambda { GenericObjectInterface::access(target) }
                 )
             }
 

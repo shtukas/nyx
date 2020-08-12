@@ -161,9 +161,13 @@ class NSDataType1
             Miscellaneous::horizontalRule()
 
             Arrows::getTargetsForSource(node).each{|object|
-                ordinal = menuitems.ordinal(lambda { GenericObjectInterface::access(object) })
-                puts "[access: #{ordinal}] #{GenericObjectInterface::toString(object)}"
+                menuitems.item(
+                    GenericObjectInterface::toString(object),
+                    lambda{ GenericObjectInterface::access(object) }
+                )
             }
+
+            puts ""
 
             ordinal = menuitems.ordinal(lambda {
                 dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
@@ -171,17 +175,6 @@ class NSDataType1
                 Arrows::issueOrException(node, dataline)
             })
             puts "[ #{ordinal}] issue new dataline"
-
-            Miscellaneous::horizontalRule()
-
-            downstream = Arrows::getTargetsForSource(node)
-            downstream = GenericObjectInterface::applyDateTimeOrderToObjects(downstream)
-            downstream.each{|o|
-                menuitems.item(
-                    GenericObjectInterface::toString(o),
-                    lambda { GenericObjectInterface::landing(o) }
-                )
-            }
 
             Miscellaneous::horizontalRule()
 
