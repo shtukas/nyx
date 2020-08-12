@@ -354,7 +354,7 @@ class Asteroids
         Asteroids::asteroidStopSequence(asteroid)
 
         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-            Asteroids::asteroidDestroySequence(asteroid)
+            Asteroids::destroy(asteroid)
             return
         end
 
@@ -532,11 +532,11 @@ class Asteroids
     # Asteroids::asteroidStopAndDestroySequence(asteroid)
     def self.asteroidStopAndDestroySequence(asteroid)
         Asteroids::asteroidStopSequence(asteroid)
-        Asteroids::asteroidDestroySequence(asteroid)
+        Asteroids::destroy(asteroid)
     end
 
-    # Asteroids::asteroidDestroySequence(asteroid)
-    def self.asteroidDestroySequence(asteroid)
+    # Asteroids::destroy(asteroid)
+    def self.destroy(asteroid)
 
         if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
             puts Asteroids::toString(asteroid)
@@ -552,7 +552,7 @@ class Asteroids
             NSDataType1::landing(node)
         else
             Arrows::getTargetsForSource(asteroid).each{|target|
-                GenericObjectInterface::destroyProcedure(target)
+                GenericObjectInterface::destroy(target)
             }
         end
 
@@ -567,7 +567,7 @@ class Asteroids
         end
         if targets.size == 1 then
             target = targets.first
-            GenericObjectInterface::access(target)
+            GenericObjectInterface::envelop(target)
         end
        if targets.size > 1 then
             Asteroids::landing(asteroid)
@@ -712,7 +712,7 @@ class Asteroids
             targets.each{|target|
                 menuitems.item(
                     GenericObjectInterface::toString(target),
-                    lambda { GenericObjectInterface::access(target) }
+                    lambda { GenericObjectInterface::envelop(target) }
                 )
             }
 
@@ -755,7 +755,7 @@ class Asteroids
                 lambda {
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
                     return if target.nil?
-                    GenericObjectInterface::destroyProcedure(target)
+                    GenericObjectInterface::destroy(target)
                 }
             )
 

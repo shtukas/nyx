@@ -78,8 +78,8 @@ class NSDataLine
             .last
     end
 
-    # NSDataLine::readWriteLastDataPointOrNothing(dataline)
-    def self.readWriteLastDataPointOrNothing(dataline)
+    # NSDataLine::accessLastDataPointOrNothing(dataline)
+    def self.accessLastDataPointOrNothing(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
         newdatapoint = NSDataPoint::readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
@@ -87,8 +87,8 @@ class NSDataLine
         Arrows::issueOrException(dataline, newdatapoint)
     end
 
-    # NSDataLine::envelop(dataline)
-    def self.envelop(dataline)
+    # NSDataLine::landing(dataline)
+    def self.landing(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
 
@@ -98,7 +98,7 @@ class NSDataLine
                 mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
                 return if mode.nil?
                 if mode == "open" then
-                    NSDataLine::readWriteLastDataPointOrNothing(dataline)
+                    NSDataLine::accessLastDataPointOrNothing(dataline)
                 end
                 if mode == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
@@ -111,7 +111,7 @@ class NSDataLine
         end
 
         if ["NyxFile", "NyxFile"].include?(datapoint["type"]) then
-            NSDataLine::readWriteLastDataPointOrNothing(dataline)
+            NSDataLine::accessLastDataPointOrNothing(dataline)
             return
         end
 

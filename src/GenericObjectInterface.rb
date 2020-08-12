@@ -63,8 +63,28 @@ class GenericObjectInterface
         Time.at(object["unixtime"]).utc.iso8601
     end
 
-    # GenericObjectInterface::access(object)
-    def self.access(object)
+    # GenericObjectInterface::envelop(object)
+    def self.envelop(object)
+        loop {
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open", "landing", "destroy"])
+            return if mode.nil?
+            if mode == "open" then
+                GenericObjectInterface::open(object)
+            end
+            if mode == "landing" then
+                GenericObjectInterface::landing(object)
+            end
+            if mode == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                    GenericObjectInterface::destroy(object)
+                    return
+                end
+            end
+        }
+    end
+
+    # GenericObjectInterface::open(object)
+    def self.open(object)
         if GenericObjectInterface::isAsteroid(object) then
             Asteroids::landing(object)
             return
@@ -74,7 +94,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataline(object) then
-            NSDataLine::envelop(object)
+            NSDataLine::accessLastDataPointOrNothing(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
@@ -96,21 +116,31 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataline(object) then
-            NSDataLine::envelop(object)
+            NSDataLine::landing(object)
+            return
+        end
+        if GenericObjectInterface::isDataPoint(object) then
+            NSDataPoint::access(object)
             return
         end
         puts object
         raise "[error: 2b802546-eb97-433f-a3d4-5bd76892db84]"
     end
 
-    # GenericObjectInterface::destroyProcedure(object)
-    def self.destroyProcedure(object)
+    # GenericObjectInterface::destroy(object)
+    def self.destroy(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            return
+        end
         if GenericObjectInterface::isNode(object) then
-            NSDataType1::destroyProcedure(object)
+            NSDataType1::destroy(object)
             return
         end
         if GenericObjectInterface::isDataline(object) then
             NyxObjects::destroy(object)
+            return
+        end
+        if GenericObjectInterface::isDataPoint(object) then
             return
         end
         puts object

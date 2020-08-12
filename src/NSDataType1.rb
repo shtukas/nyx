@@ -90,8 +90,8 @@ class NSDataType1
             .select{|point| NSDataType1::type1MatchesPattern(point, pattern) }
     end
 
-    # NSDataType1::destroyProcedure(point)
-    def self.destroyProcedure(point)
+    # NSDataType1::destroy(point)
+    def self.destroy(point)
         folderpath = DeskOperator::deskFolderpathForNSDataline(point)
         if File.exists?(folderpath) then
             LucilleCore::removeFileSystemLocation(folderpath)
@@ -136,7 +136,7 @@ class NSDataType1
             upstreams.each{|o|
                 menuitems.item(
                     "parent: #{GenericObjectInterface::toString(o)}",
-                    lambda { GenericObjectInterface::landing(o) }
+                    lambda { GenericObjectInterface::envelop(o) }
                 )
             }
 
@@ -163,7 +163,7 @@ class NSDataType1
             Arrows::getTargetsForSource(node).each{|object|
                 menuitems.item(
                     GenericObjectInterface::toString(object),
-                    lambda{ GenericObjectInterface::access(object) }
+                    lambda{ GenericObjectInterface::envelop(object) }
                 )
             }
 
@@ -338,7 +338,7 @@ class NSDataType1
                 "destroy [this]",
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
-                        NSDataType1::destroyProcedure(node)
+                        NSDataType1::destroy(node)
                     end
                 }
             )
