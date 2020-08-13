@@ -279,10 +279,10 @@ class NSDataPoint
 
     # NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
     def self.selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-        owners = Arrows::getSourcesForTarget(ns0)
+        owners = Arrows::getSourcesForTarget(datapoint)
         owner = nil
         if owners.size == 0 then
-            puts "Could not find any owner for #{NSDataPoint::toString(ns0)}"
+            puts "Could not find any owner for #{NSDataPoint::toString(datapoint)}"
             puts "Aborting opening"
             LucilleCore::pressEnterToContinue()
             return
