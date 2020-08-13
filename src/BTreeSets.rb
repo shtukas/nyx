@@ -122,15 +122,10 @@ class BTreeSetsInternals
 
 end
 
-BTREESETS_XSPACE_XCACHE_FOLDER_PATH = "/Users/pascal/x-space/x-cache"
-
 class BTreeSets
 
     # BTreeSets::values(repositorylocation, setuuid)
     def self.values(repositorylocation, setuuid)
-        if repositorylocation.nil? then
-            repositorylocation = BTREESETS_XSPACE_XCACHE_FOLDER_PATH
-        end
         setuuid = Digest::SHA1.hexdigest("#{setuuid}:0d4d74b4-fa35-41c9-8feb-a10500fe4f84") # Do not change this value
         rootLocationKey = BTreeSetsInternals::getRootNodeLocationKey(setuuid)
         BTreeSetsInternals::recursivelyExtractValues(repositorylocation, rootLocationKey)
@@ -138,9 +133,6 @@ class BTreeSets
 
     # BTreeSets::set(repositorylocation, setuuid, valueuuid, value)
     def self.set(repositorylocation, setuuid, valueuuid, value) 
-        if repositorylocation.nil? then
-            repositorylocation = BTREESETS_XSPACE_XCACHE_FOLDER_PATH
-        end
         setuuid = Digest::SHA1.hexdigest("#{setuuid}:0d4d74b4-fa35-41c9-8feb-a10500fe4f84") # Do not change this value
         nodeuuid = Digest::SHA1.hexdigest("#{valueuuid}:7b8632b1-2cfa-4568-9c1a-dfa7c8c8b091") # Do not change this value
         rootNode = BTreeSetsInternals::getRootNode(repositorylocation, setuuid)
@@ -149,9 +141,6 @@ class BTreeSets
 
     # BTreeSets::getOrNull(repositorylocation, setuuid, valueuuid)
     def self.getOrNull(repositorylocation, setuuid, valueuuid)
-        if repositorylocation.nil? then
-            repositorylocation = BTREESETS_XSPACE_XCACHE_FOLDER_PATH
-        end
         setuuid = Digest::SHA1.hexdigest("#{setuuid}:0d4d74b4-fa35-41c9-8feb-a10500fe4f84") # Do not change this value
         nodeuuid = Digest::SHA1.hexdigest("#{valueuuid}:7b8632b1-2cfa-4568-9c1a-dfa7c8c8b091") # Do not change this value
         nextLocationKeyToLookAt = BTreeSetsInternals::getRootNodeLocationKey(setuuid)
@@ -162,9 +151,6 @@ class BTreeSets
 
     # BTreeSets::destroy(repositorylocation, setuuid, valueuuid)
     def self.destroy(repositorylocation, setuuid, valueuuid) 
-        if repositorylocation.nil? then
-            repositorylocation = BTREESETS_XSPACE_XCACHE_FOLDER_PATH
-        end
         setuuid = Digest::SHA1.hexdigest("#{setuuid}:0d4d74b4-fa35-41c9-8feb-a10500fe4f84") # Do not change this value
         nodeuuid = Digest::SHA1.hexdigest("#{valueuuid}:7b8632b1-2cfa-4568-9c1a-dfa7c8c8b091") # Do not change this value
         nextLocationKeyToLookAt = BTreeSetsInternals::getRootNodeLocationKey(setuuid)
