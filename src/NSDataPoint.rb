@@ -277,96 +277,29 @@ class NSDataPoint
         str
     end
 
-    # NSDataPoint::access(ns0)
-    def self.access(ns0)
-        if ns0["type"] == "line" then
-            puts ns0["line"]
+    # NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
+    def self.selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
+        owners = Arrows::getSourcesForTarget(ns0)
+        owner = nil
+        if owners.size == 0 then
+            puts "Could not find any owner for #{NSDataPoint::toString(ns0)}"
+            puts "Aborting opening"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if ns0["type"] == "url" then
-            system("open '#{ns0["url"]}'")
-            return
+        if owners.size == 1 then
+            owner = owners.first
         end
-        if ns0["type"] == "text" then
-            namedhash = ns0["namedhash"]
-            text = NyxBlobs::getBlobOrNull(namedhash)
-            filepath = "/tmp/#{Miscellaneous::l22()}.txt"
-            File.open(filepath, "w"){|f| f.puts(text) }
-            system("open #{filepath}")
-            LucilleCore::pressEnterToContinue()
-            return
+        if owners.size > 1 then
+            puts "We have more than one owner for this aion point (how did that happen?...)"
+            puts "Choose one for the desk management"
+            owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|owner| GenericObjectInterface::toString(owner) })
         end
-        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            namedhash = ns0["namedhash"]
-            filedata = NyxBlobs::getBlobOrNull(namedhash)
-            filepath = "/tmp/#{namedhash}#{ns0["extensionWithDot"]}"
-            File.open(filepath, "w"){|f| f.write(filedata) }
-            system("open #{filepath}")
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if ns0["type"] == "aion-point" then
-            owners = Arrows::getSourcesForTarget(ns0)
-            owner = nil
-            if owners.size == 0 then
-                puts "Could not find any owner for #{NSDataPoint::toString(ns0)}"
-                puts "Aborting opening"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if owners.size == 1 then
-                owner = owners.first
-            end
-            if owners.size > 1 then
-                puts "We have more than one owner for this aion point (how did that happen?...)"
-                puts "Choose one for the desk management"
-                owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|owner| GenericObjectInterface::toString(owner) })
-            end
-            return nil if owner.nil?
-            folderpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(owner, ns0)
-            system("open '#{folderpath}'")
-            return
-        end
-        if ns0["type"] == "NyxFile" then
-            nyxfilename = ns0["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(nyxfilename)
-            if location then
-                puts "filepath: #{location}"
-                if Miscellaneous::fileByFilenameIsSafelyOpenable(File.basename(location)) then
-                    puts "opening safely openable file"
-                    system("open '#{location}'")
-                    LucilleCore::pressEnterToContinue()
-                else
-                    puts "opening parent folder"
-                    system("open '#{File.dirname(location)}'")
-                    LucilleCore::pressEnterToContinue()
-                end
-            else
-                puts "I could not determine the location of #{nyxfilename}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
-        if ns0["type"] == "NyxPod" then
-            nyxpodname = ns0["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
-            if location then
-                puts "opening folder '#{location}'"
-                system("open '#{location}'")
-                LucilleCore::pressEnterToContinue()
-            else
-                puts "I could not determine the location of #{nyxpodname}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
-        puts ns0
-        raise "[NSDataPoint error 4bf5cfb1-c2a2]"
+        owner
     end
 
-    # NSDataPoint::readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
-    def self.readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
+    # NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
+    def self.readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
         if datapoint["type"] == "line" then
             line = datapoint["line"]
             line = Miscellaneous::editTextSynchronously(line).strip
@@ -392,6 +325,10 @@ class NSDataPoint
             end
         end
         if datapoint["type"] == "aion-point" then
+            if dataline.nil? then
+                dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
+                return nil if dataline.nil?
+            end
             exportpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(dataline, datapoint)
             system("open '#{exportpath}'")
             return nil
@@ -425,6 +362,15 @@ class NSDataPoint
         end
         puts datapoint
         raise "[NSDataPoint error e12fc718]"
+    end
+
+    # NSDataPoint::enterDataPoint(datapoint)
+    def self.enterDataPoint(datapoint)
+        dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
+        return if dataline.nil?
+        newdatapoint = NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
+        return if newdatapoint.nil?
+        Arrows::issueOrException(dataline, newdatapoint)
     end
 
     # NSDataPoint::decacheObjectMetadata(datapoint)

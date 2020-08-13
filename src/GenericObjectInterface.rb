@@ -83,14 +83,26 @@ class GenericObjectInterface
 
     # GenericObjectInterface::envelop(object)
     def self.envelop(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if GenericObjectInterface::isNode(object) then
+            NSDataType1::landing(object)
+            return
+        end
         loop {
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open", "landing", "destroy"])
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["enter", "destroy"])
             return if mode.nil?
-            if mode == "open" then
-                GenericObjectInterface::open(object)
-            end
-            if mode == "landing" then
-                GenericObjectInterface::landing(object)
+            if mode == "enter" then
+                if GenericObjectInterface::isDataline(object) then
+                    NSDataLine::enterLastDataPointOrNothing(object)
+                    next
+                end
+                if GenericObjectInterface::isDataPoint(object) then
+                    NSDataPoint::enterDataPoint(object)
+                    next
+                end
             end
             if mode == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
@@ -99,50 +111,6 @@ class GenericObjectInterface
                 end
             end
         }
-    end
-
-    # GenericObjectInterface::open(object)
-    def self.open(object)
-        if GenericObjectInterface::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
-        if GenericObjectInterface::isNode(object) then
-            NSDataType1::landing(object)
-            return
-        end
-        if GenericObjectInterface::isDataline(object) then
-            NSDataLine::accessLastDataPointOrNothing(object)
-            return
-        end
-        if GenericObjectInterface::isDataPoint(object) then
-            NSDataPoint::access(object)
-            return
-        end
-        puts object
-        raise "[error: 51cc41d2-08a0-4ac7-8c74-43674d09ea8a]"
-    end
-
-    # GenericObjectInterface::landing(object)
-    def self.landing(object)
-        if GenericObjectInterface::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
-        if GenericObjectInterface::isNode(object) then
-            NSDataType1::landing(object)
-            return
-        end
-        if GenericObjectInterface::isDataline(object) then
-            NSDataLine::landing(object)
-            return
-        end
-        if GenericObjectInterface::isDataPoint(object) then
-            NSDataPoint::access(object)
-            return
-        end
-        puts object
-        raise "[error: 2b802546-eb97-433f-a3d4-5bd76892db84]"
     end
 
     # GenericObjectInterface::destroy(object)

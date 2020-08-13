@@ -29,7 +29,6 @@ class NSDataLine
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
         return str if str
-
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description then
@@ -78,11 +77,12 @@ class NSDataLine
             .last
     end
 
-    # NSDataLine::accessLastDataPointOrNothing(dataline)
-    def self.accessLastDataPointOrNothing(dataline)
+    # NSDataLine::enterLastDataPointOrNothing(dataline)
+    def self.enterLastDataPointOrNothing(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
+        puts datapoint
         return if datapoint.nil?
-        newdatapoint = NSDataPoint::readWriteDataPointReturnNewPointOrNull(dataline, datapoint)
+        newdatapoint = NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
         return if newdatapoint.nil?
         Arrows::issueOrException(dataline, newdatapoint)
     end
@@ -98,7 +98,7 @@ class NSDataLine
                 mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
                 return if mode.nil?
                 if mode == "open" then
-                    NSDataLine::accessLastDataPointOrNothing(dataline)
+                    NSDataLine::enterLastDataPointOrNothing(dataline)
                 end
                 if mode == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
@@ -111,7 +111,7 @@ class NSDataLine
         end
 
         if ["NyxPod", "NyxFile"].include?(datapoint["type"]) then
-            NSDataLine::accessLastDataPointOrNothing(dataline)
+            NSDataLine::enterLastDataPointOrNothing(dataline)
             return
         end
 

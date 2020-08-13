@@ -158,6 +158,7 @@ class NSDataType1
             Miscellaneous::horizontalRule()
 
             Arrows::getTargetsForSource(node).each{|object|
+                GenericObjectInterface::decacheObjectMetadata(object)
                 menuitems.item(
                     GenericObjectInterface::toString(object),
                     lambda{ GenericObjectInterface::envelop(object) }
