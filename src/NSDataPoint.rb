@@ -227,34 +227,34 @@ class NSDataPoint
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
     end
 
-    # NSDataPoint::toStringUseTheForce(ns0)
-    def self.toStringUseTheForce(ns0)
+    # NSDataPoint::toStringUseTheForce(ns0, showType: boolean)
+    def self.toStringUseTheForce(ns0, showType)
         if ns0["type"] == "line" then
-            return "[datapoint] #{ns0["line"]}"
+            return "#{(showType ? "[datapoint] " : "")}#{ns0["line"]}"
         end
         if ns0["type"] == "url" then
-            return "[datapoint] #{ns0["url"]}"
+            return "#{(showType ? "[datapoint] " : "")}#{ns0["url"]}"
         end
         if ns0["type"] == "text" then
             namedhashToFirstLine = lambda {|namedhash|
                 text = NyxBlobs::getBlobOrNull(namedhash).strip
-                line = text.size>0 ? "[datapoint] [text] #{text.lines.first.strip}" : "[datapoint] [text] {empty}"
+                line = text.size>0 ? "#{(showType ? "[datapoint] " : "")}[text] #{text.lines.first.strip}" : "#{(showType ? "[datapoint] " : "")}[text] {empty}"
             }
             return "#{namedhashToFirstLine.call(ns0["namedhash"])}"
         end
         if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            return "[datapoint] [file] #{ns0["extensionWithDot"]}"
+            return "#{(showType ? "[datapoint] " : "")}[file] #{ns0["extensionWithDot"]}"
         end
         if ns0["type"] == "aion-point" then
             aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
             description = NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
-            return "[datapoint] [aion tree] #{description}"
+            return "#{(showType ? "[datapoint] " : "")}[aion tree] #{description}"
         end
         if ns0["type"] == "NyxFile" then
-            return "[datapoint] NyxFile: #{ns0["name"]}"
+            return "#{(showType ? "[datapoint] " : "")}NyxFile: #{ns0["name"]}"
         end
         if ns0["type"] == "NyxPod" then
-            return "[datapoint] NyxPod: #{ns0["name"]}"
+            return "#{(showType ? "[datapoint] " : "")}NyxPod: #{ns0["name"]}"
         end
         raise "[NSDataPoint error d39378dc]"
     end
@@ -263,8 +263,17 @@ class NSDataPoint
     def self.toString(ns0)
         str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
         return str if str
-        str = NSDataPoint::toStringUseTheForce(ns0)
+        str = NSDataPoint::toStringUseTheForce(ns0, true)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
+        str
+    end
+
+    # NSDataPoint::toStringForDataline(ns0)
+    def self.toStringForDataline(ns0)
+        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}")
+        return str if str
+        str = NSDataPoint::toStringUseTheForce(ns0, false)
+        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}", str)
         str
     end
 

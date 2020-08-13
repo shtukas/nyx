@@ -109,10 +109,6 @@ class NSDataType1
     # NSDataType1::decacheObjectMetadata(node)
     def self.decacheObjectMetadata(node)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
-        Arrows::getTargetsForSource(node)
-            .each{|o|
-                NSDataLine::decacheObjectMetadata(o)
-            }
     end
 
     # NSDataType1::landing(node)
@@ -134,6 +130,7 @@ class NSDataType1
             upstreams = Arrows::getSourcesForTarget(node)
             upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
             upstreams.each{|o|
+                GenericObjectInterface::decacheObjectMetadata(o)
                 menuitems.item(
                     "parent: #{GenericObjectInterface::toString(o)}",
                     lambda { GenericObjectInterface::envelop(o) }

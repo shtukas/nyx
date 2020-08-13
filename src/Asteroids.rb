@@ -213,7 +213,7 @@ class Asteroids
         if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
             return "(daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
         end
-        "#{asteroid["orbital"]["type"]}"
+        ""
     end
 
     # Asteroids::toString(asteroid)
@@ -222,11 +222,11 @@ class Asteroids
         isRunning = Runner::isRunning?(uuid)
         runningString = 
             if isRunning then
-                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+                "(running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)} #{runningString}"
     end
 
     # Asteroids::asteroids()
@@ -729,9 +729,12 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|target|
+                GenericObjectInterface::decacheObjectMetadata(target)
                 menuitems.item(
                     GenericObjectInterface::toString(target),
-                    lambda { GenericObjectInterface::envelop(target) }
+                    lambda {
+                        GenericObjectInterface::envelop(target)
+                    }
                 )
             }
 

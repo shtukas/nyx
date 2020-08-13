@@ -38,7 +38,7 @@ class NSDataLine
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[dataline] [#{datapoints.size}] #{NSDataPoint::toString(datapoints.last)}"
+            str = "[dataline] #{NSDataPoint::toStringForDataline(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
@@ -121,9 +121,6 @@ class NSDataLine
     # NSDataLine::decacheObjectMetadata(dataline)
     def self.decacheObjectMetadata(dataline)
         KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}")
-        NSDataLine::getDatalineDataPointsInTimeOrder(dataline).each{|datapoint|
-            NSDataPoint::decacheObjectMetadata(datapoint)
-        }
     end
 
     # NSDataLine::getDatalineParents(dataline)
