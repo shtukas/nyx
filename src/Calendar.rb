@@ -34,11 +34,12 @@ class Calendar
             "body"     => "🗓️  " + date + "\n" + content,
             "metric"   => KeyToStringOnDiskStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
             "execute"  => lambda { |command|
-                if input == ".." then
+                if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
                     Calendar::setDateAsReviewed(date)
-                    return
                 end
-                Calendar::execute(date)
+                if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
+                    Calendar::execute(date)
+                end
             },
             "x-calendar-date" => date
         }

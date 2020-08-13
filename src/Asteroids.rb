@@ -467,10 +467,10 @@ class Asteroids
             "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |command| 
-                if command == "access-c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
+                if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
                     Asteroids::access(asteroid) 
                 end
-                if command == "landing-ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
+                if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
                     Asteroids::landing(asteroid) 
                 end
             },
