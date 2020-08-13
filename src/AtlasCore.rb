@@ -42,6 +42,9 @@ class AtlasCore
     def self.uniqueStringToLocationOrNullUseTheForce(uniquestring)
         AtlasCore::locationEnumerator(AtlasCore::allPossibleStandardScanRoots())
             .each{|location|
+                if !AtlasCore::locationIsUnisonTmp(location) and File.basename(location).start_with?("NyxPod-") and File.basename(location).size == 43 then
+                    KeyToStringOnDiskStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                end
                 if AtlasCore::locationIsTarget(location, uniquestring) then
                     KeyToStringOnDiskStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
                     return location
