@@ -187,21 +187,37 @@ class Asteroids
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
+    # Asteroids::asteroidDescription(asteroid)
+    def self.asteroidDescription(asteroid)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)
+        return description if description
+        targets = Arrows::getTargetsForSource(asteroid)
+        if targets.empty? then
+           return "no target"
+        end
+        if targets.size == 1 then
+            return GenericObjectInterface::toString(targets.first)
+        end
+        "multiple targets (#{targets.size})"
+    end
+
+    # Asteroids::orbitalToString(asteroid)
+    def self.orbitalToString(asteroid)
+        uuid = asteroid["uuid"]
+        if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
+            return "(ordinal: #{asteroid["orbital"]["ordinal"]})"
+        end
+        if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
+            return "(singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
+        end
+        if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+            return "(daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
+        end
+        "#{asteroid["orbital"]["type"]}"
+    end
+
     # Asteroids::toString(asteroid)
     def self.toString(asteroid)
-        orbitalNSDataPoint = lambda{|asteroid|
-            uuid = asteroid["uuid"]
-            if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-                return " (ordinal: #{asteroid["orbital"]["ordinal"]})"
-            end
-            if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-                return " (singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
-            end
-            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                return " (daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
-            end
-            ""
-        }
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
         runningString = 
@@ -210,7 +226,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)} #{orbitalNSDataPoint.call(asteroid)}#{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)}#{runningString}"
     end
 
     # Asteroids::asteroids()
