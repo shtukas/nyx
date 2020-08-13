@@ -110,7 +110,7 @@ class NSDataLine
             return
         end
 
-        if ["NyxFile", "NyxFile"].include?(datapoint["type"]) then
+        if ["NyxPod", "NyxFile"].include?(datapoint["type"]) then
             NSDataLine::accessLastDataPointOrNothing(dataline)
             return
         end

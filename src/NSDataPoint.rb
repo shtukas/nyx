@@ -256,7 +256,7 @@ class NSDataPoint
         if ns0["type"] == "NyxPod" then
             return "[datapoint] NyxPod: #{ns0["name"]}"
         end
-        raise "[NSDataPoint error 2c53b113-cc79]"
+        raise "[NSDataPoint error d39378dc]"
     end
 
     # NSDataPoint::toString(ns0)
