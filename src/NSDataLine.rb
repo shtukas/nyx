@@ -84,11 +84,9 @@ class NSDataLine
     # NSDataLine::enterLastDataPointOrNothing(dataline)
     def self.enterLastDataPointOrNothing(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
-        puts datapoint
         return if datapoint.nil?
-        newdatapoint = NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
-        return if newdatapoint.nil?
-        Arrows::issueOrException(dataline, newdatapoint)
+        puts JSON.pretty_generate(datapoint)
+        NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
     # NSDataLine::landing(dataline)

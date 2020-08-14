@@ -298,37 +298,57 @@ class NSDataPoint
         owner
     end
 
-    # NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
-    def self.readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
+    # NSDataPoint::enterDatalineDataPointCore(dataline, datapoint)
+    def self.enterDatalineDataPointCore(dataline, datapoint)
         if datapoint["type"] == "line" then
-            line = datapoint["line"]
-            line = Miscellaneous::editTextSynchronously(line).strip
-            return NSDataPoint::issueLine(line)
+            puts "line: #{datapoint["line"]}"
+            if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
+                line = datapoint["line"]
+                line = Miscellaneous::editTextSynchronously(line).strip
+                return NSDataPoint::issueLine(line)
+            end
+            return nil
         end
         if datapoint["type"] == "url" then
-            url = datapoint["url"]
-            url = Miscellaneous::editTextSynchronously(url).strip
-            return NSDataPoint::issueUrl(url)
+            puts "url: #{datapoint["url"]}"
+            system("open '#{datapoint["url"]}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit url ? : ", false) then
+                url = datapoint["url"]
+                url = Miscellaneous::editTextSynchronously(url).strip
+                return NSDataPoint::issueUrl(url)
+            end
+            return nil
         end
         if datapoint["type"] == "text" then
             namedhash = datapoint["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash) # The code is currently written with the assumption that this always succeed.
-            text = Miscellaneous::editTextSynchronously(text)
-            return NSDataPoint::issueText(text)
+            puts "--------------------------------------------------"
+            puts text
+            puts "--------------------------------------------------"
+            if LucilleCore::askQuestionAnswerAsBoolean("edit text? : ", false) then
+                text = Miscellaneous::editTextSynchronously(text)
+                return NSDataPoint::issueText(text)
+            end
+            return nil
         end
         if datapoint["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            puts "pictures(+) are not directly editable"
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one for the same dataline ? : ") then
-                return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
-            else 
-                return nil
+            namedhash = datapoint["namedhash"]
+            data = NyxBlobs::getBlobOrNull(namedhash)
+            filename = "#{namedhash}#{datapoint["extensionWithDot"]}"
+            filepath = "/tmp/#{filename}"
+            File.open(filepath, "w"){|f| f.write(data) }
+            system("open '#{filepath}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit picture(+)? : ", false) then
+                puts "picture(+) are not directly editable"
+                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one? : ") then
+                    return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
+                else 
+                    return nil
+                end
             end
+            return nil
         end
         if datapoint["type"] == "aion-point" then
-            if dataline.nil? then
-                dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-                return nil if dataline.nil?
-            end
             exportpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(dataline, datapoint)
             system("open '#{exportpath}'")
             return nil
@@ -364,13 +384,18 @@ class NSDataPoint
         raise "[NSDataPoint error e12fc718]"
     end
 
+    # NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
+    def self.enterDatalineDataPointEnvelop(dataline, datapoint)
+        newdatapoint = NSDataPoint::enterDatalineDataPointCore(dataline, datapoint)
+        return if newdatapoint.nil?
+        Arrows::issueOrException(dataline, newdatapoint)
+    end
+
     # NSDataPoint::enterDataPoint(datapoint)
     def self.enterDataPoint(datapoint)
         dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
         return if dataline.nil?
-        newdatapoint = NSDataPoint::readWriteDatalineDataPointReturnNewPointOrNull(dataline, datapoint)
-        return if newdatapoint.nil?
-        Arrows::issueOrException(dataline, newdatapoint)
+        NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
     # NSDataPoint::decacheObjectMetadata(datapoint)

@@ -472,6 +472,11 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
+
+        Arrows::getTargetsForSource(asteroid).each{|target|
+            GenericObjectInterface::decacheObjectMetadata(target)
+        }
+
         uuid = asteroid["uuid"]
         {
             "uuid"             => uuid,
@@ -551,29 +556,6 @@ class Asteroids
 
     # Asteroids::destroy(asteroid)
     def self.destroy(asteroid)
-        if Arrows::getTargetsForSource(asteroid).empty? then
-            NyxObjects::destroy(asteroid)
-            return
-        end
-
-        if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
-            puts Asteroids::toString(asteroid)
-            puts "Ok, you want to keep them, I am going to make them target of a new node"
-            LucilleCore::pressEnterToContinue()
-            # For this we are going to make a node with the same uuid as the asteroid and give into it
-            node = {
-                "uuid"     => asteroid["uuid"],
-                "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04", # node
-                "unixtime" => Time.new.to_f
-            }
-            NyxObjects::reput(node)
-            NSDataType1::landing(node)
-        else
-            Arrows::getTargetsForSource(asteroid).each{|target|
-                Arrows::remove(asteroid, target)
-            }
-        end
-
         NyxObjects::destroy(asteroid)
     end
 
@@ -585,20 +567,20 @@ class Asteroids
         end
         if targets.size == 1 then
             target = targets.first
-            if GenericObjectInterface::isAsteroid(object) then
-                Asteroids::landing(object)
+            if GenericObjectInterface::isAsteroid(target) then
+                Asteroids::landing(target)
                 return
             end
-            if GenericObjectInterface::isNode(object) then
-                NSDataType1::landing(object)
+            if GenericObjectInterface::isNode(target) then
+                NSDataType1::landing(target)
                 return
             end
-            if GenericObjectInterface::isDataline(object) then
-                NSDataLine::enterLastDataPointOrNothing(object)
+            if GenericObjectInterface::isDataline(target) then
+                NSDataLine::enterLastDataPointOrNothing(target)
                 return
             end
-            if GenericObjectInterface::isDataPoint(object) then
-                NSDataPoint::enterDataPoint(object)
+            if GenericObjectInterface::isDataPoint(target) then
+                NSDataPoint::enterDataPoint(target)
                 return
             end
         end
@@ -623,6 +605,19 @@ class Asteroids
                 NSDataType1::landing(target)
                 return
             end
+            if GenericObjectInterface::isDataline(target) then
+                Asteroids::asteroidStartSequence(asteroid)
+                NSDataLine::enterLastDataPointOrNothing(target)
+            end
+            if GenericObjectInterface::isDataPoint(target) then
+                Asteroids::asteroidStartSequence(asteroid)
+                NSDataPoint::enterDataPoint(target)
+            end
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
+                Asteroids::asteroidStopSequence(asteroid)
+                Asteroids::destroy(asteroid)
+                return
+            end
             loop {
                 modes = [
                     "enter", 
@@ -644,7 +639,8 @@ class Asteroids
                         NSDataPoint::enterDataPoint(target)
                     end
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
-                        GenericObjectInterface::destroy(asteroid)
+                        Asteroids::asteroidStopSequence(asteroid)
+                        Asteroids::destroy(asteroid)
                         return
                     end
                     next
