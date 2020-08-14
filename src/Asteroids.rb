@@ -4,7 +4,7 @@ class Asteroids
 
     # Asteroids::getAsteroidOrNull(uuid)
     def self.getAsteroidOrNull(uuid)
-        object = NyxObjects::getOrNull(uuid)
+        object = NyxObjects2::getOrNull(uuid)
         return nil if object.nil?
         return nil if (object["nyxNxSet"] != "b66318f4-2662-4621-a991-a6b966fb4398")
         object
@@ -12,13 +12,13 @@ class Asteroids
 
     # Asteroids::commitToDisk(asteroid)
     def self.commitToDisk(asteroid)
-        NyxObjects::put(asteroid)
+        NyxObjects2::put(asteroid)
     end
 
     # Asteroids::reCommitToDisk(asteroid)
     def self.reCommitToDisk(asteroid)
-        NyxObjects::destroy(asteroid)
-        NyxObjects::put(asteroid)
+        NyxObjects2::destroy(asteroid)
+        NyxObjects2::put(asteroid)
     end
 
     # Asteroids::makePayloadInteractivelyOrNull(asteroiduuid)
@@ -187,8 +187,8 @@ class Asteroids
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
-    # Asteroids::asteroidDescription(asteroid)
-    def self.asteroidDescription(asteroid)
+    # Asteroids::asteroidDescriptionUseTheForce(asteroid)
+    def self.asteroidDescriptionUseTheForce(asteroid)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)
         return description if description
         targets = Arrows::getTargetsForSource(asteroid)
@@ -199,6 +199,15 @@ class Asteroids
             return GenericObjectInterface::toString(targets.first)
         end
         "multiple targets (#{targets.size})"
+    end
+
+    # Asteroids::asteroidDescription(asteroid)
+    def self.asteroidDescription(asteroid)
+        str = KeyValueStore::getOrNull(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
+        return str if str
+        str = Asteroids::asteroidDescriptionUseTheForce(asteroid)
+        KeyValueStore::set(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}", str)
+        str
     end
 
     # Asteroids::orbitalToString(asteroid)
@@ -226,12 +235,12 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)} #{runningString}"
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)} #{runningString}".strip
     end
 
     # Asteroids::asteroids()
     def self.asteroids()
-        NyxObjects::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
+        NyxObjects2::getSet("b66318f4-2662-4621-a991-a6b966fb4398")
     end
 
     # Asteroids::reOrbitalOrNothing(asteroid)
@@ -472,11 +481,6 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
-
-        Arrows::getTargetsForSource(asteroid).each{|target|
-            GenericObjectInterface::decacheObjectMetadata(target)
-        }
-
         uuid = asteroid["uuid"]
         {
             "uuid"             => uuid,
@@ -498,25 +502,24 @@ class Asteroids
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-
-        # Asteroids::asteroids()
-        #    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-
-        AsteroidsOfInterest::getUUIDs()
-            .map{|uuid| Asteroids::getAsteroidOrNull(uuid) }
-            .compact
+        Asteroids::asteroids()
+            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+            .reduce([]) {|asteroids, asteroid|
+                if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+                    asteroids + [ asteroid ]
+                else
+                    if asteroids.select{|a| a["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" }.size < 100 then
+                        asteroids + [ asteroid ]
+                    else
+                        asteroids
+                    end
+                end
+            }
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
     # Asteroids::asteroidStartSequence(asteroid)
     def self.asteroidStartSequence(asteroid)
-
-        BTreeSets::set(nil, "d015bfdd-deb6-447f-97af-ab9e87875148:#{Time.new.to_s[0, 10]}", asteroid["uuid"], asteroid["uuid"])
-        # We cache the value of any asteroid that has started to help with the catalyst objects caching
-        # An asteroid that have been started (from diving into it) is not necessarily in the list of 
-        # those that the catalyst objects caching will select, and in such a case it would be running
-        # wihtout being displayed
-
         return if Asteroids::isRunning?(asteroid)
         Runner::start(asteroid["uuid"])
     end
@@ -556,7 +559,7 @@ class Asteroids
 
     # Asteroids::destroy(asteroid)
     def self.destroy(asteroid)
-        NyxObjects::destroy(asteroid)
+        NyxObjects2::destroy(asteroid)
     end
 
     # Asteroids::openTargetOrTargets(asteroid)
@@ -719,8 +722,6 @@ class Asteroids
 
             asteroid = Asteroids::getAsteroidOrNull(asteroid["uuid"])
             return if asteroid.nil?
-
-            AsteroidsOfInterest::register(asteroid["uuid"])
 
             system("clear")
 
@@ -901,31 +902,5 @@ class Asteroids
                 }
             end
         }
-    end
-end
-
-class AsteroidsOfInterest
-
-    # AsteroidsOfInterest::getCollection()
-    def self.getCollection()
-        collection = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("5d114a38-f86a-46db-a33b-747c8d7ec22f:#{Miscellaneous::today()}")
-        if collection.nil? then
-            collection = {}
-        end
-        collection
-    end
-
-    # AsteroidsOfInterest::register(uuid)
-    def self.register(uuid)
-        collection = AsteroidsOfInterest::getCollection()
-        collection[uuid] = { "uuid" => uuid, "unixtime" => Time.new.to_i }
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("5d114a38-f86a-46db-a33b-747c8d7ec22f:#{Miscellaneous::today()}", collection)
-    end
-
-    # AsteroidsOfInterest::getUUIDs()
-    def self.getUUIDs()
-        AsteroidsOfInterest::getCollection()
-            .values
-            .map{|item|  item["uuid"] }
     end
 end

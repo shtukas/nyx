@@ -11,7 +11,7 @@ class NyxBlobs
             ns01 = namedhash[7, 2]
             ns02 = namedhash[9, 2]
             ns03 = namedhash[11, 2]
-            filepath = "#{Realms::primaryDataStoreFolderPath()}/Nyx-Blobs/#{ns01}/#{ns02}/#{ns03}/#{namedhash}.data"
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Blobs/#{ns01}/#{ns02}/#{ns03}/#{namedhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end

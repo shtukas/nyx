@@ -87,26 +87,4 @@ class EstateServices
         }
         EstateServices::archivesT1mel1neGarbageCollectionCore(nil, verbose)
     end
-
-    # EstateServices::ensureReadiness()
-    def self.ensureReadiness()
-        realmConfig = Realms::getRealmConfig()
-        realmConfig["exitIfNotExist"].each{|path|
-            if !File.exists?(path) then
-                puts "We are expecting this location to exists: #{path}. This is a non recoverable error. Exiting"
-                exit
-            end
-        }
-        realmConfig["createIfNotExist"].each{|path|
-            if !File.exists?(path) then
-                puts "Creating missing location: #{path}"
-                FileUtils.mkdir(path)
-            end
-        }
-        # We are also going to prelad the sets.
-        NyxPrimaryObjects::nyxNxSets().each{|setid|
-            NyxObjects::getSet(setid).size
-        }
-    end
-
 end

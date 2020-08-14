@@ -32,7 +32,7 @@ class Calendar
         {
             "uuid"     => uuid,
             "body"     => "🗓️  " + date + "\n" + content,
-            "metric"   => KeyToStringOnDiskStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
+            "metric"   => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
             "execute"  => lambda { |command|
                 if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
                     Calendar::setDateAsReviewed(date)
@@ -63,7 +63,7 @@ class Calendar
 
     # Calendar::setDateAsReviewed(date)
     def self.setDateAsReviewed(date)
-        KeyToStringOnDiskStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
+        KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
     end
 
     # Calendar::execute(date)

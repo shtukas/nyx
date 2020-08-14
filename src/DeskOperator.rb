@@ -3,9 +3,14 @@
 
 class DeskOperator
 
+    # DeskOperator::deskFolderPath()
+    def self.deskFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxDesk"
+    end
+
     # DeskOperator::deskFolderpathForNSDataline(ns1)
     def self.deskFolderpathForNSDataline(ns1)
-        "#{Realms::getDeskFolderpath()}/#{ns1["uuid"]}"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxDesk/#{ns1["uuid"]}"
     end
 
     # DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(ns1, ns0)
@@ -20,7 +25,7 @@ class DeskOperator
             # In such a case we are going to remove the extra folder by moving thigs up...
             if File.exists?("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}") then
                 FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}", "#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting")
-                FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting", Realms::getDeskFolderpath())
+                FileUtils.mv("#{desk_folderpath_for_ns1}/#{ns1["uuid"]}-lifting", DeskOperator::deskFolderPath())
                 LucilleCore::removeFileSystemLocation(desk_folderpath_for_ns1)
                 FileUtils.mv("#{desk_folderpath_for_ns1}-lifting", desk_folderpath_for_ns1)
             end
@@ -30,7 +35,7 @@ class DeskOperator
 
     # DeskOperator::commitDeskChangesToPrimaryRepository()
     def self.commitDeskChangesToPrimaryRepository()
-        LucilleCore::locationsAtFolder(Realms::getDeskFolderpath()).each{|location|
+        LucilleCore::locationsAtFolder(DeskOperator::deskFolderPath()).each{|location|
             datalineuuid = File.basename(location)
             dataline = NSDataLine::getOrNull(datalineuuid)
             next if dataline.nil?

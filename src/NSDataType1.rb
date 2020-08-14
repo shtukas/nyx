@@ -10,40 +10,40 @@ class NSDataType1
             "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04",
             "unixtime" => Time.new.to_f
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
     # NSDataType1::objects()
     def self.objects()
-        NyxObjects::getSet("c18e8093-63d6-4072-8827-14f238975d04")
+        NyxObjects2::getSet("c18e8093-63d6-4072-8827-14f238975d04")
     end
 
     # NSDataType1::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
+        NyxObjects2::getOrNull(uuid)
     end
 
     # NSDataType1::toString(node)
     def self.toString(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
+        str = KeyValueStore::getOrNull(nil, cacheKey)
         return str if str
         objects = Arrows::getTargetsForSource(node)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then
             str = "[node] [#{node["uuid"][0, 4]}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         if description.nil? and objects.size > 0 then
             str = "[node] [#{node["uuid"][0, 4]}] #{GenericObjectInterface::toString(objects.first)}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         if description.nil? and objects.size == 0 then
             str = "[node] [#{node["uuid"][0, 4]}] {no description, no dataline}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         raise "[error: 2b22ddb3-62c4-4940-987a-7a50330dcd36]"
@@ -97,7 +97,7 @@ class NSDataType1
         if File.exists?(folderpath) then
             LucilleCore::removeFileSystemLocation(folderpath)
         end
-        NyxObjects::destroy(point)
+        NyxObjects2::destroy(point)
     end
 
     # ---------------------------------------------
@@ -109,7 +109,7 @@ class NSDataType1
 
     # NSDataType1::decacheObjectMetadata(node)
     def self.decacheObjectMetadata(node)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
+        KeyValueStore::destroy(nil, "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
     end
 
     # NSDataType1::landing(node)
@@ -117,7 +117,7 @@ class NSDataType1
 
         loop {
 
-            return if NyxObjects::getOrNull(node["uuid"]).nil?
+            return if NyxObjects2::getOrNull(node["uuid"]).nil?
             system("clear")
 
             NSDataType1::decacheObjectMetadata(node)
@@ -278,7 +278,7 @@ class NSDataType1
                             Arrows::issueOrException(upstreamnode, downstreamobject)
                         }
                     }
-                    NyxObjects::destroy(node)
+                    NyxObjects2::destroy(node)
                 }
             )
 

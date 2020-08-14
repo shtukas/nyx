@@ -10,24 +10,24 @@ class NSDataLine
             "nyxNxSet" => "d319513e-1582-4c78-a4c4-bf3d72fb5b2d",
             "unixtime" => Time.new.to_f,
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
     # NSDataLine::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
+        NyxObjects2::getOrNull(uuid)
     end
 
     # NSDataLine::datalines()
     def self.datalines()
-        NyxObjects::getSet("d319513e-1582-4c78-a4c4-bf3d72fb5b2d")
+        NyxObjects2::getSet("d319513e-1582-4c78-a4c4-bf3d72fb5b2d")
     end
 
     # NSDataLine::toString(dataline)
     def self.toString(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
+        str = KeyValueStore::getOrNull(nil, cacheKey)
         return str if str
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
@@ -37,17 +37,17 @@ class NSDataLine
                 type
             }
             str = "[data] [#{typeToDisplayType.call(datapoints.last["type"])}] #{description}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size > 0 then
             str = "[data] #{NSDataPoint::toStringForDataline(datapoints.last)}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size == 0 then
             str = "{no description, no data}"
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
+            KeyValueStore::set(nil, cacheKey, str)
             return str
         end
         raise "[error: 42f8a410-17c4-4130-91b8-bf60c7c10915]"
@@ -104,7 +104,7 @@ class NSDataLine
                 end
                 if mode == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                        NyxObjects::destroy(dataline)
+                        NyxObjects2::destroy(dataline)
                         return
                     end
                 end
@@ -122,7 +122,7 @@ class NSDataLine
 
     # NSDataLine::decacheObjectMetadata(dataline)
     def self.decacheObjectMetadata(dataline)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}")
+        KeyValueStore::destroy(nil, "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}")
     end
 
     # NSDataLine::getDatalineParents(dataline)

@@ -7,7 +7,7 @@ class Arrows
     def self.issueOrException(source, target)
         raise "[error: bc82b3b6]" if (source["uuid"] == target["uuid"])
         if Arrows::exists?(source, target) then
-            arrow = NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+            arrow = NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
                         .select{|arrow|  
                             b1 = (arrow["sourceuuid"] == source["uuid"])
                             b2 = (arrow["targetuuid"] == target["uuid"])
@@ -23,29 +23,29 @@ class Arrows
             "sourceuuid" => source["uuid"],
             "targetuuid" => target["uuid"]
         }
-        NyxObjects::put(arrow)
+        NyxObjects2::put(arrow)
         arrow
     end
 
     # Arrows::arrows()
     def self.arrows()
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
     end
 
     # Arrows::remove(source, target)
     def self.remove(source, target)
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| 
                 b1 = (arrow["sourceuuid"] == source["uuid"])
                 b2 = (arrow["targetuuid"] == target["uuid"])
                 b1 and b2
             }
-            .each{|arrow| NyxObjects::destroy(arrow) }
+            .each{|arrow| NyxObjects2::destroy(arrow) }
     end
 
     # Arrows::exists?(source, target)
     def self.exists?(source, target)
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .any?{|arrow|  
                 b1 = (arrow["sourceuuid"] == source["uuid"])
                 b2 = (arrow["targetuuid"] == target["uuid"])
@@ -55,21 +55,21 @@ class Arrows
 
     # Arrows::getTargetsForSource(source)
     def self.getTargetsForSource(source)
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| arrow["sourceuuid"] == source["uuid"] }
             .map{|arrow| arrow["targetuuid"] }
             .uniq
-            .map{|targetuuid| NyxObjects::getOrNull(targetuuid) }
+            .map{|targetuuid| NyxObjects2::getOrNull(targetuuid) }
             .compact
     end
 
     # Arrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
-        NyxObjects::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
             .select{|arrow| arrow["targetuuid"] == target["uuid"] }
             .map{|arrow| arrow["sourceuuid"] }
             .uniq
-            .map{|sourceuuid| NyxObjects::getOrNull(sourceuuid) }
+            .map{|sourceuuid| NyxObjects2::getOrNull(sourceuuid) }
             .compact
     end
 end

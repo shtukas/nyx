@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
-class NyxPrimaryObjects
-
-    # NyxPrimaryObjects::nyxNxSets()
+class NyxObjectsCore
+    # NyxObjectsCore::nyxNxSets()
     def self.nyxNxSets()
         # Duplicated in NyxSets
         [
@@ -16,155 +15,40 @@ class NyxPrimaryObjects
             "d319513e-1582-4c78-a4c4-bf3d72fb5b2d", # NSDataLine
         ]
     end
-
-    # NyxPrimaryObjects::uuidToObjectFilepath(uuid)
-    def self.uuidToObjectFilepath(uuid)
-        hash1 = Digest::SHA256.hexdigest(uuid)
-        ns01 = hash1[0, 2]
-        ns02 = hash1[2, 2]
-        filepath = "#{Realms::primaryDataStoreFolderPath()}/Nyx-Objects/#{ns01}/#{ns02}/#{hash1}.json"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        return filepath
-    end
-
-    # NyxPrimaryObjects::put(object)
-    def self.put(object)
-        if object["uuid"].nil? then
-            raise "[NyxPrimaryObjects::put 8d58ee87] #{object}"
-        end
-        if object["nyxNxSet"].nil? then
-            raise "[NyxPrimaryObjects::put d781f18f] #{object}"
-        end
-        if !NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"]) then
-            raise "[NyxPrimaryObjects::nyxNxSets 50229c3e] #{object}"
-        end
-        filepath = NyxPrimaryObjects::uuidToObjectFilepath(object["uuid"])
-        if File.exists?(filepath) then
-            raise "[NyxPrimaryObjects::nyxNxSets 5e710d51] objects on disk are immutable"
-        end
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
-        object
-    end
-
-    # NyxPrimaryObjects::objectsEnumerator()
-    def self.objectsEnumerator()
-        Enumerator.new do |objects|
-            Find.find("#{Realms::primaryDataStoreFolderPath()}/Nyx-Objects") do |path|
-                next if !File.file?(path)
-                next if path[-5, 5] != ".json"
-                object = JSON.parse(IO.read(path))
-                objects << object
-            end
-        end
-    end
-
-    # NyxPrimaryObjects::objects()
-    def self.objects()
-        NyxPrimaryObjects::objectsEnumerator().to_a
-    end
-
-    # NyxPrimaryObjects::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = NyxPrimaryObjects::uuidToObjectFilepath(uuid)
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NyxPrimaryObjects::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = NyxPrimaryObjects::uuidToObjectFilepath(uuid)
-        return nil if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
 end
 
-# ------------------------------------------------------------------------------
-# The rest of Catalyst should not know anything of what happens before this line
-# ------------------------------------------------------------------------------
+NyxObjectsDionysus2Filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/nyx-objects.sqlite3"
 
-class NyxObjects
+$DBD8C53F77 = Dionysus2::getDatabaseProxy(NyxObjectsDionysus2Filepath)
 
-    # NyxObjects::getCacheKeySynchronizationMovingFragment()
-    def self.getCacheKeySynchronizationMovingFragment()
-        filepath = "#{Realms::personalSpaceFolderPath()}/006-nyx-objects-moving-cache-key-c7598b3d-d56a-4b97-b435-69649fc6fe94"
-        if !File.exists?(filepath) then
-            File.open(filepath, "w"){|f| f.write(SecureRandom.hex) }
-        end
-        IO.read(filepath).strip
-    end
+class NyxObjects2
 
-    # NyxObjects::resetCacheKeySynchronizationMovingFragment()
-    def self.resetCacheKeySynchronizationMovingFragment()
-        filepath = "#{Realms::personalSpaceFolderPath()}/006-nyx-objects-moving-cache-key-c7598b3d-d56a-4b97-b435-69649fc6fe94"
-        File.open(filepath, "w"){|f| f.write(SecureRandom.hex) }
-    end
-
-    # NyxObjects::cachingKeyPrefix()
-    def self.cachingKeyPrefix()
-        "E28D1A03-C8B8-4FE2-81F3-48FEF9E476EE:#{NyxObjects::getCacheKeySynchronizationMovingFragment()}"
-    end
-
-    # NyxObjects::put(object)
+    # NyxObjects2::put(object)
     def self.put(object)
-        NyxPrimaryObjects::put(object)
-
-        uuid = object["uuid"]
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}", object)
-
-        # Then we put the object into its cached set
-        setid = object["nyxNxSet"]
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
-        return if set.nil?
-        set = set.reject{|o| o["uuid"] == object["uuid"] }
-        set << object
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
+        Dionysus2::sets_putObject($DBD8C53F77, object["nyxNxSet"], object["uuid"], object)
     end
 
-    # NyxObjects::reput(object)
-    # Only used by asteroids for recasting business stuff
-    def self.reput(object)
-        NyxObjects::destroy(object)
-        NyxObjects::put(object)
-    end
-
-    # NyxObjects::getOrNull(uuid)
+    # NyxObjects2::getOrNull(uuid)
     def self.getOrNull(uuid)
-        object = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}")
-        return object if object 
-
-        object = NyxPrimaryObjects::getOrNull(uuid)
-
-        if object then
-            KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}", object)
-        end
-
-        object
+        NyxObjectsCore::nyxNxSets().each{|setid|
+            object = Dionysus2::sets_getObjectOrNull($DBD8C53F77, setid, uuid)
+            if object then
+                return object
+            end
+        }
+        nil
     end
 
-    # NyxObjects::getSet(setid)
+    # NyxObjects2::getSet(setid)
     def self.getSet(setid)
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
-        return set if set
-        puts "-> loading set #{setid} from disk"
-        set = NyxPrimaryObjects::objectsEnumerator().select{|object| object["nyxNxSet"] == setid }
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
-        set
+        objects = Dionysus2::sets_getObjects($DBD8C53F77, setid)
+        objects
     end
 
-    # NyxObjects::destroy(object)
+    # NyxObjects2::destroy(object)
     def self.destroy(object)
-        NyxPrimaryObjects::destroy(object["uuid"])
-
-        uuid = object["uuid"]
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("#{NyxObjects::cachingKeyPrefix()}:object:#{uuid}")
-
-        setid = object["nyxNxSet"]
-        set = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}")
-        return if set.nil?
-        set = set.reject{|o| o["uuid"] == object["uuid"] }
-
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("#{NyxObjects::cachingKeyPrefix()}:set:#{setid}", set)
+        NyxObjectsCore::nyxNxSets().each{|setid|
+            Dionysus2::sets_destroy($DBD8C53F77, setid, object["uuid"])
+        }
     end
 end

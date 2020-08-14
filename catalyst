@@ -6,7 +6,6 @@ require_relative "src/loader.rb"
 
 # -------------------------------------------------------------------------
 
-EstateServices::ensureReadiness()
 CatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------

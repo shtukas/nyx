@@ -123,11 +123,11 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataline(object) then
-            NyxObjects::destroy(object)
+            NyxObjects2::destroy(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NyxObjects::destroy(object)
+            NyxObjects2::destroy(object)
             return
         end
         puts object

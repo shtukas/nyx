@@ -186,13 +186,13 @@ class Waves
 
     # Waves::commitToDisk(wave)
     def self.commitToDisk(wave)
-        NyxObjects::put(wave)
+        NyxObjects2::put(wave)
     end
 
     # Waves::recommitToDisk(wave)
     def self.recommitToDisk(wave)
-        NyxObjects::destroy(wave)
-        NyxObjects::put(wave)
+        NyxObjects2::destroy(wave)
+        NyxObjects2::put(wave)
     end
 
     # Waves::issueWave(uuid, description, schedule)
@@ -218,12 +218,12 @@ class Waves
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects::getOrNull(uuid)
+        NyxObjects2::getOrNull(uuid)
     end
 
     # Waves::waves()
     def self.waves()
-        NyxObjects::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        NyxObjects2::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::waveToString(wave)
@@ -288,7 +288,7 @@ class Waves
     def self.waveDive(wave)
         loop {
             system("clear")
-            return if NyxObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+            return if NyxObjects2::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::waveToString(wave)
             puts "uuid: #{wave["uuid"]}"
             if DoNotShowUntil::isVisible(wave["uuid"]) then
@@ -344,7 +344,7 @@ class Waves
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                        NyxObjects::destroy(wave)
+                        NyxObjects2::destroy(wave)
                     end
                 }
             )

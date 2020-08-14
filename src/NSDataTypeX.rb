@@ -29,13 +29,13 @@ class NSDataTypeX
     # NSDataTypeX::issue(targetuuid, typeIdentifier, payload)
     def self.issue(targetuuid, typeIdentifier, payload)
         object = NSDataTypeX::make(targetuuid, typeIdentifier, payload)
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
     # NSDataTypeX::attributes()
     def self.attributes()
-        NyxObjects::getSet("5c99134b-2b61-4750-8519-49c1d896556f")
+        NyxObjects2::getSet("5c99134b-2b61-4750-8519-49c1d896556f")
     end
 
     # NSDataTypeX::getAttributesOfGivenTypeForTargetInTimeOrder(targetuuid, typeIdentifier)

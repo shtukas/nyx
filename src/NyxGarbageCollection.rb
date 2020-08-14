@@ -6,12 +6,6 @@ class NyxGarbageCollection
     def self.run()
         
         puts "NyxGarbageCollection::run()"
-        
-        NyxPrimaryObjects::objectsEnumerator().each{|object|
-            next if NyxPrimaryObjects::nyxNxSets().include?(object["nyxNxSet"])
-            puts "removing invalid setid : #{object}"
-            NyxObjects::destroy(object)
-        }
 
         Arrows::arrows().each{|arrow|
             b1 = NyxPrimaryObjects::getOrNull(arrow["sourceuuid"]).nil?
@@ -19,14 +13,14 @@ class NyxGarbageCollection
             isNotConnecting = (b1 or b2)
             if isNotConnecting then
                 puts "removing arrow: #{arrow}"
-                NyxObjects::destroy(arrow)
+                NyxObjects2::destroy(arrow)
             end
         }
 
         NSDataTypeX::attributes().each{|attribute|
             next if NyxPrimaryObjects::getOrNull(attribute["targetuuid"])
             puts "removing attribute without a target: #{attribute}"
-            NyxObjects::destroy(attribute)
+            NyxObjects2::destroy(attribute)
         }
 
         # remove datalines without parent node or asteroid
@@ -34,7 +28,7 @@ class NyxGarbageCollection
         NSDataLine::datalines().each{|dataline|
             next if NSDataLine::getDatalineParents(dataline).size > 0
             puts "removing dataline without parents: #{dataline}"
-            NyxObjects::destroy(dataline)
+            NyxObjects2::destroy(dataline)
         }
         
 
@@ -42,7 +36,7 @@ class NyxGarbageCollection
         NSDataPoint::datapoints().each{|datapoint|
             next if NSDataPoint::getDataPointParents(datapoint).size > 0
             puts "removing datapoint without parents: #{datapoint}"
-            NyxObjects::destroy(datapoint)
+            NyxObjects2::destroy(datapoint)
         }
 
     end

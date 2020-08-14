@@ -1,15 +1,15 @@
 
 # encoding: UTF-8
 
+BankDatabaseFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/bank-numbers.sqlite3"
+
+$X4F0E7A2B = Dionysus2::getDatabaseProxy(BankDatabaseFilepath)
+
 class Bank
 
     # Bank::getTimePackets(setuuid)
     def self.getTimePackets(setuuid)
-        packets = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("13db7087-828d-4f99-b712-5ca42665d2a7:#{setuuid}")
-        return packets if packets
-        packets = BTreeSets::values(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{setuuid}")
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("13db7087-828d-4f99-b712-5ca42665d2a7:#{setuuid}", packets)
-        packets
+        Dionysus2::sets_getObjects($X4F0E7A2B, setuuid)
     end
 
     # Bank::put(setuuid, weight: Float)
@@ -20,8 +20,7 @@ class Bank
             "weight" => weight,
             "unixtime" => Time.new.to_f
         }
-        BTreeSets::set(nil, "42d8f699-64bf-4385-a069-60ab349d0684:#{setuuid}", uuid, packet)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("13db7087-828d-4f99-b712-5ca42665d2a7:#{setuuid}")
+        Dionysus2::sets_putObject($X4F0E7A2B, setuuid, uuid, packet)
     end
 
     # Bank::value(setuuid)

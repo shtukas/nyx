@@ -64,10 +64,10 @@ class LibrarianOperator
     # LibrarianOperator::getFSVirtualSizeOfANamedHashInBytes(namedHash)
     def self.getFSVirtualSizeOfANamedHashInBytes(namedHash)
         cacheKey = "16d2c004-cac1-4d38-9c8c-b1cbd1d664c2:#{namedHash}"
-        value = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
+        value = KeyValueStore::getOrNull(nil, cacheKey)
         return value.to_i if value
         value = LibrarianOperator::getFSVirtualSizeOfANamedHashInBytesUseTheForce(namedHash)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, value)
+        KeyValueStore::set(nil, cacheKey, value)
         value
     end
 
@@ -86,10 +86,10 @@ class LibrarianOperator
     # LibrarianOperator::getNumberOfFilesOfANamedHash(namedHash)
     def self.getNumberOfFilesOfANamedHash(namedHash)
         cacheKey = "f93af855-8b72-486a-bbf8-11cf21ebb08d:#{namedHash}"
-        value = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull(cacheKey)
+        value = KeyValueStore::getOrNull(nil, cacheKey)
         return value.to_i if value
         value = LibrarianOperator::getNumberOfFilesOfANamedHashUseTheForce(namedHash)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, value)
+        KeyValueStore::set(nil, cacheKey, value)
         value
     end
 end

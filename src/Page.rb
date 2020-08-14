@@ -18,13 +18,13 @@ class Page
     # Page::issue(textid, text)
     def self.issue(textid, text)
         text = Page::make(textid, text)
-        NyxObjects::put(text)
+        NyxObjects2::put(text)
         text
     end
 
     # Page::getPageForIdOrderedByTime(textid)
     def self.getPageForIdOrderedByTime(textid)
-        NyxObjects::getSet("ab01a47c-bb91-4a15-93f5-b98cd3eb1866")
+        NyxObjects2::getSet("ab01a47c-bb91-4a15-93f5-b98cd3eb1866")
             .select{|note| note["textid"] == textid }
             .sort{|n1,n2| n1["unixtime"] <=> n2["unixtime"] }
     end

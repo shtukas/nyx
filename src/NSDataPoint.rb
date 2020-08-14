@@ -5,7 +5,7 @@ class NSDataPoint
 
     # NSDataPoint::datapoints()
     def self.datapoints()
-        NyxObjects::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
+        NyxObjects2::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
     # NSDataPoint::getDataPointParents(datapoint)
@@ -32,7 +32,7 @@ class NSDataPoint
             "type"       => "line",
             "line"       => line
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -45,7 +45,7 @@ class NSDataPoint
             "type"       => "url",
             "url"        => url
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -59,7 +59,7 @@ class NSDataPoint
             "type"       => "text",
             "namedhash"  => namedhash
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -90,7 +90,7 @@ class NSDataPoint
         #    "extensionWithDot" => ".png", 
         #    "namedhash" => "SHA256-f0c8fc5c14372e502a0412b3d3a7d87af53ffd5571ab1d0121f6eddb6e0188b6"
         #}
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -103,7 +103,7 @@ class NSDataPoint
             "type"       => "aion-point",
             "namedhash"  => namedhash
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -116,7 +116,7 @@ class NSDataPoint
             "type"       => "NyxPod",
             "name"       => nyxPodName
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
@@ -129,19 +129,13 @@ class NSDataPoint
             "type"       => "NyxFile",
             "name"       => nyxFileName
         }
-        NyxObjects::put(object)
+        NyxObjects2::put(object)
         object
     end
 
     # NSDataPoint::getNSDataPointTypes()
     def self.getNSDataPointTypes()
-        if Realms::isCatalyst() then
-            return ["line", "url", "text", "picture(+)", "fs-location aion-point", "NyxFile", "NyxPod"]
-        end
-        if Realms::isDocnet() then
-            return ["line", "url", "text", "picture(+)", "fs-location aion-point"]
-        end
-        Realms::raiseException()
+        ["line", "url", "text", "picture(+)", "fs-location aion-point", "NyxFile", "NyxPod"]
     end
 
     # NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
@@ -224,7 +218,7 @@ class NSDataPoint
 
     # NSDataPoint::decacheObjectMetadata(ns0)
     def self.decacheObjectMetadata(ns0)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
+        KeyValueStore::destroy(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
     end
 
     # NSDataPoint::toStringUseTheForce(ns0, showType: boolean)
@@ -261,19 +255,19 @@ class NSDataPoint
 
     # NSDataPoint::toString(ns0)
     def self.toString(ns0)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
+        str = KeyValueStore::getOrNull(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
         return str if str
         str = NSDataPoint::toStringUseTheForce(ns0, true)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
+        KeyValueStore::set(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
         str
     end
 
     # NSDataPoint::toStringForDataline(ns0)
     def self.toStringForDataline(ns0)
-        str = KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::getOrNull("9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}")
+        str = KeyValueStore::getOrNull(nil, "9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}")
         return str if str
         str = NSDataPoint::toStringUseTheForce(ns0, false)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set("9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}", str)
+        KeyValueStore::set(nil, "9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}", str)
         str
     end
 
@@ -355,7 +349,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxFile" then
             nyxfilename = ns0["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(nyxfilename)
+            location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxfilename)
             if location then
                 puts "filepath: #{location}"
                 puts "opening parent folder"
@@ -369,7 +363,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxPod" then
             nyxpodname = datapoint["name"]
-            location = AtlasCore::uniqueStringToLocationOrNull(nyxpodname)
+            location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxpodname)
             if location then
                 puts "opening folder '#{location}'"
                 system("open '#{location}'")
@@ -400,6 +394,6 @@ class NSDataPoint
 
     # NSDataPoint::decacheObjectMetadata(datapoint)
     def self.decacheObjectMetadata(datapoint)
-        KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::delete("e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
+        KeyValueStore::destroy(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
     end
 end
