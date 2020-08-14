@@ -617,12 +617,12 @@ class Asteroids
         end
         if targets.size == 1 then
             target = targets.first
-            if GenericObjectInterface::isAsteroid(object) then
-                Asteroids::landing(object)
+            if GenericObjectInterface::isAsteroid(target) then
+                Asteroids::landing(target)
                 return
             end
-            if GenericObjectInterface::isNode(object) then
-                NSDataType1::landing(object)
+            if GenericObjectInterface::isNode(target) then
+                NSDataType1::landing(target)
                 return
             end
             loop {
@@ -637,12 +637,12 @@ class Asteroids
                 mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
                 return if mode.nil?
                 if mode == "enter" then
-                    if GenericObjectInterface::isDataline(object) then
-                        NSDataLine::enterLastDataPointOrNothing(object)
+                    if GenericObjectInterface::isDataline(target) then
+                        NSDataLine::enterLastDataPointOrNothing(target)
                         next
                     end
-                    if GenericObjectInterface::isDataPoint(object) then
-                        NSDataPoint::enterDataPoint(object)
+                    if GenericObjectInterface::isDataPoint(target) then
+                        NSDataPoint::enterDataPoint(target)
                         next
                     end
                 end
@@ -671,7 +671,7 @@ class Asteroids
                 end
                 if mode == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                        GenericObjectInterface::destroy(object)
+                        GenericObjectInterface::destroy(asteroid)
                         return
                     end
                 end
