@@ -32,12 +32,16 @@ class NSDataLine
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description then
-            str = description
+            typeToDisplayType = lambda {|type|
+                return "picture(+)" if type == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1"
+                type
+            }
+            str = "[data] [#{typeToDisplayType.call(datapoints.last["type"])}] #{description}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
         if description.nil? and datapoints.size > 0 then
-            str = "[dataline] #{NSDataPoint::toStringForDataline(datapoints.last)}"
+            str = "[data] #{NSDataPoint::toStringForDataline(datapoints.last)}"
             KeyToJsonNSerialisbleValueInMemoryAndOnDiskStore::set(cacheKey, str)
             return str
         end
