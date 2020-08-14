@@ -2,8 +2,8 @@
 
 class Asteroids
 
-    # Asteroids::getOrNull(uuid)
-    def self.getOrNull(uuid)
+    # Asteroids::getAsteroidOrNull(uuid)
+    def self.getAsteroidOrNull(uuid)
         object = NyxObjects::getOrNull(uuid)
         return nil if object.nil?
         return nil if (object["nyxNxSet"] != "b66318f4-2662-4621-a991-a6b966fb4398")
@@ -364,6 +364,7 @@ class Asteroids
 
     # Asteroids::tryAndMoveThisInboxItem(asteroid)
     def self.tryAndMoveThisInboxItem(asteroid)
+        return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
         return if asteroid["orbital"]["type"] != "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
         Asteroids::asteroidStopSequence(asteroid)
@@ -499,7 +500,7 @@ class Asteroids
         #    .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
 
         AsteroidsOfInterest::getUUIDs()
-            .map{|uuid| Asteroids::getOrNull(uuid) }
+            .map{|uuid| Asteroids::getAsteroidOrNull(uuid) }
             .compact
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
@@ -552,6 +553,10 @@ class Asteroids
 
     # Asteroids::destroy(asteroid)
     def self.destroy(asteroid)
+        if Arrows::getTargetsForSource(asteroid).empty? then
+            NyxObjects::destroy(asteroid)
+            return
+        end
 
         if LucilleCore::askQuestionAnswerAsBoolean("keep target(s) ? ") then
             puts Asteroids::toString(asteroid)
@@ -625,7 +630,7 @@ class Asteroids
     def self.landing(asteroid)
         loop {
 
-            asteroid = Asteroids::getOrNull(asteroid["uuid"])
+            asteroid = Asteroids::getAsteroidOrNull(asteroid["uuid"])
             return if asteroid.nil?
 
             AsteroidsOfInterest::register(asteroid["uuid"])
