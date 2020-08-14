@@ -403,7 +403,7 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::asteroidStartSequence(asteroid)
-            Asteroids::openTargetOrTargets(asteroid)
+            Asteroids::openInboxTargetOrTargets(asteroid)
             Asteroids::tryAndMoveThisInboxItem(asteroid)
             return
         end
@@ -587,7 +587,95 @@ class Asteroids
         end
         if targets.size == 1 then
             target = targets.first
-            GenericObjectInterface::envelop(target)
+            if GenericObjectInterface::isAsteroid(object) then
+                Asteroids::landing(object)
+                return
+            end
+            if GenericObjectInterface::isNode(object) then
+                NSDataType1::landing(object)
+                return
+            end
+            if GenericObjectInterface::isDataline(object) then
+                NSDataLine::enterLastDataPointOrNothing(object)
+                return
+            end
+            if GenericObjectInterface::isDataPoint(object) then
+                NSDataPoint::enterDataPoint(object)
+                return
+            end
+        end
+       if targets.size > 1 then
+            Asteroids::landing(asteroid)
+        end
+    end
+
+    # Asteroids::openInboxTargetOrTargets(asteroid)
+    def self.openInboxTargetOrTargets(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
+        if targets.size == 0 then
+            return
+        end
+        if targets.size == 1 then
+            target = targets.first
+            if GenericObjectInterface::isAsteroid(object) then
+                Asteroids::landing(object)
+                return
+            end
+            if GenericObjectInterface::isNode(object) then
+                NSDataType1::landing(object)
+                return
+            end
+            loop {
+                modes = [
+                    "enter", 
+                    "hide for a time",
+                    "todo today",
+                    "add to queue",
+                    "general re orbital",
+                    "destroy"
+                ]
+                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+                return if mode.nil?
+                if mode == "enter" then
+                    if GenericObjectInterface::isDataline(object) then
+                        NSDataLine::enterLastDataPointOrNothing(object)
+                        next
+                    end
+                    if GenericObjectInterface::isDataPoint(object) then
+                        NSDataPoint::enterDataPoint(object)
+                        next
+                    end
+                end
+                if mode == "hide for a time" then
+                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+                    return
+                end
+                if mode == "todo today" then
+                    asteroid["orbital"] = {
+                        "type" => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+                    }
+                    Asteroids::reCommitToDisk(asteroid)
+                    return
+                end
+                if mode == "add to queue" then
+                    asteroid["orbital"] = {
+                        "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                    }
+                    Asteroids::reCommitToDisk(asteroid)
+                    return
+                end
+                if mode == "general re orbital" then
+                    Asteroids::reOrbitalOrNothing(asteroid)
+                    return
+                end
+                if mode == "destroy" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                        GenericObjectInterface::destroy(object)
+                        return
+                    end
+                end
+            }
         end
        if targets.size > 1 then
             Asteroids::landing(asteroid)
