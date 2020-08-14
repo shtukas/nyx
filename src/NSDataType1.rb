@@ -81,6 +81,7 @@ class NSDataType1
     def self.type1MatchesPattern(point, pattern)
         return true if point["uuid"].downcase.include?(pattern.downcase)
         return true if NSDataType1::toString(point).downcase.include?(pattern.downcase)
+        return true if Arrows::getTargetsForSource(point).any?{|child| GenericObjectInterface::toString(child).downcase.include?(pattern.downcase) }
         false
     end
 
