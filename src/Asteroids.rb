@@ -570,7 +570,7 @@ class Asteroids
             NSDataType1::landing(node)
         else
             Arrows::getTargetsForSource(asteroid).each{|target|
-                GenericObjectInterface::destroy(target)
+                Arrows::remove(asteroid, target)
             }
         end
 
@@ -638,13 +638,16 @@ class Asteroids
                     if GenericObjectInterface::isDataline(target) then
                         Asteroids::asteroidStartSequence(asteroid)
                         NSDataLine::enterLastDataPointOrNothing(target)
-                        return
                     end
                     if GenericObjectInterface::isDataPoint(target) then
                         Asteroids::asteroidStartSequence(asteroid)
                         NSDataPoint::enterDataPoint(target)
-                        next
                     end
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
+                        GenericObjectInterface::destroy(asteroid)
+                        return
+                    end
+                    next
                 end
                 if mode == "hide for a time" then
                     timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
