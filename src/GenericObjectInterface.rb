@@ -26,7 +26,7 @@ class GenericObjectInterface
     # GenericObjectInterface::decacheObjectMetadata(object)
     def self.decacheObjectMetadata(object)
         if GenericObjectInterface::isAsteroid(object) then
-
+            return
         end
         if GenericObjectInterface::isNode(object) then
             return NSDataType1::decacheObjectMetadata(object)

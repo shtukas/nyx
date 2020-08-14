@@ -402,9 +402,7 @@ class Asteroids
         # Not Running
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            Asteroids::asteroidStartSequence(asteroid)
             Asteroids::openInboxTargetOrTargets(asteroid)
-            Asteroids::tryAndMoveThisInboxItem(asteroid)
             return
         end
 
@@ -638,10 +636,12 @@ class Asteroids
                 return if mode.nil?
                 if mode == "enter" then
                     if GenericObjectInterface::isDataline(target) then
+                        Asteroids::asteroidStartSequence(asteroid)
                         NSDataLine::enterLastDataPointOrNothing(target)
-                        next
+                        return
                     end
                     if GenericObjectInterface::isDataPoint(target) then
+                        Asteroids::asteroidStartSequence(asteroid)
                         NSDataPoint::enterDataPoint(target)
                         next
                     end
