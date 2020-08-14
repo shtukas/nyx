@@ -1,15 +1,17 @@
 # encoding: UTF-8
 
+DoNotShowUntilDatabaseFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/do-not-show-until.sqlite3"
+
 class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uid, unixtime)
     def self.setUnixtime(uid, unixtime)
-        KeyToStringOnDiskStore::set("/Users/pascal/Galaxy/DataBank/DoNotShowUntil", "80686672-0290-4a28-94d9-0381a7d2b4a9:#{uid}", unixtime)
+        Dionysus1::kvstore_set(DoNotShowUntilDatabaseFilepath, uid, unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
-        unixtime = KeyToStringOnDiskStore::getOrNull("/Users/pascal/Galaxy/DataBank/DoNotShowUntil", "80686672-0290-4a28-94d9-0381a7d2b4a9:#{uid}")
+        unixtime = Dionysus1::kvstore_getOrNull(DoNotShowUntilDatabaseFilepath, uid)
         return nil if unixtime.nil?
         unixtime.to_i
     end
