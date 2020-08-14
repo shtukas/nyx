@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$PushCounter = 0 
+
 class CatalystUI
 
     # CatalystUI::applyNextTransformationToFile(filepath)
@@ -189,6 +191,16 @@ class CatalystUI
             return
         end
 
+        if command == "++>" then
+            object = catalystObjects.first
+            return if object.nil?
+            $PushCounter = $PushCounter + 1
+            unixtime = Miscellaneous::codeToUnixtimeOrNull("+#{$PushCounter*4} hours")
+            puts "Pushing to #{Time.at(unixtime).to_s}"
+            DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
+            return
+        end
+
         if command.start_with?('+') and (unixtime = Miscellaneous::codeToUnixtimeOrNull(command)) then
             object = catalystObjects.first
             return if object.nil?
@@ -232,7 +244,6 @@ class CatalystUI
             CatalystUI::accessProjects()
             return
         end
-
     end
 
     @@haveStartedThreads = false
