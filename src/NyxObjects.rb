@@ -16,7 +16,7 @@ class NyxObjectsCore
     end
 end
 
-NyxObjectsDionysus1Filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/nyx-objects.sqlite3"
+NyxObjectsDionysus1Filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/NyxObjects.sqlite3"
 
 class NyxObjects2
 
