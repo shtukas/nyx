@@ -1,14 +1,112 @@
 
+=begin
+
+This table is documented in "System Architecture Notes/Pattern Searching Nodes.txt"
+
+table: lookup
+    _objectuuid_    text
+    _fragment_      text
+
+=end
+
+class NSDataType1PatternSearchLookup
+
+    # NSDataType1PatternSearchLookup::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDataType1PatternSearchLookup.sqlite3"
+    end
+
+    # NSDataType1PatternSearchLookup::selectNSDataType1UUIDsByPattern(pattern)
+    def self.selectNSDataType1UUIDsByPattern(pattern)
+        db = SQLite3::Database.new(NSDataType1PatternSearchLookup::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from lookup" , [] ) do |row|
+            fragment = row['_fragment_']
+            if fragment.downcase.include?(pattern.downcase) then
+                answer << row['_objectuuid_']
+            end
+            
+        end
+        db.close
+        answer.uniq
+    end
+
+    # NSDataType1PatternSearchLookup::removeRecordsAgainstNode(objectuuid)
+    def self.removeRecordsAgainstNode(objectuuid)
+        db = SQLite3::Database.new(NSDataType1PatternSearchLookup::databaseFilepath())
+        db.execute "delete from lookup where _objectuuid_=?", [objectuuid]
+        db.close
+    end
+
+    # NSDataType1PatternSearchLookup::addRecord(objectuuid, fragment)
+    def self.addRecord(objectuuid, fragment)
+        db = SQLite3::Database.new(NSDataType1PatternSearchLookup::databaseFilepath())
+        db.execute "insert into lookup (_objectuuid_, _fragment_) values ( ?, ? )", [objectuuid, fragment]
+        db.close
+    end
+
+    # NSDataType1PatternSearchLookup::updateLookupForNode(node)
+    def self.updateLookupForNode(node)
+        puts "rebuild NSDataType1PatternSearchLookup @ #{node["uuid"]}"
+        NSDataType1PatternSearchLookup::removeRecordsAgainstNode(node["uuid"])
+        NSDataType1PatternSearchLookup::addRecord(node["uuid"], node["uuid"])
+        NSDataType1PatternSearchLookup::addRecord(node["uuid"], NSDataType1::toString(node))
+        Arrows::getTargetsForSource(node).each{|child| 
+            NSDataType1PatternSearchLookup::addRecord(node["uuid"], GenericObjectInterface::toString(child))
+        }
+    end
+
+    # NSDataType1PatternSearchLookup::rebuildLookup()
+    def self.rebuildLookup()
+        puts "rebuild NSDataType1PatternSearchLookup"
+        NSDataType1::objects().each{|node|
+            NSDataType1PatternSearchLookup::updateLookupForNode(node)
+        }
+    end
+
+    # NSDataType1PatternSearchLookup::rebuildLookupSlowly()
+    def self.rebuildLookupSlowly()
+        NSDataType1::objects()
+            .shuffle
+            .each{|node|
+                NSDataType1PatternSearchLookup::updateLookupForNode(node)
+                sleep 1
+            }
+    end
+end
 
 class NSDT1ExtendedDataLookups
 
+    # NSDT1ExtendedDataLookups::type1MatchesPattern(point, pattern)
+    # Legacy
+    def self.type1MatchesPattern(point, pattern)
+        return true if point["uuid"].downcase.include?(pattern.downcase)
+        return true if NSDataType1::toString(point).downcase.include?(pattern.downcase)
+        return true if Arrows::getTargetsForSource(point).any?{|child| GenericObjectInterface::toString(child).downcase.include?(pattern.downcase) }
+        false
+    end
+
+    # NSDT1ExtendedDataLookups::selectType1sPerPattern(pattern)
+    # Legacy
+    def self.selectType1sPerPattern(pattern)
+        # 2020-08-15
+        # This is a legacy function that I keep for sentimental reasons,
+        # The direct look up using NSDT1ExtendedDataLookups::type1MatchesPattern has been replace by NSDT1ExtendedDataLookups
+        NSDataType1::objects()
+            .select{|point| NSDT1ExtendedDataLookups::type1MatchesPattern(point, pattern) }
+    end
+
+    # NSDT1ExtendedDataLookups::selectNSDataType1sByPattern(pattern)
+    def self.selectNSDataType1sByPattern(pattern)
+        NSDataType1PatternSearchLookup::selectNSDataType1UUIDsByPattern(pattern)
+            .map{|uuid| NSDataType1::getOrNull(uuid) }
+            .compact
+    end
+
     # NSDT1ExtendedDataLookups::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDataType1::selectType1sPerPattern(pattern)
-            .map{|node|
-                NSDataType1::decacheObjectMetadata(node)
-                node
-            }
+        NSDT1ExtendedDataLookups::selectNSDataType1sByPattern(pattern)
             .map{|node|
                 {
                     "description"   => NSDataType1::toString(node),
@@ -76,7 +174,7 @@ class NSDT1ExtendedUserInterface
                 search_string = nil
 
                 display_searching_on.call()
-                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDataType1::selectType1sPerPattern(pattern))
+                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1ExtendedDataLookups::selectType1sPerPattern(pattern))
 
                 win3.setpos(0,0)
                 selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
@@ -134,7 +232,6 @@ class NSDT1ExtendedUserInterface
     # NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
     def self.selectExistingType1InteractivelyOrNull()
         nodes = NSDT1ExtendedUserInterface::interactiveSearch()
-        nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
         return nil if nodes.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NSDataType1::toString(node) })
@@ -151,7 +248,6 @@ class NSDT1ExtendedUserInterface
     # NSDT1ExtendedUserInterface::interactiveSearchAndExplore()
     def self.interactiveSearchAndExplore()
         nodes = NSDT1ExtendedUserInterface::interactiveSearch()
-        nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
         return if nodes.empty?
         loop {
             nodes = nodes.select{|o| NSDataType1::getOrNull(o["uuid"]) } # In case a node has been deleted in the previous loop

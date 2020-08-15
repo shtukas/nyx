@@ -13,7 +13,7 @@ class NyxGarbageCollection
             isNotConnecting = (b1 or b2)
             if isNotConnecting then
                 puts "removing arrow: #{arrow}"
-                NyxObjects2::destroy(arrow)
+                Arrows::destroy(arrow["sourceuuid"], arrow["targetuuid"])
             end
         }
 

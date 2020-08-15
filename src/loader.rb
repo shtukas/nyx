@@ -110,25 +110,9 @@ Dionysus1::sets_destroy(filepath, _setuuid_, _objectuuid_)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Dionysus2.rb"
-=begin
-
-Dionysus2::getDatabaseProxy(filepath): db
-
-Dionysus2::kvstore_set(db, key, value)
-Dionysus2::kvstore_getOrNull(db, key): null or String
-Dionysus2::kvstore_setObject(db, key, object)
-Dionysus2::kvstore_getObjectOrNull(db, key): null or Object
-Dionysus2::kvstore_destroy(db, key)
-
-Dionysus2::sets_putObject(db, _setuuid_, _objectuuid_, _object_)
-Dionysus2::sets_getObjectOrNull(db, _setuuid_, _objectuuid_): null or Object
-Dionysus2::sets_getObjects(db, _setuuid_): Array[Object]
-Dionysus2::sets_destroy(db, _setuuid_, _objectuuid_)
-
-=end
-
 # ------------------------------------------------------------
+
+require_relative "Miscellaneous.rb" # Should come first as containing core definitions
 
 require_relative "Anniversaries.rb"
 require_relative "Arrows.rb"
@@ -164,8 +148,6 @@ require_relative "GenericObjectInterface.rb"
 
 require_relative "Librarian.rb"
 require_relative "LucilleCore.rb"
-
-require_relative "Miscellaneous.rb"
 
 require_relative "NSDT1Extended.rb"
 require_relative "NSDataLine.rb"

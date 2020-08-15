@@ -1,5 +1,5 @@
-NyxObjects: Dionysus2 file in DataBank
-Bank      : Dionysus2 file in DataBank
+NyxObjects: Dionysus1 file in DataBank
+Bank      : Dionysus1 file in DataBank
 
 
 Stores Nomenclature 

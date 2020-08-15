@@ -120,11 +120,6 @@ class NSDataLine
         raise "[NSDataPoint error 2c53b113-cc79]"
     end
 
-    # NSDataLine::decacheObjectMetadata(dataline)
-    def self.decacheObjectMetadata(dataline)
-        KeyValueStore::destroy(nil, "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}")
-    end
-
     # NSDataLine::getDatalineParents(dataline)
     def self.getDatalineParents(dataline)
         Arrows::getSourcesForTarget(dataline)

@@ -77,20 +77,6 @@ class NSDataType1
         node
     end
 
-    # NSDataType1::type1MatchesPattern(point, pattern)
-    def self.type1MatchesPattern(point, pattern)
-        return true if point["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType1::toString(point).downcase.include?(pattern.downcase)
-        return true if Arrows::getTargetsForSource(point).any?{|child| GenericObjectInterface::toString(child).downcase.include?(pattern.downcase) }
-        false
-    end
-
-    # NSDataType1::selectType1sPerPattern(pattern)
-    def self.selectType1sPerPattern(pattern)
-        NSDataType1::objects()
-            .select{|point| NSDataType1::type1MatchesPattern(point, pattern) }
-    end
-
     # NSDataType1::destroy(point)
     def self.destroy(point)
         folderpath = DeskOperator::deskFolderpathForNSDataline(point)
@@ -107,11 +93,6 @@ class NSDataType1
         NSDataTypeXExtended::getLastDescriptionForTargetOrNull(object)
     end
 
-    # NSDataType1::decacheObjectMetadata(node)
-    def self.decacheObjectMetadata(node)
-        KeyValueStore::destroy(nil, "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}") # flush the cached toString
-    end
-
     # NSDataType1::landing(node)
     def self.landing(node)
 
@@ -119,8 +100,6 @@ class NSDataType1
 
             return if NyxObjects2::getOrNull(node["uuid"]).nil?
             system("clear")
-
-            NSDataType1::decacheObjectMetadata(node)
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -131,7 +110,6 @@ class NSDataType1
             upstreams = Arrows::getSourcesForTarget(node)
             upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
             upstreams.each{|o|
-                GenericObjectInterface::decacheObjectMetadata(o)
                 menuitems.item(
                     "parent: #{GenericObjectInterface::toString(o)}",
                     lambda { GenericObjectInterface::envelop(o) }
@@ -159,7 +137,6 @@ class NSDataType1
             Miscellaneous::horizontalRule()
 
             Arrows::getTargetsForSource(node).each{|object|
-                GenericObjectInterface::decacheObjectMetadata(object)
                 menuitems.item(
                     GenericObjectInterface::toString(object),
                     lambda{ GenericObjectInterface::envelop(object) }
@@ -231,7 +208,7 @@ class NSDataType1
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
-                    Arrows::remove(ns, node)
+                    Arrows::unlink(ns, node)
                 }
             )
 
@@ -258,7 +235,7 @@ class NSDataType1
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
-                    Arrows::remove(ns, node)
+                    Arrows::unlink(ns, node)
                 }
             )
 
@@ -303,7 +280,7 @@ class NSDataType1
                         Arrows::issueOrException(targetnode, o)
                     }
                     selectednodes.each{|o|
-                        Arrows::remove(node, o)
+                        Arrows::unlink(node, o)
                     }
                 }
             )
@@ -328,7 +305,7 @@ class NSDataType1
                         Arrows::issueOrException(targetnode, o)
                     }
                     selectednodes.each{|o|
-                        Arrows::remove(node, o)
+                        Arrows::unlink(node, o)
                     }
                 }
             )

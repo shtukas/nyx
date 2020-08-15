@@ -23,24 +23,6 @@ class GenericObjectInterface
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # GenericObjectInterface::decacheObjectMetadata(object)
-    def self.decacheObjectMetadata(object)
-        if GenericObjectInterface::isAsteroid(object) then
-            return
-        end
-        if GenericObjectInterface::isNode(object) then
-            return NSDataType1::decacheObjectMetadata(object)
-        end
-        if GenericObjectInterface::isDataline(object) then
-            return NSDataLine::decacheObjectMetadata(object)
-        end
-        if GenericObjectInterface::isDataPoint(object) then
-            return NSDataPoint::decacheObjectMetadata(object)
-        end
-        puts object
-        raise "[error: 297cec4f-25bc-4d60-9d4d-045d6e40de9a]"
-    end
-
     # GenericObjectInterface::toString(object)
     def self.toString(object)
         if GenericObjectInterface::isAsteroid(object) then

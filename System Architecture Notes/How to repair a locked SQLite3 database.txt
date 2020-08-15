@@ -1,0 +1,3 @@
+
+sqlite3 nyx-objects.sqlite3 .dump > nyx-objects.sqlite3-dump.sql
+cat nyx-objects.sqlite3-dump.sql | sqlite3 nyx-objects.sqlite3

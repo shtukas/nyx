@@ -1,5 +1,5 @@
 
-NyxObjects are currently stored in a Dionysus2 file.
+NyxObjects are currently stored in a Dionysus1 file.
 
 -------------------------------------------------------------------------
 Nyx
@@ -31,14 +31,15 @@ Nyx
         Page          # Page.txt
                       # nyxNxSet: "ab01a47c-bb91-4a15-93f5-b98cd3eb1866"
 
-    Arrow # Arrows.txt
-          # nyxNxSet: "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
-
     NSDataTypeX
           # nyxNxSet: "5c99134b-2b61-4750-8519-49c1d896556f"
                 / Description
                 / DateTime
                 / Note
+
+-------------------------------------------------------------------------
+
+Arrows provide network topology between NyxObjects, but are now no longer nyx objects themselves.
 
 -------------------------------------------------------------------------
 All Nyx Objects 

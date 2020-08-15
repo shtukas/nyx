@@ -1,15 +1,13 @@
 
 # encoding: UTF-8
 
-BankDatabaseFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/bank-numbers.sqlite3"
-
-$X4F0E7A2B = Dionysus2::getDatabaseProxy(BankDatabaseFilepath)
+BankDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/BankAccounts.sqlite3"
 
 class Bank
 
     # Bank::getTimePackets(setuuid)
     def self.getTimePackets(setuuid)
-        Dionysus2::sets_getObjects($X4F0E7A2B, setuuid)
+        Dionysus1::sets_getObjects(BankDatabaseFilepath, setuuid)
     end
 
     # Bank::put(setuuid, weight: Float)
@@ -20,7 +18,7 @@ class Bank
             "weight" => weight,
             "unixtime" => Time.new.to_f
         }
-        Dionysus2::sets_putObject($X4F0E7A2B, setuuid, uuid, packet)
+        Dionysus1::sets_putObject(BankDatabaseFilepath, setuuid, uuid, packet)
     end
 
     # Bank::value(setuuid)

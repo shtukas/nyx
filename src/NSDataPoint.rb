@@ -216,11 +216,6 @@ class NSDataPoint
         return "[unknown aion point]"
     end
 
-    # NSDataPoint::decacheObjectMetadata(ns0)
-    def self.decacheObjectMetadata(ns0)
-        KeyValueStore::destroy(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
-    end
-
     # NSDataPoint::toStringUseTheForce(ns0, showType: boolean)
     def self.toStringUseTheForce(ns0, showType)
         if ns0["type"] == "line" then
@@ -390,10 +385,5 @@ class NSDataPoint
         dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
         return if dataline.nil?
         NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
-    end
-
-    # NSDataPoint::decacheObjectMetadata(datapoint)
-    def self.decacheObjectMetadata(datapoint)
-        KeyValueStore::destroy(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
     end
 end

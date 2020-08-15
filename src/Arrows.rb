@@ -1,75 +1,99 @@
 
 # encoding: UTF-8
 
+=begin
+
+Arrows
+{
+    "uuid"       : String
+    "nyxNxSet"   : "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
+    "unixtime"   : Float
+    "sourceuuid" : String
+    "targetuuid" : String
+}
+
+table: arrows
+    _sourceuuid_    text
+    _targetuuid_    text
+
+=end
+
 class Arrows
+
+    # Arrows::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/Arrows.sqlite3"
+    end
 
     # Arrows::issueOrException(source, target)
     def self.issueOrException(source, target)
         raise "[error: bc82b3b6]" if (source["uuid"] == target["uuid"])
-        if Arrows::exists?(source, target) then
-            arrow = NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-                        .select{|arrow|  
-                            b1 = (arrow["sourceuuid"] == source["uuid"])
-                            b2 = (arrow["targetuuid"] == target["uuid"])
-                            b1 and b2
-                        }.first
-            raise "[error: 23b2e534]" if arrow.nil?
-            return arrow
-        end
-        arrow = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "d83a3ff5-023e-482c-8658-f7cfdbb6b738",
-            "unixtime"   => Time.new.to_f,
-            "sourceuuid" => source["uuid"],
-            "targetuuid" => target["uuid"]
-        }
-        NyxObjects2::put(arrow)
-        arrow
+        #return if Arrows::exists?(source, target)
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.execute "insert into arrows (_sourceuuid_, _targetuuid_) values ( ?, ? )", [source["uuid"], target["uuid"]]
+        db.close
     end
 
     # Arrows::arrows()
     def self.arrows()
-        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from table2 where _setuuid_=?" , [_setuuid_] ) do |row|
+            answer << {
+                "sourceuuid" => row["_sourceuuid_"],
+                "targetuuid" => row["_targetuuid_"]
+            }
+        end
+        db.close
+        answer
     end
 
-    # Arrows::remove(source, target)
-    def self.remove(source, target)
-        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-            .select{|arrow| 
-                b1 = (arrow["sourceuuid"] == source["uuid"])
-                b2 = (arrow["targetuuid"] == target["uuid"])
-                b1 and b2
-            }
-            .each{|arrow| NyxObjects2::destroy(arrow) }
+    # Arrows::destroy(sourceuuid, targetuuid)
+    def self.destroy(sourceuuid, targetuuid)
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.execute "delete from arrows where _sourceuuid_=? and _targetuuid_=?", [sourceuuid, targetuuid]
+        db.close
+    end
+
+    # Arrows::unlink(source, target)
+    def self.unlink(source, target)
+        Arrows::destroy(source["uuid"], target["uuid"])
     end
 
     # Arrows::exists?(source, target)
     def self.exists?(source, target)
-        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-            .any?{|arrow|  
-                b1 = (arrow["sourceuuid"] == source["uuid"])
-                b2 = (arrow["targetuuid"] == target["uuid"])
-                b1 and b2
-            }
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.results_as_hash = true
+        answer = false
+        db.execute( "select * from arrows where _sourceuuid_=? and _targetuuid_=?" , [source["uuid"], target["uuid"]] ) do |row|
+            answer = true
+        end
+        db.close
+        answer
     end
 
     # Arrows::getTargetsForSource(source)
     def self.getTargetsForSource(source)
-        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-            .select{|arrow| arrow["sourceuuid"] == source["uuid"] }
-            .map{|arrow| arrow["targetuuid"] }
-            .uniq
-            .map{|targetuuid| NyxObjects2::getOrNull(targetuuid) }
-            .compact
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from arrows where _sourceuuid_=?" , [source["uuid"]] ) do |row|
+            answer << NyxObjects2::getOrNull(row["_targetuuid_"])
+        end
+        db.close
+        answer.compact
     end
 
     # Arrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
-        NyxObjects2::getSet("d83a3ff5-023e-482c-8658-f7cfdbb6b738")
-            .select{|arrow| arrow["targetuuid"] == target["uuid"] }
-            .map{|arrow| arrow["sourceuuid"] }
-            .uniq
-            .map{|sourceuuid| NyxObjects2::getOrNull(sourceuuid) }
-            .compact
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from arrows where _targetuuid_=?" , [target["uuid"]] ) do |row|
+            answer << NyxObjects2::getOrNull(row["_sourceuuid_"])
+        end
+        db.close
+        answer.compact
     end
 end

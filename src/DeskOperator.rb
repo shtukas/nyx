@@ -5,12 +5,12 @@ class DeskOperator
 
     # DeskOperator::deskFolderPath()
     def self.deskFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxDesk"
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/LibrarianDesk"
     end
 
     # DeskOperator::deskFolderpathForNSDataline(ns1)
     def self.deskFolderpathForNSDataline(ns1)
-        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxDesk/#{ns1["uuid"]}"
+        "#{DeskOperator::deskFolderPath()}/#{ns1["uuid"]}"
     end
 
     # DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(ns1, ns0)

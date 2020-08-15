@@ -779,7 +779,6 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|target|
-                GenericObjectInterface::decacheObjectMetadata(target)
                 menuitems.item(
                     GenericObjectInterface::toString(target),
                     lambda {

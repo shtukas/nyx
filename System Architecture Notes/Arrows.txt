@@ -1,10 +1,25 @@
-Arrows , current used for the navigation network between graph types.
-
 Arrows
-{
-    "uuid"       : String
-    "nyxNxSet"   : "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
-    "unixtime"   : Float
-    "sourceuuid" : String
-    "targetuuid" : String
+
+location: #{Miscellaneous::catalystDataCenterFolderpath()}/Arrows.sqlite3
+
+table: arrows
+    _sourceuuid_    text
+    _targetuuid_    text
+
+create table arrows (_sourceuuid_ text, _targetuuid_ text);
+
+Table was created once by hand.
+    pascal@Lucille20 Catalyst % sqlite3 Arrows.sqlite3
+    SQLite version 3.28.0 2019-04-15 14:49:49
+    Enter ".help" for usage hints.
+    sqlite> create table arrows (_sourceuuid_ text, _targetuuid_ text);
+    sqlite> .exit
+    pascal@Lucille20 Catalyst % 
+
+
+Arrows::arrows(): Array[Arrow]
+
+Arrow {
+    "sourceuuid" => row["_sourceuuid_"],
+    "targetuuid" => row["_targetuuid_"]
 }
