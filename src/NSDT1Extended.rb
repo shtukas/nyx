@@ -48,7 +48,6 @@ class NSDataType1PatternSearchLookup
 
     # NSDataType1PatternSearchLookup::updateLookupForNode(node)
     def self.updateLookupForNode(node)
-        puts "rebuild NSDataType1PatternSearchLookup @ #{node["uuid"]}"
         NSDataType1PatternSearchLookup::removeRecordsAgainstNode(node["uuid"])
         NSDataType1PatternSearchLookup::addRecord(node["uuid"], node["uuid"])
         NSDataType1PatternSearchLookup::addRecord(node["uuid"], NSDataType1::toString(node))
@@ -59,7 +58,6 @@ class NSDataType1PatternSearchLookup
 
     # NSDataType1PatternSearchLookup::rebuildLookup()
     def self.rebuildLookup()
-        puts "rebuild NSDataType1PatternSearchLookup"
         NSDataType1::objects().each{|node|
             NSDataType1PatternSearchLookup::updateLookupForNode(node)
         }
