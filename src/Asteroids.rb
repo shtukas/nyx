@@ -801,7 +801,7 @@ class Asteroids
                         Arrows::issueOrException(asteroid, node)
                     end
                     if option == "existing node" then
-                        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                        node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                     end
@@ -816,7 +816,7 @@ class Asteroids
             menuitems.item(
                 "add node (chosen from existing nodes)",
                 lambda {
-                    node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                     return if node.nil?
                     Arrows::issueOrException(asteroid, node)
                 }

@@ -6,7 +6,7 @@ class GeneralSearch
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            NSDataType1::searchNx1630(pattern),
+            NSDT1ExtendedDataLookups::searchNx1630(pattern),
             Waves::searchNx1630(pattern)
         ]
             .flatten

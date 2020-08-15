@@ -220,7 +220,7 @@ class NSDataType1
             menuitems.item(
                 "attach parent node",
                 lambda {
-                    n = NSDT1Extended::selectExistingOrMakeNewType1()
+                    n = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }
@@ -238,7 +238,7 @@ class NSDataType1
             menuitems.item(
                 "attach child node (chosen from existing nodes)",
                 lambda {
-                    o = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    o = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
                 }
@@ -347,23 +347,5 @@ class NSDataType1
             status = menuitems.prompt()
             break if !status
         }
-    end
-
-    # ---------------------------------------------
-
-    # NSDataType1::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        NSDataType1::selectType1sPerPattern(pattern)
-            .map{|node|
-                NSDataType1::decacheObjectMetadata(node)
-                node
-            }
-            .map{|node|
-                {
-                    "description"   => NSDataType1::toString(node),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
-                    "dive"          => lambda{ NSDataType1::landing(node) }
-                }
-            }
     end
 end

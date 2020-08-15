@@ -1,7 +1,27 @@
 
-class NSDT1Extended
 
-    # NSDT1Extended::interactiveSearch()
+class NSDT1ExtendedDataLookups
+
+    # NSDT1ExtendedDataLookups::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        NSDataType1::selectType1sPerPattern(pattern)
+            .map{|node|
+                NSDataType1::decacheObjectMetadata(node)
+                node
+            }
+            .map{|node|
+                {
+                    "description"   => NSDataType1::toString(node),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
+                    "dive"          => lambda{ NSDataType1::landing(node) }
+                }
+            }
+    end
+end
+
+class NSDT1ExtendedUserInterface
+
+    # NSDT1ExtendedUserInterface::interactiveSearch()
     def self.interactiveSearch()
 
         Curses::init_screen
@@ -111,26 +131,26 @@ class NSDT1Extended
         return (selected_objects || [])
     end
 
-    # NSDT1Extended::selectExistingType1InteractivelyOrNull()
+    # NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
     def self.selectExistingType1InteractivelyOrNull()
-        nodes = NSDT1Extended::interactiveSearch()
+        nodes = NSDT1ExtendedUserInterface::interactiveSearch()
         nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
         return nil if nodes.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NSDataType1::toString(node) })
     end
 
-    # NSDT1Extended::selectExistingOrMakeNewType1()
+    # NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
     def self.selectExistingOrMakeNewType1()
-        node = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+        node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
         return node if node
         return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing node. Would you like to make a new one ? : ")
         NSDataType1::issueNewNodeInteractivelyOrNull()
     end
 
-    # NSDT1Extended::interactiveSearchAndExplore()
+    # NSDT1ExtendedUserInterface::interactiveSearchAndExplore()
     def self.interactiveSearchAndExplore()
-        nodes = NSDT1Extended::interactiveSearch()
+        nodes = NSDT1ExtendedUserInterface::interactiveSearch()
         nodes.each{|node| NSDataType1::decacheObjectMetadata(node) }
         return if nodes.empty?
         loop {

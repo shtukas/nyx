@@ -1,4 +1,6 @@
 
+NyxObjects are currently stored in a Dionysus2 file.
+
 -------------------------------------------------------------------------
 Nyx
 

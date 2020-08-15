@@ -16,7 +16,7 @@ class DataPortalUI
 
             ms.item(
                 "Graph Types Interactive Search", 
-                lambda { NSDT1Extended::interactiveSearchAndExplore() }
+                lambda { NSDT1ExtendedUserInterface::interactiveSearchAndExplore() }
             )
 
             ms.item(
@@ -40,7 +40,7 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDT1Extended::selectExistingOrMakeNewType1()
+                    node = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
                     return if node.nil?
                     puts "selected node: #{NSDataType1::toString(node)}"
                     LucilleCore::pressEnterToContinue()
@@ -69,9 +69,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    node1 = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                     return if node1.nil?
-                    node2 = NSDT1Extended::selectExistingType1InteractivelyOrNull()
+                    node2 = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."

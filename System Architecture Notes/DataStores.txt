@@ -1,3 +1,7 @@
+NyxObjects: Dionysus2 file in DataBank
+Bank      : Dionysus2 file in DataBank
+
+
 Stores Nomenclature 
     DataStore1: Catalyst Nyx @ DataBank
     DataStore2: DocNet Nyx @ ~/.docnet/002-primary-store-949658fc-5474-45cf-b754-ab2500a89a93
