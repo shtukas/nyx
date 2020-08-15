@@ -189,12 +189,6 @@ class Waves
         NyxObjects2::put(wave)
     end
 
-    # Waves::recommitToDisk(wave)
-    def self.recommitToDisk(wave)
-        NyxObjects2::destroy(wave)
-        NyxObjects2::put(wave)
-    end
-
     # Waves::issueWave(uuid, description, schedule)
     def self.issueWave(uuid, description, schedule)
         wave = {
@@ -326,7 +320,7 @@ class Waves
                     description = Miscellaneous::editTextSynchronously(wave["description"])
                     return if description.nil?
                     wave["description"] = description
-                    Waves::recommitToDisk(wave)
+                    Waves::commitToDisk(wave)
                 }
             )
 
@@ -336,7 +330,7 @@ class Waves
                     schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                     return if schedule.nil?
                     wave["schedule"] = schedule
-                    Waves::recommitToDisk(wave)
+                    Waves::commitToDisk(wave)
                 }
             )
 

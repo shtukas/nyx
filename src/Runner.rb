@@ -12,7 +12,7 @@ class Runner
     def self.runTimeInSecondsOrNull(uuid)
         unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
         return nil if unixtime.nil?
-        Time.new.to_f - unixtime
+        Time.new.to_f - unixtime.to_i
     end
 
     # Runner::start(uuid)
