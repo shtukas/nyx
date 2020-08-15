@@ -255,10 +255,6 @@ class CatalystUI
             }
         }
         Thread.new {
-            sleep 20
-            NSDataType1PatternSearchLookup::rebuildLookupSlowly()
-        }
-        Thread.new {
             loop {
                 sleep 30
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then

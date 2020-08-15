@@ -51,26 +51,15 @@ class NSDataType1PatternSearchLookup
         NSDataType1PatternSearchLookup::removeRecordsAgainstNode(node["uuid"])
         NSDataType1PatternSearchLookup::addRecord(node["uuid"], node["uuid"])
         NSDataType1PatternSearchLookup::addRecord(node["uuid"], NSDataType1::toString(node))
-        Arrows::getTargetsForSource(node).each{|child| 
-            NSDataType1PatternSearchLookup::addRecord(node["uuid"], GenericObjectInterface::toString(child))
-        }
     end
 
     # NSDataType1PatternSearchLookup::rebuildLookup()
     def self.rebuildLookup()
-        NSDataType1::objects().each{|node|
+        NSDataType1::objects()
+        .each{|node|
+            puts node["uuid"]
             NSDataType1PatternSearchLookup::updateLookupForNode(node)
         }
-    end
-
-    # NSDataType1PatternSearchLookup::rebuildLookupSlowly()
-    def self.rebuildLookupSlowly()
-        NSDataType1::objects()
-            .shuffle
-            .each{|node|
-                NSDataType1PatternSearchLookup::updateLookupForNode(node)
-                sleep 1
-            }
     end
 end
 

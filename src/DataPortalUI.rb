@@ -170,6 +170,11 @@ class DataPortalUI
             puts ""
 
             ms.item(
+                "rebuild node search lookup table", 
+                lambda { NSDataType1PatternSearchLookup::rebuildLookup() }
+            )
+
+            ms.item(
                 "Print Generation Speed Report", 
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
             )
