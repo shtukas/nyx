@@ -91,37 +91,134 @@ class NSDataLine
 
     # NSDataLine::landing(dataline)
     def self.landing(dataline)
+
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
 
-        if ["line", "url", "text", "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", "aion-point"].include?(datapoint["type"]) then
-            modes = ["open", "destroy"]
-            loop {
-                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-                return if mode.nil?
-                if mode == "open" then
-                    NSDataLine::enterLastDataPointOrNothing(dataline)
-                end
-                if mode == "destroy" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                        NyxObjects2::destroy(dataline)
-                        return
-                    end
-                end
+        loop {
+
+            system('clear')
+
+            return if NSDataLine::getOrNull(dataline["uuid"]).nil?
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            upstreams = Arrows::getSourcesForTarget(dataline)
+            upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
+            upstreams.each{|o|
+                menuitems.item(
+                    "parent: #{GenericObjectInterface::toString(o)}",
+                    lambda { GenericObjectInterface::envelop(o) }
+                )
             }
-            return
-        end
 
-        if ["NyxPod", "NyxFile"].include?(datapoint["type"]) then
-            NSDataLine::enterLastDataPointOrNothing(dataline)
-            return
-        end
+            Miscellaneous::horizontalRule()
 
-        raise "[NSDataPoint error 2c53b113-cc79]"
+            puts NSDataLine::toString(dataline)
+
+            puts ""
+
+            menuitems.item(
+                "open",
+                lambda { NSDataLine::enterLastDataPointOrNothing(dataline) }
+            )
+
+            if ["line", "url", "text", "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", "aion-point"].include?(datapoint["type"]) then
+                menuitems.item(
+                    "destroy",
+                    lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                            NyxObjects2::destroy(dataline)
+                        end
+                    }
+                )
+            end
+
+            Miscellaneous::horizontalRule()
+
+            status = menuitems.prompt()
+            break if !status
+        }
     end
 
     # NSDataLine::getDatalineParents(dataline)
     def self.getDatalineParents(dataline)
         Arrows::getSourcesForTarget(dataline)
+    end
+end
+
+class NSDataLinePatternSearchLookup
+
+    # NSDataLinePatternSearchLookup::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDataLinesPatternSearchLookup.sqlite3"
+    end
+
+    # NSDataLinePatternSearchLookup::selectDatalineUUIDsByPattern(pattern)
+    def self.selectDatalineUUIDsByPattern(pattern)
+        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from lookup" , [] ) do |row|
+            fragment = row['_fragment_']
+            if fragment.downcase.include?(pattern.downcase) then
+                answer << row['_objectuuid_']
+            end
+            
+        end
+        db.close
+        answer.uniq
+    end
+
+    # NSDataLinePatternSearchLookup::removeRecordsAgainstDataline(objectuuid)
+    def self.removeRecordsAgainstDataline(objectuuid)
+        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
+        db.execute "delete from lookup where _objectuuid_=?", [objectuuid]
+        db.close
+    end
+
+    # NSDataLinePatternSearchLookup::addRecord(objectuuid, fragment)
+    def self.addRecord(objectuuid, fragment)
+        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
+        db.execute "insert into lookup (_objectuuid_, _fragment_) values ( ?, ? )", [objectuuid, fragment]
+        db.close
+    end
+
+    # NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+    def self.updateLookupForDataline(dataline)
+        NSDataLinePatternSearchLookup::removeRecordsAgainstDataline(dataline["uuid"])
+        NSDataLinePatternSearchLookup::addRecord(dataline["uuid"], dataline["uuid"])
+        NSDataLinePatternSearchLookup::addRecord(dataline["uuid"], NSDataLine::toString(dataline))
+    end
+
+    # NSDataLinePatternSearchLookup::rebuildLookup()
+    def self.rebuildLookup()
+        NSDataLine::datalines()
+        .each{|dataline|
+            puts dataline["uuid"]
+            NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+        }
+    end
+end
+
+class NSDataLineExtendedDataLookups
+
+    # NSDataLineExtendedDataLookups::selectDatalinesByPattern(pattern)
+    def self.selectDatalinesByPattern(pattern)
+        NSDataLinePatternSearchLookup::selectDatalineUUIDsByPattern(pattern)
+            .map{|uuid| NSDataLine::getOrNull(uuid) }
+            .compact
+    end
+
+    # NSDataLineExtendedDataLookups::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        NSDataLineExtendedDataLookups::selectDatalinesByPattern(pattern)
+            .map{|dataline|
+                {
+                    "description"   => NSDataLine::toString(dataline),
+                    "referencetime" => dataline["unixtime"],
+                    "dive"          => lambda{ NSDataLine::landing(dataline) }
+                }
+            }
     end
 end

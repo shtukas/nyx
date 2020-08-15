@@ -73,26 +73,29 @@ class GenericObjectInterface
             NSDataType1::landing(object)
             return
         end
-        loop {
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["enter", "destroy"])
-            return if mode.nil?
-            if mode == "enter" then
-                if GenericObjectInterface::isDataline(object) then
-                    NSDataLine::enterLastDataPointOrNothing(object)
-                    next
-                end
-                if GenericObjectInterface::isDataPoint(object) then
+        if GenericObjectInterface::isDataline(object) then
+            NSDataLine::landing(object)
+            return
+        end
+        if GenericObjectInterface::isDataPoint(object) then
+            loop {
+                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["enter", "destroy"])
+                break if mode.nil?
+                if mode == "enter" then
                     NSDataPoint::enterDataPoint(object)
                     next
                 end
-            end
-            if mode == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                    GenericObjectInterface::destroy(object)
-                    return
+                if mode == "destroy" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                        GenericObjectInterface::destroy(object)
+                        return
+                    end
                 end
-            end
-        }
+            }
+            return
+        end
+
+
     end
 
     # GenericObjectInterface::destroy(object)

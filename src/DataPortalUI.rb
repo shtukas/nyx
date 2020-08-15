@@ -175,6 +175,11 @@ class DataPortalUI
             )
 
             ms.item(
+                "rebuild dataline search lookup table", 
+                lambda { NSDataLinePatternSearchLookup::rebuildLookup() }
+            )
+
+            ms.item(
                 "Print Generation Speed Report", 
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
             )
