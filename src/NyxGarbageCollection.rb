@@ -8,8 +8,8 @@ class NyxGarbageCollection
         puts "NyxGarbageCollection::run()"
 
         Arrows::arrows().each{|arrow|
-            b1 = NyxPrimaryObjects::getOrNull(arrow["sourceuuid"]).nil?
-            b2 = NyxPrimaryObjects::getOrNull(arrow["targetuuid"]).nil?
+            b1 = NyxObjects2::getOrNull(arrow["sourceuuid"]).nil?
+            b2 = NyxObjects2::getOrNull(arrow["targetuuid"]).nil?
             isNotConnecting = (b1 or b2)
             if isNotConnecting then
                 puts "removing arrow: #{arrow}"
@@ -18,7 +18,7 @@ class NyxGarbageCollection
         }
 
         NSDataTypeX::attributes().each{|attribute|
-            next if NyxPrimaryObjects::getOrNull(attribute["targetuuid"])
+            next if NyxObjects2::getOrNull(attribute["targetuuid"])
             puts "removing attribute without a target: #{attribute}"
             NyxObjects2::destroy(attribute)
         }

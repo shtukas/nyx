@@ -39,7 +39,7 @@ class Arrows
         db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from table2 where _setuuid_=?" , [_setuuid_] ) do |row|
+        db.execute( "select * from arrows" , [] ) do |row|
             answer << {
                 "sourceuuid" => row["_sourceuuid_"],
                 "targetuuid" => row["_targetuuid_"]
