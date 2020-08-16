@@ -12,7 +12,7 @@
 
 👩‍💻
 
-        0.75-         Asteroids "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
+        0.75+         Asteroids "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
 
         0.73+         Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 

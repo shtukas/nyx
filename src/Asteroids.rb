@@ -71,10 +71,8 @@ class Asteroids
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
         if option == opt100 then
-            ordinal = Asteroids::determineOrdinalForNewTopPriority()
             return {
-                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-                "ordinal"               => ordinal
+                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             }
         end
         if option == opt380 then
@@ -204,9 +202,6 @@ class Asteroids
     # Asteroids::orbitalToString(asteroid)
     def self.orbitalToString(asteroid)
         uuid = asteroid["uuid"]
-        if asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            return "(ordinal: #{asteroid["orbital"]["ordinal"]})"
-        end
         if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
             return "(singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
         end
@@ -267,9 +262,7 @@ class Asteroids
         return 1 if Asteroids::isRunning?(asteroid)
 
         if orbital["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            return 0.75 - 0.001*Math.atan(asteroid["orbital"]["ordinal"])
-            # We want the most recent one to come first
-            # LIFO queue
+            return 0.75 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
@@ -355,27 +348,6 @@ class Asteroids
             end
         end
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
-    end
-
-    # Asteroids::getTopPriorityAsteroidsInPriorityOrder()
-    def self.getTopPriorityAsteroidsInPriorityOrder()
-        Asteroids::asteroids()
-            .select{|asteroid| asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" }
-            .sort{|a1, a2| a1["orbital"]["ordinal"] <=> a2["orbital"]["ordinal"] }
-    end
-
-    # Asteroids::determineOrdinalForNewTopPriority()
-    def self.determineOrdinalForNewTopPriority()
-        topPriorities = Asteroids::getTopPriorityAsteroidsInPriorityOrder()
-        if topPriorities.empty? then
-            return 0
-        else
-            puts ""
-            Asteroids::getTopPriorityAsteroidsInPriorityOrder()
-                .each{|asteroid| puts Asteroids::toString(asteroid) }
-            puts ""
-            return LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        end
     end
 
     # Asteroids::asteroidToCalalystObject(asteroid)
