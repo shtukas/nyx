@@ -311,11 +311,13 @@ class NSDataPoint
         if datapoint["type"] == "text" then
             namedhash = datapoint["namedhash"]
             text = NyxBlobs::getBlobOrNull(namedhash) # The code is currently written with the assumption that this always succeed.
-            puts "--------------------------------------------------"
-            puts text
-            puts "--------------------------------------------------"
-            if LucilleCore::askQuestionAnswerAsBoolean("edit text? : ", false) then
-                text = Miscellaneous::editTextSynchronously(text)
+            filename = "#{Miscellaneous::l22()}.txt"
+            filepath = "/tmp/#{filename}"
+            File.open(filepath, "w"){|f| f.puts(text) }
+            system("open '#{filepath}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to commit text changes? : ", false) then
+                LucilleCore::pressEnterToContinue("Close editor and press [enter] to continue: ")
+                text = IO.read(filepath)
                 return NSDataPoint::issueText(text)
             end
             return nil
