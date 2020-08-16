@@ -103,18 +103,37 @@ class NSDataType1
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            # Decache the node
-
             Miscellaneous::horizontalRule()
 
-            upstreams = Arrows::getSourcesForTarget(node)
-            upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
-            upstreams.each{|o|
-                menuitems.item(
-                    "parent: #{GenericObjectInterface::toString(o)}",
-                    lambda { GenericObjectInterface::envelop(o) }
-                )
-            }
+            puts "[parents]"
+
+            Arrows::getSourcesForTarget(node)
+                .each{|o|
+                    menuitems.item(
+                        "parent: #{GenericObjectInterface::toString(o)}",
+                        lambda { GenericObjectInterface::envelop(o) }
+                    )
+                }
+
+            puts ""
+
+            menuitems.item(
+                "attach parent node",
+                lambda {
+                    n = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
+                    return if n.nil?
+                    Arrows::issueOrException(n, node)
+                }
+            )
+
+            menuitems.item(
+                "detach parent",
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::unlink(ns, node)
+                }
+            )
 
             Miscellaneous::horizontalRule()
 
@@ -134,25 +153,7 @@ class NSDataType1
                 puts notetext.strip.lines.map{|line| "    #{line}" }.join()
             end
 
-            Miscellaneous::horizontalRule()
-
-            Arrows::getTargetsForSource(node).each{|object|
-                menuitems.item(
-                    GenericObjectInterface::toString(object),
-                    lambda{ GenericObjectInterface::envelop(object) }
-                )
-            }
-
             puts ""
-
-            ordinal = menuitems.ordinal(lambda {
-                dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-                return if dataline.nil?
-                Arrows::issueOrException(node, dataline)
-            })
-            puts "[ #{ordinal}] issue new dataline"
-
-            Miscellaneous::horizontalRule()
 
             description = NSDataType1::getObjectDescriptionOrNull(node)
             if description then
@@ -193,22 +194,60 @@ class NSDataType1
                 }
             )
 
-
             menuitems.item(
-                "attach parent node",
-                lambda {
-                    n = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
-                    return if n.nil?
-                    Arrows::issueOrException(n, node)
+                "remove [this] as intermediary node", 
+                lambda { 
+                    puts "intermediary node removal simulation"
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
+                        puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
+                    }
+                    Arrows::getTargetsForSource(node).each{|downstreamobject|
+                        puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
+                    }
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
+                        Arrows::getTargetsForSource(node).each{|downstreamobject|
+                            Arrows::issueOrException(upstreamnode, downstreamobject)
+                        }
+                    }
+                    NyxObjects2::destroy(node)
                 }
             )
 
             menuitems.item(
-                "detach parent",
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
-                    return if ns.nil?
-                    Arrows::unlink(ns, node)
+                "[sandbox selection]",
+                lambda{ KeyValueStore::set(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546", JSON.generate(node)) }
+            )
+
+            menuitems.item(
+                "destroy [this]",
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
+                        NSDataType1::destroy(node)
+                    end
+                }
+            )
+
+            Miscellaneous::horizontalRule()
+
+            puts "[children]"
+
+            Arrows::getTargetsForSource(node)
+                .each{|object|
+                    menuitems.item(
+                        GenericObjectInterface::toString(object),
+                        lambda{ GenericObjectInterface::envelop(object) }
+                    )
+                }
+
+            puts ""
+
+            menuitems.item(
+                "issue new dataline",
+                lambda{
+                    dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+                    return if dataline.nil?
+                    Arrows::issueOrException(node, dataline)
                 }
             )
 
@@ -240,53 +279,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "remove [this] as intermediary node", 
-                lambda { 
-                    puts "intermediary node removal simulation"
-                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
-                        puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
-                    }
-                    Arrows::getTargetsForSource(node).each{|downstreamobject|
-                        puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
-                    }
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
-                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
-                        Arrows::getTargetsForSource(node).each{|downstreamobject|
-                            Arrows::issueOrException(upstreamnode, downstreamobject)
-                        }
-                    }
-                    NyxObjects2::destroy(node)
-                }
-            )
-
-            menuitems.item(
-                "select nodes ; move to a new child node",
-                lambda {
-                    return if Arrows::getTargetsForSource(node).size == 0
-
-                    # Selecting the nodes
-                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], Arrows::getTargetsForSource(node), lambda{ |o| GenericObjectInterface::toString(o) })
-                    return if selectednodes.size == 0
-
-                    # Selecting or creating the node
-                    targetnode = NSDataType1::issueNewNodeInteractivelyOrNull()
-                    return if targetnode.nil?
-
-                    # Setting the node as target of this one
-                    Arrows::issueOrException(node, targetnode)
-
-                    # Moving the selectednodes
-                    selectednodes.each{|o|
-                        Arrows::issueOrException(targetnode, o)
-                    }
-                    selectednodes.each{|o|
-                        Arrows::unlink(node, o)
-                    }
-                }
-            )
-
-            menuitems.item(
-                "select nodes ; move to an existing child node",
+                "select children ; move to node",
                 lambda {
                     return if Arrows::getTargetsForSource(node).size == 0
 
@@ -295,7 +288,7 @@ class NSDataType1
                     return if selectednodes.size == 0
 
                     # Selecting or creating the node
-                    targetnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    targetnode = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
                     return if targetnode.nil?
 
                     # TODO: return if the selected new target is one of the nodes
@@ -310,19 +303,15 @@ class NSDataType1
                 }
             )
 
-            menuitems.item(
-                "destroy [this]",
-                lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
-                        NSDataType1::destroy(node)
-                    end
-                }
-            )
-
             Miscellaneous::horizontalRule()
 
             status = menuitems.prompt()
+
             break if !status
+
+            break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
+
         }
     end
+
 end

@@ -77,23 +77,23 @@ class Arrows
     def self.getTargetsForSource(source)
         db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.results_as_hash = true
-        answer = []
+        uuids = []
         db.execute( "select * from arrows where _sourceuuid_=?" , [source["uuid"]] ) do |row|
-            answer << NyxObjects2::getOrNull(row["_targetuuid_"])
+            uuids << row["_targetuuid_"]
         end
         db.close
-        answer.compact
+        uuids.uniq.map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
     end
 
     # Arrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
         db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.results_as_hash = true
-        answer = []
+        uuids = []
         db.execute( "select * from arrows where _targetuuid_=?" , [target["uuid"]] ) do |row|
-            answer << NyxObjects2::getOrNull(row["_sourceuuid_"])
+            uuids << row["_sourceuuid_"]
         end
         db.close
-        answer.compact
+        uuids.uniq.map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
     end
 end

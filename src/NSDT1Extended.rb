@@ -65,27 +65,27 @@ end
 
 class NSDT1ExtendedDataLookups
 
-    # NSDT1ExtendedDataLookups::type1MatchesPattern(point, pattern)
+    # NSDT1ExtendedDataLookups::nodeMatchesPattern(point, pattern)
     # Legacy
-    def self.type1MatchesPattern(point, pattern)
+    def self.nodeMatchesPattern(point, pattern)
         return true if point["uuid"].downcase.include?(pattern.downcase)
         return true if NSDataType1::toString(point).downcase.include?(pattern.downcase)
         return true if Arrows::getTargetsForSource(point).any?{|child| GenericObjectInterface::toString(child).downcase.include?(pattern.downcase) }
         false
     end
 
-    # NSDT1ExtendedDataLookups::selectType1sPerPattern(pattern)
+    # NSDT1ExtendedDataLookups::selectNodesPerPattern_v1(pattern)
     # Legacy
-    def self.selectType1sPerPattern(pattern)
+    def self.selectNodesPerPattern_v1(pattern)
         # 2020-08-15
         # This is a legacy function that I keep for sentimental reasons,
-        # The direct look up using NSDT1ExtendedDataLookups::type1MatchesPattern has been replace by NSDT1ExtendedDataLookups
+        # The direct look up using NSDT1ExtendedDataLookups::nodeMatchesPattern has been replace by NSDT1ExtendedDataLookups
         NSDataType1::objects()
-            .select{|point| NSDT1ExtendedDataLookups::type1MatchesPattern(point, pattern) }
+            .select{|point| NSDT1ExtendedDataLookups::nodeMatchesPattern(point, pattern) }
     end
 
-    # NSDT1ExtendedDataLookups::selectNSDataType1sByPattern(pattern)
-    def self.selectNSDataType1sByPattern(pattern)
+    # NSDT1ExtendedDataLookups::selectNodesPerPattern_v2(pattern)
+    def self.selectNodesPerPattern_v2(pattern)
         NSDataType1PatternSearchLookup::selectNSDataType1UUIDsByPattern(pattern)
             .map{|uuid| NSDataType1::getOrNull(uuid) }
             .compact
@@ -93,7 +93,7 @@ class NSDT1ExtendedDataLookups
 
     # NSDT1ExtendedDataLookups::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDT1ExtendedDataLookups::selectNSDataType1sByPattern(pattern)
+        NSDT1ExtendedDataLookups::selectNodesPerPattern_v2(pattern)
             .map{|node|
                 {
                     "description"   => NSDataType1::toString(node),
@@ -106,7 +106,7 @@ end
 
 class NSDT1ExtendedUserInterface
 
-    # NSDT1ExtendedUserInterface::interactiveSearch()
+    # NSDT1ExtendedUserInterface::interactiveSearch(): Array[Nodes]
     def self.interactiveSearch()
 
         Curses::init_screen
@@ -161,7 +161,7 @@ class NSDT1ExtendedUserInterface
                 search_string = nil
 
                 display_searching_on.call()
-                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1ExtendedDataLookups::selectType1sPerPattern(pattern))
+                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1ExtendedDataLookups::selectNodesPerPattern_v2(pattern))
 
                 win3.setpos(0,0)
                 selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
@@ -230,6 +230,81 @@ class NSDT1ExtendedUserInterface
         return node if node
         return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing node. Would you like to make a new one ? : ")
         NSDataType1::issueNewNodeInteractivelyOrNull()
+    end
+
+    # NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+    def self.selectNodeSpecialWeaponsAndTactics()
+        KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
+        NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox()
+    end
+
+    # NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(focusnode = nil)
+    def self.nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(focusnode = nil)
+        if focusnode then
+            system("clear")
+            puts "[selection sandbox] selected: #{NSDataType1::toString(focusnode)}"
+            puts ""
+            ops = [
+                "select node out of sandbox", 
+                "node landing",
+                "reset sandbox",
+                "return null from sandbox"
+            ]
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+            if op.nil? then
+                return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(focusnode)
+            end
+            if op == "select node out of sandbox" then
+                return focusnode
+            end
+            if op == "node landing" then
+                NSDataType1::landing(focusnode)
+                selection = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
+                if selection then
+                    node = JSON.parse(selection)
+                    return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(node)
+                else
+                    return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(focusnode)
+                end
+            end
+            if op == "reset sandbox" then
+                return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox()
+            end
+            if op == "return null from sandbox" then
+                return nil
+            end
+        else
+            system("clear")
+            puts "You are in the selection sandbox. First, Going to try and make you select an existing node"
+            LucilleCore::pressEnterToContinue()
+            node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
+            if node then
+                return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(node)
+            else
+                system("clear")
+                puts "[selection sandbox] no selection"
+                puts ""
+                ops = [
+                    "make new node", 
+                    "return null from sandbox"
+                ]
+                op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+                if op.nil? then
+                    return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox()
+                end
+                if op == "make new node" then
+                    node = NSDataType1::issueNewNodeInteractivelyOrNull()
+                    if node then
+                        return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox(node)
+                    else
+                        return NSDT1ExtendedUserInterface::nodeFocusAndReturnOrSelectExistingOrMakeNewNodeOrNullSandbox()
+                    end
+                end
+                if op == "return null from sandbox" then
+                    return nil
+                end
+            end
+        end
     end
 
     # NSDT1ExtendedUserInterface::interactiveSearchAndExplore()
