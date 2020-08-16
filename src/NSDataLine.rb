@@ -89,6 +89,20 @@ class NSDataLine
         NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
+    # NSDataType1::datalinePreLandingOperations(dataline)
+    def self.datalinePreLandingOperations(dataline)
+        cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
+        KeyValueStore::destroy(nil, cacheKey)
+        NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+    end
+
+    # NSDataType1::datalinePostUpdateOperations(dataline)
+    def self.datalinePostUpdateOperations(dataline)
+        cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
+        KeyValueStore::destroy(nil, cacheKey)
+        NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+    end
+
     # NSDataLine::landing(dataline)
     def self.landing(dataline)
 
@@ -97,9 +111,11 @@ class NSDataLine
 
         loop {
 
-            system('clear')
-
             return if NSDataLine::getOrNull(dataline["uuid"]).nil?
+
+            NSDataType1::datalinePreLandingOperations(dataline)
+
+            system('clear')
 
             menuitems = LCoreMenuItemsNX1.new()
 
@@ -123,6 +139,26 @@ class NSDataLine
                 lambda { NSDataLine::enterLastDataPointOrNothing(dataline) }
             )
 
+            menuitems.item(
+                "set/update description",
+                lambda {
+                    description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline) || ""
+                    description = Miscellaneous::editTextSynchronously(description).strip
+                    if description != "" then
+                        NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
+                    end
+                }
+            )
+
+            menuitems.item(
+                "attach parent node",
+                lambda {
+                    n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+                    return if n.nil?
+                    Arrows::issueOrException(n, node)
+                }
+            )
+
             if ["line", "url", "text", "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", "aion-point"].include?(datapoint["type"]) then
                 menuitems.item(
                     "destroy",
@@ -139,6 +175,8 @@ class NSDataLine
             status = menuitems.prompt()
             break if !status
         }
+
+        NSDataType1::datalinePostUpdateOperations(dataline)
     end
 
     # NSDataLine::getDatalineParents(dataline)

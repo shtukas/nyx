@@ -507,6 +507,7 @@ class Asteroids
             # recasting
 
             modes = [
+                "asteroid land",
                 "hide for a time",
                 "move to todo today",
                 "add to queue",
@@ -515,6 +516,10 @@ class Asteroids
             ]
             mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
             return if mode.nil?
+            if mode == "asteroid land" then
+                Asteroids::landing(asteroid)
+                return
+            end
             if mode == "hide for a time" then
                 timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
@@ -539,7 +544,7 @@ class Asteroids
                 return
             end
             if mode == "destroy" then
-                GenericObjectInterface::destroy(asteroid)
+                Asteroids::destroy(asteroid)
                 return
             end
         end
@@ -734,6 +739,21 @@ class Asteroids
                 lambda {
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                     Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
+                }
+            )
+
+            menuitems.item(
+                "transmute asteroid to node",
+                lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    description = LucilleCore::askQuestionAnswerAsString("node description: ")
+                    return if description == ""
+                    node = NSDataType1::issue()
+                    NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+                    Arrows::getTargetsForSource(asteroid)
+                        .each{|target| Arrows::issueOrException(node, target) }
+                    NSDataType1::nodePostUpdateOperations(node)
+                    Asteroids::destroy(asteroid)
                 }
             )
 

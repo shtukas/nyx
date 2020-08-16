@@ -38,8 +38,7 @@ class NyxObjects2
 
     # NyxObjects2::getSet(setid)
     def self.getSet(setid)
-        objects = Dionysus1::sets_getObjects(NyxObjectsDionysus1Filepath, setid)
-        objects
+        Dionysus1::sets_getObjects(NyxObjectsDionysus1Filepath, setid)
     end
 
     # NyxObjects2::destroy(object)

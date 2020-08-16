@@ -23,7 +23,7 @@ class NyxGarbageCollection
             NyxObjects2::destroy(attribute)
         }
 
-        # remove datalines without parent node or asteroid
+        # remove datalines without parent: node or asteroid
 
         NSDataLine::datalines().each{|dataline|
             next if NSDataLine::getDatalineParents(dataline).size > 0

@@ -1,14 +1,4 @@
 
-=begin
-
-This table is documented in "System Architecture Notes/Pattern Searching Nodes.txt"
-
-table: lookup
-    _objectuuid_    text
-    _fragment_      text
-
-=end
-
 class NSDataType1PatternSearchLookup
 
     # NSDataType1PatternSearchLookup::databaseFilepath()
@@ -222,14 +212,6 @@ class NSDT1ExtendedUserInterface
         return nil if nodes.empty?
         system("clear")
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NSDataType1::toString(node) })
-    end
-
-    # NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
-    def self.selectExistingOrMakeNewType1()
-        node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
-        return node if node
-        return if !LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing node. Would you like to make a new one ? : ")
-        NSDataType1::issueNewNodeInteractivelyOrNull()
     end
 
     # NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()

@@ -40,7 +40,7 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
+                    node = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
                     return if node.nil?
                     puts "selected node: #{NSDataType1::toString(node)}"
                     LucilleCore::pressEnterToContinue()

@@ -74,6 +74,7 @@ class NSDataType1
                 Arrows::issueOrException(node, ns1)
             end
         end
+        NSDataType1PatternSearchLookup::updateLookupForNode(node)
         node
     end
 
@@ -88,9 +89,18 @@ class NSDataType1
 
     # ---------------------------------------------
 
-    # NSDataType1::getObjectDescriptionOrNull(object)
-    def self.getObjectDescriptionOrNull(object)
-        NSDataTypeXExtended::getLastDescriptionForTargetOrNull(object)
+    # NSDataType1::nodePreLandingOperations(node)
+    def self.nodePreLandingOperations(node)
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
+        str = KeyValueStore::destroy(nil, cacheKey)
+        NSDataType1PatternSearchLookup::updateLookupForNode(node)
+    end
+
+    # NSDataType1::nodePostUpdateOperations(node)
+    def self.nodePostUpdateOperations(node)
+        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
+        str = KeyValueStore::destroy(nil, cacheKey)
+        NSDataType1PatternSearchLookup::updateLookupForNode(node)
     end
 
     # NSDataType1::landing(node)
@@ -99,6 +109,9 @@ class NSDataType1
         loop {
 
             return if NyxObjects2::getOrNull(node["uuid"]).nil?
+
+            NSDataType1::nodePreLandingOperations(node)
+
             system("clear")
 
             menuitems = LCoreMenuItemsNX1.new()
@@ -120,7 +133,7 @@ class NSDataType1
             menuitems.item(
                 "attach parent node",
                 lambda {
-                    n = NSDT1ExtendedUserInterface::selectExistingOrMakeNewType1()
+                    n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }
@@ -139,7 +152,7 @@ class NSDataType1
 
             puts "[node]"
 
-            description = NSDataType1::getObjectDescriptionOrNull(node)
+            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
             if description then
                 puts "    description: #{description}"
             end
@@ -155,26 +168,15 @@ class NSDataType1
 
             puts ""
 
-            description = NSDataType1::getObjectDescriptionOrNull(node)
-            if description then
-                menuitems.item(
-                    "edit description",
-                    lambda{
-                        description = Miscellaneous::editTextSynchronously(description).strip
-                        return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-                    }
-                )
-            else
-                menuitems.item(
-                    "set description",
-                    lambda{
-                        description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        return if description == ""
-                        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-                    }
-                )
-            end
+            menuitems.item(
+                "set/update description",
+                lambda{
+                    description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node) || ""
+                    description = Miscellaneous::editTextSynchronously(description).strip
+                    return if description == ""
+                    NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+                }
+            )
 
             menuitems.item(
                 "edit reference datetime",
@@ -248,6 +250,10 @@ class NSDataType1
                     dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                     return if dataline.nil?
                     Arrows::issueOrException(node, dataline)
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    if description != "" then
+                        NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
+                    end
                 }
             )
 
@@ -312,6 +318,8 @@ class NSDataType1
             break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
 
         }
+
+        NSDataType1::nodePostUpdateOperations(node)
     end
 
 end
