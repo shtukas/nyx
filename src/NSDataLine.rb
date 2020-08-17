@@ -31,12 +31,17 @@ class NSDataLine
         return str if str
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
-        if description then
+        if description and datapoints.size > 0 then
             typeToDisplayType = lambda {|type|
                 return "picture(+)" if type == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1"
                 type
             }
             str = "[data] [#{typeToDisplayType.call(datapoints.last["type"])}] #{description}"
+            KeyValueStore::set(nil, cacheKey, str)
+            return str
+        end
+        if description and datapoints.size == 0 then
+            str = "[data] [no points on the line] #{description}"
             KeyValueStore::set(nil, cacheKey, str)
             return str
         end
@@ -89,7 +94,7 @@ class NSDataLine
         NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
-    # NSDataType1::datalinePreLandingOperations(dataline)
+    # NSDataLine::datalinePreLandingOperations(dataline)
     def self.datalinePreLandingOperations(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         KeyValueStore::destroy(nil, cacheKey)
@@ -113,7 +118,7 @@ class NSDataLine
 
             return if NSDataLine::getOrNull(dataline["uuid"]).nil?
 
-            NSDataLine::datalinePostUpdateOperations(dataline)
+            NSDataLine::datalinePreLandingOperations(dataline)
 
             system('clear')
 
@@ -174,7 +179,7 @@ class NSDataLine
             break if !status
         }
 
-        NSDataType1::datalinePostUpdateOperations(dataline)
+        NSDataLine::datalinePostUpdateOperations(dataline)
     end
 
     # NSDataLine::getDatalineParents(dataline)

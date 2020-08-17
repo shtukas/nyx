@@ -507,16 +507,17 @@ class Asteroids
             # recasting
 
             modes = [
-                "asteroid land",
+                "landing",
                 "hide for a time",
                 "move to todo today",
                 "add to queue",
-                "general re orbital",
+                "re orbital",
+                "transmute asteroid to node",
                 "destroy"
             ]
             mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
             return if mode.nil?
-            if mode == "asteroid land" then
+            if mode == "landing" then
                 Asteroids::landing(asteroid)
                 return
             end
@@ -539,8 +540,12 @@ class Asteroids
                 Asteroids::commitToDisk(asteroid)
                 return
             end
-            if mode == "general re orbital" then
+            if mode == "re orbital" then
                 Asteroids::reOrbitalOrNothing(asteroid)
+                return
+            end
+            if mode == "transmute asteroid to node" then
+                Asteroids::transmuteAsteroidToNode(asteroid)
                 return
             end
             if mode == "destroy" then
@@ -556,6 +561,20 @@ class Asteroids
                 return
             end
         end
+    end
+
+    # Asteroids::transmuteAsteroidToNode(asteroid)
+    def self.transmuteAsteroidToNode(asteroid)
+        Asteroids::stopAsteroidIfRunning(asteroid)
+        description = LucilleCore::askQuestionAnswerAsString("node description: ")
+        return if description == ""
+        node = NSDataType1::issue()
+        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+        Arrows::getTargetsForSource(asteroid)
+            .each{|target| Arrows::issueOrException(node, target) }
+        NSDataType1::nodePostUpdateOperations(node)
+        NSDataType1::landing(node)
+        Asteroids::destroy(asteroid)
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
@@ -745,15 +764,7 @@ class Asteroids
             menuitems.item(
                 "transmute asteroid to node",
                 lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    description = LucilleCore::askQuestionAnswerAsString("node description: ")
-                    return if description == ""
-                    node = NSDataType1::issue()
-                    NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-                    Arrows::getTargetsForSource(asteroid)
-                        .each{|target| Arrows::issueOrException(node, target) }
-                    NSDataType1::nodePostUpdateOperations(node)
-                    Asteroids::destroy(asteroid)
+                    Asteroids::transmuteAsteroidToNode(asteroid)
                 }
             )
 
