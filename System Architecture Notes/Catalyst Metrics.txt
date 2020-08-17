@@ -16,8 +16,9 @@
 
         0.73+         Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
-        0.70 -> 0.69  Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
-                      Asteroids "repeating-daily-time-commitment-8123956c-05"
+        0.70+         Asteroids "singleton-time-commitment-7c67cb4f-77e0-4fd"
+
+        0.70 -> 0.69  Asteroids "repeating-daily-time-commitment-8123956c-05"
 
         0.67+         Asteroids "float-to-do-today-b0d902a8-3184-45fa-9808-1"
 

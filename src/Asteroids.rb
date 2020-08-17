@@ -270,7 +270,7 @@ class Asteroids
         end
 
         if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return 0.70 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
+            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
