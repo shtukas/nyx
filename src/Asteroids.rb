@@ -816,15 +816,6 @@ class Asteroids
             )
 
             menuitems.item(
-                "add node (chosen from existing nodes)",
-                lambda {
-                    node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
-                    return if node.nil?
-                    Arrows::issueOrException(asteroid, node)
-                }
-            )
-
-            menuitems.item(
                 "select target ; destroy",
                 lambda {
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })

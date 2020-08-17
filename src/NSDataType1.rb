@@ -280,7 +280,7 @@ class NSDataType1
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
-                    Arrows::unlink(ns, node)
+                    Arrows::unlink(node, ns)
                 }
             )
 

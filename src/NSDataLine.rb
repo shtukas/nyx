@@ -111,9 +111,6 @@ class NSDataLine
     # NSDataLine::landing(dataline)
     def self.landing(dataline)
 
-        datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
-        return if datapoint.nil?
-
         loop {
 
             return if NSDataLine::getOrNull(dataline["uuid"]).nil?
