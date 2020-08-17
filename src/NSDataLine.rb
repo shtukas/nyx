@@ -96,7 +96,7 @@ class NSDataLine
         NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
     end
 
-    # NSDataType1::datalinePostUpdateOperations(dataline)
+    # NSDataLine::datalinePostUpdateOperations(dataline)
     def self.datalinePostUpdateOperations(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         KeyValueStore::destroy(nil, cacheKey)
@@ -113,7 +113,7 @@ class NSDataLine
 
             return if NSDataLine::getOrNull(dataline["uuid"]).nil?
 
-            NSDataType1::datalinePreLandingOperations(dataline)
+            NSDataLine::datalinePostUpdateOperations(dataline)
 
             system('clear')
 
@@ -159,16 +159,14 @@ class NSDataLine
                 }
             )
 
-            if ["line", "url", "text", "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", "aion-point"].include?(datapoint["type"]) then
-                menuitems.item(
-                    "destroy",
-                    lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                            NyxObjects2::destroy(dataline)
-                        end
-                    }
-                )
-            end
+            menuitems.item(
+                "destroy",
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
+                        NyxObjects2::destroy(dataline)
+                    end
+                }
+            )
 
             Miscellaneous::horizontalRule()
 
