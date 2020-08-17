@@ -38,11 +38,20 @@ class DeskOperator
         LucilleCore::locationsAtFolder(DeskOperator::deskFolderPath()).each{|location|
             datalineuuid = File.basename(location)
             dataline = NSDataLine::getOrNull(datalineuuid)
-            next if dataline.nil?
+            if dataline.nil? then
+                # Looks like the dataline was emptied after an aion-point was exported
+                LucilleCore::removeFileSystemLocation(location)
+                next
+            end
             puts NSDataLine::toString(dataline)
             datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
-            next if datapoint.nil?
-            if datapoint["type"] != "aion-point" then # Looks like the point has been transmuted after it was exported as a aion-point
+            if datapoint.nil? then
+                # Looks like the dataline was emptied after an aion-point was exported
+                LucilleCore::removeFileSystemLocation(location)
+                next
+            end
+            if datapoint["type"] != "aion-point" then 
+                # Looks like the point has been transmuted after it was exported as a aion-point
                 LucilleCore::removeFileSystemLocation(location)
                 next
             end
