@@ -684,54 +684,6 @@ class Asteroids
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            puts Asteroids::toString(asteroid)
-            menuitems.item(
-                "access details",
-                lambda { Asteroids::landingFull(asteroid) }
-            )
-
-            puts ""
-
-            menuitems.item(
-                "start",
-                lambda { Asteroids::startAsteroidIfNotRunning(asteroid) }
-            )
-
-            menuitems.item(
-                "stop",
-                lambda { Asteroids::stopAsteroidIfRunning(asteroid) }
-            )
-
-            puts ""
-
-            targets = Arrows::getTargetsForSource(asteroid)
-            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-            targets.each{|target|
-                menuitems.item(
-                    GenericObjectInterface::toString(target),
-                    lambda { GenericObjectInterface::envelop(target) }
-                )
-            }
-
-            puts ""
-
-            status = menuitems.prompt()
-            break if !status
-
-        }
-    end
-
-    # Asteroids::landingFull(asteroid)
-    def self.landingFull(asteroid)
-        loop {
-
-            asteroid = Asteroids::getAsteroidOrNull(asteroid["uuid"])
-            return if asteroid.nil?
-
-            system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
             Miscellaneous::horizontalRule()
 
             puts Asteroids::toString(asteroid)

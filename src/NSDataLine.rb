@@ -121,52 +121,6 @@ class NSDataLine
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            puts "[parents]"
-
-            upstreams = Arrows::getSourcesForTarget(dataline)
-            upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
-            upstreams.each{|o|
-                menuitems.item(
-                    "parent: #{GenericObjectInterface::toString(o)}",
-                    lambda { GenericObjectInterface::envelop(o) }
-                )
-            }
-
-            puts ""
-
-            puts NSDataLine::toString(dataline)
-            menuitems.item(
-                "access details",
-                lambda { NSDataType1::landingFull(dataline) }
-            )
-
-            menuitems.item(
-                "open",
-                lambda { NSDataLine::enterLastDataPointOrNothing(dataline) }
-            )
-
-            puts ""
-
-            status = menuitems.prompt()
-            break if !status
-        }
-
-        NSDataLine::datalinePostUpdateOperations(dataline)
-    end
-
-    # NSDataLine::landingFull(dataline)
-    def self.landingFull(dataline)
-
-        loop {
-
-            return if NSDataLine::getOrNull(dataline["uuid"]).nil?
-
-            NSDataLine::datalinePreLandingOperations(dataline)
-
-            system('clear')
-
-            menuitems = LCoreMenuItemsNX1.new()
-
             Miscellaneous::horizontalRule()
 
             puts "[parents]"
