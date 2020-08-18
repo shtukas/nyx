@@ -32,6 +32,8 @@ require "time"
 
 require 'curses'
 
+require 'colorize'
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)

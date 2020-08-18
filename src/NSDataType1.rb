@@ -118,20 +118,20 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            puts "[parents]"
+            puts "[parents]".yellow
 
             Arrows::getSourcesForTarget(node)
                 .each{|o|
                     menuitems.item(
                         "parent: #{GenericObjectInterface::toString(o)}",
-                        lambda { GenericObjectInterface::envelop(o) }
+                        lambda { GenericObjectInterface::landing(o) }
                     )
                 }
 
             puts ""
 
             menuitems.item(
-                "attach parent node",
+                "attach parent node".yellow,
                 lambda {
                     n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
                     return if n.nil?
@@ -140,7 +140,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "detach parent",
+                "detach parent".yellow,
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
@@ -150,14 +150,14 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            puts "[node]"
+            puts "[node]".yellow
 
             description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
             if description then
-                puts "    description: #{description}"
+                puts "    description: #{description}".yellow
             end
-            puts "    uuid: #{node["uuid"]}"
-            puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}"
+            puts "    uuid: #{node["uuid"]}".yellow
+            puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}".yellow
 
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node)
             if notetext and notetext.strip.size > 0 then
@@ -169,7 +169,7 @@ class NSDataType1
             puts ""
 
             menuitems.item(
-                "set/update description",
+                "set/update description".yellow,
                 lambda{
                     description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node) || ""
                     description = Miscellaneous::editTextSynchronously(description).strip
@@ -179,7 +179,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "edit reference datetime",
+                "edit reference datetime".yellow,
                 lambda{
                     datetime = Miscellaneous::editTextSynchronously(GenericObjectInterface::getObjectReferenceDateTime(node)).strip
                     return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
@@ -188,7 +188,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "edit note",
+                "edit note".yellow,
                 lambda{ 
                     text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node) || ""
                     text = Miscellaneous::editTextSynchronously(text).strip
@@ -197,7 +197,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "remove [this] as intermediary node", 
+                "remove [this] as intermediary node".yellow, 
                 lambda { 
                     puts "intermediary node removal simulation"
                     Arrows::getSourcesForTarget(node).each{|upstreamnode|
@@ -217,12 +217,12 @@ class NSDataType1
             )
 
             menuitems.item(
-                "[sandbox selection]",
+                "[sandbox selection]".yellow,
                 lambda{ KeyValueStore::set(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546", JSON.generate(node)) }
             )
 
             menuitems.item(
-                "destroy [this]",
+                "destroy [this]".yellow,
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to destroy this node ? ") then
                         NSDataType1::destroy(node)
@@ -232,20 +232,20 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            puts "[children]"
+            puts "[children]".yellow
 
             Arrows::getTargetsForSource(node)
                 .each{|object|
                     menuitems.item(
                         GenericObjectInterface::toString(object),
-                        lambda{ GenericObjectInterface::envelop(object) }
+                        lambda{ GenericObjectInterface::landing(object) }
                     )
                 }
 
             puts ""
 
             menuitems.item(
-                "issue new dataline",
+                "issue new dataline".yellow,
                 lambda{
                     dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                     return if dataline.nil?
@@ -258,7 +258,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "attach child node (chosen from existing nodes)",
+                "attach child node (chosen from existing nodes)".yellow,
                 lambda {
                     o = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
                     return if o.nil?
@@ -267,7 +267,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "attach child node (new)",
+                "attach child node (new)".yellow,
                 lambda {
                     o = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if o.nil?
@@ -276,7 +276,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "detach child",
+                "detach child".yellow,
                 lambda {
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
@@ -285,7 +285,7 @@ class NSDataType1
             )
 
             menuitems.item(
-                "select children ; move to node",
+                "select children ; move to node".yellow,
                 lambda {
                     return if Arrows::getTargetsForSource(node).size == 0
 

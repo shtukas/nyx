@@ -123,30 +123,29 @@ class NSDataLine
 
             Miscellaneous::horizontalRule()
 
-            puts "[parents]"
-
+            puts "[parents]".yellow
             upstreams = Arrows::getSourcesForTarget(dataline)
             upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
             upstreams.each{|o|
                 menuitems.item(
-                    "parent: #{GenericObjectInterface::toString(o)}",
-                    lambda { GenericObjectInterface::envelop(o) }
+                    "[parent] #{GenericObjectInterface::toString(o)}",
+                    lambda { GenericObjectInterface::landing(o) }
                 )
             }
 
             Miscellaneous::horizontalRule()
 
-            puts NSDataLine::toString(dataline)
+            puts "[dataline]".yellow
 
             menuitems.item(
-                "open",
+                NSDataLine::toString(dataline),
                 lambda { NSDataLine::enterLastDataPointOrNothing(dataline) }
             )
 
             puts ""
 
             menuitems.item(
-                "set/update description",
+                "set/update description".yellow,
                 lambda {
                     description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline) || ""
                     description = Miscellaneous::editTextSynchronously(description).strip
@@ -157,7 +156,7 @@ class NSDataLine
             )
 
             menuitems.item(
-                "attach parent node",
+                "attach parent node".yellow,
                 lambda {
                     n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
                     return if n.nil?
@@ -166,7 +165,7 @@ class NSDataLine
             )
 
             menuitems.item(
-                "destroy",
+                "destroy".yellow,
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
                         NyxObjects2::destroy(dataline)

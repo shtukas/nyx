@@ -688,19 +688,19 @@ class Asteroids
 
             puts Asteroids::toString(asteroid)
 
-            puts "uuid: #{asteroid["uuid"]}"
-            puts "orbital: #{JSON.generate(asteroid["orbital"])}"
+            puts "uuid: #{asteroid["uuid"]}".yellow
+            puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
             if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
                 if asteroid["orbital"]["days"] then
-                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}"
+                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}".yellow
                 end
             end
-            puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}"
-            puts "metric: #{Asteroids::metric(asteroid)}"
+            puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}".yellow
+            puts "metric: #{Asteroids::metric(asteroid)}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime and (Time.new.to_i < unixtime) then
-                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}".yellow
             end
 
             notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(asteroid)
@@ -714,7 +714,7 @@ class Asteroids
             puts ""
 
             menuitems.item(
-                "update asteroid description",
+                "update asteroid description".yellow,
                 lambda { 
                     puts "Not yet implemented"
                     LucilleCore::pressEnterToContinue()
@@ -722,22 +722,22 @@ class Asteroids
             )
 
             menuitems.item(
-                "start",
+                "start".yellow,
                 lambda { Asteroids::startAsteroidIfNotRunning(asteroid) }
             )
 
             menuitems.item(
-                "stop",
+                "stop".yellow,
                 lambda { Asteroids::stopAsteroidIfRunning(asteroid) }
             )
 
             menuitems.item(
-                "re-orbital",
+                "re-orbital".yellow,
                 lambda { Asteroids::reOrbitalOrNothing(asteroid) }
             )
 
             menuitems.item(
-                "edit note",
+                "edit note".yellow,
                 lambda{ 
                     text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(asteroid) || ""
                     text = Miscellaneous::editTextSynchronously(text).strip
@@ -746,7 +746,7 @@ class Asteroids
             )
 
             menuitems.item(
-                "show json",
+                "show json".yellow,
                 lambda {
                     puts JSON.pretty_generate(asteroid)
                     LucilleCore::pressEnterToContinue()
@@ -754,7 +754,7 @@ class Asteroids
             )
 
             menuitems.item(
-                "add time",
+                "add time".yellow,
                 lambda {
                     timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
                     Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
@@ -762,14 +762,14 @@ class Asteroids
             )
 
             menuitems.item(
-                "transmute asteroid to node",
+                "transmute asteroid to node".yellow,
                 lambda {
                     Asteroids::transmuteAsteroidToNode(asteroid)
                 }
             )
 
             menuitems.item(
-                "destroy",
+                "destroy".yellow,
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
                         Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
@@ -785,7 +785,7 @@ class Asteroids
                 menuitems.item(
                     GenericObjectInterface::toString(target),
                     lambda {
-                        GenericObjectInterface::envelop(target)
+                        GenericObjectInterface::landing(target)
                     }
                 )
             }
@@ -793,7 +793,7 @@ class Asteroids
             puts ""
 
             menuitems.item(
-                "add new target",
+                "add new target".yellow,
                 lambda { 
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["new node", "existing node", "dataline"])
                     return if option.nil?
@@ -816,7 +816,7 @@ class Asteroids
             )
 
             menuitems.item(
-                "select target ; destroy",
+                "select target ; destroy".yellow,
                 lambda {
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
                     return if target.nil?

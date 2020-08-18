@@ -63,8 +63,8 @@ class GenericObjectInterface
         Time.at(object["unixtime"]).utc.iso8601
     end
 
-    # GenericObjectInterface::envelop(object)
-    def self.envelop(object)
+    # GenericObjectInterface::landing(object)
+    def self.landing(object)
         if GenericObjectInterface::isAsteroid(object) then
             Asteroids::landing(object)
             return
@@ -79,6 +79,8 @@ class GenericObjectInterface
         end
         if GenericObjectInterface::isDataPoint(object) then
             loop {
+                system("clear")
+                puts NSDataPoint::toString(object)
                 mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["enter", "destroy"])
                 break if mode.nil?
                 if mode == "enter" then
