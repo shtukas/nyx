@@ -260,7 +260,10 @@ class NSDT1SelectionInterface
         # Disables characters typed by the user to be echoed by Curses.getch as they are typed.
 
         globalState = {
-            "window1DisplayString" => ""
+            "userSearchString" => "",
+            "userSearchStringLastTimeUpdate" => nil,
+            "userSearchStringHasBeenModifiedSinceLastSearch" => false,
+            "selectedObjets" => []
         }
 
         win1 = Curses::Window.new(1, Miscellaneous::screenWidth(), 0, 0)
@@ -271,25 +274,20 @@ class NSDT1SelectionInterface
         win2.refresh
         win3.refresh
 
-        search_string       = nil # string or nil
-        search_string_last_time_update = nil
-
-        selected_objects    = []
-
-        display_search_string = lambda {
+        win1UpdateState = lambda {
             win1.setpos(0,0)
             win1.deleteln()
-            win1 << ("-> " + globalState["window1DisplayString"])
+            win1 << ("-> " + globalState["userSearchString"])
             win1.refresh
         }
 
-        display_searching_on = lambda {
+        win2UpdateStateToSearching = lambda {
             win2.setpos(0,0)
             win2.deleteln()
-            win2 << "searching..."
+            win2 << "searching @ #{Time.new.to_s}"
             win2.refresh
         }
-        display_searching_off = lambda {
+        win2UpdateStateToNotSearching = lambda {
             win2.setpos(0,0)
             win2.deleteln()
             win2.refresh
@@ -300,44 +298,48 @@ class NSDT1SelectionInterface
 
                 sleep 0.01
 
-                next if search_string.nil?
-                next if search_string_last_time_update.nil?
-                next if (Time.new.to_f - search_string_last_time_update) < 1
+                next if globalState["userSearchString"].size < 3 
+                next if globalState["userSearchStringLastTimeUpdate"].nil?
+                next if (Time.new.to_f - globalState["userSearchStringLastTimeUpdate"]) < 0.25
+                next if !globalState["userSearchStringHasBeenModifiedSinceLastSearch"]
 
-                pattern = search_string
-                search_string = nil
 
-                display_searching_on.call()
-                selected_objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1SelectionCore::selectNodesPerPattern_v2(pattern))
+                pattern = globalState["userSearchString"]
+                globalState["userSearchStringHasBeenModifiedSinceLastSearch"] = false
+
+                win2UpdateStateToSearching.call()
+
+                objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1SelectionCore::selectNodesPerPattern_v2(pattern))
+                globalState["selectedObjets"] = objects
 
                 win3.setpos(0,0)
-                selected_objects.first(Miscellaneous::screenHeight()-3).each{|object|
+                objects.first(Miscellaneous::screenHeight()-3).each{|object|
                     win3.deleteln()
                     win3 << "#{NSDataType1::toString(object)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh
 
-                display_searching_off.call()
-                display_search_string.call()
+                win2UpdateStateToNotSearching.call()
+                win1UpdateState.call()
             }
         }
 
-        display_search_string.call()
+        win1UpdateState.call()
 
         loop {
-
             char = win1.getch.to_s # Reads and return a character non blocking
 
             next if char.size == 0
 
             if char == '127' then
                 # delete
-                next if globalState["window1DisplayString"].length == 0
-                globalState["window1DisplayString"] = globalState["window1DisplayString"][0, globalState["window1DisplayString"].length-1]
-                search_string = globalState["window1DisplayString"]
-                search_string_last_time_update = Time.new.to_f
-                display_search_string.call()
+                next if globalState["userSearchString"].length == 0
+                globalState["userSearchString"] = globalState["userSearchString"][0, globalState["userSearchString"].length-1]
+                globalState["userSearchStringHasBeenModifiedSinceLastSearch"] = true
+                globalState["userSearchStringLastTimeUpdate"] = Time.new.to_f
+
+                win1UpdateState.call()
                 next
             end
 
@@ -346,10 +348,10 @@ class NSDT1SelectionInterface
                 break
             end
 
-            globalState["window1DisplayString"] = globalState["window1DisplayString"] + char
-            search_string = globalState["window1DisplayString"]
-            search_string_last_time_update = Time.new.to_f
-            display_search_string.call()
+            globalState["userSearchString"] = globalState["userSearchString"] + char
+            globalState["userSearchStringHasBeenModifiedSinceLastSearch"] = true
+            globalState["userSearchStringLastTimeUpdate"] = Time.new.to_f
+            win1UpdateState.call()
         }
 
         Thread.kill(thread4)
@@ -360,6 +362,6 @@ class NSDT1SelectionInterface
 
         Curses::close_screen # this method restore our terminal's settings
 
-        return (selected_objects || [])
+        return globalState["selectedObjets"]
     end
 end
