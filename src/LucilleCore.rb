@@ -300,15 +300,6 @@ class LCoreMenuItemsNX1
         puts "[#{@position.to_s.rjust(2)}] #{description}"
     end
 
-    def raw(description, xlambda)
-        @position = @position + 1
-        @items << {
-            "position" => @position,
-            "lambda"   => xlambda
-        }
-        print "[#{@position}] #{description}"
-    end
-
     def ordinal(xlambda)
         @position = @position + 1
         @items << {
@@ -318,7 +309,7 @@ class LCoreMenuItemsNX1
         @position
     end
 
-    def prompt() # return whether should loop
+    def prompt() # display a prompt and handle the input ; return whether should loop
         position = LucilleCore::askQuestionAnswerAsString("-> ")
         return false if position.size == 0
         position = position.to_i
@@ -328,7 +319,7 @@ class LCoreMenuItemsNX1
         true
     end
 
-    def executePosition(position)
+    def executePosition(position) # for when the user will be prompting themselves and only call this if an integer, eg: Catalyst UI,
         item = @items.select{|item| item["position"] == position }.first
         return if item.nil?
         item["lambda"].call()
