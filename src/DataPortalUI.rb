@@ -119,16 +119,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "asteroid (new)",
-                lambda { 
-                    asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
-                    return if asteroid.nil?
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            ms.item(
                 "asteroid floats open-project-in-the-background", 
                 lambda { 
                     loop {
