@@ -10,17 +10,17 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "Catalyst General Search", 
+                "Catalyst General Exploration", 
                 lambda { GeneralSearch::searchAndDive() }
             )
 
             ms.item(
-                "Node Search", 
+                "Node Exploration", 
                 lambda { NSDT1SelectionInterface::interactiveSearchAndExplore() }
             )
 
             ms.item(
-                "Node listing", 
+                "Node Listing", 
                 lambda {
                     nodes = NSDataType1::objects()
                     nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
