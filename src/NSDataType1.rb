@@ -74,7 +74,7 @@ class NSDataType1
                 Arrows::issueOrException(node, ns1)
             end
         end
-        NSDataType1PatternSearchLookup::updateLookupForNode(node)
+        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
         node
     end
 
@@ -93,14 +93,14 @@ class NSDataType1
     def self.nodePreLandingOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDataType1PatternSearchLookup::updateLookupForNode(node)
+        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
     end
 
     # NSDataType1::nodePostUpdateOperations(node)
     def self.nodePostUpdateOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDataType1PatternSearchLookup::updateLookupForNode(node)
+        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
     end
 
     # NSDataType1::landing(node)
@@ -133,7 +133,7 @@ class NSDataType1
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+                    n = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }
@@ -260,7 +260,7 @@ class NSDataType1
             menuitems.item(
                 "attach child node (chosen from existing nodes)".yellow,
                 lambda {
-                    o = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
+                    o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
                 }
@@ -294,7 +294,7 @@ class NSDataType1
                     return if selectednodes.size == 0
 
                     # Selecting or creating the node
-                    targetnode = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+                    targetnode = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
                     return if targetnode.nil?
 
                     # TODO: return if the selected new target is one of the nodes

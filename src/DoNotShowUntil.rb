@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-DoNotShowUntilDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/DoNotShowUntil.sqlite3"
+DoNotShowUntilDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Do-Not-Show-Until.sqlite3"
 
 class DoNotShowUntil
 

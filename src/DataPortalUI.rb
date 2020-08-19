@@ -10,17 +10,17 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "General Search (synchronous)", 
+                "Catalyst General Search", 
                 lambda { GeneralSearch::searchAndDive() }
             )
 
             ms.item(
-                "Graph Types Interactive Search", 
-                lambda { NSDT1ExtendedUserInterface::interactiveSearchAndExplore() }
+                "Node Search", 
+                lambda { NSDT1SelectionInterface::interactiveSearchAndExplore() }
             )
 
             ms.item(
-                "node listing", 
+                "Node listing", 
                 lambda {
                     nodes = NSDataType1::objects()
                     nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
@@ -40,7 +40,7 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+                    node = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
                     return if node.nil?
                     puts "selected node: #{NSDataType1::toString(node)}"
                     LucilleCore::pressEnterToContinue()
@@ -69,9 +69,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
+                    node1 = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
                     return if node1.nil?
-                    node2 = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
+                    node2 = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."
@@ -79,14 +79,9 @@ class DataPortalUI
                         return
                     end
 
-                    # Moving all the node upstreams of node2 towards node 1
-                    Arrows::getSourcesForTarget(node2).each{|x|
-                        puts "arrow (1): #{GenericObjectInterface::toString(x)} -> #{NSDataType1::toString(node1)}"
-                    }
-                    # Moving all the downstreams of node2 toward node 1
-                    Arrows::getTargetsForSource(node2).each{|x|
-                        puts "arrow (2): #{NSDataType1::toString(node1)} -> #{GenericObjectInterface::toString(x)}"
-                    }
+                    puts ""
+                    puts NSDataType1::toString(node1)
+                    puts NSDataType1::toString(node2)
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
@@ -171,7 +166,7 @@ class DataPortalUI
 
             ms.item(
                 "rebuild node search lookup table", 
-                lambda { NSDataType1PatternSearchLookup::rebuildLookup() }
+                lambda { NSDT1SelectionDatabaseInterface::rebuildLookup() }
             )
 
             ms.item(

@@ -1,6 +1,6 @@
 NSDataType1 pattern search happens against a look up table, for speed.
 
-location: #{Miscellaneous::catalystDataCenterFolderpath()}/NSDataType1PatternSearchLookup.sqlite3
+location: #{Miscellaneous::catalystDataCenterFolderpath()}/NSDT1-Selection-Database.sqlite3
 
 table: lookup
     _objectuuid_    text
@@ -9,7 +9,7 @@ table: lookup
 create table lookup (_objectuuid_ text, _fragment_ text);
 
 Table was created once by hand.
-    pascal@Lucille20 Catalyst % sqlite3 NSDataType1PatternSearchLookup.sqlite3
+    pascal@Lucille20 Catalyst % sqlite3 NSDT1-Selection-Database.sqlite3
     SQLite version 3.28.0 2019-04-15 14:49:49
     Enter ".help" for usage hints.
     sqlite> create table lookup (_objectuuid_ text, _fragment_ text);

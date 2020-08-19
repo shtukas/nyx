@@ -803,7 +803,7 @@ class Asteroids
                         Arrows::issueOrException(asteroid, node)
                     end
                     if option == "existing node" then
-                        node = NSDT1ExtendedUserInterface::selectExistingType1InteractivelyOrNull()
+                        node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                     end

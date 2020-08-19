@@ -158,7 +158,7 @@ class NSDataLine
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDT1ExtendedUserInterface::selectNodeSpecialWeaponsAndTactics()
+                    n = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }
@@ -192,7 +192,7 @@ class NSDataLinePatternSearchLookup
 
     # NSDataLinePatternSearchLookup::databaseFilepath()
     def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDataLinesPatternSearchLookup.sqlite3"
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDataLines-Pattern-Search-Lookup.sqlite3"
     end
 
     # NSDataLinePatternSearchLookup::selectDatalineUUIDsByPattern(pattern)

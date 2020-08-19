@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-BankDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/BankAccounts.sqlite3"
+BankDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
 
 class Bank
 
