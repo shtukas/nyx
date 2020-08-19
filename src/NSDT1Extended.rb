@@ -259,6 +259,10 @@ class NSDT1SelectionInterface
         Curses::noecho
         # Disables characters typed by the user to be echoed by Curses.getch as they are typed.
 
+        globalState = {
+            "window1DisplayString" => ""
+        }
+
         win1 = Curses::Window.new(1, Miscellaneous::screenWidth(), 0, 0)
         win2 = Curses::Window.new(1, Miscellaneous::screenWidth(), 1, 0)
         win3 = Curses::Window.new(Miscellaneous::screenHeight()-2, Miscellaneous::screenWidth(), 2, 0)
@@ -267,7 +271,6 @@ class NSDT1SelectionInterface
         win2.refresh
         win3.refresh
 
-        win1_display_string = ""
         search_string       = nil # string or nil
         search_string_last_time_update = nil
 
@@ -276,7 +279,7 @@ class NSDT1SelectionInterface
         display_search_string = lambda {
             win1.setpos(0,0)
             win1.deleteln()
-            win1 << ("-> " + (win1_display_string || ""))
+            win1 << ("-> " + globalState["window1DisplayString"])
             win1.refresh
         }
 
@@ -330,9 +333,9 @@ class NSDT1SelectionInterface
 
             if char == '127' then
                 # delete
-                next if win1_display_string.length == 0
-                win1_display_string = win1_display_string[0, win1_display_string.length-1]
-                search_string = win1_display_string
+                next if globalState["window1DisplayString"].length == 0
+                globalState["window1DisplayString"] = globalState["window1DisplayString"][0, globalState["window1DisplayString"].length-1]
+                search_string = globalState["window1DisplayString"]
                 search_string_last_time_update = Time.new.to_f
                 display_search_string.call()
                 next
@@ -343,8 +346,8 @@ class NSDT1SelectionInterface
                 break
             end
 
-            win1_display_string << char
-            search_string = win1_display_string
+            globalState["window1DisplayString"] = globalState["window1DisplayString"] + char
+            search_string = globalState["window1DisplayString"]
             search_string_last_time_update = Time.new.to_f
             display_search_string.call()
         }

@@ -20,6 +20,19 @@ class DataPortalUI
             )
 
             ms.item(
+                "Node Exploration (ncurses experimental)", 
+                lambda { 
+                    loop {
+                        nodes = NSDT1SelectionInterface::interactiveNcursesSearch()
+                        return if nodes.empty?
+                        node = NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
+                        return if node.nil?
+                        NSDataType1::landing(node)
+                    }
+                }
+            )
+
+            ms.item(
                 "Node Listing", 
                 lambda {
                     nodes = NSDataType1::objects()
