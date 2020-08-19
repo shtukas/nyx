@@ -33,7 +33,7 @@ class GeneralSearch
                             sr["dive"]
                         )
                     }
-                status = ms.prompt()
+                status = ms.promptAndRunSandbox()
                 break if !status
             }
         }

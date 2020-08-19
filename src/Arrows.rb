@@ -73,8 +73,8 @@ class Arrows
         answer
     end
 
-    # Arrows::getTargetsForSource(source)
-    def self.getTargetsForSource(source)
+    # Arrows::getTargetUUIDsForSource(source)
+    def self.getTargetUUIDsForSource(source)
         db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.results_as_hash = true
         uuids = []
@@ -82,7 +82,12 @@ class Arrows
             uuids << row["_targetuuid_"]
         end
         db.close
-        uuids.uniq.map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
+        uuids.uniq
+    end
+
+    # Arrows::getTargetsForSource(source)
+    def self.getTargetsForSource(source)
+        Arrows::getTargetUUIDsForSource(source).map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
     end
 
     # Arrows::getSourcesForTarget(target)

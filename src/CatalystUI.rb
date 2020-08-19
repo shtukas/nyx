@@ -74,7 +74,7 @@ class CatalystUI
 
             puts ""
 
-            status = menuitems.prompt()
+            status = menuitems.promptAndRunSandbox()
             break if !status
         }
     end
@@ -163,7 +163,7 @@ class CatalystUI
 
         if Miscellaneous::isInteger(command) then
             position = command.to_i
-            menuitems.executePosition(position)
+            menuitems.executeFunctionAtPositionGetValueOrNull(position)
             return
         end
 
@@ -221,7 +221,7 @@ class CatalystUI
                 "wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
             )
-            ms.prompt()
+            ms.promptAndRunSandbox()
             return
         end
 

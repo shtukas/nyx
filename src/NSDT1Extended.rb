@@ -97,7 +97,100 @@ class NSDT1SelectionCore
     end
 end
 
+class NSDT1NodeDisplayTree
+    # NSDT1NodeDisplayTree::optimizeNodeOrderForTreeMaking(nodes)
+    def self.optimizeNodeOrderForTreeMaking(nodes)
+        nodes.reduce([]){|ns, node|
+            if ns.any?{|n| NSDT1NodeDisplayTree::firstIsParentOfSecond(n, node) } then
+                ns + [ node ]
+            else
+                [ node ] + ns
+            end
+        }
+    end
+
+    # NSDT1NodeDisplayTree::firstIsParentOfSecond(node1, node2)
+    def self.firstIsParentOfSecond(node1, node2)
+        Arrows::getTargetUUIDsForSource(node1).include?(node2["uuid"])
+    end
+
+    # NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node)
+    def self.nodeToDisplayTreeNode(node)
+        {
+            "node" => node,
+            "children" => []
+        }
+    end
+
+    # NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(displayTreeNode, node, depth)
+    def self.reduceDisplayTreeNodeAndNode(displayTreeNode, node, depth)
+        newDisplayTreeNode = 
+            if NSDT1NodeDisplayTree::firstIsParentOfSecond(displayTreeNode["node"], node) then
+                {
+                    "node" => displayTreeNode["node"],
+                    "children" => displayTreeNode["children"] + [ NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node) ]
+                }
+            else
+                {
+                    "node" => displayTreeNode["node"],
+                    "children" => displayTreeNode["children"].map{|dtn| NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(dtn, node, depth+1) }
+                }
+            end
+
+        if depth == 0 and !newDisplayTreeNode.to_s.include?(node["uuid"]) then # I know....
+            {
+                "node" => displayTreeNode["node"],
+                "children" => displayTreeNode["children"] + [ NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node) ]
+            }
+        else
+            newDisplayTreeNode
+        end
+    end
+
+    # NSDT1NodeDisplayTree::displayTreeNode(displayTreeNode, padding, menuitems)
+    def self.displayTreeNode(displayTreeNode, padding, menuitems)
+        ordinal = menuitems.ordinal(lambda { displayTreeNode["node"] })
+        puts "[#{ordinal.to_s.ljust(2)}] " + padding + NSDataType1::toString(displayTreeNode["node"])
+        displayTreeNode["children"].each{|dtn|
+            NSDT1NodeDisplayTree::displayTreeNode(dtn, padding + "    ", menuitems)
+        }
+    end
+
+    # NSDT1NodeDisplayTree::nodesToDisplayTreeNode(nodes)
+    def self.nodesToDisplayTreeNode(nodes)
+        nodes = NSDT1NodeDisplayTree::optimizeNodeOrderForTreeMaking(nodes)
+        rootDisplayTreeNode = {
+            "node" => {
+                "uuid"         => SecureRandom.hex,
+                "nyxNxSet"     => "c18e8093-63d6-4072-8827-14f238975d04",
+                "unixtime"     => 1597862159
+            },
+            "children" => []
+        }
+        nodes.reduce(rootDisplayTreeNode){|displayTreeNode, node|
+            NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(displayTreeNode, node, 0)
+        }
+    end
+
+
+    # The below was made as proof of concept. Might use it one day ^^
+
+    # NSDT1NodeDisplayTree::selectOneNodeOrNull(nodes)
+    def self.selectOneNodeOrNull(nodes)
+        nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])}
+        displayTreeNode = NSDT1NodeDisplayTree::nodesToDisplayTreeNode(nodes)
+        menuitems = LCoreMenuItemsNX1.new()
+        NSDT1NodeDisplayTree::displayTreeNode(displayTreeNode, "", menuitems)
+        menuitems.promptAndRunFunctionGetValueOrNull() # returns a node or null
+    end
+end
+
 class NSDT1SelectionInterface
+
+    # NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
+    def self.selectOneNodeOrNull(nodes)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataType1::toString(node) })
+    end
 
     # NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
     def self.sandboxSelectionOfOneExistingNodeOrNull()
@@ -109,7 +202,7 @@ class NSDT1SelectionInterface
             nodes = NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
             nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda {|node| NSDataType1::toString(node)})
+            node = NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
             next if node.nil?
             loop {
                 system("clear")
@@ -150,15 +243,15 @@ class NSDT1SelectionInterface
                 nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda {|node| NSDataType1::toString(node)})
+                node = NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
                 break if node.nil?
                 NSDataType1::landing(node)
             }
         }
     end
 
-    # NSDT1SelectionInterface::interactiveSearch(): Array[Nodes]
-    def self.interactiveSearch()
+    # NSDT1SelectionInterface::interactiveNcursesSearch(): Array[Nodes]
+    def self.interactiveNcursesSearch()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on

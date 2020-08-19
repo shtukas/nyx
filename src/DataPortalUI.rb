@@ -142,7 +142,7 @@ class DataPortalUI
                                     lambda { Asteroids::landing(asteroid) }
                                 )
                             }
-                        status = menuitems.prompt()
+                        status = menuitems.promptAndRunSandbox()
                         break if !status
                     }
                 }
@@ -202,7 +202,7 @@ class DataPortalUI
                 }
             )
 
-            status = ms.prompt()
+            status = ms.promptAndRunSandbox()
             break if !status
         }
     end

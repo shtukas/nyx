@@ -826,7 +826,7 @@ class Asteroids
 
             Miscellaneous::horizontalRule()
 
-            status = menuitems.prompt()
+            status = menuitems.promptAndRunSandbox()
             break if !status
 
         }

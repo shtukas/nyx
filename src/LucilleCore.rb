@@ -309,7 +309,7 @@ class LCoreMenuItemsNX1
         @position
     end
 
-    def prompt() # display a prompt and handle the input ; return whether should loop
+    def promptAndRunSandbox() # display a prompt and handle the input ; return whether something ran
         position = LucilleCore::askQuestionAnswerAsString("-> ")
         return false if position.size == 0
         position = position.to_i
@@ -319,7 +319,16 @@ class LCoreMenuItemsNX1
         true
     end
 
-    def executePosition(position) # for when the user will be prompting themselves and only call this if an integer, eg: Catalyst UI,
+    def promptAndRunFunctionGetValueOrNull() # display a prompt and handle the input ; return the value of the lambda
+        position = LucilleCore::askQuestionAnswerAsString("-> ")
+        return nil if position.size == 0
+        position = position.to_i
+        item = @items.select{|item| item["position"] == position }.first
+        return nil if item.nil?
+        item["lambda"].call()
+    end
+
+    def executeFunctionAtPositionGetValueOrNull(position) # for when the user will be prompting themselves and only call this if an integer, eg: Catalyst UI,
         item = @items.select{|item| item["position"] == position }.first
         return if item.nil?
         item["lambda"].call()
