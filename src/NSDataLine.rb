@@ -62,7 +62,7 @@ class NSDataLine
     def self.interactivelyAddNewDataPointToDatalineOrNothing(dataline)
         ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
         return if ns0.nil?
-        Arrows::issueOrException(dataline, ns0)
+        $ArrowsInMemory099be9e4.issueOrException(dataline, ns0)
     end
 
     # NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
@@ -75,7 +75,7 @@ class NSDataLine
 
     # NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
     def self.getDatalineDataPointsInTimeOrder(dataline)
-        Arrows::getTargetsForSource(dataline)
+        $ArrowsInMemory099be9e4.getTargetsForSource(dataline)
             .select{|object| object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
@@ -124,7 +124,7 @@ class NSDataLine
             Miscellaneous::horizontalRule()
 
             puts "[parents]".yellow
-            upstreams = Arrows::getSourcesForTarget(dataline)
+            upstreams = $ArrowsInMemory099be9e4.getSourcesForTarget(dataline)
             upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
             upstreams.each{|o|
                 menuitems.item(
@@ -159,7 +159,7 @@ class NSDataLine
                 lambda {
                     n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
-                    Arrows::issueOrException(n, node)
+                    $ArrowsInMemory099be9e4.issueOrException(n, node)
                 }
             )
 
@@ -183,7 +183,7 @@ class NSDataLine
 
     # NSDataLine::getDatalineParents(dataline)
     def self.getDatalineParents(dataline)
-        Arrows::getSourcesForTarget(dataline)
+        $ArrowsInMemory099be9e4.getSourcesForTarget(dataline)
     end
 end
 

@@ -17,7 +17,7 @@ Table was created once by hand.
     pascal@Lucille20 Catalyst % 
 
 
-Arrows::arrows(): Array[Arrow]
+ArrowsDatabaseIO::arrows(): Array[Arrow]
 
 Arrow {
     "sourceuuid" => row["_sourceuuid_"],
