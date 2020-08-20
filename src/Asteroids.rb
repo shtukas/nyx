@@ -803,7 +803,7 @@ class Asteroids
                         Arrows::issueOrException(asteroid, node)
                     end
                     if option == "existing node" then
-                        node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
+                        node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                     end
@@ -846,6 +846,7 @@ class Asteroids
                 asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
+                Asteroids::landing(asteroid)
             end
             if option == "dive asteroids" then
                 loop {

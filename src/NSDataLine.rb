@@ -158,7 +158,7 @@ class NSDataLine
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
+                    n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }

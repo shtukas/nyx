@@ -54,6 +54,7 @@ class NSDT1SelectionDatabaseInterface
             NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
         }
     end
+
 end
 
 class NSDT1SelectionCore
@@ -172,11 +173,10 @@ class NSDT1NodeDisplayTree
         }
     end
 
-
     # The below was made as proof of concept. Might use it one day ^^
 
-    # NSDT1NodeDisplayTree::selectOneNodeOrNull(nodes)
-    def self.selectOneNodeOrNull(nodes)
+    # NSDT1NodeDisplayTree::selectOneNodeFromNodesOrNull(nodes)
+    def self.selectOneNodeFromNodesOrNull(nodes)
         nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])}
         displayTreeNode = NSDT1NodeDisplayTree::nodesToDisplayTreeNode(nodes)
         menuitems = LCoreMenuItemsNX1.new()
@@ -187,13 +187,13 @@ end
 
 class NSDT1SelectionInterface
 
-    # NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
-    def self.selectOneNodeOrNull(nodes)
+    # NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+    def self.selectOneNodeFromNodesOrNull(nodes)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataType1::toString(node) })
     end
 
-    # NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
-    def self.sandboxSelectionOfOneExistingNodeOrNull()
+    # NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+    def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
         loop {
             system("clear")
             puts "[sandbox selection]"
@@ -202,12 +202,17 @@ class NSDT1SelectionInterface
             nodes = NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
             nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
-            node = NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
+            node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
             next if node.nil?
             loop {
                 system("clear")
                 puts "[sandbox selection] selected: #{NSDataType1::toString(node)}"
-                ops = ["return this node", "landing", "back to search"]
+                ops = [
+                    "return this node", 
+                    "landing", 
+                    "back to search",
+                    "make new node"
+                ]
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", ops)
                 next if op.nil?
                 if op == "return this node" then
@@ -226,12 +231,18 @@ class NSDT1SelectionInterface
                 if op == "back to search" then
                     break
                 end
+                if op == "make new node" then
+                    x = NSDataType1::issueNewNodeInteractivelyOrNull()
+                    if x then
+                        node = x
+                    end
+                end
             }
         }
     end
 
-    # NSDT1SelectionInterface::interactiveSearchAndExplore()
-    def self.interactiveSearchAndExplore()
+    # NSDT1SelectionInterface::interactiveNodeSearchAndExplore()
+    def self.interactiveNodeSearchAndExplore()
         loop {
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
@@ -243,15 +254,18 @@ class NSDT1SelectionInterface
                 nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSDT1SelectionInterface::selectOneNodeOrNull(nodes)
+                node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
                 NSDataType1::landing(node)
             }
         }
     end
+end
 
-    # NSDT1SelectionInterface::interactiveNcursesSearch(): Array[Nodes]
-    def self.interactiveNcursesSearch()
+class NSDT1NcursesSelectionInterface
+
+    # NSDT1NcursesSelectionInterface::interactiveNodeNcursesSearch(): Array[Nodes]
+    def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -295,7 +309,6 @@ class NSDT1SelectionInterface
 
         thread4 = Thread.new {
             loop {
-
                 sleep 0.01
 
                 next if globalState["userSearchString"].size < 3 

@@ -133,7 +133,7 @@ class NSDataType1
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
+                    n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
                     Arrows::issueOrException(n, node)
                 }
@@ -260,7 +260,7 @@ class NSDataType1
             menuitems.item(
                 "attach child node (chosen from existing nodes)".yellow,
                 lambda {
-                    o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingNodeOrNull()
+                    o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
                 }
@@ -294,7 +294,7 @@ class NSDataType1
                     return if selectednodes.size == 0
 
                     # Selecting or creating the node
-                    targetnode = NSDT1SelectionInterface::selectNodeSpecialWeaponsAndTactics()
+                    targetnode = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if targetnode.nil?
 
                     # TODO: return if the selected new target is one of the nodes
