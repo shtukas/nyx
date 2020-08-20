@@ -23,7 +23,7 @@ class DataPortalUI
                 "Node Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSDT1NcursesSelectionInterface::interactiveNodeNcursesSearch()
+                        nodes = NSDT1SelectionInterface::interactiveNodeNcursesSearch()
                         return if nodes.empty?
                         node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?

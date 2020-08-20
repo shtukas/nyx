@@ -55,6 +55,69 @@ class NSDT1SelectionDatabaseInterface
         }
     end
 
+    # NSDT1SelectionDatabaseInterface::getDatabaseRecords(): Array[DatabaseRecord]
+    # DatabaseRecord: [objectuuid: String, fragment: String]
+    def self.getDatabaseRecords()
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from lookup" , [] ) do |row|
+            answer << [row['_objectuuid_'], row['_fragment_']]
+        end
+        db.close
+        answer
+    end
+
+end
+
+class NSDT1DatabaseInMemory
+    def initialize()
+        @databaseRecords = NSDT1SelectionDatabaseInterface::getDatabaseRecords()
+                                .map{ |record| 
+                                    record[1] = record[1].downcase
+                                    record
+                                }
+        @supermap = {} # Map[ pattern: String, records: Array[DatabaseRecord] ]
+        @cachedObjects = {} # Map[ uuid: String, node: Node ]
+    end
+
+    def patternAndRecordsToRecords(pattern, records)
+        pattern = pattern.downcase
+        @databaseRecords.select{|record| record[1].include?(pattern) }
+    end
+
+    def patternToRecords(pattern)
+        if @supermap[pattern] then
+            return @supermap[pattern]
+        end
+
+        minipattern = pattern[0, pattern.size-1]
+        if @supermap[minipattern] then
+            records = patternAndRecordsToRecords(pattern, @supermap[minipattern])
+            @supermap[pattern] = records
+            return records
+        end
+
+        records = patternAndRecordsToRecords(pattern, @databaseRecords)
+        @supermap[pattern] = records
+        records
+    end
+
+    def objectUUIDToObjectOrNull(objectuuid)
+        if @cachedObjects[objectuuid] then
+            return @cachedObjects[objectuuid]
+        end
+        node = NSDataType1::getOrNull(objectuuid)
+        return nil if node.nil?
+        @cachedObjects[objectuuid] = node
+        node
+    end
+
+    def patternToNodes(pattern)
+        patternToRecords(pattern)
+            .map{|record| objectUUIDToObjectOrNull(record[0]) }
+            .compact
+    end
 end
 
 class NSDT1SelectionCore
@@ -194,12 +257,13 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
+        databaseIM = NSDT1DatabaseInMemory.new()
         loop {
             system("clear")
             puts "[sandbox selection]"
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
-            nodes = NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
+            nodes = databaseIM.patternToNodes(pattern)
             nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
@@ -243,11 +307,12 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::interactiveNodeSearchAndExplore()
     def self.interactiveNodeSearchAndExplore()
+        databaseIM = NSDT1DatabaseInMemory.new()
         loop {
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
-            nodes = NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
+            nodes = databaseIM.patternToNodes(pattern)
             nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
@@ -260,12 +325,11 @@ class NSDT1SelectionInterface
             }
         }
     end
-end
 
-class NSDT1NcursesSelectionInterface
-
-    # NSDT1NcursesSelectionInterface::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NSDT1SelectionInterface::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
+
+        databaseIM = NSDT1DatabaseInMemory.new()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -313,16 +377,14 @@ class NSDT1NcursesSelectionInterface
 
                 next if globalState["userSearchString"].size < 3 
                 next if globalState["userSearchStringLastTimeUpdate"].nil?
-                next if (Time.new.to_f - globalState["userSearchStringLastTimeUpdate"]) < 0.25
                 next if !globalState["userSearchStringHasBeenModifiedSinceLastSearch"]
-
 
                 pattern = globalState["userSearchString"]
                 globalState["userSearchStringHasBeenModifiedSinceLastSearch"] = false
 
                 win2UpdateStateToSearching.call()
 
-                objects = GenericObjectInterface::applyDateTimeOrderToObjects(NSDT1SelectionCore::selectNodesPerPattern_v2(pattern))
+                objects = databaseIM.patternToNodes(pattern)
                 globalState["selectedObjets"] = objects
 
                 win3.setpos(0,0)
