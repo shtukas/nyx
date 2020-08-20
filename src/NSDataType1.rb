@@ -324,8 +324,7 @@ class NSDataType1
 
     # NSDataType1::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        databaseIM = NSDT1DatabaseInMemory.new()
-        databaseIM.patternToNodes(pattern)
+        $NSDT1DatabaseInMemoryA22379F6.patternToNodes(pattern)
             .map{|node|
                 {
                     "description"   => NSDataType1::toString(node),

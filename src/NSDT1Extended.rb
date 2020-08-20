@@ -119,6 +119,8 @@ class NSDT1DatabaseInMemory
     end
 end
 
+$NSDT1DatabaseInMemoryA22379F6 = NSDT1DatabaseInMemory.new()
+
 class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
@@ -128,13 +130,12 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
-        databaseIM = NSDT1DatabaseInMemory.new()
         loop {
             system("clear")
             puts "[sandbox selection]"
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
-            nodes = databaseIM.patternToNodes(pattern)
+            nodes = $NSDT1DatabaseInMemoryA22379F6.patternToNodes(pattern)
             nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
@@ -178,12 +179,11 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::interactiveNodeSearchAndExplore()
     def self.interactiveNodeSearchAndExplore()
-        databaseIM = NSDT1DatabaseInMemory.new()
         loop {
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
-            nodes = databaseIM.patternToNodes(pattern)
+            nodes = $NSDT1DatabaseInMemoryA22379F6.patternToNodes(pattern)
             #nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
@@ -199,8 +199,6 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
-
-        databaseIM = NSDT1DatabaseInMemory.new()
 
         Curses::init_screen
         # Initializes a standard screen. At this point the present state of our terminal is saved and the alternate screen buffer is turned on
@@ -255,7 +253,7 @@ class NSDT1SelectionInterface
 
                 win2UpdateStateToSearching.call()
 
-                objects = databaseIM.patternToNodes(pattern)
+                objects = $NSDT1DatabaseInMemoryA22379F6.patternToNodes(pattern)
                 globalState["selectedObjets"] = objects
 
                 win3.setpos(0,0)
