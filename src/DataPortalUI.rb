@@ -169,7 +169,7 @@ class DataPortalUI
 
             ms.item(
                 "rebuild node search lookup table", 
-                lambda { NSDT1SelectionDatabaseInterface::rebuildLookup() }
+                lambda { NSDT1SelectionDatabaseIO::rebuildLookup() }
             )
 
             ms.item(

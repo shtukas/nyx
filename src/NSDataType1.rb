@@ -74,7 +74,7 @@ class NSDataType1
                 Arrows::issueOrException(node, ns1)
             end
         end
-        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
+        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
         node
     end
 
@@ -93,14 +93,14 @@ class NSDataType1
     def self.nodePreLandingOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
+        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
     end
 
     # NSDataType1::nodePostUpdateOperations(node)
     def self.nodePostUpdateOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
+        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
     end
 
     # NSDataType1::landing(node)
@@ -322,4 +322,16 @@ class NSDataType1
         NSDataType1::nodePostUpdateOperations(node)
     end
 
+    # NSDataType1::searchNx1630(pattern)
+    def self.searchNx1630(pattern)
+        databaseIM = NSDT1DatabaseInMemory.new()
+        databaseIM.patternToNodes(pattern)
+            .map{|node|
+                {
+                    "description"   => NSDataType1::toString(node),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
+                    "dive"          => lambda{ NSDataType1::landing(node) }
+                }
+            }
+    end
 end

@@ -1,14 +1,14 @@
 
-class NSDT1SelectionDatabaseInterface
+class NSDT1SelectionDatabaseIO
 
-    # NSDT1SelectionDatabaseInterface::databaseFilepath()
+    # NSDT1SelectionDatabaseIO::databaseFilepath()
     def self.databaseFilepath()
         "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDT1-Selection-Database.sqlite3"
     end
 
-    # NSDT1SelectionDatabaseInterface::selectNSDataType1UUIDsByPattern(pattern)
+    # NSDT1SelectionDatabaseIO::selectNSDataType1UUIDsByPattern(pattern)
     def self.selectNSDataType1UUIDsByPattern(pattern)
-        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseIO::databaseFilepath())
         db.results_as_hash = true
         answer = []
         db.execute( "select * from lookup" , [] ) do |row|
@@ -22,43 +22,43 @@ class NSDT1SelectionDatabaseInterface
         answer.uniq
     end
 
-    # NSDT1SelectionDatabaseInterface::removeRecordsAgainstNode(objectuuid)
+    # NSDT1SelectionDatabaseIO::removeRecordsAgainstNode(objectuuid)
     def self.removeRecordsAgainstNode(objectuuid)
-        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objectuuid_=?", [objectuuid]
         db.close
     end
 
-    # NSDT1SelectionDatabaseInterface::addRecord(objectuuid, fragment)
+    # NSDT1SelectionDatabaseIO::addRecord(objectuuid, fragment)
     def self.addRecord(objectuuid, fragment)
-        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseIO::databaseFilepath())
         db.execute "insert into lookup (_objectuuid_, _fragment_) values ( ?, ? )", [objectuuid, fragment]
         db.close
     end
 
-    # NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
+    # NSDT1SelectionDatabaseIO::updateLookupForNode(node)
     def self.updateLookupForNode(node)
-        NSDT1SelectionDatabaseInterface::removeRecordsAgainstNode(node["uuid"])
-        NSDT1SelectionDatabaseInterface::addRecord(node["uuid"], node["uuid"])
-        NSDT1SelectionDatabaseInterface::addRecord(node["uuid"], NSDataType1::toString(node))
+        NSDT1SelectionDatabaseIO::removeRecordsAgainstNode(node["uuid"])
+        NSDT1SelectionDatabaseIO::addRecord(node["uuid"], node["uuid"])
+        NSDT1SelectionDatabaseIO::addRecord(node["uuid"], NSDataType1::toString(node))
     end
 
-    # NSDT1SelectionDatabaseInterface::rebuildLookup()
+    # NSDT1SelectionDatabaseIO::rebuildLookup()
     def self.rebuildLookup()
-        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseIO::databaseFilepath())
         db.execute "delete from lookup", []
         db.close
         NSDataType1::objects()
         .each{|node|
             puts node["uuid"]
-            NSDT1SelectionDatabaseInterface::updateLookupForNode(node)
+            NSDT1SelectionDatabaseIO::updateLookupForNode(node)
         }
     end
 
-    # NSDT1SelectionDatabaseInterface::getDatabaseRecords(): Array[DatabaseRecord]
+    # NSDT1SelectionDatabaseIO::getDatabaseRecords(): Array[DatabaseRecord]
     # DatabaseRecord: [objectuuid: String, fragment: String]
     def self.getDatabaseRecords()
-        db = SQLite3::Database.new(NSDT1SelectionDatabaseInterface::databaseFilepath())
+        db = SQLite3::Database.new(NSDT1SelectionDatabaseIO::databaseFilepath())
         db.results_as_hash = true
         answer = []
         db.execute( "select * from lookup" , [] ) do |row|
@@ -72,7 +72,7 @@ end
 
 class NSDT1DatabaseInMemory
     def initialize()
-        @databaseRecords = NSDT1SelectionDatabaseInterface::getDatabaseRecords()
+        @databaseRecords = NSDT1SelectionDatabaseIO::getDatabaseRecords()
                                 .map{ |record| 
                                     record[1] = record[1].downcase
                                     record
@@ -117,128 +117,6 @@ class NSDT1DatabaseInMemory
         patternToRecords(pattern)
             .map{|record| objectUUIDToObjectOrNull(record[0]) }
             .compact
-    end
-end
-
-class NSDT1SelectionCore
-
-    # NSDT1SelectionCore::nodeMatchesPattern(point, pattern)
-    # Legacy
-    def self.nodeMatchesPattern(point, pattern)
-        return true if point["uuid"].downcase.include?(pattern.downcase)
-        return true if NSDataType1::toString(point).downcase.include?(pattern.downcase)
-        return true if Arrows::getTargetsForSource(point).any?{|child| GenericObjectInterface::toString(child).downcase.include?(pattern.downcase) }
-        false
-    end
-
-    # NSDT1SelectionCore::selectNodesPerPattern_v1(pattern)
-    # Legacy
-    def self.selectNodesPerPattern_v1(pattern)
-        # 2020-08-15
-        # This is a legacy function that I keep for sentimental reasons,
-        # The direct look up using NSDT1SelectionCore::nodeMatchesPattern has been replace by NSDT1SelectionCore
-        NSDataType1::objects()
-            .select{|point| NSDT1SelectionCore::nodeMatchesPattern(point, pattern) }
-    end
-
-    # NSDT1SelectionCore::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        databaseIM = NSDT1DatabaseInMemory.new()
-        databaseIM.patternToNodes(pattern)
-            .map{|node|
-                {
-                    "description"   => NSDataType1::toString(node),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
-                    "dive"          => lambda{ NSDataType1::landing(node) }
-                }
-            }
-    end
-end
-
-class NSDT1NodeDisplayTree
-    # NSDT1NodeDisplayTree::optimizeNodeOrderForTreeMaking(nodes)
-    def self.optimizeNodeOrderForTreeMaking(nodes)
-        nodes.reduce([]){|ns, node|
-            if ns.any?{|n| NSDT1NodeDisplayTree::firstIsParentOfSecond(n, node) } then
-                ns + [ node ]
-            else
-                [ node ] + ns
-            end
-        }
-    end
-
-    # NSDT1NodeDisplayTree::firstIsParentOfSecond(node1, node2)
-    def self.firstIsParentOfSecond(node1, node2)
-        Arrows::getTargetUUIDsForSource(node1).include?(node2["uuid"])
-    end
-
-    # NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node)
-    def self.nodeToDisplayTreeNode(node)
-        {
-            "node" => node,
-            "children" => []
-        }
-    end
-
-    # NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(displayTreeNode, node, depth)
-    def self.reduceDisplayTreeNodeAndNode(displayTreeNode, node, depth)
-        newDisplayTreeNode = 
-            if NSDT1NodeDisplayTree::firstIsParentOfSecond(displayTreeNode["node"], node) then
-                {
-                    "node" => displayTreeNode["node"],
-                    "children" => displayTreeNode["children"] + [ NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node) ]
-                }
-            else
-                {
-                    "node" => displayTreeNode["node"],
-                    "children" => displayTreeNode["children"].map{|dtn| NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(dtn, node, depth+1) }
-                }
-            end
-
-        if depth == 0 and !newDisplayTreeNode.to_s.include?(node["uuid"]) then # I know....
-            {
-                "node" => displayTreeNode["node"],
-                "children" => displayTreeNode["children"] + [ NSDT1NodeDisplayTree::nodeToDisplayTreeNode(node) ]
-            }
-        else
-            newDisplayTreeNode
-        end
-    end
-
-    # NSDT1NodeDisplayTree::displayTreeNode(displayTreeNode, padding, menuitems)
-    def self.displayTreeNode(displayTreeNode, padding, menuitems)
-        ordinal = menuitems.ordinal(lambda { displayTreeNode["node"] })
-        puts "[#{ordinal.to_s.ljust(2)}] " + padding + NSDataType1::toString(displayTreeNode["node"])
-        displayTreeNode["children"].each{|dtn|
-            NSDT1NodeDisplayTree::displayTreeNode(dtn, padding + "    ", menuitems)
-        }
-    end
-
-    # NSDT1NodeDisplayTree::nodesToDisplayTreeNode(nodes)
-    def self.nodesToDisplayTreeNode(nodes)
-        nodes = NSDT1NodeDisplayTree::optimizeNodeOrderForTreeMaking(nodes)
-        rootDisplayTreeNode = {
-            "node" => {
-                "uuid"         => SecureRandom.hex,
-                "nyxNxSet"     => "c18e8093-63d6-4072-8827-14f238975d04",
-                "unixtime"     => 1597862159
-            },
-            "children" => []
-        }
-        nodes.reduce(rootDisplayTreeNode){|displayTreeNode, node|
-            NSDT1NodeDisplayTree::reduceDisplayTreeNodeAndNode(displayTreeNode, node, 0)
-        }
-    end
-
-    # The below was made as proof of concept. Might use it one day ^^
-
-    # NSDT1NodeDisplayTree::selectOneNodeFromNodesOrNull(nodes)
-    def self.selectOneNodeFromNodesOrNull(nodes)
-        nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])}
-        displayTreeNode = NSDT1NodeDisplayTree::nodesToDisplayTreeNode(nodes)
-        menuitems = LCoreMenuItemsNX1.new()
-        NSDT1NodeDisplayTree::displayTreeNode(displayTreeNode, "", menuitems)
-        menuitems.promptAndRunFunctionGetValueOrNull() # returns a node or null
     end
 end
 
