@@ -141,16 +141,10 @@ class NSDT1SelectionCore
             .select{|point| NSDT1SelectionCore::nodeMatchesPattern(point, pattern) }
     end
 
-    # NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
-    def self.selectNodesPerPattern_v2(pattern)
-        NSDT1SelectionDatabaseInterface::selectNSDataType1UUIDsByPattern(pattern)
-            .map{|uuid| NSDataType1::getOrNull(uuid) }
-            .compact
-    end
-
     # NSDT1SelectionCore::searchNx1630(pattern)
     def self.searchNx1630(pattern)
-        NSDT1SelectionCore::selectNodesPerPattern_v2(pattern)
+        databaseIM = NSDT1DatabaseInMemory.new()
+        databaseIM.patternToNodes(pattern)
             .map{|node|
                 {
                     "description"   => NSDataType1::toString(node),
@@ -313,10 +307,10 @@ class NSDT1SelectionInterface
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
             nodes = databaseIM.patternToNodes(pattern)
-            nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
+            #nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
-                nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
+                #nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
                 node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
