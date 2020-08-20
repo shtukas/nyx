@@ -234,12 +234,12 @@ class NSDataType1
 
             puts "[children]".yellow
 
-            Arrows::getTargetsForSource(node)
-                .each{|object|
-                    menuitems.item(
-                        GenericObjectInterface::toString(object),
-                        lambda{ GenericObjectInterface::landing(object) }
-                    )
+            targets = Arrows::getTargetsForSource(node)
+            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets.each{|object|
+                    ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(object) })
+                    ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(object) })
+                    puts "[#{ordinal1}: access/open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(object)}"
                 }
 
             puts ""

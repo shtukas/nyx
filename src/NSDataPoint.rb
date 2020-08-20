@@ -382,10 +382,31 @@ class NSDataPoint
         Arrows::issueOrException(dataline, newdatapoint)
     end
 
-    # NSDataPoint::enterDataPoint(datapoint)
-    def self.enterDataPoint(datapoint)
+    # NSDataPoint::accessopen(datapoint)
+    def self.accessopen(datapoint)
         dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
         return if dataline.nil?
         NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
+    end
+
+    # NSDataPoint::landing(datapoint)
+    def self.landing(datapoint)
+        loop {
+            menuitems = LCoreMenuItemsNX1.new()
+            puts NSDataPoint::toString(ns0)
+
+            menuitems.item(
+                "open",
+                lambda { NSDataPoint::accessopen(datapoint) }
+            )
+
+            menuitems.item(
+                "destroy",
+                lambda { NyxObjects2::destroy(datapoint) }
+            )
+
+            status = menuitems.promptAndRunSandbox()
+            break if !status
+        }
     end
 end

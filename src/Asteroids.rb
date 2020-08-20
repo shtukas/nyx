@@ -459,11 +459,11 @@ class Asteroids
                 return
             end
             if GenericObjectInterface::isDataline(target) then
-                NSDataLine::enterLastDataPointOrNothing(target)
+                NSDataLine::accessopen(target)
                 return
             end
             if GenericObjectInterface::isDataPoint(target) then
-                NSDataPoint::enterDataPoint(target)
+                NSDataPoint::accessopen(target)
                 return
             end
         end
@@ -495,11 +495,11 @@ class Asteroids
             end
 
             if GenericObjectInterface::isDataline(target) then
-                NSDataLine::enterLastDataPointOrNothing(target)
+                NSDataLine::accessopen(target)
             end
 
             if GenericObjectInterface::isDataPoint(target) then
-                NSDataPoint::enterDataPoint(target)
+                NSDataPoint::accessopen(target)
             end
 
             Asteroids::stopAsteroidIfRunning(asteroid)
@@ -781,14 +781,11 @@ class Asteroids
 
             targets = Arrows::getTargetsForSource(asteroid)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-            targets.each{|target|
-                menuitems.item(
-                    GenericObjectInterface::toString(target),
-                    lambda {
-                        GenericObjectInterface::landing(target)
-                    }
-                )
-            }
+            targets.each{|object|
+                    ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(object) })
+                    ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(object) })
+                    puts "[#{ordinal1}: access/open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(object)}"
+                }
 
             puts ""
 

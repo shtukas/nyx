@@ -67,7 +67,6 @@ class NSDT1SelectionDatabaseIO
         db.close
         answer
     end
-
 end
 
 class NSDT1DatabaseInMemory

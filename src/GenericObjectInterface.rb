@@ -78,26 +78,33 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            loop {
-                system("clear")
-                puts NSDataPoint::toString(object)
-                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["enter", "destroy"])
-                break if mode.nil?
-                if mode == "enter" then
-                    NSDataPoint::enterDataPoint(object)
-                    next
-                end
-                if mode == "destroy" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to do that? : ") then
-                        GenericObjectInterface::destroy(object)
-                        return
-                    end
-                end
-            }
+            NSDataPoint::landing(object)
             return
         end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+    end
 
-
+    # GenericObjectInterface::accessopen(object)
+    def self.accessopen(object)
+        if GenericObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if GenericObjectInterface::isNode(object) then
+            NSDataType1::landing(object)
+            return
+        end
+        if GenericObjectInterface::isDataline(object) then
+            NSDataLine::accessopen(object)
+            return
+        end
+        if GenericObjectInterface::isDataPoint(object) then
+            NSDataPoint::accessopen(object)
+            return
+        end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end
 
     # GenericObjectInterface::destroy(object)

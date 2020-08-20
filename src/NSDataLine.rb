@@ -86,8 +86,8 @@ class NSDataLine
             .last
     end
 
-    # NSDataLine::enterLastDataPointOrNothing(dataline)
-    def self.enterLastDataPointOrNothing(dataline)
+    # NSDataLine::accessopen(dataline)
+    def self.accessopen(dataline)
         datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
         return if datapoint.nil?
         puts JSON.pretty_generate(datapoint)
@@ -137,10 +137,9 @@ class NSDataLine
 
             puts "[dataline]".yellow
 
-            menuitems.item(
-                NSDataLine::toString(dataline),
-                lambda { NSDataLine::enterLastDataPointOrNothing(dataline) }
-            )
+            ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(dataline) })
+            ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(dataline) })
+            puts "[#{ordinal1}: access/open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(dataline)}"
 
             puts ""
 
