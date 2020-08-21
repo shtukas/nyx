@@ -152,7 +152,7 @@ class NSDataLine
                 lambda {
                     n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
-                    Arrows::issueOrException(n, node)
+                    Arrows::issueOrException(n, dataline)
                 }
             )
 
