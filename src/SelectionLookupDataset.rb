@@ -55,7 +55,7 @@ class SelectionLookupDatabaseIO
 end
 
 class SelectionLookupDatabaseInMemory
-    def initialize()
+    def reloadData()
         @databaseRecords = SelectionLookupDatabaseIO::getDatabaseRecords()
                                 .map{ |record| 
                                     record["fragment"] = record["fragment"].downcase
@@ -63,6 +63,10 @@ class SelectionLookupDatabaseInMemory
                                 }
         @supermap = {} # Map[ pattern: String, records: Array[DatabaseRecord] ]
         @cachedObjects = {} # Map[ uuid: String, object: Object ]
+    end
+
+    def initialize()
+        reloadData()
     end
 
     def patternAndRecordsToRecords(pattern, records)
@@ -116,8 +120,20 @@ $SelectionLookupDatabaseInMemoryA22379F6 = SelectionLookupDatabaseInMemory.new()
 
 class SelectionLookupDataset
 
-    # SelectionLookupDataset::rebuildNodeLookup()
-    def self.rebuildNodeLookup()
+    # SelectionLookupDataset::updateLookupForNode(node)
+    def self.updateLookupForNode(node)
+        SelectionLookupDatabaseIO::updateLookupForNode(node)
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
+    end
+
+    # SelectionLookupDataset::updateLookupForDataline(dataline)
+    def self.updateLookupForDataline(dataline)
+        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
+    end
+
+    # SelectionLookupDataset::rebuildNodesLookup()
+    def self.rebuildNodesLookup()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["node"]
         db.close
@@ -129,8 +145,8 @@ class SelectionLookupDataset
             }
     end
 
-    # SelectionLookupDataset::rebuildDalalineLookup()
-    def self.rebuildDalalineLookup()
+    # SelectionLookupDataset::rebuildDalalinesLookup()
+    def self.rebuildDalalinesLookup()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["dataline"]
         db.close
@@ -138,14 +154,14 @@ class SelectionLookupDataset
         NSDataLine::datalines()
             .each{|dataline|
                 puts "dataline: #{dataline["uuid"]}"
-                SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
+                SelectionLookupDataset::updateLookupForDataline(dataline)
             }
     end
 
     # SelectionLookupDataset::rebuildDataset()
     def self.rebuildDataset()
-        SelectionLookupDataset::rebuildNodeLookup()
-        SelectionLookupDataset::rebuildDalalineLookup()
+        SelectionLookupDataset::rebuildNodesLookup()
+        SelectionLookupDataset::rebuildDalalinesLookup()
     end
 
     # SelectionLookupDataset::patternToNodes(pattern)

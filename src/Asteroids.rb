@@ -572,7 +572,7 @@ class Asteroids
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| Arrows::issueOrException(node, target) }
-        NSDataType1::nodePostUpdateOperations(node)
+        NSDataType1::nodeMetadataSpecialOps(node)
         NSDataType1::landing(node)
         Asteroids::destroy(asteroid)
     end
@@ -782,9 +782,10 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
-                    ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(object) })
-                    ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(object) })
-                    puts "[#{ordinal1}: access/open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(object)}"
+                    menuitems.item(
+                        GenericObjectInterface::toString(object).yellow,
+                        lambda { GenericObjectInterface::landing(object) }
+                    )
                 }
 
             puts ""
@@ -815,7 +816,11 @@ class Asteroids
             menuitems.item(
                 "select target ; destroy".yellow,
                 lambda {
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
+
+                    targets = Arrows::getTargetsForSource(asteroid)
+                    targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericObjectInterface::toString(target) })
                     return if target.nil?
                     GenericObjectInterface::destroy(target)
                 }

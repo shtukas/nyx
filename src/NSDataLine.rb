@@ -94,18 +94,11 @@ class NSDataLine
         NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
-    # NSDataLine::datalinePreLandingOperations(dataline)
-    def self.datalinePreLandingOperations(dataline)
+    # NSDataLine::datalineMetadataSpecialOps(dataline)
+    def self.datalineMetadataSpecialOps(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         KeyValueStore::destroy(nil, cacheKey)
-        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
-    end
-
-    # NSDataLine::datalinePostUpdateOperations(dataline)
-    def self.datalinePostUpdateOperations(dataline)
-        cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
-        KeyValueStore::destroy(nil, cacheKey)
-        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
+        SelectionLookupDataset::updateLookupForDataline(dataline)
     end
 
     # NSDataLine::landing(dataline)
@@ -115,7 +108,7 @@ class NSDataLine
 
             return if NSDataLine::getOrNull(dataline["uuid"]).nil?
 
-            NSDataLine::datalinePreLandingOperations(dataline)
+            NSDataLine::datalineMetadataSpecialOps(dataline)
 
             system('clear')
 
@@ -139,7 +132,7 @@ class NSDataLine
 
             ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(dataline) })
             ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(dataline) })
-            puts "[#{ordinal1}: access/open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(dataline)}"
+            puts "[#{ordinal1}: open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(dataline)}"
 
             puts ""
 
@@ -178,7 +171,7 @@ class NSDataLine
             break if !status
         }
 
-        NSDataLine::datalinePostUpdateOperations(dataline)
+        NSDataLine::datalineMetadataSpecialOps(dataline)
     end
 
     # NSDataLine::getDatalineParents(dataline)
