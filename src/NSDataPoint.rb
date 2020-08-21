@@ -10,7 +10,7 @@ class NSDataPoint
 
     # NSDataPoint::getDataPointParents(datapoint)
     def self.getDataPointParents(datapoint)
-        $ArrowsInMemory099be9e4.getSourcesForTarget(datapoint)
+        Arrows::getSourcesForTarget(datapoint)
     end
 
     # NSDataPoint::selectOneLocationOnTheDesktopOrNull()
@@ -268,7 +268,7 @@ class NSDataPoint
 
     # NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
     def self.selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-        owners = $ArrowsInMemory099be9e4.getSourcesForTarget(datapoint)
+        owners = Arrows::getSourcesForTarget(datapoint)
         owner = nil
         if owners.size == 0 then
             puts "Could not find any owner for #{NSDataPoint::toString(datapoint)}"
@@ -379,7 +379,7 @@ class NSDataPoint
     def self.enterDatalineDataPointEnvelop(dataline, datapoint)
         newdatapoint = NSDataPoint::enterDatalineDataPointCore(dataline, datapoint)
         return if newdatapoint.nil?
-        $ArrowsInMemory099be9e4.issueOrException(dataline, newdatapoint)
+        Arrows::issueOrException(dataline, newdatapoint)
     end
 
     # NSDataPoint::accessopen(datapoint)

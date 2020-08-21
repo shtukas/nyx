@@ -61,7 +61,7 @@ class DeskOperator
                 next
             end
             newdatapoint = NSDataPoint::issueAionPoint(namedhash)
-            $ArrowsInMemory099be9e4.issueOrException(dataline, newdatapoint)
+            Arrows::issueOrException(dataline, newdatapoint)
             puts "new newdatapoint:"
             puts JSON.pretty_generate(newdatapoint)
             LucilleCore::removeFileSystemLocation(location)

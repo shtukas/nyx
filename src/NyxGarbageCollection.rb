@@ -7,15 +7,13 @@ class NyxGarbageCollection
         
         puts "NyxGarbageCollection::run()"
 
-        exit
-
         ArrowsDatabaseIO::arrows().each{|arrow|
             b1 = NyxObjects2::getOrNull(arrow["sourceuuid"]).nil?
             b2 = NyxObjects2::getOrNull(arrow["targetuuid"]).nil?
             isNotConnecting = (b1 or b2)
             if isNotConnecting then
                 puts "removing arrow: #{arrow}"
-                $ArrowsInMemory099be9e4.destroy(arrow["sourceuuid"], arrow["targetuuid"])
+                Arrows::destroy(arrow["sourceuuid"], arrow["targetuuid"])
             end
         }
 

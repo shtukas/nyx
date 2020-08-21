@@ -29,7 +29,7 @@ class NSDataType1
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::getOrNull(nil, cacheKey)
         return str if str
-        objects = $ArrowsInMemory099be9e4.getTargetsForSource(node)
+        objects = Arrows::getTargetsForSource(node)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then
             str = "[node] [#{node["uuid"][0, 4]}] #{description}"
@@ -71,10 +71,10 @@ class NSDataType1
         if LucilleCore::askQuestionAnswerAsBoolean("Create node data ? : ") then
             ns1 = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
             if ns1 then
-                $ArrowsInMemory099be9e4.issueOrException(node, ns1)
+                Arrows::issueOrException(node, ns1)
             end
         end
-        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
+        SelectionLookupDatabaseIO::updateLookupForNode(node)
         node
     end
 
@@ -93,14 +93,14 @@ class NSDataType1
     def self.nodePreLandingOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
+        SelectionLookupDatabaseIO::updateLookupForNode(node)
     end
 
     # NSDataType1::nodePostUpdateOperations(node)
     def self.nodePostUpdateOperations(node)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
         str = KeyValueStore::destroy(nil, cacheKey)
-        NSDT1SelectionDatabaseIO::updateLookupForNode(node)
+        SelectionLookupDatabaseIO::updateLookupForNode(node)
     end
 
     # NSDataType1::landing(node)
@@ -120,7 +120,7 @@ class NSDataType1
 
             puts "[parents]".yellow
 
-            $ArrowsInMemory099be9e4.getSourcesForTarget(node)
+            Arrows::getSourcesForTarget(node)
                 .each{|o|
                     menuitems.item(
                         "parent: #{GenericObjectInterface::toString(o)}",
@@ -135,16 +135,16 @@ class NSDataType1
                 lambda {
                     n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(n, node)
+                    Arrows::issueOrException(n, node)
                 }
             )
 
             menuitems.item(
                 "detach parent".yellow,
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", $ArrowsInMemory099be9e4.getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
-                    $ArrowsInMemory099be9e4.unlink(ns, node)
+                    Arrows::unlink(ns, node)
                 }
             )
 
@@ -200,16 +200,16 @@ class NSDataType1
                 "remove [this] as intermediary node".yellow, 
                 lambda { 
                     puts "intermediary node removal simulation"
-                    $ArrowsInMemory099be9e4.getSourcesForTarget(node).each{|upstreamnode|
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
                         puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
                     }
-                    $ArrowsInMemory099be9e4.getTargetsForSource(node).each{|downstreamobject|
+                    Arrows::getTargetsForSource(node).each{|downstreamobject|
                         puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
                     }
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
-                    $ArrowsInMemory099be9e4.getSourcesForTarget(node).each{|upstreamnode|
-                        $ArrowsInMemory099be9e4.getTargetsForSource(node).each{|downstreamobject|
-                            $ArrowsInMemory099be9e4.issueOrException(upstreamnode, downstreamobject)
+                    Arrows::getSourcesForTarget(node).each{|upstreamnode|
+                        Arrows::getTargetsForSource(node).each{|downstreamobject|
+                            Arrows::issueOrException(upstreamnode, downstreamobject)
                         }
                     }
                     NyxObjects2::destroy(node)
@@ -234,7 +234,7 @@ class NSDataType1
 
             puts "[children]".yellow
 
-            targets = $ArrowsInMemory099be9e4.getTargetsForSource(node)
+            targets = Arrows::getTargetsForSource(node)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
                     ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(object) })
@@ -249,7 +249,7 @@ class NSDataType1
                 lambda{
                     dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                     return if dataline.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(node, dataline)
+                    Arrows::issueOrException(node, dataline)
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                     if description != "" then
                         NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
@@ -262,7 +262,7 @@ class NSDataType1
                 lambda {
                     o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(node, o)
+                    Arrows::issueOrException(node, o)
                 }
             )
 
@@ -271,26 +271,26 @@ class NSDataType1
                 lambda {
                     o = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if o.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(node, o)
+                    Arrows::issueOrException(node, o)
                 }
             )
 
             menuitems.item(
                 "detach child".yellow,
                 lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", $ArrowsInMemory099be9e4.getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", Arrows::getTargetsForSource(node), lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
-                    $ArrowsInMemory099be9e4.unlink(node, ns)
+                    Arrows::unlink(node, ns)
                 }
             )
 
             menuitems.item(
                 "select children ; move to node".yellow,
                 lambda {
-                    return if $ArrowsInMemory099be9e4.getTargetsForSource(node).size == 0
+                    return if Arrows::getTargetsForSource(node).size == 0
 
                     # Selecting the nodes to moves
-                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], $ArrowsInMemory099be9e4.getTargetsForSource(node), lambda{ |o| GenericObjectInterface::toString(o) })
+                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], Arrows::getTargetsForSource(node), lambda{ |o| GenericObjectInterface::toString(o) })
                     return if selectednodes.size == 0
 
                     # Selecting or creating the node
@@ -301,10 +301,10 @@ class NSDataType1
 
                     # Moving the selectednodes
                     selectednodes.each{|o|
-                        $ArrowsInMemory099be9e4.issueOrException(targetnode, o)
+                        Arrows::issueOrException(targetnode, o)
                     }
                     selectednodes.each{|o|
-                        $ArrowsInMemory099be9e4.unlink(node, o)
+                        Arrows::unlink(node, o)
                     }
                 }
             )
@@ -320,17 +320,5 @@ class NSDataType1
         }
 
         NSDataType1::nodePostUpdateOperations(node)
-    end
-
-    # NSDataType1::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        $NSDT1DatabaseInMemoryA22379F6.patternToNodes(pattern)
-            .map{|node|
-                {
-                    "description"   => NSDataType1::toString(node),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
-                    "dive"          => lambda{ NSDataType1::landing(node) }
-                }
-            }
     end
 end

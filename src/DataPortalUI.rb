@@ -59,7 +59,7 @@ class DataPortalUI
                     LucilleCore::pressEnterToContinue()
                     dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                     return if dataline.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(node, dataline)
+                    Arrows::issueOrException(node, dataline)
                     description = LucilleCore::askQuestionAnswerAsString("dataline description ? (empty for null) : ")
                     if description.size > 0 then
                         NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
@@ -99,12 +99,12 @@ class DataPortalUI
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
                     # Moving all the node upstreams of node2 towards node 1
-                    $ArrowsInMemory099be9e4.getSourcesForTarget(node2).each{|x|
-                        $ArrowsInMemory099be9e4.issueOrException(x, node1)
+                    Arrows::getSourcesForTarget(node2).each{|x|
+                        Arrows::issueOrException(x, node1)
                     }
                     # Moving all the downstreams of node2 toward node 1
-                    $ArrowsInMemory099be9e4.getTargetsForSource(node2).each{|x|
-                        $ArrowsInMemory099be9e4.issueOrException(node1, x)
+                    Arrows::getTargetsForSource(node2).each{|x|
+                        Arrows::issueOrException(node1, x)
                     }
                     NyxObjects2::destroy(node2) # Simple destroy, not the procedure,what happens if node2 had some contents ?
                 }
@@ -168,13 +168,8 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "rebuild node search lookup table", 
-                lambda { NSDT1SelectionDatabaseIO::rebuildLookup() }
-            )
-
-            ms.item(
-                "rebuild dataline search lookup table", 
-                lambda { NSDataLinePatternSearchLookup::rebuildLookup() }
+                "rebuild search lookup", 
+                lambda { SelectionLookupDataset::rebuildDataset() }
             )
 
             ms.item(

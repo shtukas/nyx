@@ -232,7 +232,7 @@ class Miscellaneous
             namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
             datapoint = NSDataPoint::issueAionPoint(namedhash)
             dataline = NSDataLine::issue()
-            $ArrowsInMemory099be9e4.issueOrException(dataline, datapoint)
+            Arrows::issueOrException(dataline, datapoint)
             asteroid = Asteroids::issueAsteroidInboxFromDataline(dataline)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)

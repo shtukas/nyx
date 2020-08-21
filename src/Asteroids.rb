@@ -25,8 +25,8 @@ class Asteroids
             ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
             return nil if ns0.nil?
             ns1 = NSDataType1::issue()
-            $ArrowsInMemory099be9e4.issueOrException(ns1, ns0)
-            $ArrowsInMemory099be9e4.issueOrException({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
+            Arrows::issueOrException(ns1, ns0)
+            Arrows::issueOrException({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
             return {
                 "type"        => "metal",
                 "description" => nil
@@ -152,7 +152,7 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        $ArrowsInMemory099be9e4.issueOrException(asteroid, dataline)
+        Arrows::issueOrException(asteroid, dataline)
         asteroid
     end
 
@@ -215,7 +215,7 @@ class Asteroids
     def self.asteroidDescriptionUseTheForce(asteroid)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)
         return description if description
-        targets = $ArrowsInMemory099be9e4.getTargetsForSource(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
         if targets.empty? then
            return "no target"
         end
@@ -444,7 +444,7 @@ class Asteroids
 
     # Asteroids::openTargetOrTargets(asteroid)
     def self.openTargetOrTargets(asteroid)
-        targets = $ArrowsInMemory099be9e4.getTargetsForSource(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
         if targets.size == 0 then
             return
         end
@@ -474,7 +474,7 @@ class Asteroids
 
     # Asteroids::processInboxAsteroid(asteroid)
     def self.processInboxAsteroid(asteroid)
-        targets = $ArrowsInMemory099be9e4.getTargetsForSource(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
         if targets.size == 0 then
             Asteroids::destroy(asteroid)
             return
@@ -570,8 +570,8 @@ class Asteroids
         return if description == ""
         node = NSDataType1::issue()
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-        $ArrowsInMemory099be9e4.getTargetsForSource(asteroid)
-            .each{|target| $ArrowsInMemory099be9e4.issueOrException(node, target) }
+        Arrows::getTargetsForSource(asteroid)
+            .each{|target| Arrows::issueOrException(node, target) }
         NSDataType1::nodePostUpdateOperations(node)
         NSDataType1::landing(node)
         Asteroids::destroy(asteroid)
@@ -779,7 +779,7 @@ class Asteroids
 
             Miscellaneous::horizontalRule()
 
-            targets = $ArrowsInMemory099be9e4.getTargetsForSource(asteroid)
+            targets = Arrows::getTargetsForSource(asteroid)
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
                     ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(object) })
@@ -797,17 +797,17 @@ class Asteroids
                     if option == "new node" then
                         node = NSDataType1::issueNewNodeInteractivelyOrNull()
                         return if node.nil?
-                        $ArrowsInMemory099be9e4.issueOrException(asteroid, node)
+                        Arrows::issueOrException(asteroid, node)
                     end
                     if option == "existing node" then
                         node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                         return if node.nil?
-                        $ArrowsInMemory099be9e4.issueOrException(asteroid, node)
+                        Arrows::issueOrException(asteroid, node)
                     end
                     if option == "dataline" then
                         dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
                         return if dataline.nil?
-                        $ArrowsInMemory099be9e4.issueOrException(asteroid, dataline)
+                        Arrows::issueOrException(asteroid, dataline)
                     end
                 }
             )
@@ -815,7 +815,7 @@ class Asteroids
             menuitems.item(
                 "select target ; destroy".yellow,
                 lambda {
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", $ArrowsInMemory099be9e4.getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(asteroid), lambda{|target| GenericObjectInterface::toString(target) })
                     return if target.nil?
                     GenericObjectInterface::destroy(target)
                 }

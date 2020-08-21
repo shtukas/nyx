@@ -62,7 +62,7 @@ class NSDataLine
     def self.interactivelyAddNewDataPointToDatalineOrNothing(dataline)
         ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
         return if ns0.nil?
-        $ArrowsInMemory099be9e4.issueOrException(dataline, ns0)
+        Arrows::issueOrException(dataline, ns0)
     end
 
     # NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
@@ -75,7 +75,7 @@ class NSDataLine
 
     # NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
     def self.getDatalineDataPointsInTimeOrder(dataline)
-        $ArrowsInMemory099be9e4.getTargetsForSource(dataline)
+        Arrows::getTargetsForSource(dataline)
             .select{|object| object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" }
             .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
     end
@@ -98,14 +98,14 @@ class NSDataLine
     def self.datalinePreLandingOperations(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         KeyValueStore::destroy(nil, cacheKey)
-        NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
     end
 
     # NSDataLine::datalinePostUpdateOperations(dataline)
     def self.datalinePostUpdateOperations(dataline)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
         KeyValueStore::destroy(nil, cacheKey)
-        NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
+        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
     end
 
     # NSDataLine::landing(dataline)
@@ -124,7 +124,7 @@ class NSDataLine
             Miscellaneous::horizontalRule()
 
             puts "[parents]".yellow
-            upstreams = $ArrowsInMemory099be9e4.getSourcesForTarget(dataline)
+            upstreams = Arrows::getSourcesForTarget(dataline)
             upstreams = GenericObjectInterface::applyDateTimeOrderToObjects(upstreams)
             upstreams.each{|o|
                 menuitems.item(
@@ -159,7 +159,7 @@ class NSDataLine
                 lambda {
                     n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
-                    $ArrowsInMemory099be9e4.issueOrException(n, node)
+                    Arrows::issueOrException(n, node)
                 }
             )
 
@@ -183,82 +183,6 @@ class NSDataLine
 
     # NSDataLine::getDatalineParents(dataline)
     def self.getDatalineParents(dataline)
-        $ArrowsInMemory099be9e4.getSourcesForTarget(dataline)
-    end
-end
-
-class NSDataLinePatternSearchLookup
-
-    # NSDataLinePatternSearchLookup::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/NSDataLines-Pattern-Search-Lookup.sqlite3"
-    end
-
-    # NSDataLinePatternSearchLookup::selectDatalineUUIDsByPattern(pattern)
-    def self.selectDatalineUUIDsByPattern(pattern)
-        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from lookup" , [] ) do |row|
-            fragment = row['_fragment_']
-            if fragment.downcase.include?(pattern.downcase) then
-                answer << row['_objectuuid_']
-            end
-            
-        end
-        db.close
-        answer.uniq
-    end
-
-    # NSDataLinePatternSearchLookup::removeRecordsAgainstDataline(objectuuid)
-    def self.removeRecordsAgainstDataline(objectuuid)
-        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
-        db.execute "delete from lookup where _objectuuid_=?", [objectuuid]
-        db.close
-    end
-
-    # NSDataLinePatternSearchLookup::addRecord(objectuuid, fragment)
-    def self.addRecord(objectuuid, fragment)
-        db = SQLite3::Database.new(NSDataLinePatternSearchLookup::databaseFilepath())
-        db.execute "insert into lookup (_objectuuid_, _fragment_) values ( ?, ? )", [objectuuid, fragment]
-        db.close
-    end
-
-    # NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
-    def self.updateLookupForDataline(dataline)
-        NSDataLinePatternSearchLookup::removeRecordsAgainstDataline(dataline["uuid"])
-        NSDataLinePatternSearchLookup::addRecord(dataline["uuid"], dataline["uuid"])
-        NSDataLinePatternSearchLookup::addRecord(dataline["uuid"], NSDataLine::toString(dataline))
-    end
-
-    # NSDataLinePatternSearchLookup::rebuildLookup()
-    def self.rebuildLookup()
-        NSDataLine::datalines()
-        .each{|dataline|
-            puts dataline["uuid"]
-            NSDataLinePatternSearchLookup::updateLookupForDataline(dataline)
-        }
-    end
-end
-
-class NSDataLineExtendedDataLookups
-
-    # NSDataLineExtendedDataLookups::selectDatalinesByPattern(pattern)
-    def self.selectDatalinesByPattern(pattern)
-        NSDataLinePatternSearchLookup::selectDatalineUUIDsByPattern(pattern)
-            .map{|uuid| NSDataLine::getOrNull(uuid) }
-            .compact
-    end
-
-    # NSDataLineExtendedDataLookups::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        NSDataLineExtendedDataLookups::selectDatalinesByPattern(pattern)
-            .map{|dataline|
-                {
-                    "description"   => NSDataLine::toString(dataline),
-                    "referencetime" => dataline["unixtime"],
-                    "dive"          => lambda{ NSDataLine::landing(dataline) }
-                }
-            }
+        Arrows::getSourcesForTarget(dataline)
     end
 end

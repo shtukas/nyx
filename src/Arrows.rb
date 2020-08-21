@@ -160,3 +160,46 @@ class ArrowsInMemory
 end
 
 $ArrowsInMemory099be9e4 = ArrowsInMemory.new()
+
+class Arrows
+
+    # Arrows::issueOrException(source, target)
+    def self.issueOrException(source, target)
+        $ArrowsInMemory099be9e4.issueOrException(source, target)
+    end
+
+    # Arrows::destroy(sourceuuid, targetuuid)
+    def self.destroy(sourceuuid, targetuuid)
+        $ArrowsInMemory099be9e4.destroy(sourceuuid, targetuuid)
+    end
+
+    # Arrows::unlink(source, target)
+    def self.unlink(source, target)
+        $ArrowsInMemory099be9e4.unlink(source, target)
+    end
+
+    # Arrows::exists?(source, target)
+    def self.exists?(source, target)
+        $ArrowsInMemory099be9e4.exists?(source, target)
+    end
+
+    # Arrows::getTargetUUIDsForSource(source)
+    def self.getTargetUUIDsForSource(source)
+        $ArrowsInMemory099be9e4.getTargetUUIDsForSource(source)
+    end
+
+    # Arrows::getTargetsForSource(source)
+    def self.getTargetsForSource(source)
+        $ArrowsInMemory099be9e4.getTargetsForSource(source)
+    end
+
+    # Arrows::getSourceUUIDsForTarget(target)
+    def self.getSourceUUIDsForTarget(target)
+        $ArrowsInMemory099be9e4.getSourceUUIDsForTarget(target)
+    end
+
+    # Arrows::getSourcesForTarget(target)
+    def self.getSourcesForTarget(target)
+        $ArrowsInMemory099be9e4.getSourcesForTarget(target)
+    end
+end

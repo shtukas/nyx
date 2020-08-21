@@ -3,11 +3,35 @@
 
 class GeneralSearch
 
+    # GeneralSearch::searchNx1630Node(pattern)
+    def self.searchNx1630Node(pattern)
+        SelectionLookupDataset::patternToNodes(pattern)
+            .map{|node|
+                {
+                    "description"   => NSDataType1::toString(node),
+                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
+                    "dive"          => lambda{ NSDataType1::landing(node) }
+                }
+            }
+    end
+
+    # GeneralSearch::searchNx1630Dataline(pattern)
+    def self.searchNx1630Dataline(pattern)
+        SelectionLookupDataset::patternToDatalines(pattern)
+            .map{|dataline|
+                {
+                    "description"   => NSDataLine::toString(dataline),
+                    "referencetime" => dataline["unixtime"],
+                    "dive"          => lambda{ NSDataLine::landing(dataline) }
+                }
+            }
+    end
+
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            NSDataType1::searchNx1630(pattern),
-            NSDataLineExtendedDataLookups::searchNx1630(pattern),
+            GeneralSearch::searchNx1630Node(pattern),
+            GeneralSearch::searchNx1630Dataline(pattern),
             Waves::searchNx1630(pattern)
         ]
             .flatten
