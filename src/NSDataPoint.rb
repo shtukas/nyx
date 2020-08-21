@@ -191,13 +191,31 @@ class NSDataPoint
             return NSDataPoint::issueAionPoint(namedhash)
         end
         if type == "NyxPod" then
-            nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
-            return nil if nyxpodname.size == 0
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
+            return nil if op.nil?
+            if op == "podname already exists" then
+                nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
+                return nil if nyxpodname.size == 0
+            end
+            if op == "issue new podname" then
+                nyxpodname = "NyxPod-#{SecureRandom.uuid}"
+                puts "podname: #{nyxpodname}"
+                LucilleCore::pressEnterToContinue()
+            end
             return NSDataPoint::issueNyxPod(nyxpodname)
         end
         if type == "NyxFile" then
-            nyxfilename = LucilleCore::askQuestionAnswerAsString("nyxfile name: ")
-            return nil if nyxfilename.size == 0
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["nyxfilename already exists", "issue new nyxfilename"])
+            return nil if op.nil?
+            if op == "nyxfilename already exists" then
+                nyxfilename = LucilleCore::askQuestionAnswerAsString("nyxfile name: ")
+                return nil if nyxfilename.size == 0
+            end
+            if op == "issue new nyxfilename" then
+                nyxfilename = "NyxFile-#{SecureRandom.uuid}"
+                puts "nyxfilename: #{nyxfilename}"
+                LucilleCore::pressEnterToContinue()
+            end
             return NSDataPoint::issueNyxFile(nyxfilename)
         end
     end
