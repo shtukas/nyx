@@ -154,7 +154,7 @@ class NSDataType1
 
             description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
             if description then
-                puts "    description: #{description}".yellow
+                puts "    description: #{description}"
             end
             puts "    uuid: #{node["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}".yellow
