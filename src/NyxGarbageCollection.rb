@@ -20,25 +20,29 @@ class NyxGarbageCollection
         return
 
         NSDataTypeX::attributes().each{|attribute|
-            next if NyxObjects2::getOrNull(attribute["targetuuid"])
-            puts "removing attribute without a target: #{attribute}"
-            NyxObjects2::destroy(attribute)
+            if NyxObjects2::getOrNull(attribute["targetuuid"]).nil? then
+                puts "removing attribute without a target: #{attribute}"
+                NyxObjects2::destroy(attribute)
+            end
         }
 
         # remove datalines without parent: node or asteroid
 
         NSDataLine::datalines().each{|dataline|
-            next if NSDataLine::getDatalineParents(dataline).size > 0
-            puts "removing dataline without parents: #{dataline}"
-            NyxObjects2::destroy(dataline)
+            if NSDataLine::getDatalineParents(dataline).empty? then
+                puts "removing dataline without parents: #{dataline}"
+                NyxObjects2::destroy(dataline)
+            end
         }
         
 
         # remove datapoints with parent dataline
+
         NSDataPoint::datapoints().each{|datapoint|
-            next if NSDataPoint::getDataPointParents(datapoint).size > 0
-            puts "removing datapoint without parents: #{datapoint}"
-            NyxObjects2::destroy(datapoint)
+            if NSDataPoint::getDataPointParents(datapoint).empty? then
+                puts "removing datapoint without parents: #{datapoint}"
+                NyxObjects2::destroy(datapoint)
+            end
         }
 
     end
