@@ -38,7 +38,7 @@ class NSDT1SelectionInterface
                     # At this point another node could have been selected
                     xnode = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
                     if xnode then
-                        node = xnode
+                        node = JSON.parse(xnode)
                         KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
                     end
                 end
