@@ -411,7 +411,7 @@ class NSDataPoint
     def self.landing(datapoint)
         loop {
             menuitems = LCoreMenuItemsNX1.new()
-            puts NSDataPoint::toString(ns0)
+            puts NSDataPoint::toString(datapoint)
 
             menuitems.item(
                 "open",
