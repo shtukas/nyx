@@ -22,6 +22,11 @@ class SelectionLookupDatabaseIO
         db.close
     end
 
+    # SelectionLookupDatabaseIO::addRecord2(db, objecttype, objectuuid, fragment)
+    def self.addRecord2(db, objecttype, objectuuid, fragment)
+        db.execute "insert into lookup (_objecttype_, _objectuuid_, _fragment_) values ( ?, ?, ? )", [objecttype, objectuuid, fragment]
+    end
+
     # SelectionLookupDatabaseIO::updateLookupForNode(node)
     def self.updateLookupForNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
@@ -34,6 +39,20 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(dataline["uuid"])
         SelectionLookupDatabaseIO::addRecord("dataline", dataline["uuid"], dataline["uuid"])
         SelectionLookupDatabaseIO::addRecord("dataline", dataline["uuid"], NSDataLine::toString(dataline))
+    end
+
+    # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
+    def self.updateLookupForAsteroid(asteroid)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
+    end
+
+    # SelectionLookupDatabaseIO::updateLookupForWave(wave)
+    def self.updateLookupForWave(wave)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], wave["uuid"])
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave))
     end
 
     # SelectionLookupDatabaseIO::getDatabaseRecords(): Array[DatabaseRecord]
@@ -114,6 +133,20 @@ class SelectionLookupDatabaseInMemory
             .compact
             .select{|object| GenericObjectInterface::isDataline(object) }
     end
+
+    def patternToAsteroids(pattern)
+        patternToRecords(pattern)
+            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
+            .compact
+            .select{|object| GenericObjectInterface::isAsteroid(object) }
+    end
+
+    def patternToWaves(pattern)
+        patternToRecords(pattern)
+            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
+            .compact
+            .select{|object| object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" }
+    end
 end
 
 $SelectionLookupDatabaseInMemoryA22379F6 = SelectionLookupDatabaseInMemory.new()
@@ -132,36 +165,86 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
+    # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
+    def self.updateLookupForAsteroid(asteroid)
+        SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
+    end
+
     # SelectionLookupDataset::rebuildNodesLookup()
     def self.rebuildNodesLookup()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["node"]
-        db.close
 
         NSDataType1::objects()
             .each{|node|
                 puts "node: #{node["uuid"]}"
-                SelectionLookupDatabaseIO::updateLookupForNode(node)
+                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node))
             }
+
+        db.close
+
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildDalalinesLookup()
     def self.rebuildDalalinesLookup()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["dataline"]
-        db.close
 
         NSDataLine::datalines()
             .each{|dataline|
                 puts "dataline: #{dataline["uuid"]}"
-                SelectionLookupDataset::updateLookupForDataline(dataline)
+                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], dataline["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], NSDataLine::toString(dataline))
             }
+
+        db.close
+
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
+    end
+
+    # SelectionLookupDataset::rebuildAsteroidsLookup()
+    def self.rebuildAsteroidsLookup()
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["asteroid"]
+
+        Asteroids::asteroids()
+            .each{|asteroid|
+                puts "asteroid: #{asteroid["uuid"]}"
+                SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], asteroid["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
+            }
+
+        db.close
+
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
+    end
+
+    # SelectionLookupDataset::rebuildWavesLookup()
+    def self.rebuildWavesLookup()
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["wave"]
+
+        Waves::waves()
+            .each{|wave|
+                puts "wave: #{wave["uuid"]}"
+                SelectionLookupDatabaseIO::addRecord2(db, "wave", wave["uuid"], wave["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "wave", wave["uuid"], Waves::toString(wave))
+            }
+
+        db.close
+
+        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildDataset()
     def self.rebuildDataset()
         SelectionLookupDataset::rebuildNodesLookup()
         SelectionLookupDataset::rebuildDalalinesLookup()
+        SelectionLookupDataset::rebuildAsteroidsLookup()
+        SelectionLookupDataset::rebuildWavesLookup()
     end
 
     # SelectionLookupDataset::patternToNodes(pattern)
@@ -172,5 +255,15 @@ class SelectionLookupDataset
     # SelectionLookupDataset::patternToDatalines(pattern)
     def self.patternToDatalines(pattern)
         $SelectionLookupDatabaseInMemoryA22379F6.patternToDatalines(pattern)
+    end
+
+    # SelectionLookupDataset::patternToAsteroids(pattern)
+    def self.patternToAsteroids(pattern)
+        $SelectionLookupDatabaseInMemoryA22379F6.patternToAsteroids(pattern)
+    end
+
+    # SelectionLookupDataset::patternToWaves(pattern)
+    def self.patternToWaves(pattern)
+        $SelectionLookupDatabaseInMemoryA22379F6.patternToWaves(pattern)
     end
 end

@@ -832,6 +832,9 @@ class Asteroids
             break if !status
 
         }
+
+        SelectionLookupDataset::updateLookupForAsteroid(asteroid)
+
     end
 
     # Asteroids::main()

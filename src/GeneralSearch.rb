@@ -27,12 +27,37 @@ class GeneralSearch
             }
     end
 
+    # GeneralSearch::searchNx1630Asteroid(pattern)
+    def self.searchNx1630Asteroid(pattern)
+        SelectionLookupDataset::patternToAsteroids(pattern)
+            .map{|asteroid|
+                {
+                    "description"   => Asteroids::toString(asteroid),
+                    "referencetime" => asteroid["unixtime"],
+                    "dive"          => lambda{ Asteroids::landing(asteroid) }
+                }
+            }
+    end
+
+    # GeneralSearch::searchNx1630Wave(pattern)
+    def self.searchNx1630Wave(pattern)
+        SelectionLookupDataset::patternToWaves(pattern)
+            .map{|wave|
+                {
+                    "description"   => Waves::toString(wave),
+                    "referencetime" => wave["unixtime"],
+                    "dive"          => lambda { Waves::waveDive(wave) }
+                }
+            }
+    end
+
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Node(pattern),
             GeneralSearch::searchNx1630Dataline(pattern),
-            Waves::searchNx1630(pattern)
+            GeneralSearch::searchNx1630Asteroid(pattern),
+            GeneralSearch::searchNx1630Wave(pattern)
         ]
             .flatten
             .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }

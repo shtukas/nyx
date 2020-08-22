@@ -74,7 +74,7 @@ class NSDataType1
                 Arrows::issueOrException(node, ns1)
             end
         end
-        SelectionLookupDataset::updateLookupForNode(node)
+        NSDataType1::nodeMetadataSpecialOps(node)
         node
     end
 

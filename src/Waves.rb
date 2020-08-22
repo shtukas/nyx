@@ -220,8 +220,8 @@ class Waves
         NyxObjects2::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
-    # Waves::waveToString(wave)
-    def self.waveToString(wave)
+    # Waves::toString(wave)
+    def self.toString(wave)
         "[wave] #{wave["description"]}"
     end
 
@@ -258,24 +258,9 @@ class Waves
         end
     end
 
-    # Waves::searchNx1630(pattern)
-    def self.searchNx1630(pattern)
-        Waves::waves()
-            .select{|wave|
-                wave["description"].downcase.include?(pattern.downcase)
-            }
-            .map{|wave|
-                {
-                    "description"   => "[wave] #{wave["description"]}",
-                    "referencetime" => wave["unixtime"],
-                    "dive"          => lambda { Waves::waveDive(wave) }
-                }
-            }
-    end
-
     # Waves::selectWaveOrNull()
     def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::waveToString(wave) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::toString(wave) })
     end
 
     # Waves::waveDive(wave)
@@ -283,7 +268,7 @@ class Waves
         loop {
             system("clear")
             return if NyxObjects2::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
-            puts Waves::waveToString(wave)
+            puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
