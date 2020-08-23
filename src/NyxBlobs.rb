@@ -5,21 +5,6 @@ class NyxBlobs
     # -----------------------------------------------
     # Private
 
-    # NyxBlobs::legacyBlobFilepath(namedhash)
-    def self.legacyBlobFilepath(namedhash)
-        if namedhash.start_with?("SHA256-") then
-            ns01 = namedhash[7, 2]
-            ns02 = namedhash[9, 2]
-            ns03 = namedhash[11, 2]
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-Blobs/#{ns01}/#{ns02}/#{ns03}/#{namedhash}.data"
-            if !File.exists?(File.dirname(filepath)) then
-                FileUtils.mkpath(File.dirname(filepath))
-            end
-            return filepath
-        end
-        raise "[NyxPrimaryStoreUtils: a9c49293-497f-4371-98a5-6d71a7f1ba80]"
-    end
-
     # -----------------------------------------------
     # Months Logic
 
@@ -76,7 +61,6 @@ class NyxBlobs
 
     # NyxBlobs::deleteLegacyFiles(namedhash)
     def self.deleteLegacyFiles(namedhash)
-        NyxBlobs::deleteFiles( [NyxBlobs::legacyBlobFilepath(namedhash)] )
         NyxBlobs::deleteFiles( NyxBlobs::getPastMonthsFilepaths(namedhash) )
     end
 
@@ -96,19 +80,6 @@ class NyxBlobs
 
     # NyxBlobs::getBlobOrNull(namedhash)
     def self.getBlobOrNull(namedhash)
-
-        filepath = NyxBlobs::legacyBlobFilepath(namedhash)
-        if File.exists?(filepath) then
-            blob = IO.read(filepath)
-            namedhash2 = NyxBlobs::put(blob)
-            if namedhash2 != namedhash then
-                puts "filepath: #{filepath}"
-                puts "namedhash: #{namedhash}"
-                raise "[serious error: 703bdfcd-56c0-4d25-adaa-adef51d3b121]"
-            end
-            NyxBlobs::deleteLegacyFiles(namedhash)
-            return blob
-        end
 
         NyxBlobs::getPastMonthsFilepaths(namedhash).each{|filepath|
             if File.exists?(filepath) then
