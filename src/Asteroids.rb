@@ -783,7 +783,7 @@ class Asteroids
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
                     menuitems.item(
-                        GenericObjectInterface::toString(object).yellow,
+                        GenericObjectInterface::toString(object),
                         lambda { GenericObjectInterface::landing(object) }
                     )
                 }
