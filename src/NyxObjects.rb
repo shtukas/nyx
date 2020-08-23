@@ -18,22 +18,24 @@ end
 
 NyxObjectsDionysus1Filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Objects.sqlite3"
 
+$NyxObjectsCache76DBF964 = {}
+NyxObjectsCore::nyxNxSets().each{|setid|
+    Dionysus1::sets_getObjects(NyxObjectsDionysus1Filepath, setid).each{|object|
+        $NyxObjectsCache76DBF964[object["uuid"]] = object
+    }
+}
+
 class NyxObjects2
 
     # NyxObjects2::put(object)
     def self.put(object)
         Dionysus1::sets_putObject(NyxObjectsDionysus1Filepath, object["nyxNxSet"], object["uuid"], object)
+        $NyxObjectsCache76DBF964[object["uuid"]] = object
     end
 
     # NyxObjects2::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjectsCore::nyxNxSets().each{|setid|
-            object = Dionysus1::sets_getObjectOrNull(NyxObjectsDionysus1Filepath, setid, uuid)
-            if object then
-                return object
-            end
-        }
-        nil
+        $NyxObjectsCache76DBF964[uuid]
     end
 
     # NyxObjects2::getSet(setid)
@@ -46,5 +48,6 @@ class NyxObjects2
         NyxObjectsCore::nyxNxSets().each{|setid|
             Dionysus1::sets_destroy(NyxObjectsDionysus1Filepath, setid, object["uuid"])
         }
+        $NyxObjectsCache76DBF964.delete(object["uuid"])
     end
 end

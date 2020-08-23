@@ -4,8 +4,6 @@ class NyxGarbageCollection
 
     # NyxGarbageCollection::run()
     def self.run()
-        
-        puts "NyxGarbageCollection::run()"
 
         ArrowsDatabaseIO::arrows().each{|arrow|
             b1 = NyxObjects2::getOrNull(arrow["sourceuuid"]).nil?

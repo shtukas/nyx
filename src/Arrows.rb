@@ -112,6 +112,40 @@ end
 class ArrowsInMemory
     def initialize()
         @arrows = ArrowsDatabaseIO::arrows()
+        @objectToTargets = {}
+        @objectToSources = {}
+        @arrows.each{|arrow|
+            sourceuuid = arrow["sourceuuid"]
+            targetuuid = arrow["targetuuid"]
+            ensureTargetForSource(sourceuuid, targetuuid)
+            ensureSourceForTarget(sourceuuid, targetuuid)
+        }
+    end
+
+    def ensureTargetForSource(sourceuuid, targetuuid)
+        if @objectToTargets[sourceuuid].nil? then
+            @objectToTargets[sourceuuid] = [targetuuid]
+        else
+            @objectToTargets[sourceuuid] << targetuuid
+        end
+    end
+
+    def removeTargetForSource(sourceuuid, targetuuid)
+        retrn if @objectToTargets[sourceuuid].nil? 
+        @objectToTargets[sourceuuid].delete(targetuuid)
+    end
+
+    def ensureSourceForTarget(sourceuuid, targetuuid)
+        if @objectToSources[targetuuid].nil? then
+            @objectToSources[targetuuid] = [sourceuuid]
+        else
+            @objectToSources[targetuuid] << sourceuuid
+        end
+    end
+
+    def removeSourceForTarget(sourceuuid, targetuuid)
+        return if @objectToSources[targetuuid].nil? 
+        @objectToSources[targetuuid].delete(sourceuuid)
     end
 
     def issueOrException(source, target)
@@ -120,12 +154,16 @@ class ArrowsInMemory
             "sourceuuid" => source["uuid"],
             "targetuuid" => target["uuid"]
         }
+        ensureTargetForSource(source["uuid"], target["uuid"])
+        ensureSourceForTarget(source["uuid"], target["uuid"])
     end
 
     def destroy(sourceuuid, targetuuid)
         ArrowsDatabaseIO::destroy(sourceuuid, targetuuid)
         @arrows = @arrows
                     .reject{|arrow| (arrow["sourceuuid"] == sourceuuid) and (arrow["targetuuid"] == targetuuid) }
+        removeTargetForSource(sourceuuid, targetuuid)
+        removeSourceForTarget(sourceuuid, targetuuid)
     end
 
     def unlink(source, target)
@@ -137,10 +175,7 @@ class ArrowsInMemory
     end
 
     def getTargetUUIDsForSource(source)
-        @arrows
-            .select{|arrow| arrow["sourceuuid"] == source["uuid"] }
-            .map{|arrow| arrow["targetuuid"] }
-            .uniq
+        (@objectToTargets[source["uuid"]] || []).uniq
     end
 
     def getTargetsForSource(source)
@@ -148,10 +183,7 @@ class ArrowsInMemory
     end
 
     def getSourceUUIDsForTarget(target)
-        @arrows
-            .select{|arrow| arrow["targetuuid"] == target["uuid"] }
-            .map{|arrow| arrow["sourceuuid"] }
-            .uniq
+        (@objectToSources[target["uuid"]] || []).uniq
     end
 
     def getSourcesForTarget(target)
