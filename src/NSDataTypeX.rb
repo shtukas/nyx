@@ -89,6 +89,10 @@ class NSDataTypeXExtended
         attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8")
         return nil if attribute.nil?
         namedhash = attribute["payload"]
-        NyxBlobs::getBlobOrNull(namedhash)
+        text = NyxBlobs::getBlobOrNull(namedhash)
+        if text.nil? then
+            raise "436e21ad-9a82-419f-84b6-d43ce868a6eb"
+        end
+        text
     end
 end

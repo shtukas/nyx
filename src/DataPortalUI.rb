@@ -193,9 +193,15 @@ class DataPortalUI
             )
 
             ms.item(
-                "NyxFileSystemCheck",
+                "NyxFsck::main(runhash)",
                 lambda {
-                    NyxFsck::main()
+                    runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
+                    if runhash == "" then
+                        runhash = SecureRandom.hex
+                    end
+                    NyxFsck::main(runhash)
+                    puts "NyxFsck::main(#{runhash}) completed"
+                    LucilleCore::pressEnterToContinue()
                 }
             )
 

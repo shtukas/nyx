@@ -328,7 +328,10 @@ class NSDataPoint
         end
         if datapoint["type"] == "text" then
             namedhash = datapoint["namedhash"]
-            text = NyxBlobs::getBlobOrNull(namedhash) # The code is currently written with the assumption that this always succeed.
+            text = NyxBlobs::getBlobOrNull(namedhash)
+            if text.nil? then
+                raise "1b1d1c8b-17c7-445f-b906-0573e5da0b05"
+            end
             filename = "#{Miscellaneous::l22()}.txt"
             filepath = "/tmp/#{filename}"
             File.open(filepath, "w"){|f| f.puts(text) }
@@ -343,6 +346,9 @@ class NSDataPoint
         if datapoint["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
             namedhash = datapoint["namedhash"]
             data = NyxBlobs::getBlobOrNull(namedhash)
+            if data.nil? then
+                raise "2931748c-9a22-4e03-9673-9a3320bb5da6"
+            end
             filename = "#{namedhash}#{datapoint["extensionWithDot"]}"
             filepath = "/tmp/#{filename}"
             File.open(filepath, "w"){|f| f.write(data) }

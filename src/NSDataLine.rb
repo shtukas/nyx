@@ -127,12 +127,13 @@ class NSDataLine
             }
 
             Miscellaneous::horizontalRule()
-
             puts "[dataline]".yellow
 
-            ordinal1 = menuitems.ordinal(lambda{ GenericObjectInterface::accessopen(dataline) })
-            ordinal2 = menuitems.ordinal(lambda{ GenericObjectInterface::landing(dataline) })
-            puts "[#{ordinal1}: open] [#{ordinal2}: landing] #{GenericObjectInterface::toString(dataline)}"
+            datapoint = NSDataLine::getDatalineLastDataPointOrNull(dataline)
+            menuitems.item(
+                "access/open: #{GenericObjectInterface::toString(datapoint)}",
+                lambda { GenericObjectInterface::accessopen(datapoint) }
+            )
 
             puts ""
 
@@ -153,6 +154,26 @@ class NSDataLine
                     n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
                     Arrows::issueOrException(n, dataline)
+                }
+            )
+
+            menuitems.item(
+                "access dataline points".yellow,
+                lambda{ 
+                    loop {
+                        system("clear")
+                        ms = LCoreMenuItemsNX1.new()
+                        targets = Arrows::getTargetsForSource(dataline)
+                        targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+                        targets.each{|target|
+                            ms.item(
+                                GenericObjectInterface::toString(target),
+                                lambda{ GenericObjectInterface::landing(target) }
+                            )
+                        }
+                        status = ms.promptAndRunSandbox()
+                        break if !status
+                    }
                 }
             )
 

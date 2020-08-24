@@ -22,7 +22,10 @@ class LibrarianElizabeth
 
     def readBlobErrorIfNotFound(nhash)
         blob = NyxBlobs::getBlobOrNull(nhash)
-        raise "[LibrarianElizabeth error: fc1dd1aa]" if blob.nil?
+        if blob.nil? then
+            puts "Error extracting blob: #{nhash}"
+            raise "[LibrarianElizabeth error: fc1dd1aa]" 
+        end
         blob
     end
 
@@ -91,5 +94,10 @@ class LibrarianOperator
         value = LibrarianOperator::getNumberOfFilesOfANamedHashUseTheForce(namedHash)
         KeyValueStore::set(nil, cacheKey, value)
         value
+    end
+
+    # LibrarianOperator::fsckNamedHash(nhash)
+    def self.fsckNamedHash(nhash)
+        AionFsck::structureCheckAionHash(LibrarianElizabeth.new(), nhash)
     end
 end

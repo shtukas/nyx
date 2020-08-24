@@ -11,7 +11,7 @@ class NyxFsck
         if datapoint["type"] == "aion-point" then
             nhash = datapoint["namedhash"]
             puts "Fsck aion-point / namedhash: #{nhash}"
-            status = LibrarianElizabeth.new().datablobCheck(nhash)
+            status = LibrarianOperator::fsckNamedHash(nhash)
             if !status then
                 puts "Failing to fsck aion-point / namedhash: #{nhash}"
                 raise "[error: 9bda75e4-b449-4547-9ae5-82fa9573fd5b]"
@@ -74,8 +74,8 @@ class NyxFsck
         raise "[error: 10e5efff-380d-4eaa-bf6d-83bf6c1016d5]"
     end
 
-    # NyxFsck::processObject(object)
-    def self.processObject(object)
+    # NyxFsck::processObject(object, runhash)
+    def self.processObject(object, runhash)
 
         if object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398" then
             # Asteroid
@@ -84,19 +84,6 @@ class NyxFsck
 
         if object["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d" then
             # NSDataLine
-
-            return if Arrows::getSourcesForTarget(object).any?{|source| GenericObjectInterface::isAsteroid(source) }
-
-            Arrows::getTargetsForSource(object).each{|target|
-                if target["nyxNxSet"] != "0f555c97-3843-4dfe-80c8-714d837eba69" then
-                    puts JSON.pretty_generate(object)
-                    puts JSON.pretty_generate(target)
-                    raise "[error: 17018fa0-fbc8-44f0-ab1f-4c20c86f3980]"
-                end
-                next if KeyValueStore::flagIsTrue(nil, "270c3b35-1107-43e2-beb1-478df699089f:#{target["uuid"]}:#{Miscellaneous::today()}")
-                NyxFsck::processDatapoint(target)
-                KeyValueStore::setFlagTrue(nil, "270c3b35-1107-43e2-beb1-478df699089f:#{target["uuid"]}:#{Miscellaneous::today()}")
-            }
             return
         end
 
@@ -107,7 +94,7 @@ class NyxFsck
 
         if object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" then
             # Datapoint
-            # We do not Fsck datapoints directly, only those targetted by Datalines
+            NyxFsck::processDatapoint(object)
             return
         end
 
@@ -125,14 +112,14 @@ class NyxFsck
         raise "[error: eed35593-c378-4715-bbb7-5cbefbcd47ce]"
     end
 
-    # NyxFsck::main()
-    def self.main()
+    # NyxFsck::main(runhash)
+    def self.main(runhash)
         NyxObjectsCore::nyxNxSets().each{|setid|
             NyxObjects2::getSet(setid).each{|object|
-                next if KeyValueStore::flagIsTrue(nil, "88bfc431-aae9-474b-8acf-356200d36cda:#{object["uuid"]}:#{Miscellaneous::today()}")
+                next if KeyValueStore::flagIsTrue(nil, "#{runhash}:#{object["uuid"]}")
                 puts "fsck object: #{object["uuid"]}"
-                NyxFsck::processObject(object)
-                KeyValueStore::setFlagTrue(nil, "88bfc431-aae9-474b-8acf-356200d36cda:#{object["uuid"]}:#{Miscellaneous::today()}")
+                NyxFsck::processObject(object, runhash)
+                KeyValueStore::setFlagTrue(nil, "#{runhash}:#{object["uuid"]}")
             }
         }
     end

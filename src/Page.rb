@@ -33,7 +33,11 @@ class Page
     def self.getMostRecentTextForIdOrNull(textid)
         texts = Page::getPageForIdOrderedByTime(textid)
         return nil if texts.empty?
-        NyxBlobs::getBlobOrNull(texts.last["namedhash"])
+        text = NyxBlobs::getBlobOrNull(texts.last["namedhash"])
+        if text.nil? then
+            raise "d6aee333-ec8a-48c7-b2ab-63e9a2d5ec97"
+        end
+        text
     end
 
     # Page::issueNewTextWithNewId()
