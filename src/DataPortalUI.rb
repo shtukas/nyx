@@ -188,9 +188,17 @@ class DataPortalUI
             )
 
             ms.item(
-                "NyxGarbageCollection::run()", 
+                "NyxGarbageCollection::run()",
                 lambda { NyxGarbageCollection::run() }
             )
+
+            ms.item(
+                "NyxFileSystemCheck",
+                lambda {
+                    NyxFsck::main()
+                }
+            )
+
 
             ms.item(
                 "Archive timeline garbage collection", 
