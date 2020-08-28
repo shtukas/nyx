@@ -5,7 +5,7 @@ class VideoStream
 
     # VideoStream::spaceFolderpath()
     def self.spaceFolderpath()
-        "/Users/pascal/Galaxy/Open-Projects/YouTube Videos"
+        "/Users/pascal/Galaxy/VideoStream"
     end
 
     # VideoStream::videoFolderpathsAtFolder(folderpath)
