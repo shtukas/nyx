@@ -123,8 +123,8 @@ class Asteroids
         nil
     end
 
-    # Asteroids::issueAsteroidInteractivelyOrNull()
-    def self.issueAsteroidInteractivelyOrNull()
+    # Asteroids::issuePlainAsteroidInteractivelyOrNull()
+    def self.issuePlainAsteroidInteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
         return nil if (description == "")
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
@@ -137,6 +137,23 @@ class Asteroids
         }
         Asteroids::commitToDisk(asteroid)
         NSDataTypeXExtended::issueDescriptionForTarget(asteroid, description)
+        asteroid
+    end
+
+    # Asteroids::issueDatalineAndAsteroidInteractivelyOrNull()
+    def self.issueDatalineAndAsteroidInteractivelyOrNull()
+        dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
+        return if dataline.nil?
+        orbital = Asteroids::makeOrbitalInteractivelyOrNull()
+        return nil if orbital.nil?
+        asteroid = {
+            "uuid"     => SecureRandom.hex,
+            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime" => Time.new.to_f,
+            "orbital"  => orbital
+        }
+        Asteroids::commitToDisk(asteroid)
+        Arrows::issueOrException(asteroid, dataline)
         asteroid
     end
 
@@ -848,7 +865,7 @@ class Asteroids
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "make new asteroid" then
-                asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
+                asteroid = Asteroids::issuePlainAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
                 Asteroids::landing(asteroid)

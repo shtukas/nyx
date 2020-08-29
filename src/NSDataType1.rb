@@ -24,11 +24,13 @@ class NSDataType1
         NyxObjects2::getOrNull(uuid)
     end
 
-    # NSDataType1::toString(node)
-    def self.toString(node)
+    # NSDataType1::toString(node, useCachedValue = true)
+    def self.toString(node, useCachedValue = true)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
-        str = KeyValueStore::getOrNull(nil, cacheKey)
-        return str if str
+        if useCachedValue then
+            str = KeyValueStore::getOrNull(nil, cacheKey)
+            return str if str
+        end
         objects = Arrows::getTargetsForSource(node)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
         if description then

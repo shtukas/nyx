@@ -24,11 +24,13 @@ class NSDataLine
         NyxObjects2::getSet("d319513e-1582-4c78-a4c4-bf3d72fb5b2d")
     end
 
-    # NSDataLine::toString(dataline)
-    def self.toString(dataline)
+    # NSDataLine::toString(dataline, useCachedValue = true)
+    def self.toString(dataline, useCachedValue = true)
         cacheKey = "a4f97e52-ce86-45ba-8f27-37c06c085d5b:#{dataline["uuid"]}"
-        str = KeyValueStore::getOrNull(nil, cacheKey)
-        return str if str
+        if useCachedValue then
+            str = KeyValueStore::getOrNull(nil, cacheKey)
+            return str if str
+        end
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description and datapoints.size > 0 then

@@ -214,8 +214,12 @@ class CatalystUI
         if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(
-                "asteroid",
-                lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
+                "asteroid (line)",
+                lambda { Asteroids::issuePlainAsteroidInteractivelyOrNull() }
+            )
+            ms.item(
+                "asteroid (general)",
+                lambda { Asteroids::issueDatalineAndAsteroidInteractivelyOrNull() }
             )
             ms.item(
                 "wave",

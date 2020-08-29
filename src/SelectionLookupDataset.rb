@@ -180,7 +180,7 @@ class SelectionLookupDataset
             .each{|node|
                 puts "node: #{node["uuid"]}"
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node, false))
             }
 
         db.close
@@ -188,8 +188,8 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildDalalinesLookup()
-    def self.rebuildDalalinesLookup()
+    # SelectionLookupDataset::rebuildDatalinesLookup()
+    def self.rebuildDatalinesLookup()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["dataline"]
 
@@ -197,7 +197,7 @@ class SelectionLookupDataset
             .each{|dataline|
                 puts "dataline: #{dataline["uuid"]}"
                 SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], dataline["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], NSDataLine::toString(dataline))
+                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], NSDataLine::toString(dataline, false))
             }
 
         db.close
@@ -242,7 +242,7 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildDataset()
     def self.rebuildDataset()
         SelectionLookupDataset::rebuildNodesLookup()
-        SelectionLookupDataset::rebuildDalalinesLookup()
+        SelectionLookupDataset::rebuildDatalinesLookup()
         SelectionLookupDataset::rebuildAsteroidsLookup()
         SelectionLookupDataset::rebuildWavesLookup()
     end

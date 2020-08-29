@@ -369,12 +369,11 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            nyxfilename = ns0["name"]
+            nyxfilename = datapoint["name"]
             location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxfilename)
             if location then
                 puts "filepath: #{location}"
-                puts "opening parent folder"
-                system("open '#{File.dirname(location)}'")
+                system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
             else
                 puts "I could not determine the location of #{nyxfilename}"
