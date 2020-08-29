@@ -130,20 +130,6 @@ class NSDataPoint
         end
     end
 
-    # NSDataPoint::extractADescriptionFromAionPointOrNull(point)
-    def self.extractADescriptionFromAionPointOrNull(point)
-        if point["aionType"] == "file" then
-            return point["name"]
-        end
-        if point["aionType"] == "directory" then
-            return nil if point["items"].size != 0
-            return nil if point["items"].size == 0
-            aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(point["items"][0]))
-            return NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint)
-        end
-        return "[unknown aion point]"
-    end
-
     # NSDataPoint::toStringUseTheForce(ns0, showType: boolean)
     def self.toStringUseTheForce(ns0, showType)
         if ns0["type"] == "line" then

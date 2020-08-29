@@ -28,5 +28,5 @@ NSDataTypeX (attributes)
     "targetuuid"     : String
     "typeIdentifier" : "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8"
                        Note
-    "payload"        : NamedHash
+    "payload"        : String # main part of the text filename
 }

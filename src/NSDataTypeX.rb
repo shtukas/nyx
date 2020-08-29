@@ -80,19 +80,23 @@ class NSDataTypeXExtended
 
     # NSDataTypeXExtended::issueNoteForTarget(target, text)
     def self.issueNoteForTarget(target, text)
-        namedhash = NyxBlobs::put(text)
-        NSDataTypeX::issue(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8", namedhash)
+        prefix = SecureRandom.hex
+        filename = "#{prefix}.txt"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/NSDataTypeX-e55d3bcd-f193-42ac-a7b7-4b9fc31527c8/#{filename}"
+        File.open(filepath, "w"){|f| f.puts(text) }
+        NSDataTypeX::issue(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8", prefix)
     end
 
     # NSDataTypeXExtended::getLastNoteTextForTargetOrNull(target)
     def self.getLastNoteTextForTargetOrNull(target)
         attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "e55d3bcd-f193-42ac-a7b7-4b9fc31527c8")
         return nil if attribute.nil?
-        namedhash = attribute["payload"]
-        text = NyxBlobs::getBlobOrNull(namedhash)
-        if text.nil? then
+        prefix = attribute["payload"]
+        filename = "#{prefix}.txt"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/NSDataTypeX-e55d3bcd-f193-42ac-a7b7-4b9fc31527c8/#{filename}"
+        if !File.exists?(filepath) then
             raise "436e21ad-9a82-419f-84b6-d43ce868a6eb"
         end
-        text
+        IO.read(filepath)
     end
 end

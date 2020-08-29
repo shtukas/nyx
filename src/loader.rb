@@ -154,12 +154,10 @@ require_relative "NSDataLine.rb"
 require_relative "NSDataPoint.rb"
 require_relative "NSDataType1.rb"
 require_relative "NSDataTypeX.rb"
-require_relative "NyxBlobs.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 
-require_relative "Page.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Runner.rb"
