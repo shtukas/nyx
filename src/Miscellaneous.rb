@@ -229,13 +229,16 @@ class Miscellaneous
                 next
             end
 
-            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            datapoint = NSDataPoint::issueAionPoint(namedhash)
+            nyxPodFoldername = "NyxPod-#{SecureRandom.uuid}"
+            nyxPodFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-NyxPods/#{nyxPodFoldername}"
+            FileUtils.mkdir(nyxPodFolderpath)
+            FileUtils.mv(location, nyxPodFolderpath)
+            datapoint = NSDataPoint::issueNyxPod(nyxPodFoldername)
             dataline = NSDataLine::issue()
             Arrows::issueOrException(dataline, datapoint)
+            NSDataLine::datalineMetadataSpecialOps(dataline)
             asteroid = Asteroids::issueAsteroidInboxFromDataline(dataline)
             puts JSON.pretty_generate(asteroid)
-            LucilleCore::removeFileSystemLocation(location)
         end
     end
 
