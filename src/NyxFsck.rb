@@ -8,14 +8,7 @@ class NyxFsck
 
         puts "fsck datapoint: #{datapoint["uuid"]}"
 
-        if datapoint["type"] == "aion-point" then
-            nhash = datapoint["namedhash"]
-            puts "Fsck aion-point / namedhash: #{nhash}"
-            status = LibrarianOperator::fsckNamedHash(nhash)
-            if !status then
-                puts "Failing to fsck aion-point / namedhash: #{nhash}"
-                raise "[error: 9bda75e4-b449-4547-9ae5-82fa9573fd5b]"
-            end
+        if datapoint["type"] == "line" then
             return
         end
 
@@ -36,7 +29,6 @@ class NyxFsck
         end
 
         if datapoint["type"] == "NyxPod" then
-
             nyxpodname = datapoint["name"]
             puts "Finding #{nyxpodname}"
             location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxpodname)
@@ -44,28 +36,6 @@ class NyxFsck
                 puts "Failing to find: #{nyxpodname}"
                 puts JSON.pretty_generate(datapoint)
                 raise "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
-            end
-            return
-        end
-
-        if datapoint["type"] == "line" then
-            return
-        end
-
-        if datapoint["type"] == "text" then
-            namedhash = datapoint["namedhash"]
-            text = NyxBlobs::getBlobOrNull(namedhash)
-            if text.nil? then
-                raise "[error: f206f1a5-598d-41d1-898b-f161487b7b28]"
-            end
-            return
-        end
-
-        if datapoint["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            namedhash = datapoint["namedhash"]
-            data = NyxBlobs::getBlobOrNull(namedhash)
-            if data.nil? then
-                raise "[error: e3cf6f0a-8cac-4845-a030-83f731c9088d]"
             end
             return
         end

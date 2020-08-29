@@ -49,62 +49,9 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueText(text)
-    def self.issueText(text)
-        namedhash = NyxBlobs::put(text)
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "text",
-            "namedhash"  => namedhash
-        }
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSDataPoint::typeA02CB78ERegularExtensions()
     def self.typeA02CB78ERegularExtensions()
         [".jpg", ".jpeg", ".png", ".pdf"]
-    end
-
-    # NSDataPoint::issueTypeA02CB78E(filepath)
-    def self.issueTypeA02CB78E(filepath)
-        raise "[error: 060bc858-c5ff-4e23-bbbf-5e0e81911476]" if !File.exists?(filepath)
-        extensionWithDot = File.extname(filepath).downcase
-        raise "[error: 8f3fe3ad-2073-4f28-a75b-1df882ea59be]" if extensionWithDot.size == 0
-        namedhash = NyxBlobs::put(IO.read(filepath))
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1",
-            "extensionWithDot" => extensionWithDot,
-            "namedhash"  => namedhash
-        }
-        #{
-        #    "uuid" => "6f29d4e3-dc55-4ed4-91db-ecadcc400a74", 
-        #    "nyxNxSet" => "0f555c97-3843-4dfe-80c8-714d837eba69", 
-        #    "unixtime" => 1595751407.256643, 
-        #    "type" => "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1", 
-        #    "extensionWithDot" => ".png", 
-        #    "namedhash" => "SHA256-f0c8fc5c14372e502a0412b3d3a7d87af53ffd5571ab1d0121f6eddb6e0188b6"
-        #}
-        NyxObjects2::put(object)
-        object
-    end
-
-    # NSDataPoint::issueAionPoint(namedhash)
-    def self.issueAionPoint(namedhash)
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "aion-point",
-            "namedhash"  => namedhash
-        }
-        NyxObjects2::put(object)
-        object
     end
 
     # NSDataPoint::issueNyxPod(nyxPodName)
@@ -135,30 +82,7 @@ class NSDataPoint
 
     # NSDataPoint::getNSDataPointTypes()
     def self.getNSDataPointTypes()
-        ["line", "url", "text", "picture(+)", "fs-location aion-point", "NyxFile", "NyxPod"]
-    end
-
-    # NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
-    def self.issueTypeA02CB78EInteractivelyOrNull()
-        filepath = NSDataPoint::selectOneLocationOnTheDesktopOrNull()
-        return nil if filepath.nil?
-        extension = File.extname(filepath).downcase
-        if extension == "" then
-            puts "I could not determine an extension for this file. Aborting."
-            LucilleCore::pressEnterToContinue()
-            return nil
-        end
-        if !NSDataPoint::typeA02CB78ERegularExtensions().include?(extension) then
-            puts "I can see that the extension of this file is not... registered."
-            status = LucilleCore::askQuestionAnswerAsBoolean("Continue ? : ")
-            if status then
-                puts "Very well, but feel free to patch the code to regiter: #{extension}"
-                LucilleCore::pressEnterToContinue()
-            else
-                return nil
-            end
-        end
-        return NSDataPoint::issueTypeA02CB78E(filepath)
+        ["line", "url", "NyxFile", "NyxPod"]
     end
 
     # NSDataPoint::issueNewPointInteractivelyOrNull()
@@ -175,20 +99,6 @@ class NSDataPoint
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
             return NSDataPoint::issueUrl(url)
-        end
-        if type == "text" then
-            text = Miscellaneous::editTextSynchronously("").strip
-            return nil if text.size == 0
-            return NSDataPoint::issueText(text)
-        end
-        if type == "picture(+)" then
-            return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
-        end
-        if type == "fs-location aion-point" then
-            location = NSDataPoint::selectOneLocationOnTheDesktopOrNull()
-            return nil if location.nil?
-            namedhash = LibrarianOperator::commitLocationDataAndReturnNamedHash(location)
-            return NSDataPoint::issueAionPoint(namedhash)
         end
         if type == "NyxPod" then
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
@@ -241,21 +151,6 @@ class NSDataPoint
         end
         if ns0["type"] == "url" then
             return "#{(showType ? "[datapoint] " : "")}#{ns0["url"]}"
-        end
-        if ns0["type"] == "text" then
-            namedhashToFirstLine = lambda {|namedhash|
-                text = NyxBlobs::getBlobOrNull(namedhash).strip
-                line = text.size>0 ? "#{(showType ? "[datapoint] " : "")}[text] #{text.lines.first.strip}" : "#{(showType ? "[datapoint] " : "")}[text] {empty}"
-            }
-            return "#{namedhashToFirstLine.call(ns0["namedhash"])}"
-        end
-        if ns0["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            return "#{(showType ? "[datapoint] " : "")}[file] #{ns0["extensionWithDot"]}"
-        end
-        if ns0["type"] == "aion-point" then
-            aionpoint = JSON.parse(NyxBlobs::getBlobOrNull(ns0["namedhash"]))
-            description = NSDataPoint::extractADescriptionFromAionPointOrNull(aionpoint) || ns0["namedhash"]
-            return "#{(showType ? "[datapoint] " : "")}[aion tree] #{description}"
         end
         if ns0["type"] == "NyxFile" then
             return "#{(showType ? "[datapoint] " : "")}NyxFile: #{ns0["name"]}"
@@ -324,48 +219,6 @@ class NSDataPoint
                 url = Miscellaneous::editTextSynchronously(url).strip
                 return NSDataPoint::issueUrl(url)
             end
-            return nil
-        end
-        if datapoint["type"] == "text" then
-            namedhash = datapoint["namedhash"]
-            text = NyxBlobs::getBlobOrNull(namedhash)
-            if text.nil? then
-                raise "1b1d1c8b-17c7-445f-b906-0573e5da0b05"
-            end
-            filename = "#{Miscellaneous::l22()}.txt"
-            filepath = "/tmp/#{filename}"
-            File.open(filepath, "w"){|f| f.puts(text) }
-            system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to commit text changes? : ", false) then
-                LucilleCore::pressEnterToContinue("Close editor and press [enter] to continue: ")
-                text = IO.read(filepath)
-                return NSDataPoint::issueText(text)
-            end
-            return nil
-        end
-        if datapoint["type"] == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" then
-            namedhash = datapoint["namedhash"]
-            data = NyxBlobs::getBlobOrNull(namedhash)
-            if data.nil? then
-                raise "2931748c-9a22-4e03-9673-9a3320bb5da6"
-            end
-            filename = "#{namedhash}#{datapoint["extensionWithDot"]}"
-            filepath = "/tmp/#{filename}"
-            File.open(filepath, "w"){|f| f.write(data) }
-            system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("edit picture(+)? : ", false) then
-                puts "picture(+) are not directly editable"
-                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to issue a new one? : ") then
-                    return NSDataPoint::issueTypeA02CB78EInteractivelyOrNull()
-                else 
-                    return nil
-                end
-            end
-            return nil
-        end
-        if datapoint["type"] == "aion-point" then
-            exportpath = DeskOperator::deskFolderpathForNSDatalineCreateIfNotExists(dataline, datapoint)
-            system("open '#{exportpath}'")
             return nil
         end
         if datapoint["type"] == "NyxFile" then

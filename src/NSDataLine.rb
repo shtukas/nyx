@@ -34,11 +34,7 @@ class NSDataLine
         datapoints = NSDataLine::getDatalineDataPointsInTimeOrder(dataline)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(dataline)
         if description and datapoints.size > 0 then
-            typeToDisplayType = lambda {|type|
-                return "picture(+)" if type == "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1"
-                type
-            }
-            str = "[data] [#{typeToDisplayType.call(datapoints.last["type"])}] #{description}"
+            str = "[data] [#{datapoints.last["type"]}] #{description}"
             KeyValueStore::set(nil, cacheKey, str)
             return str
         end

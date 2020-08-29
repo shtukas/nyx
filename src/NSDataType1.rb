@@ -82,10 +82,6 @@ class NSDataType1
 
     # NSDataType1::destroy(point)
     def self.destroy(point)
-        folderpath = DeskOperator::deskFolderpathForNSDataline(point)
-        if File.exists?(folderpath) then
-            LucilleCore::removeFileSystemLocation(folderpath)
-        end
         NyxObjects2::destroy(point)
     end
 

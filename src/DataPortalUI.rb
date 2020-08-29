@@ -183,11 +183,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "DeskOperator::commitDeskChangesToPrimaryRepository()", 
-                lambda { DeskOperator::commitDeskChangesToPrimaryRepository() }
-            )
-
-            ms.item(
                 "NyxGarbageCollection::run()",
                 lambda { NyxGarbageCollection::run() }
             )

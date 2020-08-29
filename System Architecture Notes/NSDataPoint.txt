@@ -23,31 +23,6 @@ NSDataPoint
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "type"         : "text"
-    "namedhash"    : String (Reference to a blob)
-}
-
-{
-    "uuid"             : String
-    "nyxNxSet"         : "0f555c97-3843-4dfe-80c8-714d837eba69"
-    "unixtime"         : Float # Unixtime with decimals
-    "type"             : "A02CB78E-F6D0-4EAC-9787-B7DC3BCA86C1" # Pictures and any self contained read only openable
-    "extensionWithDot" : String , example ".jpg", ".png", ".pdf"
-    "namedhash"        : String (Reference to a blob)
-}
-
-{
-    "uuid"         : String
-    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
-    "unixtime"     : Float # Unixtime with decimals
-    "type"         : "aion-point"
-    "namedhash"    : String (Librarian managed, accessed using the Desk)
-}
-
-{
-    "uuid"         : String
-    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
-    "unixtime"     : Float # Unixtime with decimals
     "type"         : "NyxPod"
     "name"         : String # We use Atlas to find them
 }

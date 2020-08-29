@@ -135,7 +135,6 @@ require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
-require_relative "DeskOperator.rb"
 
 require_relative "DisplayUtils.rb"
 
