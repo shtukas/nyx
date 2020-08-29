@@ -42,7 +42,10 @@ class NyxGalaxyFinder
     def self.uniqueStringToLocationOrNullUseTheForce(uniquestring)
         NyxGalaxyFinder::locationEnumerator(NyxGalaxyFinder::allPossibleStandardScanRoots())
             .each{|location|
-                if !NyxGalaxyFinder::locationIsUnisonTmp(location) and File.basename(location).start_with?("NyxPod-") and File.basename(location).size == 43 then
+                if !NyxGalaxyFinder::locationIsUnisonTmp(location) and File.basename(location).start_with?("NyxPod-") then
+                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                end
+                if !NyxGalaxyFinder::locationIsUnisonTmp(location) and File.basename(location).start_with?("NyxFile-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
                 end
                 if NyxGalaxyFinder::locationIsTarget(location, uniquestring) then

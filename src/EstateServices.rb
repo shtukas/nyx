@@ -52,39 +52,4 @@ class EstateServices
     def self.getFilepathAgeInDays(filepath)
         (Time.new.to_i - File.mtime(filepath).to_i).to_f/86400
     end
-
-    # -------------------------------------------
-
-    # EstateServices::getArchiveT1mel1neSizeInMegaBytes()
-    def self.getArchiveT1mel1neSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(Miscellaneous::binTimelineFolderpath()).to_f/(1024*1024)
-    end
-
-    # EstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
-    def self.archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
-        if sizeEstimationInMegaBytes.nil? then
-            sizeEstimationInMegaBytes = EstateServices::getArchiveT1mel1neSizeInMegaBytes()
-        end
-        return if sizeEstimationInMegaBytes <= 1024
-        location = EstateServices::getFirstDiveFirstLocationAtLocation(Miscellaneous::binTimelineFolderpath())
-        return if location == Miscellaneous::binTimelineFolderpath()
-        if File.file?(location) then
-            sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
-        end
-        puts "garbage collection: #{location}" if verbose
-        LucilleCore::removeFileSystemLocation(location)
-        EstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
-    end
-
-    # EstateServices::binTimelineGarbageCollectionEnvelop(verbose)
-    def self.binTimelineGarbageCollectionEnvelop(verbose)
-        return if EstateServices::getArchiveT1mel1neSizeInMegaBytes() <= 1024
-        loop {
-            location = EstateServices::getLocationFileBiggerThan10MegaBytesOrNull(Miscellaneous::binTimelineFolderpath())
-            break if location.nil?
-            puts "garbage collection (big file): #{location}" if verbose
-            LucilleCore::removeFileSystemLocation(location)
-        }
-        EstateServices::archivesT1mel1neGarbageCollectionCore(nil, verbose)
-    end
 end

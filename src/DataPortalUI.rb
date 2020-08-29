@@ -200,15 +200,6 @@ class DataPortalUI
                 }
             )
 
-
-            ms.item(
-                "Archive timeline garbage collection", 
-                lambda { 
-                    puts "#{EstateServices::getArchiveT1mel1neSizeInMegaBytes()} Mb"
-                    EstateServices::binTimelineGarbageCollectionEnvelop(true)
-                }
-            )
-
             status = ms.promptAndRunSandbox()
             break if !status
         }

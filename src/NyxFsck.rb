@@ -31,11 +31,12 @@ class NyxFsck
         if datapoint["type"] == "NyxPod" then
             nyxpodname = datapoint["name"]
             puts "Finding #{nyxpodname}"
+            return
             location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxpodname)
             if location.nil? then
                 puts "Failing to find: #{nyxpodname}"
                 puts JSON.pretty_generate(datapoint)
-                raise "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
+                #raise "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
             end
             return
         end

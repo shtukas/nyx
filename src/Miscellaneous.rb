@@ -13,11 +13,6 @@ class Miscellaneous
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # Miscellaneous::binTimelineFolderpath()
-    def self.binTimelineFolderpath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/Bin-T1mel1ne"
-    end
-
     # Miscellaneous::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
@@ -31,26 +26,6 @@ class Miscellaneous
         message = message.gsub("]","|")
         command = "terminal-notifier -title '#{title}' -message '#{message}'"
         system(command)
-    end
-
-    # Miscellaneous::copyLocationToCatalystBin(location)
-    def self.copyLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        folder1 = "#{Miscellaneous::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        LucilleCore::copyFileSystemLocation(location, folder3)
-    end
-
-    # Miscellaneous::commitTextToCatalystBin(filename, text)
-    def self.commitTextToCatalystBin(filename, text)
-        folder1 = "#{Miscellaneous::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
 
     # Miscellaneous::levenshteinDistance(s, t)

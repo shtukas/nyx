@@ -52,7 +52,6 @@ class Calendar
                 filepath = Calendar::dateToFilepath(date)
                 content = IO.read(filepath).strip
                 next if content.size > 0
-                Miscellaneous::copyLocationToCatalystBin(filepath)
                 FileUtils.rm(filepath)
             }
 

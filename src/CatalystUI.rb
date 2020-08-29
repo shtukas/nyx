@@ -4,7 +4,6 @@ class CatalystUI
 
     # CatalystUI::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
-        Miscellaneous::copyLocationToCatalystBin(filepath)
         content = IO.read(filepath).strip
         content = SectionsType0141::applyNextTransformationToContent(content)
         File.open(filepath, "w"){|f| f.puts(content) }
