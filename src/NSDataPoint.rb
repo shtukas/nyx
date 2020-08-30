@@ -215,7 +215,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxFile" then
             nyxfilename = datapoint["name"]
-            location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxfilename)
+            location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(nyxfilename)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
@@ -228,7 +228,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxDir" then
             nyxpodname = datapoint["name"]
-            location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxpodname)
+            location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(nyxpodname)
             if location then
                 puts "opening folder '#{location}'"
                 system("open '#{location}'")
@@ -279,6 +279,7 @@ class NSDataPoint
                 }
 
             Miscellaneous::horizontalRule()
+            puts JSON.pretty_generate(datapoint).yellow
             puts "[datapoint]".yellow
 
             puts "    #{NSDataPoint::toString(datapoint)}"
@@ -312,6 +313,43 @@ class NSDataPoint
 
             status = menuitems.promptAndRunSandbox()
             break if !status
+        }
+    end
+end
+
+class NyxElementDatapointLocation
+
+    # NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+    def self.getLocationByAllMeansOrNull(datapoint)
+        location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(datapoint["uuid"])
+        if location then
+            if File.exists?(location) then
+                return location
+            end
+        end
+
+        location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
+        if location then
+            NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
+            return location
+        end
+
+        nil
+    end
+
+    # NyxElementDatapointLocation::runMappingUpdate()
+    def self.runMappingUpdate()
+        NSDataPoint::datapoints().each{|datapoint|
+            puts JSON.pretty_generate(datapoint)
+            next if !["NyxDir", "NyxFile"].include?(datapoint["type"])
+            xname = datapoint["name"]
+            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+            if location.nil? then
+                puts "Falling to find a location for this datapoint nyx element"
+                puts JSON.pretty_generate(datapoint)
+                raise "63e36570-bbf0-4c2d-a3f1-0f839011191f"
+            end
+            NyxFileSystemElementsMapping::register(datapoint["uuid"], xname, location)
         }
     end
 end

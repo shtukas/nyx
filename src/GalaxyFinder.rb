@@ -1,0 +1,87 @@
+
+# encoding: utf-8
+
+class GalaxyFinder
+
+    # GalaxyFinder::locationIsUnisonTmp(location)
+    def self.locationIsUnisonTmp(location)
+        mark = ".unison.tmp"
+        location[-mark.size, mark.size] == mark
+    end
+
+    # GalaxyFinder::locationIsTarget(location, uniquestring)
+    def self.locationIsTarget(location, uniquestring)
+        return false if GalaxyFinder::locationIsUnisonTmp(location)
+        File.basename(location).include?(uniquestring)
+    end
+
+    # GalaxyFinder::scanroots()
+    def self.scanroots()
+        ["/Users/pascal/Galaxy"]
+    end
+
+    # GalaxyFinder::locationEnumerator(roots)
+    def self.locationEnumerator(roots)
+        Enumerator.new do |filepaths|
+            roots.each{|root|
+                if File.exists?(root) then
+                    begin
+                        Find.find(root) do |path|
+                            filepaths << path
+                        end
+                    rescue
+                    end
+                end
+            }
+        end
+    end
+
+    # GalaxyFinder::scansurvey()
+    def self.scansurvey()
+        # We do this for caching NyxDirs
+        GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
+            .each{|location|
+                KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+            }
+        nil
+    end
+
+    # GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
+    def self.uniqueStringToLocationOrNullUseTheForce(uniquestring)
+        GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
+            .each{|location|
+                next if GalaxyFinder::locationIsUnisonTmp(location)
+                KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                if File.basename(location).start_with?("NyxFile-") then
+                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)[0, 44]}", location)
+                end
+                if GalaxyFinder::locationIsTarget(location, uniquestring) then
+                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
+                    return location
+                end
+            }
+        nil
+    end
+
+    # GalaxyFinder::uniqueStringToLocationOrNull(uniquestring)
+    def self.uniqueStringToLocationOrNull(uniquestring)
+        maybefilepath = KeyValueStore::getOrNull(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
+        if maybefilepath and File.exists?(maybefilepath) and GalaxyFinder::locationIsTarget(maybefilepath, uniquestring) then
+            return maybefilepath
+        end
+        maybefilepath = GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
+        if maybefilepath then
+            KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", maybefilepath)
+        end
+        maybefilepath
+    end
+
+    # GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(ename)
+    def self.nyxFileSystemElementNameToLocationOrNull(ename)
+        location = GalaxyFinder::uniqueStringToLocationOrNull(ename)
+        return nil if location.nil?
+        return nil if !File.basename(location).start_with?(ename)
+        location
+    end
+end
+

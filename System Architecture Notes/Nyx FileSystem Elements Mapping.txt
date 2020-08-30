@@ -1,0 +1,17 @@
+
+location: #{Miscellaneous::catalystDataCenterFolderpath()}/Nyx-FileSystem-Elements-Mapping.sqlite3
+
+table: mapping
+    _objectuuid_    text
+    _name_          text
+    _location_      text
+
+create table mapping (_objectuuid_ text, _name_ text, _location_ text);
+
+Table was created once by hand.
+    pascal@Lucille20 Catalyst % sqlite3 Nyx-FileSystem-Elements-Mapping.sqlite3
+    SQLite version 3.28.0 2019-04-15 14:49:49
+    Enter ".help" for usage hints.
+    sqlite> create table mapping (_objectuuid_ text, _name_ text, _location_ text);
+    sqlite> .exit
+    pascal@Lucille20 Catalyst % 

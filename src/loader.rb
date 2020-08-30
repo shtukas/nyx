@@ -119,7 +119,7 @@ require_relative "Miscellaneous.rb" # Should come first as containing core defin
 require_relative "Anniversaries.rb"
 require_relative "Arrows.rb"
 require_relative "Asteroids.rb"
-require_relative "NyxGalaxyFinder.rb"
+require_relative "GalaxyFinder.rb"
 
 require_relative "BackupsMonitor.rb"
 require_relative "Bank.rb"
@@ -146,6 +146,7 @@ require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
 require_relative "GenericObjectInterface.rb"
+require_relative "GlobalFsck.rb"
 
 require_relative "LucilleCore.rb"
 
@@ -156,6 +157,7 @@ require_relative "NSDataTypeX.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
+require_relative "NyxFileSystemElementsMapping.rb"
 
 require_relative "ProgrammableBooleans.rb"
 

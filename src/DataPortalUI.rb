@@ -168,9 +168,43 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "rebuild search lookup", 
+                "1. rebuild search lookup", 
                 lambda { SelectionLookupDataset::rebuildDataset() }
             )
+
+            ms.item(
+                "2. NyxElementDatapointLocation::runMappingUpdate()",
+                lambda { NyxElementDatapointLocation::runMappingUpdate() }
+            )
+
+            ms.item(
+                "3. NyxGarbageCollection::run()",
+                lambda { NyxGarbageCollection::run() }
+            )
+
+            ms.item(
+                "All updates",
+                lambda {
+                    SelectionLookupDataset::rebuildDataset()
+                    NyxElementDatapointLocation::runMappingUpdate()
+                    NyxGarbageCollection::run()
+                }
+            )
+
+            puts ""
+
+            ms.item(
+                "GlobalFsck::main(runhash)",
+                lambda {
+                    runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
+                    if runhash == "" then
+                        runhash = SecureRandom.hex
+                    end
+                    GlobalFsck::main(runhash)
+                }
+            )
+
+            puts ""
 
             ms.item(
                 "Print Generation Speed Report", 
@@ -180,24 +214,6 @@ class DataPortalUI
             ms.item(
                 "Curation::session()", 
                 lambda { Curation::session() }
-            )
-
-            ms.item(
-                "NyxGarbageCollection::run()",
-                lambda { NyxGarbageCollection::run() }
-            )
-
-            ms.item(
-                "NyxFsck::main(runhash)",
-                lambda {
-                    runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
-                    if runhash == "" then
-                        runhash = SecureRandom.hex
-                    end
-                    NyxFsck::main(runhash)
-                    puts "NyxFsck::main(#{runhash}) completed"
-                    LucilleCore::pressEnterToContinue()
-                }
             )
 
             status = ms.promptAndRunSandbox()
