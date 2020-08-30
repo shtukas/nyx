@@ -180,7 +180,7 @@ class SelectionLookupDataset
             .each{|datapoint|
                 puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint)}"
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint))
+                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false))
             }
 
         db.close
@@ -197,7 +197,7 @@ class SelectionLookupDataset
             .each{|node|
                 puts "node: #{node["uuid"]} , #{NSDataType1::toString(node)}"
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node, false))
             }
 
         db.close

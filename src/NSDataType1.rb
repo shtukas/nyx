@@ -76,7 +76,6 @@ class NSDataType1
                 Arrows::issueOrException(node, datapoint)
             end
         end
-        NSDataType1::nodeMetadataSpecialOps(node)
         node
     end
 
@@ -87,21 +86,12 @@ class NSDataType1
 
     # ---------------------------------------------
 
-    # NSDataType1::nodeMetadataSpecialOps(node)
-    def self.nodeMetadataSpecialOps(node)
-        cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
-        str = KeyValueStore::destroy(nil, cacheKey)
-        SelectionLookupDataset::updateLookupForNode(node)
-    end
-
     # NSDataType1::landing(node)
     def self.landing(node)
 
         loop {
 
             return if NyxObjects2::getOrNull(node["uuid"]).nil?
-
-            NSDataType1::nodeMetadataSpecialOps(node)
 
             system("clear")
 
@@ -255,8 +245,6 @@ class NSDataType1
                     o = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
-                    NSDataType1::nodeMetadataSpecialOps(o)
-                    NSDataType1::nodeMetadataSpecialOps(node)
                 }
             )
 
@@ -266,8 +254,6 @@ class NSDataType1
                     o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
-                    NSDataType1::nodeMetadataSpecialOps(o)
-                    NSDataType1::nodeMetadataSpecialOps(node)
                 }
             )
 
@@ -279,8 +265,6 @@ class NSDataType1
                     ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
                     return if ns.nil?
                     Arrows::unlink(node, ns)
-                    NSDataType1::nodeMetadataSpecialOps(ns)
-                    NSDataType1::nodeMetadataSpecialOps(node)
                 }
             )
 
@@ -309,14 +293,11 @@ class NSDataType1
                             childnode = NSDataType1::issueNewNodeInteractivelyOrNull()
                             return nil if childnode.nil?
                             Arrows::issueOrException(node, childnode)
-                            NSDataType1::nodeMetadataSpecialOps(childnode)
-                            NSDataType1::nodeMetadataSpecialOps(node)
                             return childnode
                         end
                         if mode == "new independant node" then
                             xnode = NSDataType1::issueNewNodeInteractivelyOrNull()
                             return nil if xnode.nil?
-                            NSDataType1::nodeMetadataSpecialOps(xnode)
                             return xnode
                         end
                     }
@@ -329,13 +310,10 @@ class NSDataType1
                     # Moving the selectednodes
                     selectednodes.each{|o|
                         Arrows::issueOrException(targetnode, o)
-                        NSDataType1::nodeMetadataSpecialOps(o)
                     }
                     selectednodes.each{|o|
                         Arrows::unlink(node, o)
-                        NSDataType1::nodeMetadataSpecialOps(o)
                     }
-                    NSDataType1::nodeMetadataSpecialOps(node)
                 }
             )
 
@@ -348,7 +326,5 @@ class NSDataType1
             break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
 
         }
-
-        NSDataType1::nodeMetadataSpecialOps(node)
     end
 end

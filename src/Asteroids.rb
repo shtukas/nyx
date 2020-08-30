@@ -581,7 +581,6 @@ class Asteroids
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| Arrows::issueOrException(node, target) }
-        NSDataType1::nodeMetadataSpecialOps(node)
         NSDataType1::landing(node)
         Asteroids::destroy(asteroid)
     end
