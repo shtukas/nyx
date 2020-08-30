@@ -204,11 +204,11 @@ class Miscellaneous
                 next
             end
 
-            nyxPodFoldername = "NyxPod-#{SecureRandom.uuid}"
-            nyxPodFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-NyxPods/#{nyxPodFoldername}"
+            nyxPodFoldername = "NyxDir-#{SecureRandom.uuid}"
+            nyxPodFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-NyxDirs/#{nyxPodFoldername}"
             FileUtils.mkdir(nyxPodFolderpath)
             FileUtils.mv(location, nyxPodFolderpath)
-            datapoint = NSDataPoint::issueNyxPod(nyxPodFoldername)
+            datapoint = NSDataPoint::issueNyxDir(nyxPodFoldername)
             asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
             puts JSON.pretty_generate(asteroid)
         end

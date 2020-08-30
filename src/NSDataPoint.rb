@@ -54,13 +54,13 @@ class NSDataPoint
         [".jpg", ".jpeg", ".png", ".pdf"]
     end
 
-    # NSDataPoint::issueNyxPod(nyxPodName)
-    def self.issueNyxPod(nyxPodName)
+    # NSDataPoint::issueNyxDir(nyxPodName)
+    def self.issueNyxDir(nyxPodName)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
-            "type"       => "NyxPod",
+            "type"       => "NyxDir",
             "name"       => nyxPodName
         }
         NyxObjects2::put(object)
@@ -82,7 +82,7 @@ class NSDataPoint
 
     # NSDataPoint::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxPod"]
+        types = ["line", "url", "text", "NyxFile", "NyxDir"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -117,7 +117,7 @@ class NSDataPoint
             end
             return NSDataPoint::issueNyxFile(nyxfilename)
         end
-        if type == "NyxPod" then
+        if type == "NyxDir" then
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
             return nil if op.nil?
             if op == "podname already exists" then
@@ -125,11 +125,11 @@ class NSDataPoint
                 return nil if nyxpodname.size == 0
             end
             if op == "issue new podname" then
-                nyxpodname = "NyxPod-#{SecureRandom.uuid}"
+                nyxpodname = "NyxDir-#{SecureRandom.uuid}"
                 puts "podname: #{nyxpodname}"
                 LucilleCore::pressEnterToContinue()
             end
-            return NSDataPoint::issueNyxPod(nyxpodname)
+            return NSDataPoint::issueNyxDir(nyxpodname)
         end
     end
 
@@ -153,7 +153,7 @@ class NSDataPoint
         if datapoint["type"] == "NyxFile" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
-        if datapoint["type"] == "NyxPod" then
+        if datapoint["type"] == "NyxDir" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         raise "[NSDataPoint error d39378dc]"
@@ -226,7 +226,7 @@ class NSDataPoint
             end
             return nil
         end
-        if datapoint["type"] == "NyxPod" then
+        if datapoint["type"] == "NyxDir" then
             nyxpodname = datapoint["name"]
             location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nyxpodname)
             if location then

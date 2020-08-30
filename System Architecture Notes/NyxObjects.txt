@@ -14,7 +14,7 @@ Nyx
             -> picture(+)
             -> aion-point
             -> NyxFile
-            -> NyxPod
+            -> NyxDir
 
         NSDataType1   # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
