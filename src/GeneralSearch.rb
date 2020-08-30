@@ -54,6 +54,7 @@ class GeneralSearch
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
+            GeneralSearch::searchNx1630Datapoint(pattern),
             GeneralSearch::searchNx1630Node(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)

@@ -260,8 +260,37 @@ class NSDataPoint
     # NSDataPoint::landing(datapoint)
     def self.landing(datapoint)
         loop {
+
+            system("clear")
+
             menuitems = LCoreMenuItemsNX1.new()
-            puts NSDataPoint::toString(datapoint)
+
+            puts "[parents]".yellow
+            puts ""
+
+            Arrows::getSourcesForTarget(datapoint)
+                .each{|o|
+                    menuitems.item(
+                        "parent: #{GenericObjectInterface::toString(o)}",
+                        lambda { GenericObjectInterface::landing(o) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule()
+            puts "[datapoint]".yellow
+
+            puts "    #{NSDataPoint::toString(datapoint)}"
+            puts "    uuid: #{datapoint["uuid"]}".yellow
+            puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
+
+            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(datapoint)
+            if notetext and notetext.strip.size > 0 then
+                Miscellaneous::horizontalRule()
+                puts "Note:"
+                puts notetext.strip.lines.map{|line| "    #{line}" }.join()
+            end
+
+            puts ""
 
             menuitems.item(
                 "open",
@@ -272,6 +301,8 @@ class NSDataPoint
                 "destroy",
                 lambda { NyxObjects2::destroy(datapoint) }
             )
+
+            Miscellaneous::horizontalRule()
 
             status = menuitems.promptAndRunSandbox()
             break if !status
