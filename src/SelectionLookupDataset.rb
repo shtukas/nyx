@@ -31,28 +31,28 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForDatapoint(datapoint)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false))
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForNode(node)
     def self.updateLookupForNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("node", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataType1::toString(node, false))
+        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataType1::toString(node, false).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
         SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForWave(wave)
     def self.updateLookupForWave(wave)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
         SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], wave["uuid"])
-        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave))
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave).downcase)
     end
 
     # SelectionLookupDatabaseIO::getDatabaseRecords(): Array[DatabaseRecord]
@@ -124,7 +124,7 @@ class SelectionLookupDatabaseInMemory
         patternToRecords(pattern)
             .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
             .compact
-            .select{|object| GenericObjectInterface::isDatapoint(object) }
+            .select{|object| GenericObjectInterface::isDataPoint(object) }
     end
 
     def patternToNodes(pattern)
