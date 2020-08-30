@@ -261,6 +261,8 @@ class NSDataPoint
     def self.landing(datapoint)
         loop {
 
+            return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
+
             system("clear")
 
             menuitems = LCoreMenuItemsNX1.new()
