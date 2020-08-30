@@ -80,14 +80,9 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::getNSDataPointTypes()
-    def self.getNSDataPointTypes()
-        ["line", "url", "NyxFile", "NyxPod"]
-    end
-
     # NSDataPoint::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = NSDataPoint::getNSDataPointTypes()
+        types = ["line", "url", "text", "NyxFile", "NyxPod"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -100,19 +95,13 @@ class NSDataPoint
             return nil if url.size == 0
             return NSDataPoint::issueUrl(url)
         end
-        if type == "NyxPod" then
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
-            return nil if op.nil?
-            if op == "podname already exists" then
-                nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
-                return nil if nyxpodname.size == 0
-            end
-            if op == "issue new podname" then
-                nyxpodname = "NyxPod-#{SecureRandom.uuid}"
-                puts "podname: #{nyxpodname}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return NSDataPoint::issueNyxPod(nyxpodname)
+        if type == "text" then
+            nyxfilename = "NyxFile-#{SecureRandom.uuid}"
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/NyxFiles/#{nyxfilename}.txt"
+            File.touch(filepath)
+            system("open '#{filepath}'")
+            LucilleCore::pressEnterToContinue()
+            return NSDataPoint::issueNyxFile(nyxfilename)
         end
         if type == "NyxFile" then
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["nyxfilename already exists", "issue new nyxfilename"])
@@ -127,6 +116,20 @@ class NSDataPoint
                 LucilleCore::pressEnterToContinue()
             end
             return NSDataPoint::issueNyxFile(nyxfilename)
+        end
+        if type == "NyxPod" then
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
+            return nil if op.nil?
+            if op == "podname already exists" then
+                nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
+                return nil if nyxpodname.size == 0
+            end
+            if op == "issue new podname" then
+                nyxpodname = "NyxPod-#{SecureRandom.uuid}"
+                puts "podname: #{nyxpodname}"
+                LucilleCore::pressEnterToContinue()
+            end
+            return NSDataPoint::issueNyxPod(nyxpodname)
         end
     end
 
