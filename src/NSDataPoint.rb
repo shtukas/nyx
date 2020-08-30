@@ -301,7 +301,11 @@ class NSDataPoint
 
             menuitems.item(
                 "destroy",
-                lambda { NyxObjects2::destroy(datapoint) }
+                lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{NSDataPoint::toString(datapoint)}': ") then
+                        NyxObjects2::destroy(datapoint)
+                    end
+                }
             )
 
             Miscellaneous::horizontalRule()
