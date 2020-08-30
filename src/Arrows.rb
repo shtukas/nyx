@@ -150,12 +150,14 @@ class ArrowsInMemory
 
     def issueOrException(source, target)
         ArrowsDatabaseIO::issueOrException(source, target)
-        @arrows << {
+        arrow = {
             "sourceuuid" => source["uuid"],
             "targetuuid" => target["uuid"]
         }
+        @arrows << arrow
         ensureTargetForSource(source["uuid"], target["uuid"])
         ensureSourceForTarget(source["uuid"], target["uuid"])
+        arrow
     end
 
     def destroy(sourceuuid, targetuuid)
