@@ -13,11 +13,6 @@ class GenericObjectInterface
         object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04"
     end
 
-    # GenericObjectInterface::isDataline(object)
-    def self.isDataline(object)
-        object["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
-    end
-
     # GenericObjectInterface::isDataPoint(object)
     def self.isDataPoint(object)
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
@@ -93,7 +88,7 @@ class GenericObjectInterface
             return
         end
         puts object
-        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+        raise "[error: ba6962cf-e003-4a69-b2fc-e98c289e72b7]"
     end
 
     # GenericObjectInterface::destroy(object)
@@ -103,10 +98,6 @@ class GenericObjectInterface
         end
         if GenericObjectInterface::isNode(object) then
             NSDataType1::destroy(object)
-            return
-        end
-        if GenericObjectInterface::isDataline(object) then
-            NyxObjects2::destroy(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then

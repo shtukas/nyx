@@ -133,33 +133,41 @@ class NSDataPoint
         end
     end
 
+    # NSDataPoint::getReferenceUnixtime(datapoint)
+    def self.getReferenceUnixtime(datapoint)
+        DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f
+    end
+
     # NSDataPoint::toStringUseTheForce(datapoint)
     def self.toStringUseTheForce(datapoint)
         description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(datapoint)
         if description then
-            return "#{datapoint["type"]} #{description}"
+            return "[#{datapoint["type"]}] #{description}"
         end
         if datapoint["type"] == "line" then
-            return "#{datapoint["type"]} #{datapoint["line"]}"
+            return "[#{datapoint["type"]}] #{datapoint["line"]}"
         end
         if datapoint["type"] == "url" then
-            return "#{datapoint["type"]} #{datapoint["url"]}"
+            return "[#{datapoint["type"]}] #{datapoint["url"]}"
         end
         if datapoint["type"] == "NyxFile" then
-            return "#{datapoint["type"]} NyxFile: #{datapoint["name"]}"
+            return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         if datapoint["type"] == "NyxPod" then
-            return "#{datapoint["type"]} NyxPod: #{datapoint["name"]}"
+            return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         raise "[NSDataPoint error d39378dc]"
     end
 
-    # NSDataPoint::toString(datapoint)
-    def self.toString(datapoint)
-        str = KeyValueStore::getOrNull(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
-        return str if str
+    # NSDataPoint::toString(datapoint, useCachedValue = true)
+    def self.toString(datapoint, useCachedValue = true)
+        cacheKey = "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}"
+        if useCachedValue then
+            str = KeyValueStore::getOrNull(nil, cacheKey)
+            return str if str
+        end
         str = NSDataPoint::toStringUseTheForce(datapoint)
-        KeyValueStore::set(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}", str)
+        KeyValueStore::set(nil, cacheKey, str)
         str
     end
 

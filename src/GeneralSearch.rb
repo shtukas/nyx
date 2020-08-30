@@ -3,6 +3,18 @@
 
 class GeneralSearch
 
+    # GeneralSearch::searchNx1630Datapoint(pattern)
+    def self.searchNx1630Datapoint(pattern)
+        SelectionLookupDataset::patternToDatapoints(pattern)
+            .map{|datapoint|
+                {
+                    "description"   => NSDataPoint::toString(datapoint),
+                    "referencetime" => NSDataPoint::getReferenceUnixtime(datapoint),
+                    "dive"          => lambda{ NSDataPoint::landing(datapoint) }
+                }
+            }
+    end
+
     # GeneralSearch::searchNx1630Node(pattern)
     def self.searchNx1630Node(pattern)
         SelectionLookupDataset::patternToNodes(pattern)
