@@ -70,10 +70,10 @@ class NSDataType1
         node = NSDataType1::issue()
         puts "node: #{JSON.pretty_generate(node)}"
         NSDataTypeXExtended::issueDescriptionForTarget(node, description)
-        if LucilleCore::askQuestionAnswerAsBoolean("Create node data ? : ") then
-            ns1 = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-            if ns1 then
-                Arrows::issueOrException(node, ns1)
+        if LucilleCore::askQuestionAnswerAsBoolean("Create datapoint ? : ") then
+            datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+            if datapoint then
+                Arrows::issueOrException(node, datapoint)
             end
         end
         NSDataType1::nodeMetadataSpecialOps(node)
@@ -237,16 +237,15 @@ class NSDataType1
             puts ""
 
             menuitems.item(
-                "issue new dataline".yellow,
+                "issue new datapoint".yellow,
                 lambda{
-                    dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-                    return if dataline.nil?
-                    Arrows::issueOrException(node, dataline)
+                    datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    return if datapoint.nil?
+                    Arrows::issueOrException(node, datapoint)
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                     if description != "" then
-                        NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
                     end
-                    NSDataLine::datalineMetadataSpecialOps(dataline)
                 }
             )
 

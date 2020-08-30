@@ -150,7 +150,6 @@ require_relative "GenericObjectInterface.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "NSDT1Extended.rb"
-require_relative "NSDataLine.rb"
 require_relative "NSDataPoint.rb"
 require_relative "NSDataType1.rb"
 require_relative "NSDataTypeX.rb"

@@ -15,18 +15,6 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630Dataline(pattern)
-    def self.searchNx1630Dataline(pattern)
-        SelectionLookupDataset::patternToDatalines(pattern)
-            .map{|dataline|
-                {
-                    "description"   => NSDataLine::toString(dataline),
-                    "referencetime" => dataline["unixtime"],
-                    "dive"          => lambda{ NSDataLine::landing(dataline) }
-                }
-            }
-    end
-
     # GeneralSearch::searchNx1630Asteroid(pattern)
     def self.searchNx1630Asteroid(pattern)
         SelectionLookupDataset::patternToAsteroids(pattern)
@@ -55,7 +43,6 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Node(pattern),
-            GeneralSearch::searchNx1630Dataline(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

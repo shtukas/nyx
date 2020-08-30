@@ -34,13 +34,6 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataType1::toString(node))
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
-    def self.updateLookupForDataline(dataline)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(dataline["uuid"])
-        SelectionLookupDatabaseIO::addRecord("dataline", dataline["uuid"], dataline["uuid"])
-        SelectionLookupDatabaseIO::addRecord("dataline", dataline["uuid"], NSDataLine::toString(dataline))
-    end
-
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
@@ -159,12 +152,6 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::updateLookupForDataline(dataline)
-    def self.updateLookupForDataline(dataline)
-        SelectionLookupDatabaseIO::updateLookupForDataline(dataline)
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
-    end
-
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -181,23 +168,6 @@ class SelectionLookupDataset
                 puts "node: #{node["uuid"]}"
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], node["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node, false))
-            }
-
-        db.close
-
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
-    end
-
-    # SelectionLookupDataset::rebuildDatalinesLookup()
-    def self.rebuildDatalinesLookup()
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["dataline"]
-
-        NSDataLine::datalines()
-            .each{|dataline|
-                puts "dataline: #{dataline["uuid"]}"
-                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], dataline["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "dataline", dataline["uuid"], NSDataLine::toString(dataline, false))
             }
 
         db.close
@@ -242,7 +212,6 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildDataset()
     def self.rebuildDataset()
         SelectionLookupDataset::rebuildNodesLookup()
-        SelectionLookupDataset::rebuildDatalinesLookup()
         SelectionLookupDataset::rebuildAsteroidsLookup()
         SelectionLookupDataset::rebuildWavesLookup()
     end

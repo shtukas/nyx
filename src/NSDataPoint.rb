@@ -133,38 +133,33 @@ class NSDataPoint
         end
     end
 
-    # NSDataPoint::toStringUseTheForce(ns0, showType: boolean)
-    def self.toStringUseTheForce(ns0, showType)
-        if ns0["type"] == "line" then
-            return "#{(showType ? "[datapoint] " : "")}#{ns0["line"]}"
+    # NSDataPoint::toStringUseTheForce(datapoint)
+    def self.toStringUseTheForce(datapoint)
+        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(datapoint)
+        if description then
+            return "#{datapoint["type"]} #{description}"
         end
-        if ns0["type"] == "url" then
-            return "#{(showType ? "[datapoint] " : "")}#{ns0["url"]}"
+        if datapoint["type"] == "line" then
+            return "#{datapoint["type"]} #{datapoint["line"]}"
         end
-        if ns0["type"] == "NyxFile" then
-            return "#{(showType ? "[datapoint] " : "")}NyxFile: #{ns0["name"]}"
+        if datapoint["type"] == "url" then
+            return "#{datapoint["type"]} #{datapoint["url"]}"
         end
-        if ns0["type"] == "NyxPod" then
-            return "#{(showType ? "[datapoint] " : "")}NyxPod: #{ns0["name"]}"
+        if datapoint["type"] == "NyxFile" then
+            return "#{datapoint["type"]} NyxFile: #{datapoint["name"]}"
+        end
+        if datapoint["type"] == "NyxPod" then
+            return "#{datapoint["type"]} NyxPod: #{datapoint["name"]}"
         end
         raise "[NSDataPoint error d39378dc]"
     end
 
-    # NSDataPoint::toString(ns0)
-    def self.toString(ns0)
-        str = KeyValueStore::getOrNull(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}")
+    # NSDataPoint::toString(datapoint)
+    def self.toString(datapoint)
+        str = KeyValueStore::getOrNull(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}")
         return str if str
-        str = NSDataPoint::toStringUseTheForce(ns0, true)
-        KeyValueStore::set(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{ns0["uuid"]}", str)
-        str
-    end
-
-    # NSDataPoint::toStringForDataline(ns0)
-    def self.toStringForDataline(ns0)
-        str = KeyValueStore::getOrNull(nil, "9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}")
-        return str if str
-        str = NSDataPoint::toStringUseTheForce(ns0, false)
-        KeyValueStore::set(nil, "9e2041bb-e1e2-4bdb-a7db-e6e35397f554:#{ns0["uuid"]}", str)
+        str = NSDataPoint::toStringUseTheForce(datapoint)
+        KeyValueStore::set(nil, "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}", str)
         str
     end
 

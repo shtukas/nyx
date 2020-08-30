@@ -53,11 +53,6 @@ class NyxFsck
             return
         end
 
-        if object["nyxNxSet"] == "d319513e-1582-4c78-a4c4-bf3d72fb5b2d" then
-            # NSDataLine
-            return
-        end
-
         if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             # Wave
             return

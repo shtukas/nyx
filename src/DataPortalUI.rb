@@ -49,7 +49,7 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "new data",
+                "new datapoint",
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
@@ -57,12 +57,12 @@ class DataPortalUI
                     return if node.nil?
                     puts "selected node: #{NSDataType1::toString(node)}"
                     LucilleCore::pressEnterToContinue()
-                    dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-                    return if dataline.nil?
-                    Arrows::issueOrException(node, dataline)
-                    description = LucilleCore::askQuestionAnswerAsString("dataline description ? (empty for null) : ")
+                    datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    return if datapoint.nil?
+                    Arrows::issueOrException(node, datapoint)
+                    description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
                     if description.size > 0 then
-                        NSDataTypeXExtended::issueDescriptionForTarget(dataline, description)
+                        NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
                     end
                     NSDataType1::landing(node)
                 }

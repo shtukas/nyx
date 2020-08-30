@@ -11,7 +11,6 @@ class NyxObjectsCore
             "ab01a47c-bb91-4a15-93f5-b98cd3eb1866", # Text
             "c18e8093-63d6-4072-8827-14f238975d04", # NSDataType1
             "5c99134b-2b61-4750-8519-49c1d896556f", # NSDataTypeX, attributes
-            "d319513e-1582-4c78-a4c4-bf3d72fb5b2d", # NSDataLine
         ]
     end
 end

@@ -31,9 +31,6 @@ class GenericObjectInterface
         if GenericObjectInterface::isNode(object) then
             return NSDataType1::toString(object)
         end
-        if GenericObjectInterface::isDataline(object) then
-            return NSDataLine::toString(object)
-        end
         if GenericObjectInterface::isDataPoint(object) then
             return NSDataPoint::toString(object)
         end
@@ -73,10 +70,6 @@ class GenericObjectInterface
             NSDataType1::landing(object)
             return
         end
-        if GenericObjectInterface::isDataline(object) then
-            NSDataLine::landing(object)
-            return
-        end
         if GenericObjectInterface::isDataPoint(object) then
             NSDataPoint::landing(object)
             return
@@ -93,10 +86,6 @@ class GenericObjectInterface
         end
         if GenericObjectInterface::isNode(object) then
             NSDataType1::landing(object)
-            return
-        end
-        if GenericObjectInterface::isDataline(object) then
-            NSDataLine::accessopen(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then

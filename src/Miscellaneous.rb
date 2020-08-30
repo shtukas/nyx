@@ -209,10 +209,7 @@ class Miscellaneous
             FileUtils.mkdir(nyxPodFolderpath)
             FileUtils.mv(location, nyxPodFolderpath)
             datapoint = NSDataPoint::issueNyxPod(nyxPodFoldername)
-            dataline = NSDataLine::issue()
-            Arrows::issueOrException(dataline, datapoint)
-            NSDataLine::datalineMetadataSpecialOps(dataline)
-            asteroid = Asteroids::issueAsteroidInboxFromDataline(dataline)
+            asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
             puts JSON.pretty_generate(asteroid)
         end
     end

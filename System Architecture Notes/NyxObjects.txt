@@ -16,9 +16,6 @@ Nyx
             -> NyxFile
             -> NyxPod
 
-        NSDataLine    # NSDataLine.txt
-                      # nyxNxSet: "d319513e-1582-4c78-a4c4-bf3d72fb5b2d"
-
         NSDataType1   # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
 

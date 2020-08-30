@@ -218,7 +218,7 @@ class CatalystUI
             )
             ms.item(
                 "asteroid (general)",
-                lambda { Asteroids::issueDatalineAndAsteroidInteractivelyOrNull() }
+                lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
             )
             ms.item(
                 "wave",

@@ -140,10 +140,10 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueDatalineAndAsteroidInteractivelyOrNull()
-    def self.issueDatalineAndAsteroidInteractivelyOrNull()
-        dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-        return if dataline.nil?
+    # Asteroids::issueDatapointAndAsteroidInteractivelyOrNull()
+    def self.issueDatapointAndAsteroidInteractivelyOrNull()
+        datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+        return if datapoint.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
         asteroid = {
@@ -153,12 +153,12 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issueOrException(asteroid, dataline)
+        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromDataline(dataline)
-    def self.issueAsteroidInboxFromDataline(dataline)
+    # Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
+    def self.issueAsteroidInboxFromDatapoint(datapoint)
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
@@ -169,7 +169,7 @@ class Asteroids
             "orbital"  => orbital
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issueOrException(asteroid, dataline)
+        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
@@ -475,10 +475,6 @@ class Asteroids
                 NSDataType1::landing(target)
                 return
             end
-            if GenericObjectInterface::isDataline(target) then
-                NSDataLine::accessopen(target)
-                return
-            end
             if GenericObjectInterface::isDataPoint(target) then
                 NSDataPoint::accessopen(target)
                 return
@@ -509,10 +505,6 @@ class Asteroids
 
             if GenericObjectInterface::isNode(target) then
                 NSDataType1::landing(target)
-            end
-
-            if GenericObjectInterface::isDataline(target) then
-                NSDataLine::accessopen(target)
             end
 
             if GenericObjectInterface::isDataPoint(target) then
@@ -810,7 +802,7 @@ class Asteroids
             menuitems.item(
                 "add new target".yellow,
                 lambda { 
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["new node", "existing node", "dataline"])
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["new node", "existing node", "datapoint"])
                     return if option.nil?
                     if option == "new node" then
                         node = NSDataType1::issueNewNodeInteractivelyOrNull()
@@ -822,10 +814,10 @@ class Asteroids
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                     end
-                    if option == "dataline" then
-                        dataline = NSDataLine::interactiveIssueNewDatalineWithItsFirstPointOrNull()
-                        return if dataline.nil?
-                        Arrows::issueOrException(asteroid, dataline)
+                    if option == "datapoint" then
+                        datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                        return if datapoint.nil?
+                        Arrows::issueOrException(asteroid, datapoint)
                     end
                 }
             )

@@ -46,8 +46,6 @@ loop {
     puts "vienna: #{link}"
 
     datapoint = NSDataPoint::issueUrl(link)
-    dataline = NSDataLine::issue()
-    Arrows::issueOrException(dataline, datapoint)
-    asteroid = Asteroids::issueAsteroidInboxFromDataline(dataline)
+    asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
     viennaLinkFeeder.done(link)
 }
