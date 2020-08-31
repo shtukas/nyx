@@ -192,8 +192,8 @@ class NSDataPoint
         owner
     end
 
-    # NSDataPoint::enterDatalineDataPointCore(dataline, datapoint)
-    def self.enterDatalineDataPointCore(dataline, datapoint)
+    # NSDataPoint::accessopen(datapoint)
+    def self.accessopen(datapoint)
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
@@ -214,47 +214,31 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            nyxfilename = datapoint["name"]
-            location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(nyxfilename)
+            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
             else
-                puts "I could not determine the location of #{nyxfilename}"
+                puts "I could not determine the location of #{datapoint["name"]}"
                 LucilleCore::pressEnterToContinue()
             end
             return nil
         end
         if datapoint["type"] == "NyxDir" then
-            nyxpodname = datapoint["name"]
-            location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(nyxpodname)
+            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "opening folder '#{location}'"
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
             else
-                puts "I could not determine the location of #{nyxpodname}"
+                puts "I could not determine the location of #{datapoint["name"]}"
                 LucilleCore::pressEnterToContinue()
             end
             return nil
         end
         puts datapoint
         raise "[NSDataPoint error e12fc718]"
-    end
-
-    # NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
-    def self.enterDatalineDataPointEnvelop(dataline, datapoint)
-        newdatapoint = NSDataPoint::enterDatalineDataPointCore(dataline, datapoint)
-        return if newdatapoint.nil?
-        Arrows::issueOrException(dataline, newdatapoint)
-    end
-
-    # NSDataPoint::accessopen(datapoint)
-    def self.accessopen(datapoint)
-        dataline = NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-        return if dataline.nil?
-        NSDataPoint::enterDatalineDataPointEnvelop(dataline, datapoint)
     end
 
     # NSDataPoint::landing(datapoint)
