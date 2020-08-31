@@ -23,14 +23,14 @@ NSDataPoint
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "type"         : "NyxDir"
-    "name"         : String # We use Atlas to find them
+    "type"         : "NyxFile"
+    "name"         : String
 }
 
 {
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "type"         : "NyxFile"
-    "name"         : String # We use Atlas to find them
+    "type"         : "NyxHub"
+    "name"         : String
 }

@@ -10,11 +10,8 @@ Nyx
                       # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
             -> line
             -> url
-            -> text
-            -> picture(+)
-            -> aion-point
             -> NyxFile
-            -> NyxDir
+            -> NyxHub
 
         NSDataType1   # NSDataType1.txt
                       # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"

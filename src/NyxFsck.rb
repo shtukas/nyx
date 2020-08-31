@@ -28,7 +28,7 @@ class NyxFsck
             return
         end
 
-        if datapoint["type"] == "NyxDir" then
+        if datapoint["type"] == "NyxHub" then
             nyxpodname = datapoint["name"]
             puts "Finding #{nyxpodname}"
             return

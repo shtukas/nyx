@@ -30,23 +30,12 @@ class GalaxyFinder
         end
     end
 
-    # GalaxyFinder::scansurvey()
-    def self.scansurvey()
-        # We do this for caching NyxDirs
-        GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
-            .each{|location|
-                next if GalaxyFinder::locationIsUnisonTmp(location)
-                KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
-            }
-        nil
-    end
-
     # GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
     def self.uniqueStringToLocationOrNullUseTheForce(uniquestring)
         GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
             .each{|location|
                 next if GalaxyFinder::locationIsUnisonTmp(location)
-                if File.basename(location).start_with?("NyxDir-") then
+                if File.basename(location).start_with?("NyxHub-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
                 end
                 if File.basename(location).start_with?("NyxFile-") then

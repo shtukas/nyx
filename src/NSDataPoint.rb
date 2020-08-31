@@ -54,14 +54,14 @@ class NSDataPoint
         [".jpg", ".jpeg", ".png", ".pdf"]
     end
 
-    # NSDataPoint::issueNyxDir(nyxPodName)
-    def self.issueNyxDir(nyxPodName)
+    # NSDataPoint::issueNyxHub(hubname)
+    def self.issueNyxHub(hubname)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
-            "type"       => "NyxDir",
-            "name"       => nyxPodName
+            "type"       => "NyxHub",
+            "name"       => hubname
         }
         NyxObjects2::put(object)
         object
@@ -82,7 +82,7 @@ class NSDataPoint
 
     # NSDataPoint::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxDir"]
+        types = ["line", "url", "text", "NyxFile", "NyxHub"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -98,7 +98,7 @@ class NSDataPoint
         if type == "text" then
             nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
             filepath = "/Users/pascal/Galaxy/NyxFiles/#{nyxfilename}"
-            File.touch(filepath)
+            FileUtils.touch(filepath)
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             return NSDataPoint::issueNyxFile(nyxfilename)
@@ -119,19 +119,11 @@ class NSDataPoint
             end
             return NSDataPoint::issueNyxFile(nyxfilename)
         end
-        if type == "NyxDir" then
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["podname already exists", "issue new podname"])
-            return nil if op.nil?
-            if op == "podname already exists" then
-                nyxpodname = LucilleCore::askQuestionAnswerAsString("nyxpod name: ")
-                return nil if nyxpodname.size == 0
-            end
-            if op == "issue new podname" then
-                nyxpodname = "NyxDir-#{SecureRandom.uuid}"
-                puts "podname: #{nyxpodname}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return NSDataPoint::issueNyxDir(nyxpodname)
+        if type == "NyxHub" then
+            hubname = "NyxHub-#{SecureRandom.uuid}"
+            puts "hubname: #{hubname}"
+            LucilleCore::pressEnterToContinue()
+            return NSDataPoint::issueNyxHub(hubname)
         end
     end
 
@@ -155,7 +147,7 @@ class NSDataPoint
         if datapoint["type"] == "NyxFile" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
-        if datapoint["type"] == "NyxDir" then
+        if datapoint["type"] == "NyxHub" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         raise "[NSDataPoint error d39378dc]"
@@ -227,11 +219,11 @@ class NSDataPoint
             end
             return nil
         end
-        if datapoint["type"] == "NyxDir" then
+        if datapoint["type"] == "NyxHub" then
             location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
-                puts "opening folder '#{location}'"
-                system("open '#{location}'")
+                puts "target file '#{location}'"
+                system("open '#{File.dirname(location)}'")
                 LucilleCore::pressEnterToContinue()
             else
                 puts "I could not determine the location of #{datapoint["name"]}"
@@ -352,7 +344,7 @@ class DatapointNyxElementLocation
             if showprogress then
                 puts JSON.pretty_generate(datapoint)
             end
-            next if !["NyxDir", "NyxFile"].include?(datapoint["type"])
+            next if !["NyxHub", "NyxFile"].include?(datapoint["type"])
             location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)

@@ -1,6 +1,8 @@
-A NyxDir is any folder on disk that has a name of the form NyxDir-<unique string>, for instance: NyxDir-fcb5541a-6e2e-48dd-9981-2f137fe8490c
-
 A NyxFile is any file on disk that has a name of the form NyxFile-<unique string>.<extension>, for instance: NyxFile-fcb5541a-6e2e-48dd-9981-2f137fe8490c.txt
+
+A NyxHub is any file on disk that has a name of the form NyxHub-<unique string>, for instance: NyxHub-fcb5541a-6e2e-48dd-9981-2f137fe8490c , they are used to refer to an area of the file tree, most generally their parent folder.
+
+
 
 ---------------------------------------------------------------------------
 Database Mapping
