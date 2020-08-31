@@ -96,8 +96,8 @@ class NSDataPoint
             return NSDataPoint::issueUrl(url)
         end
         if type == "text" then
-            nyxfilename = "NyxFile-#{SecureRandom.uuid}"
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/NyxFiles/#{nyxfilename}.txt"
+            nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
+            filepath = "/Users/pascal/Galaxy/NyxFiles/#{nyxfilename}"
             File.touch(filepath)
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
@@ -111,7 +111,9 @@ class NSDataPoint
                 return nil if nyxfilename.size == 0
             end
             if op == "issue new nyxfilename" then
-                nyxfilename = "NyxFile-#{SecureRandom.uuid}"
+                extention = LucilleCore::askQuestionAnswerAsString("extension with dot: ")
+                return nil if extention != ""
+                nyxfilename = "NyxFile-#{SecureRandom.uuid}#{extention}"
                 puts "nyxfilename: #{nyxfilename}"
                 LucilleCore::pressEnterToContinue()
             end

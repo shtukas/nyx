@@ -205,7 +205,7 @@ class Miscellaneous
             end
 
             nyxPodFoldername = "NyxDir-#{SecureRandom.uuid}"
-            nyxPodFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-NyxDirs/#{nyxPodFoldername}"
+            nyxPodFolderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirs/#{nyxPodFoldername}"
             FileUtils.mkdir(nyxPodFolderpath)
             FileUtils.mv(location, nyxPodFolderpath)
             datapoint = NSDataPoint::issueNyxDir(nyxPodFoldername)
