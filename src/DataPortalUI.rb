@@ -173,8 +173,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. NyxElementDatapointLocation::runMappingUpdate()",
-                lambda { NyxElementDatapointLocation::runMappingUpdate() }
+                "2. DatapointNyxElementLocation::automaintenance(true)",
+                lambda { DatapointNyxElementLocation::automaintenance(true) }
             )
 
             ms.item(
@@ -186,7 +186,7 @@ class DataPortalUI
                 "All updates",
                 lambda {
                     SelectionLookupDataset::rebuildDataset()
-                    NyxElementDatapointLocation::runMappingUpdate()
+                    DatapointNyxElementLocation::automaintenance(true)
                     NyxGarbageCollection::run()
                 }
             )

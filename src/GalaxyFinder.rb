@@ -9,12 +9,6 @@ class GalaxyFinder
         location[-mark.size, mark.size] == mark
     end
 
-    # GalaxyFinder::locationIsTarget(location, uniquestring)
-    def self.locationIsTarget(location, uniquestring)
-        return false if GalaxyFinder::locationIsUnisonTmp(location)
-        File.basename(location).include?(uniquestring)
-    end
-
     # GalaxyFinder::scanroots()
     def self.scanroots()
         ["/Users/pascal/Galaxy"]
@@ -41,6 +35,7 @@ class GalaxyFinder
         # We do this for caching NyxDirs
         GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
             .each{|location|
+                next if GalaxyFinder::locationIsUnisonTmp(location)
                 KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
             }
         nil
@@ -51,11 +46,13 @@ class GalaxyFinder
         GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
             .each{|location|
                 next if GalaxyFinder::locationIsUnisonTmp(location)
-                KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                if File.basename(location).start_with?("NyxDir-") then
+                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                end
                 if File.basename(location).start_with?("NyxFile-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)[0, 44]}", location)
                 end
-                if GalaxyFinder::locationIsTarget(location, uniquestring) then
+                if File.basename(location).include?(uniquestring) then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
                     return location
                 end
@@ -66,7 +63,7 @@ class GalaxyFinder
     # GalaxyFinder::uniqueStringToLocationOrNull(uniquestring)
     def self.uniqueStringToLocationOrNull(uniquestring)
         maybefilepath = KeyValueStore::getOrNull(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
-        if maybefilepath and File.exists?(maybefilepath) and GalaxyFinder::locationIsTarget(maybefilepath, uniquestring) then
+        if maybefilepath and File.exists?(maybefilepath) and File.basename(maybefilepath).include?(uniquestring) then
             return maybefilepath
         end
         maybefilepath = GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
@@ -80,7 +77,7 @@ class GalaxyFinder
     def self.nyxFileSystemElementNameToLocationOrNull(ename)
         location = GalaxyFinder::uniqueStringToLocationOrNull(ename)
         return nil if location.nil?
-        return nil if !File.basename(location).start_with?(ename)
+        return nil if (File.basename(location) != ename)
         location
     end
 end

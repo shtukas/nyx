@@ -279,6 +279,10 @@ class CatalystUI
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
 
+            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("eb30ef6a-8e2d-40d1-9588-85f98fdc1f80", 7200) then # 2 hours
+                GlobalFsck::main("d9f083c6-b426-4031-83ca-47775e8ba9e2:#{Time.new.to_s[0, 10]}")
+            end
+
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then

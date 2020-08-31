@@ -214,7 +214,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
@@ -226,7 +226,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxDir" then
-            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "opening folder '#{location}'"
                 system("open '#{location}'")
@@ -301,9 +301,9 @@ class NSDataPoint
     end
 end
 
-class NyxElementDatapointLocation
+class DatapointNyxElementLocation
 
-    # NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+    # DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
     def self.getLocationByAllMeansOrNull(datapoint)
         location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(datapoint["uuid"])
         if location then
@@ -321,19 +321,48 @@ class NyxElementDatapointLocation
         nil
     end
 
-    # NyxElementDatapointLocation::runMappingUpdate()
-    def self.runMappingUpdate()
+    # DatapointNyxElementLocation::automaintenance(showprogress)
+    def self.automaintenance(showprogress)
+        NyxFileSystemElementsMapping::records().each{|record|
+            if showprogress then
+                puts JSON.pretty_generate(record)
+            end
+            if NyxObjects2::getOrNull(record["objectuuid"]).nil? then
+                NyxFileSystemElementsMapping::removeRecordByObjectUUID(record["objectuuid"])
+                next
+            end
+            if !File.exists?(record["location"]) then
+                datapoint = NyxObjects2::getOrNull(record["objectuuid"])
+                system("clear")
+                puts "DatapointNyxElementLocation::automaintenance(#{showprogress}): searching for #{datapoint}"
+                location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
+                if location then
+                    NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
+                else
+                    puts "DatapointNyxElementLocation::automaintenance(#{showprogress}): I can't locate #{datapoint}"
+                    puts "Going to dive"
+                    LucilleCore::pressEnterToContinue()
+                    NSDataPoint::landing(datapoint)
+                end
+            end
+        }
         NSDataPoint::datapoints().each{|datapoint|
-            puts JSON.pretty_generate(datapoint)
+            if showprogress then
+                puts JSON.pretty_generate(datapoint)
+            end
             next if !["NyxDir", "NyxFile"].include?(datapoint["type"])
-            xname = datapoint["name"]
-            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
-            if location.nil? then
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
+            else
+                system("clear")
                 puts "Falling to find a location for this datapoint nyx element"
                 puts JSON.pretty_generate(datapoint)
-                raise "63e36570-bbf0-4c2d-a3f1-0f839011191f"
+                puts "Going to dive"
+                LucilleCore::pressEnterToContinue()
+                NSDataPoint::landing(datapoint)
             end
-            NyxFileSystemElementsMapping::register(datapoint["uuid"], xname, location)
         }
     end
+
 end

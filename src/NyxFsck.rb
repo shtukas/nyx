@@ -19,7 +19,7 @@ class NyxFsck
         if datapoint["type"] == "NyxFile" then
             filename = datapoint["name"]
             puts "Finding #{filename}"
-            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
                 puts "Failing to find: #{filename}"
                 puts JSON.pretty_generate(datapoint)
@@ -32,7 +32,7 @@ class NyxFsck
             nyxpodname = datapoint["name"]
             puts "Finding #{nyxpodname}"
             return
-            location = NyxElementDatapointLocation::getLocationByAllMeansOrNull(datapoint)
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
                 puts "Failing to find: #{nyxpodname}"
                 puts JSON.pretty_generate(datapoint)

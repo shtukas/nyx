@@ -240,5 +240,4 @@ class Miscellaneous
     def self.metricCircle(phase)
         Math.sin((Time.new.to_f + phase).to_f/3600)
     end
-
 end
