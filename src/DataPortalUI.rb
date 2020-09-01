@@ -169,7 +169,7 @@ class DataPortalUI
 
             ms.item(
                 "1. rebuild search lookup", 
-                lambda { SelectionLookupDataset::rebuildDataset() }
+                lambda { SelectionLookupDataset::rebuildDataset(true) }
             )
 
             ms.item(
@@ -178,17 +178,13 @@ class DataPortalUI
             )
 
             ms.item(
-                "3. NyxGarbageCollection::run()",
-                lambda { NyxGarbageCollection::run() }
+                "3. NyxGarbageCollection::run(true)",
+                lambda { NyxGarbageCollection::run(true) }
             )
 
             ms.item(
-                "All updates",
-                lambda {
-                    SelectionLookupDataset::rebuildDataset()
-                    DatapointNyxElementLocation::automaintenance(true)
-                    NyxGarbageCollection::run()
-                }
+                "GlobalMaintenance::main(false)",
+                lambda { GlobalMaintenance::main(true) }
             )
 
             puts ""

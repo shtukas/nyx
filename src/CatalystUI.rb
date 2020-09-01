@@ -276,7 +276,7 @@ class CatalystUI
                 sleep 30
                 # We run the full sequence once a day (first opportunity after midnight)
                 next if KeyValueStore::flagIsTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
-                GlobalMaintenance::main()
+                GlobalMaintenance::main(false)
                 KeyValueStore::setFlagTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
                 sleep 60
             }
@@ -296,7 +296,7 @@ class CatalystUI
             Miscellaneous::importFromLucilleInbox()
 
             if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("eb30ef6a-8e2d-40d1-9588-85f98fdc1f80", 7200) then # 2 hours
-                status = GlobalFsck::quickPossiblySelfRepairedFsck()
+                status = GlobalFsck::quickPossiblySelfRepairedFsck(true)
                 exit if !status
             end
 

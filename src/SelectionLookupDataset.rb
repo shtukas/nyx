@@ -171,14 +171,16 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildDatapointsLookup()
-    def self.rebuildDatapointsLookup()
+    # SelectionLookupDataset::rebuildDatapointsLookup(verbose)
+    def self.rebuildDatapointsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["datapoint"]
 
         NSDataPoint::datapoints()
             .each{|datapoint|
-                puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint)}"
+                if verbose then
+                    puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint)}"
+                end
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false))
             }
@@ -188,14 +190,16 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildNodesLookup()
-    def self.rebuildNodesLookup()
+    # SelectionLookupDataset::rebuildNodesLookup(verbose)
+    def self.rebuildNodesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["node"]
 
         NSDataType1::objects()
             .each{|node|
-                puts "node: #{node["uuid"]} , #{NSDataType1::toString(node)}"
+                if verbose then
+                    puts "node: #{node["uuid"]} , #{NSDataType1::toString(node)}"
+                end
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], node["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "node", node["uuid"], NSDataType1::toString(node, false))
             }
@@ -205,14 +209,16 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildAsteroidsLookup()
-    def self.rebuildAsteroidsLookup()
+    # SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
+    def self.rebuildAsteroidsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["asteroid"]
 
         Asteroids::asteroids()
             .each{|asteroid|
-                puts "asteroid: #{asteroid["uuid"]} , #{Asteroids::toString(asteroid)}"
+                if verbose then
+                    puts "asteroid: #{asteroid["uuid"]} , #{Asteroids::toString(asteroid)}"
+                end
                 SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], asteroid["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
             }
@@ -222,14 +228,16 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildWavesLookup()
-    def self.rebuildWavesLookup()
+    # SelectionLookupDataset::rebuildWavesLookup(verbose)
+    def self.rebuildWavesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["wave"]
 
         Waves::waves()
             .each{|wave|
-                puts "wave: #{wave["uuid"]} , #{Waves::toString(wave)}"
+                if verbose then
+                    puts "wave: #{wave["uuid"]} , #{Waves::toString(wave)}"
+                end
                 SelectionLookupDatabaseIO::addRecord2(db, "wave", wave["uuid"], wave["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "wave", wave["uuid"], Waves::toString(wave))
             }
@@ -239,12 +247,12 @@ class SelectionLookupDataset
         $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
-    # SelectionLookupDataset::rebuildDataset()
-    def self.rebuildDataset()
-        SelectionLookupDataset::rebuildDatapointsLookup()
-        SelectionLookupDataset::rebuildNodesLookup()
-        SelectionLookupDataset::rebuildAsteroidsLookup()
-        SelectionLookupDataset::rebuildWavesLookup()
+    # SelectionLookupDataset::rebuildDataset(verbose)
+    def self.rebuildDataset(verbose)
+        SelectionLookupDataset::rebuildDatapointsLookup(verbose)
+        SelectionLookupDataset::rebuildNodesLookup(verbose)
+        SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
+        SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
 
     # SelectionLookupDataset::patternToDatapoints(pattern)
