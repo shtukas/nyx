@@ -63,8 +63,10 @@ class NyxFileSystemElementsMapping
             if !File.exists?(record["location"]) then
                 puts "[NyxFileSystemElementsMapping] incorrect record:"
                 puts JSON.pretty_generate(record)
-                raise "[error] 40e2306c-e892-44e9-856a-21e650b4751b"
+                puts "[error] 40e2306c-e892-44e9-856a-21e650b4751b"
+                return false
             end
         }
+        true
     end
 end

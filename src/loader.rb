@@ -147,6 +147,7 @@ require_relative "EstateServices.rb"
 require_relative "GeneralSearch.rb"
 require_relative "GenericObjectInterface.rb"
 require_relative "GlobalFsck.rb"
+require_relative "GlobalMaintenance.rb"
 
 require_relative "LucilleCore.rb"
 

@@ -243,8 +243,11 @@ class CatalystUI
 
     # CatalystUI::startThreadsIfNotStarted()
     def self.startThreadsIfNotStarted()
+
         return if @@haveStartedThreads
+
         puts "-> starting Threads"
+
         Thread.new {
             loop {
                 sleep 10
@@ -257,15 +260,28 @@ class CatalystUI
                 sleep 120
             }
         }
+
         Thread.new {
             loop {
-                sleep 30
+                sleep 20
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
                     system("#{File.dirname(__FILE__)}/../vienna-import")
                 end
                 sleep 3600
             }
         }
+
+        Thread.new {
+            loop {
+                sleep 30
+                # We run the full sequence once a day (first opportunity after midnight)
+                next if KeyValueStore::flagIsTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
+                GlobalMaintenance::main()
+                KeyValueStore::setFlagTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
+                sleep 60
+            }
+        }
+
         @@haveStartedThreads = true
     end
 
@@ -280,7 +296,8 @@ class CatalystUI
             Miscellaneous::importFromLucilleInbox()
 
             if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("eb30ef6a-8e2d-40d1-9588-85f98fdc1f80", 7200) then # 2 hours
-                GlobalFsck::main("d9f083c6-b426-4031-83ca-47775e8ba9e2:#{Time.new.to_s[0, 10]}")
+                status = GlobalFsck::quickPossiblySelfRepairedFsck()
+                exit if !status
             end
 
             # Displays
