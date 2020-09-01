@@ -303,6 +303,49 @@ class NSDataPoint
             break if !status
         }
     end
+
+    # NSDataPoint::destroy(datapoint)
+    def self.destroy(datapoint)
+
+        puts "Destroying datapoint: #{NSDataPoint::toString(datapoint)}"
+
+        if datapoint["type"] == "line" then
+
+        end
+        if datapoint["type"] == "url" then
+
+        end
+        if datapoint["type"] == "NyxFile" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy target NyxFile file ? ") then
+                location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+                if location then
+                    FileUtils.rm(location)
+                else
+                    puts "Failure to find the target file."
+                    if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
+                        puts "Very well. Exiting."
+                        exit
+                    end
+                end
+            end
+
+        end
+        if datapoint["type"] == "NyxHub" then
+            puts "Datapoint is NyxHub, we are going to remove the NyxHub file..."
+            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                FileUtils.rm(location)
+            else
+                puts "Failure to find the file."
+                if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
+                    puts "Very well. Exiting."
+                    exit
+                end
+            end
+        end
+
+        NyxObjects2::destroy(datapoint)
+    end
 end
 
 class DatapointNyxElementLocation

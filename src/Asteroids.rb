@@ -376,7 +376,7 @@ class Asteroids
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => lambda { |command| 
                 if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
-                    Asteroids::access(asteroid) 
+                    Asteroids::naturalNextOperation(asteroid) 
                 end
                 if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
                     Asteroids::landing(asteroid) 
@@ -596,8 +596,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::access(asteroid)
-    def self.access(asteroid)
+    # Asteroids::naturalNextOperation(asteroid)
+    def self.naturalNextOperation(asteroid)
 
         uuid = asteroid["uuid"]
 
@@ -842,7 +842,6 @@ class Asteroids
         }
 
         SelectionLookupDataset::updateLookupForAsteroid(asteroid)
-
     end
 
     # Asteroids::main()
@@ -874,6 +873,20 @@ class Asteroids
 
     # Asteroids::destroy(asteroid)
     def self.destroy(asteroid)
+
+        targets = Arrows::getTargetsForSource(asteroid)
+        if targets.size > 0 then
+            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            puts "We are going to review te asteroid's elements, then we are going to destroy it."
+            LucilleCore::pressEnterToContinue()
+            targets.each{|target|
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{GenericObjectInterface::toString(target)}' ? ") then
+                    GenericObjectInterface::destroy(target)
+                end
+            }
+            LucilleCore::pressEnterToContinue("Review completed. Press enter to destroy asteroid: ")
+        end
+
         NyxObjects2::destroy(asteroid)
     end
 
