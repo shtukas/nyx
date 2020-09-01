@@ -97,7 +97,7 @@ class NSDataPoint
         end
         if type == "text" then
             nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
-            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/DataNetwork-NyxFiles/#{nyxfilename}"
+            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/DataNetwork/#{Time.new.strftime("%Y-%m")}/#{nyxfilename}"
             FileUtils.touch(filepath)
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
