@@ -260,7 +260,7 @@ class NSDataPoint
             puts JSON.pretty_generate(datapoint).yellow
             puts "[datapoint]".yellow
 
-            puts "    #{NSDataPoint::toString(datapoint)}"
+            puts "    #{NSDataPoint::toString(datapoint, false)}"
             puts "    uuid: #{datapoint["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
 
@@ -274,12 +274,22 @@ class NSDataPoint
             puts ""
 
             menuitems.item(
-                "open",
+                "open".yellow,
                 lambda { NSDataPoint::accessopen(datapoint) }
             )
 
             menuitems.item(
-                "destroy",
+                "set/update description".yellow,
+                lambda{
+                    description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(datapoint) || ""
+                    description = Miscellaneous::editTextSynchronously(description).strip
+                    return if description == ""
+                    NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
+                }
+            )
+
+            menuitems.item(
+                "destroy".yellow,
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{NSDataPoint::toString(datapoint)}': ") then
                         NyxObjects2::destroy(datapoint)
@@ -358,5 +368,4 @@ class DatapointNyxElementLocation
             end
         }
     end
-
 end

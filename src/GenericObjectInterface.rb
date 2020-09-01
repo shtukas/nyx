@@ -18,16 +18,16 @@ class GenericObjectInterface
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # GenericObjectInterface::toString(object)
-    def self.toString(object)
+    # GenericObjectInterface::toString(object, shouldUseCachedVersion = true)
+    def self.toString(object, shouldUseCachedVersion = true)
         if GenericObjectInterface::isAsteroid(object) then
             return Asteroids::toString(object)
         end
         if GenericObjectInterface::isNode(object) then
-            return NSDataType1::toString(object)
+            return NSDataType1::toString(object, shouldUseCachedVersion)
         end
         if GenericObjectInterface::isDataPoint(object) then
-            return NSDataPoint::toString(object)
+            return NSDataPoint::toString(object, shouldUseCachedVersion)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"

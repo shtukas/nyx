@@ -219,7 +219,7 @@ class NSDataType1
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
                 menuitems.item(
-                    GenericObjectInterface::toString(object),
+                    GenericObjectInterface::toString(object, false),
                     lambda{ GenericObjectInterface::landing(object) }
                 )
             }
