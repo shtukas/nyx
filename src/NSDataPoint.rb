@@ -334,7 +334,10 @@ class NSDataPoint
             puts "Datapoint is NyxHub, we are going to remove the NyxHub file..."
             location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
-                FileUtils.rm(location)
+                puts "Actually I am going to let you do that..."
+                sleep 3
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
             else
                 puts "Failure to find the file."
                 if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
