@@ -873,20 +873,15 @@ class Asteroids
 
     # Asteroids::destroy(asteroid)
     def self.destroy(asteroid)
-
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size > 0 then
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-            puts "We are going to review te asteroid's elements, then we are going to destroy it."
-            LucilleCore::pressEnterToContinue()
             targets.each{|target|
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{GenericObjectInterface::toString(target)}' ? ") then
                     GenericObjectInterface::destroy(target)
                 end
             }
-            LucilleCore::pressEnterToContinue("Review completed. Press enter to destroy asteroid: ")
         end
-
         NyxObjects2::destroy(asteroid)
     end
 
