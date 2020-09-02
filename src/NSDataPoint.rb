@@ -334,10 +334,18 @@ class NSDataPoint
             puts "Datapoint is NyxHub, we are going to remove the NyxHub file..."
             location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
-                puts "Actually I am going to let you do that..."
-                sleep 3
-                system("open '#{File.dirname(location)}'")
-                LucilleCore::pressEnterToContinue()
+                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs" then
+                    puts "Found NyxHub: #{location}"
+                    parent = File.dirname(location)
+                    puts "Going to remove the parent folder: #{parent}"
+                    LucilleCore::removeFileSystemLocation(parent)
+                else
+                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-NyxHubs
+                    puts "Actually I am going to let you do that..."
+                    sleep 3
+                    system("open '#{File.dirname(location)}'")
+                    LucilleCore::pressEnterToContinue()
+                end
             else
                 puts "Failure to find the file."
                 if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
