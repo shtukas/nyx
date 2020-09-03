@@ -69,5 +69,10 @@ class GalaxyFinder
         return nil if File.basename(location) != ename
         location
     end
+
+    # GalaxyFinder::registerElementNameAtLocation(ename, location)
+    def self.registerElementNameAtLocation(ename, location)
+        KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{ename}", location)
+    end
 end
 
