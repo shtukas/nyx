@@ -8,50 +8,40 @@ class NSDT1SelectionInterface
 
     # NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
+        KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
         loop {
             system("clear")
-            puts "[sandbox selection]"
-            pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-            return nil if pattern == ""
-            nodes = SelectionLookupDataset::patternToNodes(pattern)
-            nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
-            next if nodes.empty?
-            node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
-            next if node.nil?
-            loop {
-                system("clear")
-                puts "[sandbox selection] selected: #{NSDataType1::toString(node)}"
-                ops = [
-                    "return this node", 
-                    "landing", 
-                    "back to search",
-                    "make new node"
-                ]
-                op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", ops)
-                next if op.nil?
-                if op == "return this node" then
-                    return node
-                end
-                if op == "landing" then
-                    KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
-                    NSDataType1::landing(node)
-                    # At this point another node could have been selected
-                    xnode = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
-                    if xnode then
-                        node = JSON.parse(xnode)
-                        KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
-                    end
-                end
-                if op == "back to search" then
-                    break
-                end
-                if op == "make new node" then
-                    x = NSDataType1::issueNewNodeInteractivelyOrNull()
-                    if x then
-                        node = x
-                    end
-                end
-            }
+
+            xnode = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
+            if xnode then
+                node = JSON.parse(xnode)
+                return node
+            end
+
+            op1 = "search -> choose -> landing -> navigate -> select -> return node"
+            op2 = "make new node -> return"
+            op3 = "exit selection; return null"
+
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", [ op1, op2, op3 ])
+            next if op.nil?
+            if op == op1 then
+                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+                next if pattern == ""
+                nodes = SelectionLookupDataset::patternToNodes(pattern)
+                next if nodes.empty?
+                nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
+                node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+                next if node.nil?
+                NSDataType1::landing(node)
+            end
+            if op == op2 then
+                node = NSDataType1::issueNewNodeInteractivelyOrNull()
+                next if node.nil?
+                return node
+            end
+            if op == op3 then
+                return nil
+            end
         }
     end
 

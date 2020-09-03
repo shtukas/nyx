@@ -324,7 +324,6 @@ class NSDataType1
             break if !status
 
             break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
-
         }
     end
 end
