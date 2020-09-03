@@ -33,20 +33,6 @@ class CatalystUI
 
             puts ""
 
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498"
-                }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    menuitems.item(
-                        Asteroids::toString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                }
-
-            puts ""
-
             Calendar::dates().each{|date|
                 menuitems.item(
                     "[calendar] #{date}",

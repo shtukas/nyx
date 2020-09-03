@@ -75,28 +75,11 @@ class Asteroids
                 "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
             }
         end
-        if option == opt380 then
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-            return {
-                "type"                  => "singleton-time-commitment-7c67cb4f-77e0-4fd",
-                "timeCommitmentInHours" => timeCommitmentInHours
-            }
-        end
         if option == opt390 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
                 "type"                  => "repeating-daily-time-commitment-8123956c-05",
                 "timeCommitmentInHours" => timeCommitmentInHours
-            }
-        end
-        if option == opt400 then
-            return {
-                "type"                  => "on-going-until-completion-5b26f145-7ebf-498"
-            }
-        end
-        if option == opt430 then
-            return {
-                "type"                  => "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
             }
         end
         if option == opt450 then
@@ -106,7 +89,7 @@ class Asteroids
         end
         if option == opt420 then
             return {
-                "type"                  => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
+                "type"                  => "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
             }
         end
         if option == opt440 then
@@ -180,11 +163,8 @@ class Asteroids
     def self.asteroidOrbitalTypes()
         [
             "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
-            "singleton-time-commitment-7c67cb4f-77e0-4fd",
             "repeating-daily-time-commitment-8123956c-05",
-            "on-going-until-completion-5b26f145-7ebf-498",
-            "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2",
-            "float-to-do-today-b0d902a8-3184-45fa-9808-1",
+            "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0",
             "open-project-in-the-background-b458aa91-6e1",
             "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         ]
@@ -206,22 +186,16 @@ class Asteroids
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
-        return "⏱️ " if type == "singleton-time-commitment-7c67cb4f-77e0-4fd"
         return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
-        return "⛵"  if type == "on-going-until-completion-5b26f145-7ebf-498"
-        return "⛲"  if type == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2"
+        return "☀️ " if type == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
         return "👩‍💻"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-        return "☀️ " if type == "float-to-do-today-b0d902a8-3184-45fa-9808-1"
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
     # Asteroids::orbitalToString(asteroid)
     def self.orbitalToString(asteroid)
         uuid = asteroid["uuid"]
-        if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            return "(singleton: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, done: #{(Asteroids::bankValueLive(asteroid).to_f/3600).round(2)} hours)"
-        end
         if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
             return "(daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
         end
@@ -283,10 +257,6 @@ class Asteroids
         end
 
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.73 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
             return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
@@ -301,27 +271,15 @@ class Asteroids
                 end
             end
             return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > orbital["timeCommitmentInHours"]
-            return 0.70 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
+            return 0.65 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
         end
 
-        if orbital["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            return 0.67 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
-            uuid = asteroid["uuid"]
-            return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > Asteroids::onGoingUnilCompletionDailyExpectationInHours()
-            return 0.63 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
-        end
-
-        if orbital["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            uuid = asteroid["uuid"]
-            return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > Asteroids::onGoingUnilCompletionDailyExpectationInHours()
-            return 0.63 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
+        if orbital["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+            return 0.60 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
-            return 0.49 + Asteroids::unixtimedrift(asteroid["unixtime"])
+            return 0.30 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then
@@ -359,11 +317,6 @@ class Asteroids
         return false if !Asteroids::isRunning?(asteroid)
         uuid = asteroid["uuid"]
         orbital = asteroid["orbital"]
-        if orbital["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-            if Asteroids::bankValueLive(asteroid) >= orbital["timeCommitmentInHours"]*3600 then
-                return true
-            end
-        end
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
     end
 
@@ -390,14 +343,6 @@ class Asteroids
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        Asteroids::asteroids().each{|asteroid|
-            if asteroid["orbital"]["type"] == "singleton-time-commitment-7c67cb4f-77e0-4fd" then
-                if Bank::value(asteroid["uuid"]) >= asteroid["orbital"]["timeCommitmentInHours"]*3600 then
-                    Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
-                end
-            end
-        }
-
         Asteroids::asteroids()
             .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
             .reduce([]) {|asteroids, asteroid|
@@ -485,93 +430,6 @@ class Asteroids
         end
     end
 
-    # Asteroids::processInboxAsteroid(asteroid)
-    def self.processInboxAsteroid(asteroid)
-        targets = Arrows::getTargetsForSource(asteroid)
-        if targets.size == 0 then
-            Asteroids::destroy(asteroid)
-            return
-        end
-        if targets.size == 1 then
-            target = targets.first
-
-            # default action
-
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-
-            if GenericObjectInterface::isAsteroid(target) then
-                Asteroids::landing(target)
-            end
-
-            if GenericObjectInterface::isNode(target) then
-                NSDataType1::landing(target)
-            end
-
-            if GenericObjectInterface::isDataPoint(target) then
-                NSDataPoint::accessopen(target)
-            end
-
-            Asteroids::stopAsteroidIfRunning(asteroid)
-
-            # recasting
-
-            modes = [
-                "landing",
-                "hide for a time",
-                "move to todo today",
-                "add to queue",
-                "re orbital",
-                "transmute asteroid to node",
-                "destroy"
-            ]
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-            return if mode.nil?
-            if mode == "landing" then
-                Asteroids::landing(asteroid)
-                return
-            end
-            if mode == "hide for a time" then
-                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-                return
-            end
-            if mode == "move to todo today" then
-                asteroid["orbital"] = {
-                    "type" => "float-to-do-today-b0d902a8-3184-45fa-9808-1"
-                }
-                Asteroids::commitToDisk(asteroid)
-                return
-            end
-            if mode == "add to queue" then
-                asteroid["orbital"] = {
-                    "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
-                }
-                Asteroids::commitToDisk(asteroid)
-                return
-            end
-            if mode == "re orbital" then
-                Asteroids::reOrbitalOrNothing(asteroid)
-                return
-            end
-            if mode == "transmute asteroid to node" then
-                Asteroids::transmuteAsteroidToNode(asteroid)
-                return
-            end
-            if mode == "destroy" then
-                Asteroids::destroy(asteroid)
-                return
-            end
-        end
-       if targets.size > 1 then
-            Asteroids::landing(asteroid)
-            return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
-                Asteroids::destroy(asteroid)
-                return
-            end
-        end
-    end
-
     # Asteroids::transmuteAsteroidToNode(asteroid)
     def self.transmuteAsteroidToNode(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
@@ -629,31 +487,136 @@ class Asteroids
         # Not Running
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            Asteroids::processInboxAsteroid(asteroid)
+            targets = Arrows::getTargetsForSource(asteroid)
+            if targets.size == 0 then
+                Asteroids::destroy(asteroid)
+                return
+            end
+            if targets.size == 1 then
+                target = targets.first
+
+                # default action
+
+                Asteroids::startAsteroidIfNotRunning(asteroid)
+
+                if GenericObjectInterface::isAsteroid(target) then
+                    Asteroids::landing(target)
+                end
+
+                if GenericObjectInterface::isNode(target) then
+                    NSDataType1::landing(target)
+                end
+
+                if GenericObjectInterface::isDataPoint(target) then
+                    NSDataPoint::accessopen(target)
+                end
+
+                Asteroids::stopAsteroidIfRunning(asteroid)
+
+                # recasting
+
+                modes = [
+                    "landing",
+                    "DoNotDisplay for a time",
+                    "todo today",
+                    "to queue",
+                    "re orbital",
+                    "transmute to node",
+                    "destroy"
+                ]
+                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+                return if mode.nil?
+                if mode == "landing" then
+                    Asteroids::landing(asteroid)
+                    return
+                end
+                if mode == "DoNotDisplay for a time" then
+                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+                    return
+                end
+                if mode == "todo today" then
+                    asteroid["orbital"] = {
+                        "type" => "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+                    }
+                    Asteroids::commitToDisk(asteroid)
+                    return
+                end
+                if mode == "to queue" then
+                    asteroid["orbital"] = {
+                        "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                    }
+                    Asteroids::commitToDisk(asteroid)
+                    return
+                end
+                if mode == "re orbital" then
+                    Asteroids::reOrbitalOrNothing(asteroid)
+                    return
+                end
+                if mode == "transmute to node" then
+                    Asteroids::transmuteAsteroidToNode(asteroid)
+                    return
+                end
+                if mode == "destroy" then
+                    Asteroids::destroy(asteroid)
+                    return
+                end
+            end
+           if targets.size > 1 then
+                Asteroids::landing(asteroid)
+                return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
+                    Asteroids::destroy(asteroid)
+                    return
+                end
+            end
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                Asteroids::destroy(asteroid)
+            end
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::openTargetOrTargets(asteroid)
+            modes = [
+                "done/destroy",
+                "just start",
+                "stop/push/rotate"
+            ]
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+            return if mode.nil?
+            if mode == "done/destroy" then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                Asteroids::destroy(asteroid)
+                return
+            end
+            if mode == "just start" then
+                return
+            end
+            if mode == "stop/push/rotate" then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                asteroid["unxitime"] = Time.new.to_i
+                NyxObjects2::put(asteroid)
+                return
+            end
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                Asteroids::destroy(asteroid)
+            end
             return
         end
 
@@ -670,16 +633,6 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "on-going-until-completion-5b26f145-7ebf-498" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "indefinite-e79bb5c2-9046-4b86-8a79-eb7dc9e2" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
@@ -688,7 +641,7 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "float-to-do-today-b0d902a8-3184-45fa-9808-1" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::destroy(asteroid)
@@ -794,7 +747,7 @@ class Asteroids
             )
 
             menuitems.item(
-                "transmute asteroid to node".yellow,
+                "transmute to node".yellow,
                 lambda {
                     Asteroids::transmuteAsteroidToNode(asteroid)
                 }
