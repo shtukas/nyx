@@ -901,8 +901,17 @@ class Asteroids
         if targets.size > 0 then
             targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|target|
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{GenericObjectInterface::toString(target)}' ? ") then
-                    GenericObjectInterface::destroy(target)
+                if Arrows::getSourcesForTarget(target).size == 1 then
+                    GenericObjectInterface::destroy(target) # The only source is the asteroid itself.
+                else
+                    puts "A child of this asteroid has more than one parent:"
+                    puts "   -> child: '#{GenericObjectInterface::toString(target)}'"
+                    Arrows::getSourcesForTarget(target).each{|source|
+                        puts "   -> parent: '#{GenericObjectInterface::toString(source)}'"
+                    }
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{GenericObjectInterface::toString(target)}' ? ") then
+                        GenericObjectInterface::destroy(target)
+                    end
                 end
             }
         end
