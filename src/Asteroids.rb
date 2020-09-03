@@ -386,6 +386,7 @@ class Asteroids
     # Asteroids::startAsteroidIfNotRunning(asteroid)
     def self.startAsteroidIfNotRunning(asteroid)
         return if Asteroids::isRunning?(asteroid)
+        puts "start asteroid: #{Asteroids::toString(asteroid)}"
         Runner::start(asteroid["uuid"])
     end
 
@@ -603,7 +604,7 @@ class Asteroids
             end
             if mode == "stop/push/rotate" then
                 Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["unxitime"] = Time.new.to_i
+                asteroid["unixtime"] = Time.new.to_i
                 NyxObjects2::put(asteroid)
                 return
             end
