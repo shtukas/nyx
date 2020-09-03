@@ -11,7 +11,10 @@ class GalaxyFinder
 
     # GalaxyFinder::scanroots()
     def self.scanroots()
-        ["/Users/pascal/Galaxy"]
+        [
+            "/Users/pascal/Galaxy/Timeline/2020/DataNetwork",
+            "/Users/pascal/Galaxy"
+        ]
     end
 
     # GalaxyFinder::locationEnumerator(roots)
