@@ -10,6 +10,7 @@ NSDataPoint
     "type"         : "line"
     "line"         : String
     "description"  : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
 }
 
 {
@@ -19,6 +20,7 @@ NSDataPoint
     "type"         : "url"
     "url"          : String
     "description"  : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
 }
 
 {
@@ -28,6 +30,7 @@ NSDataPoint
     "type"         : "NyxFile"
     "name"         : String
     "description"  : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
 }
 
 {
@@ -37,4 +40,5 @@ NSDataPoint
     "type"         : "NyxHub"
     "name"         : String
     "description"  : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
 }

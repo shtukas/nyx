@@ -53,13 +53,6 @@ end
 
 class NSDataTypeXExtended
 
-
-    # NSDataTypeXExtended::issueDateTimeIso8601ForTarget(target, datetime)
-    def self.issueDateTimeIso8601ForTarget(target, datetime)
-        raise "[error: 94222cc7-d035-4d9d-a7a8-e351a6bd1d12]" if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-        NSDataTypeX::issue(target["uuid"], "77b95849-efbb-4b3f-b353-347658486447", datetime)
-    end
-
     # NSDataTypeXExtended::getLastDateTimeForTargetOrNull(target)
     def self.getLastDateTimeForTargetOrNull(target)
         attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "77b95849-efbb-4b3f-b353-347658486447")

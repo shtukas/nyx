@@ -50,9 +50,10 @@ class GenericObjectInterface
 
     # GenericObjectInterface::getObjectReferenceDateTime(object)
     def self.getObjectReferenceDateTime(object)
-        datetime = NSDataTypeXExtended::getLastDateTimeForTargetOrNull(object)
-        return datetime if datetime
+        return object["referenceDateTime"] if object["referenceDateTime"]
         Time.at(object["unixtime"]).utc.iso8601
+        object["referenceDateTime"] = Time.at(object["unixtime"]).utc.iso8601
+        NyxObjects2::put(object)
     end
 
     # GenericObjectInterface::landing(object)

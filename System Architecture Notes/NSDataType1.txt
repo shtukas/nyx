@@ -2,8 +2,9 @@
 NSDataType1 are mutable data Points. NSDataPoints are the various version of a NSDataType1.
 
 NSDataType1 {
-    "uuid"         : String
-    "nyxNxSet"     : "c18e8093-63d6-4072-8827-14f238975d04"
-    "unixtime"     : Float # Unixtime with decimals
-    "description"  : nil or String
+    "uuid"              : String
+    "nyxNxSet"          : "c18e8093-63d6-4072-8827-14f238975d04"
+    "unixtime"          : Float # Unixtime with decimals
+    "description"       : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
 }

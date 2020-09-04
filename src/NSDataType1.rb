@@ -162,9 +162,9 @@ class NSDataType1
             menuitems.item(
                 "edit reference datetime".yellow,
                 lambda{
-                    datetime = Miscellaneous::editTextSynchronously(GenericObjectInterface::getObjectReferenceDateTime(node)).strip
-                    return if !Miscellaneous::isDateTime_UTC_ISO8601(datetime)
-                    NSDataTypeXExtended::issueDateTimeIso8601ForTarget(node, datetime)
+                    datetime = Miscellaneous::editTextSynchronously(node["referenceDateTime"] || Time.new.utc.iso8601).strip
+                    node["referenceDateTime"] = datetime
+                    NyxObjects2::put(node)
                 }
             )
 
