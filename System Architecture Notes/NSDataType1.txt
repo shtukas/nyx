@@ -5,4 +5,5 @@ NSDataType1 {
     "uuid"         : String
     "nyxNxSet"     : "c18e8093-63d6-4072-8827-14f238975d04"
     "unixtime"     : Float # Unixtime with decimals
+    "description"  : nil or String
 }

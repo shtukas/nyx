@@ -137,9 +137,8 @@ class NSDataPoint
 
     # NSDataPoint::toStringUseTheForce(datapoint)
     def self.toStringUseTheForce(datapoint)
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(datapoint)
-        if description then
-            return "[#{datapoint["type"]}] #{description}"
+        if datapoint["description"] then
+            return "[#{datapoint["type"]}] #{datapoint["description"]}"
         end
         if datapoint["type"] == "line" then
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
@@ -284,10 +283,10 @@ class NSDataPoint
             menuitems.item(
                 "set/update description".yellow,
                 lambda{
-                    description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(datapoint) || ""
-                    description = Miscellaneous::editTextSynchronously(description).strip
+                    description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
                     return if description == ""
-                    NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
+                    datapoint["description"] = description
+                    NyxObjects2::put(datapoint)
                 }
             )
 

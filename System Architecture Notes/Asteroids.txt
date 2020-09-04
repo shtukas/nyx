@@ -5,6 +5,7 @@ Asteroid
     "nyxNxSet" : "b66318f4-2662-4621-a991-a6b966fb4398"
     "unixtime" : Float # Unixtime with decimals
     "orbital"  : Orbital
+    "description" : nil or String
 }
 
     Orbital

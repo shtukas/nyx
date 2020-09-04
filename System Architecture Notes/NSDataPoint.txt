@@ -9,6 +9,7 @@ NSDataPoint
     "unixtime"     : Float # Unixtime with decimals
     "type"         : "line"
     "line"         : String
+    "description"  : nil or String
 }
 
 {
@@ -17,6 +18,7 @@ NSDataPoint
     "unixtime"     : Float # Unixtime with decimals
     "type"         : "url"
     "url"          : String
+    "description"  : nil or String
 }
 
 {
@@ -25,6 +27,7 @@ NSDataPoint
     "unixtime"     : Float # Unixtime with decimals
     "type"         : "NyxFile"
     "name"         : String
+    "description"  : nil or String
 }
 
 {
@@ -33,4 +36,5 @@ NSDataPoint
     "unixtime"     : Float # Unixtime with decimals
     "type"         : "NyxHub"
     "name"         : String
+    "description"  : nil or String
 }

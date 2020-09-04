@@ -32,18 +32,17 @@ class NSDataType1
             return str if str
         end
         objects = Arrows::getTargetsForSource(node)
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-        if description then
-            str = "[node] [#{node["uuid"][0, 4]}] #{description}"
+        if node["description"] then
+            str = "[node] [#{node["uuid"][0, 4]}] #{node["description"]}"
             KeyValueStore::set(nil, cacheKey, str)
             return str
         end
-        if description.nil? and objects.size > 0 then
+        if node["description"].nil? and objects.size > 0 then
             str = "[node] [#{node["uuid"][0, 4]}] #{GenericObjectInterface::toString(objects.first)}"
             KeyValueStore::set(nil, cacheKey, str)
             return str
         end
-        if description.nil? and objects.size == 0 then
+        if node["description"].nil? and objects.size == 0 then
             str = "[node] [#{node["uuid"][0, 4]}] {no description, no dataline}"
             KeyValueStore::set(nil, cacheKey, str)
             return str
@@ -60,7 +59,8 @@ class NSDataType1
     def self.issueDescriptionInteractivelyOrNothing(point)
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return if description == ""
-        NSDataTypeXExtended::issueDescriptionForTarget(point, description)
+        point["description"] = description
+        NyxObjects2::put(point)
     end
 
     # NSDataType1::issueNewNodeInteractivelyOrNull()
@@ -69,7 +69,8 @@ class NSDataType1
         return nil if description == "" 
         node = NSDataType1::issue()
         puts "node: #{JSON.pretty_generate(node)}"
-        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+        node["description"] = description
+        NyxObjects2::put(node)
         if LucilleCore::askQuestionAnswerAsBoolean("Create datapoint ? : ") then
             datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
             if datapoint then
@@ -133,9 +134,8 @@ class NSDataType1
 
             puts "[node]".yellow
 
-            description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node)
-            if description then
-                puts "    description: #{description}"
+            if node["description"] then
+                puts "    description: #{node["description"]}"
             end
             puts "    uuid: #{node["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}".yellow
@@ -152,10 +152,10 @@ class NSDataType1
             menuitems.item(
                 "set/update description".yellow,
                 lambda{
-                    description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(node) || ""
-                    description = Miscellaneous::editTextSynchronously(description).strip
+                    description = Miscellaneous::editTextSynchronously(node["description"] || "").strip
                     return if description == ""
-                    NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+                    node["description"] =  description
+                    NyxObjects2::put(node)
                 }
             )
 
@@ -234,7 +234,8 @@ class NSDataType1
                     Arrows::issueOrException(node, datapoint)
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                     if description != "" then
-                        NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
+                        datapoint["description"] =  description
+                        NyxObjects2::put(datapoint)
                     end
                 }
             )

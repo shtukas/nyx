@@ -62,7 +62,8 @@ class DataPortalUI
                     Arrows::issueOrException(node, datapoint)
                     description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
                     if description.size > 0 then
-                        NSDataTypeXExtended::issueDescriptionForTarget(datapoint, description)
+                        datapoint["description"] = description
+                        NyxObjects2::put(datapoint)
                     end
                     NSDataType1::landing(node)
                 }

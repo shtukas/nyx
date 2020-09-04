@@ -116,10 +116,10 @@ class Asteroids
             "uuid"     => SecureRandom.hex,
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
-            "orbital"  => orbital
+            "orbital"  => orbital,
+            "description" => description
         }
         Asteroids::commitToDisk(asteroid)
-        NSDataTypeXExtended::issueDescriptionForTarget(asteroid, description)
         asteroid
     end
 
@@ -204,8 +204,7 @@ class Asteroids
 
     # Asteroids::asteroidDescriptionUseTheForce(asteroid)
     def self.asteroidDescriptionUseTheForce(asteroid)
-        description = NSDataTypeXExtended::getLastDescriptionForTargetOrNull(asteroid)
-        return description if description
+        return asteroid["description"] if asteroid["description"]
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.empty? then
            return "no target"
@@ -448,7 +447,8 @@ class Asteroids
         description = LucilleCore::askQuestionAnswerAsString("node description: ")
         return if description == ""
         node = NSDataType1::issue()
-        NSDataTypeXExtended::issueDescriptionForTarget(node, description)
+        node["description"] = description
+        NyxObjects2::put(node)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| 
 
@@ -716,7 +716,8 @@ class Asteroids
                 lambda { 
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                     return if description == ""
-                    NSDataTypeXExtended::issueDescriptionForTarget(asteroid, description)
+                    asteroid["description"] = description
+                    NyxObjects2::put(asteroid)
                     KeyValueStore::destroy(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
                 }
             )

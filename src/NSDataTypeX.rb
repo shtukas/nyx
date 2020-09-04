@@ -53,17 +53,6 @@ end
 
 class NSDataTypeXExtended
 
-    # NSDataTypeXExtended::issueDescriptionForTarget(target, description)
-    def self.issueDescriptionForTarget(target, description)
-        NSDataTypeX::issue(target["uuid"], "4868c01e-2621-4329-8602-6a6fc92bc51c", description)
-    end
-
-    # NSDataTypeXExtended::getLastDescriptionForTargetOrNull(target)
-    def self.getLastDescriptionForTargetOrNull(target)
-        attribute = NSDataTypeX::getLastAttributeOfGivenTypeForTargetOrNull(target["uuid"], "4868c01e-2621-4329-8602-6a6fc92bc51c")
-        return nil if attribute.nil?
-        attribute["payload"]
-    end
 
     # NSDataTypeXExtended::issueDateTimeIso8601ForTarget(target, datetime)
     def self.issueDateTimeIso8601ForTarget(target, datetime)
