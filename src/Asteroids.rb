@@ -381,6 +381,17 @@ class Asteroids
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
+
+        if asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+            cycleTimeInSeconds = KeyValueStore::getOrDefaultValue(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", "0").to_i
+            cycleTimeInSeconds = cycleTimeInSeconds + timespanInSeconds
+            KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", cycleTimeInSeconds)
+            if cycleTimeInSeconds > 3600 then
+                KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", 0)
+                asteroid["unixtime"] = Time.new.to_i
+                NyxObjects2::put(asteroid)
+            end
+        end
     end
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)
@@ -606,6 +617,7 @@ class Asteroids
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 asteroid["unixtime"] = Time.new.to_i
                 NyxObjects2::put(asteroid)
+                KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", 0)
                 return
             end
             return
@@ -702,8 +714,10 @@ class Asteroids
             menuitems.item(
                 "update asteroid description".yellow,
                 lambda { 
-                    puts "Not yet implemented"
-                    LucilleCore::pressEnterToContinue()
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    return if description == ""
+                    NSDataTypeXExtended::issueDescriptionForTarget(asteroid, description)
+                    KeyValueStore::destroy(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
                 }
             )
 
