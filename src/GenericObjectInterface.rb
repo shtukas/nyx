@@ -51,9 +51,9 @@ class GenericObjectInterface
     # GenericObjectInterface::getObjectReferenceDateTime(object)
     def self.getObjectReferenceDateTime(object)
         return object["referenceDateTime"] if object["referenceDateTime"]
-        Time.at(object["unixtime"]).utc.iso8601
         object["referenceDateTime"] = Time.at(object["unixtime"]).utc.iso8601
         NyxObjects2::put(object)
+        object["referenceDateTime"]
     end
 
     # GenericObjectInterface::landing(object)
