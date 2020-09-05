@@ -12,7 +12,7 @@ class GalaxyFinder
     # GalaxyFinder::scanroots()
     def self.scanroots()
         [
-            "/Users/pascal/Galaxy/Timeline/2020/DataNetwork",
+            "/Users/pascal/Galaxy/Timeline/2020/CatalystElements",
             "/Users/pascal/Galaxy"
         ]
     end
