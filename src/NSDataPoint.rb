@@ -393,7 +393,7 @@ class DatapointNyxElementLocation
                     NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
                 else
                     puts "DatapointNyxElementLocation::automaintenance(#{showprogress}): I can't locate #{datapoint}"
-                    puts "Going to dive"
+                    puts "Going to land"
                     LucilleCore::pressEnterToContinue()
                     NSDataPoint::landing(datapoint)
                 end
@@ -411,7 +411,7 @@ class DatapointNyxElementLocation
                 system("clear")
                 puts "Falling to find a location for this datapoint nyx element"
                 puts JSON.pretty_generate(datapoint)
-                puts "Going to dive"
+                puts "Going to land"
                 LucilleCore::pressEnterToContinue()
                 NSDataPoint::landing(datapoint)
             end
