@@ -1,9 +1,0 @@
-Page , Independent piece of text, mostly used for in program documentation or notices. The contant between versions is the textid. Unlike Notes, they do not target, instead they are created and used wherever needed.
-
-{
-    "uuid"       : String # Specific to this particular object
-    "nyxNxSet"   : "ab01a47c-bb91-4a15-93f5-b98cd3eb1866"
-    "unixtime"   : Float
-    "textid"     : String # Specific to the sequence of versions
-    "namedhash"  : String
-}

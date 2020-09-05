@@ -17,14 +17,5 @@ class NyxGarbageCollection
             end
         }
 
-        NSDataTypeX::attributes().each{|attribute|
-            if NyxObjects2::getOrNull(attribute["targetuuid"]).nil? then
-                if verbose then
-                    puts "removing attribute without a target: #{attribute}"
-                end
-                NyxObjects2::destroy(attribute)
-            end
-        }
-
     end
 end

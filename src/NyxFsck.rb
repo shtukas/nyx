@@ -71,11 +71,6 @@ class NyxFsck
             return true
         end
 
-        if object["nyxNxSet"] == "5c99134b-2b61-4750-8519-49c1d896556f" then
-            # NSDataTypeX / attribute
-            return true
-        end
-
         puts JSON.pretty_generate(object)
         puts "[error: eed35593-c378-4715-bbb7-5cbefbcd47ce]"
         false

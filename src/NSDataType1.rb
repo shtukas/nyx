@@ -140,13 +140,6 @@ class NSDataType1
             puts "    uuid: #{node["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(node)}".yellow
 
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node)
-            if notetext and notetext.strip.size > 0 then
-                Miscellaneous::horizontalRule()
-                puts "Note:"
-                puts notetext.strip.lines.map{|line| "    #{line}" }.join()
-            end
-
             puts ""
 
             menuitems.item(
@@ -165,15 +158,6 @@ class NSDataType1
                     datetime = Miscellaneous::editTextSynchronously(node["referenceDateTime"] || Time.new.utc.iso8601).strip
                     node["referenceDateTime"] = datetime
                     NyxObjects2::put(node)
-                }
-            )
-
-            menuitems.item(
-                "edit note".yellow,
-                lambda{ 
-                    text = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(node) || ""
-                    text = Miscellaneous::editTextSynchronously(text).strip
-                    NSDataTypeXExtended::issueNoteForTarget(node, text)
                 }
             )
 

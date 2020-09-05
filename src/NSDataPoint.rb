@@ -266,13 +266,6 @@ class NSDataPoint
             puts "    uuid: #{datapoint["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
 
-            notetext = NSDataTypeXExtended::getLastNoteTextForTargetOrNull(datapoint)
-            if notetext and notetext.strip.size > 0 then
-                Miscellaneous::horizontalRule()
-                puts "Note:"
-                puts notetext.strip.lines.map{|line| "    #{line}" }.join()
-            end
-
             puts ""
 
             menuitems.item(
