@@ -69,8 +69,10 @@ class CatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = Miscellaneous::screenHeight()-3
+        verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
+
+        puts ""
 
         filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
         text = IO.read(filepath).strip
@@ -80,24 +82,6 @@ class CatalystUI
             puts File.basename(filepath)
             puts text
             verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
-        end
-
-        objects = catalystObjects
-            .take_while{|object| object["metric"] >= 0.8 }
-
-        if objects.size > 0 then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            objects
-                .each{|object|
-                    str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                    break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                    verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                    menuitems.item(
-                        str,
-                        lambda { object["execute"].call("ec23a3a3-bfa0-45db-a162-fdd92da87f64") }
-                    )
-                }
         end
 
         dates =  Calendar::dates()
@@ -120,11 +104,7 @@ class CatalystUI
                 }
         end
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         catalystObjects
-            .drop_while{|object| object["metric"] >= 0.8 }
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
