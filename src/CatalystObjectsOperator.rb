@@ -6,7 +6,6 @@ class CatalystObjectsOperator
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = [
-            Anniversaries::catalystObjects(),
             Asteroids::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
@@ -25,10 +24,6 @@ class CatalystObjectsOperator
     # CatalystObjectsOperator::generationSpeedReport()
     def self.generationSpeedReport()
         generators = [
-            {
-                "name" => "Anniversaries",
-                "exec" => lambda{ Anniversaries::catalystObjects() }
-            },
             {
                 "name" => "BackupsMonitor",
                 "exec" => lambda{ BackupsMonitor::catalystObjects() }

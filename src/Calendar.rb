@@ -3,7 +3,7 @@ class Calendar
 
     # Calendar::pathToCalendarItems()
     def self.pathToCalendarItems()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items"
+        "/Users/pascal/Galaxy/Calendar/Calendar"
     end
 
     # Calendar::today()

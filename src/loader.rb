@@ -116,7 +116,6 @@ Dionysus1::sets_destroy(filepath, _setuuid_, _objectuuid_)
 
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
 
-require_relative "Anniversaries.rb"
 require_relative "Arrows.rb"
 require_relative "Asteroids.rb"
 require_relative "GalaxyFinder.rb"

@@ -1,5 +1,4 @@
 🗓️
-        0.95          Anniversaries
         0.93          Calendar
 
         0.90  -> 0.20 VideoStream
