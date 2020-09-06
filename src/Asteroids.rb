@@ -5,44 +5,6 @@ class Asteroids
     # -------------------------------------------------------------------
     # Building
 
-    # Asteroids::makePayloadInteractivelyOrNull(asteroiduuid)
-    def self.makePayloadInteractivelyOrNull(asteroiduuid)
-        options = [
-            "description",
-            "metal",
-            "direct management"
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("payload type", options)
-        return nil if option.nil?
-        if option == "description" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return {
-                "type"        => "description",
-                "description" => description
-            }
-        end
-        if option == "metal" then
-            ns0 = NSDataPoint::issueNewPointInteractivelyOrNull()
-            return nil if ns0.nil?
-            ns1 = NSDataType1::issue()
-            Arrows::issueOrException(ns1, ns0)
-            Arrows::issueOrException({ "uuid" => asteroiduuid }, ns1) # clever idea ^^
-            return {
-                "type"        => "metal",
-                "description" => nil
-            }
-        end
-        if option == "direct management" then
-            basename = LucilleCore::askQuestionAnswerAsString("basename: ")
-            return nil if basename.size == 0
-            return {
-                "type"        => "direct-management-5d44d340-1449-43ff-9864-e1f0526f1e26",
-                "description" => basename
-            }
-        end
-        nil
-    end
-
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
 
