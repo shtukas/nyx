@@ -13,9 +13,6 @@ Nyx
             -> NyxFile
             -> NyxHub
 
-        NSDataType1   # NSDataType1.txt
-                      # nyxNxSet: "c18e8093-63d6-4072-8827-14f238975d04"
-
         Wave          # Waves.txt
                       # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 

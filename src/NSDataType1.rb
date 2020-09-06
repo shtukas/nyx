@@ -3,11 +3,6 @@
 
 class NSDataType1
 
-    # NSDataType1::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        NyxObjects2::getOrNull(uuid)
-    end
-
     # NSDataType1::toString(node, useCachedValue = true)
     def self.toString(node, useCachedValue = true)
         cacheKey = "645001e0-dec2-4e7a-b113-5c5e93ec0e69:#{node["uuid"]}"
@@ -32,10 +27,5 @@ class NSDataType1
             return str
         end
         raise "[error: 2b22ddb3-62c4-4940-987a-7a50330dcd36]"
-    end
-
-    # NSDataType1::destroy(point)
-    def self.destroy(point)
-        NyxObjects2::destroy(point)
     end
 end

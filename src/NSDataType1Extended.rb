@@ -55,7 +55,7 @@ class NSDataType1Extended
             #nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
-                #nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
+                #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
                 node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
