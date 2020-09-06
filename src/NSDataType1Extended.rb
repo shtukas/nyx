@@ -27,12 +27,12 @@ class NSDataType1Extended
             if op == op1 then
                 pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
                 next if pattern == ""
-                nodes = SelectionLookupDataset::patternToNodes(pattern)
+                nodes = SelectionLookupDataset::patternToDatapoints(pattern)
                 next if nodes.empty?
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                 node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
-                NSDataType1::landing(node)
+                NSDataPoint::landing(node)
             end
             if op == op2 then
                 node = NSDataType1::issueNewNodeInteractivelyOrNull()
@@ -51,7 +51,7 @@ class NSDataType1Extended
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
-            nodes = SelectionLookupDataset::patternToNodes(pattern)
+            nodes = SelectionLookupDataset::patternToDatapoints(pattern)
             #nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
@@ -60,7 +60,7 @@ class NSDataType1Extended
                 system("clear")
                 node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
-                NSDataType1::landing(node)
+                NSDataPoint::landing(node)
             }
         }
     end
@@ -121,7 +121,7 @@ class NSDataType1Extended
 
                 win2UpdateStateToSearching.call()
 
-                objects = SelectionLookupDataset::patternToNodes(pattern)
+                objects = SelectionLookupDataset::patternToDatapoints(pattern)
                 globalState["selectedObjets"] = objects
 
                 win3.setpos(0,0)

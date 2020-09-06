@@ -127,13 +127,6 @@ class SelectionLookupDatabaseInMemory
             .select{|object| GenericObjectInterface::isDataPoint(object) }
     end
 
-    def patternToNodes(pattern)
-        patternToRecords(pattern)
-            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
-            .compact
-            .select{|object| GenericObjectInterface::isNode(object) }
-    end
-
     def patternToAsteroids(pattern)
         patternToRecords(pattern)
             .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
@@ -258,11 +251,6 @@ class SelectionLookupDataset
     # SelectionLookupDataset::patternToDatapoints(pattern)
     def self.patternToDatapoints(pattern)
         $SelectionLookupDatabaseInMemoryA22379F6.patternToDatapoints(pattern)
-    end
-
-    # SelectionLookupDataset::patternToNodes(pattern)
-    def self.patternToNodes(pattern)
-        $SelectionLookupDatabaseInMemoryA22379F6.patternToNodes(pattern)
     end
 
     # SelectionLookupDataset::patternToAsteroids(pattern)

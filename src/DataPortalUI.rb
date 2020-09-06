@@ -27,7 +27,7 @@ class DataPortalUI
                         return if nodes.empty?
                         node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
-                        NSDataType1::landing(node)
+                        NSDataPoint::landing(node)
                     }
                 }
             )
@@ -41,7 +41,7 @@ class DataPortalUI
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
                         break if node.nil?
-                        NSDataType1::landing(node)
+                        NSDataPoint::landing(node)
                     }
                 }
             )
@@ -65,7 +65,7 @@ class DataPortalUI
                         datapoint["description"] = description
                         NyxObjects2::put(datapoint)
                     end
-                    NSDataType1::landing(node)
+                    NSDataPoint::landing(node)
                 }
             )
 
@@ -74,7 +74,7 @@ class DataPortalUI
                 lambda { 
                     point = NSDataType1::issueNewNodeInteractivelyOrNull()
                     return if point.nil?
-                    NSDataType1::landing(point)
+                    NSDataPoint::landing(point)
                 }
             )
 

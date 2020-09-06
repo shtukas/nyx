@@ -263,9 +263,43 @@ class NSDataPoint
             )
 
             menuitems.item(
-                "destroy".yellow,
+                "edit reference datetime".yellow,
+                lambda{
+                    datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
+                    datapoint["referenceDateTime"] = datetime
+                    NyxObjects2::put(datapoint)
+                }
+            )
+
+            menuitems.item(
+                "[sandbox selection]".yellow,
+                lambda{ KeyValueStore::set(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546", JSON.generate(datapoint)) }
+            )
+
+            menuitems.item(
+                "remove [this] as intermediary node".yellow, 
+                lambda { 
+                    puts "intermediary node removal simulation"
+                    Arrows::getSourcesForTarget(datapoint).each{|upstreamnode|
+                        puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
+                    }
+                    Arrows::getTargetsForSource(datapoint).each{|downstreamobject|
+                        puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
+                    }
+                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
+                    Arrows::getSourcesForTarget(datapoint).each{|upstreamnode|
+                        Arrows::getTargetsForSource(datapoint).each{|downstreamobject|
+                            Arrows::issueOrException(upstreamnode, downstreamobject)
+                        }
+                    }
+                    NyxObjects2::destroy(datapoint)
+                }
+            )
+
+            menuitems.item(
+                "destroy [this]".yellow,
                 lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of '#{NSDataPoint::toString(datapoint)}': ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSDataPoint::toString(datapoint)}': ") then
                         NyxObjects2::destroy(datapoint)
                     end
                 }
@@ -284,10 +318,133 @@ class NSDataPoint
                     )
                 }
 
+            puts ""
+
+            menuitems.item(
+                "attach parent node".yellow,
+                lambda {
+                    n = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    return if n.nil?
+                    Arrows::issueOrException(n, datapoint)
+                }
+            )
+
+            menuitems.item(
+                "detach parent".yellow,
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::unlink(ns, datapoint)
+                }
+            )
+
+            Miscellaneous::horizontalRule()
+
+            puts "[children]".yellow
+
+            targets = Arrows::getTargetsForSource(datapoint)
+            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets.each{|o|
+                menuitems.item(
+                    GenericObjectInterface::toString(o, false),
+                    lambda{ GenericObjectInterface::landing(o) }
+                )
+            }
+
+            puts ""
+
+            menuitems.item(
+                "issue node ; attach as child".yellow,
+                lambda{
+                    child = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    return if child.nil?
+                    Arrows::issueOrException(datapoint, child)
+                    if child["type"] != "navigation" then
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        if description != "" then
+                            child["description"] =  description
+                            NyxObjects2::put(child)
+                        end
+                    end
+                }
+            )
+
+            menuitems.item(
+                "select from existing nodes ; attach as child".yellow,
+                lambda {
+                    o = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    return if o.nil?
+                    Arrows::issueOrException(datapoint, o)
+                }
+            )
+
+            menuitems.item(
+                "detach child".yellow,
+                lambda {
+                    targets = Arrows::getTargetsForSource(datapoint)
+                    targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::unlink(datapoint, ns)
+                }
+            )
+
+            menuitems.item(
+                "select children ; move to existing/new node".yellow,
+                lambda {
+                    return if Arrows::getTargetsForSource(datapoint).size == 0
+
+                    targets = Arrows::getTargetsForSource(datapoint)
+                    targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+
+                    # Selecting the nodes to moves
+                    selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], targets, lambda{ |o| GenericObjectInterface::toString(o) })
+                    return if selectednodes.size == 0
+
+                    # Selecting or creating the node
+                    selectTargetNode = lambda { |node|
+                        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["existing child node", "new child node", "new independant node"])
+                        return nil if mode.nil?
+                        if mode == "existing child node" then
+                            targets = Arrows::getTargetsForSource(node)
+                            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+                            return LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
+                        end
+                        if mode == "new child node" then
+                            childnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                            return nil if childnode.nil?
+                            Arrows::issueOrException(node, childnode)
+                            return childnode
+                        end
+                        if mode == "new independant node" then
+                            xnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                            return nil if xnode.nil?
+                            return xnode
+                        end
+                    }
+
+                    targetnode = selectTargetNode.call(datapoint)
+                    return if targetnode.nil?
+
+                    # TODO: return if the selected new target is one of the nodes
+
+                    # Moving the selectednodes
+                    selectednodes.each{|o|
+                        Arrows::issueOrException(targetnode, o)
+                    }
+                    selectednodes.each{|o|
+                        Arrows::unlink(datapoint, o)
+                    }
+                }
+            )
+
             Miscellaneous::horizontalRule()
 
             status = menuitems.promptAndRunSandbox()
+
             break if !status
+
+            break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
         }
     end
 

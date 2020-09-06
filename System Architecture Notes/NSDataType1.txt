@@ -8,3 +8,12 @@ NSDataType1 {
     "description"       : nil or String
     "referenceDateTime" : nil or DateTime Iso8601
 }
+
+{
+    "uuid"         : String
+    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"     : Float # Unixtime with decimals
+    "type"         : "navigation" # not carrying any data, only used as network shaper
+    "description"  : nil or String
+    "referenceDateTime" : nil or DateTime Iso8601
+}

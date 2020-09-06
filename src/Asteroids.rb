@@ -427,10 +427,6 @@ class Asteroids
                 Asteroids::landing(target)
                 return
             end
-            if GenericObjectInterface::isNode(target) then
-                NSDataType1::landing(target)
-                return
-            end
             if GenericObjectInterface::isDataPoint(target) then
                 NSDataPoint::accessopen(target)
                 return
@@ -475,7 +471,7 @@ class Asteroids
                 Arrows::issueOrException(node, target) 
             }
         SelectionLookupDataset::updateLookupForNode(node)
-        NSDataType1::landing(node)
+        NSDataPoint::landing(node)
         NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
     end
 
@@ -513,10 +509,6 @@ class Asteroids
 
                 if GenericObjectInterface::isAsteroid(target) then
                     Asteroids::landing(target)
-                end
-
-                if GenericObjectInterface::isNode(target) then
-                    NSDataType1::landing(target)
                 end
 
                 if GenericObjectInterface::isDataPoint(target) then
