@@ -451,6 +451,8 @@ class NSDataPoint
     # NSDataPoint::destroy(datapoint)
     def self.destroy(datapoint)
 
+        return if !Arrows::getTargetsForSource(datapoint).empty?
+
         puts "Destroying datapoint: #{NSDataPoint::toString(datapoint)}"
 
         if datapoint["type"] == "line" then
