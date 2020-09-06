@@ -35,7 +35,7 @@ class DataPortalUI
             ms.item(
                 "Node Listing", 
                 lambda {
-                    nodes = NSDataType1::objects()
+                    nodes = NSDataPoint::datapoints()
                     nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")

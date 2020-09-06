@@ -66,11 +66,6 @@ class NyxFsck
             return true
         end
 
-        if object["nyxNxSet"] == "c18e8093-63d6-4072-8827-14f238975d04" then
-            # Node
-            return true
-        end
-
         puts JSON.pretty_generate(object)
         puts "[error: eed35593-c378-4715-bbb7-5cbefbcd47ce]"
         false

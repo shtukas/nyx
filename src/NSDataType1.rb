@@ -3,11 +3,6 @@
 
 class NSDataType1
 
-    # NSDataType1::objects()
-    def self.objects()
-        NyxObjects2::getSet("c18e8093-63d6-4072-8827-14f238975d04")
-    end
-
     # NSDataType1::getOrNull(uuid)
     def self.getOrNull(uuid)
         NyxObjects2::getOrNull(uuid)
@@ -37,14 +32,6 @@ class NSDataType1
             return str
         end
         raise "[error: 2b22ddb3-62c4-4940-987a-7a50330dcd36]"
-    end
-
-    # NSDataType1::issueDescriptionInteractivelyOrNothing(point)
-    def self.issueDescriptionInteractivelyOrNothing(point)
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        return if description == ""
-        point["description"] = description
-        NyxObjects2::put(point)
     end
 
     # NSDataType1::destroy(point)
