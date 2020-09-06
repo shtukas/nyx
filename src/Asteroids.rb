@@ -458,7 +458,7 @@ class Asteroids
 
                 if GenericObjectInterface::isDataPoint(target) then
                     if target["type"] == "NyxHub" then
-                        location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(target)
+                        location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(target)
                         if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs" then
                             # Ne need to move that thing somewhere else.
                             newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/CatalystElements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
@@ -785,7 +785,7 @@ class Asteroids
                         Arrows::issueOrException(asteroid, node)
                     end
                     if option == "existing node" then
-                        node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                        node = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                         return if node.nil?
                         Arrows::issueOrException(asteroid, node)
                     end

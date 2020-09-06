@@ -1,12 +1,12 @@
 
-class NSDT1SelectionInterface
+class NSDataType1Extended
 
-    # NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+    # NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
     def self.selectOneNodeFromNodesOrNull(nodes)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataType1::toString(node) })
     end
 
-    # NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+    # NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
         KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
         loop {
@@ -30,7 +30,7 @@ class NSDT1SelectionInterface
                 nodes = SelectionLookupDataset::patternToNodes(pattern)
                 next if nodes.empty?
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
-                node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+                node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
                 NSDataType1::landing(node)
             end
@@ -45,7 +45,7 @@ class NSDT1SelectionInterface
         }
     end
 
-    # NSDT1SelectionInterface::interactiveNodeSearchAndExplore()
+    # NSDataType1Extended::interactiveNodeSearchAndExplore()
     def self.interactiveNodeSearchAndExplore()
         loop {
             system("clear")
@@ -58,14 +58,14 @@ class NSDT1SelectionInterface
                 #nodes = nodes.select{|node| NSDataType1::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+                node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
                 NSDataType1::landing(node)
             }
         }
     end
 
-    # NSDT1SelectionInterface::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NSDataType1Extended::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen

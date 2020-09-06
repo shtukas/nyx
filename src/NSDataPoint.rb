@@ -152,6 +152,7 @@ class NSDataPoint
         if datapoint["type"] == "NyxHub" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
+        puts datapoint
         raise "[NSDataPoint error d39378dc]"
     end
 
@@ -210,7 +211,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
@@ -222,7 +223,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxHub" then
-            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
                 system("open '#{File.dirname(location)}'")
@@ -247,18 +248,6 @@ class NSDataPoint
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            puts "[parents]".yellow
-            puts ""
-
-            Arrows::getSourcesForTarget(datapoint)
-                .each{|o|
-                    menuitems.item(
-                        "parent: #{GenericObjectInterface::toString(o)}",
-                        lambda { GenericObjectInterface::landing(o) }
-                    )
-                }
-
-            Miscellaneous::horizontalRule()
             puts JSON.pretty_generate(datapoint).yellow
             puts "[datapoint]".yellow
 
@@ -294,6 +283,19 @@ class NSDataPoint
 
             Miscellaneous::horizontalRule()
 
+            puts "[parents]".yellow
+            puts ""
+
+            Arrows::getSourcesForTarget(datapoint)
+                .each{|o|
+                    menuitems.item(
+                        "parent: #{GenericObjectInterface::toString(o)}",
+                        lambda { GenericObjectInterface::landing(o) }
+                    )
+                }
+
+            Miscellaneous::horizontalRule()
+
             status = menuitems.promptAndRunSandbox()
             break if !status
         }
@@ -312,7 +314,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxFile" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy target NyxFile file ? ") then
-                location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+                location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
                 if location then
                     FileUtils.rm(location)
                 else
@@ -327,7 +329,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxHub" then
             puts "Datapoint is NyxHub, we are going to remove the NyxHub file..."
-            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs" then
                     puts "Found NyxHub: #{location}"
@@ -351,70 +353,5 @@ class NSDataPoint
         end
 
         NyxObjects2::destroy(datapoint)
-    end
-end
-
-class DatapointNyxElementLocation
-
-    # DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
-    def self.getLocationByAllMeansOrNull(datapoint)
-        location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(datapoint["uuid"])
-        if location then
-            if File.exists?(location) then
-                return location
-            end
-        end
-
-        location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
-        if location then
-            NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
-            return location
-        end
-
-        nil
-    end
-
-    # DatapointNyxElementLocation::automaintenance(showprogress)
-    def self.automaintenance(showprogress)
-        NyxFileSystemElementsMapping::records().each{|record|
-            if showprogress then
-                puts JSON.pretty_generate(record)
-            end
-            if NyxObjects2::getOrNull(record["objectuuid"]).nil? then
-                NyxFileSystemElementsMapping::removeRecordByObjectUUID(record["objectuuid"])
-                next
-            end
-            if !File.exists?(record["location"]) then
-                datapoint = NyxObjects2::getOrNull(record["objectuuid"])
-                system("clear")
-                puts "DatapointNyxElementLocation::automaintenance(#{showprogress}): searching for #{datapoint}"
-                location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
-                if location then
-                    NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
-                else
-                    puts "DatapointNyxElementLocation::automaintenance(#{showprogress}): I can't locate #{datapoint}"
-                    puts "Going to land"
-                    LucilleCore::pressEnterToContinue()
-                    NSDataPoint::landing(datapoint)
-                end
-            end
-        }
-        NSDataPoint::datapoints().each{|datapoint|
-            if showprogress then
-                puts JSON.pretty_generate(datapoint)
-            end
-            next if !["NyxHub", "NyxFile"].include?(datapoint["type"])
-            location = DatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
-            if location then
-                NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
-            else
-                system("clear")
-                puts "Falling to find a location for this datapoint nyx element"
-                puts JSON.pretty_generate(datapoint)
-                puts "Going to land"
-                LucilleCore::pressEnterToContinue()
-                NSDataPoint::landing(datapoint)
-            end
-        }
     end
 end

@@ -100,38 +100,6 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
-            puts "[parents]".yellow
-
-            Arrows::getSourcesForTarget(node)
-                .each{|o|
-                    menuitems.item(
-                        "parent: #{GenericObjectInterface::toString(o)}",
-                        lambda { GenericObjectInterface::landing(o) }
-                    )
-                }
-
-            puts ""
-
-            menuitems.item(
-                "attach parent node".yellow,
-                lambda {
-                    n = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
-                    return if n.nil?
-                    Arrows::issueOrException(n, node)
-                }
-            )
-
-            menuitems.item(
-                "detach parent".yellow,
-                lambda {
-                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
-                    return if ns.nil?
-                    Arrows::unlink(ns, node)
-                }
-            )
-
-            Miscellaneous::horizontalRule()
-
             puts "[node]".yellow
 
             if node["description"] then
@@ -197,6 +165,38 @@ class NSDataType1
 
             Miscellaneous::horizontalRule()
 
+            puts "[parents]".yellow
+
+            Arrows::getSourcesForTarget(node)
+                .each{|o|
+                    menuitems.item(
+                        "parent: #{GenericObjectInterface::toString(o)}",
+                        lambda { GenericObjectInterface::landing(o) }
+                    )
+                }
+
+            puts ""
+
+            menuitems.item(
+                "attach parent node".yellow,
+                lambda {
+                    n = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    return if n.nil?
+                    Arrows::issueOrException(n, node)
+                }
+            )
+
+            menuitems.item(
+                "detach parent".yellow,
+                lambda {
+                    ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
+                    return if ns.nil?
+                    Arrows::unlink(ns, node)
+                }
+            )
+
+            Miscellaneous::horizontalRule()
+
             puts "[children]".yellow
 
             targets = Arrows::getTargetsForSource(node)
@@ -236,7 +236,7 @@ class NSDataType1
             menuitems.item(
                 "attach child node (chosen from existing nodes)".yellow,
                 lambda {
-                    o = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    o = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(node, o)
                 }

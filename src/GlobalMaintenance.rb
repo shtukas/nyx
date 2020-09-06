@@ -6,7 +6,7 @@ class GlobalMaintenance
     # GlobalMaintenance::main(verbose)
     def self.main(verbose)
         NyxGarbageCollection::run(verbose)
-        DatapointNyxElementLocation::automaintenance(verbose)
+        NSDatapointNyxElementLocation::automaintenance(verbose)
         SelectionLookupDataset::rebuildDataset(verbose)
     end
 end

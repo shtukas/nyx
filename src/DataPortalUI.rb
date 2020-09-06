@@ -16,16 +16,16 @@ class DataPortalUI
 
             ms.item(
                 "Node Exploration", 
-                lambda { NSDT1SelectionInterface::interactiveNodeSearchAndExplore() }
+                lambda { NSDataType1Extended::interactiveNodeSearchAndExplore() }
             )
 
             ms.item(
                 "Node Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSDT1SelectionInterface::interactiveNodeNcursesSearch()
+                        nodes = NSDataType1Extended::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSDT1SelectionInterface::selectOneNodeFromNodesOrNull(nodes)
+                        node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
                         NSDataType1::landing(node)
                     }
@@ -53,7 +53,7 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node.nil?
                     puts "selected node: #{NSDataType1::toString(node)}"
                     LucilleCore::pressEnterToContinue()
@@ -83,9 +83,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node1 = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node1.nil?
-                    node2 = NSDT1SelectionInterface::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node2 = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."
@@ -174,8 +174,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. DatapointNyxElementLocation::automaintenance(true)",
-                lambda { DatapointNyxElementLocation::automaintenance(true) }
+                "2. NSDatapointNyxElementLocation::automaintenance(true)",
+                lambda { NSDatapointNyxElementLocation::automaintenance(true) }
             )
 
             ms.item(
