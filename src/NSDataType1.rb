@@ -3,17 +3,6 @@
 
 class NSDataType1
 
-    # NSDataType1::issue()
-    def self.issue()
-        object = {
-            "uuid"     => SecureRandom.uuid,
-            "nyxNxSet" => "c18e8093-63d6-4072-8827-14f238975d04",
-            "unixtime" => Time.new.to_f
-        }
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSDataType1::objects()
     def self.objects()
         NyxObjects2::getSet("c18e8093-63d6-4072-8827-14f238975d04")
@@ -56,23 +45,6 @@ class NSDataType1
         return if description == ""
         point["description"] = description
         NyxObjects2::put(point)
-    end
-
-    # NSDataType1::issueNewNodeInteractivelyOrNull()
-    def self.issueNewNodeInteractivelyOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        return nil if description == "" 
-        node = NSDataType1::issue()
-        puts "node: #{JSON.pretty_generate(node)}"
-        node["description"] = description
-        NyxObjects2::put(node)
-        if LucilleCore::askQuestionAnswerAsBoolean("Create datapoint ? : ") then
-            datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
-            if datapoint then
-                Arrows::issueOrException(node, datapoint)
-            end
-        end
-        node
     end
 
     # NSDataType1::destroy(point)

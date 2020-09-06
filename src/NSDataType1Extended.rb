@@ -35,7 +35,7 @@ class NSDataType1Extended
                 NSDataPoint::landing(node)
             end
             if op == op2 then
-                node = NSDataType1::issueNewNodeInteractivelyOrNull()
+                node = NSDataPoint::issueNewPointInteractivelyOrNull()
                 next if node.nil?
                 return node
             end

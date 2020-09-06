@@ -404,9 +404,7 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
         description = LucilleCore::askQuestionAnswerAsString("node description: ")
         return if description == ""
-        node = NSDataType1::issue()
-        node["description"] = description
-        NyxObjects2::put(node)
+        node = NSDataPoint::issueNavigation(description)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| 
 
@@ -731,33 +729,17 @@ class Asteroids
             menuitems.item(
                 "add new target".yellow,
                 lambda { 
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["new node", "existing node", "datapoint"])
-                    return if option.nil?
-                    if option == "new node" then
-                        node = NSDataType1::issueNewNodeInteractivelyOrNull()
-                        return if node.nil?
-                        Arrows::issueOrException(asteroid, node)
-                    end
-                    if option == "existing node" then
-                        node = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
-                        return if node.nil?
-                        Arrows::issueOrException(asteroid, node)
-                    end
-                    if option == "datapoint" then
-                        datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
-                        return if datapoint.nil?
-                        Arrows::issueOrException(asteroid, datapoint)
-                    end
+                    datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    return if datapoint.nil?
+                    Arrows::issueOrException(asteroid, datapoint)
                 }
             )
 
             menuitems.item(
                 "select target ; destroy".yellow,
                 lambda {
-
                     targets = Arrows::getTargetsForSource(asteroid)
                     targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericObjectInterface::toString(target) })
                     return if target.nil?
                     GenericObjectInterface::destroy(target)

@@ -411,13 +411,13 @@ class NSDataPoint
                             return LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
                         end
                         if mode == "new child node" then
-                            childnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                            childnode = NSDataPoint::issueNewPointInteractivelyOrNull()
                             return nil if childnode.nil?
                             Arrows::issueOrException(node, childnode)
                             return childnode
                         end
                         if mode == "new independant node" then
-                            xnode = NSDataType1::issueNewNodeInteractivelyOrNull()
+                            xnode = NSDataPoint::issueNewPointInteractivelyOrNull()
                             return nil if xnode.nil?
                             return xnode
                         end

@@ -70,15 +70,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "new node",
-                lambda { 
-                    point = NSDataType1::issueNewNodeInteractivelyOrNull()
-                    return if point.nil?
-                    NSDataPoint::landing(point)
-                }
-            )
-
-            ms.item(
                 "Merge two nodes",
                 lambda { 
                     puts "Merging two nodes"
