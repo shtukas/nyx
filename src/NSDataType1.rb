@@ -50,11 +50,6 @@ class NSDataType1
         raise "[error: 2b22ddb3-62c4-4940-987a-7a50330dcd36]"
     end
 
-    # NSDataType1::getReferenceUnixtime(ns)
-    def self.getReferenceUnixtime(ns)
-        DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(ns)).to_time.to_f
-    end
-
     # NSDataType1::issueDescriptionInteractivelyOrNothing(point)
     def self.issueDescriptionInteractivelyOrNothing(point)
         description = LucilleCore::askQuestionAnswerAsString("description: ")

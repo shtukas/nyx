@@ -23,6 +23,19 @@ class NSDataPoint
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
+    # NSDataPoint::issueNavigation(description)
+    def self.issueNavigation(description)
+        object = {
+            "uuid"        => SecureRandom.uuid,
+            "nyxNxSet"    => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"    => Time.new.to_f,
+            "type"        => "navigation",
+            "description" => description
+        }
+        NyxObjects2::put(object)
+        object
+    end
+
     # NSDataPoint::issueLine(line)
     def self.issueLine(line)
         object = {
@@ -47,11 +60,6 @@ class NSDataPoint
         }
         NyxObjects2::put(object)
         object
-    end
-
-    # NSDataPoint::typeA02CB78ERegularExtensions()
-    def self.typeA02CB78ERegularExtensions()
-        [".jpg", ".jpeg", ".png", ".pdf"]
     end
 
     # NSDataPoint::issueNyxHub(hubname)
@@ -82,9 +90,14 @@ class NSDataPoint
 
     # NSDataPoint::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxHub"]
+        types = ["navigation", "line", "url", "text", "NyxFile", "NyxHub"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
+        if type == "navigation" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            return nil if description.size == 0
+            return NSDataPoint::issueNavigation(description)
+        end
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
@@ -130,15 +143,13 @@ class NSDataPoint
         end
     end
 
-    # NSDataPoint::getReferenceUnixtime(datapoint)
-    def self.getReferenceUnixtime(datapoint)
-        DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f
-    end
-
     # NSDataPoint::toStringUseTheForce(datapoint)
     def self.toStringUseTheForce(datapoint)
         if datapoint["description"] then
             return "[#{datapoint["type"]}] #{datapoint["description"]}"
+        end
+        if datapoint["type"] == "navigation" then
+            return "[#{datapoint["type"]}] {no description}"
         end
         if datapoint["type"] == "line" then
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
@@ -166,27 +177,6 @@ class NSDataPoint
         str = NSDataPoint::toStringUseTheForce(datapoint)
         KeyValueStore::set(nil, cacheKey, str)
         str
-    end
-
-    # NSDataPoint::selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-    def self.selectDataPointOwnerPossiblyInteractivelyOrNull(datapoint)
-        owners = Arrows::getSourcesForTarget(datapoint)
-        owner = nil
-        if owners.size == 0 then
-            puts "Could not find any owner for #{NSDataPoint::toString(datapoint)}"
-            puts "Aborting opening"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if owners.size == 1 then
-            owner = owners.first
-        end
-        if owners.size > 1 then
-            puts "We have more than one owner for this aion point (how did that happen?...)"
-            puts "Choose one for the desk management"
-            owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|owner| GenericObjectInterface::toString(owner) })
-        end
-        owner
     end
 
     # NSDataPoint::accessopen(datapoint)

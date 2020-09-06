@@ -9,7 +9,7 @@ class GeneralSearch
             .map{|datapoint|
                 {
                     "description"   => NSDataPoint::toString(datapoint),
-                    "referencetime" => NSDataPoint::getReferenceUnixtime(datapoint),
+                    "referencetime" => DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
                     "dive"          => lambda{ NSDataPoint::landing(datapoint) }
                 }
             }
@@ -21,7 +21,7 @@ class GeneralSearch
             .map{|node|
                 {
                     "description"   => NSDataType1::toString(node),
-                    "referencetime" => NSDataType1::getReferenceUnixtime(node),
+                    "referencetime" => DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(node)).to_time.to_f,
                     "dive"          => lambda{ NSDataType1::landing(node) }
                 }
             }
