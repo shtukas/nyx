@@ -1,12 +1,12 @@
 
-class NSDataType1Extended
+class NSDataPointsExtended
 
-    # NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
+    # NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
     def self.selectOneNodeFromNodesOrNull(nodes)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataType1::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataPoint::toString(node) })
     end
 
-    # NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+    # NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
         KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
         loop {
@@ -30,7 +30,7 @@ class NSDataType1Extended
                 nodes = SelectionLookupDataset::patternToDatapoints(pattern)
                 next if nodes.empty?
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
-                node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
+                node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
                 NSDataPoint::landing(node)
             end
@@ -45,7 +45,7 @@ class NSDataType1Extended
         }
     end
 
-    # NSDataType1Extended::interactiveNodeSearchAndExplore()
+    # NSDataPointsExtended::interactiveNodeSearchAndExplore()
     def self.interactiveNodeSearchAndExplore()
         loop {
             system("clear")
@@ -58,14 +58,14 @@ class NSDataType1Extended
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
+                node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
                 NSDataPoint::landing(node)
             }
         }
     end
 
-    # NSDataType1Extended::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NSDataPointsExtended::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen
@@ -127,7 +127,7 @@ class NSDataType1Extended
                 win3.setpos(0,0)
                 objects.first(Miscellaneous::screenHeight()-3).each{|object|
                     win3.deleteln()
-                    win3 << "#{NSDataType1::toString(object)}\n"
+                    win3 << "#{NSDataPoint::toString(object)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh

@@ -38,7 +38,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("node", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataType1::toString(node, false).downcase)
+        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataPoint::toString(node, false).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)

@@ -323,7 +323,7 @@ class NSDataPoint
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    n = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
                     Arrows::issueOrException(n, datapoint)
                 }
@@ -372,7 +372,7 @@ class NSDataPoint
             menuitems.item(
                 "select from existing nodes ; attach as child".yellow,
                 lambda {
-                    o = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    o = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(datapoint, o)
                 }

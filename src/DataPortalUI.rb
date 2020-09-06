@@ -16,16 +16,16 @@ class DataPortalUI
 
             ms.item(
                 "Node Exploration", 
-                lambda { NSDataType1Extended::interactiveNodeSearchAndExplore() }
+                lambda { NSDataPointsExtended::interactiveNodeSearchAndExplore() }
             )
 
             ms.item(
                 "Node Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSDataType1Extended::interactiveNodeNcursesSearch()
+                        nodes = NSDataPointsExtended::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSDataType1Extended::selectOneNodeFromNodesOrNull(nodes)
+                        node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
                         NSDataPoint::landing(node)
                     }
@@ -39,7 +39,7 @@ class DataPortalUI
                     nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
-                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataType1::toString(o) })
+                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataPoint::toString(o) })
                         break if node.nil?
                         NSDataPoint::landing(node)
                     }
@@ -53,9 +53,9 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node.nil?
-                    puts "selected node: #{NSDataType1::toString(node)}"
+                    puts "selected node: #{NSDataPoint::toString(node)}"
                     LucilleCore::pressEnterToContinue()
                     datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
                     return if datapoint.nil?
@@ -74,9 +74,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node1 = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node1.nil?
-                    node2 = NSDataType1Extended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node2 = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."
@@ -85,8 +85,8 @@ class DataPortalUI
                     end
 
                     puts ""
-                    puts NSDataType1::toString(node1)
-                    puts NSDataType1::toString(node2)
+                    puts NSDataPoint::toString(node1)
+                    puts NSDataPoint::toString(node2)
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
