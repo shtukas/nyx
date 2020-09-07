@@ -148,7 +148,7 @@ class DataPortalUI
             ms.item(
                 "Calendar",
                 lambda { 
-                    system("open '#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar/Items'") 
+                    system("open '#{Calendar::pathToCalendarItems()}'") 
                 }
             )
 
