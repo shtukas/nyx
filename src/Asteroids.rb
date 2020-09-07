@@ -547,6 +547,11 @@ class Asteroids
             return
         end
 
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            return
+        end
+
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
