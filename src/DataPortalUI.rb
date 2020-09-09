@@ -182,13 +182,13 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "GlobalFsck::main(runhash)",
+                "NyxFsck::main(runhash)",
                 lambda {
                     runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
                     if runhash == "" then
                         runhash = SecureRandom.hex
                     end
-                    GlobalFsck::main(runhash)
+                    NyxFsck::main(runhash)
                 }
             )
 
