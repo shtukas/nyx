@@ -8,9 +8,9 @@ class GeneralSearch
         SelectionLookupDataset::patternToDatapoints(pattern)
             .map{|datapoint|
                 {
-                    "description"   => NSDataPoint::toString(datapoint),
+                    "description"   => NSNode1638::toString(datapoint),
                     "referencetime" => DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
-                    "dive"          => lambda{ NSDataPoint::landing(datapoint) }
+                    "dive"          => lambda{ NSNode1638::landing(datapoint) }
                 }
             }
     end

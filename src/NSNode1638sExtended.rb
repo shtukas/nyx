@@ -1,12 +1,12 @@
 
-class NSDataPointsExtended
+class NSNode1638sExtended
 
-    # NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
+    # NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
     def self.selectOneNodeFromNodesOrNull(nodes)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSDataPoint::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSNode1638::toString(node) })
     end
 
-    # NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+    # NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
     def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
         KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
         loop {
@@ -30,12 +30,12 @@ class NSDataPointsExtended
                 nodes = SelectionLookupDataset::patternToDatapoints(pattern)
                 next if nodes.empty?
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
-                node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
+                node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
-                NSDataPoint::landing(node)
+                NSNode1638::landing(node)
             end
             if op == op2 then
-                node = NSDataPoint::issueNewPointInteractivelyOrNull()
+                node = NSNode1638::issueNewPointInteractivelyOrNull()
                 next if node.nil?
                 return node
             end
@@ -45,7 +45,7 @@ class NSDataPointsExtended
         }
     end
 
-    # NSDataPointsExtended::interactiveNodeSearchAndExplore()
+    # NSNode1638sExtended::interactiveNodeSearchAndExplore()
     def self.interactiveNodeSearchAndExplore()
         loop {
             system("clear")
@@ -58,14 +58,14 @@ class NSDataPointsExtended
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
+                node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
-                NSDataPoint::landing(node)
+                NSNode1638::landing(node)
             }
         }
     end
 
-    # NSDataPointsExtended::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NSNode1638sExtended::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen
@@ -127,7 +127,7 @@ class NSDataPointsExtended
                 win3.setpos(0,0)
                 objects.first(Miscellaneous::screenHeight()-3).each{|object|
                     win3.deleteln()
-                    win3 << "#{NSDataPoint::toString(object)}\n"
+                    win3 << "#{NSNode1638::toString(object)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh

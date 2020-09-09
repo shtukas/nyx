@@ -16,18 +16,18 @@ class DataPortalUI
 
             ms.item(
                 "Node Exploration", 
-                lambda { NSDataPointsExtended::interactiveNodeSearchAndExplore() }
+                lambda { NSNode1638sExtended::interactiveNodeSearchAndExplore() }
             )
 
             ms.item(
                 "Node Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSDataPointsExtended::interactiveNodeNcursesSearch()
+                        nodes = NSNode1638sExtended::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSDataPointsExtended::selectOneNodeFromNodesOrNull(nodes)
+                        node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
-                        NSDataPoint::landing(node)
+                        NSNode1638::landing(node)
                     }
                 }
             )
@@ -35,13 +35,13 @@ class DataPortalUI
             ms.item(
                 "Node Listing", 
                 lambda {
-                    nodes = NSDataPoint::datapoints()
+                    nodes = NSNode1638::datapoints()
                     nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
-                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSDataPoint::toString(o) })
+                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSNode1638::toString(o) })
                         break if node.nil?
-                        NSDataPoint::landing(node)
+                        NSNode1638::landing(node)
                     }
                 }
             )
@@ -53,11 +53,11 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node.nil?
-                    puts "selected node: #{NSDataPoint::toString(node)}"
+                    puts "selected node: #{NSNode1638::toString(node)}"
                     LucilleCore::pressEnterToContinue()
-                    datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
                     return if datapoint.nil?
                     Arrows::issueOrException(node, datapoint)
                     description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
@@ -65,7 +65,7 @@ class DataPortalUI
                         datapoint["description"] = description
                         NyxObjects2::put(datapoint)
                     end
-                    NSDataPoint::landing(node)
+                    NSNode1638::landing(node)
                 }
             )
 
@@ -74,9 +74,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node1 = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node1.nil?
-                    node2 = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node2 = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."
@@ -85,8 +85,8 @@ class DataPortalUI
                     end
 
                     puts ""
-                    puts NSDataPoint::toString(node1)
-                    puts NSDataPoint::toString(node2)
+                    puts NSNode1638::toString(node1)
+                    puts NSNode1638::toString(node2)
 
                     return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
 
@@ -165,8 +165,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. NSDatapointNyxElementLocation::automaintenance(true)",
-                lambda { NSDatapointNyxElementLocation::automaintenance(true) }
+                "2. NSNode1638NyxElementLocation::automaintenance(true)",
+                lambda { NSNode1638NyxElementLocation::automaintenance(true) }
             )
 
             ms.item(

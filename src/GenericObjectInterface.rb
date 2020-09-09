@@ -19,7 +19,7 @@ class GenericObjectInterface
             return Asteroids::toString(object)
         end
         if GenericObjectInterface::isDataPoint(object) then
-            return NSDataPoint::toString(object, shouldUseCachedVersion)
+            return NSNode1638::toString(object, shouldUseCachedVersion)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -55,7 +55,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSDataPoint::landing(object)
+            NSNode1638::landing(object)
             return
         end
         puts object
@@ -69,7 +69,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSDataPoint::accessopen(object)
+            NSNode1638::accessopen(object)
             return
         end
         puts object
@@ -82,7 +82,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSDataPoint::destroy(object)
+            NSNode1638::destroy(object)
             return
         end
         puts object

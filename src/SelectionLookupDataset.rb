@@ -31,14 +31,14 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForDatapoint(datapoint)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false).downcase)
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint, false).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForNode(node)
     def self.updateLookupForNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("node", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSDataPoint::toString(node, false).downcase)
+        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSNode1638::toString(node, false).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -169,13 +169,13 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["datapoint"]
 
-        NSDataPoint::datapoints()
+        NSNode1638::datapoints()
             .each{|datapoint|
                 if verbose then
-                    puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint, false)}"
+                    puts "datapoint: #{datapoint["uuid"]} , #{NSNode1638::toString(datapoint, false)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false))
+                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSNode1638::toString(datapoint, false))
             }
 
         db.close

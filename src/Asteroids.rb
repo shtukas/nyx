@@ -87,7 +87,7 @@ class Asteroids
 
     # Asteroids::issueDatapointAndAsteroidInteractivelyOrNull()
     def self.issueDatapointAndAsteroidInteractivelyOrNull()
-        datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+        datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
         return if datapoint.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
@@ -390,7 +390,7 @@ class Asteroids
                 return
             end
             if GenericObjectInterface::isDataPoint(target) then
-                NSDataPoint::accessopen(target)
+                NSNode1638::accessopen(target)
                 return
             end
         end
@@ -404,7 +404,7 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
         description = LucilleCore::askQuestionAnswerAsString("node description: ")
         return if description == ""
-        node = NSDataPoint::issueNavigation(description)
+        node = NSNode1638::issueNavigation(description)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| 
 
@@ -414,7 +414,7 @@ class Asteroids
 
                 if GenericObjectInterface::isDataPoint(target) then
                     if target["type"] == "NyxDirectory" then
-                        location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(target)
+                        location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
                         if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
                             # Ne need to move that thing somewhere else.
                             newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/CatalystElements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
@@ -432,7 +432,7 @@ class Asteroids
             }
         NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
         SelectionLookupDataset::updateLookupForNode(node)
-        NSDataPoint::landing(node)
+        NSNode1638::landing(node)
 
     end
 
@@ -473,7 +473,7 @@ class Asteroids
                 end
 
                 if GenericObjectInterface::isDataPoint(target) then
-                    NSDataPoint::accessopen(target)
+                    NSNode1638::accessopen(target)
                 end
 
                 Asteroids::stopAsteroidIfRunning(asteroid)
@@ -735,7 +735,7 @@ class Asteroids
             menuitems.item(
                 "add new target".yellow,
                 lambda { 
-                    datapoint = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
                     return if datapoint.nil?
                     Arrows::issueOrException(asteroid, datapoint)
                 }

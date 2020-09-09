@@ -1,19 +1,19 @@
 
 # encoding: UTF-8
 
-class NSDataPoint
+class NSNode1638
 
-    # NSDataPoint::datapoints()
+    # NSNode1638::datapoints()
     def self.datapoints()
         NyxObjects2::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
-    # NSDataPoint::getDataPointParents(datapoint)
+    # NSNode1638::getDataPointParents(datapoint)
     def self.getDataPointParents(datapoint)
         Arrows::getSourcesForTarget(datapoint)
     end
 
-    # NSDataPoint::selectOneLocationOnTheDesktopOrNull()
+    # NSNode1638::selectOneLocationOnTheDesktopOrNull()
     def self.selectOneLocationOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -23,7 +23,7 @@ class NSDataPoint
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # NSDataPoint::issueNavigation(description)
+    # NSNode1638::issueNavigation(description)
     def self.issueNavigation(description)
         object = {
             "uuid"        => SecureRandom.uuid,
@@ -36,7 +36,7 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueLine(line)
+    # NSNode1638::issueLine(line)
     def self.issueLine(line)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -49,7 +49,7 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueUrl(url)
+    # NSNode1638::issueUrl(url)
     def self.issueUrl(url)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -62,7 +62,7 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueNyxDirectory(hubname)
+    # NSNode1638::issueNyxDirectory(hubname)
     def self.issueNyxDirectory(hubname)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -75,7 +75,7 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueNyxFile(nyxFileName)
+    # NSNode1638::issueNyxFile(nyxFileName)
     def self.issueNyxFile(nyxFileName)
         object = {
             "uuid"       => SecureRandom.uuid,
@@ -88,7 +88,7 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueNewPointInteractivelyOrNull()
+    # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
         types = ["navigation", "line", "url", "text", "NyxFile", "NyxDirectory"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
@@ -96,17 +96,17 @@ class NSDataPoint
         if type == "navigation" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description.size == 0
-            return NSDataPoint::issueNavigation(description)
+            return NSNode1638::issueNavigation(description)
         end
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
-            return NSDataPoint::issueLine(line)
+            return NSNode1638::issueLine(line)
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
-            return NSDataPoint::issueUrl(url)
+            return NSNode1638::issueUrl(url)
         end
         if type == "text" then
             nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
@@ -117,7 +117,7 @@ class NSDataPoint
             FileUtils.touch(filepath)
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
-            return NSDataPoint::issueNyxFile(nyxfilename)
+            return NSNode1638::issueNyxFile(nyxfilename)
         end
         if type == "NyxFile" then
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["nyxfilename already exists", "issue new nyxfilename"])
@@ -133,17 +133,17 @@ class NSDataPoint
                 puts "nyxfilename: #{nyxfilename}"
                 LucilleCore::pressEnterToContinue()
             end
-            return NSDataPoint::issueNyxFile(nyxfilename)
+            return NSNode1638::issueNyxFile(nyxfilename)
         end
         if type == "NyxDirectory" then
             hubname = "NyxDirectory-#{SecureRandom.uuid}"
             puts "hubname: #{hubname}"
             LucilleCore::pressEnterToContinue()
-            return NSDataPoint::issueNyxDirectory(hubname)
+            return NSNode1638::issueNyxDirectory(hubname)
         end
     end
 
-    # NSDataPoint::toStringUseTheForce(datapoint)
+    # NSNode1638::toStringUseTheForce(datapoint)
     def self.toStringUseTheForce(datapoint)
         if datapoint["description"] then
             return "[#{datapoint["type"]}] #{datapoint["description"]}"
@@ -164,29 +164,29 @@ class NSDataPoint
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         puts datapoint
-        raise "[NSDataPoint error d39378dc]"
+        raise "[NSNode1638 error d39378dc]"
     end
 
-    # NSDataPoint::toString(datapoint, useCachedValue = true)
+    # NSNode1638::toString(datapoint, useCachedValue = true)
     def self.toString(datapoint, useCachedValue = true)
         cacheKey = "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}"
         if useCachedValue then
             str = KeyValueStore::getOrNull(nil, cacheKey)
             return str if str
         end
-        str = NSDataPoint::toStringUseTheForce(datapoint)
+        str = NSNode1638::toStringUseTheForce(datapoint)
         KeyValueStore::set(nil, cacheKey, str)
         str
     end
 
-    # NSDataPoint::accessopen(datapoint)
+    # NSNode1638::accessopen(datapoint)
     def self.accessopen(datapoint)
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
                 line = datapoint["line"]
                 line = Miscellaneous::editTextSynchronously(line).strip
-                return NSDataPoint::issueLine(line)
+                return NSNode1638::issueLine(line)
             end
             return nil
         end
@@ -196,12 +196,12 @@ class NSDataPoint
             if LucilleCore::askQuestionAnswerAsBoolean("edit url ? : ", false) then
                 url = datapoint["url"]
                 url = Miscellaneous::editTextSynchronously(url).strip
-                return NSDataPoint::issueUrl(url)
+                return NSNode1638::issueUrl(url)
             end
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
@@ -213,7 +213,7 @@ class NSDataPoint
             return nil
         end
         if datapoint["type"] == "NyxDirectory" then
-            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
                 system("open '#{File.dirname(location)}'")
@@ -225,10 +225,10 @@ class NSDataPoint
             return nil
         end
         puts datapoint
-        raise "[NSDataPoint error e12fc718]"
+        raise "[NSNode1638 error e12fc718]"
     end
 
-    # NSDataPoint::landing(datapoint)
+    # NSNode1638::landing(datapoint)
     def self.landing(datapoint)
         loop {
 
@@ -241,7 +241,7 @@ class NSDataPoint
             puts JSON.pretty_generate(datapoint).yellow
             puts "[datapoint]".yellow
 
-            puts "    #{NSDataPoint::toString(datapoint, false)}"
+            puts "    #{NSNode1638::toString(datapoint, false)}"
             puts "    uuid: #{datapoint["uuid"]}".yellow
             puts "    date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
 
@@ -249,7 +249,7 @@ class NSDataPoint
 
             menuitems.item(
                 "open".yellow,
-                lambda { NSDataPoint::accessopen(datapoint) }
+                lambda { NSNode1638::accessopen(datapoint) }
             )
 
             menuitems.item(
@@ -299,7 +299,7 @@ class NSDataPoint
             menuitems.item(
                 "destroy [this]".yellow,
                 lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSDataPoint::toString(datapoint)}': ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
                         NyxObjects2::destroy(datapoint)
                     end
                 }
@@ -323,7 +323,7 @@ class NSDataPoint
             menuitems.item(
                 "attach parent node".yellow,
                 lambda {
-                    n = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    n = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if n.nil?
                     Arrows::issueOrException(n, datapoint)
                 }
@@ -356,7 +356,7 @@ class NSDataPoint
             menuitems.item(
                 "issue node ; attach as child".yellow,
                 lambda{
-                    child = NSDataPoint::issueNewPointInteractivelyOrNull()
+                    child = NSNode1638::issueNewPointInteractivelyOrNull()
                     return if child.nil?
                     Arrows::issueOrException(datapoint, child)
                     if child["type"] != "navigation" then
@@ -372,7 +372,7 @@ class NSDataPoint
             menuitems.item(
                 "select from existing nodes ; attach as child".yellow,
                 lambda {
-                    o = NSDataPointsExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    o = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
                     return if o.nil?
                     Arrows::issueOrException(datapoint, o)
                 }
@@ -411,13 +411,13 @@ class NSDataPoint
                             return LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
                         end
                         if mode == "new child node" then
-                            childnode = NSDataPoint::issueNewPointInteractivelyOrNull()
+                            childnode = NSNode1638::issueNewPointInteractivelyOrNull()
                             return nil if childnode.nil?
                             Arrows::issueOrException(node, childnode)
                             return childnode
                         end
                         if mode == "new independant node" then
-                            xnode = NSDataPoint::issueNewPointInteractivelyOrNull()
+                            xnode = NSNode1638::issueNewPointInteractivelyOrNull()
                             return nil if xnode.nil?
                             return xnode
                         end
@@ -448,12 +448,12 @@ class NSDataPoint
         }
     end
 
-    # NSDataPoint::destroy(datapoint)
+    # NSNode1638::destroy(datapoint)
     def self.destroy(datapoint)
 
         return if !Arrows::getTargetsForSource(datapoint).empty?
 
-        puts "Destroying datapoint: #{NSDataPoint::toString(datapoint)}"
+        puts "Destroying datapoint: #{NSNode1638::toString(datapoint)}"
 
         if datapoint["type"] == "line" then
 
@@ -463,7 +463,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxFile" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy target NyxFile file ? ") then
-                location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+                location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
                 if location then
                     FileUtils.rm(location)
                 else
@@ -478,7 +478,7 @@ class NSDataPoint
         end
         if datapoint["type"] == "NyxDirectory" then
             puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
-            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
                     puts "Found NyxDirectory: #{location}"

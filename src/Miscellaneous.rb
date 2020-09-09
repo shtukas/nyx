@@ -209,7 +209,7 @@ class Miscellaneous
             FileUtils.mkdir(envelop)
             FileUtils.mv(location, envelop)
             FileUtils.touch("#{envelop}/#{hubname}")
-            datapoint = NSDataPoint::issueNyxDirectory(hubname)
+            datapoint = NSNode1638::issueNyxDirectory(hubname)
             asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
             puts JSON.pretty_generate(asteroid)
         end

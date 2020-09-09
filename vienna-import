@@ -45,7 +45,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    datapoint = NSDataPoint::issueUrl(link)
+    datapoint = NSNode1638::issueUrl(link)
     asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
     viennaLinkFeeder.done(link)
 }

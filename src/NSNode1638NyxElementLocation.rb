@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NSDatapointNyxElementLocation
+class NSNode1638NyxElementLocation
 
-    # NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+    # NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
     def self.getLocationByAllMeansOrNull(datapoint)
         location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(datapoint["uuid"])
         if location then
@@ -21,7 +21,7 @@ class NSDatapointNyxElementLocation
         nil
     end
 
-    # NSDatapointNyxElementLocation::automaintenance(showprogress)
+    # NSNode1638NyxElementLocation::automaintenance(showprogress)
     def self.automaintenance(showprogress)
         NyxFileSystemElementsMapping::records().each{|record|
             if showprogress then
@@ -34,24 +34,24 @@ class NSDatapointNyxElementLocation
             if !File.exists?(record["location"]) then
                 datapoint = NyxObjects2::getOrNull(record["objectuuid"])
                 system("clear")
-                puts "NSDatapointNyxElementLocation::automaintenance(#{showprogress}): searching for #{datapoint}"
+                puts "NSNode1638NyxElementLocation::automaintenance(#{showprogress}): searching for #{datapoint}"
                 location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
                 if location then
                     NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
                 else
-                    puts "NSDatapointNyxElementLocation::automaintenance(#{showprogress}): I can't locate #{datapoint}"
+                    puts "NSNode1638NyxElementLocation::automaintenance(#{showprogress}): I can't locate #{datapoint}"
                     puts "Going to land"
                     LucilleCore::pressEnterToContinue()
-                    NSDataPoint::landing(datapoint)
+                    NSNode1638::landing(datapoint)
                 end
             end
         }
-        NSDataPoint::datapoints().each{|datapoint|
+        NSNode1638::datapoints().each{|datapoint|
             if showprogress then
                 puts JSON.pretty_generate(datapoint)
             end
             next if !["NyxDirectory", "NyxFile"].include?(datapoint["type"])
-            location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
             else
@@ -60,7 +60,7 @@ class NSDatapointNyxElementLocation
                 puts JSON.pretty_generate(datapoint)
                 puts "Going to land"
                 LucilleCore::pressEnterToContinue()
-                NSDataPoint::landing(datapoint)
+                NSNode1638::landing(datapoint)
             end
         }
     end
