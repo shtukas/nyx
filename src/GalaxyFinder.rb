@@ -38,7 +38,7 @@ class GalaxyFinder
         GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
             .each{|location|
                 next if GalaxyFinder::locationIsUnisonTmp(location)
-                if File.basename(location).start_with?("NyxHub-") then
+                if File.basename(location).start_with?("NyxDirectory-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
                 end
                 if File.basename(location).start_with?("NyxFile-") then

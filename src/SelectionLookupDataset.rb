@@ -172,7 +172,7 @@ class SelectionLookupDataset
         NSDataPoint::datapoints()
             .each{|datapoint|
                 if verbose then
-                    puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint)}"
+                    puts "datapoint: #{datapoint["uuid"]} , #{NSDataPoint::toString(datapoint, false)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSDataPoint::toString(datapoint, false))

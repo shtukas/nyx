@@ -50,7 +50,7 @@ class NSDatapointNyxElementLocation
             if showprogress then
                 puts JSON.pretty_generate(datapoint)
             end
-            next if !["NyxHub", "NyxFile"].include?(datapoint["type"])
+            next if !["NyxDirectory", "NyxFile"].include?(datapoint["type"])
             location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)

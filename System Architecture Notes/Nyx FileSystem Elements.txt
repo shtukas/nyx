@@ -1,6 +1,6 @@
 A NyxFile is any file on disk that has a name of the form NyxFile-<unique string>.<extension>, for instance: NyxFile-fcb5541a-6e2e-48dd-9981-2f137fe8490c.txt
 
-A NyxHub is any file on disk that has a name of the form NyxHub-<unique string>, for instance: NyxHub-fcb5541a-6e2e-48dd-9981-2f137fe8490c , they are used to refer to an area of the file tree, most generally their parent folder.
+A NyxDirectory is any file on disk that has a name of the form NyxDirectory-<unique string>, for instance: NyxDirectory-fcb5541a-6e2e-48dd-9981-2f137fe8490c .
 
 
 

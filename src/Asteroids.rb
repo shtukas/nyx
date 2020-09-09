@@ -409,13 +409,13 @@ class Asteroids
             .each{|target| 
 
                 # There is a tiny thing we are going to do here:
-                # If the target is a data point that is a NybHub and if that NyxHub is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs"
+                # If the target is a data point that is a NybHub and if that NyxDirectory is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories"
                 # Then we move it to a CatalystElements location
 
                 if GenericObjectInterface::isDataPoint(target) then
-                    if target["type"] == "NyxHub" then
+                    if target["type"] == "NyxDirectory" then
                         location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(target)
-                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs" then
+                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
                             # Ne need to move that thing somewhere else.
                             newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/CatalystElements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
                             if !File.exists?(newEnvelopFolderPath) then

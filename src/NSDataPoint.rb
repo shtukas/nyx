@@ -62,13 +62,13 @@ class NSDataPoint
         object
     end
 
-    # NSDataPoint::issueNyxHub(hubname)
-    def self.issueNyxHub(hubname)
+    # NSDataPoint::issueNyxDirectory(hubname)
+    def self.issueNyxDirectory(hubname)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
-            "type"       => "NyxHub",
+            "type"       => "NyxDirectory",
             "name"       => hubname
         }
         NyxObjects2::put(object)
@@ -90,7 +90,7 @@ class NSDataPoint
 
     # NSDataPoint::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["navigation", "line", "url", "text", "NyxFile", "NyxHub"]
+        types = ["navigation", "line", "url", "text", "NyxFile", "NyxDirectory"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "navigation" then
@@ -135,11 +135,11 @@ class NSDataPoint
             end
             return NSDataPoint::issueNyxFile(nyxfilename)
         end
-        if type == "NyxHub" then
-            hubname = "NyxHub-#{SecureRandom.uuid}"
+        if type == "NyxDirectory" then
+            hubname = "NyxDirectory-#{SecureRandom.uuid}"
             puts "hubname: #{hubname}"
             LucilleCore::pressEnterToContinue()
-            return NSDataPoint::issueNyxHub(hubname)
+            return NSDataPoint::issueNyxDirectory(hubname)
         end
     end
 
@@ -160,7 +160,7 @@ class NSDataPoint
         if datapoint["type"] == "NyxFile" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
-        if datapoint["type"] == "NyxHub" then
+        if datapoint["type"] == "NyxDirectory" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         puts datapoint
@@ -212,7 +212,7 @@ class NSDataPoint
             end
             return nil
         end
-        if datapoint["type"] == "NyxHub" then
+        if datapoint["type"] == "NyxDirectory" then
             location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
@@ -476,17 +476,17 @@ class NSDataPoint
             end
 
         end
-        if datapoint["type"] == "NyxHub" then
-            puts "Datapoint is NyxHub, we are going to remove the NyxHub file..."
+        if datapoint["type"] == "NyxDirectory" then
+            puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
             location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
-                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxHubs" then
-                    puts "Found NyxHub: #{location}"
+                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
+                    puts "Found NyxDirectory: #{location}"
                     parent = File.dirname(location)
                     puts "Going to remove the parent folder: #{parent}"
                     LucilleCore::removeFileSystemLocation(parent)
                 else
-                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-NyxHubs
+                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-NyxDirectories
                     puts "Actually I am going to let you do that..."
                     sleep 3
                     system("open '#{File.dirname(location)}'")

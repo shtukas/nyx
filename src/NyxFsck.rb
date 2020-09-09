@@ -29,7 +29,7 @@ class NyxFsck
             return true
         end
 
-        if datapoint["type"] == "NyxHub" then
+        if datapoint["type"] == "NyxDirectory" then
             hubname = datapoint["name"]
             puts "Finding #{hubname}"
             location = NSDatapointNyxElementLocation::getLocationByAllMeansOrNull(datapoint)
