@@ -176,6 +176,12 @@ class SelectionLookupDataset
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSNode1638::toString(datapoint, false))
+                if datapoint["type"] == "NyxFile" then
+                    SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
+                end
+                if datapoint["type"] == "NyxDirectory" then
+                    SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
+                end
             }
 
         db.close

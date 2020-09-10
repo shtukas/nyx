@@ -3,14 +3,14 @@
 
 class GeneralSearch
 
-    # GeneralSearch::searchNx1630Datapoint(pattern)
-    def self.searchNx1630Datapoint(pattern)
+    # GeneralSearch::searchNx1630NSNode(pattern)
+    def self.searchNx1630NSNode(pattern)
         SelectionLookupDataset::patternToDatapoints(pattern)
             .map{|datapoint|
                 {
                     "description"   => NSNode1638::toString(datapoint),
                     "referencetime" => DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
-                    "dive"          => lambda{ NSNode1638::landing(datapoint) }
+                    "dive"          => lambda{ NSNode1638::flyby(datapoint) }
                 }
             }
     end
@@ -42,7 +42,7 @@ class GeneralSearch
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            GeneralSearch::searchNx1630Datapoint(pattern),
+            GeneralSearch::searchNx1630NSNode(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

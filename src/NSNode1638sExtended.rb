@@ -15,6 +15,7 @@ class NSNode1638sExtended
             xnode = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
             if xnode then
                 node = JSON.parse(xnode)
+                KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
                 return node
             end
 
@@ -32,7 +33,7 @@ class NSNode1638sExtended
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                 node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
-                NSNode1638::landing(node)
+                NSNode1638::flyby(node)
             end
             if op == op2 then
                 node = NSNode1638::issueNewPointInteractivelyOrNull()
@@ -60,7 +61,7 @@ class NSNode1638sExtended
                 system("clear")
                 node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
-                NSNode1638::landing(node)
+                NSNode1638::flyby(node)
             }
         }
     end

@@ -179,8 +179,11 @@ class NSNode1638
         str
     end
 
-    # NSNode1638::accessopen(datapoint)
-    def self.accessopen(datapoint)
+    # NSNode1638::nsopen(datapoint)
+    def self.nsopen(datapoint)
+        if datapoint["type"] == "navigation" then
+            return nil
+        end
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
@@ -228,8 +231,62 @@ class NSNode1638
         raise "[NSNode1638 error e12fc718]"
     end
 
-    # NSNode1638::landing(datapoint)
-    def self.landing(datapoint)
+    # NSNode1638::flyby(datapoint)
+    def self.flyby(datapoint)
+        loop {
+
+            return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
+
+            system("clear")
+
+            menuitems = LCoreMenuItemsNX1.new()
+
+            puts "node: #{NSNode1638::toString(datapoint, false)}"
+
+            if datapoint["type"] != "navigation" then
+                ordinal = menuitems.ordinal(lambda { NSNode1638::nsopen(datapoint) })
+                puts "    [#{ordinal}] open: #{NSNode1638::toString(datapoint, false)}"
+            end
+
+            ordinal = menuitems.ordinal(lambda { NSNode1638::deeplanding(datapoint) })
+            puts "    [#{ordinal}] deeplanding: #{NSNode1638::toString(datapoint)}"
+
+            sources = Arrows::getSourcesForTarget(datapoint)
+            if sources.size > 0 then
+                puts ""
+                Arrows::getSourcesForTarget(datapoint)
+                    .each{|o|
+                        menuitems.item(
+                            "parent: #{GenericObjectInterface::toString(o)}",
+                            lambda { GenericObjectInterface::flyby(o) }
+                        )
+                    }
+            end
+
+            targets = Arrows::getTargetsForSource(datapoint)
+            if targets.size > 0 then
+                puts ""
+                targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+                targets.each{|o|
+                    menuitems.item(
+                        "child: #{GenericObjectInterface::toString(o, false)}",
+                        lambda{ GenericObjectInterface::flyby(o) }
+                    )
+                }
+            end
+
+            Miscellaneous::horizontalRule()
+
+            status = menuitems.promptAndRunSandbox()
+
+            break if !status
+
+            break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
+        }
+    end
+
+    # NSNode1638::deeplanding(datapoint)
+    def self.deeplanding(datapoint)
         loop {
 
             return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
@@ -249,7 +306,7 @@ class NSNode1638
 
             menuitems.item(
                 "open".yellow,
-                lambda { NSNode1638::accessopen(datapoint) }
+                lambda { NSNode1638::nsopen(datapoint) }
             )
 
             menuitems.item(
@@ -314,7 +371,7 @@ class NSNode1638
                 .each{|o|
                     menuitems.item(
                         "parent: #{GenericObjectInterface::toString(o)}",
-                        lambda { GenericObjectInterface::landing(o) }
+                        lambda { GenericObjectInterface::flyby(o) }
                     )
                 }
 
@@ -347,7 +404,7 @@ class NSNode1638
             targets.each{|o|
                 menuitems.item(
                     GenericObjectInterface::toString(o, false),
-                    lambda{ GenericObjectInterface::landing(o) }
+                    lambda{ GenericObjectInterface::flyby(o) }
                 )
             }
 

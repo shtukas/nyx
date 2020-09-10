@@ -27,7 +27,7 @@ class DataPortalUI
                         return if nodes.empty?
                         node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
-                        NSNode1638::landing(node)
+                        NSNode1638::flyby(node)
                     }
                 }
             )
@@ -41,7 +41,7 @@ class DataPortalUI
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSNode1638::toString(o) })
                         break if node.nil?
-                        NSNode1638::landing(node)
+                        NSNode1638::flyby(node)
                     }
                 }
             )
@@ -65,7 +65,7 @@ class DataPortalUI
                         datapoint["description"] = description
                         NyxObjects2::put(datapoint)
                     end
-                    NSNode1638::landing(node)
+                    NSNode1638::flyby(node)
                 }
             )
 
@@ -165,8 +165,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. NSNode1638NyxElementLocation::automaintenance(true)",
-                lambda { NSNode1638NyxElementLocation::automaintenance(true) }
+                "2. NSNode1638NyxElementLocation::maintenance(true)",
+                lambda { NSNode1638NyxElementLocation::maintenance(true) }
             )
 
             ms.item(
@@ -175,8 +175,12 @@ class DataPortalUI
             )
 
             ms.item(
-                "GlobalMaintenance::main(false)",
-                lambda { GlobalMaintenance::main(true) }
+                "GlobalMaintenance::main(true)",
+                lambda { 
+                    NyxGarbageCollection::run(true)
+                    NSNode1638NyxElementLocation::maintenance(true)
+                    SelectionLookupDataset::rebuildDataset(true)
+                }
             )
 
             puts ""

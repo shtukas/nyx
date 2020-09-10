@@ -237,17 +237,6 @@ class CatalystUI
             }
         }
 
-        Thread.new {
-            loop {
-                sleep 30
-                # We run the full sequence once a day (first opportunity after midnight)
-                next if KeyValueStore::flagIsTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
-                GlobalMaintenance::main(false)
-                KeyValueStore::setFlagTrue(nil, "9311f726-6083-475d-a8f6-0f7dcc9b993d:#{Miscellaneous::today()}")
-                sleep 60
-            }
-        }
-
         @@haveStartedThreads = true
     end
 
