@@ -245,11 +245,11 @@ class NSNode1638
 
             if datapoint["type"] != "navigation" then
                 ordinal = menuitems.ordinal(lambda { NSNode1638::nsopen(datapoint) })
-                puts "    [#{ordinal}] open: #{NSNode1638::toString(datapoint, false)}"
+                puts "    [#{ordinal}] open"
             end
 
             ordinal = menuitems.ordinal(lambda { NSNode1638::deeplanding(datapoint) })
-            puts "    [#{ordinal}] deeplanding: #{NSNode1638::toString(datapoint)}"
+            puts "    [#{ordinal}] deeplanding"
 
             sources = Arrows::getSourcesForTarget(datapoint)
             if sources.size > 0 then
