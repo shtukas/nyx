@@ -128,7 +128,7 @@ class NSNode1638
             end
             if op == "issue new nyxfilename" then
                 extention = LucilleCore::askQuestionAnswerAsString("extension with dot: ")
-                return nil if extention != ""
+                return nil if extention == ""
                 nyxfilename = "NyxFile-#{SecureRandom.uuid}#{extention}"
                 puts "nyxfilename: #{nyxfilename}"
                 LucilleCore::pressEnterToContinue()
