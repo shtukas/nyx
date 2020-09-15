@@ -32,11 +32,6 @@ class Asteroids
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
-        if option == opt100 then
-            return {
-                "type"                  => "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
-            }
-        end
         if option == opt390 then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
@@ -52,6 +47,11 @@ class Asteroids
         if option == opt420 then
             return {
                 "type"                  => "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+            }
+        end
+        if option == opt100 then
+            return {
+                "type"                  => "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
             }
         end
         if option == opt440 then
@@ -124,9 +124,9 @@ class Asteroids
     # Asteroids::asteroidOrbitalTypes()
     def self.asteroidOrbitalTypes()
         [
-            "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3",
             "repeating-daily-time-commitment-8123956c-05",
             "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0",
+            "todo-next-ee38d109-1ec0-47f4-a5a3-803763961",
             "open-project-in-the-background-b458aa91-6e1",
             "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         ]
@@ -147,11 +147,11 @@ class Asteroids
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
-        return "‼️ " if type == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
         return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
         return "☀️ " if type == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
-        return "👩‍💻"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        return "👩‍💻"  if type == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
+        return "🍨"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
@@ -213,10 +213,6 @@ class Asteroids
 
         return 1 if Asteroids::isRunning?(asteroid)
 
-        if orbital["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            return 0.75 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
         if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
@@ -237,6 +233,10 @@ class Asteroids
 
         if orbital["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
             return 0.60 + Asteroids::unixtimedrift(asteroid["unixtime"])
+        end
+
+        if orbital["type"] == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961" then
+            return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
@@ -537,16 +537,6 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::openTargetOrTargets(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::destroy(asteroid)
-            end
-            return
-        end
-
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             return
@@ -580,6 +570,16 @@ class Asteroids
             return
         end
 
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            Asteroids::openTargetOrTargets(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                Asteroids::destroy(asteroid)
+            end
+            return
+        end
+
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
@@ -603,7 +603,7 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::destroy(asteroid)
@@ -611,7 +611,7 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::destroy(asteroid)

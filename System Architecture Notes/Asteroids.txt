@@ -11,9 +11,6 @@ Asteroid
     Orbital
 
         {
-            "type"                  : "top-priority-ca7a15a8-42fa-4dd7-be72-5bfed3"
-        }
-        {
             "type"                  : "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
         {
@@ -24,6 +21,9 @@ Asteroid
         }
         {
             "type"                  : "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+        }
+        {
+            "type"                  : "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
         }
         {
             "type"                  : "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
