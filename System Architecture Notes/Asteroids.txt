@@ -26,7 +26,7 @@ Asteroid
             "type"                  : "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
         }
         {
-            "type"                  : "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            "type"                  : "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         }
         {
             "type"                  : "open-project-in-the-background-b458aa91-6e1"

@@ -16,7 +16,7 @@
         0.65-         Asteroids "repeating-daily-time-commitment-8123956c-05"
         0.60+         Asteroids "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
         0.50+         Asteroids "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
-        0.30+         Asteroids "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        0.30+         Asteroids "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         0.21+         Asteroids "open-project-in-the-background-b458aa91-6e1"
 
         0.20 -------- Water level ------------------------------

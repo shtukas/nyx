@@ -41,7 +41,7 @@ class Asteroids
         end
         if option == opt450 then
             return {
-                "type"                  => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                "type"                  => "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
             }
         end
         if option == opt420 then
@@ -128,7 +128,7 @@ class Asteroids
             "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0",
             "todo-next-ee38d109-1ec0-47f4-a5a3-803763961",
             "open-project-in-the-background-b458aa91-6e1",
-            "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+            "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         ]
     end
 
@@ -151,7 +151,7 @@ class Asteroids
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
         return "☀️ " if type == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
         return "👩‍💻"  if type == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
-        return "🍨"  if type == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+        return "🍨"  if type == "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
@@ -239,7 +239,7 @@ class Asteroids
             return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
-        if orbital["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+        if orbital["type"] == "todo-one-day-24565d20-fd61-47fb-8838-d5c725" then
             return 0.30 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
@@ -307,10 +307,10 @@ class Asteroids
         Asteroids::asteroids()
             .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
             .reduce([]) {|asteroids, asteroid|
-                if asteroid["orbital"]["type"] != "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+                if asteroid["orbital"]["type"] != "todo-one-day-24565d20-fd61-47fb-8838-d5c725" then
                     asteroids + [ asteroid ]
                 else
-                    if asteroids.select{|a| a["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" }.size < 100 then
+                    if asteroids.select{|a| a["orbital"]["type"] == "todo-one-day-24565d20-fd61-47fb-8838-d5c725" }.size < 100 then
                         asteroids + [ asteroid ]
                     else
                         asteroids
@@ -508,7 +508,7 @@ class Asteroids
                 end
                 if mode == "to queue" then
                     asteroid["orbital"] = {
-                        "type" => "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c"
+                        "type" => "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
                     }
                     Asteroids::commitToDisk(asteroid)
                     return
@@ -580,7 +580,7 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-one-day-24565d20-fd61-47fb-8838-d5c725" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
@@ -619,7 +619,7 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "queued-8cb9c7bd-cb9a-42a5-8130-4c7c5463173c" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-one-day-24565d20-fd61-47fb-8838-d5c725" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::destroy(asteroid)
