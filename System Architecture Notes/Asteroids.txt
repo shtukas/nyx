@@ -20,7 +20,7 @@ Asteroid
                                       Week days that we are "on" (was introduced for Guardian Work)
         }
         {
-            "type"                  : "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+            "type"                  : "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
         }
         {
             "type"                  : "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"

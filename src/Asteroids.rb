@@ -46,7 +46,7 @@ class Asteroids
         end
         if option == opt420 then
             return {
-                "type"                  => "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+                "type"                  => "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
             }
         end
         if option == opt100 then
@@ -125,7 +125,7 @@ class Asteroids
     def self.asteroidOrbitalTypes()
         [
             "repeating-daily-time-commitment-8123956c-05",
-            "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0",
+            "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9",
             "todo-next-ee38d109-1ec0-47f4-a5a3-803763961",
             "open-project-in-the-background-b458aa91-6e1",
             "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
@@ -149,7 +149,7 @@ class Asteroids
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
-        return "☀️ " if type == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+        return "☀️ " if type == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
         return "👩‍💻"  if type == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
         return "🍨"  if type == "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
@@ -231,7 +231,7 @@ class Asteroids
             return 0.65 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
         end
 
-        if orbital["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+        if orbital["type"] == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9" then
             return 0.60 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
@@ -343,7 +343,7 @@ class Asteroids
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
 
-        if asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+        if asteroid["orbital"]["type"] == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9" then
             cycleTimeInSeconds = KeyValueStore::getOrDefaultValue(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", "0").to_i
             cycleTimeInSeconds = cycleTimeInSeconds + timespanInSeconds
             KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", cycleTimeInSeconds)
@@ -501,7 +501,7 @@ class Asteroids
                 end
                 if mode == "todo today" then
                     asteroid["orbital"] = {
-                        "type" => "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0"
+                        "type" => "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
                     }
                     Asteroids::commitToDisk(asteroid)
                     return
@@ -542,7 +542,7 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
             modes = [
@@ -603,7 +603,7 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "the-burner-07f24c2a-75da-4323-81bb-8c0e80a0" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::destroy(asteroid)
