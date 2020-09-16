@@ -124,28 +124,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "asteroid floats open-project-in-the-background", 
-                lambda { 
-                    loop {
-                        system("clear")
-                        menuitems = LCoreMenuItemsNX1.new()
-                        Asteroids::asteroids()
-                            .select{|asteroid| asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1" }
-                            .each{|asteroid|
-                                menuitems.item(
-                                    Asteroids::toString(asteroid),
-                                    lambda { Asteroids::landing(asteroid) }
-                                )
-                            }
-                        status = menuitems.promptAndRunSandbox()
-                        break if !status
-                    }
-                }
-            )
-
-            puts ""
-
-            ms.item(
                 "Calendar",
                 lambda { 
                     system("open '#{Calendar::pathToCalendarItems()}'") 

@@ -45,20 +45,6 @@ class CatalystUI
 
             puts ""
 
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "open-project-in-the-background-b458aa91-6e1"
-                }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    menuitems.item(
-                        Asteroids::toString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                }
-
-            puts ""
-
             status = menuitems.promptAndRunSandbox()
             break if !status
         }

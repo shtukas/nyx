@@ -17,6 +17,5 @@
         0.60+         Asteroids "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
         0.50+         Asteroids "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
         0.30+         Asteroids "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
-        0.21+         Asteroids "open-project-in-the-background-b458aa91-6e1"
 
         0.20 -------- Water level ------------------------------

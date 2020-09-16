@@ -54,11 +54,6 @@ class Asteroids
                 "type"                  => "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
             }
         end
-        if option == opt440 then
-            return {
-                "type"                  => "open-project-in-the-background-b458aa91-6e1"
-            }
-        end
         if option == opt410 then
             return {
                 "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
@@ -127,7 +122,6 @@ class Asteroids
             "repeating-daily-time-commitment-8123956c-05",
             "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9",
             "todo-next-ee38d109-1ec0-47f4-a5a3-803763961",
-            "open-project-in-the-background-b458aa91-6e1",
             "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         ]
     end
@@ -152,7 +146,6 @@ class Asteroids
         return "☀️ " if type == "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
         return "👩‍💻"  if type == "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
         return "🍨"  if type == "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
-        return "😴"  if type == "open-project-in-the-background-b458aa91-6e1"
     end
 
     # Asteroids::orbitalToString(asteroid)
@@ -241,10 +234,6 @@ class Asteroids
 
         if orbital["type"] == "todo-one-day-24565d20-fd61-47fb-8838-d5c725" then
             return 0.30 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "open-project-in-the-background-b458aa91-6e1" then
-            return 0.21 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         puts asteroid

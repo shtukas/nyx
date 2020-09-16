@@ -28,7 +28,4 @@ Asteroid
         {
             "type"                  : "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
         }
-        {
-            "type"                  : "open-project-in-the-background-b458aa91-6e1"
-        }
 
