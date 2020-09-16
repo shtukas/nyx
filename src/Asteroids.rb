@@ -325,17 +325,6 @@ class Asteroids
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
-
-        if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            cycleTimeInSeconds = KeyValueStore::getOrDefaultValue(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", "0").to_i
-            cycleTimeInSeconds = cycleTimeInSeconds + timespanInSeconds
-            KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", cycleTimeInSeconds)
-            if cycleTimeInSeconds > 3600 then
-                KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", 0)
-                asteroid["unixtime"] = Time.new.to_i
-                NyxObjects2::put(asteroid)
-            end
-        end
     end
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)
@@ -524,28 +513,6 @@ class Asteroids
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
-            modes = [
-                "done/destroy",
-                "just start",
-                "stop/push/rotate"
-            ]
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-            return if mode.nil?
-            if mode == "done/destroy" then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::destroy(asteroid)
-                return
-            end
-            if mode == "just start" then
-                return
-            end
-            if mode == "stop/push/rotate" then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["unixtime"] = Time.new.to_i
-                NyxObjects2::put(asteroid)
-                KeyValueStore::set(nil, "BurnerCycleTime-F8E4-49A5-87E3-99EADB61EF64-#{asteroid["uuid"]}", 0)
-                return
-            end
             return
         end
 
