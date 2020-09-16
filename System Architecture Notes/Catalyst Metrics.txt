@@ -10,12 +10,9 @@
         0.78+         Waves every-n-hours / every-n-days
 
 👩‍💻
-
         0.73          Backups Monitor
         0.70+         Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         0.65-         Asteroids "repeating-daily-time-commitment-8123956c-05"
-        0.60+         Asteroids "todo-today-de1a8879-0c37-48d5-a9ea-7c74f3b9"
-        0.50+         Asteroids "todo-next-ee38d109-1ec0-47f4-a5a3-803763961"
-        0.30+         Asteroids "todo-one-day-24565d20-fd61-47fb-8838-d5c725"
+0.50 -> 0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
 
         0.20 -------- Water level ------------------------------
