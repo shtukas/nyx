@@ -21,7 +21,6 @@ Asteroid
         }
         {
             "type"                  : "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-            "timeSpentInHours"      : nil or Float
         }
         {
             "type"                  : "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
