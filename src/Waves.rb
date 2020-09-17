@@ -275,6 +275,7 @@ class Waves
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
+            puts "schedule: #{wave["schedule"]}"
             Miscellaneous::horizontalRule()
 
             menuitems = LCoreMenuItemsNX1.new()
