@@ -175,105 +175,6 @@ class Asteroids
         0.00000000001*(Time.new.to_f-unixtime).to_f
     end
 
-    # Asteroids::burnerDomains()
-    def self.burnerDomains()
-        [
-            {
-                "uuid" => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
-                "membershipTimeMinInHours" => 0.00
-            },
-            {
-                "uuid" => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
-                "membershipTimeMinInHours" => 1.00
-            },
-            {
-                "uuid" => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
-                "membershipTimeMinInHours" => 2.00
-            },
-            {
-                "uuid" => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
-                "membershipTimeMinInHours" => 5.00
-            },
-            {
-                "uuid" => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
-                "membershipTimeMinInHours" => 50.0
-            }
-        ]
-    end
-
-    # Asteroids::burnerDomainsWithExtraData()
-    def self.burnerDomainsWithExtraData()
-        Asteroids::burnerDomains()
-            .map{|domain|
-                domain["recoveredDailyTimeInHours"] = BankExtended::recoveredDailyTimeInHours(domain["uuid"])
-                domain
-            }
-            .sort{|d1, d2| d1["recoveredDailyTimeInHours"] <=> d2["recoveredDailyTimeInHours"] }
-            .zip([0.6, 0.5, 0.4, 0.3, 0.35])
-            .map{|pair| 
-                domain = pair[0]
-                domain["basemetric"] = pair[1]
-                domain
-            }
-    end
-
-    # Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-    def self.getBurnerDomainForAsteroidOrNull(asteroid)
-        return nil if asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        Asteroids::burnerDomains()
-            .select{|domain| domain["membershipTimeMinInHours"] <= Bank::value(asteroid["uuid"]).to_f/3600 }
-            .first
-    end
-
-    # Asteroids::burnerMetric(asteroid)
-    def self.burnerMetric(asteroid)
-        asteroidDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-        if asteroidDomain.nil? then
-            puts asteroid
-            raise "error: 2c2a9f88-d7f9-4ba4-8a27-f2b93b491e64"
-        end
-        basemetric = Asteroids::burnerDomainsWithExtraData().select{|domain| domain["uuid"] == asteroidDomain["uuid"] }.first["basemetric"]
-        basemetric - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
-    end
-
-    # Asteroids::metric(asteroid)
-    def self.metric(asteroid)
-        uuid = asteroid["uuid"]
-
-        orbital = asteroid["orbital"]
-
-        return 1 if Asteroids::isRunning?(asteroid)
-
-        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            if orbital["days"] then
-                if !orbital["days"].include?(Miscellaneous::todayAsLowercaseEnglishWeekDayName()) then
-                    if Asteroids::isRunning?(asteroid) then
-                        # This happens if we started before midnight and it's now after midnight
-                        Asteroids::stopAsteroidIfRunning(asteroid)
-                    end
-                    return 0
-                end
-            end
-            return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > orbital["timeCommitmentInHours"]
-            return 0.65 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
-        end
-
-        if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return Asteroids::burnerMetric(asteroid)
-        end
-
-        if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            return 0.00 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        puts asteroid
-        raise "[Asteroids] error: 46b84bdb"
-    end
-
     # Asteroids::runTimeIfAny(asteroid)
     def self.runTimeIfAny(asteroid)
         uuid = asteroid["uuid"]
@@ -341,6 +242,113 @@ class Asteroids
                 end
             }
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+    end
+
+    # -------------------------------------------------------------------
+    # Burner Domains and Metric
+
+    # Asteroids::burnerDomains()
+    def self.burnerDomains()
+        [
+            {
+                "uuid" => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
+                "membershipTimeMinInHours" => 0.00,
+                "description" => "less than one hour"
+            },
+            {
+                "uuid" => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
+                "membershipTimeMinInHours" => 1.00,
+                "description" => "one hour to two hours"
+            },
+            {
+                "uuid" => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
+                "membershipTimeMinInHours" => 2.00,
+                "description" => "two hours to five hours"
+            },
+            {
+                "uuid" => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
+                "membershipTimeMinInHours" => 5.00,
+                "description" => "five hours to fifty hours"
+            },
+            {
+                "uuid" => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
+                "membershipTimeMinInHours" => 50.0,
+                "description" => "fifty hours to infinity"
+            }
+        ]
+    end
+
+    # Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder()
+    def self.burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder()
+        Asteroids::burnerDomains()
+            .map{|domain|
+                domain["recoveredDailyTimeInHours"] = BankExtended::recoveredDailyTimeInHours(domain["uuid"])
+                domain
+            }
+            .sort{|d1, d2| d1["recoveredDailyTimeInHours"] <=> d2["recoveredDailyTimeInHours"] }
+            .zip([0.6, 0.5, 0.4, 0.3, 0.35])
+            .map{|pair| 
+                domain = pair[0]
+                domain["basemetric"] = pair[1]
+                domain
+            }
+    end
+
+    # Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+    def self.getBurnerDomainForAsteroidOrNull(asteroid)
+        return nil if asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        Asteroids::burnerDomains()
+            .select{|domain| domain["membershipTimeMinInHours"] <= Bank::value(asteroid["uuid"]).to_f/3600 }
+            .first
+    end
+
+    # Asteroids::burnerMetric(asteroid)
+    def self.burnerMetric(asteroid)
+        asteroidDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+        if asteroidDomain.nil? then
+            puts asteroid
+            raise "error: 2c2a9f88-d7f9-4ba4-8a27-f2b93b491e64"
+        end
+        basemetric = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().select{|domain| domain["uuid"] == asteroidDomain["uuid"] }.first["basemetric"]
+        basemetric - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
+    end
+
+    # Asteroids::metric(asteroid)
+    def self.metric(asteroid)
+        uuid = asteroid["uuid"]
+
+        orbital = asteroid["orbital"]
+
+        return 1 if Asteroids::isRunning?(asteroid)
+
+        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
+        end
+
+        if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
+            if orbital["days"] then
+                if !orbital["days"].include?(Miscellaneous::todayAsLowercaseEnglishWeekDayName()) then
+                    if Asteroids::isRunning?(asteroid) then
+                        # This happens if we started before midnight and it's now after midnight
+                        Asteroids::stopAsteroidIfRunning(asteroid)
+                    end
+                    return 0
+                end
+            end
+            return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > orbital["timeCommitmentInHours"]
+            return 0.65 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
+        end
+
+        if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+            return Asteroids::burnerMetric(asteroid)
+        end
+
+        if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            return 0.00 + Asteroids::unixtimedrift(asteroid["unixtime"])
+        end
+
+        puts asteroid
+        raise "[Asteroids] error: 46b84bdb"
     end
 
     # -------------------------------------------------------------------

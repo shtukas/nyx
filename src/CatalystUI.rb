@@ -58,6 +58,10 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
+        data = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().first
+        puts "Asteroids burner domain: #{data["description"]}"
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
         puts ""
 
         filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
