@@ -124,6 +124,14 @@ class DataPortalUI
             )
 
             ms.item(
+                "Asteroids::burnerDomainsWithExtraData()",
+                lambda { 
+                    puts JSON.pretty_generate(Asteroids::burnerDomainsWithExtraData())
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            ms.item(
                 "Calendar",
                 lambda { 
                     system("open '#{Calendar::pathToCalendarItems()}'") 

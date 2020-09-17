@@ -8,48 +8,33 @@ class Asteroids
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
 
-        opt100 = "top priority"
-        opt380 = "singleton time commitment"
-        opt410 = "inbox"
-        opt390 = "repeating daily time commitment"
-        opt400 = "on going until completion"
-        opt420 = "todo today"
-        opt430 = "indefinite"
-        opt440 = "open project in the background"
-        opt450 = "todo"
-
         options = [
-            opt100,
-            opt380,
-            opt390,
-            opt400,
-            opt410,
-            opt420,
-            opt430,
-            opt440,
-            opt450,
+            "inbox",
+            "repeating daily time commitment",
+            "burner",
+            "stream",
         ]
 
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
         return nil if option.nil?
-        if option == opt410 then
+        if option == "inbox" then
             return {
                 "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
             }
         end
-        if option == opt390 then
+        if option == "repeating daily time commitment" then
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
                 "type"                  => "repeating-daily-time-commitment-8123956c-05",
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
-        if option == opt420 then
+        if option == "burner" then
             return {
                 "type"                  => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
             }
         end
-        if option == opt450 then
+        if option == "stream" then
             return {
                 "type"                  => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
             }
@@ -190,10 +175,65 @@ class Asteroids
         0.00000000001*(Time.new.to_f-unixtime).to_f
     end
 
+    # Asteroids::burnerDomains()
+    def self.burnerDomains()
+        [
+            {
+                "uuid" => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
+                "membershipTimeMinInHours" => 0.00
+            },
+            {
+                "uuid" => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
+                "membershipTimeMinInHours" => 1.00
+            },
+            {
+                "uuid" => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
+                "membershipTimeMinInHours" => 2.00
+            },
+            {
+                "uuid" => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
+                "membershipTimeMinInHours" => 5.00
+            },
+            {
+                "uuid" => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
+                "membershipTimeMinInHours" => 50.0
+            }
+        ]
+    end
+
+    # Asteroids::burnerDomainsWithExtraData()
+    def self.burnerDomainsWithExtraData()
+        Asteroids::burnerDomains()
+            .map{|domain|
+                domain["recoveredDailyTimeInHours"] = BankExtended::recoveredDailyTimeInHours(domain["uuid"])
+                domain
+            }
+            .sort{|d1, d2| d1["recoveredDailyTimeInHours"] <=> d2["recoveredDailyTimeInHours"] }
+            .zip([0.6, 0.5, 0.4, 0.3, 0.35])
+            .map{|pair| 
+                domain = pair[0]
+                domain["basemetric"] = pair[1]
+                domain
+            }
+    end
+
+    # Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+    def self.getBurnerDomainForAsteroidOrNull(asteroid)
+        return nil if asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        Asteroids::burnerDomains()
+            .select{|domain| domain["membershipTimeMinInHours"] <= Bank::value(asteroid["uuid"]).to_f/3600 }
+            .first
+    end
+
     # Asteroids::burnerMetric(asteroid)
     def self.burnerMetric(asteroid)
-        # We much decide the group the asteroid is in and compute the right metric for the group and then the item
-        return 0.60 + Asteroids::unixtimedrift(asteroid["unixtime"])
+        asteroidDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+        if asteroidDomain.nil? then
+            puts asteroid
+            raise "error: 2c2a9f88-d7f9-4ba4-8a27-f2b93b491e64"
+        end
+        basemetric = Asteroids::burnerDomainsWithExtraData().select{|domain| domain["uuid"] == asteroidDomain["uuid"] }.first["basemetric"]
+        basemetric - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
     end
 
     # Asteroids::metric(asteroid)
@@ -242,8 +282,7 @@ class Asteroids
 
     # Asteroids::bankValueLive(asteroid)
     def self.bankValueLive(asteroid)
-        uuid = asteroid["uuid"]
-        Bank::value(uuid) + Asteroids::runTimeIfAny(asteroid)
+        Bank::value(asteroid["uuid"]) + Asteroids::runTimeIfAny(asteroid)
     end
 
     # Asteroids::isRunning?(asteroid)
@@ -281,7 +320,8 @@ class Asteroids
             },
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
-            "x-asteroid"       => asteroid
+            "x-asteroid"       => asteroid,
+            "x-burner-domain"  => Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
         }
     end
 
@@ -323,8 +363,14 @@ class Asteroids
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
     def self.asteroidReceivesTime(asteroid, timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
+
+        # It's important to update the current domain before we add the time to the asteroid
+        burnerDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+        if burnerDomain then
+            Bank::put(burnerDomain["uuid"], timespanInSeconds.to_f/3600) # Time in hours
+        end
+
         Bank::put(asteroid["uuid"], timespanInSeconds)
-        Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
     end
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)
@@ -582,7 +628,6 @@ class Asteroids
                     puts "on days: #{asteroid["orbital"]["days"].join(", ")}".yellow
                 end
             end
-            puts "BankExtended::recoveredDailyTimeInHours(bankuuid): #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
