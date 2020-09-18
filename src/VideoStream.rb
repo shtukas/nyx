@@ -31,7 +31,7 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        0.2 + 0.5*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01")) - indx.to_f/1000000
+        0.2 + 0.5*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")) - indx.to_f/1000000
     end
 
     # VideoStream::videoIsRunning(filepath)
@@ -81,9 +81,9 @@ class VideoStream
             end
             timespan = Runner::stop(uuid)
             puts "Watched for #{timespan} seconds"
-            timespan = [timespan, 3600*2]
+            timespan = [timespan, 3600*2].min
             puts "Adding #{timespan} seconds to bank"
-            Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", timespan)
+            Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
         else
             options = ["play", "completed"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
