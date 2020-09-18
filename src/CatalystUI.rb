@@ -58,9 +58,11 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
-        data = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().first
-        puts "Asteroids burner domain: #{data["description"]}"
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        if !OperatingMode::isWork?() then
+            data = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().first
+            puts "Asteroids burner domain: #{data["description"]}"
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        end
 
         puts ""
 
@@ -195,48 +197,40 @@ class CatalystUI
         end
     end
 
-    @@haveStartedThreads = false
-
-    # CatalystUI::startThreadsIfNotStarted()
-    def self.startThreadsIfNotStarted()
-
-        return if @@haveStartedThreads
-
-        puts "-> starting Threads"
+    # CatalystUI::standardUILoop()
+    def self.standardUILoop()
 
         Thread.new {
             loop {
-                sleep 10
+                sleep 120
                 CatalystObjectsOperator::getCatalystListingObjectsOrdered()
                     .select{|object| object["isRunningForLong"] }
                     .first(1)
                     .each{|object|
                         Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
                     }
-                sleep 120
             }
         }
 
         Thread.new {
             loop {
-                sleep 20
-                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
-                    system("#{File.dirname(__FILE__)}/../vienna-import")
-                end
-                sleep 3600
+                sleep 180
+                next if !OperatingMode::isWork?()
+                next if CatalystObjectsOperator::getCatalystListingObjectsOrdered().size < 2
+                Miscellaneous::onScreenNotification("Catalyst Interface", "Important items during work mode")
             }
         }
 
-        @@haveStartedThreads = true
-    end
-
-    # CatalystUI::standardUILoop()
-    def self.standardUILoop()
-
-        haveStartedThreads = false
+        Thread.new {
+            loop {
+                sleep 1800
+                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
+                    system("#{File.dirname(__FILE__)}/../vienna-import")
+                end
+            }
+        }
 
         loop {
-
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
 
@@ -248,8 +242,6 @@ class CatalystUI
                 return
             end
             CatalystUI::standardDisplay(objects)
-
-            CatalystUI::startThreadsIfNotStarted()
         }
     end
 end

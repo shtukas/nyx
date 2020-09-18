@@ -1,8 +1,6 @@
 🗓️
         0.93          Calendar
 
-        0.90  -> 0.20 VideoStream
-
 💫
         0.84+         Waves sticky
         0.82+         Waves every-this-day-of-the-month
@@ -12,6 +10,10 @@
 👩‍💻
         0.73          Backups Monitor
         0.70+         Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+
+        0.70 -------- Work Mode ------------------------------
+
+        0.70  -> 0.20 VideoStream
         0.65-         Asteroids "repeating-daily-time-commitment-8123956c-05"
 0.50 -> 0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
 

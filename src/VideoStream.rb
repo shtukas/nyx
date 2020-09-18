@@ -31,7 +31,7 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        0.2 + 0.7*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01")) - indx.to_f/1000000
+        0.2 + 0.5*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01")) - indx.to_f/1000000
     end
 
     # VideoStream::videoIsRunning(filepath)
