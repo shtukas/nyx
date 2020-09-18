@@ -231,62 +231,8 @@ class NSNode1638
         raise "[NSNode1638 error e12fc718]"
     end
 
-    # NSNode1638::flyby(datapoint)
-    def self.flyby(datapoint)
-        loop {
-
-            return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
-
-            system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            puts "node: #{NSNode1638::toString(datapoint, false)}"
-
-            if datapoint["type"] != "navigation" then
-                ordinal = menuitems.ordinal(lambda { NSNode1638::nsopen(datapoint) })
-                puts "    [#{ordinal}] open"
-            end
-
-            ordinal = menuitems.ordinal(lambda { NSNode1638::deeplanding(datapoint) })
-            puts "    [#{ordinal}] deeplanding"
-
-            sources = Arrows::getSourcesForTarget(datapoint)
-            if sources.size > 0 then
-                puts ""
-                Arrows::getSourcesForTarget(datapoint)
-                    .each{|o|
-                        menuitems.item(
-                            "parent: #{GenericObjectInterface::toString(o)}",
-                            lambda { GenericObjectInterface::flyby(o) }
-                        )
-                    }
-            end
-
-            targets = Arrows::getTargetsForSource(datapoint)
-            if targets.size > 0 then
-                puts ""
-                targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-                targets.each{|o|
-                    menuitems.item(
-                        "child: #{GenericObjectInterface::toString(o, false)}",
-                        lambda{ GenericObjectInterface::flyby(o) }
-                    )
-                }
-            end
-
-            Miscellaneous::horizontalRule()
-
-            status = menuitems.promptAndRunSandbox()
-
-            break if !status
-
-            break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
-        }
-    end
-
-    # NSNode1638::deeplanding(datapoint)
-    def self.deeplanding(datapoint)
+    # NSNode1638::landing(datapoint)
+    def self.landing(datapoint)
         loop {
 
             return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
@@ -371,7 +317,7 @@ class NSNode1638
                 .each{|o|
                     menuitems.item(
                         "parent: #{GenericObjectInterface::toString(o)}",
-                        lambda { GenericObjectInterface::flyby(o) }
+                        lambda { GenericObjectInterface::access(o) }
                     )
                 }
 
@@ -404,7 +350,7 @@ class NSNode1638
             targets.each{|o|
                 menuitems.item(
                     GenericObjectInterface::toString(o, false),
-                    lambda{ GenericObjectInterface::flyby(o) }
+                    lambda{ GenericObjectInterface::access(o) }
                 )
             }
 
@@ -503,6 +449,26 @@ class NSNode1638
 
             break if KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546") # Looks like we were in sandbox mode and something was selected.
         }
+    end
+
+    # NSNode1638::access(datapoint)
+    def self.access(datapoint)
+        if datapoint["type"] == "navigation" then
+            NSNode1638::landing(datapoint)
+            return
+        end
+        options = [
+            "open",
+            "landing",
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
+        return if option.nil?
+        if option == "open" then
+            NSNode1638::nsopen(datapoint)
+        end
+        if option == "landing" then
+            NSNode1638::landing(datapoint)
+        end
     end
 
     # NSNode1638::destroy(datapoint)

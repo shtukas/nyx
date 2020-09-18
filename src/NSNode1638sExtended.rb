@@ -33,7 +33,7 @@ class NSNode1638sExtended
                 nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
                 node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 next if node.nil?
-                NSNode1638::flyby(node)
+                NSNode1638::access(node)
             end
             if op == op2 then
                 node = NSNode1638::issueNewPointInteractivelyOrNull()
@@ -61,7 +61,7 @@ class NSNode1638sExtended
                 system("clear")
                 node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                 break if node.nil?
-                NSNode1638::flyby(node)
+                NSNode1638::access(node)
             }
         }
     end

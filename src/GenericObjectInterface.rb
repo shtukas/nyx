@@ -48,32 +48,18 @@ class GenericObjectInterface
         object["referenceDateTime"]
     end
 
-    # GenericObjectInterface::flyby(object)
-    def self.flyby(object)
+    # GenericObjectInterface::access(object)
+    def self.access(object)
         if GenericObjectInterface::isAsteroid(object) then
             Asteroids::landing(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSNode1638::flyby(object)
+            NSNode1638::access(object)
             return
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
-    end
-
-    # GenericObjectInterface::nsopen(object)
-    def self.nsopen(object)
-        if GenericObjectInterface::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
-        if GenericObjectInterface::isDataPoint(object) then
-            NSNode1638::nsopen(object)
-            return
-        end
-        puts object
-        raise "[error: ba6962cf-e003-4a69-b2fc-e98c289e72b7]"
     end
 
     # GenericObjectInterface::destroy(object)

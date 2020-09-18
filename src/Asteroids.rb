@@ -458,7 +458,7 @@ class Asteroids
             }
         NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
         SelectionLookupDataset::updateLookupForNode(node)
-        NSNode1638::flyby(node)
+        NSNode1638::access(node)
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
@@ -605,11 +605,11 @@ class Asteroids
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item(
             "open",
-            lambda { GenericObjectInterface::nsopen(object) }
+            lambda { GenericObjectInterface::access(object) }
         )
         menuitems.item(
             "landing",
-            lambda { GenericObjectInterface::flyby(object) }
+            lambda { GenericObjectInterface::access(object) }
         )
         menuitems.promptAndRunSandbox()
     end

@@ -1,7 +1,6 @@
 # encoding: UTF-8
 
 class DataPortalUI
-
     # DataPortalUI::dataPortalFront()
     def self.dataPortalFront()
         loop {
@@ -27,7 +26,7 @@ class DataPortalUI
                         return if nodes.empty?
                         node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
                         return if node.nil?
-                        NSNode1638::flyby(node)
+                        NSNode1638::access(node)
                     }
                 }
             )
@@ -41,7 +40,7 @@ class DataPortalUI
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSNode1638::toString(o) })
                         break if node.nil?
-                        NSNode1638::flyby(node)
+                        NSNode1638::access(node)
                     }
                 }
             )
@@ -65,7 +64,7 @@ class DataPortalUI
                         datapoint["description"] = description
                         NyxObjects2::put(datapoint)
                     end
-                    NSNode1638::flyby(node)
+                    NSNode1638::access(node)
                 }
             )
 
