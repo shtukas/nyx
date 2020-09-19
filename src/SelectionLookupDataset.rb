@@ -56,7 +56,7 @@ class SelectionLookupDatabaseIO
     end
 
     # SelectionLookupDatabaseIO::getDatabaseRecords(): Array[DatabaseRecord]
-    # DatabaseRecord: [objectuuid: String, fragment: String]
+    # DatabaseRecord: [objecttype: string, objectuuid: String, fragment: String]
     def self.getDatabaseRecords()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.results_as_hash = true
@@ -73,95 +73,21 @@ class SelectionLookupDatabaseIO
     end
 end
 
-class SelectionLookupDatabaseInMemory
-    def reloadData()
-        @databaseRecords = SelectionLookupDatabaseIO::getDatabaseRecords()
-                                .map{ |record| 
-                                    record["fragment"] = record["fragment"].downcase
-                                    record
-                                }
-        @supermap = {} # Map[ pattern: String, records: Array[DatabaseRecord] ]
-        @cachedObjects = {} # Map[ uuid: String, object: Object ]
-    end
-
-    def initialize()
-        reloadData()
-    end
-
-    def patternAndRecordsToRecords(pattern, records)
-        pattern = pattern.downcase
-        @databaseRecords.select{|record| record["fragment"].include?(pattern) }
-    end
-
-    def patternToRecords(pattern)
-        if @supermap[pattern] then
-            return @supermap[pattern]
-        end
-
-        minipattern = pattern[0, pattern.size-1]
-        if @supermap[minipattern] then
-            records = patternAndRecordsToRecords(pattern, @supermap[minipattern])
-            @supermap[pattern] = records
-            return records
-        end
-
-        records = patternAndRecordsToRecords(pattern, @databaseRecords)
-        @supermap[pattern] = records
-        records
-    end
-
-    def objectUUIDToObjectOrNull(objectuuid)
-        if @cachedObjects[objectuuid] then
-            return @cachedObjects[objectuuid]
-        end
-        object = NyxObjects2::getOrNull(objectuuid)
-        return nil if object.nil?
-        @cachedObjects[objectuuid] = object
-        object
-    end
-
-    def patternToDatapoints(pattern)
-        patternToRecords(pattern)
-            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
-            .compact
-            .select{|object| GenericObjectInterface::isDataPoint(object) }
-    end
-
-    def patternToAsteroids(pattern)
-        patternToRecords(pattern)
-            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
-            .compact
-            .select{|object| GenericObjectInterface::isAsteroid(object) }
-    end
-
-    def patternToWaves(pattern)
-        patternToRecords(pattern)
-            .map{|record| objectUUIDToObjectOrNull(record["objectuuid"]) }
-            .compact
-            .select{|object| object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" }
-    end
-end
-
-$SelectionLookupDatabaseInMemoryA22379F6 = SelectionLookupDatabaseInMemory.new()
-
 class SelectionLookupDataset
 
     # SelectionLookupDataset::updateLookupForDatapoint(datapoint)
     def self.updateLookupForDatapoint(datapoint)
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::updateLookupForNode(node)
     def self.updateLookupForNode(node)
         SelectionLookupDatabaseIO::updateLookupForNode(node)
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildDatapointsLookup(verbose)
@@ -185,8 +111,6 @@ class SelectionLookupDataset
             }
 
         db.close
-
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
@@ -204,8 +128,6 @@ class SelectionLookupDataset
             }
 
         db.close
-
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildWavesLookup(verbose)
@@ -223,8 +145,6 @@ class SelectionLookupDataset
             }
 
         db.close
-
-        $SelectionLookupDatabaseInMemoryA22379F6.reloadData()
     end
 
     # SelectionLookupDataset::rebuildDataset(verbose)
@@ -236,16 +156,28 @@ class SelectionLookupDataset
 
     # SelectionLookupDataset::patternToDatapoints(pattern)
     def self.patternToDatapoints(pattern)
-        $SelectionLookupDatabaseInMemoryA22379F6.patternToDatapoints(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "datapoint" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
     end
 
     # SelectionLookupDataset::patternToAsteroids(pattern)
     def self.patternToAsteroids(pattern)
-        $SelectionLookupDatabaseInMemoryA22379F6.patternToAsteroids(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "asteroid" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
     end
 
     # SelectionLookupDataset::patternToWaves(pattern)
     def self.patternToWaves(pattern)
-        $SelectionLookupDatabaseInMemoryA22379F6.patternToWaves(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "wave" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
     end
 end
