@@ -15,16 +15,16 @@ class DataPortalUI
 
             ms.item(
                 "Node Exploration", 
-                lambda { NSNode1638sExtended::interactiveNodeSearchAndExplore() }
+                lambda { NSNode1638Extended::interactiveNodeSearchAndExplore() }
             )
 
             ms.item(
                 "Node Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSNode1638sExtended::interactiveNodeNcursesSearch()
+                        nodes = NSNode1638Extended::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
+                        node = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
                         return if node.nil?
                         NSNode1638::landing(node)
                     }
@@ -52,7 +52,7 @@ class DataPortalUI
                 lambda {
                     puts "We first select a node because a dataline without a parent will be garbage collected"
                     LucilleCore::pressEnterToContinue()
-                    node = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
                     return if node.nil?
                     puts "selected node: #{NSNode1638::toString(node)}"
                     LucilleCore::pressEnterToContinue()
@@ -73,9 +73,9 @@ class DataPortalUI
                 lambda { 
                     puts "Merging two nodes"
                     puts "Selecting one after the other and then will merge"
-                    node1 = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node1 = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
                     return if node1.nil?
-                    node2 = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                    node2 = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
                     return if node2.nil?
                     if node1["uuid"] == node2["uuid"] then
                         puts "You have selected the same node twice. Aborting merge operation."

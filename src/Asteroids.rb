@@ -268,10 +268,7 @@ class Asteroids
                 "membershipTime" => (2**i).to_f,
             }
         }
-        ([d0] + dx).map{|domain|
-            domain["description"] = "#{domain["membershipTime"]} hours"
-            domain
-        }
+        ([d0] + dx)
     end
 
     # Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()

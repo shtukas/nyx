@@ -334,7 +334,7 @@ class NSNode1638
             })
 
             interpreter.registerExactCommand("attach new parent", lambda {
-                n = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                n = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
                 return if n.nil?
                 Arrows::issueOrException(n, datapoint)
             })
@@ -359,7 +359,7 @@ class NSNode1638
             })
 
             interpreter.registerExactCommand("select and attach ; child", lambda {
-                o = NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
+                o = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
                 return if o.nil?
                 Arrows::issueOrException(datapoint, o)
             })

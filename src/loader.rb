@@ -140,7 +140,7 @@ require_relative "LucilleCore.rb"
 
 require_relative "NSNode1638.rb"
 require_relative "NSNode1638NyxElementLocation.rb"
-require_relative "NSNode1638sExtended.rb"
+require_relative "NSNode1638Extended.rb"
 
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"

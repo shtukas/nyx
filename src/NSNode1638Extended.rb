@@ -1,53 +1,47 @@
 
-class NSNode1638sExtended
+class NSNode1638Extended
 
-    # NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
-    def self.selectOneNodeFromNodesOrNull(nodes)
+    # NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
+    def self.selectOneDatapointFromDatapointsOrNull(nodes)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSNode1638::toString(node) })
     end
 
-    # NSNode1638sExtended::sandboxSelectionOfOneExistingOrNewNodeOrNull()
-    def self.sandboxSelectionOfOneExistingOrNewNodeOrNull()
-        KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
+    # NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
+    def self.selectOneDatapointFromExistingDatapointsOrNull()
         loop {
-            system("clear")
-
-            xnode = KeyValueStore::getOrNull(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
-            if xnode then
-                node = JSON.parse(xnode)
-                KeyValueStore::destroy(nil, "d64d6e5e-9cc9-41b4-8c42-6062495ef546")
-                return node
+            pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+            if pattern == "" then
+                return
             end
-
-            op1 = "search -> choose -> landing -> navigate -> select -> return node"
-            op2 = "make new node -> return"
-            op3 = "exit selection; return null"
-
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operations", [ op1, op2, op3 ])
-            next if op.nil?
-            if op == op1 then
-                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                next if pattern == ""
-                nodes = SelectionLookupDataset::patternToDatapoints(pattern)
-                next if nodes.empty?
-                nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
-                node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
-                next if node.nil?
-                NSNode1638::landing(node)
+            datapoints = SelectionLookupDataset::patternToDatapoints(pattern)
+            if datapoints.empty? then
+                puts "No results for this pattern"
+                LucilleCore::pressEnterToContinue()
+                next
             end
-            if op == op2 then
-                node = NSNode1638::issueNewPointInteractivelyOrNull()
-                next if node.nil?
-                return node
+            datapoint = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(datapoints)
+            if datapoint.nil? then
+                next
             end
-            if op == op3 then
-                return nil
-            end
+            return datapoint
         }
     end
 
-    # NSNode1638sExtended::interactiveNodeSearchAndExplore()
-    def self.interactiveNodeSearchAndExplore()
+    # NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
+    def self.selectOneExistingDatapointOrMakeANewOneOrNull()
+        puts "selectOneExistingDatapointOrMakeANewOneOrNull()"
+        LucilleCore::pressEnterToContinue()
+        datapoint = NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
+        return datapoint if datapoint
+        status = LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing point, would you like to create a new one ? ")
+        if !status then
+            return nil
+        end
+        NSNode1638::issueNewPointInteractivelyOrNull()
+    end
+
+    # NSNode1638Extended::interactiveDatapointSearchAndExplore()
+    def self.interactiveDatapointSearchAndExplore()
         loop {
             system("clear")
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
@@ -59,14 +53,14 @@ class NSNode1638sExtended
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSNode1638sExtended::selectOneNodeFromNodesOrNull(nodes)
+                node = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
                 break if node.nil?
                 NSNode1638::landing(node)
             }
         }
     end
 
-    # NSNode1638sExtended::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NSNode1638Extended::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen
