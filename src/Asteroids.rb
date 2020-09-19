@@ -600,20 +600,6 @@ class Asteroids
         end
     end
 
-    # Asteroids::accessAsteroidTarget(object)
-    def self.accessAsteroidTarget(object)
-        menuitems = LCoreMenuItemsNX1.new()
-        menuitems.item(
-            "open",
-            lambda { GenericObjectInterface::access(object) }
-        )
-        menuitems.item(
-            "landing",
-            lambda { GenericObjectInterface::access(object) }
-        )
-        menuitems.promptAndRunSandbox()
-    end
-
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
         loop {
@@ -710,7 +696,7 @@ class Asteroids
             targets.each{|object|
                     menuitems.item(
                         GenericObjectInterface::toString(object),
-                        lambda { Asteroids::accessAsteroidTarget(object) }
+                        lambda { GenericObjectInterface::access(object) }
                     )
                 }
 
