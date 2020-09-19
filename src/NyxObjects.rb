@@ -10,22 +10,27 @@ class NyxObjectsCore
             "0f555c97-3843-4dfe-80c8-714d837eba69", # NSNode1638
         ]
     end
+
+    # NyxObjectsCore::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Objects.sqlite3"
+    end
 end
 
-NyxObjectsDionysus1Filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Objects.sqlite3"
-
 $NyxObjectsCache76DBF964 = {}
-NyxObjectsCore::nyxNxSets().each{|setid|
-    Dionysus1::sets_getObjects(NyxObjectsDionysus1Filepath, setid).each{|object|
-        $NyxObjectsCache76DBF964[object["uuid"]] = object
-    }
-}
 
 class NyxObjects2
 
     # NyxObjects2::put(object)
     def self.put(object)
-        Dionysus1::sets_putObject(NyxObjectsDionysus1Filepath, object["nyxNxSet"], object["uuid"], object)
+
+        db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
+        db.transaction 
+        db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [object["nyxNxSet"], object["uuid"]]
+        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(_object_)]
+        db.commit 
+        db.close
+
         $NyxObjectsCache76DBF964[object["uuid"]] = object
     end
 
@@ -36,14 +41,29 @@ class NyxObjects2
 
     # NyxObjects2::getSet(setid)
     def self.getSet(setid)
-        Dionysus1::sets_getObjects(NyxObjectsDionysus1Filepath, setid)
+        db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from table2 where _setuuid_=?" , [setid] ) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # NyxObjects2::destroy(object)
     def self.destroy(object)
         NyxObjectsCore::nyxNxSets().each{|setid|
-            Dionysus1::sets_destroy(NyxObjectsDionysus1Filepath, setid, object["uuid"])
+            db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
+            db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [setid, object["uuid"]]
+            db.close
         }
         $NyxObjectsCache76DBF964.delete(object["uuid"])
     end
 end
+
+NyxObjectsCore::nyxNxSets().each{|setid|
+    NyxObjects2::getSet(setid).each{|object|
+        $NyxObjectsCache76DBF964[object["uuid"]] = object
+    }
+}
