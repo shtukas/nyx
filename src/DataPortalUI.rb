@@ -125,7 +125,9 @@ class DataPortalUI
             ms.item(
                 "Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()",
                 lambda { 
-                    puts JSON.pretty_generate(Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder())
+                    Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder().each{|domain|
+                        puts "#{("%6.2f" % domain["membershipTime"])} hours : #{domain["recoveredDailyTimeInHours"]}"
+                    }
                     LucilleCore::pressEnterToContinue()
                 }
             )

@@ -257,33 +257,21 @@ class Asteroids
 
     # Asteroids::burnerDomains()
     def self.burnerDomains()
-        [
+        d0 = 
             {
-                "uuid"           => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
+                "uuid"           => Digest::SHA1.hexdigest("974e342c-d59c-418f-b7c5-2d226741e1d7:0"),
                 "membershipTime" => 0.00,
-                "description"    => "less than one hour"
-            },
-            {
-                "uuid"           => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
-                "membershipTime" => 1.00*3600,
-                "description"    => "one hour to two hours"
-            },
-            {
-                "uuid"           => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
-                "membershipTime" => 2.00*3600,
-                "description"    => "two hours to five hours"
-            },
-            {
-                "uuid"           => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
-                "membershipTime" => 5.00*3600,
-                "description"    => "five hours to fifty hours"
-            },
-            {
-                "uuid"           => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
-                "membershipTime" => 50.0*3600,
-                "description"    => "fifty hours to infinity"
             }
-        ]
+        dx = (-2..7).map{|i|  
+            {
+                "uuid"           => Digest::SHA1.hexdigest("974e342c-d59c-418f-b7c5-2d226741e1d7:#{i}"),
+                "membershipTime" => (2**i).to_f,
+            }
+        }
+        ([d0] + dx).map{|domain|
+            domain["description"] = "#{domain["membershipTime"]} hours"
+            domain
+        }
     end
 
     # Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()
