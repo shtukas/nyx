@@ -41,7 +41,7 @@ class NSNode1638NyxElementLocation
                     puts "NSNode1638NyxElementLocation::maintenance(#{showprogress}): I can't locate #{datapoint}"
                     puts "Going to land"
                     LucilleCore::pressEnterToContinue()
-                    NSNode1638::access(datapoint)
+                    NSNode1638::landing(datapoint)
                 end
             end
         }
@@ -58,7 +58,7 @@ class NSNode1638NyxElementLocation
                 puts JSON.pretty_generate(datapoint)
                 puts "Going to land"
                 LucilleCore::pressEnterToContinue()
-                NSNode1638::access(datapoint)
+                NSNode1638::landing(datapoint)
             end
         }
     end

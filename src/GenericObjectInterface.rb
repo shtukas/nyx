@@ -48,14 +48,14 @@ class GenericObjectInterface
         object["referenceDateTime"]
     end
 
-    # GenericObjectInterface::access(object)
-    def self.access(object)
+    # GenericObjectInterface::landing(object)
+    def self.landing(object)
         if GenericObjectInterface::isAsteroid(object) then
             Asteroids::landing(object)
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSNode1638::access(object)
+            NSNode1638::landing(object)
             return
         end
         puts object

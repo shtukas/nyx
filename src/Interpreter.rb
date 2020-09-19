@@ -5,25 +5,33 @@ class Interpreter
 
     def initialize()
         @items = []
+        @counter = 0
     end
 
-    def registerExactCommand(command, execution)
+    def registerExactCommand(command, xlambda)
         @items << {
             "type"    => "exact-command",
             "command" => command,
-            "lambda"  => execution
+            "lambda"  => xlambda
         }
     end
 
+    def indexDrivenMenuItem(announce, xlambda)
+        @counter = @counter+1
+        puts "[#{@counter.to_s.rjust(2)}] #{announce}"
+        registerExactCommand(@counter.to_s, xlambda)
+    end
+
     def prompt()
-        loop {
-            prompt = LucilleCore::askQuestionAnswerAsString("-> ")
-            return if prompt == ""
-            exactCommandItem = @items.select{|item| item["command"] == prompt }.first
-            if exactCommandItem then
-                exactCommandItem["lambda"].call()
-            end
-        }
+        # puts JSON.pretty_generate(@items)
+        prompt = LucilleCore::askQuestionAnswerAsString("-> ")
+        return if prompt == ""
+        item = @items.select{|item| item["command"] == prompt }.first
+        if item then
+            item["lambda"].call()
+            return true
+        end
+        false
     end
 end
 

@@ -416,7 +416,7 @@ class Asteroids
                 return
             end
             if GenericObjectInterface::isDataPoint(target) then
-                NSNode1638::nsopen(target)
+                NSNode1638::opendatapoint(target)
                 return
             end
         end
@@ -458,7 +458,7 @@ class Asteroids
             }
         NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
         SelectionLookupDataset::updateLookupForNode(node)
-        NSNode1638::access(node)
+        NSNode1638::landing(node)
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
@@ -498,7 +498,7 @@ class Asteroids
                 end
 
                 if GenericObjectInterface::isDataPoint(target) then
-                    NSNode1638::nsopen(target)
+                    NSNode1638::opendatapoint(target)
                 end
 
                 Asteroids::stopAsteroidIfRunning(asteroid)
@@ -696,7 +696,7 @@ class Asteroids
             targets.each{|object|
                     menuitems.item(
                         GenericObjectInterface::toString(object),
-                        lambda { GenericObjectInterface::access(object) }
+                        lambda { GenericObjectInterface::landing(object) }
                     )
                 }
 
