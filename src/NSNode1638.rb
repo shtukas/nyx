@@ -110,7 +110,7 @@ class NSNode1638
         end
         if type == "text" then
             nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
-            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/CatalystElements/#{Time.new.strftime("%Y-%m")}/#{nyxfilename}"
+            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{nyxfilename}"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end

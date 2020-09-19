@@ -15,7 +15,7 @@ class DataPortalUI
 
             ms.item(
                 "Node Exploration", 
-                lambda { NSNode1638Extended::interactiveNodeSearchAndExplore() }
+                lambda { NSNode1638Extended::interactiveDatapointSearchAndExplore() }
             )
 
             ms.item(
