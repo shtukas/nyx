@@ -232,18 +232,7 @@ class Asteroids
     # Asteroids::catalystObjects()
     def self.catalystObjects()
         asteroids = Asteroids::asteroids()
-                        .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                        .reduce([]) {|asteroids, asteroid|
-                            if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-                                asteroids + [ asteroid ]
-                            else
-                                if asteroids.select{|a| a["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }.size < 100 then
-                                    asteroids + [ asteroid ]
-                                else
-                                    asteroids
-                                end
-                            end
-                        }
+                        .select{|asteroid| asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
 
         activeDomainUUIDs = asteroids
                                 .map{|asteroid| Asteroids::getBurnerDomainForAsteroidOrNull(asteroid) }
