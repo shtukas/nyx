@@ -1,17 +1,33 @@
 # encoding: UTF-8
 
-DoNotShowUntilDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Do-Not-Show-Until.sqlite3"
-
 class DoNotShowUntil
+
+    # DoNotShowUntil::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/Do-Not-Show-Until.sqlite3"
+    end
 
     # DoNotShowUntil::setUnixtime(uid, unixtime)
     def self.setUnixtime(uid, unixtime)
-        Dionysus1::kvstore_set(DoNotShowUntilDatabaseFilepath, uid, unixtime)
+        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
+        db.transaction 
+        db.execute "delete from table1 where _key_=?", [uid]
+        db.execute "insert into table1 (_key_, _value_) values ( ?, ? )", [uid, unixtime]
+        db.commit 
+        db.close
+        nil
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
-        unixtime = Dionysus1::kvstore_getOrNull(DoNotShowUntilDatabaseFilepath, uid)
+        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
+        db.results_as_hash = true
+        unixtime = nil
+        db.execute( "select * from table1 where _key_=?" , [uid] ) do |row|
+            unixtime = row['_value_']
+        end
+        db.close
+
         return nil if unixtime.nil?
         unixtime.to_i
     end
