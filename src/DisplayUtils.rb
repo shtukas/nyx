@@ -8,8 +8,8 @@ class DisplayUtils
         ["expose"]
     end
 
-    # DisplayUtils::makeDisplayStringForCatalystListing(object)
-    def self.makeDisplayStringForCatalystListing(object)
+    # DisplayUtils::makeDisplayStringForCatalystListingCore(object)
+    def self.makeDisplayStringForCatalystListingCore(object)
         # Miscellaneous::screenWidth()
         body = object["body"]
         lines = body.lines.to_a
@@ -19,6 +19,15 @@ class DisplayUtils
             first = lines.shift
             "(#{"%5.3f" % object["metric"]}) #{first}" + lines.map{|line|  "             #{line}"}.join()
         end
+    end
+
+    # DisplayUtils::makeDisplayStringForCatalystListing(object)
+    def self.makeDisplayStringForCatalystListing(object)
+        text = DisplayUtils::makeDisplayStringForCatalystListingCore(object)
+        if object["isRunning"] then
+            text = text.green
+        end
+        text
     end
 
     # DisplayUtils::verticalSize(displayStr)
