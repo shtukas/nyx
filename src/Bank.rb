@@ -1,13 +1,23 @@
 
 # encoding: UTF-8
 
-BankDatabaseFilepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
-
 class Bank
+
+    # Bank::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
+    end
 
     # Bank::getTimePackets(setuuid)
     def self.getTimePackets(setuuid)
-        Dionysus1::sets_getObjects(BankDatabaseFilepath, setuuid)
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from table2 where _setuuid_=?" , [setuuid] ) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # Bank::put(setuuid, weight: Float)
@@ -18,7 +28,13 @@ class Bank
             "weight" => weight,
             "unixtime" => Time.new.to_f
         }
-        Dionysus1::sets_putObject(BankDatabaseFilepath, setuuid, uuid, packet)
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.transaction 
+        db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [setuuid, uuid]
+        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [setuuid, uuid, JSON.generate(packet)]
+        db.commit 
+        db.close
+        nil
     end
 
     # Bank::value(setuuid)
