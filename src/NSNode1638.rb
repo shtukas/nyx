@@ -300,6 +300,16 @@ class NSNode1638
             )
 
             menuitems.item(
+                "transmute / re-issue [this]".yellow, 
+                lambda { 
+                    newpoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                    NyxObjects2::destroy(newpoint)
+                    newpoint["uuid"] = datapoint["uuid"]
+                    NyxObjects2::put(newpoint)
+                }
+            )
+
+            menuitems.item(
                 "destroy [this]".yellow,
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
