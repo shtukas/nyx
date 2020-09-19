@@ -24,6 +24,8 @@ require 'digest/sha1'
 # Digest::SHA256.hexdigest 'message'  
 # Digest::SHA256.file(myFile).hexdigest
 
+require 'sqlite3'
+
 require 'find'
 
 require 'thread'
