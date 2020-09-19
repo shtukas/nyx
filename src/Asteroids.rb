@@ -185,14 +185,35 @@ class Asteroids
         ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
     end
 
+    # Asteroids::metric(asteroid)
+    def self.metric(asteroid)
+        uuid = asteroid["uuid"]
+
+        orbital = asteroid["orbital"]
+
+        return 1 if Asteroids::isRunning?(asteroid)
+
+        if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+            return 0.60 - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
+        end
+
+        if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            return 0
+        end
+
+        puts asteroid
+        raise "[Asteroids] error: 46b84bdb"
+    end
+
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
         uuid = asteroid["uuid"]
+        burnerDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
         {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
-            "execute"          => lambda { |command| 
+            "execute"          => lambda { |command|
                 if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
                     Asteroids::naturalNextOperation(asteroid) 
                 end
@@ -203,115 +224,95 @@ class Asteroids
             "isRunning"        => Asteroids::isRunning?(asteroid),
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
-            "x-burner-domain"  => Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+            "x-burner-domain"  => burnerDomain,
+            "x-burner-domain-recovered-time" => (burnerDomain ? BankExtended::recoveredDailyTimeInHours(burnerDomain["uuid"]) : nil)
         }
     end
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        Asteroids::asteroids()
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-            .reduce([]) {|asteroids, asteroid|
-                if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-                    asteroids + [ asteroid ]
-                else
-                    if asteroids.select{|a| a["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }.size < 100 then
-                        asteroids + [ asteroid ]
-                    else
-                        asteroids
-                    end
-                end
-            }
+        asteroids = Asteroids::asteroids()
+                        .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
+                        .reduce([]) {|asteroids, asteroid|
+                            if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+                                asteroids + [ asteroid ]
+                            else
+                                if asteroids.select{|a| a["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }.size < 100 then
+                                    asteroids + [ asteroid ]
+                                else
+                                    asteroids
+                                end
+                            end
+                        }
+
+        activeDomainUUIDs = asteroids
+                                .map{|asteroid| Asteroids::getBurnerDomainForAsteroidOrNull(asteroid) }
+                                .compact
+                                .map{|domain| domain["uuid"] }
+
+        displayDomain = Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()
+                            .select{|domain| activeDomainUUIDs.include?(domain["uuid"]) }
+                            .first
+
+        asteroids = asteroids
+                .select{|asteroid|
+                    (asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955") or (Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)["uuid"] == displayDomain["uuid"] )
+                }
+
+        asteroids
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
     # -------------------------------------------------------------------
-    # Burner Domains and Metric
+    # Burner Domains
 
     # Asteroids::burnerDomains()
     def self.burnerDomains()
         [
             {
-                "uuid" => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
-                "membershipTimeMinInHours" => 0.00,
-                "description" => "less than one hour"
+                "uuid"           => "d153fabc-c630-48e9-b2a2-9a41e7e16cbb", # time in hours
+                "membershipTime" => 0.00,
+                "description"    => "less than one hour"
             },
             {
-                "uuid" => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
-                "membershipTimeMinInHours" => 1.00,
-                "description" => "one hour to two hours"
+                "uuid"           => "974e342c-d59c-418f-b7c5-2d226741e1d7", # time in hours
+                "membershipTime" => 1.00*3600,
+                "description"    => "one hour to two hours"
             },
             {
-                "uuid" => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
-                "membershipTimeMinInHours" => 2.00,
-                "description" => "two hours to five hours"
+                "uuid"           => "a7181b61-2947-48d4-9406-8cf03829d3e6", # time in hours
+                "membershipTime" => 2.00*3600,
+                "description"    => "two hours to five hours"
             },
             {
-                "uuid" => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
-                "membershipTimeMinInHours" => 5.00,
-                "description" => "five hours to fifty hours"
+                "uuid"           => "5ade4a92-9ea2-4c54-b7a1-a2419f27fea8", # time in hours
+                "membershipTime" => 5.00*3600,
+                "description"    => "five hours to fifty hours"
             },
             {
-                "uuid" => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
-                "membershipTimeMinInHours" => 50.0,
-                "description" => "fifty hours to infinity"
+                "uuid"           => "dc94dd04-f0bb-47b7-8c4e-131a7d10c594", # time in hours
+                "membershipTime" => 50.0*3600,
+                "description"    => "fifty hours to infinity"
             }
         ]
     end
 
-    # Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder()
-    def self.burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder()
+    # Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()
+    def self.burnerDomainsInRecoveredDailyTimeInHoursOrder()
         Asteroids::burnerDomains()
             .map{|domain|
                 domain["recoveredDailyTimeInHours"] = BankExtended::recoveredDailyTimeInHours(domain["uuid"])
                 domain
             }
             .sort{|d1, d2| d1["recoveredDailyTimeInHours"] <=> d2["recoveredDailyTimeInHours"] }
-            .zip([0.6, 0.5, 0.4, 0.3, 0.35])
-            .map{|pair| 
-                domain = pair[0]
-                domain["basemetric"] = pair[1]
-                domain
-            }
     end
 
     # Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
     def self.getBurnerDomainForAsteroidOrNull(asteroid)
         return nil if asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         Asteroids::burnerDomains()
-            .select{|domain| domain["membershipTimeMinInHours"] <= Bank::value(asteroid["uuid"]).to_f/3600 }
-            .first
-    end
-
-    # Asteroids::burnerMetric(asteroid)
-    def self.burnerMetric(asteroid)
-        asteroidDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-        if asteroidDomain.nil? then
-            puts asteroid
-            raise "error: 2c2a9f88-d7f9-4ba4-8a27-f2b93b491e64"
-        end
-        basemetric = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().select{|domain| domain["uuid"] == asteroidDomain["uuid"] }.first["basemetric"]
-        basemetric - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
-    end
-
-    # Asteroids::metric(asteroid)
-    def self.metric(asteroid)
-        uuid = asteroid["uuid"]
-
-        orbital = asteroid["orbital"]
-
-        return 1 if Asteroids::isRunning?(asteroid)
-
-        if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return Asteroids::burnerMetric(asteroid)
-        end
-
-        if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            return 0.00 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        puts asteroid
-        raise "[Asteroids] error: 46b84bdb"
+            .select{|domain| domain["membershipTime"] <= Bank::value(asteroid["uuid"]) }
+            .last
     end
 
     # -------------------------------------------------------------------
@@ -336,9 +337,9 @@ class Asteroids
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
 
         # It's important to update the current domain before we add the time to the asteroid
-        burnerDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-        if burnerDomain then
-            Bank::put(burnerDomain["uuid"], timespanInSeconds.to_f/3600) # Time in hours
+        domain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+        if domain then
+            Bank::put(domain["uuid"], timespanInSeconds)
         end
 
         Bank::put(asteroid["uuid"], timespanInSeconds)
@@ -570,6 +571,8 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}".yellow
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
+            puts "bank value: #{Bank::value(asteroid["uuid"])}"
+            puts "burner domain: #{Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)}"
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])

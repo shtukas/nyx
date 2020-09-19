@@ -14,6 +14,6 @@
         0.70 -------- Work Mode ------------------------------
 
         0.70  -> 0.20 VideoStream
-0.50 -> 0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
 
         0.20 -------- Water level ------------------------------

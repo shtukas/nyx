@@ -123,9 +123,9 @@ class DataPortalUI
             )
 
             ms.item(
-                "Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder()",
+                "Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()",
                 lambda { 
-                    puts JSON.pretty_generate(Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder())
+                    puts JSON.pretty_generate(Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder())
                     LucilleCore::pressEnterToContinue()
                 }
             )
