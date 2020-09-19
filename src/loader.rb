@@ -146,6 +146,8 @@ require_relative "EstateServices.rb"
 require_relative "GeneralSearch.rb"
 require_relative "GenericObjectInterface.rb"
 
+require_relative "Interpreter.rb"
+
 require_relative "LucilleCore.rb"
 
 require_relative "NSNode1638.rb"
