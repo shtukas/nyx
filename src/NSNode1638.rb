@@ -419,19 +419,23 @@ class NSNode1638
             })
 
             interpreter.registerExactCommand("help", lambda {
-                puts "metadata"
-                puts "description"
-                puts "datetime"
-                puts "remove [this] as intermediary node"
-                puts "transmute"
-                puts "destroy [this]"
-                puts "attach new parent"
-                puts "detach parent"
-                puts "issue new child"
-                puts "select and attach ; child"
-                puts "detach child"
-                puts "select children ; move to existing/new node"
-                puts "help"
+                commands = [
+                    "metadata",
+                    "description",
+                    "datetime",
+                    "remove [this] as intermediary node",
+                    "transmute",
+                    "destroy [this]",
+                    "attach new parent",
+                    "detach parent",
+                    "issue new child",
+                    "select and attach ; child",
+                    "detach child",
+                    "select children ; move to existing/new node",
+                ]
+                commands.each{|command|
+                    puts "   - #{command}"
+                }
                 LucilleCore::pressEnterToContinue()
             })
 

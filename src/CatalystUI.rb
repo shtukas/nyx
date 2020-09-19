@@ -9,47 +9,6 @@ class CatalystUI
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
-    # CatalystUI::accessProjects()
-    def self.accessProjects()
-
-        loop {
-            system("clear")
-
-            menuitems = LCoreMenuItemsNX1.new()
-
-            puts ""
-
-            Asteroids::asteroids()
-                .select{|asteroid|
-                    asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05"
-                }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .each{|asteroid|
-                    menuitems.item(
-                        Asteroids::toString(asteroid),
-                        lambda { Asteroids::landing(asteroid) }
-                    )
-                }
-
-            puts ""
-
-            Calendar::dates().each{|date|
-                menuitems.item(
-                    "[calendar] #{date}",
-                    lambda { 
-                        filepath = Calendar::dateToFilepath(date)
-                        system("open '#{filepath}'")
-                    }
-                )
-            }
-
-            puts ""
-
-            status = menuitems.promptAndRunSandbox()
-            break if !status
-        }
-    end
-
     # CatalystUI::standardDisplay(catalystObjects)
     def self.standardDisplay(catalystObjects)
 
@@ -188,11 +147,6 @@ class CatalystUI
 
         if command == "/" then
             DataPortalUI::dataPortalFront()
-            return
-        end
-
-        if command == ";" then
-            CatalystUI::accessProjects()
             return
         end
     end

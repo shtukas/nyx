@@ -10,7 +10,6 @@ class Asteroids
 
         options = [
             "inbox",
-            "repeating daily time commitment",
             "burner",
             "stream",
         ]
@@ -20,13 +19,6 @@ class Asteroids
         if option == "inbox" then
             return {
                 "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-            }
-        end
-        if option == "repeating daily time commitment" then
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-            return {
-                "type"                  => "repeating-daily-time-commitment-8123956c-05",
-                "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
         if option == "burner" then
@@ -98,7 +90,6 @@ class Asteroids
     # Asteroids::asteroidOrbitalTypes()
     def self.asteroidOrbitalTypes()
         [
-            "repeating-daily-time-commitment-8123956c-05",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
         ]
@@ -120,18 +111,8 @@ class Asteroids
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
         return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        return "💫"  if type == "repeating-daily-time-commitment-8123956c-05"
         return "☀️ " if type == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         return "😴"  if type == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-    end
-
-    # Asteroids::orbitalToString(asteroid)
-    def self.orbitalToString(asteroid)
-        uuid = asteroid["uuid"]
-        if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            return "(daily commitment: #{asteroid["orbital"]["timeCommitmentInHours"]} hours, recovered daily time: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).round(2)} hours)"
-        end
-        ""
     end
 
     # Asteroids::asteroidDescriptionUseTheForce(asteroid)
@@ -166,7 +147,7 @@ class Asteroids
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{Asteroids::orbitalToString(asteroid)} #{runningString}".strip
+        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{runningString}".strip
     end
 
     # Asteroids::unixtimedrift(unixtime)
@@ -320,24 +301,6 @@ class Asteroids
         orbital = asteroid["orbital"]
 
         return 1 if Asteroids::isRunning?(asteroid)
-
-        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
-        end
-
-        if orbital["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            if orbital["days"] then
-                if !orbital["days"].include?(Miscellaneous::todayAsLowercaseEnglishWeekDayName()) then
-                    if Asteroids::isRunning?(asteroid) then
-                        # This happens if we started before midnight and it's now after midnight
-                        Asteroids::stopAsteroidIfRunning(asteroid)
-                    end
-                    return 0
-                end
-            end
-            return 0 if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) > orbital["timeCommitmentInHours"]
-            return 0.65 - 0.01*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/orbital["timeCommitmentInHours"]
-        end
 
         if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return Asteroids::burnerMetric(asteroid)
@@ -559,11 +522,6 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            return
-        end
-
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
@@ -578,11 +536,6 @@ class Asteroids
         # Running
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
@@ -617,11 +570,6 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}".yellow
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
-            if asteroid["orbital"]["type"] == "repeating-daily-time-commitment-8123956c-05" then
-                if asteroid["orbital"]["days"] then
-                    puts "on days: #{asteroid["orbital"]["days"].join(", ")}".yellow
-                end
-            end
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
