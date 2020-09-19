@@ -27,7 +27,7 @@ class NyxObjects2
         db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
         db.transaction 
         db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [object["nyxNxSet"], object["uuid"]]
-        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(_object_)]
+        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
 
