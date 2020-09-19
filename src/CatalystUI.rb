@@ -60,7 +60,7 @@ class CatalystUI
 
         if !OperatingMode::isWork?() then
             data = Asteroids::burnerDomainsWithExtraDataInRecoveredDailyTimeInHoursOrder().first
-            puts "Asteroids burner domain: #{data["description"]}"
+            puts "[asteroids burner domain] #{data["description"]} (#{BankExtended::recoveredDailyTimeInHours(data["uuid"])})"
             verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
