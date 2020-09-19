@@ -96,22 +96,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Dionysus1.rb"
-=begin
-
-Dionysus1::kvstore_set(filepath, key, value)
-Dionysus1::kvstore_getOrNull(filepath, key): null or String
-Dionysus1::kvstore_setObject(filepath, key, object)
-Dionysus1::kvstore_getObjectOrNull(filepath, key): null or Object
-Dionysus1::kvstore_destroy(filepath, key)
-
-Dionysus1::sets_putObject(filepath, _setuuid_, _objectuuid_, _object_)
-Dionysus1::sets_getObjectOrNull(filepath, _setuuid_, _objectuuid_): null or Object
-Dionysus1::sets_getObjects(filepath, _setuuid_): Array[Object]
-Dionysus1::sets_destroy(filepath, _setuuid_, _objectuuid_)
-
-=end
-
 # ------------------------------------------------------------
 
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
