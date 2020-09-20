@@ -161,15 +161,6 @@ class DataPortalUI
                 lambda { NyxGarbageCollection::run(true) }
             )
 
-            ms.item(
-                "GlobalMaintenance::main(true)",
-                lambda { 
-                    NyxGarbageCollection::run(true)
-                    NSNode1638NyxElementLocation::maintenance(true)
-                    SelectionLookupDataset::rebuildDataset(true)
-                }
-            )
-
             puts ""
 
             ms.item(
