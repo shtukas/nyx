@@ -391,7 +391,7 @@ class Asteroids
                             end
                             LucilleCore::copyFileSystemLocation(File.dirname(location), newEnvelopFolderPath)
                             LucilleCore::removeFileSystemLocation(File.dirname(location))
-                            GalaxyFinder::registerElementNameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
+                            GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
                         end
                     end
                 end

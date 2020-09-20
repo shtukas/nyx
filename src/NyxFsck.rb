@@ -42,6 +42,19 @@ class NyxFsck
             return true
         end
 
+        if datapoint["type"] == "NyxFSPoint001" then
+            nyxName = datapoint["name"]
+            puts "Finding #{nyxName}"
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location.nil? then
+                puts "Failing to find: #{nyxName}"
+                puts JSON.pretty_generate(datapoint)
+                puts "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
+                return false
+            end
+            return true
+        end
+
         puts JSON.pretty_generate(datapoint)
         puts "[error: 10e5efff-380d-4eaa-bf6d-83bf6c1016d5]"
         false

@@ -44,6 +44,9 @@ class GalaxyFinder
                 if File.basename(location).start_with?("NyxFile-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
                 end
+                if File.basename(location).start_with?("NyxFSPoint001-") then
+                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                end
                 if File.basename(location).include?(uniquestring) then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
                     return location
@@ -65,17 +68,17 @@ class GalaxyFinder
         maybefilepath
     end
 
-    # GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(ename)
-    def self.nyxFileSystemElementNameToLocationOrNull(ename)
-        location = GalaxyFinder::uniqueStringToLocationOrNull(ename)
+    # GalaxyFinder::nyxFilenameToLocationOrNull(filename)
+    def self.nyxFilenameToLocationOrNull(filename)
+        location = GalaxyFinder::uniqueStringToLocationOrNull(filename)
         return nil if location.nil?
-        return nil if File.basename(location) != ename
+        return nil if File.basename(location) != filename
         location
     end
 
-    # GalaxyFinder::registerElementNameAtLocation(ename, location)
-    def self.registerElementNameAtLocation(ename, location)
-        KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{ename}", location)
+    # GalaxyFinder::registerFilenameAtLocation(filename, location)
+    def self.registerFilenameAtLocation(filename, location)
+        KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{filename}", location)
     end
 end
 

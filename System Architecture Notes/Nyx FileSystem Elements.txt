@@ -2,7 +2,7 @@ A NyxFile is any file on disk that has a name of the form NyxFile-<unique string
 
 A NyxDirectory is any file on disk that has a name of the form NyxDirectory-<unique string>, for instance: NyxDirectory-fcb5541a-6e2e-48dd-9981-2f137fe8490c .
 
-
+A NyxFSPoint001 is a datapoint whose master copy in in he Galaxy hierarchy and not in the NyxObject database (which only has a copy).
 
 ---------------------------------------------------------------------------
 Database Mapping

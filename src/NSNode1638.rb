@@ -88,9 +88,29 @@ class NSNode1638
         object
     end
 
+    # NSNode1638::issueNyxFSPointOrNull(description, parentfolderpath, filenameuuid)
+    def self.issueNyxFSPointOrNull(description, parentfolderpath, filenameuuid)
+        return nil if !File.exists?(parentfolderpath)
+        return nil if !File.directory?(parentfolderpath)
+        filename = "NyxFSPoint001-#{filenameuuid}.json"
+        filepath = "#{parentfolderpath}/#{filename}"
+        object = {
+            "uuid"        => SecureRandom.uuid,
+            "nyxNxSet"    => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"    => Time.new.to_f,
+            "type"        => "NyxFSPoint001",
+            "name"        => filename,
+            "description" => description
+        }
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+        GalaxyFinder::registerFilenameAtLocation(filename, filepath)
+        NyxObjects2::put(object)
+        object
+    end
+
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["navigation", "line", "url", "text", "NyxFile", "NyxDirectory"]
+        types = ["navigation", "line", "url", "text", "NyxFile", "NyxDirectory"] # We are not yet interactively issuing NyxFSPoint001
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "navigation" then
@@ -153,6 +173,9 @@ class NSNode1638
             if datapoint["type"] == "NyxDirectory" then
                 return " ( #{datapoint["name"]} )"
             end
+            if datapoint["type"] == "NyxFSPoint001" then
+                return " ( #{datapoint["name"]} )"
+            end
             ""
         }
 
@@ -172,6 +195,9 @@ class NSNode1638
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         if datapoint["type"] == "NyxDirectory" then
+            return "[#{datapoint["type"]}] #{datapoint["name"]}"
+        end
+        if datapoint["type"] == "NyxFSPoint001" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         puts datapoint
@@ -227,6 +253,18 @@ class NSNode1638
             return nil
         end
         if datapoint["type"] == "NyxDirectory" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                puts "target file '#{location}'"
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not determine the location of #{datapoint["name"]}"
+                LucilleCore::pressEnterToContinue()
+            end
+            return nil
+        end
+        if datapoint["type"] == "NyxFSPoint001" then
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
@@ -445,10 +483,10 @@ class NSNode1638
         }
     end
 
-    # NSNode1638::destroy(datapoint)
-    def self.destroy(datapoint)
+    # NSNode1638::destroyOrNothingReturnBoolean(datapoint)
+    def self.destroyOrNothingReturnBoolean(datapoint)
 
-        return if !Arrows::getTargetsForSource(datapoint).empty?
+        return false if !Arrows::getTargetsForSource(datapoint).empty?
 
         puts "Destroying datapoint: #{NSNode1638::toString(datapoint)}"
 
@@ -471,7 +509,6 @@ class NSNode1638
                     end
                 end
             end
-
         end
         if datapoint["type"] == "NyxDirectory" then
             puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
@@ -497,7 +534,14 @@ class NSNode1638
                 end
             end
         end
+        if datapoint["type"] == "NyxFSPoint001" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            return false if location.nil?
+            FileUtils.rm(location)
+        end
 
         NyxObjects2::destroy(datapoint)
+
+        true
     end
 end

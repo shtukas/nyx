@@ -12,7 +12,7 @@ class NSNode1638NyxElementLocation
             end
         end
 
-        location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
+        location = GalaxyFinder::nyxFilenameToLocationOrNull(datapoint["name"])
         if location then
             NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
             return location
@@ -34,7 +34,7 @@ class NSNode1638NyxElementLocation
             if !File.exists?(record["location"]) then
                 datapoint = NyxObjects2::getOrNull(record["objectuuid"])
                 puts "NSNode1638NyxElementLocation::maintenance(#{showprogress}): searching for #{datapoint}"
-                location = GalaxyFinder::nyxFileSystemElementNameToLocationOrNull(datapoint["name"])
+                location = GalaxyFinder::nyxFilenameToLocationOrNull(datapoint["name"])
                 if location then
                     NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
                 else
@@ -49,7 +49,7 @@ class NSNode1638NyxElementLocation
             if showprogress then
                 puts JSON.generate(datapoint)
             end
-            next if !["NyxDirectory", "NyxFile"].include?(datapoint["type"])
+            next if !["NyxDirectory", "NyxFile", "NyxFSPoint001"].include?(datapoint["type"])
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)

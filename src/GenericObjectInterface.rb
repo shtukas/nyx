@@ -68,7 +68,7 @@ class GenericObjectInterface
             return
         end
         if GenericObjectInterface::isDataPoint(object) then
-            NSNode1638::destroy(object)
+            NSNode1638::destroyOrNothingReturnBoolean(object)
             return
         end
         puts object
