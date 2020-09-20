@@ -23,9 +23,9 @@ class CatalystUI
         text = IO.read(filepath).strip
         if text.size > 0 then
             text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-            puts ""
             puts File.basename(filepath)
             puts text
+            puts ""
             verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
         end
 
