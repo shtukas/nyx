@@ -30,11 +30,11 @@ class NyxFsck
         end
 
         if datapoint["type"] == "NyxDirectory" then
-            hubname = datapoint["name"]
-            puts "Finding #{hubname}"
+            nyxDirectoryName = datapoint["name"]
+            puts "Finding #{nyxDirectoryName}"
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
-                puts "Failing to find: #{hubname}"
+                puts "Failing to find: #{nyxDirectoryName}"
                 puts JSON.pretty_generate(datapoint)
                 puts "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
                 return false

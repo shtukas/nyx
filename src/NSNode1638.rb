@@ -62,14 +62,14 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueNyxDirectory(hubname)
-    def self.issueNyxDirectory(hubname)
+    # NSNode1638::issueNyxDirectory(nyxDirectoryName)
+    def self.issueNyxDirectory(nyxDirectoryName)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "type"       => "NyxDirectory",
-            "name"       => hubname
+            "name"       => nyxDirectoryName
         }
         NyxObjects2::put(object)
         object
@@ -136,10 +136,10 @@ class NSNode1638
             return NSNode1638::issueNyxFile(nyxfilename)
         end
         if type == "NyxDirectory" then
-            hubname = "NyxDirectory-#{SecureRandom.uuid}"
-            puts "hubname: #{hubname}"
+            nyxDirectoryName = "NyxDirectory-#{SecureRandom.uuid}"
+            puts "nyxDirectoryName: #{nyxDirectoryName}"
             LucilleCore::pressEnterToContinue()
-            return NSNode1638::issueNyxDirectory(hubname)
+            return NSNode1638::issueNyxDirectory(nyxDirectoryName)
         end
     end
 
