@@ -204,13 +204,10 @@ class Miscellaneous
                 next
             end
 
-            nyxDirectoryName = "NyxDirectory-#{SecureRandom.uuid}"
-            envelop = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories/#{Miscellaneous::l22()}"
+            envelop = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items/#{Miscellaneous::l22()}"
             FileUtils.mkdir(envelop)
-            nyxDirectoryFolderpath = "#{envelop}/#{nyxDirectoryName}"
-            FileUtils.mkdir(nyxDirectoryFolderpath)
-            FileUtils.mv(location, nyxDirectoryFolderpath)
-            datapoint = NSNode1638::issueNyxDirectory(nyxDirectoryName)
+            FileUtils.mv(location, envelop)
+            datapoint = NSNode1638::issueNyxFSPointOrNull(File.basename(location), envelop, SecureRandom.uuid)
             puts JSON.pretty_generate(datapoint)
             asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
             puts JSON.pretty_generate(asteroid)

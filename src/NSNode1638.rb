@@ -514,13 +514,13 @@ class NSNode1638
             puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             if location then
-                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
+                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                     puts "Found NyxDirectory: #{location}"
                     parent = File.dirname(location)
                     puts "Going to remove the parent folder: #{parent}"
                     LucilleCore::removeFileSystemLocation(parent)
                 else
-                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-NyxDirectories
+                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-Items
                     puts "Actually I am going to let you do that..."
                     sleep 3
                     system("open '#{File.dirname(location)}'")

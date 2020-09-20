@@ -377,23 +377,37 @@ class Asteroids
             .each{|target| 
 
                 # There is a tiny thing we are going to do here:
-                # If the target is a data point that is a NybHub and if that NyxDirectory is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories"
+                # If the target is a data point that is a NybHub and if that NyxDirectory is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items"
                 # Then we move it to a Catalyst-Elements location
 
                 if GenericObjectInterface::isDataPoint(target) then
                     if target["type"] == "NyxDirectory" then
                         location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
-                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-NyxDirectories" then
+                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                             # Ne need to move that thing somewhere else.
                             newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
                             if !File.exists?(newEnvelopFolderPath) then
                                 FileUtils.mkpath(newEnvelopFolderPath)
                             end
-                            LucilleCore::copyFileSystemLocation(File.dirname(location), newEnvelopFolderPath)
+                            LucilleCore::copyFileSystemLocation(location, newEnvelopFolderPath)
                             LucilleCore::removeFileSystemLocation(File.dirname(location))
                             GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
                         end
                     end
+                    if target["type"] == "NyxFSPoint001" then
+                        location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
+                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
+                            # Ne need to move that thing somewhere else.
+                            newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
+                            if !File.exists?(newEnvelopFolderPath) then
+                                FileUtils.mkpath(newEnvelopFolderPath)
+                            end
+                            LucilleCore::copyContents(File.dirname(location), newEnvelopFolderPath)
+                            LucilleCore::removeFileSystemLocation(File.dirname(location))
+                            GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
+                        end
+                    end
+
                 end
 
                 Arrows::issueOrException(node, target) 
