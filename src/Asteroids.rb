@@ -193,6 +193,10 @@ class Asteroids
 
         return 1 if Asteroids::isRunning?(asteroid)
 
+        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
+        end
+
         if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return 0.60 - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
         end
