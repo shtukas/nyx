@@ -3,6 +3,17 @@
 
 class NSNode1638
 
+    # NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+    def self.commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+        if datapoint["type"] == "NyxFSPoint001" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            return false if location.nil?
+            File.open(location, "w"){|f| f.puts(JSON.pretty_generate(datapoint)) }
+        end
+        NyxObjects2::put(datapoint)
+        true
+    end
+
     # NSNode1638::datapoints()
     def self.datapoints()
         NyxObjects2::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
@@ -332,13 +343,13 @@ class NSNode1638
                 description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
                 return if description == ""
                 datapoint["description"] = description
-                NyxObjects2::put(datapoint)
+                NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
             })
 
             interpreter.registerExactCommand("datetime", lambda {
                 datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
                 datapoint["referenceDateTime"] = datetime
-                NyxObjects2::put(datapoint)
+                NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
             })
 
             interpreter.registerExactCommand("remove [this] as intermediary node", lambda {
@@ -359,10 +370,15 @@ class NSNode1638
             })
 
             interpreter.registerExactCommand("transmute", lambda {
+               if datapoint["type"] == "NyxFSPoint001" then
+                    puts "Sorry, I do not know how to transmute out of a NyxFSPoint001."
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
                 newpoint = NSNode1638::issueNewPointInteractivelyOrNull()
                 NyxObjects2::destroy(newpoint)
                 newpoint["uuid"] = datapoint["uuid"]
-                NyxObjects2::put(newpoint)
+                NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(newpoint)
             })
 
             interpreter.registerExactCommand("destroy [this]", lambda {
@@ -391,7 +407,7 @@ class NSNode1638
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                     if description != "" then
                         child["description"] =  description
-                        NyxObjects2::put(child)
+                        NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(child)
                     end
                 end
             })
@@ -538,6 +554,11 @@ class NSNode1638
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             return false if location.nil?
             FileUtils.rm(location)
+            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
+                parent = File.dirname(location)
+                puts "We are in asteroids land. Going to remove the parent folder: #{parent}"
+                LucilleCore::removeFileSystemLocation(parent)
+            end
         end
 
         NyxObjects2::destroy(datapoint)

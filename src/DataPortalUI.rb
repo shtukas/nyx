@@ -50,19 +50,12 @@ class DataPortalUI
             ms.item(
                 "new datapoint",
                 lambda {
-                    puts "We first select a node because a dataline without a parent will be garbage collected"
-                    LucilleCore::pressEnterToContinue()
-                    node = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
-                    return if node.nil?
-                    puts "selected node: #{NSNode1638::toString(node)}"
-                    LucilleCore::pressEnterToContinue()
                     datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
                     return if datapoint.nil?
-                    Arrows::issueOrException(node, datapoint)
                     description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
                     if description.size > 0 then
                         datapoint["description"] = description
-                        NyxObjects2::put(datapoint)
+                        NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
                     end
                     NSNode1638::landing(node)
                 }
@@ -108,9 +101,15 @@ class DataPortalUI
                     return if uuid == ""
                     object = NyxObjects2::getOrNull(uuid)
                     return if object.nil?
+                    if GenericObjectInterface::isDataPoint(target) then
+                        if target["type"] == "NyxFSPoint001" then
+                            puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
+                            LucilleCore::pressEnterToContinue()
+                            return
+                        end
+                    end
                     object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                     object = JSON.parse(object)
-                    NyxObjects2::destroy(object)
                     NyxObjects2::put(object)
                 }
             )
