@@ -332,6 +332,26 @@ class NSNode1638
                 puts ""
             end
 
+            commands = [
+                "metadata",
+                "description",
+                "datetime",
+                "remove [this] as intermediary node",
+                "transmute",
+                "destroy [this]",
+                "attach new parent",
+                "detach parent",
+                "issue new child",
+                "select and attach ; child",
+                "detach child",
+                "select children ; move to existing/new node",
+            ]
+            commands.each{|command|
+                puts "- #{command}".yellow
+            }
+
+            puts ""
+
             interpreter.registerExactCommand("metadata", lambda {
                 puts "#{NSNode1638::toString(datapoint, false)}"
                 puts "uuid: #{datapoint["uuid"]}".yellow
@@ -470,27 +490,6 @@ class NSNode1638
                 selectednodes.each{|o|
                     Arrows::unlink(datapoint, o)
                 }
-            })
-
-            interpreter.registerExactCommand("help", lambda {
-                commands = [
-                    "metadata",
-                    "description",
-                    "datetime",
-                    "remove [this] as intermediary node",
-                    "transmute",
-                    "destroy [this]",
-                    "attach new parent",
-                    "detach parent",
-                    "issue new child",
-                    "select and attach ; child",
-                    "detach child",
-                    "select children ; move to existing/new node",
-                ]
-                commands.each{|command|
-                    puts "   - #{command}"
-                }
-                LucilleCore::pressEnterToContinue()
             })
 
             status = interpreter.prompt()

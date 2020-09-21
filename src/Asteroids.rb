@@ -407,7 +407,6 @@ class Asteroids
                             GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
                         end
                     end
-
                 end
 
                 Arrows::issueOrException(node, target) 
