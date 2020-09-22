@@ -138,11 +138,6 @@ class CatalystUI
             ms.promptAndRunSandbox()
             return
         end
-
-        if command == "/" then
-            DataPortalUI::dataPortalFront()
-            return
-        end
     end
 
     # CatalystUI::standardUILoop()
@@ -185,9 +180,12 @@ class CatalystUI
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then
-                puts "No catalyst object found"
-                LucilleCore::pressEnterToContinue()
-                return
+                puts "No catalyst object found, moving to random asteroid"
+                sleep 2
+                object = Asteroids::randomAsteroidStreamElementOrNull()
+                return if object.nil?
+                CatalystUI::standardDisplay([object])
+                next
             end
             CatalystUI::standardDisplay(objects)
         }

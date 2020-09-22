@@ -256,6 +256,15 @@ class Asteroids
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
+    # Asteroids::randomAsteroidStreamElementOrNull()
+    def self.randomAsteroidStreamElementOrNull()
+        asteroid = Asteroids::asteroids()
+                        .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
+                        .sample
+        return nil if asteroid.nil?
+        Asteroids::asteroidToCalalystObject(asteroid)
+    end
+
     # -------------------------------------------------------------------
     # Burner Domains
 
@@ -521,6 +530,13 @@ class Asteroids
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            Asteroids::landing(asteroid)
+            return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
+                Asteroids::destroy(asteroid)
+                return
+            end
             return
         end
 
@@ -541,6 +557,10 @@ class Asteroids
         end
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::destroy(asteroid)
+            end
             return
         end
     end
