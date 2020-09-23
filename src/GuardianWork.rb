@@ -41,9 +41,10 @@ class GuardianWork
     def self.catalystObjects()
         uuid = GuardianWork::uuid()
         ratio = BankExtended::recoveredDailyTimeInHours(GuardianWork::uuid()).to_f/GuardianWork::targetTimeInHours()
+        runningFor = Runner::isRunning?(uuid) ? " (running for #{((Runner::runTimeInSecondsOrNull(uuid) || 0).to_f/60).round(2)} mins)" : ""
         object = {
             "uuid"             => uuid,
-            "body"             => "Focus: Guardian Work (#{"%.2f" % ratio} %)",
+            "body"             => "Focus: Guardian Work (#{"%.2f" % ratio} %)#{runningFor}",
             "metric"           => GuardianWork::metric(),
             "execute"          => lambda { |command| GuardianWork::program(command) },
             "isRunning"        => Runner::isRunning?(uuid),
