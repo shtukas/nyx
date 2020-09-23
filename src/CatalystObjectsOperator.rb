@@ -10,22 +10,11 @@ class CatalystObjectsOperator
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             VideoStream::catalystObjects(),
-            Waves::catalystObjects()
+            Waves::catalystObjects(),
+            GuardianWork::catalystObjects()
         ].flatten.compact
         objects = objects
                     .select{|object| object['metric'] >= 0.2 }
-
-        if OperatingMode::isWork?() then
-            objects = objects
-                        .select{|object| object['metric'] >= 0.7 }
-            objects << {
-                "uuid"             => "ddfcf006-45f2-4ca8-bd00-fa6c26d0eb2d",
-                "body"             => "Work focus",
-                "metric"           => 0.7,
-                "execute"          => lambda {},
-                "isRunning"        => true
-            }
-        end
 
         objects
             .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }

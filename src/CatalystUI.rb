@@ -157,15 +157,6 @@ class CatalystUI
 
         Thread.new {
             loop {
-                sleep 180
-                next if !OperatingMode::isWork?()
-                next if CatalystObjectsOperator::getCatalystListingObjectsOrdered().size < 2
-                Miscellaneous::onScreenNotification("Catalyst Interface", "Important items during work mode")
-            }
-        }
-
-        Thread.new {
-            loop {
                 sleep 1800
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
                     system("#{File.dirname(__FILE__)}/../vienna-import")

@@ -147,8 +147,6 @@ require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 require_relative "NyxFileSystemElementsMapping.rb"
 
-require_relative "OperatingMode.rb"
-
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Runner.rb"
@@ -165,6 +163,7 @@ require_relative "SelectionLookupDataset.rb"
 require_relative "VideoStream.rb"
 
 require_relative "Waves.rb"
+require_relative "GuardianWork.rb"
 
 # ------------------------------------------------------------
 
