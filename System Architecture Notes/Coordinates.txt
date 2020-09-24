@@ -1,2 +1,6 @@
-Coordinates
+Coordinates {
+    "nyxNxSet" : "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
+    "unixtime" : Float # Unixtime with decimals
+    "elements" : Array[String]
+}
 
