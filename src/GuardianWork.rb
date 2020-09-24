@@ -65,6 +65,7 @@ class GuardianWork
             system("clear")
             options = [
                 Runner::isRunning?(GuardianWork::uuid()) ? "stop" : "start",
+                "add time",
                 "open folder"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -74,6 +75,11 @@ class GuardianWork
             end
             if option == "stop" then
                 GuardianWork::stop()
+            end
+            if option == "add time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time (in hours): ").to_f
+                timespanInSeconds = timeInHours*3600
+                Bank::put(GuardianWork::uuid(), timespanInSeconds)
             end
             if option == "open folder" then
                 system("open '/Users/pascal/Galaxy/Current/The Guardian/Open Cycles'")
