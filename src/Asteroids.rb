@@ -379,9 +379,12 @@ class Asteroids
     # Asteroids::transmuteAsteroidToNode(asteroid)
     def self.transmuteAsteroidToNode(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
-        description = LucilleCore::askQuestionAnswerAsString("node description: ")
+        puts "Not implemented actually, mark: a4c055cd-f527-4f6f-bfdc-a6182fd70ca2"
+        LucilleCore::pressEnterToContinue()
+        return
+        description = LucilleCore::askQuestionAnswerAsString("vector: ")
         return if description == ""
-        node = NSNode1638::issueNavigation(description)
+        # node = NSNode1638::issueNaviga tion(description)
         Arrows::getTargetsForSource(asteroid)
             .each{|target| 
 

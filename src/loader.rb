@@ -160,6 +160,7 @@ require_relative "Runner.rb"
 require_relative "SectionsType0141.rb"
 require_relative "SelectionLookupDataset.rb"
 
+require_relative "Vectors.rb"
 require_relative "VideoStream.rb"
 
 require_relative "Waves.rb"

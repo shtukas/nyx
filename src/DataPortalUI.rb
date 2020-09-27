@@ -101,8 +101,8 @@ class DataPortalUI
                     return if uuid == ""
                     object = NyxObjects2::getOrNull(uuid)
                     return if object.nil?
-                    if GenericObjectInterface::isDataPoint(target) then
-                        if target["type"] == "NyxFSPoint001" then
+                    if GenericObjectInterface::isDataPoint(object) then
+                        if object["type"] == "NyxFSPoint001" then
                             puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
                             LucilleCore::pressEnterToContinue()
                             return

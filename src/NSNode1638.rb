@@ -34,19 +34,6 @@ class NSNode1638
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # NSNode1638::issueNavigation(description)
-    def self.issueNavigation(description)
-        object = {
-            "uuid"        => SecureRandom.uuid,
-            "nyxNxSet"    => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "navigation",
-            "description" => description
-        }
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSNode1638::issueLine(line)
     def self.issueLine(line)
         object = {
@@ -121,14 +108,9 @@ class NSNode1638
 
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["navigation", "line", "url", "text", "NyxFile", "NyxDirectory"] # We are not yet interactively issuing NyxFSPoint001
+        types = ["line", "url", "text", "NyxFile", "NyxDirectory"] # We are not yet interactively issuing NyxFSPoint001
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
-        if type == "navigation" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return nil if description.size == 0
-            return NSNode1638::issueNavigation(description)
-        end
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line.size == 0
@@ -193,9 +175,6 @@ class NSNode1638
         if datapoint["description"] then
             return "[#{datapoint["type"]}] #{datapoint["description"]}#{suffixWithPadding.call(datapoint)}"
         end
-        if datapoint["type"] == "navigation" then
-            return "[#{datapoint["type"]}] {no description}"
-        end
         if datapoint["type"] == "line" then
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
         end
@@ -229,9 +208,6 @@ class NSNode1638
 
     # NSNode1638::opendatapoint(datapoint)
     def self.opendatapoint(datapoint)
-        if datapoint["type"] == "navigation" then
-            return nil
-        end
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
@@ -312,11 +288,9 @@ class NSNode1638
             end
 
             puts NSNode1638::toString(datapoint, false).green
-            if datapoint["type"] != "navigation" then
-                interpreter.indexDrivenMenuItem("open", lambda {
-                    NSNode1638::opendatapoint(datapoint)
-                })
-            end
+            interpreter.indexDrivenMenuItem("open", lambda {
+                NSNode1638::opendatapoint(datapoint)
+            })
 
             puts ""
 
@@ -336,7 +310,6 @@ class NSNode1638
                 "metadata",
                 "description",
                 "datetime",
-                "remove [this] as intermediary node",
                 "transmute",
                 "destroy [this]",
                 "attach new parent",
@@ -370,23 +343,6 @@ class NSNode1638
                 datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
                 datapoint["referenceDateTime"] = datetime
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
-            })
-
-            interpreter.registerExactCommand("remove [this] as intermediary node", lambda {
-                puts "intermediary node removal simulation"
-                Arrows::getSourcesForTarget(datapoint).each{|upstreamnode|
-                    puts "upstreamnode   : #{GenericObjectInterface::toString(upstreamnode)}"
-                }
-                Arrows::getTargetsForSource(datapoint).each{|downstreamobject|
-                    puts "downstream object: #{GenericObjectInterface::toString(downstreamobject)}"
-                }
-                return if !LucilleCore::askQuestionAnswerAsBoolean("confirm removing as intermediary node ? ")
-                Arrows::getSourcesForTarget(datapoint).each{|upstreamnode|
-                    Arrows::getTargetsForSource(datapoint).each{|downstreamobject|
-                        Arrows::issueOrException(upstreamnode, downstreamobject)
-                    }
-                }
-                NyxObjects2::destroy(datapoint)
             })
 
             interpreter.registerExactCommand("transmute", lambda {
@@ -423,12 +379,10 @@ class NSNode1638
                 child = NSNode1638::issueNewPointInteractivelyOrNull()
                 return if child.nil?
                 Arrows::issueOrException(datapoint, child)
-                if child["type"] != "navigation" then
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
-                    if description != "" then
-                        child["description"] =  description
-                        NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(child)
-                    end
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                if description != "" then
+                    child["description"] =  description
+                    NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(child)
                 end
             })
 

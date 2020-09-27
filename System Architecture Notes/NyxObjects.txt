@@ -6,14 +6,13 @@ Nyx
 
         NSNode1638    # NSNode1638.txt
                       # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
-                            -> navigation
                             -> line
                             -> url
                             -> NyxFile
                             -> NyxDirectory
                             -> NyxFSPoint001
 
-        Coordinates   # Coordinates.txt
+        Vectors       # Vectors.txt
                       # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
 
         Wave          # Waves.txt

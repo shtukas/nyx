@@ -1,0 +1,11 @@
+
+Vectors are used for general classification
+
+Example: A picture of a funny cat could have the vector "root :: reddit :: funny" pointing at it which specifies where in the classification from root the datapoint is. ore than one vector can point at a given datapoint. This is how we realise the effect that a given point could be at more than one position in the file hierarchy.
+
+Vector {
+    "uuid"     : UUID
+    "nyxNxSet" : "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
+    "unixtime" : Float # Unixtime with decimals
+    "sequence" : Array[String]
+}

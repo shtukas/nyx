@@ -8,7 +8,7 @@ class NyxObjectsCore
             "b66318f4-2662-4621-a991-a6b966fb4398", # Asteroids
             "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4", # Waves
             "0f555c97-3843-4dfe-80c8-714d837eba69", # NSNode1638
-            "e54eefdf-53ea-47b0-a70c-c93d958bbe1c", # Coordinates
+            "e54eefdf-53ea-47b0-a70c-c93d958bbe1c", # Vectors
         ]
     end
 
@@ -27,7 +27,7 @@ class NyxObjects2
 
         db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
         db.transaction 
-        db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [object["nyxNxSet"], object["uuid"]]
+        db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
@@ -54,11 +54,9 @@ class NyxObjects2
 
     # NyxObjects2::destroy(object)
     def self.destroy(object)
-        NyxObjectsCore::nyxNxSets().each{|setid|
-            db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
-            db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [setid, object["uuid"]]
-            db.close
-        }
+        db = SQLite3::Database.new(NyxObjectsCore::databaseFilepath())
+        db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
+        db.close
         $NyxObjectsCache76DBF964.delete(object["uuid"])
     end
 end
