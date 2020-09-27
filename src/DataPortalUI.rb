@@ -45,6 +45,16 @@ class DataPortalUI
                 }
             )
 
+            ms.item(
+                "Vector listing", 
+                lambda {
+                    Vectors::vectors().each{|vector|
+                        puts Vectors::toString(vector)
+                    }
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
             puts ""
 
             ms.item(
@@ -156,8 +166,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "3. NyxGarbageCollection::run(true)",
-                lambda { NyxGarbageCollection::run(true) }
+                "3. NyxGarbageCollection::run()",
+                lambda { NyxGarbageCollection::run() }
             )
 
             puts ""
