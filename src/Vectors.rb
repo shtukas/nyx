@@ -74,4 +74,15 @@ class Vectors
             }
             .flatten
     end
+
+    # ---------------------------------------------------------------------------
+    # Ops
+
+    # Vectors::landing(vector)
+    def self.landing(vector)
+        puts "Landing"
+        puts Vectors::toString(vector)
+        LucilleCore::pressEnterToContinue()
+    end
+
 end
