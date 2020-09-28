@@ -44,7 +44,7 @@ class GuardianWork
         runningFor = Runner::isRunning?(uuid) ? " (running for #{((Runner::runTimeInSecondsOrNull(uuid) || 0).to_f/60).round(2)} mins)" : ""
         object = {
             "uuid"             => uuid,
-            "body"             => "Focus: Guardian Work (#{"%.2f" % ratio} %)#{runningFor}",
+            "body"             => "Focus: Guardian Work (#{"%.2f" % (100*ratio)} %)#{runningFor}",
             "metric"           => GuardianWork::metric(),
             "execute"          => lambda { |command| GuardianWork::program(command) },
             "isRunning"        => Runner::isRunning?(uuid),
