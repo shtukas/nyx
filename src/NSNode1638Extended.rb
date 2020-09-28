@@ -47,7 +47,7 @@ class NSNode1638Extended
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
             nodes = SelectionLookupDataset::patternToDatapoints(pattern)
-            #nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
+            #nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop

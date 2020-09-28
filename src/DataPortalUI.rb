@@ -35,7 +35,7 @@ class DataPortalUI
                 "Node Listing", 
                 lambda {
                     nodes = NSNode1638::datapoints()
-                    nodes = GenericObjectInterface::applyDateTimeOrderToObjects(nodes)
+                    nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSNode1638::toString(o) })
@@ -49,13 +49,24 @@ class DataPortalUI
                 "Vector listing", 
                 lambda {
                     loop {
+
                         mx = LCoreMenuItemsNX1.new()
+
                         Vectors::vectors().each{|vector|
                             mx.item(
                                 Vectors::toString(vector),
                                 lambda { Vectors::landing(vector) }
                             )
                         }
+
+                        puts ""
+
+                        mx.item("issue new vector", lambda {
+                            coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
+                            return if coordinates.size == ""
+                            Vectors::issueVectorFromStringOrNothing(coordinates)
+                        })
+
                         status = mx.promptAndRunSandbox()
                         break if !status
                     }
@@ -118,7 +129,7 @@ class DataPortalUI
                     return if uuid == ""
                     object = NyxObjects2::getOrNull(uuid)
                     return if object.nil?
-                    if GenericObjectInterface::isDataPoint(object) then
+                    if NyxObjectInterface::isDataPoint(object) then
                         if object["type"] == "NyxFSPoint001" then
                             puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
                             LucilleCore::pressEnterToContinue()

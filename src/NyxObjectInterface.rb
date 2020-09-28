@@ -1,45 +1,45 @@
 
 # encoding: UTF-8
 
-class GenericObjectInterface
+class NyxObjectInterface
 
-    # GenericObjectInterface::isAsteroid(object)
+    # NyxObjectInterface::isAsteroid(object)
     def self.isAsteroid(object)
         object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
     end
 
-    # GenericObjectInterface::isDataPoint(object)
+    # NyxObjectInterface::isDataPoint(object)
     def self.isDataPoint(object)
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # GenericObjectInterface::isVector(object)
+    # NyxObjectInterface::isVector(object)
     def self.isVector(object)
         object["nyxNxSet"] == "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
     end
 
-    # GenericObjectInterface::toString(object, shouldUseCachedVersion = true)
+    # NyxObjectInterface::toString(object, shouldUseCachedVersion = true)
     def self.toString(object, shouldUseCachedVersion = true)
-        if GenericObjectInterface::isAsteroid(object) then
+        if NyxObjectInterface::isAsteroid(object) then
             return Asteroids::toString(object)
         end
-        if GenericObjectInterface::isDataPoint(object) then
-            return NSNode1638::toString(object, shouldUseCachedVersion)
+        if NyxObjectInterface::isDataPoint(object) then
+            return NSNode1638::toString(object)
         end
-        if GenericObjectInterface::isVector(object) then
+        if NyxObjectInterface::isVector(object) then
             return Vectors::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
     end
 
-    # GenericObjectInterface::applyDateTimeOrderToObjects(objects)
+    # NyxObjectInterface::applyDateTimeOrderToObjects(objects)
     def self.applyDateTimeOrderToObjects(objects)
         objects
             .map{|object|
                 {
                     "object"   => object,
-                    "datetime" => GenericObjectInterface::getObjectReferenceDateTime(object)
+                    "datetime" => NyxObjectInterface::getObjectReferenceDateTime(object)
                 }
             }
             .sort{|i1, i2|
@@ -48,7 +48,7 @@ class GenericObjectInterface
             .map{|i| i["object"] }
     end
 
-    # GenericObjectInterface::getObjectReferenceDateTime(object)
+    # NyxObjectInterface::getObjectReferenceDateTime(object)
     def self.getObjectReferenceDateTime(object)
         return object["referenceDateTime"] if object["referenceDateTime"]
         object["referenceDateTime"] = Time.at(object["unixtime"]).utc.iso8601
@@ -56,26 +56,30 @@ class GenericObjectInterface
         object["referenceDateTime"]
     end
 
-    # GenericObjectInterface::landing(object)
+    # NyxObjectInterface::landing(object)
     def self.landing(object)
-        if GenericObjectInterface::isAsteroid(object) then
+        if NyxObjectInterface::isAsteroid(object) then
             Asteroids::landing(object)
             return
         end
-        if GenericObjectInterface::isDataPoint(object) then
+        if NyxObjectInterface::isDataPoint(object) then
             NSNode1638::landing(object)
+            return
+        end
+        if NyxObjectInterface::isVector(object) then
+            Vectors::landing(object)
             return
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end
 
-    # GenericObjectInterface::destroy(object)
+    # NyxObjectInterface::destroy(object)
     def self.destroy(object)
-        if GenericObjectInterface::isAsteroid(object) then
+        if NyxObjectInterface::isAsteroid(object) then
             return
         end
-        if GenericObjectInterface::isDataPoint(object) then
+        if NyxObjectInterface::isDataPoint(object) then
             NSNode1638::destroyOrNothingReturnBoolean(object)
             return
         end

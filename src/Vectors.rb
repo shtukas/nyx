@@ -57,6 +57,12 @@ class Vectors
         NyxObjects2::getSet("e54eefdf-53ea-47b0-a70c-c93d958bbe1c")
     end
 
+    # Vectors::selectOneExistingVectorOrNull()
+    def self.selectOneExistingVectorOrNull()
+        vectors = Vectors::vectors().sort{|v1, v2| v1["sequence"].join(" :: ") <=> v2["sequence"].join(" :: ") }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", vectors, lambda{|o| Vectors::toString(o) })
+    end
+
     # Vectors::selectVectorsByBeginningSequence(sequence)
     def self.selectVectorsByBeginningSequence(sequence)
         pattern = sequence.join(" :: ").downcase
@@ -75,14 +81,62 @@ class Vectors
             .flatten
     end
 
+    # Vectors::selectVectorChildOrNull(vector)
+    def self.selectVectorChildOrNull(vector)
+        targets = Arrows::getTargetsForSource(vector)
+        targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| NyxObjectInterface::toString(o) })
+    end
+
     # ---------------------------------------------------------------------------
     # Ops
 
     # Vectors::landing(vector)
     def self.landing(vector)
-        system("clear")
-        puts Vectors::toString(vector)
-        LucilleCore::pressEnterToContinue()
+        loop {
+            system("clear")
+
+            puts Vectors::toString(vector).green
+
+            puts ""
+
+            mx = LCoreMenuItemsNX1.new()
+
+            targets = Arrows::getTargetsForSource(vector)
+            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets
+                .each{|object|
+                    mx.item(
+                        NyxObjectInterface::toString(object),
+                        lambda { NyxObjectInterface::landing(object) }
+                    )
+                }
+
+            puts ""
+
+            mx.item("make new datapoint + attach to [this]".yellow, lambda {
+                datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                return if datapoint.nil?
+                Arrows::issueOrException(vector, datapoint)
+            })
+
+            mx.item("select existing datapoint + attach to [this]".yellow, lambda {
+                datapoint = NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
+                return if datapoint.nil?
+                Arrows::issueOrException(vector, datapoint)
+            })
+
+            mx.item("detach child".yellow, lambda {
+                ns = Vectors::selectVectorChildOrNull(vector)
+                return if ns.nil?
+                Arrows::unlink(vector, ns)
+            })
+
+            puts ""
+
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
     end
 
 end

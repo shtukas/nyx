@@ -156,9 +156,8 @@ class NSNode1638
         end
     end
 
-    # NSNode1638::toStringUseTheForce(datapoint)
-    def self.toStringUseTheForce(datapoint)
-
+    # NSNode1638::toString(datapoint)
+    def self.toString(datapoint)
         suffixWithPadding = lambda {|datapoint|
             if datapoint["type"] == "NyxFile" then
                 return " ( #{datapoint["name"]} )"
@@ -194,16 +193,12 @@ class NSNode1638
         raise "[NSNode1638 error d39378dc]"
     end
 
-    # NSNode1638::toString(datapoint, useCachedValue = true)
-    def self.toString(datapoint, useCachedValue = true)
-        cacheKey = "e7eb4787-0cfd-4184-a286-2dbec629d9eb:#{datapoint["uuid"]}"
-        if useCachedValue then
-            str = KeyValueStore::getOrNull(nil, cacheKey)
-            return str if str
-        end
-        str = NSNode1638::toStringUseTheForce(datapoint)
-        KeyValueStore::set(nil, cacheKey, str)
-        str
+    # NSNode1638::selectOneDatapointVectorOrNull(datapoint)
+    def self.selectOneDatapointVectorOrNull(datapoint)
+        vectors = Arrows::getSourcesForTarget(vector)
+                    .select{|object| NyxObjectInterface::isVector(object) }
+        vectors = NyxObjectInterface::applyDateTimeOrderToObjects(vectors)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", vectors, lambda{|o| NyxObjectInterface::toString(o) })
     end
 
     # NSNode1638::opendatapoint(datapoint)
@@ -275,61 +270,51 @@ class NSNode1638
 
             system("clear")
 
-            interpreter = Interpreter.new()
+            mx = LCoreMenuItemsNX1.new()
 
-            puts NSNode1638::toString(datapoint, false).green
-            puts "uuid: #{datapoint["uuid"]}".yellow
-            puts "date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
-
-            interpreter.indexDrivenMenuItem("open", lambda {
-                NSNode1638::opendatapoint(datapoint)
-            })
-
-            puts ""
-
-            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| GenericObjectInterface::isVector(object) }
+            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isVector(object) }
             vectors.each{|vector|
-                    interpreter.indexDrivenMenuItem(Vectors::toString(vector), lambda { 
-                        GenericObjectInterface::landing(vector)
-                    })
-                }
+                mx.item(
+                    Vectors::toString(vector),
+                    lambda { 
+                        NyxObjectInterface::landing(vector)
+                    }
+                )
+            }
             if vectors.size>0 then
                 puts ""
             end
 
-            commands = [
-                "description",
-                "datetime",
-                "transmute",
-                "destroy [this]",
-                "attach new parent",
-                "detach parent",
-                "issue new child",
-                "select and attach ; child",
-                "detach child",
-                "select children ; move to existing/new node",
-            ]
-            commands.each{|command|
-                puts "- #{command}".yellow
-            }
+            puts NSNode1638::toString(datapoint).green
+            puts ""
+
+            mx.item(
+                "open",
+                lambda {
+                    NSNode1638::opendatapoint(datapoint)
+                }
+            )
+
+            puts ""
+            puts "uuid: #{datapoint["uuid"]}".yellow
+            puts "date: #{NyxObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
 
             puts ""
 
-
-            interpreter.registerExactCommand("description", lambda {
+            mx.item("set/update description".yellow, lambda {
                 description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
                 return if description == ""
                 datapoint["description"] = description
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
             })
 
-            interpreter.registerExactCommand("datetime", lambda {
+            mx.item("set/update datetime".yellow, lambda {
                 datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
                 datapoint["referenceDateTime"] = datetime
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
             })
 
-            interpreter.registerExactCommand("transmute", lambda {
+            mx.item("transmute datapoint".yellow, lambda {
                if datapoint["type"] == "NyxFSPoint001" then
                     puts "Sorry, I do not know how to transmute out of a NyxFSPoint001."
                     LucilleCore::pressEnterToContinue()
@@ -341,97 +326,27 @@ class NSNode1638
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(newpoint)
             })
 
-            interpreter.registerExactCommand("destroy [this]", lambda {
+            mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
                     NyxObjects2::destroy(datapoint)
                 end
             })
 
-            interpreter.registerExactCommand("attach new parent", lambda {
-                n = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
-                return if n.nil?
-                Arrows::issueOrException(n, datapoint)
+            mx.item("set vector".yellow, lambda {
+                vector = Vectors::selectOneExistingVectorOrNull()
+                return if vector.nil?
+                Arrows::issueOrException(vector, datapoint)
             })
 
-            interpreter.registerExactCommand("detach parent", lambda {
-                ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", Arrows::getSourcesForTarget(node), lambda{|o| GenericObjectInterface::toString(o) })
-                return if ns.nil?
-                Arrows::unlink(ns, datapoint)
+            mx.item("detach vector".yellow, lambda {
+                vector = NSNode1638::selectOneDatapointVectorOrNull(datapoint)
+                return if vector.nil?
+                Arrows::unlink(vector, datapoint)
             })
 
-            interpreter.registerExactCommand("issue new child", lambda {
-                child = NSNode1638::issueNewPointInteractivelyOrNull()
-                return if child.nil?
-                Arrows::issueOrException(datapoint, child)
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                if description != "" then
-                    child["description"] =  description
-                    NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(child)
-                end
-            })
+            puts ""
 
-            interpreter.registerExactCommand("select and attach ; child", lambda {
-                o = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
-                return if o.nil?
-                Arrows::issueOrException(datapoint, o)
-            })
-
-            interpreter.registerExactCommand("detach child", lambda {
-                targets = Arrows::getTargetsForSource(datapoint)
-                targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-                ns = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
-                return if ns.nil?
-                Arrows::unlink(datapoint, ns)
-            })
-
-            interpreter.registerExactCommand("select children ; move to existing/new node", lambda {
-                return if Arrows::getTargetsForSource(datapoint).size == 0
-
-                targets = Arrows::getTargetsForSource(datapoint)
-                targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-
-                # Selecting the nodes to moves
-                selectednodes, _ = LucilleCore::selectZeroOrMore("object", [], targets, lambda{ |o| GenericObjectInterface::toString(o) })
-                return if selectednodes.size == 0
-
-                # Selecting or creating the node
-                selectTargetNode = lambda { |node|
-                    mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["existing child node", "new child node", "new independant node"])
-                    return nil if mode.nil?
-                    if mode == "existing child node" then
-                        targets = Arrows::getTargetsForSource(node)
-                        targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-                        return LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| GenericObjectInterface::toString(o) })
-                    end
-                    if mode == "new child node" then
-                        childnode = NSNode1638::issueNewPointInteractivelyOrNull()
-                        return nil if childnode.nil?
-                        Arrows::issueOrException(node, childnode)
-                        return childnode
-                    end
-                    if mode == "new independant node" then
-                        xnode = NSNode1638::issueNewPointInteractivelyOrNull()
-                        return nil if xnode.nil?
-                        return xnode
-                    end
-                }
-
-                targetnode = selectTargetNode.call(datapoint)
-                return if targetnode.nil?
-
-                # TODO: return if the selected new target is one of the nodes
-
-                # Moving the selectednodes
-                selectednodes.each{|o|
-                    Arrows::issueOrException(targetnode, o)
-                }
-                selectednodes.each{|o|
-                    Arrows::unlink(datapoint, o)
-                }
-            })
-
-            status = interpreter.prompt()
-
+            status = mx.promptAndRunSandbox()
             break if !status
         }
     end

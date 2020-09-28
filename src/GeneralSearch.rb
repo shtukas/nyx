@@ -9,7 +9,7 @@ class GeneralSearch
             .map{|datapoint|
                 {
                     "description"   => NSNode1638::toString(datapoint),
-                    "referencetime" => DateTime.parse(GenericObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
+                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
                     "dive"          => lambda{ NSNode1638::landing(datapoint) }
                 }
             }

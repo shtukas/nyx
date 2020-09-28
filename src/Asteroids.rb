@@ -123,7 +123,7 @@ class Asteroids
            return "no target"
         end
         if targets.size == 1 then
-            return GenericObjectInterface::toString(targets.first)
+            return NyxObjectInterface::toString(targets.first)
         end
         "multiple targets (#{targets.size})"
     end
@@ -362,11 +362,11 @@ class Asteroids
         end
         if targets.size == 1 then
             target = targets.first
-            if GenericObjectInterface::isAsteroid(target) then
+            if NyxObjectInterface::isAsteroid(target) then
                 Asteroids::landing(target)
                 return
             end
-            if GenericObjectInterface::isDataPoint(target) then
+            if NyxObjectInterface::isDataPoint(target) then
                 NSNode1638::opendatapoint(target)
                 return
             end
@@ -392,7 +392,7 @@ class Asteroids
                 # If the target is a data point that is a NybHub and if that NyxDirectory is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items"
                 # Then we move it to a Catalyst-Elements location
 
-                if GenericObjectInterface::isDataPoint(target) then
+                if NyxObjectInterface::isDataPoint(target) then
                     if target["type"] == "NyxDirectory" then
                         location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
                         if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
@@ -460,11 +460,11 @@ class Asteroids
 
                 Asteroids::startAsteroidIfNotRunning(asteroid)
 
-                if GenericObjectInterface::isAsteroid(target) then
+                if NyxObjectInterface::isAsteroid(target) then
                     Asteroids::landing(target)
                 end
 
-                if GenericObjectInterface::isDataPoint(target) then
+                if NyxObjectInterface::isDataPoint(target) then
                     NSNode1638::opendatapoint(target)
                 end
 
@@ -657,11 +657,11 @@ class Asteroids
             Miscellaneous::horizontalRule()
 
             targets = Arrows::getTargetsForSource(asteroid)
-            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|object|
                     menuitems.item(
-                        GenericObjectInterface::toString(object),
-                        lambda { GenericObjectInterface::landing(object) }
+                        NyxObjectInterface::toString(object),
+                        lambda { NyxObjectInterface::landing(object) }
                     )
                 }
 
@@ -680,10 +680,10 @@ class Asteroids
                 "select target ; destroy".yellow,
                 lambda {
                     targets = Arrows::getTargetsForSource(asteroid)
-                    targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericObjectInterface::toString(target) })
+                    targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| NyxObjectInterface::toString(target) })
                     return if target.nil?
-                    GenericObjectInterface::destroy(target)
+                    NyxObjectInterface::destroy(target)
                 }
             )
 
@@ -728,18 +728,18 @@ class Asteroids
     def self.destroy(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size > 0 then
-            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets.each{|target|
                 if Arrows::getSourcesForTarget(target).size == 1 then
-                    GenericObjectInterface::destroy(target) # The only source is the asteroid itself.
+                    NyxObjectInterface::destroy(target) # The only source is the asteroid itself.
                 else
                     puts "A child of this asteroid has more than one parent:"
-                    puts "   -> child: '#{GenericObjectInterface::toString(target)}'"
+                    puts "   -> child: '#{NyxObjectInterface::toString(target)}'"
                     Arrows::getSourcesForTarget(target).each{|source|
-                        puts "   -> parent: '#{GenericObjectInterface::toString(source)}'"
+                        puts "   -> parent: '#{NyxObjectInterface::toString(source)}'"
                     }
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{GenericObjectInterface::toString(target)}' ? ") then
-                        GenericObjectInterface::destroy(target)
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{NyxObjectInterface::toString(target)}' ? ") then
+                        NyxObjectInterface::destroy(target)
                     end
                 end
             }
