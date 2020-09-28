@@ -424,7 +424,6 @@ class Asteroids
                 Arrows::issueOrException(node, target) 
             }
         NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
-        SelectionLookupDataset::updateLookupForNode(node)
         NSNode1638::landing(node)
     end
 

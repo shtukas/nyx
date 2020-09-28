@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForNode(node)
-    def self.updateLookupForNode(node)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("node", node["uuid"], NSNode1638::toString(node).downcase)
+    # SelectionLookupDatabaseIO::updateLookupForVector(vector)
+    def self.updateLookupForVector(vector)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(vector["uuid"])
+        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], vector["uuid"])
+        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], Vectors::toString(vector).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -75,20 +75,24 @@ end
 
 class SelectionLookupDataset
 
+    # ---------------------------------------------------------
+
     # SelectionLookupDataset::updateLookupForDatapoint(datapoint)
     def self.updateLookupForDatapoint(datapoint)
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForNode(node)
-    def self.updateLookupForNode(node)
-        SelectionLookupDatabaseIO::updateLookupForNode(node)
+    # SelectionLookupDataset::updateLookupForVector(vector)
+    def self.updateLookupForVector(vector)
+        SelectionLookupDatabaseIO::updateLookupForVector(vector)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
     end
+
+    # ---------------------------------------------------------
 
     # SelectionLookupDataset::rebuildDatapointsLookup(verbose)
     def self.rebuildDatapointsLookup(verbose)
@@ -111,6 +115,23 @@ class SelectionLookupDataset
                 if datapoint["type"] == "NyxFSPoint001" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
                 end
+            }
+
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildVectorsLookup(verbose)
+    def self.rebuildVectorsLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["vector"]
+
+        Vectors::vectors()
+            .each{|vector|
+                if verbose then
+                    puts "vector: #{vector["uuid"]} , #{Vectors::toString(vector)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], vector["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], Vectors::toString(vector))
             }
 
         db.close
@@ -153,14 +174,26 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildDataset(verbose)
     def self.rebuildDataset(verbose)
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
+        SelectionLookupDataset::rebuildVectorsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
+
+    # ---------------------------------------------------------
 
     # SelectionLookupDataset::patternToDatapoints(pattern)
     def self.patternToDatapoints(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "datapoint" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
+    end
+
+    # SelectionLookupDataset::patternToVectors(pattern)
+    def self.patternToVectors(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "vector" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact
