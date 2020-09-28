@@ -48,10 +48,17 @@ class DataPortalUI
             ms.item(
                 "Vector listing", 
                 lambda {
-                    Vectors::vectors().each{|vector|
-                        puts Vectors::toString(vector)
+                    loop {
+                        mx = LCoreMenuItemsNX1.new()
+                        Vectors::vectors().each{|vector|
+                            mx.item(
+                                Vectors::toString(vector),
+                                lambda { Vectors::landing(vector) }
+                            )
+                        }
+                        status = mx.promptAndRunSandbox()
+                        break if !status
                     }
-                    LucilleCore::pressEnterToContinue()
                 }
             )
 

@@ -80,7 +80,7 @@ class Vectors
 
     # Vectors::landing(vector)
     def self.landing(vector)
-        puts "Landing"
+        system("clear")
         puts Vectors::toString(vector)
         LucilleCore::pressEnterToContinue()
     end
