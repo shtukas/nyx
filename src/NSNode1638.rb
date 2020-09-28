@@ -277,37 +277,27 @@ class NSNode1638
 
             interpreter = Interpreter.new()
 
-            parents = Arrows::getSourcesForTarget(datapoint)
-            parents.each{|o|
-                    interpreter.indexDrivenMenuItem("parent: #{GenericObjectInterface::toString(o, false)}", lambda { 
-                        GenericObjectInterface::landing(o)
-                    })
-                }
-            if parents.size>0 then
-                puts ""
-            end
-
             puts NSNode1638::toString(datapoint, false).green
+            puts "uuid: #{datapoint["uuid"]}".yellow
+            puts "date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
+
             interpreter.indexDrivenMenuItem("open", lambda {
                 NSNode1638::opendatapoint(datapoint)
             })
 
             puts ""
 
-            targets = Arrows::getTargetsForSource(datapoint)
-            targets = GenericObjectInterface::applyDateTimeOrderToObjects(targets)
-            targets.each{|o|
-                interpreter.indexDrivenMenuItem("child : #{GenericObjectInterface::toString(o, false)}", lambda { 
-                    GenericObjectInterface::landing(o)
-                })
-            }
-
-            if targets.size>0 then
+            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| GenericObjectInterface::isVector(object) }
+            vectors.each{|vector|
+                    interpreter.indexDrivenMenuItem(Vectors::toString(vector), lambda { 
+                        GenericObjectInterface::landing(vector)
+                    })
+                }
+            if vectors.size>0 then
                 puts ""
             end
 
             commands = [
-                "metadata",
                 "description",
                 "datetime",
                 "transmute",
@@ -325,12 +315,6 @@ class NSNode1638
 
             puts ""
 
-            interpreter.registerExactCommand("metadata", lambda {
-                puts "#{NSNode1638::toString(datapoint, false)}"
-                puts "uuid: #{datapoint["uuid"]}".yellow
-                puts "date: #{GenericObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
-                LucilleCore::pressEnterToContinue()
-            })
 
             interpreter.registerExactCommand("description", lambda {
                 description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
