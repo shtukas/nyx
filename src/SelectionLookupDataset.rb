@@ -38,7 +38,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForVector(vector)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(vector["uuid"])
         SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], vector["uuid"])
-        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], Vectors::toString(vector).downcase)
+        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], Taxonomy::toString(vector).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -125,13 +125,13 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["vector"]
 
-        Vectors::vectors()
+        Taxonomy::items()
             .each{|vector|
                 if verbose then
-                    puts "vector: #{vector["uuid"]} , #{Vectors::toString(vector)}"
+                    puts "vector: #{vector["uuid"]} , #{Taxonomy::toString(vector)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], vector["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], Vectors::toString(vector))
+                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], Taxonomy::toString(vector))
             }
 
         db.close

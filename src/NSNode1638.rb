@@ -275,7 +275,7 @@ class NSNode1638
             vectors = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isVector(object) }
             vectors.each{|vector|
                 mx.item(
-                    Vectors::toString(vector),
+                    Taxonomy::toString(vector),
                     lambda { 
                         NyxObjectInterface::landing(vector)
                     }
@@ -333,7 +333,7 @@ class NSNode1638
             })
 
             mx.item("set vector".yellow, lambda {
-                vector = Vectors::selectOneExistingVectorOrNull()
+                vector = Taxonomy::selectOneExistingTaxonomyItemOrNull()
                 return if vector.nil?
                 Arrows::issueOrException(vector, datapoint)
             })

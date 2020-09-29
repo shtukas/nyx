@@ -1,13 +1,13 @@
 
 # encoding: UTF-8
 
-class Vectors
+class Taxonomy
 
     # ---------------------------------------------------------------------------
     # Making
 
-    # Vectors::makeVectorFromElements(sequence: Array[String])
-    def self.makeVectorFromElements(sequence)
+    # Taxonomy::makeTaxonomyItemFromElements(sequence: Array[String])
+    def self.makeTaxonomyItemFromElements(sequence)
 
         # We need to ensure that the first element is always "root"
         if sequence.empty? or sequence[0] != "root" then
@@ -23,67 +23,67 @@ class Vectors
         }
     end
 
-    # Vectors::makeVectorsFromString(str: String)
-    def self.makeVectorsFromString(str)
+    # Taxonomy::makeTaxonomyItemFromString(str: String)
+    def self.makeTaxonomyItemFromString(str)
         sequence = str.slit("::").map{|element| element.strip }
-        Vectors::issueVectorFromElements(sequence)
+        Taxonomy::issueVectorFromElements(sequence)
     end
 
-    # Vectors::issueVectorFromStringOrNothing(str)
-    def self.issueVectorFromStringOrNothing(str)
+    # Taxonomy::issueTaxonomyItemFromStringOrNothing(str)
+    def self.issueTaxonomyItemFromStringOrNothing(str)
         return nil if !str.start_with?("root")
-        vector = Vectors::makeVectorsFromString(str)
-        NyxObjects2::put(vector)
-        vector
+        item = Taxonomy::makeTaxonomyItemFromString(str)
+        NyxObjects2::put(item)
+        item
     end
 
-    # Vectors::issueVectorFromStringForTargetOrNull(str, target)
-    def self.issueVectorFromStringForTargetOrNull(str, target)
-        vector = Vectors::issueVectorFromStringOrNothing(str)
-        return if vector.nil?
-        Arrows::issueOrException(vector, target)
+    # Taxonomy::issueTaxonomyItemFromStringForTargetOrNull(str, target)
+    def self.issueTaxonomyItemFromStringForTargetOrNull(str, target)
+        item = Taxonomy::issueTaxonomyItemFromStringOrNothing(str)
+        return if item.nil?
+        Arrows::issueOrException(item, target)
     end
 
     # ---------------------------------------------------------------------------
     # Selection
 
-    # Vectors::toString(vector)
-    def self.toString(vector)
-        "[vector] #{vector["sequence"].join(" :: ")}"
+    # Taxonomy::toString(item)
+    def self.toString(item)
+        "[taxonomy item] #{item["sequence"].join(" :: ")}"
     end
 
-    # Vectors::vectors()
-    def self.vectors()
+    # Taxonomy::items()
+    def self.items()
         NyxObjects2::getSet("e54eefdf-53ea-47b0-a70c-c93d958bbe1c")
     end
 
-    # Vectors::selectOneExistingVectorOrNull()
-    def self.selectOneExistingVectorOrNull()
-        vectors = Vectors::vectors().sort{|v1, v2| v1["sequence"].join(" :: ") <=> v2["sequence"].join(" :: ") }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", vectors, lambda{|o| Vectors::toString(o) })
+    # Taxonomy::selectOneExistingTaxonomyItemOrNull()
+    def self.selectOneExistingTaxonomyItemOrNull()
+        items = Taxonomy::items().sort{|v1, v2| v1["sequence"].join(" :: ") <=> v2["sequence"].join(" :: ") }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|o| Taxonomy::toString(o) })
     end
 
-    # Vectors::selectVectorsByBeginningSequence(sequence)
-    def self.selectVectorsByBeginningSequence(sequence)
+    # Taxonomy::selectTaxonomyItemByBeginningSequence(sequence)
+    def self.selectTaxonomyItemByBeginningSequence(sequence)
         pattern = sequence.join(" :: ").downcase
-        Vectors::vectors()
-            .select{|vector|
-                vector["sequence"].join(" :: ").downcase.start_with?(pattern)
+        Taxonomy::items()
+            .select{|item|
+                item["sequence"].join(" :: ").downcase.start_with?(pattern)
             }
     end
 
-    # Vectors::selectDatapointsByBeginningSequence(sequence)
-    def self.selectDatapointsByBeginningSequence(sequence)
-        Vectors::selectVectorsByBeginningSequence(sequence)
-            .map{|vector|
-                Arrows::getTargetsForSource(vector)
+    # Taxonomy::selectDatapointsByTaxonomyItemBeginningSequence(sequence)
+    def self.selectDatapointsByTaxonomyItemBeginningSequence(sequence)
+        Taxonomy::selectTaxonomyItemByBeginningSequence(sequence)
+            .map{|item|
+                Arrows::getTargetsForSource(item)
             }
             .flatten
     end
 
-    # Vectors::selectVectorChildOrNull(vector)
-    def self.selectVectorChildOrNull(vector)
-        targets = Arrows::getTargetsForSource(vector)
+    # Taxonomy::selectOneTaxonomyItemChildOrNull(item)
+    def self.selectOneTaxonomyItemChildOrNull(item)
+        targets = Arrows::getTargetsForSource(item)
         targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("object", targets, lambda{|o| NyxObjectInterface::toString(o) })
     end
@@ -91,18 +91,18 @@ class Vectors
     # ---------------------------------------------------------------------------
     # Ops
 
-    # Vectors::landing(vector)
-    def self.landing(vector)
+    # Taxonomy::landing(item)
+    def self.landing(item)
         loop {
             system("clear")
 
-            puts Vectors::toString(vector).green
+            puts Taxonomy::toString(item).green
 
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
 
-            targets = Arrows::getTargetsForSource(vector)
+            targets = Arrows::getTargetsForSource(item)
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
                 .each{|object|
@@ -117,19 +117,19 @@ class Vectors
             mx.item("make new datapoint + attach to [this]".yellow, lambda {
                 datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(vector, datapoint)
+                Arrows::issueOrException(item, datapoint)
             })
 
             mx.item("select existing datapoint + attach to [this]".yellow, lambda {
                 datapoint = NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(vector, datapoint)
+                Arrows::issueOrException(item, datapoint)
             })
 
             mx.item("detach child".yellow, lambda {
-                ns = Vectors::selectVectorChildOrNull(vector)
+                ns = Taxonomy::selectOneTaxonomyItemChildOrNull(item)
                 return if ns.nil?
-                Arrows::unlink(vector, ns)
+                Arrows::unlink(item, ns)
             })
 
             puts ""

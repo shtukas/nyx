@@ -27,7 +27,7 @@ class NyxObjectInterface
             return NSNode1638::toString(object)
         end
         if NyxObjectInterface::isVector(object) then
-            return Vectors::toString(object)
+            return Taxonomy::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -67,7 +67,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isVector(object) then
-            Vectors::landing(object)
+            Taxonomy::landing(object)
             return
         end
         puts object

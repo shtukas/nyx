@@ -20,9 +20,9 @@ class GeneralSearch
         SelectionLookupDataset::patternToVectors(pattern)
             .map{|vector|
                 {
-                    "description"   => Vectors::toString(vector),
+                    "description"   => Taxonomy::toString(vector),
                     "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(vector)).to_time.to_f,
-                    "dive"          => lambda{ Vectors::landing(vector) }
+                    "dive"          => lambda{ Taxonomy::landing(vector) }
                 }
             }
     end

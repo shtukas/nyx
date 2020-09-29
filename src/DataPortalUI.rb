@@ -52,10 +52,10 @@ class DataPortalUI
 
                         mx = LCoreMenuItemsNX1.new()
 
-                        Vectors::vectors().each{|vector|
+                        Taxonomy::items().each{|vector|
                             mx.item(
-                                Vectors::toString(vector),
-                                lambda { Vectors::landing(vector) }
+                                Taxonomy::toString(vector),
+                                lambda { Taxonomy::landing(vector) }
                             )
                         }
 
@@ -64,7 +64,7 @@ class DataPortalUI
                         mx.item("issue new vector", lambda {
                             coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
                             return if coordinates.size == ""
-                            Vectors::issueVectorFromStringOrNothing(coordinates)
+                            Taxonomy::issueTaxonomyItemFromStringOrNothing(coordinates)
                         })
 
                         status = mx.promptAndRunSandbox()
