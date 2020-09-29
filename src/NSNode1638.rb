@@ -195,10 +195,10 @@ class NSNode1638
 
     # NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
     def self.selectOneDatapointTaxonomyItemOrNull(datapoint)
-        vectors = Arrows::getSourcesForTarget(vector)
+        taxonomyItems = Arrows::getSourcesForTarget(taxonomyItem)
                     .select{|object| NyxObjectInterface::isTaxonomyItem(object) }
-        vectors = NyxObjectInterface::applyDateTimeOrderToObjects(vectors)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", vectors, lambda{|o| NyxObjectInterface::toString(o) })
+        taxonomyItems = NyxObjectInterface::applyDateTimeOrderToObjects(taxonomyItems)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomyItem", taxonomyItems, lambda{|o| NyxObjectInterface::toString(o) })
     end
 
     # NSNode1638::opendatapoint(datapoint)
@@ -272,16 +272,16 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTaxonomyItem(object) }
-            vectors.each{|vector|
+            taxonomyItems = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTaxonomyItem(object) }
+            taxonomyItems.each{|taxonomyItem|
                 mx.item(
-                    Taxonomy::toString(vector),
+                    Taxonomy::toString(taxonomyItem),
                     lambda { 
-                        NyxObjectInterface::landing(vector)
+                        NyxObjectInterface::landing(taxonomyItem)
                     }
                 )
             }
-            if vectors.size>0 then
+            if taxonomyItems.size>0 then
                 puts ""
             end
 
@@ -346,15 +346,15 @@ class NSNode1638
             })
 
             mx.item("set taxonomy item".yellow, lambda {
-                vector = Taxonomy::selectOneExistingTaxonomyItemOrNull()
-                return if vector.nil?
-                Arrows::issueOrException(vector, datapoint)
+                taxonomyItem = Taxonomy::selectOneExistingTaxonomyItemOrNull()
+                return if taxonomyItem.nil?
+                Arrows::issueOrException(taxonomyItem, datapoint)
             })
 
             mx.item("detach taxonomy item".yellow, lambda {
-                vector = NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
-                return if vector.nil?
-                Arrows::unlink(vector, datapoint)
+                taxonomyItem = NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
+                return if taxonomyItem.nil?
+                Arrows::unlink(taxonomyItem, datapoint)
             })
 
             mx.item("add tag".yellow, lambda {

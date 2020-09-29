@@ -50,12 +50,14 @@ class DataPortalUI
                 lambda {
                     loop {
 
+                        system("clear")
+
                         mx = LCoreMenuItemsNX1.new()
 
-                        Taxonomy::items().each{|vector|
+                        Taxonomy::items().each{|taxonomyItem|
                             mx.item(
-                                Taxonomy::toString(vector),
-                                lambda { Taxonomy::landing(vector) }
+                                Taxonomy::toString(taxonomyItem),
+                                lambda { Taxonomy::landing(taxonomyItem) }
                             )
                         }
 
@@ -74,26 +76,22 @@ class DataPortalUI
             )
 
             ms.item(
-                "TaxonomyItem listing",
+                "Tags listing",
                 lambda {
                     loop {
 
+                        system("clear")
+
                         mx = LCoreMenuItemsNX1.new()
 
-                        Tags::items().each{|vector|
+                        Tags::tags().each{|tag|
                             mx.item(
-                                Taxonomy::toString(vector),
-                                lambda { Taxonomy::landing(vector) }
+                                Tags::toString(tag),
+                                lambda { Tags::landing(tag) }
                             )
                         }
 
                         puts ""
-
-                        mx.item("issue new taxonomy item", lambda {
-                            coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
-                            return if coordinates.size == ""
-                            Taxonomy::issueTaxonomyItemFromStringOrNothing(coordinates)
-                        })
 
                         status = mx.promptAndRunSandbox()
                         break if !status

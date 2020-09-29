@@ -18,11 +18,11 @@ class GeneralSearch
     # GeneralSearch::searchNx1630TaxonomyItem(pattern)
     def self.searchNx1630TaxonomyItem(pattern)
         SelectionLookupDataset::patternToTaxonomyItems(pattern)
-            .map{|vector|
+            .map{|taxonomyItem|
                 {
-                    "description"   => Taxonomy::toString(vector),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(vector)).to_time.to_f,
-                    "dive"          => lambda{ Taxonomy::landing(vector) }
+                    "description"   => Taxonomy::toString(taxonomyItem),
+                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(taxonomyItem)).to_time.to_f,
+                    "dive"          => lambda{ Taxonomy::landing(taxonomyItem) }
                 }
             }
     end

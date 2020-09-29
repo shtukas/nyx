@@ -25,8 +25,8 @@ class Tags
         "[tag] #{tag["payload"]}"
     end
 
-    # Tags::items()
-    def self.items()
+    # Tags::tags()
+    def self.tags()
         NyxObjects2::getSet("25bb489f-a25b-46af-938a-96cc42e2694c")
     end
 

@@ -15,11 +15,19 @@ class NyxGarbageCollection
             end
         }
 
-        Taxonomy::items().each{|vector|
-            vectorTargets = Arrows::getTargetsForSource(vector)
-            if vectorTargets.size == 0 then
-                puts "removing taxonomy item: #{Taxonomy::toString(vector)}"
-                NyxObjects2::destroy(vector)
+        Taxonomy::items().each{|item|
+            targets = Arrows::getTargetsForSource(item)
+            if targets.size == 0 then
+                puts "removing taxonomy item: #{Taxonomy::toString(item)}"
+                NyxObjects2::destroy(item)
+            end
+        }
+
+        Tags::tags().each{|tag|
+            targets = Arrows::getTargetsForSource(tag)
+            if targets.size == 0 then
+                puts "removing tag: #{Taxonomy::toString(tag)}"
+                NyxObjects2::destroy(tag)
             end
         }
 

@@ -382,7 +382,7 @@ class Asteroids
         puts "Not implemented actually, mark: a4c055cd-f527-4f6f-bfdc-a6182fd70ca2"
         LucilleCore::pressEnterToContinue()
         return
-        description = LucilleCore::askQuestionAnswerAsString("vector: ")
+        description = LucilleCore::askQuestionAnswerAsString("taxonomyItem: ")
         return if description == ""
         # node = NSNode1638::issueNaviga tion(description)
         Arrows::getTargetsForSource(asteroid)

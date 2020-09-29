@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(vector)
-    def self.updateLookupForTaxonomyItem(vector)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(vector["uuid"])
-        SelectionLookupDatabaseIO::addRecord("taxonomy_item", vector["uuid"], vector["uuid"])
-        SelectionLookupDatabaseIO::addRecord("taxonomy_item", vector["uuid"], Taxonomy::toString(vector).downcase)
+    # SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(taxonomyItem)
+    def self.updateLookupForTaxonomyItem(taxonomyItem)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(taxonomyItem["uuid"])
+        SelectionLookupDatabaseIO::addRecord("taxonomy_item", taxonomyItem["uuid"], taxonomyItem["uuid"])
+        SelectionLookupDatabaseIO::addRecord("taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -82,9 +82,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForTaxonomyItem(vector)
-    def self.updateLookupForTaxonomyItem(vector)
-        SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(vector)
+    # SelectionLookupDataset::updateLookupForTaxonomyItem(taxonomyItem)
+    def self.updateLookupForTaxonomyItem(taxonomyItem)
+        SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(taxonomyItem)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -126,12 +126,12 @@ class SelectionLookupDataset
         db.execute "delete from lookup where _objecttype_=?", ["taxonomy_item"]
 
         Taxonomy::items()
-            .each{|vector|
+            .each{|taxonomyItem|
                 if verbose then
-                    puts "taxonomy item: #{vector["uuid"]} , #{Taxonomy::toString(vector)}"
+                    puts "taxonomy item: #{taxonomyItem["uuid"]} , #{Taxonomy::toString(taxonomyItem)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", vector["uuid"], vector["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", vector["uuid"], Taxonomy::toString(vector))
+                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], taxonomyItem["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem))
             }
 
         db.close
