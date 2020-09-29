@@ -15,9 +15,9 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630Vector(pattern)
-    def self.searchNx1630Vector(pattern)
-        SelectionLookupDataset::patternToVectors(pattern)
+    # GeneralSearch::searchNx1630TaxonomyItem(pattern)
+    def self.searchNx1630TaxonomyItem(pattern)
+        SelectionLookupDataset::patternToTaxonomyItems(pattern)
             .map{|vector|
                 {
                     "description"   => Taxonomy::toString(vector),
@@ -55,7 +55,7 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
-            GeneralSearch::searchNx1630Vector(pattern),
+            GeneralSearch::searchNx1630TaxonomyItem(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForVector(vector)
-    def self.updateLookupForVector(vector)
+    # SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(vector)
+    def self.updateLookupForTaxonomyItem(vector)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(vector["uuid"])
-        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], vector["uuid"])
-        SelectionLookupDatabaseIO::addRecord("vector", vector["uuid"], Taxonomy::toString(vector).downcase)
+        SelectionLookupDatabaseIO::addRecord("taxonomy_item", vector["uuid"], vector["uuid"])
+        SelectionLookupDatabaseIO::addRecord("taxonomy_item", vector["uuid"], Taxonomy::toString(vector).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -82,9 +82,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForVector(vector)
-    def self.updateLookupForVector(vector)
-        SelectionLookupDatabaseIO::updateLookupForVector(vector)
+    # SelectionLookupDataset::updateLookupForTaxonomyItem(vector)
+    def self.updateLookupForTaxonomyItem(vector)
+        SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(vector)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -120,18 +120,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildVectorsLookup(verbose)
-    def self.rebuildVectorsLookup(verbose)
+    # SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
+    def self.rebuildTaxonomyItemsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["vector"]
+        db.execute "delete from lookup where _objecttype_=?", ["taxonomy_item"]
 
         Taxonomy::items()
             .each{|vector|
                 if verbose then
-                    puts "vector: #{vector["uuid"]} , #{Taxonomy::toString(vector)}"
+                    puts "taxonomy item: #{vector["uuid"]} , #{Taxonomy::toString(vector)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], vector["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "vector", vector["uuid"], Taxonomy::toString(vector))
+                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", vector["uuid"], vector["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", vector["uuid"], Taxonomy::toString(vector))
             }
 
         db.close
@@ -174,7 +174,7 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildDataset(verbose)
     def self.rebuildDataset(verbose)
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
-        SelectionLookupDataset::rebuildVectorsLookup(verbose)
+        SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -190,10 +190,10 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToVectors(pattern)
-    def self.patternToVectors(pattern)
+    # SelectionLookupDataset::patternToTaxonomyItems(pattern)
+    def self.patternToTaxonomyItems(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "vector" }
+            .select{|record| record["objecttype"] == "taxonomy_item" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

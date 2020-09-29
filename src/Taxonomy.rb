@@ -26,7 +26,7 @@ class Taxonomy
     # Taxonomy::makeTaxonomyItemFromString(str: String)
     def self.makeTaxonomyItemFromString(str)
         sequence = str.slit("::").map{|element| element.strip }
-        Taxonomy::issueVectorFromElements(sequence)
+        Taxonomy::issueTaxonomyItemFromElements(sequence)
     end
 
     # Taxonomy::issueTaxonomyItemFromStringOrNothing(str)

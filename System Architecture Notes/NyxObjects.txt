@@ -12,7 +12,7 @@ Nyx
                             -> NyxDirectory
                             -> NyxFSPoint001
 
-        Vectors       # Vectors.txt
+        TaxonomyItems # TaxonomyItems.txt
                       # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
 
         Tags          # Tags.txt

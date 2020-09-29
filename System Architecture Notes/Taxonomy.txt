@@ -1,7 +1,7 @@
 
 Taxonomy Item are used for general classification
 
-Example: A picture of a funny cat could have the vector "root :: reddit :: funny" pointing at it which specifies where in the classification from root the datapoint is. More than one Taxonomy Item can point at a given datapoint. This is how we realise the effect that a given point could be at more than one position in the file hierarchy.
+Example: A picture of a funny cat could have the taxonomy item "root :: reddit :: funny" pointing at it which specifies where in the classification from root the datapoint is. More than one Taxonomy Item can point at a given datapoint. This is how we realise the effect that a given point could be at more than one position in the file hierarchy.
 
 TaxonomyItem {
     "uuid"     : UUID

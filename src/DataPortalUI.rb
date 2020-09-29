@@ -46,7 +46,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "Vector listing", 
+                "TaxonomyItem listing", 
                 lambda {
                     loop {
 
@@ -61,7 +61,35 @@ class DataPortalUI
 
                         puts ""
 
-                        mx.item("issue new vector", lambda {
+                        mx.item("issue new taxonomy item", lambda {
+                            coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
+                            return if coordinates.size == ""
+                            Taxonomy::issueTaxonomyItemFromStringOrNothing(coordinates)
+                        })
+
+                        status = mx.promptAndRunSandbox()
+                        break if !status
+                    }
+                }
+            )
+
+            ms.item(
+                "TaxonomyItem listing",
+                lambda {
+                    loop {
+
+                        mx = LCoreMenuItemsNX1.new()
+
+                        Tags::items().each{|vector|
+                            mx.item(
+                                Taxonomy::toString(vector),
+                                lambda { Taxonomy::landing(vector) }
+                            )
+                        }
+
+                        puts ""
+
+                        mx.item("issue new taxonomy item", lambda {
                             coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
                             return if coordinates.size == ""
                             Taxonomy::issueTaxonomyItemFromStringOrNothing(coordinates)

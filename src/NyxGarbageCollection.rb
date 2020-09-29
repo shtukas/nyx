@@ -18,7 +18,7 @@ class NyxGarbageCollection
         Taxonomy::items().each{|vector|
             vectorTargets = Arrows::getTargetsForSource(vector)
             if vectorTargets.size == 0 then
-                puts "removing vector: #{Taxonomy::toString(vector)}"
+                puts "removing taxonomy item: #{Taxonomy::toString(vector)}"
                 NyxObjects2::destroy(vector)
             end
         }

@@ -193,10 +193,10 @@ class NSNode1638
         raise "[NSNode1638 error d39378dc]"
     end
 
-    # NSNode1638::selectOneDatapointVectorOrNull(datapoint)
-    def self.selectOneDatapointVectorOrNull(datapoint)
+    # NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
+    def self.selectOneDatapointTaxonomyItemOrNull(datapoint)
         vectors = Arrows::getSourcesForTarget(vector)
-                    .select{|object| NyxObjectInterface::isVector(object) }
+                    .select{|object| NyxObjectInterface::isTaxonomyItem(object) }
         vectors = NyxObjectInterface::applyDateTimeOrderToObjects(vectors)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", vectors, lambda{|o| NyxObjectInterface::toString(o) })
     end
@@ -272,7 +272,7 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isVector(object) }
+            vectors = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTaxonomyItem(object) }
             vectors.each{|vector|
                 mx.item(
                     Taxonomy::toString(vector),
@@ -345,14 +345,14 @@ class NSNode1638
                 end
             })
 
-            mx.item("set vector".yellow, lambda {
+            mx.item("set taxonomy item".yellow, lambda {
                 vector = Taxonomy::selectOneExistingTaxonomyItemOrNull()
                 return if vector.nil?
                 Arrows::issueOrException(vector, datapoint)
             })
 
-            mx.item("detach vector".yellow, lambda {
-                vector = NSNode1638::selectOneDatapointVectorOrNull(datapoint)
+            mx.item("detach taxonomy item".yellow, lambda {
+                vector = NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
                 return if vector.nil?
                 Arrows::unlink(vector, datapoint)
             })

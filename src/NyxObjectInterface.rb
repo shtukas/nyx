@@ -13,8 +13,8 @@ class NyxObjectInterface
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # NyxObjectInterface::isVector(object)
-    def self.isVector(object)
+    # NyxObjectInterface::isTaxonomyItem(object)
+    def self.isTaxonomyItem(object)
         object["nyxNxSet"] == "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
     end
 
@@ -31,7 +31,7 @@ class NyxObjectInterface
         if NyxObjectInterface::isDataPoint(object) then
             return NSNode1638::toString(object)
         end
-        if NyxObjectInterface::isVector(object) then
+        if NyxObjectInterface::isTaxonomyItem(object) then
             return Taxonomy::toString(object)
         end
         puts object
@@ -71,7 +71,7 @@ class NyxObjectInterface
             NSNode1638::landing(object)
             return
         end
-        if NyxObjectInterface::isVector(object) then
+        if NyxObjectInterface::isTaxonomyItem(object) then
             Taxonomy::landing(object)
             return
         end
