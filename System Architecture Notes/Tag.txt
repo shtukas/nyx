@@ -1,0 +1,7 @@
+
+Tag {
+    "uuid"     : UUID
+    "nyxNxSet" : "25bb489f-a25b-46af-938a-96cc42e2694c"
+    "unixtime" : Float # Unixtime with decimals
+    "payload"  : String
+}

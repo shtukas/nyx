@@ -18,6 +18,11 @@ class NyxObjectInterface
         object["nyxNxSet"] == "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
     end
 
+    # NyxObjectInterface::isTag(object)
+    def self.isTag(object)
+        object["nyxNxSet"] == "25bb489f-a25b-46af-938a-96cc42e2694c"
+    end
+
     # NyxObjectInterface::toString(object, shouldUseCachedVersion = true)
     def self.toString(object, shouldUseCachedVersion = true)
         if NyxObjectInterface::isAsteroid(object) then

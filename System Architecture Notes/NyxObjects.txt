@@ -15,6 +15,9 @@ Nyx
         Vectors       # Vectors.txt
                       # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
 
+        Tags          # Tags.txt
+                      # nyxNxSet: "25bb489f-a25b-46af-938a-96cc42e2694c"
+
         Wave          # Waves.txt
                       # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 
@@ -22,7 +25,6 @@ Nyx
                       # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
 -------------------------------------------------------------------------
-
 Arrows provide network topology between NyxObjects, but are now no longer nyx objects themselves.
 
 -------------------------------------------------------------------------
