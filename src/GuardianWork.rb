@@ -37,14 +37,20 @@ class GuardianWork
         Bank::put(GuardianWork::uuid(), timespanInSeconds)
     end
 
-    # GuardianWork::catalystObjects()
-    def self.catalystObjects()
+    # GuardianWork::toString()
+    def self.toString()
         uuid = GuardianWork::uuid()
         ratio = BankExtended::recoveredDailyTimeInHours(GuardianWork::uuid()).to_f/GuardianWork::targetTimeInHours()
         runningFor = Runner::isRunning?(uuid) ? " (running for #{((Runner::runTimeInSecondsOrNull(uuid) || 0).to_f/60).round(2)} mins)" : ""
+        "Guardian Work (#{"%.2f" % (100*ratio)} %)#{runningFor}"
+    end
+
+    # GuardianWork::catalystObjects()
+    def self.catalystObjects()
+        uuid = GuardianWork::uuid()
         object = {
             "uuid"             => uuid,
-            "body"             => "Focus: Guardian Work (#{"%.2f" % (100*ratio)} %)#{runningFor}",
+            "body"             => GuardianWork::toString(),
             "metric"           => GuardianWork::metric(),
             "execute"          => lambda { |command| GuardianWork::program(command) },
             "isRunning"        => Runner::isRunning?(uuid),
@@ -63,6 +69,8 @@ class GuardianWork
 
         loop {
             system("clear")
+            puts GuardianWork::toString().green
+            puts ""
             options = [
                 Runner::isRunning?(GuardianWork::uuid()) ? "stop" : "start",
                 "add time",
