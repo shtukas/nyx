@@ -173,6 +173,10 @@ class SelectionLookupDataset
 
     # SelectionLookupDataset::rebuildDataset(verbose)
     def self.rebuildDataset(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup", []
+        db.close
+
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
         SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
