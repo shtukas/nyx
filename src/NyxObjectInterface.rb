@@ -23,8 +23,8 @@ class NyxObjectInterface
         object["nyxNxSet"] == "25bb489f-a25b-46af-938a-96cc42e2694c"
     end
 
-    # NyxObjectInterface::toString(object, shouldUseCachedVersion = true)
-    def self.toString(object, shouldUseCachedVersion = true)
+    # NyxObjectInterface::toString(object)
+    def self.toString(object)
         if NyxObjectInterface::isAsteroid(object) then
             return Asteroids::toString(object)
         end

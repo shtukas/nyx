@@ -76,7 +76,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "Tags listing",
+                "Tag listing",
                 lambda {
                     loop {
 
@@ -112,39 +112,6 @@ class DataPortalUI
                         NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
                     end
                     NSNode1638::landing(node)
-                }
-            )
-
-            ms.item(
-                "Merge two nodes",
-                lambda { 
-                    puts "Merging two nodes"
-                    puts "Selecting one after the other and then will merge"
-                    node1 = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
-                    return if node1.nil?
-                    node2 = NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
-                    return if node2.nil?
-                    if node1["uuid"] == node2["uuid"] then
-                        puts "You have selected the same node twice. Aborting merge operation."
-                        LucilleCore::pressEnterToContinue()
-                        return
-                    end
-
-                    puts ""
-                    puts NSNode1638::toString(node1)
-                    puts NSNode1638::toString(node2)
-
-                    return if !LucilleCore::askQuestionAnswerAsBoolean("confirm merge : ")
-
-                    # Moving all the node upstreams of node2 towards node 1
-                    Arrows::getSourcesForTarget(node2).each{|x|
-                        Arrows::issueOrException(x, node1)
-                    }
-                    # Moving all the downstreams of node2 toward node 1
-                    Arrows::getTargetsForSource(node2).each{|x|
-                        Arrows::issueOrException(node1, x)
-                    }
-                    NyxObjects2::destroy(node2) # Simple destroy, not the procedure,what happens if node2 had some contents ?
                 }
             )
 
@@ -195,6 +162,13 @@ class DataPortalUI
             ms.item(
                 "Waves",
                 lambda { Waves::main() }
+            )
+
+            puts ""
+
+            ms.item(
+                "Guardian Open Cycles",
+                lambda { GuardianOpenCycles::program(nil) }
             )
 
             puts ""

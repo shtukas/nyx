@@ -11,7 +11,7 @@ class CatalystObjectsOperator
             Calendar::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
-            GuardianWork::catalystObjects()
+            GuardianOpenCycles::catalystObjects()
         ].flatten.compact
         objects = objects
                     .select{|object| object['metric'] >= 0.2 }

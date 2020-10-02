@@ -2,13 +2,6 @@
 
 class CatalystUI
 
-    # CatalystUI::applyNextTransformationToFile(filepath)
-    def self.applyNextTransformationToFile(filepath)
-        content = IO.read(filepath).strip
-        content = SectionsType0141::applyNextTransformationToContent(content)
-        File.open(filepath, "w"){|f| f.puts(content) }
-    end
-
     # CatalystUI::standardDisplay(catalystObjects)
     def self.standardDisplay(catalystObjects)
 
@@ -117,7 +110,7 @@ class CatalystUI
 
         if command == "[]" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            CatalystUI::applyNextTransformationToFile(filepath)
+            Miscellaneous::applyNextTransformationToFile(filepath)
             return
         end
 
@@ -138,6 +131,17 @@ class CatalystUI
             ms.promptAndRunSandbox()
             return
         end
+
+        if command == ";" then
+            GuardianOpenCycles::program(nil)
+            return
+        end
+
+        if command == "/" then
+            DataPortalUI::dataPortalFront()
+            return
+        end
+
     end
 
     # CatalystUI::standardUILoop()
