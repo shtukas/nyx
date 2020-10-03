@@ -351,7 +351,7 @@ class Asteroids
     # Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
     def self.stopAsteroidIfRunningAndDestroy(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
-        Asteroids::destroy(asteroid)
+        Asteroids::destroyProtocolSequence(asteroid)
     end
 
     # Asteroids::openTargetOrTargets(asteroid)
@@ -423,7 +423,7 @@ class Asteroids
 
                 Arrows::issueOrException(node, target) 
             }
-        NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroy(asteroid) because we are keeping the children by default.
+        NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroyProtocolSequence(asteroid) because we are keeping the children by default.
         NSNode1638::landing(node)
     end
 
@@ -441,87 +441,73 @@ class Asteroids
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
 
+        inboxProcessor = lambda {|asteroid|
+            targets = Arrows::getTargetsForSource(asteroid)
+            if targets.size == 0 then
+                Asteroids::destroyProtocolSequence(asteroid)
+                return
+            end
+            if targets.size == 1 then
+                target = targets.first
+                if NyxObjectInterface::isDataPoint(target) then
+                    NSNode1638::opendatapoint(target)
+                end
+            end
+            if targets.size > 1 then
+                Asteroids::landing(asteroid)
+                return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+            end
+            modes = [
+                "landing",
+                "DoNotDisplay for a time",
+                "to burner",
+                "to stream",
+                "re orbital",
+                "transmute to node",
+                "destroy"
+            ]
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+            return if mode.nil?
+            if mode == "landing" then
+                Asteroids::landing(asteroid)
+                return
+            end
+            if mode == "DoNotDisplay for a time" then
+                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+                return
+            end
+            if mode == "to burner" then
+                asteroid["orbital"]["type"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+                Asteroids::commitToDisk(asteroid)
+                return
+            end
+            if mode == "to stream" then
+                asteroid["orbital"]["type"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                Asteroids::commitToDisk(asteroid)
+                return
+            end
+            if mode == "re orbital" then
+                Asteroids::reOrbitalOrNothing(asteroid)
+                return
+            end
+            if mode == "transmute to node" then
+                Asteroids::transmuteAsteroidToNode(asteroid)
+                return
+            end
+            if mode == "destroy" then
+                Asteroids::destroyProtocolSequence(asteroid)
+                return
+            end
+        }
+
         uuid = asteroid["uuid"]
 
         # ----------------------------------------
         # Not Running
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            targets = Arrows::getTargetsForSource(asteroid)
-            if targets.size == 0 then
-                Asteroids::destroy(asteroid)
-                return
-            end
-            if targets.size == 1 then
-                target = targets.first
-
-                # default action
-
-                Asteroids::startAsteroidIfNotRunning(asteroid)
-
-                if NyxObjectInterface::isAsteroid(target) then
-                    Asteroids::landing(target)
-                end
-
-                if NyxObjectInterface::isDataPoint(target) then
-                    NSNode1638::opendatapoint(target)
-                end
-
-                Asteroids::stopAsteroidIfRunning(asteroid)
-
-                # recasting
-
-                modes = [
-                    "landing",
-                    "DoNotDisplay for a time",
-                    "to burner",
-                    "to stream",
-                    "re orbital",
-                    "transmute to node",
-                    "destroy"
-                ]
-                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-                return if mode.nil?
-                if mode == "landing" then
-                    Asteroids::landing(asteroid)
-                    return
-                end
-                if mode == "DoNotDisplay for a time" then
-                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-                    return
-                end
-                if mode == "to burner" then
-                    asteroid["orbital"]["type"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-                    Asteroids::commitToDisk(asteroid)
-                    return
-                end
-                if mode == "to stream" then
-                    asteroid["orbital"]["type"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                    Asteroids::commitToDisk(asteroid)
-                    return
-                end
-                if mode == "re orbital" then
-                    Asteroids::reOrbitalOrNothing(asteroid)
-                    return
-                end
-                if mode == "transmute to node" then
-                    Asteroids::transmuteAsteroidToNode(asteroid)
-                    return
-                end
-                if mode == "destroy" then
-                    Asteroids::destroy(asteroid)
-                    return
-                end
-            end
-           if targets.size > 1 then
-                Asteroids::landing(asteroid)
-                return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
-                    Asteroids::destroy(asteroid)
-                    return
-                end
-            end
+            inboxProcessor.call(asteroid)
             return
         end
 
@@ -536,7 +522,7 @@ class Asteroids
             Asteroids::landing(asteroid)
             return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
-                Asteroids::destroy(asteroid)
+                Asteroids::destroyProtocolSequence(asteroid)
                 return
             end
             return
@@ -553,7 +539,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::destroy(asteroid)
+                Asteroids::destroyProtocolSequence(asteroid)
             end
             return
         end
@@ -561,7 +547,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::destroy(asteroid)
+                Asteroids::destroyProtocolSequence(asteroid)
             end
             return
         end
@@ -723,8 +709,8 @@ class Asteroids
         }
     end
 
-    # Asteroids::destroy(asteroid)
-    def self.destroy(asteroid)
+    # Asteroids::destroyProtocolSequence(asteroid)
+    def self.destroyProtocolSequence(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size > 0 then
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
