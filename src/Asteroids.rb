@@ -514,16 +514,20 @@ class Asteroids
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::openTargetOrTargets(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                Asteroids::destroyProtocolSequence(asteroid)
+            end
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
+            # The difference with burner is that we land instead of starting
             Asteroids::landing(asteroid)
             return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
+                Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::destroyProtocolSequence(asteroid)
-                return
             end
             return
         end
@@ -532,7 +536,11 @@ class Asteroids
         # Running
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            # This case should not happen because we are not starting inbox items.
             Asteroids::stopAsteroidIfRunning(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::destroyProtocolSequence(asteroid)
+            end
             return
         end
 
