@@ -27,9 +27,6 @@ class DisplayUtils
         if object["isRunning"] then
             text = text.green
         end
-        if object["isImportant"] then
-            text = text.yellow
-        end
         text
     end
 

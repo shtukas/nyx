@@ -159,13 +159,6 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "Guardian Open Cycles",
-                lambda { GuardianOpenCycles::program(nil) }
-            )
-
-            puts ""
-
-            ms.item(
                 "1. rebuild search lookup", 
                 lambda { SelectionLookupDataset::rebuildDataset(true) }
             )

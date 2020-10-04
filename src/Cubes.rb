@@ -67,19 +67,6 @@ class Cubes
                 })
             }
 
-            puts ""
-            if Runner::isRunning?(GuardianOpenCycles::uuid()) then
-                ms.item("stop".yellow, lambda { GuardianOpenCycles::stop() })
-            else
-                ms.item("start".yellow, lambda { GuardianOpenCycles::start() })
-            end
-
-            ms.item("add time".yellow, lambda { 
-                timeInHours = LucilleCore::askQuestionAnswerAsString("time (in hours): ").to_f
-                timespanInSeconds = timeInHours*3600
-                Bank::put(GuardianOpenCycles::uuid(), timespanInSeconds)
-            })
-
             ms.item("open folder".yellow, lambda { 
                 system("open '#{cube["location"]}'")
             })
@@ -107,15 +94,17 @@ class Cubes
             break if !status
         }
     end
+
+    # Cubes::selectCubeOrNull()
+    def self.selectCubeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", Cubes::cubes(), lambda{ |cube| Cubes::toString(cube) })
+    end
 end
 
 # --------------------------------------------------------
 
 =begin
 
-    GuardianOpenCycles
-    
-    A Guardian Work FS Item is any element of the OpenCycles folder, meaning any file or folder. 
     For the moment we are assuming that they are either text files or folder.
     
     Each element has the following attributes

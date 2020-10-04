@@ -23,6 +23,11 @@ class NyxObjectInterface
         object["nyxNxSet"] == "25bb489f-a25b-46af-938a-96cc42e2694c"
     end
 
+    # NyxObjectInterface::isCube(object)
+    def self.isCube(object)
+        object["nyxNxSet"] == "06071daa-ec51-4c19-a4b9-62f39bb2ce4f"
+    end
+
     # NyxObjectInterface::toString(object)
     def self.toString(object)
         if NyxObjectInterface::isAsteroid(object) then
@@ -33,6 +38,9 @@ class NyxObjectInterface
         end
         if NyxObjectInterface::isTaxonomyItem(object) then
             return Taxonomy::toString(object)
+        end
+        if NyxObjectInterface::isCube(object) then
+            return Cubes::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"

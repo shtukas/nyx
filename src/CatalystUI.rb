@@ -121,19 +121,18 @@ class CatalystUI
                 lambda { Asteroids::issuePlainAsteroidInteractivelyOrNull() }
             )
             ms.item(
-                "asteroid (general)",
+                "asteroid (datapoint)",
                 lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
+            )
+            ms.item(
+                "asteroid (cube)",
+                lambda { Asteroids::issueAsteroidAgainstExistigCubeInteractivelyOrNull() }
             )
             ms.item(
                 "wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
             )
             ms.promptAndRunSandbox()
-            return
-        end
-
-        if command == ";" then
-            GuardianOpenCycles::program(nil)
             return
         end
 

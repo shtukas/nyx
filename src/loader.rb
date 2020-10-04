@@ -164,7 +164,6 @@ require_relative "Taxonomy.rb"
 require_relative "VideoStream.rb"
 
 require_relative "Waves.rb"
-require_relative "GuardianOpenCycles.rb"
 
 # ------------------------------------------------------------
 

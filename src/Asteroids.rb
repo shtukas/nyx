@@ -5,13 +5,19 @@ class Asteroids
     # -------------------------------------------------------------------
     # Building
 
-    # Asteroids::makeOrbitalInteractivelyOrNull()
-    def self.makeOrbitalInteractivelyOrNull()
-        orbitals = [
+    # Asteroids::asteroidOrbitalTypes()
+    def self.asteroidOrbitalTypes()
+        [
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
+            "daily-time-commitment-e1180643-fc7e-42bb-a2",
         ]
+    end
+
+    # Asteroids::makeOrbitalInteractivelyOrNull()
+    def self.makeOrbitalInteractivelyOrNull()
+        orbitals = Asteroids::asteroidOrbitalTypes()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals)
     end
 
@@ -28,6 +34,11 @@ class Asteroids
             "orbital"     => orbital,
             "description" => description
         }
+
+        if asteroid["orbital"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            asteroid["special-5e28447a-daily-time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("commitment in hours: ").to_f
+        end
+
         Asteroids::commitToDisk(asteroid)
         asteroid
     end
@@ -62,16 +73,23 @@ class Asteroids
         asteroid
     end
 
+    # Asteroids::issueAsteroidAgainstExistigCubeInteractivelyOrNull()
+    def self.issueAsteroidAgainstExistigCubeInteractivelyOrNull()
+        cube = Cubes::selectCubeOrNull()
+        return nil if cube.nil?
+        asteroid = {
+            "uuid"          => SecureRandom.uuid,
+            "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime"      => Time.new.to_f,
+            "orbital"       => "daily-time-commitment-e1180643-fc7e-42bb-a2",
+            "datapointuuid" => cube["uuid"]
+        }
+        Asteroids::commitToDisk(asteroid)
+        asteroid
+    end
+
     # -------------------------------------------------------------------
     # Data Extraction
-
-    # Asteroids::asteroidOrbitalTypes()
-    def self.asteroidOrbitalTypes()
-        [
-            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
-            "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-        ]
-    end
 
     # Asteroids::asteroids()
     def self.asteroids()
@@ -86,22 +104,28 @@ class Asteroids
         object
     end
 
+    # Asteroids::getAsteroidTargetOrNull(asteroid)
+    def self.getAsteroidTargetOrNull(asteroid)
+        return nil if asteroid["datapointuuid"].nil?
+        NyxObjects2::getOrNull(asteroid["datapointuuid"])
+    end
+
     # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
     def self.asteroidOrbitalAsUserFriendlyString(orbital)
         return "📥" if orbital == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "🔥" if orbital == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         return "👩‍💻" if orbital == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+        return "💫" if orbital == "daily-time-commitment-e1180643-fc7e-42bb-a2"
     end
 
     # Asteroids::asteroidDescription(asteroid)
     def self.asteroidDescription(asteroid)
-        if asteroid["description"] and asteroid["datapointuuid"].nil? then
+        target = Asteroids::getAsteroidTargetOrNull(asteroid)
+        if asteroid["description"] and target.nil? then
             return asteroid["description"]
         end
-        return "no target" if asteroid["datapointuuid"].nil?
-        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
-        return "no target" if datapoint.nil?
-        "[datapoint] #{NSNode1638::toString(datapoint)}"
+        return "no target" if target.nil?
+        NyxObjectInterface::toString(target)
     end
 
     # Asteroids::toString(asteroid)
@@ -113,7 +137,7 @@ class Asteroids
         p3 = " #{Asteroids::asteroidDescription(asteroid)}"
         p4 =
             if isRunning then
-                "(running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
             else
                 ""
             end
@@ -158,6 +182,10 @@ class Asteroids
             return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
+        if asteroid["orbital"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            return 0.65
+        end
+
         if asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return 0.6 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
@@ -191,7 +219,6 @@ class Asteroids
         }
 
         uuid = asteroid["uuid"]
-        isImportant = asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         isRunning = Asteroids::isRunning?(asteroid)
 
         {
@@ -199,7 +226,6 @@ class Asteroids
             "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
             "execute"          => executor,
-            "isImportant"      => isImportant,
             "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
@@ -268,16 +294,26 @@ class Asteroids
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
-    # Asteroids::openTargetOrTargets(asteroid)
-    def self.openTargetOrTargets(asteroid)
-        return if asteroid["datapointuuid"].nil?
-        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
-        return if datapoint.nil?
-        NSNode1638::opendatapoint(datapoint)
+    # Asteroids::accessTarget(asteroid)
+    def self.accessTarget(asteroid)
+        target = Asteroids::getAsteroidTargetOrNull(asteroid)
+        return if target.nil?
+        if NyxObjectInterface::isDataPoint(target) then
+            NSNode1638::opendatapoint(target)
+            return
+        end
+        if NyxObjectInterface::isCube(target) then
+            Cubes::cubeLanding(target)
+            return
+        end
     end
 
     # Asteroids::transmuteAsteroidToNode(asteroid)
     def self.transmuteAsteroidToNode(asteroid)
+
+        target = Asteroids::getAsteroidTargetOrNull(asteroid)
+        return if target.nil?
+        return if NyxObjectInterface::isCube(target)
 
         puts "Transmuting asteroid to "
 
@@ -379,27 +415,8 @@ class Asteroids
 
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
-
-        openContent = lambda {|asteroid|
-            targets = Arrows::getTargetsForSource(asteroid)
-            if targets.size == 0 then
-                NyxObjects2::destroy(asteroid)
-                return
-            end
-            if targets.size == 1 then
-                target = targets.first
-                if NyxObjectInterface::isDataPoint(target) then
-                    NSNode1638::opendatapoint(target)
-                end
-            end
-            if targets.size > 1 then
-                Asteroids::landing(asteroid)
-                return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
-            end
-        }
-
         inboxProcessor = lambda {|asteroid|
-            openContent.call(asteroid)
+            Asteroids::accessTarget(asteroid)
             modes = [
                 "landing",
                 "hide for one hour",
@@ -455,7 +472,7 @@ class Asteroids
         }
 
         burnerProcessor = lambda {|asteroid|
-            openContent.call(asteroid)
+            Asteroids::accessTarget(asteroid)
             modes = [
                 "landing",
                 "hide for one hour",
@@ -516,6 +533,12 @@ class Asteroids
             return
         end
 
+        if !Runner::isRunning?(uuid) and asteroid["orbital"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            Asteroids::accessTarget(asteroid)
+            return
+        end
+
         if !Runner::isRunning?(uuid) and asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             burnerProcessor.call(asteroid)
@@ -543,6 +566,11 @@ class Asteroids
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 NyxObjects2::destroy(asteroid)
             end
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
