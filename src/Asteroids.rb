@@ -260,14 +260,16 @@ class Asteroids
     # Asteroids::catalystObjects()
     def self.catalystObjects()
 
-        Asteroids::asteroids()
-                    .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
-                    .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
-                    .first(10)
-                    .each_with_index{|asteroid, indx|
-                        asteroid["x-stream-index"] = indx
-                        Asteroids::commitToDisk(asteroid)
-                    }
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6347a941-2907-44fc-8eb3-1f85adb8436c", 3600*12) then
+            Asteroids::asteroids()
+                .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
+                .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                .first(10)
+                .each_with_index{|asteroid, indx|
+                    asteroid["x-stream-index"] = indx
+                    Asteroids::commitToDisk(asteroid)
+                }
+        end
 
         Asteroids::asteroids()
             .select{|asteroid| 
