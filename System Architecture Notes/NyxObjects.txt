@@ -1,12 +1,8 @@
 -------------------------------------------------------------------------
-All Nyx Objects 
+All nyx objects have the two following attributes
 
-    1. Have the two following attributes
-
-        - uuid                : String
-        - nyxNxSet            : String
-
-    2. The nyxNxSet need to be a valid setid.
+    - uuid     : String
+    - nyxNxSet : String
 
 -------------------------------------------------------------------------
 Nyx Objects

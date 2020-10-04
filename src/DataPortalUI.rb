@@ -99,6 +99,8 @@ class DataPortalUI
                 }
             )
 
+            ms.item("Cubes Dive",lambda { Cubes::cubesDive() })
+
             puts ""
 
             ms.item(
