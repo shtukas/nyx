@@ -8,7 +8,6 @@ CatalystObject
 
     "execute"          : Lambda { |command| code }
 
-    "isImportant"      : Boolean # Optional [1]
     "isRunning"        : Boolean # Optional [2]
     "isRunningForLong" : Boolean # Optional [3]
 }

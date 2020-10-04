@@ -14,12 +14,12 @@ class DataPortalUI
             )
 
             ms.item(
-                "Node Exploration", 
+                "Datapoint Exploration", 
                 lambda { NSNode1638Extended::interactiveDatapointSearchAndExplore() }
             )
 
             ms.item(
-                "Node Exploration (ncurses experimental)", 
+                "Datapoint Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
                         nodes = NSNode1638Extended::interactiveNodeNcursesSearch()
@@ -32,7 +32,7 @@ class DataPortalUI
             )
 
             ms.item(
-                "Node Listing", 
+                "Datapoint Listing", 
                 lambda {
                     nodes = NSNode1638::datapoints()
                     nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
@@ -103,39 +103,39 @@ class DataPortalUI
 
             puts ""
 
-            ms.item(
-                "new datapoint",
-                lambda {
-                    datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
-                    return if datapoint.nil?
-                    description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
-                    if description.size > 0 then
-                        datapoint["description"] = description
-                        NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
-                    end
-                    NSNode1638::landing(node)
-                }
-            )
+            ms.item("new datapoint", lambda {
+                datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                return if datapoint.nil?
+                description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
+                if description.size > 0 then
+                    datapoint["description"] = description
+                    NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+                end
+                NSNode1638::landing(node)
+            })
 
-            ms.item(
-                "dangerously edit a nyx object by uuid", 
-                lambda { 
-                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    return if uuid == ""
-                    object = NyxObjects2::getOrNull(uuid)
-                    return if object.nil?
-                    if NyxObjectInterface::isDataPoint(object) then
-                        if object["type"] == "NyxFSPoint001" then
-                            puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
-                            LucilleCore::pressEnterToContinue()
-                            return
-                        end
+            ms.item("new cube", lambda {
+                description = LucilleCore::askQuestionAnswerAsString("cube description: ")
+                location =    LucilleCore::askQuestionAnswerAsString("cube location: ")
+                Cubes::issueCube(description, location)
+            })
+
+            ms.item("dangerously edit a nyx object by uuid", lambda { 
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                return if uuid == ""
+                object = NyxObjects2::getOrNull(uuid)
+                return if object.nil?
+                if NyxObjectInterface::isDataPoint(object) then
+                    if object["type"] == "NyxFSPoint001" then
+                        puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
+                        LucilleCore::pressEnterToContinue()
+                        return
                     end
-                    object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
-                    object = JSON.parse(object)
-                    NyxObjects2::put(object)
-                }
-            )
+                end
+                object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
+                object = JSON.parse(object)
+                NyxObjects2::put(object)
+            })
 
             puts ""
 

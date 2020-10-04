@@ -9,6 +9,9 @@ Asteroid
                         "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
                         "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
                         "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                        "daily-time-commitment-e1180643-fc7e-42bb-a2"
     "description"   : nil or String
     "datapointuuid" : nil or String
+
+    "special-5e28447a-daily-time-commitment-in-hours": Float # if orbital == "daily-time-commitment-e1180643-fc7e-42bb-a2"
 }

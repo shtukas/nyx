@@ -11,7 +11,10 @@
         0.73          Backups Monitor
         0.70+         Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         0.70          Focus: Guardian Work
+
         0.70  -> 0.20 VideoStream
+
+        0.65          Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"
         0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         0.49          Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 
