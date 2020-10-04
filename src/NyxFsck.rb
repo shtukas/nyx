@@ -86,14 +86,12 @@ class NyxFsck
 
     # NyxFsck::main(runhash)
     def self.main(runhash)
-        NyxObjectsCore::nyxNxSets().each{|setid|
-            NyxObjects2::getSet(setid).each{|object|
-                next if KeyValueStore::flagIsTrue(nil, "#{runhash}:#{object["uuid"]}")
-                puts "fsck object: #{object["uuid"]}"
-                status = NyxFsck::processObject(object, runhash)
-                return false if !status
-                KeyValueStore::setFlagTrue(nil, "#{runhash}:#{object["uuid"]}")
-            }
+        NyxObjects2::getAllObjects().each{|object|
+            next if KeyValueStore::flagIsTrue(nil, "#{runhash}:#{object["uuid"]}")
+            puts "fsck object: #{object["uuid"]}"
+            status = NyxFsck::processObject(object, runhash)
+            return false if !status
+            KeyValueStore::setFlagTrue(nil, "#{runhash}:#{object["uuid"]}")
         }
         true
     end
