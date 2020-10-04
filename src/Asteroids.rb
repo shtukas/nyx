@@ -110,9 +110,9 @@ class Asteroids
 
     # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
     def self.asteroidOrbitalTypeAsUserFriendlyString(type)
-        return "📥"  if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        return "☀️ " if type == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "😴"  if type == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+        return "📥" if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        return "🔥" if type == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        return "👩‍💻" if type == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
     # Asteroids::asteroidDescriptionUseTheForce(asteroid)
@@ -141,19 +141,31 @@ class Asteroids
     def self.toString(asteroid)
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
-        runningString = 
+        p1 = "[asteroid]"
+        p2 = " #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}"
+        p3 = " #{Asteroids::asteroidDescription(asteroid)}"
+        p4 =
             if isRunning then
                 "(running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
             else
                 ""
             end
-        "[asteroid] #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])} #{Asteroids::asteroidDescription(asteroid)} #{runningString}".strip
+        p5 = (lambda {|asteroid|
+            return "" if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+            return "" if asteroid["x-stream-index"].nil?
+            targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
+            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
+            return " (index: #{asteroid["x-stream-index"]}, target: #{targetHours} hours, #{100*ratio} % completed)"
+        }).call(asteroid)
+        "#{p1}#{p2}#{p3}#{p4}#{p5}"
     end
 
     # Asteroids::unixtimedrift(unixtime)
     def self.unixtimedrift(unixtime)
-        # "Unixtime To Decreasing Metric Shift Normalised To Interval Zero One"
-        0.00000000001*(Time.new.to_f-unixtime).to_f
+        # Unixtime To Decreasing Metric Shift Normalised To Interval Zero One
+        # The older the bigger
+        referenceTime = (Time.new.to_f / 86400).to_i * 86400
+        0.00000000001*(referenceTime-unixtime).to_f
     end
 
     # Asteroids::runTimeIfAny(asteroid)
@@ -198,10 +210,19 @@ class Asteroids
         end
 
         if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0.60 - 0.01 * BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])
+            return 0
+            return 0.6 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
         if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            if asteroid["x-stream-index"].nil? then
+                # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
+                return 0
+            end
+            targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
+            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) < targetHours then
+                return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
+            end 
             return 0
         end
 
@@ -211,48 +232,49 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObject(asteroid)
     def self.asteroidToCalalystObject(asteroid)
+        executor = lambda { |command|
+            if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
+                Asteroids::naturalNextOperation(asteroid) 
+            end
+            if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
+                Asteroids::landing(asteroid) 
+            end
+        }
+
         uuid = asteroid["uuid"]
-        burnerDomain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
+        isImportant = asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        isRunning = Asteroids::isRunning?(asteroid)
+
         {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
             "metric"           => Asteroids::metric(asteroid),
-            "execute"          => lambda { |command|
-                if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
-                    Asteroids::naturalNextOperation(asteroid) 
-                end
-                if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
-                    Asteroids::landing(asteroid) 
-                end
-            },
-            "isRunning"        => Asteroids::isRunning?(asteroid),
+            "execute"          => executor,
+            "isImportant"      => isImportant,
+            "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
-            "x-burner-domain"  => burnerDomain,
-            "x-burner-domain-recovered-time" => (burnerDomain ? BankExtended::recoveredDailyTimeInHours(burnerDomain["uuid"]) : nil)
         }
     end
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
-        asteroids = Asteroids::asteroids()
-                        .select{|asteroid| asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
 
-        activeDomainUUIDs = asteroids
-                                .map{|asteroid| Asteroids::getBurnerDomainForAsteroidOrNull(asteroid) }
-                                .compact
-                                .map{|domain| domain["uuid"] }
+        Asteroids::asteroids()
+                    .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
+                    .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                    .first(10)
+                    .each_with_index{|asteroid, indx|
+                        asteroid["x-stream-index"] = indx
+                        Asteroids::commitToDisk(asteroid)
+                    }
 
-        displayDomain = Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()
-                            .select{|domain| activeDomainUUIDs.include?(domain["uuid"]) }
-                            .first
-
-        asteroids = asteroids
-                .select{|asteroid|
-                    (asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955") or (Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)["uuid"] == displayDomain["uuid"] )
-                }
-
-        asteroids
+        Asteroids::asteroids()
+            .select{|asteroid| 
+                b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
+                b2 = asteroid["x-stream-index"]
+                b1 or b2
+            }
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
     end
 
@@ -284,24 +306,6 @@ class Asteroids
         ([d0] + dx)
     end
 
-    # Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()
-    def self.burnerDomainsInRecoveredDailyTimeInHoursOrder()
-        Asteroids::burnerDomains()
-            .map{|domain|
-                domain["recoveredDailyTimeInHours"] = BankExtended::recoveredDailyTimeInHours(domain["uuid"])
-                domain
-            }
-            .sort{|d1, d2| d1["recoveredDailyTimeInHours"] <=> d2["recoveredDailyTimeInHours"] }
-    end
-
-    # Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-    def self.getBurnerDomainForAsteroidOrNull(asteroid)
-        return nil if asteroid["orbital"]["type"] != "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        Asteroids::burnerDomains()
-            .select{|domain| domain["membershipTime"] <= Bank::value(asteroid["uuid"]) }
-            .last
-    end
-
     # -------------------------------------------------------------------
     # Operations
 
@@ -322,13 +326,6 @@ class Asteroids
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
     def self.asteroidReceivesTime(asteroid, timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
-
-        # It's important to update the current domain before we add the time to the asteroid
-        domain = Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)
-        if domain then
-            Bank::put(domain["uuid"], timespanInSeconds)
-        end
-
         Bank::put(asteroid["uuid"], timespanInSeconds)
     end
 
@@ -441,7 +438,7 @@ class Asteroids
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
 
-        inboxProcessor = lambda {|asteroid|
+        openContent = lambda {|asteroid|
             targets = Arrows::getTargetsForSource(asteroid)
             if targets.size == 0 then
                 Asteroids::destroyProtocolSequence(asteroid)
@@ -457,9 +454,15 @@ class Asteroids
                 Asteroids::landing(asteroid)
                 return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
             end
+        }
+
+        inboxProcessor = lambda {|asteroid|
+            openContent.call(asteroid)
             modes = [
                 "landing",
-                "DoNotDisplay for a time",
+                "hide for one hour",
+                "hide until tomorrow",
+                "hide for n days",
                 "to burner",
                 "to stream",
                 "re orbital",
@@ -472,7 +475,15 @@ class Asteroids
                 Asteroids::landing(asteroid)
                 return
             end
-            if mode == "DoNotDisplay for a time" then
+            if mode == "hide for one hour" then
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+                return
+            end
+            if mode == "hide until tomorrow" then
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
+                return
+            end
+            if mode == "hide for n days" then
                 timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
                 return
@@ -501,34 +512,83 @@ class Asteroids
             end
         }
 
+        burnerProcessor = lambda {|asteroid|
+            openContent.call(asteroid)
+            modes = [
+                "landing",
+                "hide for one hour",
+                "hide until tomorrow",
+                "hide for n days",
+                "to stream",
+                "re orbital",
+                "transmute to node",
+                "destroy"
+            ]
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+            return if mode.nil?
+            if mode == "landing" then
+                Asteroids::landing(asteroid)
+                return
+            end
+            if mode == "hide for one hour" then
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+                return
+            end
+            if mode == "hide until tomorrow" then
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
+                return
+            end
+            if mode == "hide for n days" then
+                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+                return
+            end
+            if mode == "to stream" then
+                asteroid["orbital"]["type"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                Asteroids::commitToDisk(asteroid)
+                return
+            end
+            if mode == "re orbital" then
+                Asteroids::reOrbitalOrNothing(asteroid)
+                return
+            end
+            if mode == "transmute to node" then
+                Asteroids::transmuteAsteroidToNode(asteroid)
+                return
+            end
+            if mode == "destroy" then
+                Asteroids::destroyProtocolSequence(asteroid)
+                return
+            end
+        }
+
         uuid = asteroid["uuid"]
 
         # ----------------------------------------
         # Not Running
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
             inboxProcessor.call(asteroid)
+            Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::openTargetOrTargets(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::destroyProtocolSequence(asteroid)
-            end
+            burnerProcessor.call(asteroid)
+            Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            # The difference with burner is that we land instead of starting
-            Asteroids::landing(asteroid)
-            return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            openContent.call(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::destroyProtocolSequence(asteroid)
             end
+            Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
@@ -578,9 +638,9 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}".yellow
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
-            puts "bank value: #{Bank::value(asteroid["uuid"])}"
-            puts "burner domain: #{Asteroids::getBurnerDomainForAsteroidOrNull(asteroid)}"
+            puts "bank value: #{Bank::value(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
+            puts "x-stream-index: #{asteroid["x-stream-index"]}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime and (Time.new.to_i < unixtime) then

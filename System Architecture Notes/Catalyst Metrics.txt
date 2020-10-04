@@ -13,5 +13,6 @@
         0.70          Focus: Guardian Work
         0.70  -> 0.20 VideoStream
         0.60          Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        0.49          Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 
         0.20 -------- Water level ------------------------------
