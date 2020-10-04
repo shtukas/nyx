@@ -1,38 +1,35 @@
-
--------------------------------------------------------------------------
-Nyx
-
-    Data
-
-        NSNode1638    # NSNode1638.txt
-                      # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
-                            -> line
-                            -> url
-                            -> NyxFile
-                            -> NyxDirectory
-                            -> NyxFSPoint001
-
-        TaxonomyItems # TaxonomyItems.txt
-                      # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
-
-        Tags          # Tags.txt
-                      # nyxNxSet: "25bb489f-a25b-46af-938a-96cc42e2694c"
-
-        Wave          # Waves.txt
-                      # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
-
-        Asteroid      # Asteroid.txt
-                      # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
-
--------------------------------------------------------------------------
-Arrows provide network topology between NyxObjects, but are now no longer nyx objects themselves.
-
 -------------------------------------------------------------------------
 All Nyx Objects 
 
-    1. Need to have the two following attributes
+    1. Have the two following attributes
 
         - uuid                : String
         - nyxNxSet            : String
 
     2. The nyxNxSet need to be a valid setid.
+
+-------------------------------------------------------------------------
+Nyx Objects
+
+    NSNode1638    # NSNode1638.txt
+                  # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
+                        -> line
+                        -> url
+                        -> NyxFile
+                        -> NyxDirectory
+                        -> NyxFSPoint001
+
+    TaxonomyItems # TaxonomyItems.txt
+                  # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
+
+    Tags          # Tags.txt
+                  # nyxNxSet: "25bb489f-a25b-46af-938a-96cc42e2694c"
+
+    Wave          # Waves.txt
+                  # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+
+    Asteroid      # Asteroid.txt
+                  # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
+
+-------------------------------------------------------------------------
+Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.

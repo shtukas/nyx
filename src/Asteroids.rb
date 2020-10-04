@@ -604,7 +604,7 @@ class Asteroids
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
             puts "bank value: #{Bank::value(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
-            puts "x-stream-index: #{asteroid["x-stream-index"]}"
+            puts "x-stream-index: #{asteroid["x-stream-index"]}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime and (Time.new.to_i < unixtime) then

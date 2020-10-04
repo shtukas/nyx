@@ -20,6 +20,6 @@ Table was created once by hand.
 ArrowsDatabaseIO::arrows(): Array[Arrow]
 
 Arrow {
-    "sourceuuid" => row["_sourceuuid_"],
-    "targetuuid" => row["_targetuuid_"]
+    "sourceuuid" => String,
+    "targetuuid" => String
 }

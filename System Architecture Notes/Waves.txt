@@ -1,3 +1,4 @@
+Wave are the todo repeating items of Catalyst. They carry a description and a schedule.
 
 Waves
 {
@@ -7,18 +8,19 @@ Waves
     "description"  : String
     "schedule"     : Schedule
 }
-    Schedule
-    {
-        "uuid"         => SecureRandom.hex,
-        "@"            => "sticky"
-        "from-hour"    => fromHour
-    }
-    {
-        "uuid"         => SecureRandom.hex,
-        "@"            => type
-                            # every-n-hours
-                            # every-n-days
-                            # every-this-day-of-the-week
-                            # every-this-day-of-the-month
-        "repeat-value" => value
-    }
+
+Schedule
+{
+    "uuid"         => SecureRandom.hex,
+    "@"            => "sticky"
+    "from-hour"    => fromHour
+}
+{
+    "uuid"         => SecureRandom.hex,
+    "@"            => type
+                        # every-n-hours
+                        # every-n-days
+                        # every-this-day-of-the-week
+                        # every-this-day-of-the-month
+    "repeat-value" => value
+}
