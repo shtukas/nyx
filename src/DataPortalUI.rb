@@ -66,7 +66,7 @@ class DataPortalUI
                         mx.item("issue new taxonomy item", lambda {
                             coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
                             return if coordinates.size == ""
-                            Taxonomy::issueTaxonomyItemFromStringOrNothing(coordinates)
+                            Taxonomy::issueTaxonomyItemFromStringOrNull(coordinates)
                         })
 
                         status = mx.promptAndRunSandbox()
@@ -140,16 +140,6 @@ class DataPortalUI
             ms.item(
                 "Asteroids",
                 lambda { Asteroids::main() }
-            )
-
-            ms.item(
-                "Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder()",
-                lambda { 
-                    Asteroids::burnerDomainsInRecoveredDailyTimeInHoursOrder().each{|domain|
-                        puts "#{("%6.2f" % domain["membershipTime"])} hours : #{domain["recoveredDailyTimeInHours"]}"
-                    }
-                    LucilleCore::pressEnterToContinue()
-                }
             )
 
             ms.item(

@@ -205,21 +205,11 @@ class NSNode1638
     def self.opendatapoint(datapoint)
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
-            if LucilleCore::askQuestionAnswerAsBoolean("edit line ? : ", false) then
-                line = datapoint["line"]
-                line = Miscellaneous::editTextSynchronously(line).strip
-                return NSNode1638::issueLine(line)
-            end
             return nil
         end
         if datapoint["type"] == "url" then
             puts "url: #{datapoint["url"]}"
             system("open '#{datapoint["url"]}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("edit url ? : ", false) then
-                url = datapoint["url"]
-                url = Miscellaneous::editTextSynchronously(url).strip
-                return NSNode1638::issueUrl(url)
-            end
             return nil
         end
         if datapoint["type"] == "NyxFile" then

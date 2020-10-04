@@ -222,18 +222,30 @@ class Arrows
         $ArrowsInMemory099be9e4.getTargetUUIDsForSource(source)
     end
 
-    # Arrows::getTargetsForSource(source)
-    def self.getTargetsForSource(source)
-        $ArrowsInMemory099be9e4.getTargetsForSource(source)
-    end
-
     # Arrows::getSourceUUIDsForTarget(target)
     def self.getSourceUUIDsForTarget(target)
         $ArrowsInMemory099be9e4.getSourceUUIDsForTarget(target)
     end
 
+    # Arrows::getTargetsForSource(source)
+    def self.getTargetsForSource(source)
+        $ArrowsInMemory099be9e4.getTargetsForSource(source)
+    end
+
     # Arrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
         $ArrowsInMemory099be9e4.getSourcesForTarget(target)
+    end
+
+    # Arrows::getTargetForSourceOfGivenNyxType(source, setid)
+    def self.getTargetForSourceOfGivenNyxType(source, setid)
+        Arrows::getTargetsForSource(source)
+            .select{|object| object["nyxNxSet"] == setid }
+    end
+
+    # Arrows::getSourceForTargetOfGivenNyxType(target, setid)
+    def self.getSourceForTargetOfGivenNyxType(target, setid)
+        Arrows::getSourcesForTarget(target)
+            .select{|object| object["nyxNxSet"] == setid }
     end
 end

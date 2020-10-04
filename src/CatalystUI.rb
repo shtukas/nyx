@@ -175,11 +175,8 @@ class CatalystUI
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             if objects.empty? then
-                puts "No catalyst object found, moving to random asteroid"
+                puts "No catalyst object found..."
                 sleep 2
-                object = Asteroids::randomAsteroidStreamElementOrNull()
-                return if object.nil?
-                CatalystUI::standardDisplay([object])
                 next
             end
             CatalystUI::standardDisplay(objects)

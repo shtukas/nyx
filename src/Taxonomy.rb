@@ -29,8 +29,8 @@ class Taxonomy
         Taxonomy::issueTaxonomyItemFromElements(sequence)
     end
 
-    # Taxonomy::issueTaxonomyItemFromStringOrNothing(str)
-    def self.issueTaxonomyItemFromStringOrNothing(str)
+    # Taxonomy::issueTaxonomyItemFromStringOrNull(str)
+    def self.issueTaxonomyItemFromStringOrNull(str)
         return nil if !str.start_with?("root")
         item = Taxonomy::makeTaxonomyItemFromString(str)
         NyxObjects2::put(item)
@@ -39,7 +39,7 @@ class Taxonomy
 
     # Taxonomy::issueTaxonomyItemFromStringForTargetOrNull(str, target)
     def self.issueTaxonomyItemFromStringForTargetOrNull(str, target)
-        item = Taxonomy::issueTaxonomyItemFromStringOrNothing(str)
+        item = Taxonomy::issueTaxonomyItemFromStringOrNull(str)
         return if item.nil?
         Arrows::issueOrException(item, target)
     end

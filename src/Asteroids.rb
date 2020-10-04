@@ -7,31 +7,12 @@ class Asteroids
 
     # Asteroids::makeOrbitalInteractivelyOrNull()
     def self.makeOrbitalInteractivelyOrNull()
-
-        options = [
-            "inbox",
-            "burner",
-            "stream",
+        orbitals = [
+            "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
+            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
+            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
         ]
-
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", options)
-        return nil if option.nil?
-        if option == "inbox" then
-            return {
-                "type"                  => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-            }
-        end
-        if option == "burner" then
-            return {
-                "type"                  => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-            }
-        end
-        if option == "stream" then
-            return {
-                "type"                  => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-            }
-        end
-        nil
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals)
     end
 
     # Asteroids::issuePlainAsteroidInteractivelyOrNull()
@@ -41,10 +22,10 @@ class Asteroids
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
         asteroid = {
-            "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
-            "unixtime" => Time.new.to_f,
-            "orbital"  => orbital,
+            "uuid"        => SecureRandom.hex,
+            "nyxNxSet"    => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime"    => Time.new.to_f,
+            "orbital"     => orbital,
             "description" => description
         }
         Asteroids::commitToDisk(asteroid)
@@ -58,29 +39,26 @@ class Asteroids
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
         asteroid = {
-            "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
-            "unixtime" => Time.new.to_f,
-            "orbital"  => orbital
+            "uuid"          => SecureRandom.hex,
+            "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime"      => Time.new.to_f,
+            "orbital"       => orbital,
+            "datapointuuid" => datapoint["uuid"]
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
     # Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
     def self.issueAsteroidInboxFromDatapoint(datapoint)
-        orbital = {
-            "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        }
         asteroid = {
-            "uuid"     => SecureRandom.uuid,
-            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
-            "unixtime" => Time.new.to_f,
-            "orbital"  => orbital
+            "uuid"          => SecureRandom.uuid,
+            "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime"      => Time.new.to_f,
+            "orbital"       => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
+            "datapointuuid" => datapoint["uuid"]
         }
         Asteroids::commitToDisk(asteroid)
-        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
@@ -108,33 +86,22 @@ class Asteroids
         object
     end
 
-    # Asteroids::asteroidOrbitalTypeAsUserFriendlyString(type)
-    def self.asteroidOrbitalTypeAsUserFriendlyString(type)
-        return "📥" if type == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        return "🔥" if type == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "👩‍💻" if type == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-    end
-
-    # Asteroids::asteroidDescriptionUseTheForce(asteroid)
-    def self.asteroidDescriptionUseTheForce(asteroid)
-        return asteroid["description"] if asteroid["description"]
-        targets = Arrows::getTargetsForSource(asteroid)
-        if targets.empty? then
-           return "no target"
-        end
-        if targets.size == 1 then
-            return NyxObjectInterface::toString(targets.first)
-        end
-        "multiple targets (#{targets.size})"
+    # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
+    def self.asteroidOrbitalAsUserFriendlyString(orbital)
+        return "📥" if orbital == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        return "🔥" if orbital == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        return "👩‍💻" if orbital == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
     # Asteroids::asteroidDescription(asteroid)
     def self.asteroidDescription(asteroid)
-        str = KeyValueStore::getOrNull(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
-        return str if str
-        str = Asteroids::asteroidDescriptionUseTheForce(asteroid)
-        KeyValueStore::set(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}", str)
-        str
+        if asteroid["description"] and asteroid["datapointuuid"].nil? then
+            return asteroid["description"]
+        end
+        return "no target" if asteroid["datapointuuid"].nil?
+        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
+        return "no target" if datapoint.nil?
+        "[datapoint] #{NSNode1638::toString(datapoint)}"
     end
 
     # Asteroids::toString(asteroid)
@@ -142,7 +109,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         isRunning = Runner::isRunning?(uuid)
         p1 = "[asteroid]"
-        p2 = " #{Asteroids::asteroidOrbitalTypeAsUserFriendlyString(asteroid["orbital"]["type"])}"
+        p2 = " #{Asteroids::asteroidOrbitalAsUserFriendlyString(asteroid["orbital"])}"
         p3 = " #{Asteroids::asteroidDescription(asteroid)}"
         p4 =
             if isRunning then
@@ -151,7 +118,7 @@ class Asteroids
                 ""
             end
         p5 = (lambda {|asteroid|
-            return "" if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+            return "" if asteroid["orbital"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
             return "" if asteroid["x-stream-index"].nil?
             targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
             ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
@@ -201,29 +168,27 @@ class Asteroids
     def self.metric(asteroid)
         uuid = asteroid["uuid"]
 
-        orbital = asteroid["orbital"]
-
         return 1 if Asteroids::isRunning?(asteroid)
 
-        if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+        if asteroid["orbital"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
-        if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0
+        if asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return 0.6 + Asteroids::unixtimedrift(asteroid["unixtime"])
         end
 
-        if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+        if asteroid["orbital"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             if asteroid["x-stream-index"].nil? then
                 # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
                 return 0
             end
             targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
-            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]) < targetHours then
+            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
+            if ratio then
                 return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
-            end 
-            return 0
+            end
+            return 0.2 + 0.2*Math.exp(-(ratio-1))
         end
 
         puts asteroid
@@ -242,7 +207,7 @@ class Asteroids
         }
 
         uuid = asteroid["uuid"]
-        isImportant = asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        isImportant = asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         isRunning = Asteroids::isRunning?(asteroid)
 
         {
@@ -262,7 +227,7 @@ class Asteroids
 
         if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6347a941-2907-44fc-8eb3-1f85adb8436c", 3600*12) then
             Asteroids::asteroids()
-                .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
+                .select{|asteroid| asteroid["orbital"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
                 .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
                 .first(10)
                 .each_with_index{|asteroid, indx|
@@ -273,39 +238,11 @@ class Asteroids
 
         Asteroids::asteroids()
             .select{|asteroid| 
-                b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
+                b1 = (asteroid["orbital"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
                 b2 = asteroid["x-stream-index"]
                 b1 or b2
             }
             .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
-    end
-
-    # Asteroids::randomAsteroidStreamElementOrNull()
-    def self.randomAsteroidStreamElementOrNull()
-        asteroid = Asteroids::asteroids()
-                        .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
-                        .sample
-        return nil if asteroid.nil?
-        Asteroids::asteroidToCalalystObject(asteroid)
-    end
-
-    # -------------------------------------------------------------------
-    # Burner Domains
-
-    # Asteroids::burnerDomains()
-    def self.burnerDomains()
-        d0 = 
-            {
-                "uuid"           => Digest::SHA1.hexdigest("974e342c-d59c-418f-b7c5-2d226741e1d7:0"),
-                "membershipTime" => 0.00,
-            }
-        dx = (-2..7).map{|i|  
-            {
-                "uuid"           => Digest::SHA1.hexdigest("974e342c-d59c-418f-b7c5-2d226741e1d7:#{i}"),
-                "membershipTime" => (2**i).to_f,
-            }
-        }
-        ([d0] + dx)
     end
 
     # -------------------------------------------------------------------
@@ -350,87 +287,112 @@ class Asteroids
     # Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
     def self.stopAsteroidIfRunningAndDestroy(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
-        Asteroids::destroyProtocolSequence(asteroid)
+        NyxObjects2::destroy(asteroid)
     end
 
     # Asteroids::openTargetOrTargets(asteroid)
     def self.openTargetOrTargets(asteroid)
-        targets = Arrows::getTargetsForSource(asteroid)
-        if targets.size == 0 then
-            return
-        end
-        if targets.size == 1 then
-            target = targets.first
-            if NyxObjectInterface::isAsteroid(target) then
-                Asteroids::landing(target)
-                return
-            end
-            if NyxObjectInterface::isDataPoint(target) then
-                NSNode1638::opendatapoint(target)
-                return
-            end
-        end
-       if targets.size > 1 then
-            Asteroids::landing(asteroid)
-        end
+        return if asteroid["datapointuuid"].nil?
+        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
+        return if datapoint.nil?
+        NSNode1638::opendatapoint(datapoint)
     end
 
     # Asteroids::transmuteAsteroidToNode(asteroid)
     def self.transmuteAsteroidToNode(asteroid)
+
+        puts "Transmuting asteroid to "
+
         Asteroids::stopAsteroidIfRunning(asteroid)
-        puts "Not implemented actually, mark: a4c055cd-f527-4f6f-bfdc-a6182fd70ca2"
-        LucilleCore::pressEnterToContinue()
-        return
-        description = LucilleCore::askQuestionAnswerAsString("taxonomyItem: ")
-        return if description == ""
-        # node = NSNode1638::issueNaviga tion(description)
-        Arrows::getTargetsForSource(asteroid)
-            .each{|target| 
 
-                # There is a tiny thing we are going to do here:
-                # If the target is a data point that is a NybHub and if that NyxDirectory is pointing at "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items"
-                # Then we move it to a Catalyst-Elements location
+        if asteroid["datapointuuid"].nil? then
+            NyxObjects2::destroy(asteroid)
+            return
+        end
 
-                if NyxObjectInterface::isDataPoint(target) then
-                    if target["type"] == "NyxDirectory" then
-                        location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
-                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                            # Ne need to move that thing somewhere else.
-                            newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
-                            if !File.exists?(newEnvelopFolderPath) then
-                                FileUtils.mkpath(newEnvelopFolderPath)
-                            end
-                            LucilleCore::copyFileSystemLocation(location, newEnvelopFolderPath)
-                            LucilleCore::removeFileSystemLocation(File.dirname(location))
-                            GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
-                        end
-                    end
-                    if target["type"] == "NyxFSPoint001" then
-                        location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(target)
-                        if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                            # Ne need to move that thing somewhere else.
-                            newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
-                            if !File.exists?(newEnvelopFolderPath) then
-                                FileUtils.mkpath(newEnvelopFolderPath)
-                            end
-                            LucilleCore::copyContents(File.dirname(location), newEnvelopFolderPath)
-                            LucilleCore::removeFileSystemLocation(File.dirname(location))
-                            GalaxyFinder::registerFilenameAtLocation(target["name"], "#{newEnvelopFolderPath}/#{target["name"]}")
-                        end
-                    end
-                end
+        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
 
-                Arrows::issueOrException(node, target) 
+        if datapoint.nil? then
+            NyxObjects2::destroy(asteroid)
+            return
+        end
+
+        description = LucilleCore::askQuestionAnswerAsString("datapoint description (empty to skip): ")
+        if description != "" then
+            datapoint["description"] = description
+            NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+        end
+
+        if datapoint["type"] == "NyxDirectory" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
+                # Ne need to move that thing somewhere else.
+                newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
+                FileUtils.mkpath(newEnvelopFolderPath)
+                LucilleCore::copyFileSystemLocation(location, newEnvelopFolderPath)
+                LucilleCore::removeFileSystemLocation(File.dirname(location))
+                GalaxyFinder::registerFilenameAtLocation(datapoint["name"], "#{newEnvelopFolderPath}/#{datapoint["name"]}")
+            end
+        end
+
+        if datapoint["type"] == "NyxFSPoint001" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
+                # Ne need to move that thing somewhere else.
+                newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
+                FileUtils.mkpath(newEnvelopFolderPath)
+                LucilleCore::copyContents(File.dirname(location), newEnvelopFolderPath)
+                LucilleCore::removeFileSystemLocation(File.dirname(location))
+                GalaxyFinder::registerFilenameAtLocation(datapoint["name"], "#{newEnvelopFolderPath}/#{datapoint["name"]}")
+            end
+        end
+
+        tags = (lambda {
+            ts = []
+            loop {
+                payload = LucilleCore::askQuestionAnswerAsString("tag (empty to end process): ")
+                break if payload == ""
+                ts << Tags::issue(payload)
             }
-        NyxObjects2::destroy(asteroid) # We destroy the asteroid itself and not doing Asteroids::destroyProtocolSequence(asteroid) because we are keeping the children by default.
-        NSNode1638::landing(node)
+            ts
+        }).call()
+
+        vectors = (lambda {
+            xs = []
+            loop {
+                x = Taxonomy::selectOneExistingTaxonomyItemOrNull()
+                break if x.nil?
+                xs << x
+            }
+            if xs.empty? then
+                str = LucilleCore::askQuestionAnswerAsString("vector (empty for null): ")
+                item = Taxonomy::issueTaxonomyItemFromStringOrNull(str)
+                if item then
+                    xs << item
+                end
+            end
+            xs
+        }).call()
+
+        tags.each{|tag| 
+            puts "issue tag: #{tag}"
+            Arrows::issueOrException(tag, datapoint) 
+        }
+
+        vectors.each{|vector| 
+            puts "issue vecor: #{vector}"
+            Arrows::issueOrException(vector, datapoint) 
+        }
+
+        NyxObjects2::destroy(asteroid)
+        NSNode1638::landing(datapoint)
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
     def self.diveAsteroidOrbitalType(orbitalType)
         loop {
             system("clear")
-            asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"]["type"] == orbitalType }
+            asteroids = Asteroids::asteroids().select{|asteroid| asteroid["orbital"] == orbitalType }
             asteroid = LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
             break if asteroid.nil?
             Asteroids::landing(asteroid)
@@ -443,7 +405,7 @@ class Asteroids
         openContent = lambda {|asteroid|
             targets = Arrows::getTargetsForSource(asteroid)
             if targets.size == 0 then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
                 return
             end
             if targets.size == 1 then
@@ -491,12 +453,12 @@ class Asteroids
                 return
             end
             if mode == "to burner" then
-                asteroid["orbital"]["type"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+                asteroid["orbital"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
                 Asteroids::commitToDisk(asteroid)
                 return
             end
             if mode == "to stream" then
-                asteroid["orbital"]["type"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
                 Asteroids::commitToDisk(asteroid)
                 return
             end
@@ -509,7 +471,7 @@ class Asteroids
                 return
             end
             if mode == "destroy" then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
                 return
             end
         }
@@ -546,7 +508,7 @@ class Asteroids
                 return
             end
             if mode == "to stream" then
-                asteroid["orbital"]["type"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
                 Asteroids::commitToDisk(asteroid)
                 return
             end
@@ -559,7 +521,7 @@ class Asteroids
                 return
             end
             if mode == "destroy" then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
                 return
             end
         }
@@ -569,26 +531,26 @@ class Asteroids
         # ----------------------------------------
         # Not Running
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             inboxProcessor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             burnerProcessor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+        if !Runner::isRunning?(uuid) and asteroid["orbital"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             openContent.call(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
                 Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
             end
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
@@ -597,27 +559,27 @@ class Asteroids
         # ----------------------------------------
         # Running
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             # This case should not happen because we are not starting inbox items.
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
             end
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
             end
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+        if Runner::isRunning?(uuid) and asteroid["orbital"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::destroyProtocolSequence(asteroid)
+                NyxObjects2::destroy(asteroid)
             end
             return
         end
@@ -777,29 +739,6 @@ class Asteroids
                 }
             end
         }
-    end
-
-    # Asteroids::destroyProtocolSequence(asteroid)
-    def self.destroyProtocolSequence(asteroid)
-        targets = Arrows::getTargetsForSource(asteroid)
-        if targets.size > 0 then
-            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
-            targets.each{|target|
-                if Arrows::getSourcesForTarget(target).size == 1 then
-                    NyxObjectInterface::destroy(target) # The only source is the asteroid itself.
-                else
-                    puts "A child of this asteroid has more than one parent:"
-                    puts "   -> child: '#{NyxObjectInterface::toString(target)}'"
-                    Arrows::getSourcesForTarget(target).each{|source|
-                        puts "   -> parent: '#{NyxObjectInterface::toString(source)}'"
-                    }
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{NyxObjectInterface::toString(target)}' ? ") then
-                        NyxObjectInterface::destroy(target)
-                    end
-                end
-            }
-        end
-        NyxObjects2::destroy(asteroid)
     end
 
     # ------------------------------------------------------------------

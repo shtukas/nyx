@@ -1,15 +1,17 @@
 
 Asteroid
 {
-    "uuid"     : String
-    "nyxNxSet" : "b66318f4-2662-4621-a991-a6b966fb4398"
-    "unixtime" : Float # Unixtime with decimals
-    "orbital"  : Orbital
-    "description" : nil or String
+    "uuid"          : String
+    "nyxNxSet"      : "b66318f4-2662-4621-a991-a6b966fb4398"
+    "unixtime"      : Float # Unixtime with decimals
+    "orbital"       : Orbital
+    "description"   : nil or String
+    "datapointuuid" : nil or String # [1]
 }
 
-    Orbital
 
+
+    Orbital:
         {
             "type"                  : "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
@@ -19,4 +21,3 @@ Asteroid
         {
             "type"                  : "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
         }
-
