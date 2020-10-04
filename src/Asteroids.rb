@@ -135,25 +135,9 @@ class Asteroids
         0.00000000001*(referenceTime-unixtime).to_f
     end
 
-    # Asteroids::runTimeIfAny(asteroid)
-    def self.runTimeIfAny(asteroid)
-        uuid = asteroid["uuid"]
-        Runner::runTimeInSecondsOrNull(uuid) || 0
-    end
-
-    # Asteroids::bankValueLive(asteroid)
-    def self.bankValueLive(asteroid)
-        Bank::value(asteroid["uuid"]) + Asteroids::runTimeIfAny(asteroid)
-    end
-
     # Asteroids::isRunning?(asteroid)
     def self.isRunning?(asteroid)
         Runner::isRunning?(asteroid["uuid"])
-    end
-
-    # Asteroids::onGoingUnilCompletionDailyExpectationInHours()
-    def self.onGoingUnilCompletionDailyExpectationInHours()
-        0.5
     end
 
     # Asteroids::isRunningForLong?(asteroid)
@@ -282,12 +266,6 @@ class Asteroids
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         Asteroids::asteroidReceivesTime(asteroid, timespan)
-    end
-
-    # Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
-    def self.stopAsteroidIfRunningAndDestroy(asteroid)
-        Asteroids::stopAsteroidIfRunning(asteroid)
-        NyxObjects2::destroy(asteroid)
     end
 
     # Asteroids::openTargetOrTargets(asteroid)
@@ -666,7 +644,8 @@ class Asteroids
                 "destroy".yellow,
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
-                        Asteroids::stopAsteroidIfRunningAndDestroy(asteroid)
+                        Asteroids::stopAsteroidIfRunning(asteroid)
+                        NyxObjectInterface::destroy(asteroid)
                     end
                 }
             )
