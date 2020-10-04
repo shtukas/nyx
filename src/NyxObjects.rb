@@ -9,6 +9,7 @@ class NyxObjectsCore
             "0f555c97-3843-4dfe-80c8-714d837eba69", # NSNode1638
             "e54eefdf-53ea-47b0-a70c-c93d958bbe1c", # TaxonomyItems
             "25bb489f-a25b-46af-938a-96cc42e2694c", # Tags
+            "06071daa-ec51-4c19-a4b9-62f39bb2ce4f", # Cubes
         ]
     end
 

@@ -10,7 +10,7 @@ class Asteroids
         orbitals = [
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
-            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
+            "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
         ]
         LucilleCore::selectEntityFromListOfEntitiesOrNull("orbital", orbitals)
     end
