@@ -11,7 +11,7 @@ Asteroid
                         "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
                         "daily-time-commitment-e1180643-fc7e-42bb-a2"
     "description"   : nil or String
-    "datapointuuid" : nil or String
+    "targetuuid"    : nil or String
 
     "special-5e28447a-daily-time-commitment-in-hours": Float # if orbital == "daily-time-commitment-e1180643-fc7e-42bb-a2"
 }

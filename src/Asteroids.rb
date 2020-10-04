@@ -54,7 +54,7 @@ class Asteroids
             "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"      => Time.new.to_f,
             "orbital"       => orbital,
-            "datapointuuid" => datapoint["uuid"]
+            "targetuuid" => datapoint["uuid"]
         }
         Asteroids::commitToDisk(asteroid)
         asteroid
@@ -67,7 +67,7 @@ class Asteroids
             "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"      => Time.new.to_f,
             "orbital"       => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
-            "datapointuuid" => datapoint["uuid"]
+            "targetuuid" => datapoint["uuid"]
         }
         Asteroids::commitToDisk(asteroid)
         asteroid
@@ -81,8 +81,8 @@ class Asteroids
             "uuid"          => SecureRandom.uuid,
             "nyxNxSet"      => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"      => Time.new.to_f,
-            "orbital"       => "daily-time-commitment-e1180643-fc7e-42bb-a2",
-            "datapointuuid" => cube["uuid"]
+            "orbital"    => "daily-time-commitment-e1180643-fc7e-42bb-a2",
+            "targetuuid" => cube["uuid"]
         }
         Asteroids::commitToDisk(asteroid)
         asteroid
@@ -106,8 +106,8 @@ class Asteroids
 
     # Asteroids::getAsteroidTargetOrNull(asteroid)
     def self.getAsteroidTargetOrNull(asteroid)
-        return nil if asteroid["datapointuuid"].nil?
-        NyxObjects2::getOrNull(asteroid["datapointuuid"])
+        return nil if asteroid["targetuuid"].nil?
+        NyxObjects2::getOrNull(asteroid["targetuuid"])
     end
 
     # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
@@ -319,12 +319,12 @@ class Asteroids
 
         Asteroids::stopAsteroidIfRunning(asteroid)
 
-        if asteroid["datapointuuid"].nil? then
+        if asteroid["targetuuid"].nil? then
             NyxObjects2::destroy(asteroid)
             return
         end
 
-        datapoint = NyxObjects2::getOrNull(asteroid["datapointuuid"])
+        datapoint = NyxObjects2::getOrNull(asteroid["targetuuid"])
 
         if datapoint.nil? then
             NyxObjects2::destroy(asteroid)
