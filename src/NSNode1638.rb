@@ -365,8 +365,8 @@ class NSNode1638
         }
     end
 
-    # NSNode1638::destroyOrNothingReturnBoolean(datapoint)
-    def self.destroyOrNothingReturnBoolean(datapoint)
+    # NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
+    def self.datapointTerminationProtocolReturnBoolean(datapoint)
 
         return false if !Arrows::getTargetsForSource(datapoint).empty?
 

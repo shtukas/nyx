@@ -122,7 +122,7 @@ class Asteroids
     def self.asteroidDescription(asteroid)
         target = Asteroids::getAsteroidTargetOrNull(asteroid)
         if asteroid["description"] and target.nil? then
-            return asteroid["description"]
+            return "line: #{asteroid["description"]}"
         end
         return "no target" if target.nil?
         NyxObjectInterface::toString(target)
@@ -702,7 +702,7 @@ class Asteroids
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
                         Asteroids::stopAsteroidIfRunning(asteroid)
-                        NyxObjects2::destroy(asteroid)
+                        Asteroids::asteroidTerminationProtocol(asteroid)
                     end
                 }
             )
@@ -775,6 +775,17 @@ class Asteroids
                 }
             end
         }
+    end
+
+    # Asteroids::asteroidTerminationProtocol(asteroid)
+    def self.asteroidTerminationProtocol(asteroid)
+        target = Asteroids::getAsteroidTargetOrNull(asteroid)
+        if target and NyxObjectInterface::isDataPoint(target) then
+            datapoint = target
+            status = NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
+            return if !status
+        end
+        NyxObjects2::destroy(asteroid)
     end
 
     # ------------------------------------------------------------------

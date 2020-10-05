@@ -342,8 +342,9 @@ class CubeTransformers
             itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
             FileUtils.mkdir(itemFolderpath)
             system("open '#{itemFolderpath}'")
-            puts "You need to move the file manually"
+            puts "You need to move the files manually"
             LucilleCore::pressEnterToContinue()
+            FileUtils.rm(nyxfilelocation)
         end
 
         NyxObjects2::destroy(datapoint)

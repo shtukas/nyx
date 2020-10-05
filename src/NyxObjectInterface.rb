@@ -90,11 +90,11 @@ class NyxObjectInterface
     # NyxObjectInterface::destroy(object)
     def self.destroy(object)
         if NyxObjectInterface::isAsteroid(object) then
-            NyxObjects2::destroy(object)
+            Asteroids::asteroidTerminationProtocol(object)
             return
         end
         if NyxObjectInterface::isDataPoint(object) then
-            NSNode1638::destroyOrNothingReturnBoolean(object)
+            NSNode1638::datapointTerminationProtocolReturnBoolean(object)
             return
         end
         puts object
