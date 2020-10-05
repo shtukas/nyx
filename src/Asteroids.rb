@@ -271,11 +271,19 @@ class Asteroids
     # Asteroids::catalystObjects()
     def self.catalystObjects()
 
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6347a941-2907-44fc-8eb3-1f85adb8436c", 3600*12) then
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6347a941-2907-44fc-8eb3-1f85adb8437c", 86400) then
+
+            Asteroids::asteroids()
+                .select{|asteroid| asteroid["x-stream-index"] }
+                .each{|asteroid|
+                    asteroid.delete("x-stream-index")
+                    NyxObjects2::put(asteroid)
+                }
+
             Asteroids::asteroids()
                 .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
                 .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
-                .first(10)
+                .first(100)
                 .each_with_index{|asteroid, indx|
                     asteroid["x-stream-index"] = indx
                     NyxObjects2::put(asteroid)
@@ -446,6 +454,12 @@ class Asteroids
 
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
+
+        if Asteroids::getAsteroidTargetOrNull(asteroid).nil? then
+            Asteroids::asteroidTerminationProtocol(asteroid)
+            return
+        end
+
         inboxProcessor = lambda {|asteroid|
             Asteroids::accessTarget(asteroid)
 
@@ -611,7 +625,7 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            openContent.call(asteroid)
+            Asteroids::accessTarget(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::asteroidTerminationProtocol(asteroid)
@@ -682,6 +696,16 @@ class Asteroids
 
             puts ""
 
+            target = Asteroids::getAsteroidTargetOrNull(asteroid)
+            if target then
+                menuitems.item(
+                    "target: #{NyxObjectInterface::toString(target)}",
+                    lambda { NyxObjectInterface::landing(target) }
+                )
+            end
+
+            puts ""
+
             menuitems.item(
                 "update asteroid description".yellow,
                 lambda { 
@@ -731,6 +755,26 @@ class Asteroids
                 }
             )
 
+            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
+                menuitems.item("send asteroid description to cube system".yellow, lambda {
+                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
+                    if status then
+                        Asteroids::asteroidTerminationProtocol(asteroid)
+                    end
+                })
+            end
+
+            target = Asteroids::getAsteroidTargetOrNull(asteroid)
+            if target and NyxObjectInterface::isDataPoint(target) then
+                datapoint = target
+                menuitems.item("send datapoint to cube system".yellow, lambda {
+                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                    if status then
+                        Asteroids::asteroidTerminationProtocol(asteroid)
+                    end
+                })
+            end
+
             menuitems.item(
                 "destroy".yellow,
                 lambda {
@@ -740,17 +784,6 @@ class Asteroids
                     end
                 }
             )
-
-            Miscellaneous::horizontalRule()
-
-            targets = Arrows::getTargetsForSource(asteroid)
-            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
-            targets.each{|object|
-                    menuitems.item(
-                        NyxObjectInterface::toString(object),
-                        lambda { NyxObjectInterface::landing(object) }
-                    )
-                }
 
             puts ""
 
