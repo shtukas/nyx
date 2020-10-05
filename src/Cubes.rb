@@ -221,14 +221,19 @@ class CubeFolderManager
         FileUtils.mv(location1, location2)
     end
 
-    # CubeFolderManager::reordinalItem(cube, item)
-    def self.reordinalItem(cube, item)
+    # CubeFolderManager::reordinalItemWithSpecifiedTargetOrdinal(cube, item, newordinal)
+    def self.reordinalItemWithSpecifiedTargetOrdinal(cube, item, newordinal)
         location1 = item["location"]
-        newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (2 digits): ")
         suffix  = (item["location"][-4, 4] == ".txt") ? ".txt" : ""
         filename2 = "#{newordinal} #{item["name"]}#{suffix}"
         location2 = "#{cube["location"]}/#{filename2}"
         FileUtils.mv(location1, location2)
+    end
+
+    # CubeFolderManager::reordinalItemInteractively(cube, item)
+    def self.reordinalItemInteractively(cube, item)
+        newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (2 digits): ")
+        CubeFolderManager::reordinalItemWithSpecifiedTargetOrdinal(cube, item, newordinal)
     end
 
     # CubeFolderManager::itemLanding(cube, item)
@@ -248,12 +253,95 @@ class CubeFolderManager
                 CubeFolderManager::renameItem(cube, item)
             })
             ms.item("re-ordinal".yellow, lambda { 
-                CubeFolderManager::reordinalItem(cube, item)
+                CubeFolderManager::reordinalItemInteractively(cube, item)
             })
 
             puts ""
             status = ms.promptAndRunSandbox()
             break if !status
         }
+    end
+
+    # CubeFolderManager::ensureSpaceAtOrdinal(cube, ordinal)
+    def self.ensureSpaceAtOrdinal(cube, ordinal)
+        items = CubeFolderManager::items(cube)
+        itemsAtOrdinal = items.select{|item| item["ordinal"] == ordinal }
+        return if itemsAtOrdinal.empty?
+        items
+            .select{|item| item["ordinal"] >= ordinal }
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+            .reverse
+            .each{|item|
+                newordinal = CubeTransformers::increase2DigitOrdinalBy1(item["ordinal"])
+                CubeFolderManager::reordinalItemWithSpecifiedTargetOrdinal(cube, item, newordinal)
+            }
+    end
+end
+
+class CubeTransformers
+
+    # CubeTransformers::increase2DigitOrdinalBy1(ordinal)
+    def self.increase2DigitOrdinalBy1(ordinal)
+        (ordinal.to_i + 1).to_s.rjust(2, "0")
+    end
+
+    # CubeTransformers::sendDatapointToCubeSystem(datapoint)
+    def self.sendDatapointToCubeSystem(datapoint)
+
+        # What is happening here:
+        #    1. We select a Cube
+        #    2. We select a position for it inside that Cube folder
+        #    3. We make some space for it inside that Cube
+        #    4. We Create the file/folder
+        #    5. We delete the datapoint
+
+        puts "-> select a cube:"
+        cube = Cubes::selectCubeOrNull()
+        return if cube.nil?
+        puts JSON.pretty_generate(cube)
+
+        puts "-> select target position:"
+        item = CubeFolderManager::selectItemOrNull(cube)
+        puts JSON.pretty_generate(item)
+
+        targetOrdinal = item["ordinal"]
+        CubeFolderManager::ensureSpaceAtOrdinal(cube, targetOrdinal)
+
+        if datapoint["type"] == "line" then
+            filename = "#{targetOrdinal} LINE.txt"
+            filepath = "#{cube["location"]}/#{filename}"
+            File.open(filename, "w"){|f| f.puts(datapoint["line"]) }
+        end
+        if datapoint["type"] == "url" then
+            filename = "#{targetOrdinal} URL.txt"
+            filepath = "#{cube["location"]}/#{filename}"
+            File.open(filename, "w"){|f| f.puts(datapoint["url"]) }
+        end
+        if datapoint["type"] == "NyxFile" then
+            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            nyxfile_extension_withDot = File.extname(nyxfilelocation)
+            itemFilename = "#{targetOrdinal} FormerNyxFile-#{datapoint["uuid"]}#{nyxfile_extension_withDot}"
+            itemFilepath = "#{cube["location"]}/#{itemFilename}"
+            FileUtils.mv(nyxfilelocation, itemFilepath)
+        end
+        if datapoint["type"] == "NyxDirectory" then
+            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            itemFoldername = "#{targetOrdinal} FormerNyxDirectory-#{datapoint["uuid"]}"
+            itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
+            FileUtils.mv(nyxfilelocation, itemFolderpath)
+        end
+        if datapoint["type"] == "NyxFSPoint001" then
+            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            system("open '#{File.dirname(nyxfilelocation)}'")
+            itemFoldername = "#{targetOrdinal} FormerNyxFSPoint001-#{datapoint["uuid"]}"
+            itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
+            FileUtils.mkdir(itemFolderpath)
+            system("open '#{itemFolderpath}'")
+            puts "You need to move the file manually"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        NyxObjects2::destroy(datapoint)
+
     end
 end

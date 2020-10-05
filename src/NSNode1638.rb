@@ -329,10 +329,8 @@ class NSNode1638
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(newpoint)
             })
 
-            mx.item("destroy".yellow, lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
-                    NyxObjects2::destroy(datapoint)
-                end
+            mx.item("send datapoint to cube system".yellow, lambda {
+                CubeTransformers::sendDatapointToCubeSystem(datapoint)
             })
 
             mx.item("set taxonomy item".yellow, lambda {
@@ -352,6 +350,12 @@ class NSNode1638
                 return if payload == ""
                 tag = Tags::issue(payload)
                 Arrows::issueOrException(tag, datapoint)
+            })
+
+            mx.item("destroy".yellow, lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
+                    NyxObjects2::destroy(datapoint)
+                end
             })
 
             puts ""

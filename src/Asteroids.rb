@@ -425,108 +425,112 @@ class Asteroids
     def self.naturalNextOperation(asteroid)
         inboxProcessor = lambda {|asteroid|
             Asteroids::accessTarget(asteroid)
-            modes = [
-                "landing",
-                "hide for one hour",
-                "hide until tomorrow",
-                "hide for n days",
-                "to burner",
-                "to stream",
-                "re orbital",
-                "transmute to node",
-                "destroy"
-            ]
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-            return if mode.nil?
-            if mode == "landing" then
+
+            mx = LCoreMenuItemsNX1.new()
+
+            mx.item("landing".yellow, lambda {
                 Asteroids::landing(asteroid)
-                return
-            end
-            if mode == "hide for one hour" then
+            })
+
+            mx.item("hide for one hour".yellow, lambda {
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-                return
-            end
-            if mode == "hide until tomorrow" then
+            })
+
+            mx.item("hide until tomorrow".yellow, lambda {
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
-                return
-            end
-            if mode == "hide for n days" then
+            })
+
+            mx.item("hide for n days".yellow, lambda {
                 timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-                return
-            end
-            if mode == "to burner" then
+            })
+
+            mx.item("to burner".yellow, lambda {
                 asteroid["orbital"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
                 Asteroids::commitToDisk(asteroid)
-                return
-            end
-            if mode == "to stream" then
+            })
+
+            mx.item("to stream".yellow, lambda {
                 asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
                 Asteroids::commitToDisk(asteroid)
-                return
-            end
-            if mode == "re orbital" then
+            })
+
+            mx.item("re orbital".yellow, lambda {
                 Asteroids::reOrbitalOrNothing(asteroid)
-                return
-            end
-            if mode == "transmute to node" then
+            })
+
+            mx.item("transmute to node".yellow, lambda {
                 Asteroids::transmuteAsteroidToNode(asteroid)
-                return
-            end
-            if mode == "destroy" then
+            })
+
+            target = Asteroids::getAsteroidTargetOrNull(asteroid)
+            if target and NyxObjectInterface::isDataPoint(target) then
+                datapoint = target
+                mx.item("send datapoint to cube system".yellow, lambda {
+                    CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                })
                 NyxObjects2::destroy(asteroid)
-                return
             end
+
+            mx.item("destroy".yellow, lambda {
+                NyxObjects2::destroy(asteroid)
+            })
+
+            status = mx.promptAndRunSandbox()
+            #break if !status
+
         }
 
         burnerProcessor = lambda {|asteroid|
             Asteroids::accessTarget(asteroid)
-            modes = [
-                "landing",
-                "hide for one hour",
-                "hide until tomorrow",
-                "hide for n days",
-                "to stream",
-                "re orbital",
-                "transmute to node",
-                "destroy"
-            ]
-            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-            return if mode.nil?
-            if mode == "landing" then
+
+            mx = LCoreMenuItemsNX1.new()
+
+            mx.item("landing".yellow, lambda {
                 Asteroids::landing(asteroid)
-                return
-            end
-            if mode == "hide for one hour" then
+            })
+
+            mx.item("hide for one hour".yellow, lambda {
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-                return
-            end
-            if mode == "hide until tomorrow" then
+            })
+
+            mx.item("hide until tomorrow".yellow, lambda {
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
-                return
-            end
-            if mode == "hide for n days" then
+            })
+
+            mx.item("hide for n days".yellow, lambda {
                 timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-                return
-            end
-            if mode == "to stream" then
+            })
+
+            mx.item("to stream".yellow, lambda {
                 asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
                 Asteroids::commitToDisk(asteroid)
-                return
-            end
-            if mode == "re orbital" then
+            })
+
+            mx.item("re orbital".yellow, lambda {
                 Asteroids::reOrbitalOrNothing(asteroid)
-                return
-            end
-            if mode == "transmute to node" then
+            })
+
+            mx.item("transmute to node".yellow, lambda {
                 Asteroids::transmuteAsteroidToNode(asteroid)
-                return
-            end
-            if mode == "destroy" then
+            })
+
+            target = Asteroids::getAsteroidTargetOrNull(asteroid)
+            if target and NyxObjectInterface::isDataPoint(target) then
+                datapoint = target
+                mx.item("send datapoint to cube system".yellow, lambda {
+                    CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                })
                 NyxObjects2::destroy(asteroid)
-                return
             end
+
+            mx.item("destroy".yellow, lambda {
+                NyxObjects2::destroy(asteroid)
+            })
+
+            status = mx.promptAndRunSandbox()
+            #break if !status
         }
 
         uuid = asteroid["uuid"]
