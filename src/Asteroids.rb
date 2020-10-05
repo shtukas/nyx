@@ -463,13 +463,24 @@ class Asteroids
                 Asteroids::transmuteAsteroidToNode(asteroid)
             })
 
+            if asteroid["description"] then
+                mx.item("send asteroid description to cube system".yellow, lambda {
+                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
+                    if status then
+                        NyxObjects2::destroy(asteroid)
+                    end
+                })
+            end
+
             target = Asteroids::getAsteroidTargetOrNull(asteroid)
             if target and NyxObjectInterface::isDataPoint(target) then
                 datapoint = target
                 mx.item("send datapoint to cube system".yellow, lambda {
-                    CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                    if status then
+                        NyxObjects2::destroy(asteroid)
+                    end
                 })
-                NyxObjects2::destroy(asteroid)
             end
 
             mx.item("destroy".yellow, lambda {
@@ -516,13 +527,24 @@ class Asteroids
                 Asteroids::transmuteAsteroidToNode(asteroid)
             })
 
+            if asteroid["description"] then
+                mx.item("send asteroid description to cube system".yellow, lambda {
+                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
+                    if status then
+                        NyxObjects2::destroy(asteroid)
+                    end
+                })
+            end
+
             target = Asteroids::getAsteroidTargetOrNull(asteroid)
             if target and NyxObjectInterface::isDataPoint(target) then
                 datapoint = target
                 mx.item("send datapoint to cube system".yellow, lambda {
-                    CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
+                    if status then
+                        NyxObjects2::destroy(asteroid)
+                    end
                 })
-                NyxObjects2::destroy(asteroid)
             end
 
             mx.item("destroy".yellow, lambda {

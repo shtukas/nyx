@@ -300,22 +300,27 @@ class CubeTransformers
         return if cube.nil?
         puts JSON.pretty_generate(cube)
 
-        puts "-> select target position:"
+        puts "-> select target position (null for next):"
         item = CubeFolderManager::selectItemOrNull(cube)
-        puts JSON.pretty_generate(item)
+        if item then
+            puts JSON.pretty_generate(item)
+            targetOrdinal = item["ordinal"]
+        else
+            maxOrdinal = (["00"] + CubeFolderManager::items(cube).map{|item| item["ordinal"] }).compact.max
+            targetOrdinal = CubeTransformers::increase2DigitOrdinalBy1(maxOrdinal)
+        end
 
-        targetOrdinal = item["ordinal"]
         CubeFolderManager::ensureSpaceAtOrdinal(cube, targetOrdinal)
 
         if datapoint["type"] == "line" then
-            filename = "#{targetOrdinal} LINE.txt"
+            filename = "#{targetOrdinal} LINE-#{datapoint["uuid"]}.txt"
             filepath = "#{cube["location"]}/#{filename}"
-            File.open(filename, "w"){|f| f.puts(datapoint["line"]) }
+            File.open(filepath, "w"){|f| f.puts(datapoint["line"]) }
         end
         if datapoint["type"] == "url" then
-            filename = "#{targetOrdinal} URL.txt"
+            filename = "#{targetOrdinal} URL-#{datapoint["uuid"]}.txt"
             filepath = "#{cube["location"]}/#{filename}"
-            File.open(filename, "w"){|f| f.puts(datapoint["url"]) }
+            File.open(filepath, "w"){|f| f.puts(datapoint["url"]) }
         end
         if datapoint["type"] == "NyxFile" then
             nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
@@ -342,6 +347,39 @@ class CubeTransformers
         end
 
         NyxObjects2::destroy(datapoint)
+    end
 
+    # CubeTransformers::sendLineToCubeSystem(line) # Boolean
+    def self.sendLineToCubeSystem(line)
+
+        # What is happening here:
+        #    1. We select a Cube
+        #    2. We select a position for it inside that Cube folder
+        #    3. We make some space for it inside that Cube
+        #    4. We Create the file/folder
+        #    5. We delete the datapoint
+
+        puts "-> select a cube:"
+        cube = Cubes::selectCubeOrNull()
+        return false if cube.nil?
+        puts JSON.pretty_generate(cube)
+
+        puts "-> select target position (null for next):"
+        item = CubeFolderManager::selectItemOrNull(cube)
+        if item then
+            puts JSON.pretty_generate(item)
+            targetOrdinal = item["ordinal"]
+        else
+            maxOrdinal = (["00"] + CubeFolderManager::items(cube).map{|item| item["ordinal"] }).compact.max
+            targetOrdinal = CubeTransformers::increase2DigitOrdinalBy1(maxOrdinal)
+        end
+
+        CubeFolderManager::ensureSpaceAtOrdinal(cube, targetOrdinal)
+
+        filename = "#{targetOrdinal} LINE-#{SecureRandom.hex}.txt"
+        filepath = "#{cube["location"]}/#{filename}"
+        File.open(filepath, "w"){|f| f.puts(line) }
+
+        true
     end
 end
