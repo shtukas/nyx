@@ -39,7 +39,7 @@ class Asteroids
             asteroid["special-5e28447a-daily-time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("commitment in hours: ").to_f
         end
 
-        Asteroids::commitToDisk(asteroid)
+        NyxObjects2::put(asteroid)
         asteroid
     end
 
@@ -56,7 +56,7 @@ class Asteroids
             "orbital"       => orbital,
             "targetuuid" => datapoint["uuid"]
         }
-        Asteroids::commitToDisk(asteroid)
+        NyxObjects2::put(asteroid)
         asteroid
     end
 
@@ -69,7 +69,7 @@ class Asteroids
             "orbital"       => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "targetuuid" => datapoint["uuid"]
         }
-        Asteroids::commitToDisk(asteroid)
+        NyxObjects2::put(asteroid)
         asteroid
     end
 
@@ -84,7 +84,7 @@ class Asteroids
             "orbital"    => "daily-time-commitment-e1180643-fc7e-42bb-a2",
             "targetuuid" => cube["uuid"]
         }
-        Asteroids::commitToDisk(asteroid)
+        NyxObjects2::put(asteroid)
         asteroid
     end
 
@@ -250,7 +250,7 @@ class Asteroids
                 .first(10)
                 .each_with_index{|asteroid, indx|
                     asteroid["x-stream-index"] = indx
-                    Asteroids::commitToDisk(asteroid)
+                    NyxObjects2::put(asteroid)
                 }
         end
 
@@ -266,18 +266,13 @@ class Asteroids
     # -------------------------------------------------------------------
     # Operations
 
-    # Asteroids::commitToDisk(asteroid)
-    def self.commitToDisk(asteroid)
-        NyxObjects2::put(asteroid)
-    end
-
     # Asteroids::reOrbitalOrNothing(asteroid)
     def self.reOrbitalOrNothing(asteroid)
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return if orbital.nil?
         asteroid["orbital"] = orbital
         puts JSON.pretty_generate(asteroid)
-        Asteroids::commitToDisk(asteroid)
+        NyxObjects2::put(asteroid)
     end
 
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
@@ -447,12 +442,12 @@ class Asteroids
 
             mx.item("to burner".yellow, lambda {
                 asteroid["orbital"] = "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-                Asteroids::commitToDisk(asteroid)
+                NyxObjects2::put(asteroid)
             })
 
             mx.item("to stream".yellow, lambda {
                 asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                Asteroids::commitToDisk(asteroid)
+                NyxObjects2::put(asteroid)
             })
 
             mx.item("re orbital".yellow, lambda {
@@ -516,7 +511,7 @@ class Asteroids
 
             mx.item("to stream".yellow, lambda {
                 asteroid["orbital"] = "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                Asteroids::commitToDisk(asteroid)
+                NyxObjects2::put(asteroid)
             })
 
             mx.item("re orbital".yellow, lambda {
@@ -707,7 +702,7 @@ class Asteroids
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
                         Asteroids::stopAsteroidIfRunning(asteroid)
-                        NyxObjectInterface::destroy(asteroid)
+                        NyxObjects2::destroy(asteroid)
                     end
                 }
             )

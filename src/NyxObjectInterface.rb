@@ -90,6 +90,7 @@ class NyxObjectInterface
     # NyxObjectInterface::destroy(object)
     def self.destroy(object)
         if NyxObjectInterface::isAsteroid(object) then
+            NyxObjects2::destroy(object)
             return
         end
         if NyxObjectInterface::isDataPoint(object) then
