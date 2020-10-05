@@ -463,7 +463,7 @@ class Asteroids
                 Asteroids::transmuteAsteroidToNode(asteroid)
             })
 
-            if asteroid["description"] then
+            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
                 mx.item("send asteroid description to cube system".yellow, lambda {
                     status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
                     if status then
@@ -527,7 +527,7 @@ class Asteroids
                 Asteroids::transmuteAsteroidToNode(asteroid)
             })
 
-            if asteroid["description"] then
+            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
                 mx.item("send asteroid description to cube system".yellow, lambda {
                     status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
                     if status then
