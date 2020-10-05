@@ -55,6 +55,7 @@ class Asteroids
             "nyxNxSet"    => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"    => Time.new.to_f,
             "orbital"     => orbital,
+            "ordinal"     => Asteroids::ordinalMax()+1,
             "description" => description
         }
         NyxObjects2::put(asteroid)
@@ -72,6 +73,7 @@ class Asteroids
             "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"   => Time.new.to_f,
             "orbital"    => orbital,
+            "ordinal"    => Asteroids::ordinalMax()+1,
             "targetuuid" => datapoint["uuid"]
         }
         NyxObjects2::put(asteroid)
@@ -88,6 +90,7 @@ class Asteroids
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital,
+            "ordinal"  => Asteroids::ordinalMax()+1,
             "targetuuid" => datapoint["uuid"]
         }
         NyxObjects2::put(asteroid)
@@ -107,10 +110,16 @@ class Asteroids
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital,
+            "ordinal"  => Asteroids::ordinalMax()+1,
             "targetuuid" => cube["uuid"]
         }
         NyxObjects2::put(asteroid)
         asteroid
+    end
+
+    # Asteroids::ordinalMax()
+    def self.ordinalMax()
+        ([0] + Asteroids::asteroids().map{|asteroid| asteroid["ordinal"] }).max
     end
 
     # -------------------------------------------------------------------
@@ -171,25 +180,23 @@ class Asteroids
             return "" if asteroid["x-stream-index"].nil?
             targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
             ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
-            return " (index: #{asteroid["x-stream-index"]}, target: #{targetHours} hours, #{(100*ratio).round(2)} % completed)"
+            return " (#{(100*ratio).round(2)} % completed)"
         }).call(asteroid)
 
         p6 = (lambda {|asteroid|
             return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
             commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
             ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
-            return " (commitment: #{commitmentInHours} hours, #{(100*ratio).round(2)} % completed)"
+            return " (#{(100*ratio).round(2)} % completed)"
         }).call(asteroid)
 
         "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
     end
 
-    # Asteroids::unixtimedrift(unixtime)
-    def self.unixtimedrift(unixtime)
-        # Unixtime To Decreasing Metric Shift Normalised To Interval Zero One
-        # The older the bigger
-        referenceTime = (Time.new.to_f / 86400).to_i * 86400
-        0.00000000001*(referenceTime-unixtime).to_f
+    # Asteroids::naturalOrdinalShift(asteroid)
+    def self.naturalOrdinalShift(asteroid)
+        bounds = JSON.parse(KeyValueStore::getOrNull(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d"))
+        ( asteroid["unixtime"]-bounds["lower"] ).to_f/( bounds["upper"] - bounds["lower"] )
     end
 
     # Asteroids::isRunning?(asteroid)
@@ -210,20 +217,18 @@ class Asteroids
         return 1 if Asteroids::isRunning?(asteroid)
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.70 + Asteroids::unixtimedrift(asteroid["unixtime"])
+            return 0.70 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
         end
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            targetInHours = asteroid["orbital"]["time-commitment-in-hours"]
-            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetInHours
-            if ratio < 1 then
-                return 0.65 - 0.01*ratio
+            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
+                return 0.65 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
             end
-            return 0.2 + 0.2*Math.exp(-(ratio-1))
+            return 0
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0.6 + Asteroids::unixtimedrift(asteroid["unixtime"])
+            return 0.6 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -232,11 +237,10 @@ class Asteroids
                 return 0
             end
             targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
-            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
-            if ratio < 1 then
-                return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
+            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < 1.to_f/(2**asteroid["x-stream-index"]) then
+                return 0.50 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
             end
-            return 0.2 + 0.2*Math.exp(-(ratio-1))
+            return 0
         end
 
         puts asteroid
@@ -271,26 +275,40 @@ class Asteroids
     # Asteroids::catalystObjects()
     def self.catalystObjects()
 
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6347a941-2907-44fc-8eb3-1f85adb8437c", 86400) then
+        asteroids = Asteroids::asteroids()
 
-            Asteroids::asteroids()
+        return [] if asteroids.empty?
+
+        bounds = {
+            "lower" => asteroids.map{|asteroid| asteroid["unixtime"] }.min,
+            "upper" => asteroids.map{|asteroid| asteroid["unixtime"] }.max
+        }
+
+        KeyValueStore::set(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d", JSON.generate(bounds))
+
+        if !KeyValueStore::flagIsTrue(nil, "a3bd01f1-5366-4543-83aa-04477ec5f068:#{Miscellaneous::today()}") then
+
+            asteroids
                 .select{|asteroid| asteroid["x-stream-index"] }
                 .each{|asteroid|
                     asteroid.delete("x-stream-index")
                     NyxObjects2::put(asteroid)
                 }
 
-            Asteroids::asteroids()
+            asteroids
                 .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
-                .sort{|a1, a2| a1["unixtime"]<=>a2["unixtime"] }
+                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
                 .first(100)
                 .each_with_index{|asteroid, indx|
                     asteroid["x-stream-index"] = indx
                     NyxObjects2::put(asteroid)
                 }
+
+            KeyValueStore::setFlagTrue(nil, "a3bd01f1-5366-4543-83aa-04477ec5f068:#{Miscellaneous::today()}")
+
         end
 
-        Asteroids::asteroids()
+        asteroids
             .select{|asteroid| 
                 b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
                 b2 = asteroid["x-stream-index"]
@@ -315,6 +333,8 @@ class Asteroids
     def self.asteroidReceivesTime(asteroid, timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{Asteroids::toString(asteroid)}"
         Bank::put(asteroid["uuid"], timespanInSeconds)
+        puts "Adding #{timespanInSeconds} seconds to #{asteroid["orbital"]["type"]}"
+        Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
     end
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)
@@ -460,8 +480,7 @@ class Asteroids
             return
         end
 
-        inboxProcessor = lambda {|asteroid|
-            Asteroids::accessTarget(asteroid)
+        processor = lambda {|asteroid|
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -533,71 +552,6 @@ class Asteroids
 
         }
 
-        burnerProcessor = lambda {|asteroid|
-            Asteroids::accessTarget(asteroid)
-
-            mx = LCoreMenuItemsNX1.new()
-
-            mx.item("landing".yellow, lambda {
-                Asteroids::landing(asteroid)
-            })
-
-            mx.item("hide for one hour".yellow, lambda {
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-            })
-
-            mx.item("hide until tomorrow".yellow, lambda {
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
-            })
-
-            mx.item("hide for n days".yellow, lambda {
-                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-            })
-
-            mx.item("to stream".yellow, lambda {
-                asteroid["orbital"] = {
-                    "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                }
-                NyxObjects2::put(asteroid)
-            })
-
-            mx.item("re orbital".yellow, lambda {
-                Asteroids::reOrbitalOrNothing(asteroid)
-            })
-
-            mx.item("transmute to node".yellow, lambda {
-                Asteroids::transmuteAsteroidToNode(asteroid)
-            })
-
-            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
-                mx.item("send asteroid description to cube system".yellow, lambda {
-                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
-
-            target = Asteroids::getAsteroidTargetOrNull(asteroid)
-            if target and NyxObjectInterface::isDataPoint(target) then
-                datapoint = target
-                mx.item("send datapoint to cube system".yellow, lambda {
-                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
-
-            mx.item("destroy".yellow, lambda {
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            })
-
-            status = mx.promptAndRunSandbox()
-            #break if !status
-        }
-
         uuid = asteroid["uuid"]
 
         # ----------------------------------------
@@ -605,7 +559,16 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            inboxProcessor.call(asteroid)
+            Asteroids::accessTarget(asteroid)
+            processor.call(asteroid)
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            return
+        end
+
+        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+            Asteroids::startAsteroidIfNotRunning(asteroid)
+            Asteroids::accessTarget(asteroid)
+            processor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
@@ -616,20 +579,10 @@ class Asteroids
             return
         end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            burnerProcessor.call(asteroid)
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::accessTarget(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            end
+            processor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
@@ -646,16 +599,16 @@ class Asteroids
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
+            return
+        end
+
+        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            Asteroids::stopAsteroidIfRunning(asteroid)
             return
         end
 
@@ -846,6 +799,7 @@ class Asteroids
 
     # Asteroids::asteroidTerminationProtocol(asteroid)
     def self.asteroidTerminationProtocol(asteroid)
+        Asteroids::stopAsteroidIfRunning(asteroid)
         target = Asteroids::getAsteroidTargetOrNull(asteroid)
         if target and NyxObjectInterface::isDataPoint(target) then
             datapoint = target
