@@ -377,8 +377,11 @@ class NSNode1638
 
         end
         if datapoint["type"] == "NyxFile" then
+            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                puts "NyxFile: #{location}"
+            end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy target NyxFile file ? ") then
-                location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
                 if location then
                     FileUtils.rm(location)
                 else
@@ -393,6 +396,9 @@ class NSNode1638
         if datapoint["type"] == "NyxDirectory" then
             puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                puts "NyxDirectory: #{location}"
+            end
             if location then
                 if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                     puts "Found NyxDirectory: #{location}"
@@ -416,6 +422,9 @@ class NSNode1638
         end
         if datapoint["type"] == "NyxFSPoint001" then
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            if location then
+                puts "NyxFSPoint001: #{location}"
+            end
             puts File.dirname(File.dirname(location))
             return false if location.nil?
             FileUtils.rm(location)

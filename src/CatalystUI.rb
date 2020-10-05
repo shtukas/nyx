@@ -178,6 +178,7 @@ class CatalystUI
                 sleep 2
                 next
             end
+
             CatalystUI::standardDisplay(objects)
         }
     end

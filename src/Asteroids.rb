@@ -156,7 +156,7 @@ class Asteroids
             return " (commitment: #{commitmentInHours} hours, #{(100*ratio).round(2)} % completed)"
         }).call(asteroid)
 
-        "#{p1}#{p2}#{p3}#{p4}#{p6}"
+        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
     end
 
     # Asteroids::unixtimedrift(unixtime)
