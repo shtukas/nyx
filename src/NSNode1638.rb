@@ -368,8 +368,6 @@ class NSNode1638
     # NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
     def self.datapointTerminationProtocolReturnBoolean(datapoint)
 
-        return false if !Arrows::getTargetsForSource(datapoint).empty?
-
         puts "Destroying datapoint: #{NSNode1638::toString(datapoint)}"
 
         if datapoint["type"] == "line" then

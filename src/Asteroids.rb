@@ -323,14 +323,14 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
 
         if asteroid["targetuuid"].nil? then
-            NyxObjects2::destroy(asteroid)
+            Asteroids::asteroidTerminationProtocol(asteroid)
             return
         end
 
         datapoint = NyxObjects2::getOrNull(asteroid["targetuuid"])
 
         if datapoint.nil? then
-            NyxObjects2::destroy(asteroid)
+            Asteroids::asteroidTerminationProtocol(asteroid)
             return
         end
 
@@ -401,7 +401,7 @@ class Asteroids
             Arrows::issueOrException(vector, datapoint) 
         }
 
-        NyxObjects2::destroy(asteroid)
+        NyxObjects2::destroy(asteroid) # Do not use Asteroids::asteroidTerminationProtocol here !
         NSNode1638::landing(datapoint)
     end
 
@@ -462,7 +462,7 @@ class Asteroids
                 mx.item("send asteroid description to cube system".yellow, lambda {
                     status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
                     if status then
-                        NyxObjects2::destroy(asteroid)
+                        Asteroids::asteroidTerminationProtocol(asteroid)
                     end
                 })
             end
@@ -473,13 +473,13 @@ class Asteroids
                 mx.item("send datapoint to cube system".yellow, lambda {
                     status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
                     if status then
-                        NyxObjects2::destroy(asteroid)
+                        Asteroids::asteroidTerminationProtocol(asteroid)
                     end
                 })
             end
 
             mx.item("destroy".yellow, lambda {
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             })
 
             status = mx.promptAndRunSandbox()
@@ -526,7 +526,7 @@ class Asteroids
                 mx.item("send asteroid description to cube system".yellow, lambda {
                     status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
                     if status then
-                        NyxObjects2::destroy(asteroid)
+                        Asteroids::asteroidTerminationProtocol(asteroid)
                     end
                 })
             end
@@ -537,13 +537,13 @@ class Asteroids
                 mx.item("send datapoint to cube system".yellow, lambda {
                     status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
                     if status then
-                        NyxObjects2::destroy(asteroid)
+                        Asteroids::asteroidTerminationProtocol(asteroid)
                     end
                 })
             end
 
             mx.item("destroy".yellow, lambda {
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             })
 
             status = mx.promptAndRunSandbox()
@@ -580,7 +580,7 @@ class Asteroids
             openContent.call(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("destroy asteroid? : ") then
                 Asteroids::stopAsteroidIfRunning(asteroid)
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             end
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
@@ -593,7 +593,7 @@ class Asteroids
             # This case should not happen because we are not starting inbox items.
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
         end
@@ -606,7 +606,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
         end
@@ -614,7 +614,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                NyxObjects2::destroy(asteroid)
+                Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
         end
