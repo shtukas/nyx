@@ -134,7 +134,8 @@ class DataPortalUI
             ms.item("new cube", lambda {
                 description = LucilleCore::askQuestionAnswerAsString("cube description: ")
                 location =    LucilleCore::askQuestionAnswerAsString("cube location: ")
-                Cubes::issueCube(description, location)
+                cube = Cubes::issueCube(description, location)
+                Cubes::cubeLanding(cube)
             })
 
             ms.item("dangerously edit a nyx object by uuid", lambda { 

@@ -43,29 +43,38 @@ class Cubes
 
             ms = LCoreMenuItemsNX1.new()
 
-            puts cube
             puts Cubes::toString(cube).green
+            puts "uuid: #{cube["uuid"]}"
 
             organiserFilepath = "#{cube["location"]}/00.txt"
 
             puts ""
-            puts "----------------------------------------------------------------------------"
-            puts IO.read(organiserFilepath).lines.first(10).join()
-            puts ""
-            ms.item("edit".yellow, lambda { 
-                system("open '#{organiserFilepath}'")
-            })
-            ms.item("[]".yellow, lambda { 
-                Miscellaneous::applyNextTransformationToFile(organiserFilepath)
-            })
-            puts "----------------------------------------------------------------------------"
+
+            if File.exists?(organiserFilepath) then
+                puts IO.read(organiserFilepath).lines.first(10).join().strip.green
+                puts ""
+                ms.item("edit".yellow, lambda { 
+                    system("open '#{organiserFilepath}'")
+                })
+                ms.item("[]".yellow, lambda { 
+                    Miscellaneous::applyNextTransformationToFile(organiserFilepath)
+                })
+            else
+                ms.item("Make top text file".yellow, lambda { 
+                    FileUtils.touch(organiserFilepath)
+                    system("open '#{organiserFilepath}'")
+                })
+            end
 
             puts ""
+
             CubeFolderManager::items(cube).each{|item|
                 ms.item(CubeFolderManager::itemToString(item), lambda { 
                     CubeFolderManager::itemLanding(cube, item)
                 })
             }
+
+            puts ""
 
             ms.item("open folder".yellow, lambda { 
                 system("open '#{cube["location"]}'")
@@ -167,6 +176,7 @@ class CubeFolderManager
     # CubeFolderManager::items(cube)
     def self.items(cube)
         LucilleCore::locationsAtFolder(cube["location"])
+            .select{|location| File.basename(location) != "00.txt" }
             .map{|location|
                 CubeFolderManager::locationToItem(location)
             }
