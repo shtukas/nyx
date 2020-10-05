@@ -354,7 +354,7 @@ class NSNode1638
 
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NSNode1638::toString(datapoint)}': ") then
-                    NyxObjects2::destroy(datapoint)
+                    NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
                 end
             })
 
@@ -416,8 +416,10 @@ class NSNode1638
         end
         if datapoint["type"] == "NyxFSPoint001" then
             location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            puts File.dirname(File.dirname(location))
             return false if location.nil?
             FileUtils.rm(location)
+            puts File.dirname(File.dirname(location))
             if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                 parent = File.dirname(location)
                 puts "We are in asteroids land. Going to remove the parent folder: #{parent}"

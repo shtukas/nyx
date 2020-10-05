@@ -432,7 +432,7 @@ class Asteroids
             })
 
             mx.item("hide until tomorrow".yellow, lambda {
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
             })
 
             mx.item("hide for n days".yellow, lambda {
@@ -501,7 +501,7 @@ class Asteroids
             })
 
             mx.item("hide until tomorrow".yellow, lambda {
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(12-Time.new.hour))
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
             })
 
             mx.item("hide for n days".yellow, lambda {

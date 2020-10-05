@@ -337,17 +337,20 @@ class CubeTransformers
         end
         if datapoint["type"] == "NyxFSPoint001" then
             nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
-            system("open '#{File.dirname(nyxfilelocation)}'")
+            nyxFolderpath = File.dirname(nyxfilelocation)
+
             itemFoldername = "#{targetOrdinal} FormerNyxFSPoint001-#{datapoint["uuid"]}"
             itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
             FileUtils.mkdir(itemFolderpath)
-            system("open '#{itemFolderpath}'")
-            puts "You need to move the files manually"
-            LucilleCore::pressEnterToContinue()
-            FileUtils.rm(nyxfilelocation)
+
+            LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
+            FileUtils.rm("#{itemFolderpath}/#{File.basename(nyxfilelocation)}")
+
+            # We do not remove the original folder because it's going to be removed by 
+            # NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
         end
 
-        NyxObjects2::destroy(datapoint)
+        NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
     end
 
     # CubeTransformers::sendLineToCubeSystem(line) # Boolean
