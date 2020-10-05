@@ -327,13 +327,14 @@ class CubeTransformers
             nyxfile_extension_withDot = File.extname(nyxfilelocation)
             itemFilename = "#{targetOrdinal} FormerNyxFile-#{datapoint["uuid"]}#{nyxfile_extension_withDot}"
             itemFilepath = "#{cube["location"]}/#{itemFilename}"
-            FileUtils.mv(nyxfilelocation, itemFilepath)
+            FileUtils.cp(nyxfilelocation, itemFilepath)
         end
         if datapoint["type"] == "NyxDirectory" then
-            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            nyxFolderpath = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
             itemFoldername = "#{targetOrdinal} FormerNyxDirectory-#{datapoint["uuid"]}"
             itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
-            FileUtils.mv(nyxfilelocation, itemFolderpath)
+            FileUtils.mkdir(itemFolderpath)
+            LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
         end
         if datapoint["type"] == "NyxFSPoint001" then
             nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
@@ -345,9 +346,6 @@ class CubeTransformers
 
             LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
             FileUtils.rm("#{itemFolderpath}/#{File.basename(nyxfilelocation)}")
-
-            # We do not remove the original folder because it's going to be removed by 
-            # NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
         end
 
         NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
