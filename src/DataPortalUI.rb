@@ -101,6 +101,23 @@ class DataPortalUI
 
             ms.item("Cubes Dive",lambda { Cubes::cubesDive() })
 
+            ms.item(
+                "Asteroids",
+                lambda { Asteroids::main() }
+            )
+
+            ms.item(
+                "Calendar",
+                lambda { 
+                    system("open '#{Calendar::pathToCalendarItems()}'") 
+                }
+            )
+
+            ms.item(
+                "Waves",
+                lambda { Waves::main() }
+            )
+
             puts ""
 
             ms.item("new datapoint", lambda {
@@ -140,25 +157,6 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "Asteroids",
-                lambda { Asteroids::main() }
-            )
-
-            ms.item(
-                "Calendar",
-                lambda { 
-                    system("open '#{Calendar::pathToCalendarItems()}'") 
-                }
-            )
-
-            ms.item(
-                "Waves",
-                lambda { Waves::main() }
-            )
-
-            puts ""
-
-            ms.item(
                 "1. rebuild search lookup", 
                 lambda { SelectionLookupDataset::rebuildDataset(true) }
             )
@@ -185,8 +183,6 @@ class DataPortalUI
                     NyxFsck::main(runhash)
                 }
             )
-
-            puts ""
 
             ms.item(
                 "Print Generation Speed Report", 
