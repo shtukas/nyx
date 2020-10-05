@@ -66,6 +66,10 @@ class Cubes
                 })
             end
 
+            ms.item("open folder".yellow, lambda { 
+                system("open '#{cube["location"]}'")
+            })
+
             puts ""
 
             CubeFolderManager::items(cube).each{|item|
@@ -73,12 +77,6 @@ class Cubes
                     CubeFolderManager::itemLanding(cube, item)
                 })
             }
-
-            puts ""
-
-            ms.item("open folder".yellow, lambda { 
-                system("open '#{cube["location"]}'")
-            })
 
             puts ""
             status = ms.promptAndRunSandbox()

@@ -214,7 +214,12 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            return 0.65
+            targetInHours = asteroid["orbital"]["time-commitment-in-hours"]
+            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetInHours
+            if ratio < 1 then
+                return 0.65 - 0.01*ratio
+            end
+            return 0.2 + 0.2*Math.exp(-(ratio-1))
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
@@ -228,7 +233,7 @@ class Asteroids
             end
             targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
             ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
-            if ratio then
+            if ratio < 1 then
                 return 0.50 + Asteroids::unixtimedrift(asteroid["unixtime"])
             end
             return 0.2 + 0.2*Math.exp(-(ratio-1))
