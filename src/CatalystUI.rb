@@ -170,6 +170,7 @@ class CatalystUI
         loop {
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
+            Cubes::fsck()
 
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()

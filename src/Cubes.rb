@@ -106,6 +106,17 @@ class Cubes
     def self.selectCubeOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("cube", Cubes::cubes(), lambda{ |cube| Cubes::toString(cube) })
     end
+
+    # Cubes::fsck()
+    def self.fsck()
+        Cubes::cubes().each{|cube|
+            if !File.exists?(cube["location"]) then
+                puts "Failure to find cube location"
+                puts JSON.pretty_generate(cube)
+                raise "0ef259eb-ea43-4084-b442-70d795831ac0"
+            end
+        }
+    end
 end
 
 # --------------------------------------------------------
