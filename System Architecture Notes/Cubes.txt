@@ -7,3 +7,22 @@ Cubes are reference to on disk ordered list of files and folders, often todo lis
     "description"   : String
     "location"      : String # Folder path to the listing
 }
+
+CubeItem 
+
+{
+    "location" : String
+    "ordinal"  : String, Length 2
+    "name"     : String (without extension if text file)
+}
+
+{
+    "location": "/Users/pascal/Galaxy/Current/The Guardian/OpenCycles/00 In review Interactive atoms.txt",
+    "ordinal": "00",
+    "name": "In review Interactive atoms"
+},
+{
+    "location": "/Users/pascal/Galaxy/Current/The Guardian/OpenCycles/01 Audio Atom",
+    "ordinal": "01",
+    "name": "Audio Atom"
+}

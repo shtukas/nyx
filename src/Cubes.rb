@@ -1,16 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-{
-    "uuid"          : String
-    "nyxNxSet"      : "06071daa-ec51-4c19-a4b9-62f39bb2ce4f"
-    "unixtime"      : Float # Unixtime with decimals
-    "description"   : String
-    "location"      : String # Folder path to the listing
-}
-=end
-
 class Cubes
 
     # Cubes::issueCube(description, location)
@@ -118,47 +108,6 @@ class Cubes
         }
     end
 end
-
-# --------------------------------------------------------
-
-=begin
-
-    For the moment we are assuming that they are either text files or folder.
-    
-    Each element has the following attributes
-        - location : full location to the file
-        - ordinal : the two digits number that starts the file name
-        - filname (without the first two digits numbers and without.txt if a text file)
-
-    The operations are
-        - reordinal: Set a new ordinal (which must be an integer)
-        - renaming: Set a new main body for the name
-
-    The landing of the app
-        - lists the elements in the folder, in order of ordinal (which is always the filename order)
-        - let set a new ordinal
-        - let reset a name
-        - let create a new element (text file or folder)
-
-
-    Item {
-        "location" : String
-        "ordinal"  : String, Length 2
-        "name"     : String (without extension if text file)
-    }
-
-    {
-        "location": "/Users/pascal/Galaxy/Current/The Guardian/OpenCycles/00 In review Interactive atoms.txt",
-        "ordinal": "00",
-        "name": "In review Interactive atoms"
-    },
-    {
-        "location": "/Users/pascal/Galaxy/Current/The Guardian/OpenCycles/01 Audio Atom",
-        "ordinal": "01",
-        "name": "Audio Atom"
-    }
-
-=end
 
 class CubeFolderManager
 
