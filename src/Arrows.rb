@@ -3,15 +3,6 @@
 
 =begin
 
-Arrows
-{
-    "uuid"       : String
-    "nyxNxSet"   : "d83a3ff5-023e-482c-8658-f7cfdbb6b738"
-    "unixtime"   : Float
-    "sourceuuid" : String
-    "targetuuid" : String
-}
-
 table: arrows
     _sourceuuid_    text
     _targetuuid_    text
