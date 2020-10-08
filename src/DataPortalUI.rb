@@ -101,6 +101,8 @@ class DataPortalUI
 
             ms.item("Cubes Dive",lambda { Cubes::cubesDive() })
 
+            ms.item("Islands listing",lambda { Islands::islandsDive() })
+
             ms.item(
                 "Asteroids",
                 lambda { Asteroids::main() }

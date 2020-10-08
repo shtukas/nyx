@@ -1,0 +1,11 @@
+
+Islands are nodes of the knowledge graph. They are connected by links (not arrows). 
+
+For the moment we will be enforcing that the names are unique. (If needed we can relax that requirement later)
+
+Island {
+    "uuid"     : UUID
+    "nyxNxSet" : "287041db-39ac-464c-b557-2f172e721111"
+    "unixtime" : Float # Unixtime with decimals
+    "name"     : String
+}

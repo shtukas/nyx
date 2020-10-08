@@ -28,4 +28,12 @@ Nyx Objects
                   # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
 -------------------------------------------------------------------------
-Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.
+Arrows and Links provide network topology between NyxObjects, but are now not nyx objects themselves.
+
+We have arrows 
+  - from tags to datapoints
+  - from taxonomy item to datapoints
+  - from asteroids to datapoints
+  - from islands to datapoints
+
+We have links between Islands

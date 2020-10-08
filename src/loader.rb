@@ -132,7 +132,8 @@ require_relative "DoNotShowUntil.rb"
 require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
-require_relative "NyxObjectInterface.rb"
+
+require_relative "Islands.rb"
 
 require_relative "LucilleCore.rb"
 require_relative "Links.rb"
@@ -144,6 +145,7 @@ require_relative "NSNode1638Extended.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
+require_relative "NyxObjectInterface.rb"
 require_relative "NyxFileSystemElementsMapping.rb"
 
 require_relative "ProgrammableBooleans.rb"
