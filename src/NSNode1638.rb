@@ -275,6 +275,17 @@ class NSNode1638
                 puts ""
             end
 
+            islands = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
+            islands.each{|island|
+                mx.item(
+                    Islands::toString(island),
+                    lambda { Islands::landing(island) }
+                )
+            }
+            if islands.size>0 then
+                puts ""
+            end
+
             tags = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTag(object) }
             tags.each{|tag|
                 mx.item(

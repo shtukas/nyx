@@ -41,6 +41,13 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem).downcase)
     end
 
+    # SelectionLookupDatabaseIO::updateLookupForIsland(island)
+    def self.updateLookupForIsland(island)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(islandm["uuid"])
+        SelectionLookupDatabaseIO::addRecord("island", island["uuid"], island["uuid"])
+        SelectionLookupDatabaseIO::addRecord("island", island["uuid"], Islands::toString(island).downcase)
+    end
+
     # SelectionLookupDatabaseIO::updateLookupForTag(tag)
     def self.updateLookupForTag(tag)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
@@ -94,6 +101,11 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(taxonomyItem)
     end
 
+    # SelectionLookupDataset::updateLookupForIsland(island)
+    def self.updateLookupForIsland(island)
+        SelectionLookupDatabaseIO::updateLookupForIsland(island)
+    end
+
     # SelectionLookupDataset::updateLookupForTag(tag)
     def self.updateLookupForTag(tag)
         SelectionLookupDatabaseIO::updateLookupForTag(tag)
@@ -144,6 +156,23 @@ class SelectionLookupDataset
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], taxonomyItem["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem))
+            }
+
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildIslandsLookup(verbose)
+    def self.rebuildIslandsLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["island"]
+
+        Islands::islands()
+            .each{|island|
+                if verbose then
+                    puts "island: #{island["uuid"]} , #{Islands::toString(island)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "island", island["uuid"], island["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "island", island["uuid"], Islands::toString(island))
             }
 
         db.close
@@ -208,6 +237,7 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
         SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
+        SelectionLookupDataset::rebuildIslandsLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
@@ -228,6 +258,15 @@ class SelectionLookupDataset
     def self.patternToTaxonomyItems(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "taxonomy_item" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
+    end
+
+    # SelectionLookupDataset::patternToIslands(pattern)
+    def self.patternToIslands(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "island" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

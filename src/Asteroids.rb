@@ -430,32 +430,15 @@ class Asteroids
             ts
         }).call()
 
-        vectors = (lambda {
-            xs = []
-            loop {
-                x = Taxonomy::selectOneExistingTaxonomyItemOrNull()
-                break if x.nil?
-                xs << x
-            }
-            if xs.empty? then
-                str = LucilleCore::askQuestionAnswerAsString("vector (empty for null): ")
-                item = Taxonomy::issueTaxonomyItemFromStringOrNull(str)
-                if item then
-                    xs << item
-                end
-            end
-            xs
-        }).call()
-
         tags.each{|tag| 
             puts "issue tag: #{tag}"
             Arrows::issueOrException(tag, datapoint) 
         }
 
-        vectors.each{|vector| 
-            puts "issue vecor: #{vector}"
-            Arrows::issueOrException(vector, datapoint) 
-        }
+        island = Islands::selectExistingIslandOrMakeNewOneOrNull()
+        if island then
+            Arrows::issueOrException(island, datapoint)
+        end
 
         NyxObjects2::destroy(asteroid) # Do not use Asteroids::asteroidTerminationProtocol here !
         NSNode1638::landing(datapoint)
@@ -474,11 +457,6 @@ class Asteroids
 
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
-
-        if Asteroids::getAsteroidTargetOrNull(asteroid).nil? then
-            Asteroids::asteroidTerminationProtocol(asteroid)
-            return
-        end
 
         processor = lambda {|asteroid|
 

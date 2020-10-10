@@ -37,23 +37,24 @@ class Islands
 
             puts Islands::toString(island).green
 
-            puts ""
-
             mx = LCoreMenuItemsNX1.new()
 
+            puts ""
             puts "Connections:"
             Links::getLinkedObjectsForCenter(island).each{|i|
-                puts "    - #{Islands::toString(i)}"
                 mx.item(
                     Islands::toString(i),
                     lambda { Islands::landing(i) }
                 )
             }
+            mx.item("Make new link".yellow, lambda { 
+                    puts "To be implemented"
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
 
             puts ""
-
             puts "Contents:"
-
             targets = Arrows::getTargetsForSource(island)
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
@@ -63,9 +64,13 @@ class Islands
                         lambda { NyxObjectInterface::landing(object) }
                     )
                 }
+            mx.item("Add datapoint".yellow, lambda { 
+                    puts "To be implemented"
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
 
             puts ""
-
             status = mx.promptAndRunSandbox()
             break if !status
         }
@@ -85,5 +90,34 @@ class Islands
             status = mx.promptAndRunSandbox()
             break if !status
         }
+    end
+
+    # ----------------------------------
+
+    # Islands::nameIsUsed(name_)
+    def self.nameIsUsed(name_)
+        Islands::islands().any?{|island| island["name"].downcase == name_.downcase }
+    end
+
+    # Islands::selectExistingIslandOrNull()
+    def self.selectExistingIslandOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("island", Islands::islands(), lambda { |island| Islands::toString(island) })
+    end
+
+    # Islands::selectExistingIslandOrMakeNewOneOrNull()
+    def self.selectExistingIslandOrMakeNewOneOrNull()
+        island = Islands::selectExistingIslandOrNull()
+        return island if island
+        if LucilleCore::askQuestionAnswerAsBoolean("Create a new island ? ") then
+            loop {
+                name_ = LucilleCore::askQuestionAnswerAsString("island name: ")
+                if Islands::nameIsUsed(name_) then
+                    puts "name '#{name_}' is already used"
+                    next
+                end
+                return Islands::issue(name_)
+            }
+        end
+        nil
     end
 end
