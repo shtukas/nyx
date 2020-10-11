@@ -136,7 +136,6 @@ require_relative "GeneralSearch.rb"
 require_relative "Islands.rb"
 
 require_relative "LucilleCore.rb"
-require_relative "Links.rb"
 
 require_relative "NSNode1638.rb"
 require_relative "NSNode1638NyxElementLocation.rb"

@@ -14,22 +14,5 @@ class NyxGarbageCollection
             end
         }
 
-        Links::links().each{|link|
-            b1 = NyxObjects2::getOrNull(link["uuid1"])
-            b2 = NyxObjects2::getOrNull(link["uuid2"])
-            if !(b1 and b2) then
-                puts "removing link: #{link}"
-                Links::destroy(link["uuid1"], link["uuid2"])
-            end
-        }
-
-        Tags::tags().each{|tag|
-            targets = Arrows::getTargetsForSource(tag)
-            if targets.size == 0 then
-                puts "removing tag: #{Tags::toString(tag)}"
-                NyxObjects2::destroy(tag)
-            end
-        }
-
     end
 end

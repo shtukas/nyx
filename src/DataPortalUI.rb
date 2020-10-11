@@ -45,8 +45,6 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
-
             ms.item("Islands listing",lambda { Islands::islandsListing() })
 
             ms.item(
@@ -72,6 +70,8 @@ class DataPortalUI
                     }
                 }
             )
+
+            ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
 
             puts ""
 

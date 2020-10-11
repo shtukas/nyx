@@ -47,14 +47,6 @@ class Islands
             mx = LCoreMenuItemsNX1.new()
 
             puts ""
-            Links::getLinkedObjectsForCenter(island).each{|i|
-                mx.item(
-                    "-> #{Islands::toString(i)}",
-                    lambda { Islands::landing(i) }
-                )
-            }
-
-            puts ""
             targets = Arrows::getTargetsForSource(island)
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
@@ -71,11 +63,6 @@ class Islands
                 return if name_ == ""
                 island["name"] = name_
                 NyxObjects2::put(island)
-            })
-            mx.item("Make new link".yellow, lambda { 
-                i = Islands::selectExistingIslandOrMakeNewOneOrNull()
-                return if i.nil?
-                Links::issueOrException(island, i)
             })
             mx.item("Add datapoint".yellow, lambda { 
                     puts "To be implemented"
