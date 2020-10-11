@@ -48,10 +48,10 @@ class Islands
                 )
             }
             mx.item("Make new link".yellow, lambda { 
-                    puts "To be implemented"
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
+                i = Islands::selectExistingIslandOrMakeNewOneOrNull()
+                return if i.nil?
+                Links::issueOrException(island, i)
+            })
 
             puts ""
             puts "Contents:"
