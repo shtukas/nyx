@@ -2,7 +2,7 @@
 location: #{Miscellaneous::catalystDataCenterFolderpath()}/Selection-Lookup-Database.sqlite3
 
 table: lookup
-    _objecttype_    text # values: "datapoint", "taxonomy_item", "island", "tag", "asteroid", "wave"
+    _objecttype_    text # values: "datapoint", "taxonomy_item", "page", "tag", "asteroid", "wave"
     _objectuuid_    text
     _fragment_      text
 

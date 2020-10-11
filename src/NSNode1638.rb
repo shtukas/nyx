@@ -254,14 +254,14 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            islands = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
-            islands.each{|island|
+            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
+            pages.each{|page|
                 mx.item(
-                    Islands::toString(island),
-                    lambda { Islands::landing(island) }
+                    Pages::toString(page),
+                    lambda { Pages::landing(page) }
                 )
             }
-            if islands.size>0 then
+            if pages.size>0 then
                 puts ""
             end
 

@@ -45,7 +45,7 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Islands listing",lambda { Islands::islandsListing() })
+            ms.item("Pages listing",lambda { Pages::pagesListing() })
 
             ms.item(
                 "Tag listing",

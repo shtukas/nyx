@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForIsland(island)
-    def self.updateLookupForIsland(island)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(islandm["uuid"])
-        SelectionLookupDatabaseIO::addRecord("island", island["uuid"], island["uuid"])
-        SelectionLookupDatabaseIO::addRecord("island", island["uuid"], Islands::toString(island).downcase)
+    # SelectionLookupDatabaseIO::updateLookupForPage(page)
+    def self.updateLookupForPage(page)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(pagem["uuid"])
+        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], page["uuid"])
+        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], Pages::toString(page).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForTag(tag)
@@ -89,9 +89,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForIsland(island)
-    def self.updateLookupForIsland(island)
-        SelectionLookupDatabaseIO::updateLookupForIsland(island)
+    # SelectionLookupDataset::updateLookupForPage(page)
+    def self.updateLookupForPage(page)
+        SelectionLookupDatabaseIO::updateLookupForPage(page)
     end
 
     # SelectionLookupDataset::updateLookupForTag(tag)
@@ -132,18 +132,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildIslandsLookup(verbose)
-    def self.rebuildIslandsLookup(verbose)
+    # SelectionLookupDataset::rebuildPagesLookup(verbose)
+    def self.rebuildPagesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["island"]
+        db.execute "delete from lookup where _objecttype_=?", ["page"]
 
-        Islands::islands()
-            .each{|island|
+        Pages::pages()
+            .each{|page|
                 if verbose then
-                    puts "island: #{island["uuid"]} , #{Islands::toString(island)}"
+                    puts "page: #{page["uuid"]} , #{Pages::toString(page)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "island", island["uuid"], island["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "island", island["uuid"], Islands::toString(island))
+                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], page["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], Pages::toString(page))
             }
 
         db.close
@@ -207,7 +207,7 @@ class SelectionLookupDataset
         db.close
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
-        SelectionLookupDataset::rebuildIslandsLookup(verbose)
+        SelectionLookupDataset::rebuildPagesLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
@@ -224,10 +224,10 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToIslands(pattern)
-    def self.patternToIslands(pattern)
+    # SelectionLookupDataset::patternToPages(pattern)
+    def self.patternToPages(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "island" }
+            .select{|record| record["objecttype"] == "page" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

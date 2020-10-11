@@ -31,4 +31,4 @@ We have arrows
   - from tags to datapoints
   - from taxonomy item to datapoints
   - from asteroids to datapoints
-  - from islands to datapoints
+  - from pages to datapoints

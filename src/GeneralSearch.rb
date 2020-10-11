@@ -15,14 +15,14 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630Island(pattern)
-    def self.searchNx1630Island(pattern)
-        SelectionLookupDataset::patternToIslands(pattern)
-            .map{|island|
+    # GeneralSearch::searchNx1630Page(pattern)
+    def self.searchNx1630Page(pattern)
+        SelectionLookupDataset::patternToPages(pattern)
+            .map{|page|
                 {
-                    "description"   => Islands::toString(island),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(island)).to_time.to_f,
-                    "dive"          => lambda{ Islands::landing(island) }
+                    "description"   => Pages::toString(page),
+                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(page)).to_time.to_f,
+                    "dive"          => lambda{ Pages::landing(page) }
                 }
             }
     end
@@ -67,7 +67,7 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
-            GeneralSearch::searchNx1630Island(pattern),
+            GeneralSearch::searchNx1630Page(pattern),
             GeneralSearch::searchNx1630Tag(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)

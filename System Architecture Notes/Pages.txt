@@ -1,0 +1,9 @@
+
+Page names must be unique
+
+Page {
+    "uuid"     : UUID
+    "nyxNxSet" : "287041db-39ac-464c-b557-2f172e721111"
+    "unixtime" : Float # Unixtime with decimals
+    "name"     : String
+}

@@ -23,8 +23,8 @@ class NyxObjectInterface
         object["nyxNxSet"] == "06071daa-ec51-4c19-a4b9-62f39bb2ce4f"
     end
 
-    # NyxObjectInterface::isIsland(object)
-    def self.isIsland(object)
+    # NyxObjectInterface::isPage(object)
+    def self.isPage(object)
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
@@ -39,8 +39,8 @@ class NyxObjectInterface
         if NyxObjectInterface::isCube(object) then
             return Cubes::toString(object)
         end
-        if NyxObjectInterface::isIsland(object) then
-            return Islands::toString(object)
+        if NyxObjectInterface::isPage(object) then
+            return Pages::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -79,8 +79,8 @@ class NyxObjectInterface
             NSNode1638::landing(object)
             return
         end
-        if NyxObjectInterface::isIsland(object) then
-            return Islands::landing(island)
+        if NyxObjectInterface::isPage(object) then
+            return Pages::landing(page)
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"

@@ -435,9 +435,9 @@ class Asteroids
             Arrows::issueOrException(tag, datapoint) 
         }
 
-        island = Islands::selectExistingIslandOrMakeNewOneOrNull()
-        if island then
-            Arrows::issueOrException(island, datapoint)
+        page = Pages::selectExistingPageOrMakeNewOneOrNull()
+        if page then
+            Arrows::issueOrException(page, datapoint)
         end
 
         NyxObjects2::destroy(asteroid) # Do not use Asteroids::asteroidTerminationProtocol here !
