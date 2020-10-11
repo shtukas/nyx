@@ -20,6 +20,13 @@ class Islands
         island
     end
 
+    # Islands::issueIslandInteractivelyOrNull()
+    def self.issueIslandInteractivelyOrNull()
+        name_ = LucilleCore::askQuestionAnswerAsString("island name: ")
+        return nil if name_ == ""
+        Islands::issue(name_)
+    end
+
     # Islands::toString(island)
     def self.toString(island)
         "[island] #{island["name"]}"
@@ -76,8 +83,8 @@ class Islands
         }
     end
 
-    # Islands::islandsDive()
-    def self.islandsDive()
+    # Islands::islandsListing()
+    def self.islandsListing()
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
@@ -87,6 +94,15 @@ class Islands
                     lambda { Islands::landing(island) }
                 )
             }
+            puts ""
+            mx.item(
+                "Make new island".yellow,
+                lambda { 
+                    i = Islands::issueIslandInteractivelyOrNull()
+                    return if i.nil?
+                    Islands::landing(i)
+                }
+            )
             status = mx.promptAndRunSandbox()
             break if !status
         }

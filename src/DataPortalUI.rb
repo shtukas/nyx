@@ -45,7 +45,7 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Cubes Listing",lambda { Cubes::cubesDive() })
+            ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
 
             ms.item(
                 "TaxonomyItem listing", 
@@ -77,7 +77,7 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Islands listing",lambda { Islands::islandsDive() })
+            ms.item("Islands listing",lambda { Islands::islandsListing() })
 
             ms.item(
                 "Tag listing",

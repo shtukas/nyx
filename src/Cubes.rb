@@ -74,8 +74,8 @@ class Cubes
         }
     end
 
-    # Cubes::cubesDive()
-    def self.cubesDive()
+    # Cubes::cubesListing()
+    def self.cubesListing()
         loop {
             system("clear")
 
