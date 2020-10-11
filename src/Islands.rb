@@ -47,36 +47,41 @@ class Islands
             mx = LCoreMenuItemsNX1.new()
 
             puts ""
-            puts "Connections:"
             Links::getLinkedObjectsForCenter(island).each{|i|
                 mx.item(
-                    Islands::toString(i),
+                    "-> #{Islands::toString(i)}",
                     lambda { Islands::landing(i) }
                 )
             }
-            mx.item("Make new link".yellow, lambda { 
-                i = Islands::selectExistingIslandOrMakeNewOneOrNull()
-                return if i.nil?
-                Links::issueOrException(island, i)
-            })
 
             puts ""
-            puts "Contents:"
             targets = Arrows::getTargetsForSource(island)
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
                 .each{|object|
                     mx.item(
-                        NyxObjectInterface::toString(object),
+                        "|| #{NyxObjectInterface::toString(object)}",
                         lambda { NyxObjectInterface::landing(object) }
                     )
                 }
+
+            puts ""
+            mx.item("rename island".yellow, lambda { 
+                name_ = Miscellaneous::editTextSynchronously(island["name"]).strip
+                return if name_ == ""
+                island["name"] = name_
+                NyxObjects2::put(island)
+            })
+            mx.item("Make new link".yellow, lambda { 
+                i = Islands::selectExistingIslandOrMakeNewOneOrNull()
+                return if i.nil?
+                Links::issueOrException(island, i)
+            })
             mx.item("Add datapoint".yellow, lambda { 
                     puts "To be implemented"
                     LucilleCore::pressEnterToContinue()
                 }
             )
-
             puts ""
             status = mx.promptAndRunSandbox()
             break if !status
@@ -95,14 +100,12 @@ class Islands
                 )
             }
             puts ""
-            mx.item(
-                "Make new island".yellow,
-                lambda { 
-                    i = Islands::issueIslandInteractivelyOrNull()
-                    return if i.nil?
-                    Islands::landing(i)
-                }
-            )
+            mx.item("Make new island".yellow, lambda { 
+                i = Islands::issueIslandInteractivelyOrNull()
+                return if i.nil?
+                Islands::landing(i)
+            })
+            puts ""
             status = mx.promptAndRunSandbox()
             break if !status
         }
