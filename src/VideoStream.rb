@@ -58,6 +58,7 @@ class VideoStream
                     "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
                     "metric"      => isRunning ? 1 : VideoStream::metric(indx),
                     "execute"     => lambda { |command| VideoStream::execute(filepath) },
+                    "isRunning"   => isRunning,
                     "x-video-stream" => true,
                     "x-filepath"  => filepath
                 }
