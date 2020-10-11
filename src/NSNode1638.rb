@@ -340,7 +340,7 @@ class NSNode1638
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(newpoint)
             })
 
-            mx.item("send datapoint to cube system".yellow, lambda {
+            mx.item("to cube system".yellow, lambda {
                 CubeTransformers::sendDatapointToCubeSystem(datapoint)
             })
 

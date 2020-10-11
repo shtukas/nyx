@@ -513,7 +513,7 @@ class Asteroids
             target = Asteroids::getAsteroidTargetOrNull(asteroid)
             if target and NyxObjectInterface::isDataPoint(target) then
                 datapoint = target
-                mx.item("send datapoint to cube system".yellow, lambda {
+                mx.item("to cube system".yellow, lambda {
                     status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
                     if status then
                         Asteroids::asteroidTerminationProtocol(asteroid)
@@ -698,7 +698,7 @@ class Asteroids
             target = Asteroids::getAsteroidTargetOrNull(asteroid)
             if target and NyxObjectInterface::isDataPoint(target) then
                 datapoint = target
-                menuitems.item("send datapoint to cube system".yellow, lambda {
+                menuitems.item("to cube system".yellow, lambda {
                     status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
                     if status then
                         Asteroids::asteroidTerminationProtocol(asteroid)
