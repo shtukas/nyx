@@ -15,18 +15,6 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630TaxonomyItem(pattern)
-    def self.searchNx1630TaxonomyItem(pattern)
-        SelectionLookupDataset::patternToTaxonomyItems(pattern)
-            .map{|taxonomyItem|
-                {
-                    "description"   => Taxonomy::toString(taxonomyItem),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(taxonomyItem)).to_time.to_f,
-                    "dive"          => lambda{ Taxonomy::landing(taxonomyItem) }
-                }
-            }
-    end
-
     # GeneralSearch::searchNx1630Island(pattern)
     def self.searchNx1630Island(pattern)
         SelectionLookupDataset::patternToIslands(pattern)
@@ -79,7 +67,6 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
-            GeneralSearch::searchNx1630TaxonomyItem(pattern),
             GeneralSearch::searchNx1630Island(pattern),
             GeneralSearch::searchNx1630Tag(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),

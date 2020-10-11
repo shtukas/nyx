@@ -193,14 +193,6 @@ class NSNode1638
         raise "[NSNode1638 error d39378dc]"
     end
 
-    # NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
-    def self.selectOneDatapointTaxonomyItemOrNull(datapoint)
-        taxonomyItems = Arrows::getSourcesForTarget(taxonomyItem)
-                    .select{|object| NyxObjectInterface::isTaxonomyItem(object) }
-        taxonomyItems = NyxObjectInterface::applyDateTimeOrderToObjects(taxonomyItems)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("taxonomyItem", taxonomyItems, lambda{|o| NyxObjectInterface::toString(o) })
-    end
-
     # NSNode1638::opendatapoint(datapoint)
     def self.opendatapoint(datapoint)
         if datapoint["type"] == "line" then
@@ -261,19 +253,6 @@ class NSNode1638
             system("clear")
 
             mx = LCoreMenuItemsNX1.new()
-
-            taxonomyItems = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTaxonomyItem(object) }
-            taxonomyItems.each{|taxonomyItem|
-                mx.item(
-                    Taxonomy::toString(taxonomyItem),
-                    lambda { 
-                        NyxObjectInterface::landing(taxonomyItem)
-                    }
-                )
-            }
-            if taxonomyItems.size>0 then
-                puts ""
-            end
 
             islands = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
             islands.each{|island|
@@ -342,18 +321,6 @@ class NSNode1638
 
             mx.item("to cube system".yellow, lambda {
                 CubeTransformers::sendDatapointToCubeSystem(datapoint)
-            })
-
-            mx.item("set taxonomy item".yellow, lambda {
-                taxonomyItem = Taxonomy::selectOneExistingTaxonomyItemOrNull()
-                return if taxonomyItem.nil?
-                Arrows::issueOrException(taxonomyItem, datapoint)
-            })
-
-            mx.item("detach taxonomy item".yellow, lambda {
-                taxonomyItem = NSNode1638::selectOneDatapointTaxonomyItemOrNull(datapoint)
-                return if taxonomyItem.nil?
-                Arrows::unlink(taxonomyItem, datapoint)
             })
 
             mx.item("add tag".yellow, lambda {

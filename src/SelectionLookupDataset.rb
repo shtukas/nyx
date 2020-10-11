@@ -34,13 +34,6 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(taxonomyItem)
-    def self.updateLookupForTaxonomyItem(taxonomyItem)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(taxonomyItem["uuid"])
-        SelectionLookupDatabaseIO::addRecord("taxonomy_item", taxonomyItem["uuid"], taxonomyItem["uuid"])
-        SelectionLookupDatabaseIO::addRecord("taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem).downcase)
-    end
-
     # SelectionLookupDatabaseIO::updateLookupForIsland(island)
     def self.updateLookupForIsland(island)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(islandm["uuid"])
@@ -96,11 +89,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForTaxonomyItem(taxonomyItem)
-    def self.updateLookupForTaxonomyItem(taxonomyItem)
-        SelectionLookupDatabaseIO::updateLookupForTaxonomyItem(taxonomyItem)
-    end
-
     # SelectionLookupDataset::updateLookupForIsland(island)
     def self.updateLookupForIsland(island)
         SelectionLookupDatabaseIO::updateLookupForIsland(island)
@@ -139,23 +127,6 @@ class SelectionLookupDataset
                 if datapoint["type"] == "NyxFSPoint001" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
                 end
-            }
-
-        db.close
-    end
-
-    # SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
-    def self.rebuildTaxonomyItemsLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["taxonomy_item"]
-
-        Taxonomy::items()
-            .each{|taxonomyItem|
-                if verbose then
-                    puts "taxonomy item: #{taxonomyItem["uuid"]} , #{Taxonomy::toString(taxonomyItem)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], taxonomyItem["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "taxonomy_item", taxonomyItem["uuid"], Taxonomy::toString(taxonomyItem))
             }
 
         db.close
@@ -236,7 +207,6 @@ class SelectionLookupDataset
         db.close
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
-        SelectionLookupDataset::rebuildTaxonomyItemsLookup(verbose)
         SelectionLookupDataset::rebuildIslandsLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
@@ -249,15 +219,6 @@ class SelectionLookupDataset
     def self.patternToDatapoints(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "datapoint" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToTaxonomyItems(pattern)
-    def self.patternToTaxonomyItems(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "taxonomy_item" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

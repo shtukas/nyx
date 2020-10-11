@@ -82,6 +82,10 @@ class Islands
                     LucilleCore::pressEnterToContinue()
                 }
             )
+            mx.item("see json object".yellow, lambda { 
+                puts JSON.pretty_generate(island)
+                LucilleCore::pressEnterToContinue()
+            })
             puts ""
             status = mx.promptAndRunSandbox()
             break if !status

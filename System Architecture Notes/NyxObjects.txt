@@ -15,9 +15,6 @@ Nyx Objects
                         -> NyxDirectory
                         -> NyxFSPoint001
 
-    TaxonomyItems # TaxonomyItems.txt
-                  # nyxNxSet: "e54eefdf-53ea-47b0-a70c-c93d958bbe1c"
-
     Tags          # Tags.txt
                   # nyxNxSet: "25bb489f-a25b-46af-938a-96cc42e2694c"
 

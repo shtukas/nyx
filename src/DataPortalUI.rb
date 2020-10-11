@@ -47,36 +47,6 @@ class DataPortalUI
 
             ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
 
-            ms.item(
-                "TaxonomyItem listing", 
-                lambda {
-                    loop {
-
-                        system("clear")
-
-                        mx = LCoreMenuItemsNX1.new()
-
-                        Taxonomy::items().each{|taxonomyItem|
-                            mx.item(
-                                Taxonomy::toString(taxonomyItem),
-                                lambda { Taxonomy::landing(taxonomyItem) }
-                            )
-                        }
-
-                        puts ""
-
-                        mx.item("issue new taxonomy item", lambda {
-                            coordinates = LucilleCore::askQuestionAnswerAsString("coordinates: ")
-                            return if coordinates.size == ""
-                            Taxonomy::issueTaxonomyItemFromStringOrNull(coordinates)
-                        })
-
-                        status = mx.promptAndRunSandbox()
-                        break if !status
-                    }
-                }
-            )
-
             ms.item("Islands listing",lambda { Islands::islandsListing() })
 
             ms.item(
