@@ -45,6 +45,8 @@ class DataPortalUI
                 }
             )
 
+            ms.item("Cubes Listing",lambda { Cubes::cubesDive() })
+
             ms.item(
                 "TaxonomyItem listing", 
                 lambda {
@@ -75,6 +77,8 @@ class DataPortalUI
                 }
             )
 
+            ms.item("Islands listing",lambda { Islands::islandsDive() })
+
             ms.item(
                 "Tag listing",
                 lambda {
@@ -99,9 +103,7 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Cubes Dive",lambda { Cubes::cubesDive() })
-
-            ms.item("Islands listing",lambda { Islands::islandsDive() })
+            puts ""
 
             ms.item(
                 "Asteroids",
