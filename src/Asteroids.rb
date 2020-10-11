@@ -420,25 +420,14 @@ class Asteroids
             end
         end
 
-        tags = (lambda {
-            ts = []
-            loop {
-                payload = LucilleCore::askQuestionAnswerAsString("tag (empty to end process): ")
-                break if payload == ""
-                ts << Tags::issue(payload)
-            }
-            ts
-        }).call()
-
-        tags.each{|tag| 
-            puts "issue tag: #{tag}"
-            Arrows::issueOrException(tag, datapoint) 
+        loop {
+            page = Pages::selectExistingPageOrMakeNewOneOrNull()
+            if page then
+                Arrows::issueOrException(page, datapoint)
+                next
+            end
+            break
         }
-
-        page = Pages::selectExistingPageOrMakeNewOneOrNull()
-        if page then
-            Arrows::issueOrException(page, datapoint)
-        end
 
         NyxObjects2::destroy(asteroid) # Do not use Asteroids::asteroidTerminationProtocol here !
         NSNode1638::landing(datapoint)

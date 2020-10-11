@@ -47,30 +47,6 @@ class DataPortalUI
 
             ms.item("Pages listing",lambda { Pages::pagesListing() })
 
-            ms.item(
-                "Tag listing",
-                lambda {
-                    loop {
-
-                        system("clear")
-
-                        mx = LCoreMenuItemsNX1.new()
-
-                        Tags::tags().each{|tag|
-                            mx.item(
-                                Tags::toString(tag),
-                                lambda { Tags::landing(tag) }
-                            )
-                        }
-
-                        puts ""
-
-                        status = mx.promptAndRunSandbox()
-                        break if !status
-                    }
-                }
-            )
-
             ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
 
             puts ""

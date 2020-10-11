@@ -27,18 +27,6 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630Tag(pattern)
-    def self.searchNx1630Tag(pattern)
-        SelectionLookupDataset::patternToTags(pattern)
-            .map{|tag|
-                {
-                    "description"   => Tags::toString(tag),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(tag)).to_time.to_f,
-                    "dive"          => lambda{ Tags::landing(tag) }
-                }
-            }
-    end
-
     # GeneralSearch::searchNx1630Asteroid(pattern)
     def self.searchNx1630Asteroid(pattern)
         SelectionLookupDataset::patternToAsteroids(pattern)
@@ -68,7 +56,6 @@ class GeneralSearch
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
             GeneralSearch::searchNx1630Page(pattern),
-            GeneralSearch::searchNx1630Tag(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

@@ -13,11 +13,6 @@ class NyxObjectInterface
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # NyxObjectInterface::isTag(object)
-    def self.isTag(object)
-        object["nyxNxSet"] == "25bb489f-a25b-46af-938a-96cc42e2694c"
-    end
-
     # NyxObjectInterface::isCube(object)
     def self.isCube(object)
         object["nyxNxSet"] == "06071daa-ec51-4c19-a4b9-62f39bb2ce4f"

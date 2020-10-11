@@ -41,13 +41,6 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("page", page["uuid"], Pages::toString(page).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForTag(tag)
-    def self.updateLookupForTag(tag)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], Tags::toString(tag))
-    end
-
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
@@ -92,11 +85,6 @@ class SelectionLookupDataset
     # SelectionLookupDataset::updateLookupForPage(page)
     def self.updateLookupForPage(page)
         SelectionLookupDatabaseIO::updateLookupForPage(page)
-    end
-
-    # SelectionLookupDataset::updateLookupForTag(tag)
-    def self.updateLookupForTag(tag)
-        SelectionLookupDatabaseIO::updateLookupForTag(tag)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -149,23 +137,6 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildTagsLookup(verbose)
-    def self.rebuildTagsLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["tag"]
-
-        Tags::tags()
-            .each{|tag|
-                if verbose then
-                    puts "tag: #{tag["uuid"]} , #{Tags::toString(tag)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], tag["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], Tags::toString(tag))
-            }
-
-        db.close
-    end
-
     # SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
     def self.rebuildAsteroidsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
@@ -208,7 +179,6 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
         SelectionLookupDataset::rebuildPagesLookup(verbose)
-        SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -228,15 +198,6 @@ class SelectionLookupDataset
     def self.patternToPages(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "page" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToTags(pattern)
-    def self.patternToTags(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "tag" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

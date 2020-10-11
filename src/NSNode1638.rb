@@ -265,19 +265,6 @@ class NSNode1638
                 puts ""
             end
 
-            tags = Arrows::getSourcesForTarget(datapoint).select{|object| NyxObjectInterface::isTag(object) }
-            tags.each{|tag|
-                mx.item(
-                    Tags::toString(tag),
-                    lambda { 
-                        Tags::landing(tag)
-                    }
-                )
-            }
-            if tags.size>0 then
-                puts ""
-            end
-
             puts NSNode1638::toString(datapoint).green
             puts ""
 
@@ -321,13 +308,6 @@ class NSNode1638
 
             mx.item("to cube system".yellow, lambda {
                 CubeTransformers::sendDatapointToCubeSystem(datapoint)
-            })
-
-            mx.item("add tag".yellow, lambda {
-                payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
-                return if payload == ""
-                tag = Tags::issue(payload)
-                Arrows::issueOrException(tag, datapoint)
             })
 
             mx.item("destroy".yellow, lambda {
