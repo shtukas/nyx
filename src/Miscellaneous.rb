@@ -247,4 +247,12 @@ class Miscellaneous
         content = SectionsType0141::applyNextTransformationToContent(content)
         File.open(filepath, "w"){|f| f.puts(content) }
     end
+
+    # Miscellaneous::pecoStyleSelectionOrNull(lines)
+    def self.pecoStyleSelectionOrNull(lines)
+        lines  = [""] + lines
+        line = `echo '#{lines.join("\n")}' | /usr/local/bin/peco`.strip
+        return line if line.size > 0
+        nil
+    end
 end

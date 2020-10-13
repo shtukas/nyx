@@ -109,21 +109,39 @@ class Pages
         Pages::pages().any?{|page| page["name"].downcase == name_.downcase }
     end
 
-    # Pages::selectExistingPageOrNull()
-    def self.selectExistingPageOrNull()
+    # Pages::selectExistingPageOrNull_v1()
+    def self.selectExistingPageOrNull_v1()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("page", Pages::pages(), lambda { |page| Pages::toString(page) })
+    end
+
+    # Pages::pecoStyleSelectPageNameOrNull()
+    def self.pecoStyleSelectPageNameOrNull()
+        Miscellaneous::pecoStyleSelectionOrNull(Pages::pages().map{|page| page["name"] }.sort)
+    end
+
+    # Pages::selectPageByNameOrNull(name_)
+    def self.selectPageByNameOrNull(name_)
+        Pages::pages()
+            .select{|page| page["name"].downcase == name_.downcase }
+            .first
+    end
+
+    # Pages::selectExistingPageOrNull_v2()
+    def self.selectExistingPageOrNull_v2()
+        n = Pages::pecoStyleSelectPageNameOrNull()
+        return nil if n.nil?
+        Pages::selectPageByNameOrNull(n)
     end
 
     # Pages::selectExistingPageOrMakeNewOneOrNull()
     def self.selectExistingPageOrMakeNewOneOrNull()
-        page = Pages::selectExistingPageOrNull()
+        page = Pages::selectExistingPageOrNull_v2()
         return page if page
         if LucilleCore::askQuestionAnswerAsBoolean("Create a new page ? ") then
             loop {
                 name_ = LucilleCore::askQuestionAnswerAsString("page name: ")
-                if Pages::nameIsUsed(name_) then
-                    puts "name '#{name_}' is already used"
-                    next
+                if Pages::selectPageByNameOrNull(name_) then
+                    return Pages::selectPageByNameOrNull(name_)
                 end
                 return Pages::issue(name_)
             }

@@ -254,18 +254,9 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
-            pages.each{|page|
-                mx.item(
-                    Pages::toString(page),
-                    lambda { Pages::landing(page) }
-                )
-            }
-            if pages.size>0 then
-                puts ""
-            end
-
             puts NSNode1638::toString(datapoint).green
+            puts "uuid: #{datapoint["uuid"]}".yellow
+            puts "date: #{NyxObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
             puts ""
 
             mx.item(
@@ -276,8 +267,14 @@ class NSNode1638
             )
 
             puts ""
-            puts "uuid: #{datapoint["uuid"]}".yellow
-            puts "date: #{NyxObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
+
+            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
+            pages.each{|page|
+                mx.item(
+                    Pages::toString(page),
+                    lambda { Pages::landing(page) }
+                )
+            }
 
             puts ""
 
