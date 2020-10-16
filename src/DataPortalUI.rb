@@ -13,6 +13,16 @@ class DataPortalUI
                 lambda { GeneralSearch::searchAndDive() }
             )
 
+            ms.item("Pages (listing all)",lambda { Pages::pagesListing() })
+
+            ms.item("Pages (peco iteractive select + landing)",lambda {
+                loop {
+                    page = Pages::selectExistingPageOrNull_v2()
+                    return if page.nil?
+                    Pages::landing(page)
+                }
+            })
+
             ms.item(
                 "Datapoint Exploration", 
                 lambda { NSNode1638Extended::interactiveDatapointSearchAndExplore() }
@@ -45,9 +55,7 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Pages listing",lambda { Pages::pagesListing() })
-
-            ms.item("Cubes Listing",lambda { Cubes::cubesListing() })
+            ms.item("Cubes Listing all",lambda { Cubes::cubesListing() })
 
             puts ""
 

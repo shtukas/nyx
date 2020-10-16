@@ -73,7 +73,7 @@ class GeneralSearch
             searchresults = GeneralSearch::searchNx1630(pattern)
             loop {
                 system("clear")
-                puts "results for '#{pattern}':"
+                puts "search results for '#{pattern}':"
                 ms = LCoreMenuItemsNX1.new()
                 searchresults
                     .each{|sr| 

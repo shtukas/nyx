@@ -106,9 +106,22 @@ class NSNode1638
         object
     end
 
+    # NSNode1638::issuePage(pageuuid)
+    def self.issuePage(pageuuid)
+        object = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
+            "unixtime"   => Time.new.to_f,
+            "type"       => "page",
+            "pageuuid"   => pageuuid
+        }
+        NyxObjects2::put(object)
+        object
+    end
+
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxDirectory"] # We are not yet interactively issuing NyxFSPoint001
+        types = ["line", "url", "text", "NyxFile", "NyxDirectory", "page"] # We are not yet interactively issuing NyxFSPoint001
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -154,6 +167,11 @@ class NSNode1638
             LucilleCore::pressEnterToContinue()
             return NSNode1638::issueNyxDirectory(nyxDirectoryName)
         end
+        if type == "page" then
+            page = Pages::selectExistingPageOrMakeNewOneOrNull()
+            return nil if page.nil?
+            return NSNode1638::issuePage(page["uuid"])
+        end
     end
 
     # NSNode1638::toString(datapoint)
@@ -188,6 +206,12 @@ class NSNode1638
         end
         if datapoint["type"] == "NyxFSPoint001" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
+        end
+        if datapoint["type"] == "page" then
+            pageuuid = datapoint["pageuuid"]
+            page = NyxObjects2::getOrNull(pageuuid)
+            pageAsString = page ? Pages::toString(page) : "(page not found: uuid: #{pageuuid})"
+            return "[datapoint: #{datapoint["type"]}] #{pageAsString}"
         end
         puts datapoint
         raise "[NSNode1638 error d39378dc]"
@@ -240,6 +264,12 @@ class NSNode1638
             end
             return nil
         end
+        if datapoint["type"] == "page" then
+             pageuuid = datapoint["pageuuid"]
+             page = NyxObjects2::getOrNull(pageuuid)
+             return if page.nil?
+             Pages::landing(page)
+        end
         puts datapoint
         raise "[NSNode1638 error e12fc718]"
     end
@@ -254,9 +284,20 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
+            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
+            pages.each{|page|
+                mx.item(
+                    "parent: #{Pages::toString(page)}",
+                    lambda { Pages::landing(page) }
+                )
+            }
+
+            puts ""
+
             puts NSNode1638::toString(datapoint).green
             puts "uuid: #{datapoint["uuid"]}".yellow
             puts "date: #{NyxObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
+
             puts ""
 
             mx.item(
@@ -265,16 +306,6 @@ class NSNode1638
                     NSNode1638::opendatapoint(datapoint)
                 }
             )
-
-            puts ""
-
-            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
-            pages.each{|page|
-                mx.item(
-                    Pages::toString(page),
-                    lambda { Pages::landing(page) }
-                )
-            }
 
             puts ""
 
@@ -289,6 +320,12 @@ class NSNode1638
                 datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
                 datapoint["referenceDateTime"] = datetime
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+            })
+
+            mx.item("add to page".yellow, lambda {
+                page = Pages::selectExistingPageOrMakeNewOneOrNull()
+                return if page.nil?
+                Arrows::issueOrException(page, datapoint)
             })
 
             mx.item("transmute datapoint".yellow, lambda {
@@ -389,6 +426,10 @@ class NSNode1638
                 puts "We are in asteroids land. Going to remove the parent folder: #{parent}"
                 LucilleCore::removeFileSystemLocation(parent)
             end
+        end
+
+        if datapoint["type"] == "page" then
+
         end
 
         NyxObjects2::destroy(datapoint)
