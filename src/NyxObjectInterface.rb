@@ -77,6 +77,9 @@ class NyxObjectInterface
         if NyxObjectInterface::isPage(object) then
             return Pages::landing(page)
         end
+        if NyxObjectInterface::isCube(object) then
+            return Cubes::landing(object)
+        end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end

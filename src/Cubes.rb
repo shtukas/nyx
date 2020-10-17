@@ -26,8 +26,8 @@ class Cubes
         NyxObjects2::getSet("06071daa-ec51-4c19-a4b9-62f39bb2ce4f")
     end
 
-    # Cubes::cubeLanding(cube)
-    def self.cubeLanding(cube)
+    # Cubes::landing(cube)
+    def self.landing(cube)
         loop {
             system("clear")
 
@@ -83,7 +83,7 @@ class Cubes
 
             Cubes::cubes().each{|cube|
                 mx.item(Cubes::toString(cube), lambda {
-                    Cubes::cubeLanding(cube)
+                    Cubes::landing(cube)
                 })
             }
 

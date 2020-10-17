@@ -362,7 +362,7 @@ class Asteroids
             return
         end
         if NyxObjectInterface::isCube(target) then
-            Cubes::cubeLanding(target)
+            Cubes::landing(target)
             return
         end
     end
