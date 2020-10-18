@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForPage(page)
-    def self.updateLookupForPage(page)
+    # SelectionLookupDatabaseIO::updateLookupForSet(page)
+    def self.updateLookupForSet(page)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(pagem["uuid"])
         SelectionLookupDatabaseIO::addRecord("page", page["uuid"], page["uuid"])
-        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], Pages::toString(page).downcase)
+        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], Sets::toString(page).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -82,9 +82,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForPage(page)
-    def self.updateLookupForPage(page)
-        SelectionLookupDatabaseIO::updateLookupForPage(page)
+    # SelectionLookupDataset::updateLookupForSet(page)
+    def self.updateLookupForSet(page)
+        SelectionLookupDatabaseIO::updateLookupForSet(page)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -120,18 +120,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildPagesLookup(verbose)
-    def self.rebuildPagesLookup(verbose)
+    # SelectionLookupDataset::rebuildSetsLookup(verbose)
+    def self.rebuildSetsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["page"]
 
-        Pages::pages()
+        Sets::pages()
             .each{|page|
                 if verbose then
-                    puts "page: #{page["uuid"]} , #{Pages::toString(page)}"
+                    puts "page: #{page["uuid"]} , #{Sets::toString(page)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], page["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], Pages::toString(page))
+                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], Sets::toString(page))
             }
 
         db.close
@@ -178,7 +178,7 @@ class SelectionLookupDataset
         db.close
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
-        SelectionLookupDataset::rebuildPagesLookup(verbose)
+        SelectionLookupDataset::rebuildSetsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -194,8 +194,8 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToPages(pattern)
-    def self.patternToPages(pattern)
+    # SelectionLookupDataset::patternToSets(pattern)
+    def self.patternToSets(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "page" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }

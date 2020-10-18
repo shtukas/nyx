@@ -15,7 +15,7 @@ Nyx Objects
                         -> NyxDirectory
                         -> NyxFSPoint001
 
-    Page          # Pages.txt
+    Set          # Sets.txt
                   # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"
 
     Wave          # Waves.txt

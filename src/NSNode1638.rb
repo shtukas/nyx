@@ -106,8 +106,8 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issuePage(pageuuid)
-    def self.issuePage(pageuuid)
+    # NSNode1638::issueSet(pageuuid)
+    def self.issueSet(pageuuid)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
@@ -168,9 +168,9 @@ class NSNode1638
             return NSNode1638::issueNyxDirectory(nyxDirectoryName)
         end
         if type == "page" then
-            page = Pages::selectExistingPageOrMakeNewOneOrNull()
+            page = Sets::selectExistingSetOrMakeNewOneOrNull()
             return nil if page.nil?
-            return NSNode1638::issuePage(page["uuid"])
+            return NSNode1638::issueSet(page["uuid"])
         end
     end
 
@@ -210,7 +210,7 @@ class NSNode1638
         if datapoint["type"] == "page" then
             pageuuid = datapoint["pageuuid"]
             page = NyxObjects2::getOrNull(pageuuid)
-            pageAsString = page ? Pages::toString(page) : "(page not found: uuid: #{pageuuid})"
+            pageAsString = page ? Sets::toString(page) : "(page not found: uuid: #{pageuuid})"
             return "[datapoint: #{datapoint["type"]}] #{pageAsString}"
         end
         puts datapoint
@@ -268,7 +268,7 @@ class NSNode1638
              pageuuid = datapoint["pageuuid"]
              page = NyxObjects2::getOrNull(pageuuid)
              return if page.nil?
-             Pages::landing(page)
+             Sets::landing(page)
         end
         puts datapoint
         raise "[NSNode1638 error e12fc718]"
@@ -287,8 +287,8 @@ class NSNode1638
             pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
             pages.each{|page|
                 mx.item(
-                    "parent: #{Pages::toString(page)}",
-                    lambda { Pages::landing(page) }
+                    "parent: #{Sets::toString(page)}",
+                    lambda { Sets::landing(page) }
                 )
             }
 
@@ -323,7 +323,7 @@ class NSNode1638
             })
 
             mx.item("add to page".yellow, lambda {
-                page = Pages::selectExistingPageOrMakeNewOneOrNull()
+                page = Sets::selectExistingSetOrMakeNewOneOrNull()
                 return if page.nil?
                 Arrows::issueOrException(page, datapoint)
             })

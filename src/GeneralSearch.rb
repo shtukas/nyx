@@ -15,14 +15,14 @@ class GeneralSearch
             }
     end
 
-    # GeneralSearch::searchNx1630Page(pattern)
-    def self.searchNx1630Page(pattern)
-        SelectionLookupDataset::patternToPages(pattern)
+    # GeneralSearch::searchNx1630Set(pattern)
+    def self.searchNx1630Set(pattern)
+        SelectionLookupDataset::patternToSets(pattern)
             .map{|page|
                 {
-                    "description"   => Pages::toString(page),
+                    "description"   => Sets::toString(page),
                     "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(page)).to_time.to_f,
-                    "dive"          => lambda{ Pages::landing(page) }
+                    "dive"          => lambda{ Sets::landing(page) }
                 }
             }
     end
@@ -55,7 +55,7 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
-            GeneralSearch::searchNx1630Page(pattern),
+            GeneralSearch::searchNx1630Set(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

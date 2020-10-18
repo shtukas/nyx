@@ -13,13 +13,13 @@ class DataPortalUI
                 lambda { GeneralSearch::searchAndDive() }
             )
 
-            ms.item("Pages (listing all)",lambda { Pages::pagesListing() })
+            ms.item("Sets (listing all)",lambda { Sets::pagesListing() })
 
-            ms.item("Pages (peco iteractive select + landing)",lambda {
+            ms.item("Sets (peco iteractive select + landing)",lambda {
                 loop {
-                    page = Pages::selectExistingPageOrNull_v2()
+                    page = Sets::selectExistingSetOrNull_v2()
                     return if page.nil?
-                    Pages::landing(page)
+                    Sets::landing(page)
                 }
             })
 

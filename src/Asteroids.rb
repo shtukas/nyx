@@ -421,7 +421,7 @@ class Asteroids
         end
 
         loop {
-            page = Pages::selectExistingPageOrMakeNewOneOrNull()
+            page = Sets::selectExistingSetOrMakeNewOneOrNull()
             if page then
                 Arrows::issueOrException(page, datapoint)
                 next
