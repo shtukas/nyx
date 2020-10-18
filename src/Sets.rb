@@ -74,9 +74,9 @@ class Sets
                 Arrows::issueOrException(set, datapoint)
             })
             mx.item("add to set".yellow, lambda { 
-                p1 = Sets::selectExistingSetOrMakeNewOneOrNull()
-                return if p1.nil?
-                Arrows::issueOrException(p1, set)
+                s1 = Sets::selectExistingSetOrMakeNewOneOrNull()
+                return if s1.nil?
+                Arrows::issueOrException(s1, set)
             })
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(set)

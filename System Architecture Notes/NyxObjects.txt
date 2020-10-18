@@ -15,20 +15,19 @@ Nyx Objects
                         -> NyxDirectory
                         -> NyxFSPoint001
 
-    Set          # Sets.txt
+    Set           # Sets.txt
                   # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"
-
-    Wave          # Waves.txt
-                  # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 
     Asteroid      # Asteroid.txt
                   # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
 
+    Wave          # Waves.txt
+                  # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+
 -------------------------------------------------------------------------
 Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.
 
-We have arrows 
-  - from tags to datapoints
-  - from taxonomy item to datapoints
+We have arrows
   - from asteroids to datapoints
   - from sets to datapoints
+  - from sets to sets
