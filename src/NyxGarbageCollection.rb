@@ -13,6 +13,5 @@ class NyxGarbageCollection
                 Arrows::destroy(arrow["sourceuuid"], arrow["targetuuid"])
             end
         }
-
     end
 end

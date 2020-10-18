@@ -15,42 +15,42 @@ class Sets
 
     # Sets::issue(name_)
     def self.issue(name_)
-        page = Sets::make(name_)
-        NyxObjects2::put(page)
-        page
+        set = Sets::make(name_)
+        NyxObjects2::put(set)
+        set
     end
 
     # Sets::issueSetInteractivelyOrNull()
     def self.issueSetInteractivelyOrNull()
-        name_ = LucilleCore::askQuestionAnswerAsString("page name: ")
+        name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
         return nil if name_ == ""
         Sets::issue(name_)
     end
 
-    # Sets::toString(page)
-    def self.toString(page)
-        "[page] #{page["name"]}"
+    # Sets::toString(set)
+    def self.toString(set)
+        "[set] #{set["name"]}"
     end
 
-    # Sets::pages()
-    def self.pages()
+    # Sets::sets()
+    def self.sets()
         NyxObjects2::getSet("287041db-39ac-464c-b557-2f172e721111")
     end
 
-    # Sets::landing(page)
-    def self.landing(page)
+    # Sets::landing(set)
+    def self.landing(set)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(page["uuid"]).nil?
+            return if NyxObjects2::getOrNull(set["uuid"]).nil?
 
-            puts Sets::toString(page).green
-            puts "uuid: #{page["uuid"]}".yellow
+            puts Sets::toString(set).green
+            puts "uuid: #{set["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
             puts ""
-            targets = Arrows::getTargetsForSource(page)
+            targets = Arrows::getTargetsForSource(set)
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
                 .each{|object|
@@ -62,29 +62,29 @@ class Sets
 
             puts ""
             mx.item("rename".yellow, lambda { 
-                name_ = Miscellaneous::editTextSynchronously(page["name"]).strip
+                name_ = Miscellaneous::editTextSynchronously(set["name"]).strip
                 return if name_ == ""
-                page["name"] = name_
-                NyxObjects2::put(page)
+                set["name"] = name_
+                NyxObjects2::put(set)
                 Sets::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(page, datapoint)
+                Arrows::issueOrException(set, datapoint)
             })
-            mx.item("add to page".yellow, lambda { 
+            mx.item("add to set".yellow, lambda { 
                 p1 = Sets::selectExistingSetOrMakeNewOneOrNull()
                 return if p1.nil?
-                Arrows::issueOrException(p1, page)
+                Arrows::issueOrException(p1, set)
             })
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(page)
+                puts JSON.pretty_generate(set)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy page".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy page: '#{Sets::toString(page)}': ") then
-                    NyxObjects2::destroy(page)
+            mx.item("destroy set".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy set: '#{Sets::toString(set)}': ") then
+                    NyxObjects2::destroy(set)
                 end
             })
             puts ""
@@ -93,19 +93,19 @@ class Sets
         }
     end
 
-    # Sets::pagesListing()
-    def self.pagesListing()
+    # Sets::setsListing()
+    def self.setsListing()
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            Sets::pages().each{|page|
+            Sets::sets().each{|set|
                 mx.item(
-                    Sets::toString(page),
-                    lambda { Sets::landing(page) }
+                    Sets::toString(set),
+                    lambda { Sets::landing(set) }
                 )
             }
             puts ""
-            mx.item("Make new page".yellow, lambda { 
+            mx.item("Make new set".yellow, lambda { 
                 i = Sets::issueSetInteractivelyOrNull()
                 return if i.nil?
                 Sets::landing(i)
@@ -120,24 +120,24 @@ class Sets
 
     # Sets::nameIsUsed(name_)
     def self.nameIsUsed(name_)
-        Sets::pages().any?{|page| page["name"].downcase == name_.downcase }
+        Sets::sets().any?{|set| set["name"].downcase == name_.downcase }
     end
 
     # Sets::selectExistingSetOrNull_v1()
     def self.selectExistingSetOrNull_v1()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("page", Sets::pages(), lambda { |page| Sets::toString(page) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("set", Sets::sets(), lambda { |set| Sets::toString(set) })
     end
 
     # Sets::pecoStyleSelectSetNameOrNull()
     def self.pecoStyleSelectSetNameOrNull()
-        names = Sets::pages().map{|page| page["name"] }.sort
+        names = Sets::sets().map{|set| set["name"] }.sort
         Miscellaneous::pecoStyleSelectionOrNull(names)
     end
 
     # Sets::selectSetByNameOrNull(name_)
     def self.selectSetByNameOrNull(name_)
-        Sets::pages()
-            .select{|page| page["name"].downcase == name_.downcase }
+        Sets::sets()
+            .select{|set| set["name"].downcase == name_.downcase }
             .first
     end
 
@@ -151,11 +151,11 @@ class Sets
     # Interface
     # Sets::selectExistingSetOrMakeNewOneOrNull()
     def self.selectExistingSetOrMakeNewOneOrNull()
-        page = Sets::selectExistingSetOrNull_v2()
-        return page if page
-        if LucilleCore::askQuestionAnswerAsBoolean("Create a new page ? ") then
+        set = Sets::selectExistingSetOrNull_v2()
+        return set if set
+        if LucilleCore::askQuestionAnswerAsBoolean("Create a new set ? ") then
             loop {
-                name_ = LucilleCore::askQuestionAnswerAsString("page name: ")
+                name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
                 if Sets::selectSetByNameOrNull(name_) then
                     return Sets::selectSetByNameOrNull(name_)
                 end
@@ -167,37 +167,37 @@ class Sets
 
     # ----------------------------------
 
-    # Sets::mergeTwoSetsOfSameNameReturnSet(page1, page2)
-    def self.mergeTwoSetsOfSameNameReturnSet(page1, page2)
-        raise "4c54ea8b-7cb4-4838-98ed-66857bd22616" if ( page1["uuid"] == page2["uuid"] )
-        raise "7d4b9f3e-9fe0-4594-a3c4-61d177a3a904" if ( page1["name"].downcase != page2["name"].downcase )
-        page = Sets::issue(page1["name"])
+    # Sets::mergeTwoSetsOfSameNameReturnSet(set1, set2)
+    def self.mergeTwoSetsOfSameNameReturnSet(set1, set2)
+        raise "4c54ea8b-7cb4-4838-98ed-66857bd22616" if ( set1["uuid"] == set2["uuid"] )
+        raise "7d4b9f3e-9fe0-4594-a3c4-61d177a3a904" if ( set1["name"].downcase != set2["name"].downcase )
+        set = Sets::issue(set1["name"])
 
-        Arrows::getSourcesForTarget(page1).each{|source|
-            Arrows::issueOrException(source, page)
+        Arrows::getSourcesForTarget(set1).each{|source|
+            Arrows::issueOrException(source, set)
         }
-        Arrows::getTargetsForSource(page1).each{|target|
-            Arrows::issueOrException(page, target)
-        }
-
-        Arrows::getSourcesForTarget(page2).each{|source|
-            Arrows::issueOrException(source, page)
-        }
-        Arrows::getTargetsForSource(page2).each{|target|
-            Arrows::issueOrException(page, target)
+        Arrows::getTargetsForSource(set1).each{|target|
+            Arrows::issueOrException(set, target)
         }
 
-        NyxObjects2::destroy(page1)
-        NyxObjects2::destroy(page2)
+        Arrows::getSourcesForTarget(set2).each{|source|
+            Arrows::issueOrException(source, set)
+        }
+        Arrows::getTargetsForSource(set2).each{|target|
+            Arrows::issueOrException(set, target)
+        }
 
-        page
+        NyxObjects2::destroy(set1)
+        NyxObjects2::destroy(set2)
+
+        set
     end
 
     # Sets::redundancyPairOrNull()
     def self.redundancyPairOrNull()
-        Sets::pages().combination(2).each{|page1, page2|
-            next if page1["name"].downcase != page2["name"].downcase 
-            return [page1, page2]
+        Sets::sets().combination(2).each{|set1, set2|
+            next if set1["name"].downcase != set2["name"].downcase 
+            return [set1, set2]
         }
         nil
     end
@@ -206,8 +206,8 @@ class Sets
     # Sets::removeSetDuplicates()
     def self.removeSetDuplicates()
         while pair = Sets::redundancyPairOrNull() do
-            page1, page2 = pair
-            Sets::mergeTwoSetsOfSameNameReturnSet(page1, page2)
+            set1, set2 = pair
+            Sets::mergeTwoSetsOfSameNameReturnSet(set1, set2)
         end
     end
 
@@ -215,11 +215,11 @@ class Sets
 
     # Sets::batchRename(oldname, newname)
     def self.batchRename(oldname, newname)
-        Sets::pages()
-            .each{|page|
-                next if (page["name"] != oldname)
-                page["name"] = newname
-                NyxObjects2::put(page)
+        Sets::sets()
+            .each{|set|
+                next if (set["name"] != oldname)
+                set["name"] = newname
+                NyxObjects2::put(set)
             }
     end
 end

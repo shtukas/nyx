@@ -75,7 +75,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isSet(object) then
-            return Sets::landing(page)
+            return Sets::landing(set)
         end
         if NyxObjectInterface::isCube(object) then
             return Cubes::landing(object)

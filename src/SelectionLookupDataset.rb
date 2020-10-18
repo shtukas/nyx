@@ -34,11 +34,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForSet(page)
-    def self.updateLookupForSet(page)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(pagem["uuid"])
-        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], page["uuid"])
-        SelectionLookupDatabaseIO::addRecord("page", page["uuid"], Sets::toString(page).downcase)
+    # SelectionLookupDatabaseIO::updateLookupForSet(set)
+    def self.updateLookupForSet(set)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(setm["uuid"])
+        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], set["uuid"])
+        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], Sets::toString(set).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -82,9 +82,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
-    # SelectionLookupDataset::updateLookupForSet(page)
-    def self.updateLookupForSet(page)
-        SelectionLookupDatabaseIO::updateLookupForSet(page)
+    # SelectionLookupDataset::updateLookupForSet(set)
+    def self.updateLookupForSet(set)
+        SelectionLookupDatabaseIO::updateLookupForSet(set)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -123,15 +123,15 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildSetsLookup(verbose)
     def self.rebuildSetsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["page"]
+        db.execute "delete from lookup where _objecttype_=?", ["set"]
 
-        Sets::pages()
-            .each{|page|
+        Sets::sets()
+            .each{|set|
                 if verbose then
-                    puts "page: #{page["uuid"]} , #{Sets::toString(page)}"
+                    puts "set: #{set["uuid"]} , #{Sets::toString(set)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], page["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "page", page["uuid"], Sets::toString(page))
+                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], set["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], Sets::toString(set))
             }
 
         db.close
@@ -197,7 +197,7 @@ class SelectionLookupDataset
     # SelectionLookupDataset::patternToSets(pattern)
     def self.patternToSets(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "page" }
+            .select{|record| record["objecttype"] == "set" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

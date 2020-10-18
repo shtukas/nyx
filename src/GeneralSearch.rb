@@ -18,11 +18,11 @@ class GeneralSearch
     # GeneralSearch::searchNx1630Set(pattern)
     def self.searchNx1630Set(pattern)
         SelectionLookupDataset::patternToSets(pattern)
-            .map{|page|
+            .map{|set|
                 {
-                    "description"   => Sets::toString(page),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(page)).to_time.to_f,
-                    "dive"          => lambda{ Sets::landing(page) }
+                    "description"   => Sets::toString(set),
+                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(set)).to_time.to_f,
+                    "dive"          => lambda{ Sets::landing(set) }
                 }
             }
     end

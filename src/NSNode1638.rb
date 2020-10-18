@@ -106,14 +106,14 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueSet(pageuuid)
-    def self.issueSet(pageuuid)
+    # NSNode1638::issueSet(setuuid)
+    def self.issueSet(setuuid)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
-            "type"       => "page",
-            "pageuuid"   => pageuuid
+            "type"       => "set",
+            "setuuid"   => setuuid
         }
         NyxObjects2::put(object)
         object
@@ -121,7 +121,7 @@ class NSNode1638
 
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxDirectory", "page"] # We are not yet interactively issuing NyxFSPoint001
+        types = ["line", "url", "text", "NyxFile", "NyxDirectory", "set"] # We are not yet interactively issuing NyxFSPoint001
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -167,10 +167,10 @@ class NSNode1638
             LucilleCore::pressEnterToContinue()
             return NSNode1638::issueNyxDirectory(nyxDirectoryName)
         end
-        if type == "page" then
-            page = Sets::selectExistingSetOrMakeNewOneOrNull()
-            return nil if page.nil?
-            return NSNode1638::issueSet(page["uuid"])
+        if type == "set" then
+            set = Sets::selectExistingSetOrMakeNewOneOrNull()
+            return nil if set.nil?
+            return NSNode1638::issueSet(set["uuid"])
         end
     end
 
@@ -207,11 +207,11 @@ class NSNode1638
         if datapoint["type"] == "NyxFSPoint001" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
-        if datapoint["type"] == "page" then
-            pageuuid = datapoint["pageuuid"]
-            page = NyxObjects2::getOrNull(pageuuid)
-            pageAsString = page ? Sets::toString(page) : "(page not found: uuid: #{pageuuid})"
-            return "[datapoint: #{datapoint["type"]}] #{pageAsString}"
+        if datapoint["type"] == "set" then
+            setuuid = datapoint["setuuid"]
+            set = NyxObjects2::getOrNull(setuuid)
+            setAsString = set ? Sets::toString(set) : "(set not found: uuid: #{setuuid})"
+            return "[datapoint: #{datapoint["type"]}] #{setAsString}"
         end
         puts datapoint
         raise "[NSNode1638 error d39378dc]"
@@ -264,11 +264,11 @@ class NSNode1638
             end
             return nil
         end
-        if datapoint["type"] == "page" then
-             pageuuid = datapoint["pageuuid"]
-             page = NyxObjects2::getOrNull(pageuuid)
-             return if page.nil?
-             Sets::landing(page)
+        if datapoint["type"] == "set" then
+             setuuid = datapoint["setuuid"]
+             set = NyxObjects2::getOrNull(setuuid)
+             return if set.nil?
+             Sets::landing(set)
         end
         puts datapoint
         raise "[NSNode1638 error e12fc718]"
@@ -284,11 +284,11 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            pages = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
-            pages.each{|page|
+            sets = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
+            sets.each{|set|
                 mx.item(
-                    "parent: #{Sets::toString(page)}",
-                    lambda { Sets::landing(page) }
+                    "parent: #{Sets::toString(set)}",
+                    lambda { Sets::landing(set) }
                 )
             }
 
@@ -322,10 +322,10 @@ class NSNode1638
                 NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
             })
 
-            mx.item("add to page".yellow, lambda {
-                page = Sets::selectExistingSetOrMakeNewOneOrNull()
-                return if page.nil?
-                Arrows::issueOrException(page, datapoint)
+            mx.item("add to set".yellow, lambda {
+                set = Sets::selectExistingSetOrMakeNewOneOrNull()
+                return if set.nil?
+                Arrows::issueOrException(set, datapoint)
             })
 
             mx.item("transmute datapoint".yellow, lambda {
@@ -428,7 +428,7 @@ class NSNode1638
             end
         end
 
-        if datapoint["type"] == "page" then
+        if datapoint["type"] == "set" then
 
         end
 
