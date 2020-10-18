@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NSNode1638NyxElementLocation
+class NSNode1638_FileSystemElements
 
-    # NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+    # NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
     def self.getLocationByAllMeansOrNull(datapoint)
         location = NyxFileSystemElementsMapping::getStoredLocationForObjectUUIDOrNull(datapoint["uuid"])
         if location then
@@ -21,7 +21,7 @@ class NSNode1638NyxElementLocation
         nil
     end
 
-    # NSNode1638NyxElementLocation::maintenance(showprogress)
+    # NSNode1638_FileSystemElements::maintenance(showprogress)
     def self.maintenance(showprogress)
         NyxFileSystemElementsMapping::records().each{|record|
             if showprogress then
@@ -33,12 +33,12 @@ class NSNode1638NyxElementLocation
             end
             if !File.exists?(record["location"]) then
                 datapoint = NyxObjects2::getOrNull(record["objectuuid"])
-                puts "NSNode1638NyxElementLocation::maintenance(#{showprogress}): searching for #{datapoint}"
+                puts "NSNode1638_FileSystemElements::maintenance(#{showprogress}): searching for #{datapoint}"
                 location = GalaxyFinder::nyxFilenameToLocationOrNull(datapoint["name"])
                 if location then
                     NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
                 else
-                    puts "NSNode1638NyxElementLocation::maintenance(#{showprogress}): I can't locate #{datapoint}"
+                    puts "NSNode1638_FileSystemElements::maintenance(#{showprogress}): I can't locate #{datapoint}"
                     puts "Going to land"
                     LucilleCore::pressEnterToContinue()
                     NSNode1638::landing(datapoint)
@@ -50,7 +50,7 @@ class NSNode1638NyxElementLocation
                 puts JSON.generate(datapoint)
             end
             next if !["NyxDirectory", "NyxFile", "NyxFSPoint001"].include?(datapoint["type"])
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)
             else

@@ -6,7 +6,7 @@ class NSNode1638
     # NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
     def self.commitDatapointToDiskOrNothingReturnBoolean(datapoint)
         if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             return false if location.nil?
             File.open(location, "w"){|f| f.puts(JSON.pretty_generate(datapoint)) }
         end
@@ -229,7 +229,7 @@ class NSNode1638
             return nil
         end
         if datapoint["type"] == "NyxFile" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
@@ -241,7 +241,7 @@ class NSNode1638
             return nil
         end
         if datapoint["type"] == "NyxDirectory" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
                 system("open '#{File.dirname(location)}'")
@@ -253,7 +253,7 @@ class NSNode1638
             return nil
         end
         if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "target file '#{location}'"
                 system("open '#{File.dirname(location)}'")
@@ -369,7 +369,7 @@ class NSNode1638
 
         end
         if datapoint["type"] == "NyxFile" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "NyxFile: #{location}"
             end
@@ -387,7 +387,7 @@ class NSNode1638
         end
         if datapoint["type"] == "NyxDirectory" then
             puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "NyxDirectory: #{location}"
             end
@@ -413,7 +413,7 @@ class NSNode1638
             end
         end
         if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "NyxFSPoint001: #{location}"
             end

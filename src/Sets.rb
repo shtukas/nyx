@@ -58,7 +58,6 @@ class Sets
                     )
                 }
 
-
             targets = Arrows::getTargetsForSource(set)
             targets = targets.select{|target| !NyxObjectInterface::isSet(target) }
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)

@@ -25,16 +25,16 @@ class DataPortalUI
 
             ms.item(
                 "Datapoint Exploration", 
-                lambda { NSNode1638Extended::interactiveDatapointSearchAndExplore() }
+                lambda { NSNode1638_Search1::interactiveDatapointSearchAndExplore() }
             )
 
             ms.item(
                 "Datapoint Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSNode1638Extended::interactiveNodeNcursesSearch()
+                        nodes = NSNode1638_Search2::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
+                        node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                         return if node.nil?
                         NSNode1638::landing(node)
                     }
@@ -121,8 +121,8 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. NSNode1638NyxElementLocation::maintenance(true)",
-                lambda { NSNode1638NyxElementLocation::maintenance(true) }
+                "2. NSNode1638_FileSystemElements::maintenance(true)",
+                lambda { NSNode1638_FileSystemElements::maintenance(true) }
             )
 
             ms.item(

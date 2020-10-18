@@ -1,12 +1,16 @@
 
-class NSNode1638Extended
+class NSNode1638_Search1
 
-    # NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
+    # --------------------------------------------------
+    # Classic
+    # --------------------------------------------------
+
+    # NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
     def self.selectOneDatapointFromDatapointsOrNull(nodes)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSNode1638::toString(node) })
     end
 
-    # NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
+    # NSNode1638_Search1::selectOneDatapointFromExistingDatapointsOrNull()
     def self.selectOneDatapointFromExistingDatapointsOrNull()
         loop {
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
@@ -19,7 +23,7 @@ class NSNode1638Extended
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            datapoint = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(datapoints)
+            datapoint = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(datapoints)
             if datapoint.nil? then
                 next
             end
@@ -27,11 +31,11 @@ class NSNode1638Extended
         }
     end
 
-    # NSNode1638Extended::selectOneExistingDatapointOrMakeANewOneOrNull()
+    # NSNode1638_Search1::selectOneExistingDatapointOrMakeANewOneOrNull()
     def self.selectOneExistingDatapointOrMakeANewOneOrNull()
         puts "selectOneExistingDatapointOrMakeANewOneOrNull()"
         LucilleCore::pressEnterToContinue()
-        datapoint = NSNode1638Extended::selectOneDatapointFromExistingDatapointsOrNull()
+        datapoint = NSNode1638_Search1::selectOneDatapointFromExistingDatapointsOrNull()
         return datapoint if datapoint
         status = LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing point, would you like to create a new one ? ")
         if !status then
@@ -40,7 +44,7 @@ class NSNode1638Extended
         NSNode1638::issueNewPointInteractivelyOrNull()
     end
 
-    # NSNode1638Extended::interactiveDatapointSearchAndExplore()
+    # NSNode1638_Search1::interactiveDatapointSearchAndExplore()
     def self.interactiveDatapointSearchAndExplore()
         loop {
             system("clear")
@@ -53,14 +57,21 @@ class NSNode1638Extended
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSNode1638Extended::selectOneDatapointFromDatapointsOrNull(nodes)
+                node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                 break if node.nil?
                 NSNode1638::landing(node)
             }
         }
     end
+end
 
-    # NSNode1638Extended::interactiveNodeNcursesSearch(): Array[Nodes]
+class NSNode1638_Search2
+
+    # --------------------------------------------------
+    # Interactive Ncurse
+    # --------------------------------------------------
+
+    # NSNode1638_Search2::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen

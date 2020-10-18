@@ -19,7 +19,7 @@ class NyxFsck
         if datapoint["type"] == "NyxFile" then
             filename = datapoint["name"]
             puts "Finding #{filename}"
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
                 puts "Failing to find: #{filename}"
                 puts JSON.pretty_generate(datapoint)
@@ -32,7 +32,7 @@ class NyxFsck
         if datapoint["type"] == "NyxDirectory" then
             nyxDirectoryName = datapoint["name"]
             puts "Finding #{nyxDirectoryName}"
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
                 puts "Failing to find: #{nyxDirectoryName}"
                 puts JSON.pretty_generate(datapoint)
@@ -45,7 +45,7 @@ class NyxFsck
         if datapoint["type"] == "NyxFSPoint001" then
             nyxName = datapoint["name"]
             puts "Finding #{nyxName}"
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location.nil? then
                 puts "Failing to find: #{nyxName}"
                 puts JSON.pretty_generate(datapoint)

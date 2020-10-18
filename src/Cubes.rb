@@ -281,21 +281,21 @@ class CubeTransformers
             File.open(filepath, "w"){|f| f.puts(datapoint["url"]) }
         end
         if datapoint["type"] == "NyxFile" then
-            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            nyxfilelocation = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             nyxfile_extension_withDot = File.extname(nyxfilelocation)
             itemFilename = "#{targetOrdinal} FormerNyxFile-#{datapoint["uuid"]}#{nyxfile_extension_withDot}"
             itemFilepath = "#{cube["location"]}/#{itemFilename}"
             FileUtils.cp(nyxfilelocation, itemFilepath)
         end
         if datapoint["type"] == "NyxDirectory" then
-            nyxFolderpath = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            nyxFolderpath = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             itemFoldername = "#{targetOrdinal} FormerNyxDirectory-#{datapoint["uuid"]}"
             itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
             FileUtils.mkdir(itemFolderpath)
             LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
         end
         if datapoint["type"] == "NyxFSPoint001" then
-            nyxfilelocation = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            nyxfilelocation = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             nyxFolderpath = File.dirname(nyxfilelocation)
 
             itemFoldername = "#{targetOrdinal} FormerNyxFSPoint001-#{datapoint["uuid"]}"

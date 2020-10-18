@@ -397,7 +397,7 @@ class Asteroids
         end
 
         if datapoint["type"] == "NyxDirectory" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                 # Ne need to move that thing somewhere else.
                 newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
@@ -409,7 +409,7 @@ class Asteroids
         end
 
         if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638NyxElementLocation::getLocationByAllMeansOrNull(datapoint)
+            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
                 # Ne need to move that thing somewhere else.
                 newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
