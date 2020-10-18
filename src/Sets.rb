@@ -50,7 +50,17 @@ class Sets
             mx = LCoreMenuItemsNX1.new()
 
             puts ""
+            Arrows::getTargetForSourceOfGivenNyxType(set, "287041db-39ac-464c-b557-2f172e721111")
+                .each{|s|
+                    mx.item(
+                        "linked: #{NyxObjectInterface::toString(s)}",
+                        lambda { NyxObjectInterface::landing(s) }
+                    )
+                }
+
+            puts ""
             targets = Arrows::getTargetsForSource(set)
+            targets = targets.select{|target| !NyxObjectInterface::isSet(target) }
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             targets
                 .each{|object|
