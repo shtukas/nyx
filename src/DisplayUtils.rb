@@ -32,6 +32,6 @@ class DisplayUtils
 
     # DisplayUtils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| (line.size.to_f/Miscellaneous::screenWidth()).ceil }.inject(0, :+)
+        displayStr.lines.map{|line| (((line.size+5).to_f)/Miscellaneous::screenWidth()).ceil }.inject(0, :+)
     end
 end
