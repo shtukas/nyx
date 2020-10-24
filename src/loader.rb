@@ -133,8 +133,6 @@ require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
 
-require_relative "Sets.rb"
-
 require_relative "LucilleCore.rb"
 
 require_relative "NSNode1638@X0.rb"
@@ -157,6 +155,7 @@ require_relative "Runner.rb"
     Runner::stop(uuid) # null | Float
 =end
 
+require_relative "Sets.rb"
 require_relative "SectionsType0141.rb"
 require_relative "SelectionLookupDataset.rb"
 
