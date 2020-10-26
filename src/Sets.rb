@@ -141,6 +141,12 @@ class Sets
     # Sets::pecoStyleSelectSetNameOrNull()
     def self.pecoStyleSelectSetNameOrNull()
         names = Sets::sets().map{|set| set["name"] }.sort
+
+        # ---------------------------------------
+        fragmentForPreselection = LucilleCore::askQuestionAnswerAsString("fragment for preselection: ")
+        names = names.select{|name_| name_.downcase.include?(fragmentForPreselection.downcase) }.first(1000)
+        # ---------------------------------------
+
         Miscellaneous::pecoStyleSelectionOrNull(names)
     end
 
