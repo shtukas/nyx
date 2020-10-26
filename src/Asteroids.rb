@@ -97,6 +97,23 @@ class Asteroids
         asteroid
     end
 
+    # Asteroids::issueAsteroidBurnerFromQuark(quark)
+    def self.issueAsteroidBurnerFromQuark(quark)
+        orbital = {
+            "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        }
+        asteroid = {
+            "uuid"       => SecureRandom.uuid,
+            "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
+            "unixtime"   => Time.new.to_f,
+            "orbital"    => orbital,
+            "ordinal"    => Asteroids::ordinalMax()+1,
+            "targetuuid" => quark["uuid"]
+        }
+        NyxObjects2::put(asteroid)
+        asteroid
+    end
+
     # Asteroids::issueAsteroidAgainstExistigCubeInteractivelyOrNull()
     def self.issueAsteroidAgainstExistigCubeInteractivelyOrNull()
         cube = Cubes::selectCubeOrNull()

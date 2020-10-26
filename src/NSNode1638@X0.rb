@@ -47,19 +47,6 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueUrl(url)
-    def self.issueUrl(url)
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "url",
-            "url"        => url
-        }
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSNode1638::issueNyxDirectory(nyxDirectoryName)
     def self.issueNyxDirectory(nyxDirectoryName)
         object = {
@@ -132,7 +119,7 @@ class NSNode1638
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return nil if url.size == 0
-            return NSNode1638::issueUrl(url)
+            return Quark::issueUrl(url)
         end
         if type == "text" then
             nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
@@ -195,9 +182,6 @@ class NSNode1638
         if datapoint["type"] == "line" then
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
         end
-        if datapoint["type"] == "url" then
-            return "[#{datapoint["type"]}] #{datapoint["url"]}"
-        end
         if datapoint["type"] == "NyxFile" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
@@ -222,11 +206,6 @@ class NSNode1638
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             LucilleCore::pressEnterToContinue()
-            return nil
-        end
-        if datapoint["type"] == "url" then
-            puts "url: #{datapoint["url"]}"
-            system("open '#{datapoint["url"]}'")
             return nil
         end
         if datapoint["type"] == "NyxFile" then
@@ -371,9 +350,6 @@ class NSNode1638
         puts "Destroying datapoint: #{NSNode1638::toString(datapoint)}"
 
         if datapoint["type"] == "line" then
-
-        end
-        if datapoint["type"] == "url" then
 
         end
         if datapoint["type"] == "NyxFile" then
