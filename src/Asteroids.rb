@@ -367,8 +367,8 @@ class Asteroids
         end
     end
 
-    # Asteroids::transmuteAsteroidToNode(asteroid)
-    def self.transmuteAsteroidToNode(asteroid)
+    # Asteroids::transmuteAsteroidToDatapoint(asteroid)
+    def self.transmuteAsteroidToDatapoint(asteroid)
 
         target = Asteroids::getAsteroidTargetOrNull(asteroid)
         return if target.nil?
@@ -486,8 +486,8 @@ class Asteroids
                 Asteroids::reOrbitalOrNothing(asteroid)
             })
 
-            mx.item("transmute to node".yellow, lambda {
-                Asteroids::transmuteAsteroidToNode(asteroid)
+            mx.item("transmute to datapoint".yellow, lambda {
+                Asteroids::transmuteAsteroidToDatapoint(asteroid)
             })
 
             if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
@@ -669,9 +669,9 @@ class Asteroids
             )
 
             menuitems.item(
-                "transmute to node".yellow,
+                "transmute to datapoint".yellow,
                 lambda {
-                    Asteroids::transmuteAsteroidToNode(asteroid)
+                    Asteroids::transmuteAsteroidToDatapoint(asteroid)
                 }
             )
 
