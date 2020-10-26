@@ -616,16 +616,6 @@ class Asteroids
 
             puts ""
 
-            target = Asteroids::getAsteroidTargetOrNull(asteroid)
-            if target then
-                menuitems.item(
-                    "target: #{NyxObjectInterface::toString(target)}",
-                    lambda { NyxObjectInterface::landing(target) }
-                )
-            end
-
-            puts ""
-
             menuitems.item(
                 "update asteroid description".yellow,
                 lambda { 
@@ -727,7 +717,16 @@ class Asteroids
                 }
             )
 
-            Miscellaneous::horizontalRule()
+            puts ""
+
+            Arrows::getTargetsForSource(asteroid).each{|target|
+                menuitems.item(
+                    "target: #{NyxObjectInterface::toString(target)}",
+                    lambda { NyxObjectInterface::landing(target) }
+                )
+            }
+
+            puts ""
 
             status = menuitems.promptAndRunSandbox()
             break if !status

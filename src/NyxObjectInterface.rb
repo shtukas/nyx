@@ -23,6 +23,11 @@ class NyxObjectInterface
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
+    # NyxObjectInterface::isQuark(object)
+    def self.isQuark(object)
+        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    end
+
     # NyxObjectInterface::toString(object)
     def self.toString(object)
         if NyxObjectInterface::isAsteroid(object) then
@@ -36,6 +41,9 @@ class NyxObjectInterface
         end
         if NyxObjectInterface::isSet(object) then
             return Sets::toString(object)
+        end
+        if NyxObjectInterface::isQuark(object) then
+            return Quark::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -79,6 +87,9 @@ class NyxObjectInterface
         end
         if NyxObjectInterface::isCube(object) then
             return Cubes::landing(object)
+        end
+        if NyxObjectInterface::isQuark(object) then
+            return Quark::landing(object)
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"

@@ -1,0 +1,36 @@
+
+-------------------------------------------------------------------------
+
+Quark
+
+{
+    "uuid"              : String
+    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    "unixtime"          : Float # Unixtime with decimals
+    "referenceDateTime" : nil or DateTime Iso8601
+    "leptonfilename"    : String
+}
+
+-------------------------------------------------------------------------
+
+Lepton
+
+The filename is a Sqlite3 file.
+
+table: lepton
+    _key_      text
+    _value_    data
+
+create table lepton (_key_ text, _value_ data);
+
+Special keys
+    (374809ce-ee4c-46c4-9639-c7028731ce64, type) # types: "url"
+
+-------------------------------------------------------------------------
+
+Lepton / url
+
+(18da4008-6cb2-4df0-b9d5-bb9e3b4f949a, "url")
+(374809ce-ee4c-46c4-9639-c7028731ce64, <url>)
+
+

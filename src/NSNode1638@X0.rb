@@ -221,6 +221,7 @@ class NSNode1638
     def self.opendatapoint(datapoint)
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
+            LucilleCore::pressEnterToContinue()
             return nil
         end
         if datapoint["type"] == "url" then
@@ -284,11 +285,11 @@ class NSNode1638
 
             mx = LCoreMenuItemsNX1.new()
 
-            sets = Arrows::getSourceForTargetOfGivenNyxType(datapoint, "287041db-39ac-464c-b557-2f172e721111")
-            sets.each{|set|
+            source = Arrows::getSourcesForTarget(datapoint)
+            source.each{|source|
                 mx.item(
-                    "parent: #{Sets::toString(set)}",
-                    lambda { Sets::landing(set) }
+                    "source: #{yxObjectInterface::toString(source)}",
+                    lambda { NyxObjectInterface::landing(source) }
                 )
             }
 
@@ -301,13 +302,11 @@ class NSNode1638
             puts ""
 
             mx.item(
-                "open",
+                "open".yellow,
                 lambda {
                     NSNode1638::opendatapoint(datapoint)
                 }
             )
-
-            puts ""
 
             mx.item("set/update description".yellow, lambda {
                 description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
@@ -349,6 +348,15 @@ class NSNode1638
                     NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
                 end
             })
+
+            puts ""
+
+            Arrows::getTargetsForSource(datapoint).each{|target|
+                menuitems.item(
+                    "target: #{NyxObjectInterface::toString(target)}",
+                    lambda { NyxObjectInterface::landing(target) }
+                )
+            }
 
             puts ""
 

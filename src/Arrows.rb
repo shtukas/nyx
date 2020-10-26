@@ -234,7 +234,7 @@ class Arrows
             .select{|object| object["nyxNxSet"] == setid }
     end
 
-    # Arrows::getSourceForTargetOfGivenNyxType(target, setid)
+    # Arrows::getSourcesForTargetOfGivenNyxType(target, setid)
     def self.getSourceForTargetOfGivenNyxType(target, setid)
         Arrows::getSourcesForTarget(target)
             .select{|object| object["nyxNxSet"] == setid }

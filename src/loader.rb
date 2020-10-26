@@ -147,6 +147,8 @@ require_relative "NyxFileSystemElementsMapping.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
+require_relative "QuarksAndLeptons.rb"
+
 require_relative "Runner.rb"
 =begin 
     Runner::isRunning?(uuid)
