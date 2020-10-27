@@ -6,16 +6,6 @@ NSNode1638
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
     "referenceDateTime" : nil or DateTime Iso8601
-    "type"         : "line"
-    "line"         : String
-    "description"  : nil or String
-}
-
-{
-    "uuid"         : String
-    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
-    "unixtime"     : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
     "type"         : "NyxFile"
     "name"         : String
     "description"  : nil or String

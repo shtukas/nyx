@@ -9,14 +9,17 @@ class NyxFsck
         puts "fsck datapoint: #{datapoint["uuid"]}"
 
         if datapoint["type"] == "line" then
+            puts "fsck datapoint line: #{datapoint["uuid"]}"
             return true
         end
 
         if datapoint["type"] == "url" then
+            puts "fsck datapoint url: #{datapoint["uuid"]}"
             return true
         end
 
         if datapoint["type"] == "NyxFile" then
+            puts "fsck datapoint NyxFile: #{datapoint["uuid"]}"
             filename = datapoint["name"]
             puts "Finding #{filename}"
             location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
@@ -30,6 +33,7 @@ class NyxFsck
         end
 
         if datapoint["type"] == "NyxDirectory" then
+            puts "fsck datapoint NyxDirectory: #{datapoint["uuid"]}"
             nyxDirectoryName = datapoint["name"]
             puts "Finding #{nyxDirectoryName}"
             location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
@@ -43,6 +47,7 @@ class NyxFsck
         end
 
         if datapoint["type"] == "NyxFSPoint001" then
+            puts "fsck datapoint NyxFSPoint001: #{datapoint["uuid"]}"
             nyxName = datapoint["name"]
             puts "Finding #{nyxName}"
             location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
@@ -55,9 +60,28 @@ class NyxFsck
             return true
         end
 
+        if datapoint["type"] == "set" then
+            puts "fsck datapoint set: #{datapoint["uuid"]}"
+            return true
+        end
+
         puts JSON.pretty_generate(datapoint)
         puts "[error: 10e5efff-380d-4eaa-bf6d-83bf6c1016d5]"
         false
+    end
+
+    # NyxFsck::processQuark(quark)
+    def self.processQuark(quark)
+        puts "fsck quark: #{quark["uuid"]}"
+        leptonfilename = quark["leptonfilename"]
+        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        File.exists?(leptonfilepath)
+    end
+
+    # NyxFsck::processCube(cube)
+    def self.processCube(cube)
+        puts "fsck cube: #{cube["uuid"]}"
+        File.exists?(cube["location"])
     end
 
     # NyxFsck::processObject(object, runhash)
@@ -75,7 +99,22 @@ class NyxFsck
 
         if object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" then
             # Datapoint
-            NyxFsck::processDatapoint(object)
+            return NyxFsck::processDatapoint(object)
+        end
+
+        if object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" then
+            # Datapoint
+            return NyxFsck::processQuark(object)
+        end
+
+        if object["nyxNxSet"] == "06071daa-ec51-4c19-a4b9-62f39bb2ce4f" then
+            # Cube
+            return NyxFsck::processCube(object)
+        end
+
+        if object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111" then
+            # Set
+            puts "fsck set: #{object["uuid"]}"
             return true
         end
 

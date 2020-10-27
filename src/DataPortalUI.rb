@@ -113,6 +113,13 @@ class DataPortalUI
                 NyxObjects2::put(object)
             })
 
+            ms.item("dangerously delete a nyx object by uuid", lambda { 
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                object = NyxObjects2::getOrNull(uuid)
+                return if object.nil?
+                NyxObjects2::destroy(object)
+            })
+
             puts ""
 
             ms.item(
@@ -139,7 +146,13 @@ class DataPortalUI
                     if runhash == "" then
                         runhash = SecureRandom.hex
                     end
-                    NyxFsck::main(runhash)
+                    status = NyxFsck::main(runhash)
+                    if status then
+                        puts "All good".green
+                    else
+                        puts "Failed!".red
+                    end
+                    LucilleCore::pressEnterToContinue()
                 }
             )
 
