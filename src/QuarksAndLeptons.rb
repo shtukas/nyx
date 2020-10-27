@@ -68,7 +68,8 @@ class Quark
     # Quark::toString(quark)
     def self.toString(quark)
         leptonfilename = quark["leptonfilename"]
-        "[quark] #{leptonfilename}"
+        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        "[quark] #{Lepton::getDescription(leptonfilepath)}"
     end
 
     # Quark::landing(quark)
@@ -92,6 +93,8 @@ class Quark
             puts ""
 
             puts Quark::toString(quark).green
+            puts "filename: #{quark["leptonfilename"]}".yellow
+            puts "filepath: #{Lepton::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
 
             puts ""
 
@@ -150,6 +153,36 @@ class Lepton
         db.close
     end
 
+    # Lepton::getDescription(filepath)
+    def self.getDescription(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.results_as_hash = true # to get the results as hash
+        type = nil
+        db.execute( "select * from lepton where _key_=?" , ["18da4008-6cb2-4df0-b9d5-bb9e3b4f949a"]) do |row|
+          type = row["_value_"]
+        end
+        type = type || "unkown type for lepton file #{filepath}, how did that happen?"
+        description = nil
+        if type == "line" then
+            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+              description = row["_value_"]
+            end
+        end
+        if type == "url" then
+            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+              description = row["_value_"]
+            end
+        end
+        if type == "aion-location" then
+            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+              description = "aion root: #{row["_value_"]}"
+            end
+        end
+        description = description || "description not extracted for leptop file #{description} (type: #{type})"
+        db.close
+        "[lepton] [#{type}] #{description}"
+    end
+
 end
 
 # -------------------------------------------------------------------------------------
@@ -177,8 +210,9 @@ class ElizabethLepton
 
     def readBlobErrorIfNotFound(nhash)
         db = SQLite3::Database.new(@databaseFilepath)
+        db.results_as_hash = true # to get the results as hash
         blob = nil
-        db.execute( "select * from lepton where _key_=?" ) do |row|
+        db.execute( "select * from lepton where _key_=?", [nhash] ) do |row|
           blob = row["_value_"]
         end
         db.close
