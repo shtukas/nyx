@@ -155,12 +155,6 @@ class Asteroids
         object
     end
 
-    # Asteroids::getAsteroidTargetOrNull(asteroid)
-    def self.getAsteroidTargetOrNull(asteroid)
-        return nil if asteroid["targetuuid"].nil?
-        NyxObjects2::getOrNull(asteroid["targetuuid"])
-    end
-
     # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
     def self.asteroidOrbitalAsUserFriendlyString(orbital)
         return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
@@ -171,12 +165,13 @@ class Asteroids
 
     # Asteroids::asteroidDescription(asteroid)
     def self.asteroidDescription(asteroid)
-        target = Asteroids::getAsteroidTargetOrNull(asteroid)
-        if asteroid["description"] and target.nil? then
-            return "line: #{asteroid["description"]}"
+        if asteroid["description"] then
+            return "[asteroid]: #{asteroid["description"]}"
         end
-        return "no target" if target.nil?
-        NyxObjectInterface::toString(target)
+        Arrows::getTargetsForSource(asteroid).each{|target|
+            return NyxObjectInterface::toString(target)
+        }
+        "no description / no target"
     end
 
     # Asteroids::toString(asteroid)
@@ -372,82 +367,10 @@ class Asteroids
 
     # Asteroids::accessTarget(asteroid)
     def self.accessTarget(asteroid)
-        target = Asteroids::getAsteroidTargetOrNull(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
+        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
         return if target.nil?
-        if NyxObjectInterface::isDataPoint(target) then
-            NSNode1638::opendatapoint(target)
-            return
-        end
-        if NyxObjectInterface::isCube(target) then
-            Cubes::landing(target)
-            return
-        end
-    end
-
-    # Asteroids::transmuteAsteroidToDatapoint(asteroid)
-    def self.transmuteAsteroidToDatapoint(asteroid)
-
-        target = Asteroids::getAsteroidTargetOrNull(asteroid)
-        return if target.nil?
-        return if NyxObjectInterface::isCube(target)
-
-        puts "Transmuting asteroid to "
-
-        Asteroids::stopAsteroidIfRunning(asteroid)
-
-        if asteroid["targetuuid"].nil? then
-            Asteroids::asteroidTerminationProtocol(asteroid)
-            return
-        end
-
-        datapoint = NyxObjects2::getOrNull(asteroid["targetuuid"])
-
-        if datapoint.nil? then
-            Asteroids::asteroidTerminationProtocol(asteroid)
-            return
-        end
-
-        description = LucilleCore::askQuestionAnswerAsString("datapoint description (empty to skip): ")
-        if description != "" then
-            datapoint["description"] = description
-            NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
-        end
-
-        if datapoint["type"] == "NyxDirectory" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                # Ne need to move that thing somewhere else.
-                newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
-                FileUtils.mkpath(newEnvelopFolderPath)
-                LucilleCore::copyFileSystemLocation(location, newEnvelopFolderPath)
-                LucilleCore::removeFileSystemLocation(File.dirname(location))
-                GalaxyFinder::registerFilenameAtLocation(datapoint["name"], "#{newEnvelopFolderPath}/#{datapoint["name"]}")
-            end
-        end
-
-        if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                # Ne need to move that thing somewhere else.
-                newEnvelopFolderPath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{Miscellaneous::l22()}"
-                FileUtils.mkpath(newEnvelopFolderPath)
-                LucilleCore::copyContents(File.dirname(location), newEnvelopFolderPath)
-                LucilleCore::removeFileSystemLocation(File.dirname(location))
-                GalaxyFinder::registerFilenameAtLocation(datapoint["name"], "#{newEnvelopFolderPath}/#{datapoint["name"]}")
-            end
-        end
-
-        loop {
-            set = Sets::selectExistingSetOrMakeNewOneOrNull()
-            if set then
-                Arrows::issueOrException(set, datapoint)
-                next
-            end
-            break
-        }
-
-        NyxObjects2::destroy(asteroid) # Do not use Asteroids::asteroidTerminationProtocol here !
-        NSNode1638::landing(datapoint)
+        NyxObjectInterface::landing(target)
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
@@ -502,30 +425,6 @@ class Asteroids
             mx.item("re orbital".yellow, lambda {
                 Asteroids::reOrbitalOrNothing(asteroid)
             })
-
-            mx.item("transmute to datapoint".yellow, lambda {
-                Asteroids::transmuteAsteroidToDatapoint(asteroid)
-            })
-
-            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
-                mx.item("send asteroid description to cube system".yellow, lambda {
-                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
-
-            target = Asteroids::getAsteroidTargetOrNull(asteroid)
-            if target and NyxObjectInterface::isDataPoint(target) then
-                datapoint = target
-                mx.item("to cube system".yellow, lambda {
-                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
 
             mx.item("destroy".yellow, lambda {
                 Asteroids::asteroidTerminationProtocol(asteroid)
@@ -676,33 +575,6 @@ class Asteroids
             )
 
             menuitems.item(
-                "transmute to datapoint".yellow,
-                lambda {
-                    Asteroids::transmuteAsteroidToDatapoint(asteroid)
-                }
-            )
-
-            if Asteroids::getAsteroidTargetOrNull(asteroid).nil? and asteroid["description"] then
-                menuitems.item("send asteroid description to cube system".yellow, lambda {
-                    status = CubeTransformers::sendLineToCubeSystem(asteroid["description"])
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
-
-            target = Asteroids::getAsteroidTargetOrNull(asteroid)
-            if target and NyxObjectInterface::isDataPoint(target) then
-                datapoint = target
-                menuitems.item("to cube system".yellow, lambda {
-                    status = CubeTransformers::sendDatapointToCubeSystem(datapoint)
-                    if status then
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                })
-            end
-
-            menuitems.item(
                 "destroy".yellow,
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
@@ -783,12 +655,16 @@ class Asteroids
     # Asteroids::asteroidTerminationProtocol(asteroid)
     def self.asteroidTerminationProtocol(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
-        target = Asteroids::getAsteroidTargetOrNull(asteroid)
-        if target and NyxObjectInterface::isDataPoint(target) then
-            datapoint = target
-            status = NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
-            return if !status
-        end
+        Arrows::getTargetsForSource(asteroid).each{|target|
+            if NyxObjectInterface::isDataPoint(target) then
+                datapoint = target
+                status = NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
+                return if !status
+                next
+            end
+            puts target
+            raise "exception: 5e7c6b48-c920-4474-bb81-25146307bd35"
+        }
         NyxObjects2::destroy(asteroid)
     end
 
