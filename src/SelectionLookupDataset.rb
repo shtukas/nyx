@@ -34,6 +34,14 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
     end
 
+    # SelectionLookupDatabaseIO::updateLookupForQuark(quark)
+    def self.updateLookupForQuark(quark)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quark::toString(quark))
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
+    end
+
     # SelectionLookupDatabaseIO::updateLookupForSet(set)
     def self.updateLookupForSet(set)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(setm["uuid"])
@@ -82,6 +90,11 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
     end
 
+    # SelectionLookupDataset::updateLookupForQuark(quark)
+    def self.updateLookupForQuark(quark)
+        SelectionLookupDatabaseIO::updateLookupForQuark(quark)
+    end
+
     # SelectionLookupDataset::updateLookupForSet(set)
     def self.updateLookupForSet(set)
         SelectionLookupDatabaseIO::updateLookupForSet(set)
@@ -115,6 +128,24 @@ class SelectionLookupDataset
                 if datapoint["type"] == "NyxFSPoint001" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
                 end
+            }
+
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildQuarksLookup(verbose)
+    def self.rebuildQuarksLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["quark"]
+
+        Quark::quarks()
+            .each{|quark|
+                if verbose then
+                    puts "quark: #{quark["uuid"]} , #{Quark::toString(quark)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], Quark::toString(quark))
+                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["leptonfilename"])
             }
 
         db.close
@@ -178,6 +209,7 @@ class SelectionLookupDataset
         db.close
 
         SelectionLookupDataset::rebuildDatapointsLookup(verbose)
+        SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildSetsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
@@ -189,6 +221,15 @@ class SelectionLookupDataset
     def self.patternToDatapoints(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "datapoint" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
+    end
+
+    # SelectionLookupDataset::patternToQuarks(pattern)
+    def self.patternToQuarks(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "quark" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

@@ -71,6 +71,7 @@ class Quark
         "[quark] #{leptonfilename}"
     end
 
+    # Quark::landing(quark)
     def self.landing(quark)
         loop {
 

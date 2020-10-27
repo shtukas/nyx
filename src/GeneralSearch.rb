@@ -15,6 +15,18 @@ class GeneralSearch
             }
     end
 
+    # GeneralSearch::searchNx1630Quark(pattern)
+    def self.searchNx1630Quark(pattern)
+        SelectionLookupDataset::patternToQuarks(pattern)
+            .map{|quark|
+                {
+                    "description"   => Quark::toString(quark),
+                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(quark)).to_time.to_f,
+                    "dive"          => lambda{ Quark::landing(quark) }
+                }
+            }
+    end
+
     # GeneralSearch::searchNx1630Set(pattern)
     def self.searchNx1630Set(pattern)
         SelectionLookupDataset::patternToSets(pattern)
@@ -55,6 +67,7 @@ class GeneralSearch
     def self.searchNx1630(pattern)
         [
             GeneralSearch::searchNx1630Datapoint(pattern),
+            GeneralSearch::searchNx1630Quark(pattern),
             GeneralSearch::searchNx1630Set(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
