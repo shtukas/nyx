@@ -73,10 +73,10 @@ class Asteroids
             "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"   => Time.new.to_f,
             "orbital"    => orbital,
-            "ordinal"    => Asteroids::ordinalMax()+1,
-            "targetuuid" => datapoint["uuid"]
+            "ordinal"    => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
+        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
@@ -90,10 +90,10 @@ class Asteroids
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital,
-            "ordinal"  => Asteroids::ordinalMax()+1,
-            "targetuuid" => datapoint["uuid"]
+            "ordinal"  => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
+        Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
 
@@ -107,10 +107,10 @@ class Asteroids
             "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"   => Time.new.to_f,
             "orbital"    => orbital,
-            "ordinal"    => Asteroids::ordinalMax()+1,
-            "targetuuid" => quark["uuid"]
+            "ordinal"    => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
+        Arrows::issueOrException(asteroid, quark)
         asteroid
     end
 
@@ -127,10 +127,10 @@ class Asteroids
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital,
-            "ordinal"  => Asteroids::ordinalMax()+1,
-            "targetuuid" => cube["uuid"]
+            "ordinal"  => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
+        Arrows::issueOrException(asteroid, cube)
         asteroid
     end
 
@@ -166,7 +166,7 @@ class Asteroids
     # Asteroids::asteroidDescription(asteroid)
     def self.asteroidDescription(asteroid)
         if asteroid["description"] then
-            return "[asteroid]: #{asteroid["description"]}"
+            return "asteroid description: #{asteroid["description"]} (#{Arrows::getTargetsForSource(asteroid).size} targets)"
         end
         Arrows::getTargetsForSource(asteroid).each{|target|
             return NyxObjectInterface::toString(target)
@@ -365,12 +365,15 @@ class Asteroids
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
-    # Asteroids::accessTarget(asteroid)
+    # Asteroids::accessChildren(asteroid)
     def self.accessTarget(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
-        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
-        return if target.nil?
-        NyxObjectInterface::landing(target)
+        loop {
+            targets = Arrows::getTargetsForSource(asteroid)
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
+            return if target.nil?
+            NyxObjectInterface::landing(target)
+        }
     end
 
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
@@ -442,7 +445,7 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessTarget(asteroid)
+            Asteroids::accessChildren(asteroid)
             processor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
@@ -450,7 +453,7 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessTarget(asteroid)
+            Asteroids::accessChildren(asteroid)
             processor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
@@ -458,13 +461,13 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessTarget(asteroid)
+            Asteroids::accessChildren(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessTarget(asteroid)
+            Asteroids::accessChildren(asteroid)
             processor.call(asteroid)
             Asteroids::stopAsteroidIfRunning(asteroid)
             return
