@@ -135,22 +135,20 @@ class Lepton
         db.close
     end
 
-    # Lepton::createLeptonAionFileSystemLocation(databaseFilepath, aionFileSystemLocation)
-    def self.createLeptonAionFileSystemLocation(databaseFilepath, aionFileSystemLocation)
-        db = SQLite3::Database.new(databaseFilepath)
+    # Lepton::createLeptonAionFileSystemLocation(leptonFilepath, aionFileSystemLocation)
+    def self.createLeptonAionFileSystemLocation(leptonFilepath, aionFileSystemLocation)
+        db = SQLite3::Database.new(leptonFilepath)
         db.execute("create table lepton (_key_ text, _value_ data);")
         db.close
 
-        operator = ElizabethLepton.new(databaseFilepath)
+        operator = ElizabethLepton.new(leptonFilepath)
         roothash = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
 
-        db = SQLite3::Database.new(databaseFilepath)
+        db = SQLite3::Database.new(leptonFilepath)
         db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", ["18da4008-6cb2-4df0-b9d5-bb9e3b4f949a", "aion-location"]
         db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", ["374809ce-ee4c-46c4-9639-c7028731ce64", roothash]
         db.close
     end
-
-
 
 end
 
