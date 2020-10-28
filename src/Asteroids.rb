@@ -366,7 +366,7 @@ class Asteroids
     end
 
     # Asteroids::accessChildren(asteroid)
-    def self.accessTarget(asteroid)
+    def self.accessChildren(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         loop {
             targets = Arrows::getTargetsForSource(asteroid)

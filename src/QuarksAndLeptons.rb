@@ -72,6 +72,34 @@ class Quark
         "[quark] #{Lepton::getDescription(leptonfilepath)}"
     end
 
+    # Quark::access(quark)
+    def self.access(quark)
+        puts "access: #{Quark::toString(quark)}"
+        filepath = Lepton::leptonFilenameToFilepath(quark["leptonfilename"])
+        type = Lepton::getTypeOrNull(filepath)
+        if type == "line" then
+            puts Lepton::getTypeLineLineOrNull(filepath)
+            LucilleCore::pressEnterToContinue()
+        end
+        if type == "url" then
+            url = Lepton::getTypeUrlUrlOrNull(filepath)
+            puts url
+            system("open '#{url}'")
+        end
+        if type == "aion-location" then
+            puts "Not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Quark::destroy(quark)
+    def self.destroy(quark)
+        puts "destroy: #{Quark::toString(quark)}"
+        puts "Not implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
     # Quark::landing(quark)
     def self.landing(quark)
         loop {
@@ -98,6 +126,17 @@ class Quark
 
             puts ""
 
+            mx.item(
+                "access",
+                lambda { Quark::access(quark) }
+            )
+            mx.item(
+                "destroy",
+                lambda { Quark::destroy(quark) }
+            )
+
+            puts ""
+
             Arrows::getTargetsForSource(quark).each{|target|
                 menuitems.item(
                     "target: #{NyxObjectInterface::toString(target)}",
@@ -111,6 +150,7 @@ class Quark
             break if !status
         }
     end
+
 end
 
 class Lepton
@@ -181,6 +221,54 @@ class Lepton
         description = description || "description not extracted for leptop file #{description} (type: #{type})"
         db.close
         "[lepton] [#{type}] #{description}"
+    end
+
+    # Lepton::getTypeOrNull(filepath)
+    def self.getTypeOrNull(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.results_as_hash = true # to get the results as hash
+        type = nil
+        db.execute( "select * from lepton where _key_=?" , ["18da4008-6cb2-4df0-b9d5-bb9e3b4f949a"]) do |row|
+          type = row["_value_"]
+        end
+        db.close
+        type
+    end
+
+    # Lepton::getTypeLineLineOrNull(filepath)
+    def self.getTypeLineLineOrNull(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.results_as_hash = true # to get the results as hash
+        line = nil
+        db.execute( "select * from lepton where _key_=?" , ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+          line = row["_value_"]
+        end
+        db.close
+        line
+    end
+
+    # Lepton::getTypeUrlUrlOrNull(filepath)
+    def self.getTypeUrlUrlOrNull(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.results_as_hash = true # to get the results as hash
+        url = nil
+        db.execute( "select * from lepton where _key_=?" , ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+          url = row["_value_"]
+        end
+        db.close
+        url
+    end
+
+    # Lepton::getTypeUrlUrlOrNull(filepath)
+    def self.getTypeUrlUrlOrNull(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.results_as_hash = true # to get the results as hash
+        url = nil
+        db.execute( "select * from lepton where _key_=?" , ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
+          url = row["_value_"]
+        end
+        db.close
+        url
     end
 
 end
