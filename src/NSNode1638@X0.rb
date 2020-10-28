@@ -267,7 +267,7 @@ class NSNode1638
             source = Arrows::getSourcesForTarget(datapoint)
             source.each{|source|
                 mx.item(
-                    "source: #{yxObjectInterface::toString(source)}",
+                    "source: #{NyxObjectInterface::toString(source)}",
                     lambda { NyxObjectInterface::landing(source) }
                 )
             }
