@@ -398,6 +398,10 @@ class Asteroids
                 Asteroids::landing(asteroid)
             })
 
+            mx.item("stop".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+            })
+
             mx.item("hide for one hour".yellow, lambda {
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
