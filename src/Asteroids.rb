@@ -79,7 +79,7 @@ class Asteroids
         Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
-    
+
     # Asteroids::issueAsteroidInboxFromQuark(quark)
     def self.issueAsteroidInboxFromQuark(quark)
         orbital = {
@@ -368,7 +368,17 @@ class Asteroids
     # Asteroids::accessChildren(asteroid)
     def self.accessChildren(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
+        if targets.size == 0 then
+            return
+        end
+        if targets.size == 1 then
+            NyxObjectInterface::landing(targets[0])
+            return
+        end
         loop {
+            system("clear")
+            puts Asteroids::toString(asteroid)
+            puts ""
             targets = Arrows::getTargetsForSource(asteroid)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
             return if target.nil?
