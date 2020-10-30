@@ -374,20 +374,10 @@ class NSNode1638
             location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 puts "NyxDirectory: #{location}"
-            end
-            if location then
-                if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                    puts "Found NyxDirectory: #{location}"
-                    parent = File.dirname(location)
-                    puts "Going to remove the parent folder: #{parent}"
-                    LucilleCore::removeFileSystemLocation(parent)
-                else
-                    # We are in the interesting case of an asteroid with a NyxHud child which is not in Asteroids-Items
-                    puts "Actually I am going to let you do that..."
-                    sleep 3
-                    system("open '#{File.dirname(location)}'")
-                    LucilleCore::pressEnterToContinue()
-                end
+                puts "Actually I am going to let you do that..."
+                sleep 3
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
             else
                 puts "Failure to find the file."
                 if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
@@ -405,11 +395,6 @@ class NSNode1638
             return false if location.nil?
             FileUtils.rm(location)
             puts File.dirname(File.dirname(location))
-            if File.dirname(File.dirname(location)) == "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items" then
-                parent = File.dirname(location)
-                puts "We are in asteroids land. Going to remove the parent folder: #{parent}"
-                LucilleCore::removeFileSystemLocation(parent)
-            end
         end
 
         if datapoint["type"] == "set" then

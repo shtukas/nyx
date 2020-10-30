@@ -87,17 +87,25 @@ class Quark
             system("open '#{url}'")
         end
         if type == "aion-location" then
-            puts "Not implemented yet"
-            LucilleCore::pressEnterToContinue()
+            leptonFilename = quark["leptonfilename"]
+            leptonFilepath = Lepton::leptonFilenameToFilepath(leptonFilename)
+            operator = ElizabethLepton.new(leptonFilepath)
+            nhash = Lepton::getTypeAionLocationRootHashOrNull(leptonFilepath)
+            targetReconstructionFolderpath = "/Users/pascal/Desktop"
+            AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
         end
         LucilleCore::pressEnterToContinue()
     end
 
-    # Quark::destroy(quark)
-    def self.destroy(quark)
-        puts "destroy: #{Quark::toString(quark)}"
-        puts "Not implemented yet"
-        LucilleCore::pressEnterToContinue()
+    # Quark::destroyQuarkAndLepton(quark)
+    def self.destroyQuarkAndLepton(quark)
+        leptonfilename = quark["leptonfilename"]
+        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        puts "deleting file: #{leptonfilepath}"
+        FileUtils.rm(leptonfilepath)
+        puts "deleting quark:"
+        puts JSON.pretty_generate(quark)
+        NyxObjects2::destroy(quark)
     end
 
     # Quark::landing(quark)
@@ -110,17 +118,7 @@ class Quark
 
             mx = LCoreMenuItemsNX1.new()
 
-            source = Arrows::getSourcesForTarget(quark)
-            source.each{|source|
-                mx.item(
-                    "source: #{NyxObjectInterface::toString(source)}",
-                    lambda { NyxObjectInterface::landing(source) }
-                )
-            }
-
-            puts ""
-
-            puts Quark::toString(quark).green
+            puts Quark::toString(quark)
             puts "filename: #{quark["leptonfilename"]}".yellow
             puts "filepath: #{Lepton::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
 
@@ -132,8 +130,18 @@ class Quark
             )
             mx.item(
                 "destroy",
-                lambda { Quark::destroy(quark) }
+                lambda { Quark::destroyQuarkAndLepton(quark) }
             )
+
+            puts ""
+
+            source = Arrows::getSourcesForTarget(quark)
+            source.each{|source|
+                mx.item(
+                    "source: #{NyxObjectInterface::toString(source)}",
+                    lambda { NyxObjectInterface::landing(source) }
+                )
+            }
 
             puts ""
 
@@ -259,16 +267,16 @@ class Lepton
         url
     end
 
-    # Lepton::getTypeUrlUrlOrNull(filepath)
-    def self.getTypeUrlUrlOrNull(filepath)
+    # Lepton::getTypeAionLocationRootHashOrNull(filepath)
+    def self.getTypeAionLocationRootHashOrNull(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
-        url = nil
+        roothash = nil
         db.execute( "select * from lepton where _key_=?" , ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
-          url = row["_value_"]
+          roothash = row["_value_"]
         end
         db.close
-        url
+        roothash
     end
 
 end

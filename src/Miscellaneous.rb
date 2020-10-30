@@ -203,14 +203,11 @@ class Miscellaneous
                 FileUtils.mv(location, location2)
                 next
             end
-
-            envelop = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Items/#{Miscellaneous::l22()}"
-            FileUtils.mkdir(envelop)
-            FileUtils.mv(location, envelop)
-            datapoint = NSNode1638::issueNyxFSPointOrNull(File.basename(location), envelop, SecureRandom.uuid)
-            puts JSON.pretty_generate(datapoint)
-            asteroid = Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
+            quark = Quark::issueAionFileSystemLocation(location)
+            puts JSON.pretty_generate(quark)
+            asteroid = Asteroids::issueAsteroidInboxFromQuark(quark)
             puts JSON.pretty_generate(asteroid)
+            LucilleCore::removeFileSystemLocation(location)
         end
     end
 

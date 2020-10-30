@@ -255,7 +255,6 @@ class NSNode1638_Search2
         line = LucilleCore::selectEntityFromListOfEntitiesOrNull("", lines)
         return nil if line.nil?
         lambda2.call(line) # this returns an object
-
     end
 end
 

@@ -79,9 +79,9 @@ class Asteroids
         Arrows::issueOrException(asteroid, datapoint)
         asteroid
     end
-
-    # Asteroids::issueAsteroidInboxFromDatapoint(datapoint)
-    def self.issueAsteroidInboxFromDatapoint(datapoint)
+    
+    # Asteroids::issueAsteroidInboxFromQuark(quark)
+    def self.issueAsteroidInboxFromQuark(quark)
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
@@ -93,7 +93,7 @@ class Asteroids
             "ordinal"  => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
-        Arrows::issueOrException(asteroid, datapoint)
+        Arrows::issueOrException(asteroid, quark)
         asteroid
     end
 
@@ -673,11 +673,16 @@ class Asteroids
     # Asteroids::asteroidTerminationProtocol(asteroid)
     def self.asteroidTerminationProtocol(asteroid)
         Asteroids::stopAsteroidIfRunning(asteroid)
+        puts "destroying asteroid: #{Asteroids::toString(asteroid)}"
         Arrows::getTargetsForSource(asteroid).each{|target|
+            next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{NyxObjectInterface::toString(target)}' ")
             if NyxObjectInterface::isDataPoint(target) then
-                datapoint = target
-                status = NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
+                status = NSNode1638::datapointTerminationProtocolReturnBoolean(target)
                 return if !status
+                next
+            end
+            if NyxObjectInterface::isQuark(target) then
+                Quark::destroyQuarkAndLepton(target)
                 next
             end
             puts target
