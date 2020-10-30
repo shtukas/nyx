@@ -140,7 +140,6 @@ class CatalystUI
             DataPortalUI::dataPortalFront()
             return
         end
-
     end
 
     # CatalystUI::standardUILoop()

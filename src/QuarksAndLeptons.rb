@@ -68,8 +68,23 @@ class Quark
     # Quark::toString(quark)
     def self.toString(quark)
         leptonfilename = quark["leptonfilename"]
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        "[quark] #{Lepton::getDescription(leptonfilepath)}"
+        leptonFilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        type = Lepton::getTypeOrNull(leptonFilepath)
+        if type == "line" then
+            return "[quark] line: #{Lepton::getTypeLineLineOrNull(leptonFilepath)}"
+        end
+        if type == "url" then
+            return "[quark] url: #{Lepton::getTypeUrlUrlOrNull(leptonFilepath)}"
+        end
+        if type == "aion-location" then
+            operator = ElizabethLepton.new(leptonFilepath)
+            nhash = Lepton::getTypeAionLocationRootHashOrNull(leptonFilepath)
+            aionobject = AionCore::getAionObjectByHash(operator, nhash)
+            return "[quark] aion-point: #{aionobject["name"]}" # name of the root object
+        end
+        puts quark
+        puts leptonFilepath
+        raise "error: 797be22c-9470-4fb9-bde1-ca9d401f2d62"
     end
 
     # Quark::access(quark)
