@@ -176,6 +176,26 @@ class Quark
 
 end
 
+class Lepton
+
+    # @filename
+    # @filepath
+
+    def initialize(filename)
+        @filename = filename
+        @filepath = LeptonFunctions::leptonFilenameToFilepath(filename)
+    end
+
+    def getFilepath()
+        @filepath
+    end
+
+    def getDescription()
+        LeptonFunctions::getDescription(@filepath)
+    end
+
+end
+
 class LeptonFunctions
 
     # --------------------------------------------------------------
