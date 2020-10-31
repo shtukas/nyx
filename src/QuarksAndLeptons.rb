@@ -143,6 +143,18 @@ class Quark
                 "access",
                 lambda { Quark::access(quark) }
             )
+
+            mx.item("set/update description".yellow, lambda {
+                puts "Not yet implemented"
+                LucilleCore::pressEnterToContinue()
+            })
+
+            mx.item("add to set".yellow, lambda {
+                set = Sets::selectExistingSetOrMakeNewOneOrNull()
+                return if set.nil?
+                Arrows::issueOrException(set, quark)
+            })
+
             mx.item(
                 "destroy",
                 lambda { Quark::destroyQuarkAndLepton(quark) }
