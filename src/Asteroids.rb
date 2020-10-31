@@ -365,14 +365,14 @@ class Asteroids
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
-    # Asteroids::accessChildren(asteroid)
-    def self.accessChildren(asteroid)
+    # Asteroids::access(asteroid)
+    def self.access(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size == 0 then
             return
         end
         if targets.size == 1 then
-            NyxObjectInterface::landing(targets[0])
+            NyxObjectInterface::access(targets[0])
             return
         end
         loop {
@@ -382,7 +382,7 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
             return if target.nil?
-            NyxObjectInterface::landing(target)
+            NyxObjectInterface::access(target)
         }
     end
 
@@ -400,64 +400,6 @@ class Asteroids
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
 
-        processor = lambda {|asteroid|
-
-            mx = LCoreMenuItemsNX1.new()
-
-            mx.item("landing".yellow, lambda {
-                Asteroids::landing(asteroid)
-            })
-
-            mx.item("stop".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-            })
-
-            mx.item("hide for one hour".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-            })
-
-            mx.item("hide until tomorrow".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
-            })
-
-            mx.item("hide for n days".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-            })
-
-            mx.item("to burner".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["orbital"] = {
-                    "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-                }
-                NyxObjects2::put(asteroid)
-            })
-
-            mx.item("to stream".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["orbital"] = {
-                    "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                }
-                NyxObjects2::put(asteroid)
-            })
-
-            mx.item("re orbital".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::reOrbitalOrNothing(asteroid)
-            })
-
-            mx.item("destroy".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            })
-
-            status = mx.promptAndRunSandbox()
-            #break if !status
-        }
-
         uuid = asteroid["uuid"]
 
         # ----------------------------------------
@@ -465,29 +407,25 @@ class Asteroids
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessChildren(asteroid)
-            processor.call(asteroid)
+            Asteroids::access(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessChildren(asteroid)
-            processor.call(asteroid)
+            Asteroids::access(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessChildren(asteroid)
-            processor.call(asteroid)
+            Asteroids::access(asteroid)
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::accessChildren(asteroid)
-            processor.call(asteroid)
+            Asteroids::access(asteroid)
             return
         end
 
@@ -496,21 +434,17 @@ class Asteroids
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             # This case should not happen because we are not starting inbox items.
+            Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::asteroidTerminationProtocol(asteroid)
-            else
-                processor.call(asteroid)
             end
             return
         end
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+            Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::asteroidTerminationProtocol(asteroid)
-            else
-                processor.call(asteroid)
             end
             return
         end
@@ -523,10 +457,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::stopAsteroidIfRunning(asteroid)
             if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
                 Asteroids::asteroidTerminationProtocol(asteroid)
-            else
-                processor.call(asteroid)
             end
             return
         end
@@ -580,6 +511,38 @@ class Asteroids
                 "stop".yellow,
                 lambda { Asteroids::stopAsteroidIfRunning(asteroid) }
             )
+
+            menuitems.item("hide for one hour".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+            })
+
+            menuitems.item("hide until tomorrow".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
+            })
+
+            menuitems.item("hide for n days".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+            })
+
+            menuitems.item("to burner".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                asteroid["orbital"] = {
+                    "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+                }
+                NyxObjects2::put(asteroid)
+            })
+
+            menuitems.item("to stream".yellow, lambda {
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                asteroid["orbital"] = {
+                    "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                }
+                NyxObjects2::put(asteroid)
+            })
 
             menuitems.item(
                 "re-orbital".yellow,

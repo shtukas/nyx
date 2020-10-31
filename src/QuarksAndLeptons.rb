@@ -81,11 +81,13 @@ class Quark
         if type == "line" then
             puts LeptonFunctions::getTypeLineLineOrNull(filepath)
             LucilleCore::pressEnterToContinue()
+            return
         end
         if type == "url" then
             url = LeptonFunctions::getTypeUrlUrlOrNull(filepath)
             puts url
             system("open '#{url}'")
+            return
         end
         if type == "aion-location" then
             leptonFilename = quark["leptonfilename"]
@@ -94,8 +96,11 @@ class Quark
             nhash = LeptonFunctions::getTypeAionLocationRootHashOrNull(leptonFilepath)
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
+            puts "aion point exported"
+            LucilleCore::pressEnterToContinue()
+            return
         end
-        LucilleCore::pressEnterToContinue()
+        raise "error: c9b7f9a2-c0d0-4a86-add8-3ca411b8c240"
     end
 
     # Quark::destroyQuarkAndLepton(quark)

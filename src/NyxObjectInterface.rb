@@ -72,6 +72,32 @@ class NyxObjectInterface
         object["referenceDateTime"]
     end
 
+    # NyxObjectInterface::access(object)
+    def self.access(object)
+        if NyxObjectInterface::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if NyxObjectInterface::isDataPoint(object) then
+            NSNode1638::landing(object)
+            return
+        end
+        if NyxObjectInterface::isSet(object) then
+            Sets::landing(set)
+            return
+        end
+        if NyxObjectInterface::isCube(object) then
+            Cubes::landing(object)
+            return
+        end
+        if NyxObjectInterface::isQuark(object) then
+            Quark::access(object)
+            return
+        end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+    end
+
     # NyxObjectInterface::landing(object)
     def self.landing(object)
         if NyxObjectInterface::isAsteroid(object) then
@@ -83,13 +109,16 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isSet(object) then
-            return Sets::landing(set)
+            Sets::landing(set)
+            return
         end
         if NyxObjectInterface::isCube(object) then
-            return Cubes::landing(object)
+            Cubes::landing(object)
+            return
         end
         if NyxObjectInterface::isQuark(object) then
-            return Quark::landing(object)
+            Quark::landing(object)
+            return
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
