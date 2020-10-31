@@ -69,22 +69,8 @@ class Quark
     def self.toString(quark)
         leptonfilename = quark["leptonfilename"]
         leptonFilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        type = Lepton::getTypeOrNull(leptonFilepath)
-        if type == "line" then
-            return "[quark] line: #{Lepton::getTypeLineLineOrNull(leptonFilepath)}"
-        end
-        if type == "url" then
-            return "[quark] url: #{Lepton::getTypeUrlUrlOrNull(leptonFilepath)}"
-        end
-        if type == "aion-location" then
-            operator = ElizabethLepton.new(leptonFilepath)
-            nhash = Lepton::getTypeAionLocationRootHashOrNull(leptonFilepath)
-            aionobject = AionCore::getAionObjectByHash(operator, nhash)
-            return "[quark] aion-point: #{aionobject["name"]}" # name of the root object
-        end
-        puts quark
-        puts leptonFilepath
-        raise "error: 797be22c-9470-4fb9-bde1-ca9d401f2d62"
+        description = Lepton::getDescription(leptonFilepath)
+        "[quark] #{description}"
     end
 
     # Quark::access(quark)
@@ -140,13 +126,15 @@ class Quark
             puts ""
 
             mx.item(
-                "access",
+                "access".yellow,
                 lambda { Quark::access(quark) }
             )
 
             mx.item("set/update description".yellow, lambda {
-                puts "Not yet implemented"
-                LucilleCore::pressEnterToContinue()
+                leptonfilename = Lepton::leptonFilenameToFilepath(quark["leptonfilename"])
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                Lepton::setDescription(leptonfilename, description)
             })
 
             mx.item("add to set".yellow, lambda {
@@ -156,7 +144,7 @@ class Quark
             })
 
             mx.item(
-                "destroy",
+                "destroy".yellow,
                 lambda { Quark::destroyQuarkAndLepton(quark) }
             )
 
@@ -190,10 +178,16 @@ end
 
 class Lepton
 
+    # --------------------------------------------------------------
+    # Real estate
+
     # Lepton::leptonFilenameToFilepath(filename)
     def self.leptonFilenameToFilepath(filename)
         "/Users/pascal/Galaxy/Leptons/#{filename}"
     end
+
+    # --------------------------------------------------------------
+    # Makers
 
     # Lepton::createLeptonLine(filepath, line)
     def self.createLeptonLine(filepath, line)
@@ -228,32 +222,50 @@ class Lepton
         db.close
     end
 
+    # --------------------------------------------------------------
+    # Getters
+
+    # Lepton::getValueOrNull(db, key)
+    def self.getValueOrNull(db, key)
+        db.results_as_hash = true # to get the results as hash
+        db.execute( "select * from lepton where _key_=?" , [key]) do |row|
+          return row["_value_"]
+        end
+        nil
+    end
+
     # Lepton::getDescription(filepath)
     def self.getDescription(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
-        type = nil
-        db.execute( "select * from lepton where _key_=?" , ["18da4008-6cb2-4df0-b9d5-bb9e3b4f949a"]) do |row|
-          type = row["_value_"]
-        end
+
+        description = Lepton::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
+        return description if description
+
+        type = Lepton::getValueOrNull(db, "18da4008-6cb2-4df0-b9d5-bb9e3b4f949a")
         type = type || "unkown type for lepton file #{filepath}, how did that happen?"
+        
         description = nil
+
         if type == "line" then
-            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
-              description = row["_value_"]
-            end
+            description = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # line
         end
+
         if type == "url" then
-            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
-              description = row["_value_"]
-            end
+            description = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # url
         end
+
         if type == "aion-location" then
-            db.execute("select * from lepton where _key_=?", ["374809ce-ee4c-46c4-9639-c7028731ce64"]) do |row|
-              description = "aion root: #{row["_value_"]}"
-            end
+            aionroothash = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # aion root hash
+            operator = ElizabethLepton.new(filepath)
+            aionobject = AionCore::getAionObjectByHash(operator, aionroothash)
+            description = aionobject["name"]
         end
-        description = description || "description not extracted for leptop file #{description} (type: #{type})"
+
+        if  description.nil? then
+            return "description not extracted for lepton file #{filepath} (type: #{type})"
+        end
+
         db.close
         "[lepton] [#{type}] #{description}"
     end
@@ -304,6 +316,22 @@ class Lepton
         end
         db.close
         roothash
+    end
+
+    # --------------------------------------------------------------
+    # Setters
+
+    # Lepton::setValueOrNull(db, key, value)
+    def self.setValueOrNull(db, key, value)
+        db.execute "delete from lepton where _key_=?", [key]
+        db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", [key, value]
+    end
+
+    # Lepton::setDescription(filepath, description)
+    def self.setDescription(filepath, description)
+        db = SQLite3::Database.new(filepath)
+        Lepton::setValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0", description)
+        db.close
     end
 
 end

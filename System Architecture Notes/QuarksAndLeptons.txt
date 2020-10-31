@@ -13,7 +13,7 @@ Quark
 
 -------------------------------------------------------------------------
 
-Lepton
+Lepton database
 
 The filename is a Sqlite3 file.
 
@@ -25,19 +25,29 @@ create table lepton (_key_ text, _value_ data);
 
 -------------------------------------------------------------------------
 
+Lepton common
+
+    ("18da4008-6cb2-4df0-b9d5-bb9e3b4f949a", <type>: String)
+
+    ("9fb612ab-698c-4f6a-ab99-5aadb3f727d0", <description>: String) 
+        The description is optional. If present it is returned when a lepton description is asked for
+        otherwise the type / contents are introspected.
+
+-------------------------------------------------------------------------
+
 Lepton / line
 
     ("18da4008-6cb2-4df0-b9d5-bb9e3b4f949a", "line")
-    ("374809ce-ee4c-46c4-9639-c7028731ce64", <line>)
+    ("374809ce-ee4c-46c4-9639-c7028731ce64", <line>: String)
 
 Lepton / url
 
     ("18da4008-6cb2-4df0-b9d5-bb9e3b4f949a", "url")
-    ("374809ce-ee4c-46c4-9639-c7028731ce64", <url>)
+    ("374809ce-ee4c-46c4-9639-c7028731ce64", <url>: String)
 
 Lepton / aion-location
 
     ("18da4008-6cb2-4df0-b9d5-bb9e3b4f949a", "aion-location")
-    ("374809ce-ee4c-46c4-9639-c7028731ce64", <roothash>)
+    ("374809ce-ee4c-46c4-9639-c7028731ce64", <roothash>: String)
 
 
