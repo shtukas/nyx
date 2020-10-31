@@ -13,8 +13,8 @@ class Quark
         # We need to create the quark and the lepton (in the opposite order)
 
         leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        Lepton::createLeptonLine(leptonfilepath, line)
+        leptonfilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
+        LeptonFunctions::createLeptonLine(leptonfilepath, line)
 
         object = {
             "uuid"              => SecureRandom.uuid,
@@ -32,8 +32,8 @@ class Quark
         # We need to create the quark and the lepton (in the opposite order)
 
         leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        Lepton::createLeptonUrl(leptonfilepath, url)
+        leptonfilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
+        LeptonFunctions::createLeptonUrl(leptonfilepath, url)
 
         object = {
             "uuid"              => SecureRandom.uuid,
@@ -51,8 +51,8 @@ class Quark
         # We need to create the quark and the lepton (in the opposite order)
 
         leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        Lepton::createLeptonAionFileSystemLocation(leptonfilepath, aionFileSystemLocation)
+        leptonfilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
+        LeptonFunctions::createLeptonAionFileSystemLocation(leptonfilepath, aionFileSystemLocation)
 
         object = {
             "uuid"              => SecureRandom.uuid,
@@ -68,30 +68,30 @@ class Quark
     # Quark::toString(quark)
     def self.toString(quark)
         leptonfilename = quark["leptonfilename"]
-        leptonFilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
-        description = Lepton::getDescription(leptonFilepath)
+        leptonFilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
+        description = LeptonFunctions::getDescription(leptonFilepath)
         "[quark] #{description}"
     end
 
     # Quark::access(quark)
     def self.access(quark)
         puts "access: #{Quark::toString(quark)}"
-        filepath = Lepton::leptonFilenameToFilepath(quark["leptonfilename"])
-        type = Lepton::getTypeOrNull(filepath)
+        filepath = LeptonFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
+        type = LeptonFunctions::getTypeOrNull(filepath)
         if type == "line" then
-            puts Lepton::getTypeLineLineOrNull(filepath)
+            puts LeptonFunctions::getTypeLineLineOrNull(filepath)
             LucilleCore::pressEnterToContinue()
         end
         if type == "url" then
-            url = Lepton::getTypeUrlUrlOrNull(filepath)
+            url = LeptonFunctions::getTypeUrlUrlOrNull(filepath)
             puts url
             system("open '#{url}'")
         end
         if type == "aion-location" then
             leptonFilename = quark["leptonfilename"]
-            leptonFilepath = Lepton::leptonFilenameToFilepath(leptonFilename)
+            leptonFilepath = LeptonFunctions::leptonFilenameToFilepath(leptonFilename)
             operator = ElizabethLepton.new(leptonFilepath)
-            nhash = Lepton::getTypeAionLocationRootHashOrNull(leptonFilepath)
+            nhash = LeptonFunctions::getTypeAionLocationRootHashOrNull(leptonFilepath)
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
         end
@@ -101,7 +101,7 @@ class Quark
     # Quark::destroyQuarkAndLepton(quark)
     def self.destroyQuarkAndLepton(quark)
         leptonfilename = quark["leptonfilename"]
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        leptonfilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
         puts "deleting file: #{leptonfilepath}"
         FileUtils.rm(leptonfilepath)
         puts "deleting quark:"
@@ -121,7 +121,7 @@ class Quark
 
             puts Quark::toString(quark)
             puts "filename: #{quark["leptonfilename"]}".yellow
-            puts "filepath: #{Lepton::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
+            puts "filepath: #{LeptonFunctions::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
 
             puts ""
 
@@ -131,10 +131,10 @@ class Quark
             )
 
             mx.item("set/update description".yellow, lambda {
-                leptonfilename = Lepton::leptonFilenameToFilepath(quark["leptonfilename"])
+                leptonfilename = LeptonFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
-                Lepton::setDescription(leptonfilename, description)
+                LeptonFunctions::setDescription(leptonfilename, description)
             })
 
             mx.item("add to set".yellow, lambda {
@@ -176,12 +176,12 @@ class Quark
 
 end
 
-class Lepton
+class LeptonFunctions
 
     # --------------------------------------------------------------
     # Real estate
 
-    # Lepton::leptonFilenameToFilepath(filename)
+    # LeptonFunctions::leptonFilenameToFilepath(filename)
     def self.leptonFilenameToFilepath(filename)
         "/Users/pascal/Galaxy/Leptons/#{filename}"
     end
@@ -189,7 +189,7 @@ class Lepton
     # --------------------------------------------------------------
     # Makers
 
-    # Lepton::createLeptonLine(filepath, line)
+    # LeptonFunctions::createLeptonLine(filepath, line)
     def self.createLeptonLine(filepath, line)
         db = SQLite3::Database.new(filepath)
         db.execute("create table lepton (_key_ text, _value_ data);")
@@ -198,7 +198,7 @@ class Lepton
         db.close
     end
 
-    # Lepton::createLeptonUrl(filepath, url)
+    # LeptonFunctions::createLeptonUrl(filepath, url)
     def self.createLeptonUrl(filepath, url)
         db = SQLite3::Database.new(filepath)
         db.execute("create table lepton (_key_ text, _value_ data);")
@@ -207,7 +207,7 @@ class Lepton
         db.close
     end
 
-    # Lepton::createLeptonAionFileSystemLocation(leptonFilepath, aionFileSystemLocation)
+    # LeptonFunctions::createLeptonAionFileSystemLocation(leptonFilepath, aionFileSystemLocation)
     def self.createLeptonAionFileSystemLocation(leptonFilepath, aionFileSystemLocation)
         db = SQLite3::Database.new(leptonFilepath)
         db.execute("create table lepton (_key_ text, _value_ data);")
@@ -225,7 +225,7 @@ class Lepton
     # --------------------------------------------------------------
     # Getters
 
-    # Lepton::getValueOrNull(db, key)
+    # LeptonFunctions::getValueOrNull(db, key)
     def self.getValueOrNull(db, key)
         db.results_as_hash = true # to get the results as hash
         db.execute( "select * from lepton where _key_=?" , [key]) do |row|
@@ -234,29 +234,29 @@ class Lepton
         nil
     end
 
-    # Lepton::getDescription(filepath)
+    # LeptonFunctions::getDescription(filepath)
     def self.getDescription(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
 
-        description = Lepton::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
+        description = LeptonFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
         return description if description
 
-        type = Lepton::getValueOrNull(db, "18da4008-6cb2-4df0-b9d5-bb9e3b4f949a")
+        type = LeptonFunctions::getValueOrNull(db, "18da4008-6cb2-4df0-b9d5-bb9e3b4f949a")
         type = type || "unkown type for lepton file #{filepath}, how did that happen?"
         
         description = nil
 
         if type == "line" then
-            description = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # line
+            description = LeptonFunctions::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # line
         end
 
         if type == "url" then
-            description = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # url
+            description = LeptonFunctions::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # url
         end
 
         if type == "aion-location" then
-            aionroothash = Lepton::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # aion root hash
+            aionroothash = LeptonFunctions::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # aion root hash
             operator = ElizabethLepton.new(filepath)
             aionobject = AionCore::getAionObjectByHash(operator, aionroothash)
             description = aionobject["name"]
@@ -270,7 +270,7 @@ class Lepton
         "[lepton] [#{type}] #{description}"
     end
 
-    # Lepton::getTypeOrNull(filepath)
+    # LeptonFunctions::getTypeOrNull(filepath)
     def self.getTypeOrNull(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
@@ -282,7 +282,7 @@ class Lepton
         type
     end
 
-    # Lepton::getTypeLineLineOrNull(filepath)
+    # LeptonFunctions::getTypeLineLineOrNull(filepath)
     def self.getTypeLineLineOrNull(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
@@ -294,7 +294,7 @@ class Lepton
         line
     end
 
-    # Lepton::getTypeUrlUrlOrNull(filepath)
+    # LeptonFunctions::getTypeUrlUrlOrNull(filepath)
     def self.getTypeUrlUrlOrNull(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
@@ -306,7 +306,7 @@ class Lepton
         url
     end
 
-    # Lepton::getTypeAionLocationRootHashOrNull(filepath)
+    # LeptonFunctions::getTypeAionLocationRootHashOrNull(filepath)
     def self.getTypeAionLocationRootHashOrNull(filepath)
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
@@ -321,16 +321,16 @@ class Lepton
     # --------------------------------------------------------------
     # Setters
 
-    # Lepton::setValueOrNull(db, key, value)
+    # LeptonFunctions::setValueOrNull(db, key, value)
     def self.setValueOrNull(db, key, value)
         db.execute "delete from lepton where _key_=?", [key]
         db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", [key, value]
     end
 
-    # Lepton::setDescription(filepath, description)
+    # LeptonFunctions::setDescription(filepath, description)
     def self.setDescription(filepath, description)
         db = SQLite3::Database.new(filepath)
-        Lepton::setValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0", description)
+        LeptonFunctions::setValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0", description)
         db.close
     end
 

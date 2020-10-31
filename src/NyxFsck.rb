@@ -74,7 +74,7 @@ class NyxFsck
     def self.processQuark(quark)
         puts "fsck quark: #{quark["uuid"]}"
         leptonfilename = quark["leptonfilename"]
-        leptonfilepath = Lepton::leptonFilenameToFilepath(leptonfilename)
+        leptonfilepath = LeptonFunctions::leptonFilenameToFilepath(leptonfilename)
         File.exists?(leptonfilepath)
     end
 
