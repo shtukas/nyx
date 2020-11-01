@@ -7,17 +7,31 @@ All nyx objects have the two following attributes
 -------------------------------------------------------------------------
 Nyx Objects
 
-    NGX15    # NGX15.txt
-                  # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
+    Data: 
 
-    Set           # Sets.txt
-                  # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"
+        Quarks        # 
+                      # nyxNxSet: "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
 
-    Asteroid      # Asteroid.txt
-                  # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
+        NGX15         # NGX15.txt
+                      # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
 
-    Wave          # Waves.txt
-                  # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+    Classification:
+
+        Set           # Sets.txt
+                      # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"
+
+    Listing:
+
+        Listing       # Listings.txt
+                      # nyxNxSet: "abb20581-f020-43e1-9c37-6c3ef343d2f5"
+
+    Todo:
+
+        Asteroid      # Asteroid.txt
+                      # nyxNxSet: "b66318f4-2662-4621-a991-a6b966fb4398"
+
+        Wave          # Waves.txt
+                      # nyxNxSet: "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
 
 -------------------------------------------------------------------------
 Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.
