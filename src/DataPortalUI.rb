@@ -101,13 +101,6 @@ class DataPortalUI
                 return if uuid == ""
                 object = NyxObjects2::getOrNull(uuid)
                 return if object.nil?
-                if NyxObjectInterface::isDataPoint(object) then
-                    if object["type"] == "NyxFSPoint001" then
-                        puts "Sorry, you can't do this on a DataPoint that is a NyxFSPoint001. Find the copy on disk."
-                        LucilleCore::pressEnterToContinue()
-                        return
-                    end
-                end
                 object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
                 NyxObjects2::put(object)

@@ -13,7 +13,7 @@ Nyx Objects
                         -> url
                         -> NyxFile
                         -> NyxDirectory
-                        -> NyxFSPoint001
+                        -> NGX15
 
     Set           # Sets.txt
                   # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"

@@ -5,11 +5,6 @@ class NSNode1638
 
     # NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
     def self.commitDatapointToDiskOrNothingReturnBoolean(datapoint)
-        if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            return false if location.nil?
-            File.open(location, "w"){|f| f.puts(JSON.pretty_generate(datapoint)) }
-        end
         NyxObjects2::put(datapoint)
         true
     end
@@ -73,26 +68,6 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueNyxFSPointOrNull(description, parentfolderpath, filenameuuid)
-    def self.issueNyxFSPointOrNull(description, parentfolderpath, filenameuuid)
-        return nil if !File.exists?(parentfolderpath)
-        return nil if !File.directory?(parentfolderpath)
-        filename = "NyxFSPoint001-#{filenameuuid}.json"
-        filepath = "#{parentfolderpath}/#{filename}"
-        object = {
-            "uuid"        => SecureRandom.uuid,
-            "nyxNxSet"    => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "NyxFSPoint001",
-            "name"        => filename,
-            "description" => description
-        }
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
-        GalaxyFinder::registerFilenameAtLocation(filename, filepath)
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSNode1638::issueSet(setuuid)
     def self.issueSet(setuuid)
         object = {
@@ -108,7 +83,7 @@ class NSNode1638
 
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NyxDirectory", "set"] # We are not yet interactively issuing NyxFSPoint001
+        types = ["line", "url", "text", "NyxFile", "NGX15", "set"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -170,8 +145,8 @@ class NSNode1638
             if datapoint["type"] == "NyxDirectory" then
                 return " ( #{datapoint["name"]} )"
             end
-            if datapoint["type"] == "NyxFSPoint001" then
-                return " ( #{datapoint["name"]} )"
+            if datapoint["type"] == "NGX15" then
+                return " ( #{datapoint["ngx15"]} )"
             end
             ""
         }
@@ -188,8 +163,8 @@ class NSNode1638
         if datapoint["type"] == "NyxDirectory" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
-        if datapoint["type"] == "NyxFSPoint001" then
-            return "[#{datapoint["type"]}] #{datapoint["name"]}"
+        if datapoint["type"] == "NGX15" then
+            return "[#{datapoint["type"]}] #{datapoint["ngx15"]}"
         end
         if datapoint["type"] == "set" then
             setuuid = datapoint["setuuid"]
@@ -232,14 +207,14 @@ class NSNode1638
             end
             return nil
         end
-        if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
+        if datapoint["type"] == "NGX15" then
+            location = GalaxyFinder::uniqueStringToLocationOrNull(datapoint["ngx15"])
             if location then
                 puts "target file '#{location}'"
                 system("open '#{File.dirname(location)}'")
                 LucilleCore::pressEnterToContinue()
             else
-                puts "I could not determine the location of #{datapoint["name"]}"
+                puts "I could not determine the location of #{datapoint["ngx15"]}"
                 LucilleCore::pressEnterToContinue()
             end
             return nil
@@ -307,11 +282,6 @@ class NSNode1638
             })
 
             mx.item("transmute datapoint".yellow, lambda {
-               if datapoint["type"] == "NyxFSPoint001" then
-                    puts "Sorry, I do not know how to transmute out of a NyxFSPoint001."
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
                 newpoint = NSNode1638::issueNewPointInteractivelyOrNull()
                 NyxObjects2::destroy(newpoint)
                 newpoint["uuid"] = datapoint["uuid"]
@@ -386,15 +356,19 @@ class NSNode1638
                 end
             end
         end
-        if datapoint["type"] == "NyxFSPoint001" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
+        if datapoint["type"] == "NGX15" then
+            location = GalaxyFinder::uniqueStringToLocationOrNull(datapoint["ngx15"])
             if location then
-                puts "NyxFSPoint001: #{location}"
+                puts "Target file '#{location}'"
+                puts "Delete as appropriate"
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not determine the location of #{datapoint["ngx15"]}"
+                if !LucilleCore::askQuestionAnswerAsBoolean("Continue with datapoint deletion ? ") then
+                    return
+                end
             end
-            puts File.dirname(File.dirname(location))
-            return false if location.nil?
-            FileUtils.rm(location)
-            puts File.dirname(File.dirname(location))
         end
 
         if datapoint["type"] == "set" then

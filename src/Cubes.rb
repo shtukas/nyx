@@ -294,16 +294,8 @@ class CubeTransformers
             FileUtils.mkdir(itemFolderpath)
             LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
         end
-        if datapoint["type"] == "NyxFSPoint001" then
-            nyxfilelocation = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            nyxFolderpath = File.dirname(nyxfilelocation)
+        if datapoint["type"] == "NGX15" then
 
-            itemFoldername = "#{targetOrdinal} FormerNyxFSPoint001-#{datapoint["uuid"]}"
-            itemFolderpath = "#{cube["location"]}/#{itemFoldername}"
-            FileUtils.mkdir(itemFolderpath)
-
-            LucilleCore::copyContents(nyxFolderpath, itemFolderpath)
-            FileUtils.rm("#{itemFolderpath}/#{File.basename(nyxfilelocation)}")
         end
 
         NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)

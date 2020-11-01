@@ -44,8 +44,11 @@ class GalaxyFinder
                 if File.basename(location).start_with?("NyxFile-") then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
                 end
-                if File.basename(location).start_with?("NyxFSPoint001-") then
-                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{File.basename(location)}", location)
+                if File.basename(location).start_with?("NGX15-") then
+                    basename = File.basename(location)
+                    (6..basename.size).each{|indx|
+                        KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{basename[0, indx]}", location)
+                    }
                 end
                 if File.basename(location).include?(uniquestring) then
                     KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)

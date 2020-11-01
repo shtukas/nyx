@@ -25,13 +25,9 @@ NSNode1638
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "type"         : "NyxFSPoint001"
+    "type"         : "NGX15"
+    "ngx15"        : "NGX15-<UniqueIdentifier>"
     "referenceDateTime" : nil or DateTime Iso8601
-    "name"         : String
     "description"  : nil or String
 }
-
-NyxFSPoint001 are special objects. They live among the other datapoints at nyxNxSet "0f555c97-3843-4dfe-80c8-714d837eba69", but they are only copies of the corresponding objects in the Galaxy file hierarchy. So, in essence, all "NyxFSPoint001"s in the NyxObjects database are cache of their Galaxy file hierarchy counterpart.
-
-
 
