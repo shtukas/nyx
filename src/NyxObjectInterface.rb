@@ -28,6 +28,11 @@ class NyxObjectInterface
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     end
 
+    # NyxObjectInterface::isListing(object)
+    def self.isListing(object)
+        object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
+    end
+
     # NyxObjectInterface::toString(object)
     def self.toString(object)
         if NyxObjectInterface::isAsteroid(object) then
@@ -44,6 +49,9 @@ class NyxObjectInterface
         end
         if NyxObjectInterface::isQuark(object) then
             return Quark::toString(object)
+        end
+        if NyxObjectInterface::isListing(object) then
+            return Listings::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -94,6 +102,10 @@ class NyxObjectInterface
             Quark::access(object)
             return
         end
+        if NyxObjectInterface::isListing(object) then
+            Listings::landing(object)
+            return 
+        end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end
@@ -119,6 +131,10 @@ class NyxObjectInterface
         if NyxObjectInterface::isQuark(object) then
             Quark::landing(object)
             return
+        end
+        if NyxObjectInterface::isListing(object) then
+            Listings::landing(object)
+            return 
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
