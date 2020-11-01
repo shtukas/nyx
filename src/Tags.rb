@@ -3,53 +3,53 @@
 
 class Tags
 
-    # Tags::make(name_)
-    def self.make(name_)
+    # Tags::make(payload)
+    def self.make(payload)
         {
             "uuid"     => SecureRandom.hex,
             "nyxNxSet" => "287041db-39ac-464c-b557-2f172e721111",
             "unixtime" => Time.new.to_f,
-            "name"     => name_
+            "payload"  => payload
         }
     end
 
-    # Tags::issue(name_)
-    def self.issue(name_)
-        set = Tags::make(name_)
-        NyxObjects2::put(set)
-        set
+    # Tags::issue(payload)
+    def self.issue(payload)
+        tag = Tags::make(payload)
+        NyxObjects2::put(tag)
+        tag
     end
 
     # Tags::issueSetInteractivelyOrNull()
     def self.issueSetInteractivelyOrNull()
-        name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
-        return nil if name_ == ""
-        Tags::issue(name_)
+        payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
+        return nil if payload == ""
+        Tags::issue(payload)
     end
 
-    # Tags::toString(set)
-    def self.toString(set)
-        "[set] #{set["name"]}"
+    # Tags::toString(tag)
+    def self.toString(tag)
+        "[tag] #{tag["payload"]}"
     end
 
     # Tags::tags()
-    def self.sets()
+    def self.tags()
         NyxObjects2::getSet("287041db-39ac-464c-b557-2f172e721111")
     end
 
-    # Tags::landing(set)
-    def self.landing(set)
+    # Tags::landing(tag)
+    def self.landing(tag)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(set["uuid"]).nil?
+            return if NyxObjects2::getOrNull(tag["uuid"]).nil?
 
-            puts Tags::toString(set).green
-            puts "uuid: #{set["uuid"]}".yellow
+            puts Tags::toString(tag).green
+            puts "uuid: #{tag["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
-            targets = Arrows::getTargetsForSource(set)
+            targets = Arrows::getTargetsForSource(tag)
             targets = targets.select{|target| !NyxObjectInterface::isTag(target) }
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
@@ -63,24 +63,24 @@ class Tags
 
             puts ""
             mx.item("rename".yellow, lambda { 
-                name_ = Miscellaneous::editTextSynchronously(set["name"]).strip
-                return if name_ == ""
-                set["name"] = name_
-                NyxObjects2::put(set)
+                payload = Miscellaneous::editTextSynchronously(tag["payload"]).strip
+                return if payload == ""
+                tag["payload"] = payload
+                NyxObjects2::put(tag)
                 Tags::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(set, datapoint)
+                Arrows::issueOrException(tag, datapoint)
             })
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(set)
+                puts JSON.pretty_generate(tag)
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy tag".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy set: '#{Tags::toString(set)}': ") then
-                    NyxObjects2::destroy(set)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy tag: '#{Tags::toString(tag)}': ") then
+                    NyxObjects2::destroy(tag)
                 end
             })
             puts ""
@@ -90,18 +90,18 @@ class Tags
     end
 
     # Tags::tagsListing()
-    def self.setsListing()
+    def self.tagsListing()
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            Tags::tags().each{|set|
+            Tags::tags().each{|tag|
                 mx.item(
-                    Tags::toString(set),
-                    lambda { Tags::landing(set) }
+                    Tags::toString(tag),
+                    lambda { Tags::landing(tag) }
                 )
             }
             puts ""
-            mx.item("Make new set".yellow, lambda { 
+            mx.item("Make new tag".yellow, lambda { 
                 i = Tags::issueSetInteractivelyOrNull()
                 return if i.nil?
                 Tags::landing(i)
@@ -114,32 +114,32 @@ class Tags
 
     # ----------------------------------
 
-    # Tags::nameIsUsed(name_)
-    def self.nameIsUsed(name_)
-        Tags::tags().any?{|set| set["name"].downcase == name_.downcase }
+    # Tags::payloadIsUsed(payload)
+    def self.payloadIsUsed(payload)
+        Tags::tags().any?{|tag| tag["payload"].downcase == payload.downcase }
     end
 
     # Tags::selectExistingSetOrNull_v1()
     def self.selectExistingSetOrNull_v1()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("set", Tags::tags(), lambda { |set| Tags::toString(set) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", Tags::tags(), lambda { |tag| Tags::toString(tag) })
     end
 
     # Tags::pecoStyleSelectTagNameOrNull()
     def self.pecoStyleSelectTagNameOrNull()
-        names = Tags::tags().map{|set| set["name"] }.sort
+        payloads = Tags::tags().map{|tag| tag["payload"] }.sort
 
         # ---------------------------------------
         fragmentForPreselection = LucilleCore::askQuestionAnswerAsString("fragment for preselection: ")
-        names = names.select{|name_| name_.downcase.include?(fragmentForPreselection.downcase) }.first(1000)
+        payloads = payloads.select{|payload| payload.downcase.include?(fragmentForPreselection.downcase) }.first(1000)
         # ---------------------------------------
 
-        Miscellaneous::pecoStyleSelectionOrNull(names)
+        Miscellaneous::pecoStyleSelectionOrNull(payloads)
     end
 
-    # Tags::selectTagByNameOrNull(name_)
-    def self.selectTagByNameOrNull(name_)
+    # Tags::selectTagByNameOrNull(payload)
+    def self.selectTagByNameOrNull(payload)
         Tags::tags()
-            .select{|set| set["name"].downcase == name_.downcase }
+            .select{|tag| tag["payload"].downcase == payload.downcase }
             .first
     end
 
@@ -153,15 +153,15 @@ class Tags
     # Interface
     # Tags::selectExistingTagOrMakeNewOneOrNull()
     def self.selectExistingTagOrMakeNewOneOrNull()
-        set = Tags::selectExistingTagOrNull_v2()
-        return set if set
-        if LucilleCore::askQuestionAnswerAsBoolean("Create a new set ? ") then
+        tag = Tags::selectExistingTagOrNull_v2()
+        return tag if tag
+        if LucilleCore::askQuestionAnswerAsBoolean("Create a new tag ? ") then
             loop {
-                name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
-                if Tags::selectTagByNameOrNull(name_) then
-                    return Tags::selectTagByNameOrNull(name_)
+                payload = LucilleCore::askQuestionAnswerAsString("tag payload: ")
+                if Tags::selectTagByNameOrNull(payload) then
+                    return Tags::selectTagByNameOrNull(payload)
                 end
-                return Tags::issue(name_)
+                return Tags::issue(payload)
             }
         end
         nil
@@ -169,37 +169,37 @@ class Tags
 
     # ----------------------------------
 
-    # Tags::mergeTwoTagsOfSameNameReturnTag(set1, set2)
-    def self.mergeTwoTagsOfSameNameReturnTag(set1, set2)
-        raise "4c54ea8b-7cb4-4838-98ed-66857bd22616" if ( set1["uuid"] == set2["uuid"] )
-        raise "7d4b9f3e-9fe0-4594-a3c4-61d177a3a904" if ( set1["name"].downcase != set2["name"].downcase )
-        set = Tags::issue(set1["name"])
+    # Tags::mergeTwoTagsOfSameNameReturnTag(tag1, tag2)
+    def self.mergeTwoTagsOfSameNameReturnTag(tag1, tag2)
+        raise "4c54ea8b-7cb4-4838-98ed-66857bd22616" if ( tag1["uuid"] == tag2["uuid"] )
+        raise "7d4b9f3e-9fe0-4594-a3c4-61d177a3a904" if ( tag1["payload"].downcase != tag2["payload"].downcase )
+        tag = Tags::issue(tag1["payload"])
 
-        Arrows::getSourcesForTarget(set1).each{|source|
-            Arrows::issueOrException(source, set)
+        Arrows::getSourcesForTarget(tag1).each{|source|
+            Arrows::issueOrException(source, tag)
         }
-        Arrows::getTargetsForSource(set1).each{|target|
-            Arrows::issueOrException(set, target)
-        }
-
-        Arrows::getSourcesForTarget(set2).each{|source|
-            Arrows::issueOrException(source, set)
-        }
-        Arrows::getTargetsForSource(set2).each{|target|
-            Arrows::issueOrException(set, target)
+        Arrows::getTargetsForSource(tag1).each{|target|
+            Arrows::issueOrException(tag, target)
         }
 
-        NyxObjects2::destroy(set1)
-        NyxObjects2::destroy(set2)
+        Arrows::getSourcesForTarget(tag2).each{|source|
+            Arrows::issueOrException(source, tag)
+        }
+        Arrows::getTargetsForSource(tag2).each{|target|
+            Arrows::issueOrException(tag, target)
+        }
 
-        set
+        NyxObjects2::destroy(tag1)
+        NyxObjects2::destroy(tag2)
+
+        tag
     end
 
     # Tags::redundancyPairOrNull()
     def self.redundancyPairOrNull()
-        Tags::tags().combination(2).each{|set1, set2|
-            next if set1["name"].downcase != set2["name"].downcase 
-            return [set1, set2]
+        Tags::tags().combination(2).each{|tag1, tag2|
+            next if tag1["payload"].downcase != tag2["payload"].downcase 
+            return [tag1, tag2]
         }
         nil
     end
@@ -208,20 +208,20 @@ class Tags
     # Tags::removeSetDuplicates()
     def self.removeSetDuplicates()
         while pair = Tags::redundancyPairOrNull() do
-            set1, set2 = pair
-            Tags::mergeTwoTagsOfSameNameReturnTag(set1, set2)
+            tag1, tag2 = pair
+            Tags::mergeTwoTagsOfSameNameReturnTag(tag1, tag2)
         end
     end
 
     # ----------------------------------
 
-    # Tags::batchRename(oldname, newname)
-    def self.batchRename(oldname, newname)
+    # Tags::batchRename(oldpayload, newpayload)
+    def self.batchRename(oldpayload, newpayload)
         Tags::tags()
-            .each{|set|
-                next if (set["name"] != oldname)
-                set["name"] = newname
-                NyxObjects2::put(set)
+            .each{|tag|
+                next if (tag["payload"] != oldpayload)
+                tag["payload"] = newpayload
+                NyxObjects2::put(tag)
             }
     end
 end
