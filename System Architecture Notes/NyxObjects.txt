@@ -12,7 +12,6 @@ Nyx Objects
                         -> line
                         -> url
                         -> NyxFile
-                        -> NyxDirectory
                         -> NGX15
 
     Set           # Sets.txt

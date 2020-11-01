@@ -49,7 +49,7 @@ class NSNode1638_FileSystemElements
             if showprogress then
                 puts JSON.generate(datapoint)
             end
-            next if !["NyxDirectory", "NyxFile"].include?(datapoint["type"])
+            next if !["NyxFile"].include?(datapoint["type"])
             location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
             if location then
                 NyxFileSystemElementsMapping::register(datapoint["uuid"], datapoint["name"], location)

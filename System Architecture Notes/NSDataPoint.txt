@@ -15,16 +15,6 @@ NSNode1638
     "uuid"         : String
     "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
     "unixtime"     : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
-    "type"         : "NyxDirectory"
-    "name"         : String
-    "description"  : nil or String
-}
-
-{
-    "uuid"         : String
-    "nyxNxSet"     : "0f555c97-3843-4dfe-80c8-714d837eba69"
-    "unixtime"     : Float # Unixtime with decimals
     "type"         : "NGX15"
     "ngx15"        : "NGX15-<UniqueIdentifier>"
     "referenceDateTime" : nil or DateTime Iso8601

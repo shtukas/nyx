@@ -42,19 +42,6 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueNyxDirectory(nyxDirectoryName)
-    def self.issueNyxDirectory(nyxDirectoryName)
-        object = {
-            "uuid"       => SecureRandom.uuid,
-            "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
-            "unixtime"   => Time.new.to_f,
-            "type"       => "NyxDirectory",
-            "name"       => nyxDirectoryName
-        }
-        NyxObjects2::put(object)
-        object
-    end
-
     # NSNode1638::issueNyxFile(nyxFileName)
     def self.issueNyxFile(nyxFileName)
         object = {
@@ -123,12 +110,6 @@ class NSNode1638
             end
             return NSNode1638::issueNyxFile(nyxfilename)
         end
-        if type == "NyxDirectory" then
-            nyxDirectoryName = "NyxDirectory-#{SecureRandom.uuid}"
-            puts "nyxDirectoryName: #{nyxDirectoryName}"
-            LucilleCore::pressEnterToContinue()
-            return NSNode1638::issueNyxDirectory(nyxDirectoryName)
-        end
         if type == "set" then
             set = Sets::selectExistingSetOrMakeNewOneOrNull()
             return nil if set.nil?
@@ -140,9 +121,6 @@ class NSNode1638
     def self.toString(datapoint)
         suffixWithPadding = lambda {|datapoint|
             if datapoint["type"] == "NyxFile" then
-                return " ( #{datapoint["name"]} )"
-            end
-            if datapoint["type"] == "NyxDirectory" then
                 return " ( #{datapoint["name"]} )"
             end
             if datapoint["type"] == "NGX15" then
@@ -158,9 +136,6 @@ class NSNode1638
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
         end
         if datapoint["type"] == "NyxFile" then
-            return "[#{datapoint["type"]}] #{datapoint["name"]}"
-        end
-        if datapoint["type"] == "NyxDirectory" then
             return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         if datapoint["type"] == "NGX15" then
@@ -188,18 +163,6 @@ class NSNode1638
             if location then
                 puts "filepath: #{location}"
                 system("open '#{location}'")
-                LucilleCore::pressEnterToContinue()
-            else
-                puts "I could not determine the location of #{datapoint["name"]}"
-                LucilleCore::pressEnterToContinue()
-            end
-            return nil
-        end
-        if datapoint["type"] == "NyxDirectory" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if location then
-                puts "target file '#{location}'"
-                system("open '#{File.dirname(location)}'")
                 LucilleCore::pressEnterToContinue()
             else
                 puts "I could not determine the location of #{datapoint["name"]}"
@@ -336,23 +299,6 @@ class NSNode1638
                         puts "Very well. Exiting."
                         exit
                     end
-                end
-            end
-        end
-        if datapoint["type"] == "NyxDirectory" then
-            puts "Datapoint is NyxDirectory, we are going to remove the NyxDirectory file..."
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if location then
-                puts "NyxDirectory: #{location}"
-                puts "Actually I am going to let you do that..."
-                sleep 3
-                system("open '#{File.dirname(location)}'")
-                LucilleCore::pressEnterToContinue()
-            else
-                puts "Failure to find the file."
-                if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
-                    puts "Very well. Exiting."
-                    exit
                 end
             end
         end

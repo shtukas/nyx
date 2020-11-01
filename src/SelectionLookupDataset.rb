@@ -122,9 +122,6 @@ class SelectionLookupDataset
                 if datapoint["type"] == "NyxFile" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
                 end
-                if datapoint["type"] == "NyxDirectory" then
-                    SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["name"])
-                end
                 if datapoint["type"] == "NGX15" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["ngx15"])
                 end

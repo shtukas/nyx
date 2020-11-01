@@ -32,20 +32,6 @@ class NyxFsck
             return true
         end
 
-        if datapoint["type"] == "NyxDirectory" then
-            puts "fsck datapoint NyxDirectory: #{datapoint["uuid"]}"
-            nyxDirectoryName = datapoint["name"]
-            puts "Finding #{nyxDirectoryName}"
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if location.nil? then
-                puts "Failing to find: #{nyxDirectoryName}"
-                puts JSON.pretty_generate(datapoint)
-                puts "[error: f3ba7c41-a0ba-4e16-98d3-46cc083c1453]"
-                return false
-            end
-            return true
-        end
-
         if datapoint["type"] == "set" then
             puts "fsck datapoint set: #{datapoint["uuid"]}"
             return true
