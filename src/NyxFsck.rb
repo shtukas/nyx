@@ -86,7 +86,7 @@ class NyxFsck
 
         if object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111" then
             # Set
-            puts "fsck set: #{object["uuid"]}"
+            puts "fsck tag: #{object["uuid"]}"
             return true
         end
 

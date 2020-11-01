@@ -50,7 +50,7 @@ class Tags
             mx = LCoreMenuItemsNX1.new()
 
             targets = Arrows::getTargetsForSource(set)
-            targets = targets.select{|target| !NyxObjectInterface::isSet(target) }
+            targets = targets.select{|target| !NyxObjectInterface::isTag(target) }
             targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets

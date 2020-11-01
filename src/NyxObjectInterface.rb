@@ -18,8 +18,8 @@ class NyxObjectInterface
         object["nyxNxSet"] == "06071daa-ec51-4c19-a4b9-62f39bb2ce4f"
     end
 
-    # NyxObjectInterface::isSet(object)
-    def self.isSet(object)
+    # NyxObjectInterface::isTag(object)
+    def self.isTag(object)
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
@@ -39,7 +39,7 @@ class NyxObjectInterface
         if NyxObjectInterface::isCube(object) then
             return Cubes::toString(object)
         end
-        if NyxObjectInterface::isSet(object) then
+        if NyxObjectInterface::isTag(object) then
             return Tags::toString(object)
         end
         if NyxObjectInterface::isQuark(object) then
@@ -82,7 +82,7 @@ class NyxObjectInterface
             NGX15::landing(object)
             return
         end
-        if NyxObjectInterface::isSet(object) then
+        if NyxObjectInterface::isTag(object) then
             Tags::landing(set)
             return
         end
@@ -108,7 +108,7 @@ class NyxObjectInterface
             NGX15::landing(object)
             return
         end
-        if NyxObjectInterface::isSet(object) then
+        if NyxObjectInterface::isTag(object) then
             Tags::landing(set)
             return
         end
