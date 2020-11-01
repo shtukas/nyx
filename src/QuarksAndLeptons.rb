@@ -143,7 +143,7 @@ class Quark
             })
 
             mx.item("add to set".yellow, lambda {
-                set = Sets::selectExistingSetOrMakeNewOneOrNull()
+                set = Tags::selectExistingTagOrMakeNewOneOrNull()
                 return if set.nil?
                 Arrows::issueOrException(set, quark)
             })

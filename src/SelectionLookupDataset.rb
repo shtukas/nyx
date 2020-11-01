@@ -46,7 +46,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForSet(set)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(setm["uuid"])
         SelectionLookupDatabaseIO::addRecord("set", set["uuid"], set["uuid"])
-        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], Sets::toString(set).downcase)
+        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], Tags::toString(set).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -150,13 +150,13 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["set"]
 
-        Sets::sets()
+        Tags::tags()
             .each{|set|
                 if verbose then
-                    puts "set: #{set["uuid"]} , #{Sets::toString(set)}"
+                    puts "set: #{set["uuid"]} , #{Tags::toString(set)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], set["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], Sets::toString(set))
+                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], Tags::toString(set))
             }
 
         db.close

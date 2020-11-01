@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Sets
+class Tags
 
-    # Sets::make(name_)
+    # Tags::make(name_)
     def self.make(name_)
         {
             "uuid"     => SecureRandom.hex,
@@ -13,50 +13,41 @@ class Sets
         }
     end
 
-    # Sets::issue(name_)
+    # Tags::issue(name_)
     def self.issue(name_)
-        set = Sets::make(name_)
+        set = Tags::make(name_)
         NyxObjects2::put(set)
         set
     end
 
-    # Sets::issueSetInteractivelyOrNull()
+    # Tags::issueSetInteractivelyOrNull()
     def self.issueSetInteractivelyOrNull()
         name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
         return nil if name_ == ""
-        Sets::issue(name_)
+        Tags::issue(name_)
     end
 
-    # Sets::toString(set)
+    # Tags::toString(set)
     def self.toString(set)
         "[set] #{set["name"]}"
     end
 
-    # Sets::sets()
+    # Tags::tags()
     def self.sets()
         NyxObjects2::getSet("287041db-39ac-464c-b557-2f172e721111")
     end
 
-    # Sets::landing(set)
+    # Tags::landing(set)
     def self.landing(set)
         loop {
             system("clear")
 
             return if NyxObjects2::getOrNull(set["uuid"]).nil?
 
-            puts Sets::toString(set).green
+            puts Tags::toString(set).green
             puts "uuid: #{set["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
-
-            linked = Arrows::getTargetForSourceOfGivenNyxType(set, "287041db-39ac-464c-b557-2f172e721111")
-            puts "" if !linked.empty?
-            linked.each{|s|
-                    mx.item(
-                        "linked: #{NyxObjectInterface::toString(s)}",
-                        lambda { NyxObjectInterface::landing(s) }
-                    )
-                }
 
             targets = Arrows::getTargetsForSource(set)
             targets = targets.select{|target| !NyxObjectInterface::isSet(target) }
@@ -76,24 +67,19 @@ class Sets
                 return if name_ == ""
                 set["name"] = name_
                 NyxObjects2::put(set)
-                Sets::removeSetDuplicates()
+                Tags::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(set, datapoint)
             })
-            mx.item("add to set".yellow, lambda { 
-                s1 = Sets::selectExistingSetOrMakeNewOneOrNull()
-                return if s1.nil?
-                Arrows::issueOrException(s1, set)
-            })
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(set)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy set".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy set: '#{Sets::toString(set)}': ") then
+            mx.item("destroy tag".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy set: '#{Tags::toString(set)}': ") then
                     NyxObjects2::destroy(set)
                 end
             })
@@ -103,22 +89,22 @@ class Sets
         }
     end
 
-    # Sets::setsListing()
+    # Tags::tagsListing()
     def self.setsListing()
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            Sets::sets().each{|set|
+            Tags::tags().each{|set|
                 mx.item(
-                    Sets::toString(set),
-                    lambda { Sets::landing(set) }
+                    Tags::toString(set),
+                    lambda { Tags::landing(set) }
                 )
             }
             puts ""
             mx.item("Make new set".yellow, lambda { 
-                i = Sets::issueSetInteractivelyOrNull()
+                i = Tags::issueSetInteractivelyOrNull()
                 return if i.nil?
-                Sets::landing(i)
+                Tags::landing(i)
             })
             puts ""
             status = mx.promptAndRunSandbox()
@@ -128,19 +114,19 @@ class Sets
 
     # ----------------------------------
 
-    # Sets::nameIsUsed(name_)
+    # Tags::nameIsUsed(name_)
     def self.nameIsUsed(name_)
-        Sets::sets().any?{|set| set["name"].downcase == name_.downcase }
+        Tags::tags().any?{|set| set["name"].downcase == name_.downcase }
     end
 
-    # Sets::selectExistingSetOrNull_v1()
+    # Tags::selectExistingSetOrNull_v1()
     def self.selectExistingSetOrNull_v1()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("set", Sets::sets(), lambda { |set| Sets::toString(set) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("set", Tags::tags(), lambda { |set| Tags::toString(set) })
     end
 
-    # Sets::pecoStyleSelectSetNameOrNull()
-    def self.pecoStyleSelectSetNameOrNull()
-        names = Sets::sets().map{|set| set["name"] }.sort
+    # Tags::pecoStyleSelectTagNameOrNull()
+    def self.pecoStyleSelectTagNameOrNull()
+        names = Tags::tags().map{|set| set["name"] }.sort
 
         # ---------------------------------------
         fragmentForPreselection = LucilleCore::askQuestionAnswerAsString("fragment for preselection: ")
@@ -150,32 +136,32 @@ class Sets
         Miscellaneous::pecoStyleSelectionOrNull(names)
     end
 
-    # Sets::selectSetByNameOrNull(name_)
-    def self.selectSetByNameOrNull(name_)
-        Sets::sets()
+    # Tags::selectTagByNameOrNull(name_)
+    def self.selectTagByNameOrNull(name_)
+        Tags::tags()
             .select{|set| set["name"].downcase == name_.downcase }
             .first
     end
 
-    # Sets::selectExistingSetOrNull_v2()
-    def self.selectExistingSetOrNull_v2()
-        n = Sets::pecoStyleSelectSetNameOrNull()
+    # Tags::selectExistingTagOrNull_v2()
+    def self.selectExistingTagOrNull_v2()
+        n = Tags::pecoStyleSelectTagNameOrNull()
         return nil if n.nil?
-        Sets::selectSetByNameOrNull(n)
+        Tags::selectTagByNameOrNull(n)
     end
 
     # Interface
-    # Sets::selectExistingSetOrMakeNewOneOrNull()
-    def self.selectExistingSetOrMakeNewOneOrNull()
-        set = Sets::selectExistingSetOrNull_v2()
+    # Tags::selectExistingTagOrMakeNewOneOrNull()
+    def self.selectExistingTagOrMakeNewOneOrNull()
+        set = Tags::selectExistingTagOrNull_v2()
         return set if set
         if LucilleCore::askQuestionAnswerAsBoolean("Create a new set ? ") then
             loop {
                 name_ = LucilleCore::askQuestionAnswerAsString("set name: ")
-                if Sets::selectSetByNameOrNull(name_) then
-                    return Sets::selectSetByNameOrNull(name_)
+                if Tags::selectTagByNameOrNull(name_) then
+                    return Tags::selectTagByNameOrNull(name_)
                 end
-                return Sets::issue(name_)
+                return Tags::issue(name_)
             }
         end
         nil
@@ -183,11 +169,11 @@ class Sets
 
     # ----------------------------------
 
-    # Sets::mergeTwoSetsOfSameNameReturnSet(set1, set2)
-    def self.mergeTwoSetsOfSameNameReturnSet(set1, set2)
+    # Tags::mergeTwoTagsOfSameNameReturnTag(set1, set2)
+    def self.mergeTwoTagsOfSameNameReturnTag(set1, set2)
         raise "4c54ea8b-7cb4-4838-98ed-66857bd22616" if ( set1["uuid"] == set2["uuid"] )
         raise "7d4b9f3e-9fe0-4594-a3c4-61d177a3a904" if ( set1["name"].downcase != set2["name"].downcase )
-        set = Sets::issue(set1["name"])
+        set = Tags::issue(set1["name"])
 
         Arrows::getSourcesForTarget(set1).each{|source|
             Arrows::issueOrException(source, set)
@@ -209,9 +195,9 @@ class Sets
         set
     end
 
-    # Sets::redundancyPairOrNull()
+    # Tags::redundancyPairOrNull()
     def self.redundancyPairOrNull()
-        Sets::sets().combination(2).each{|set1, set2|
+        Tags::tags().combination(2).each{|set1, set2|
             next if set1["name"].downcase != set2["name"].downcase 
             return [set1, set2]
         }
@@ -219,19 +205,19 @@ class Sets
     end
 
     # Interface
-    # Sets::removeSetDuplicates()
+    # Tags::removeSetDuplicates()
     def self.removeSetDuplicates()
-        while pair = Sets::redundancyPairOrNull() do
+        while pair = Tags::redundancyPairOrNull() do
             set1, set2 = pair
-            Sets::mergeTwoSetsOfSameNameReturnSet(set1, set2)
+            Tags::mergeTwoTagsOfSameNameReturnTag(set1, set2)
         end
     end
 
     # ----------------------------------
 
-    # Sets::batchRename(oldname, newname)
+    # Tags::batchRename(oldname, newname)
     def self.batchRename(oldname, newname)
-        Sets::sets()
+        Tags::tags()
             .each{|set|
                 next if (set["name"] != oldname)
                 set["name"] = newname

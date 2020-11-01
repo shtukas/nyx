@@ -32,9 +32,9 @@ class GeneralSearch
         SelectionLookupDataset::patternToSets(pattern)
             .map{|set|
                 {
-                    "description"   => Sets::toString(set),
+                    "description"   => Tags::toString(set),
                     "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(set)).to_time.to_f,
-                    "dive"          => lambda{ Sets::landing(set) }
+                    "dive"          => lambda{ Tags::landing(set) }
                 }
             }
     end

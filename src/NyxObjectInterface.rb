@@ -40,7 +40,7 @@ class NyxObjectInterface
             return Cubes::toString(object)
         end
         if NyxObjectInterface::isSet(object) then
-            return Sets::toString(object)
+            return Tags::toString(object)
         end
         if NyxObjectInterface::isQuark(object) then
             return Quark::toString(object)
@@ -83,7 +83,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isSet(object) then
-            Sets::landing(set)
+            Tags::landing(set)
             return
         end
         if NyxObjectInterface::isCube(object) then
@@ -109,7 +109,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isSet(object) then
-            Sets::landing(set)
+            Tags::landing(set)
             return
         end
         if NyxObjectInterface::isCube(object) then
