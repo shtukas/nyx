@@ -280,15 +280,8 @@ class CubeTransformers
             filepath = "#{cube["location"]}/#{filename}"
             File.open(filepath, "w"){|f| f.puts(datapoint["url"]) }
         end
-        if datapoint["type"] == "NyxFile" then
-            nyxfilelocation = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            nyxfile_extension_withDot = File.extname(nyxfilelocation)
-            itemFilename = "#{targetOrdinal} FormerNyxFile-#{datapoint["uuid"]}#{nyxfile_extension_withDot}"
-            itemFilepath = "#{cube["location"]}/#{itemFilename}"
-            FileUtils.cp(nyxfilelocation, itemFilepath)
-        end
         if datapoint["type"] == "NGX15" then
-
+            raise "3249837493287"
         end
 
         NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)

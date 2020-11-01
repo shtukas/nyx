@@ -18,13 +18,13 @@ class NyxFsck
             return true
         end
 
-        if datapoint["type"] == "NyxFile" then
-            puts "fsck datapoint NyxFile: #{datapoint["uuid"]}"
-            filename = datapoint["name"]
-            puts "Finding #{filename}"
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
+        if datapoint["type"] == "NGX15" then
+            puts "fsck datapoint NGX15: #{datapoint["uuid"]}"
+            code = datapoint["ngx15"]
+            puts "Finding #{code}"
+            location = GalaxyFinder::uniqueStringToLocationOrNull(code)
             if location.nil? then
-                puts "Failing to find: #{filename}"
+                puts "Failing to find: #{code}"
                 puts JSON.pretty_generate(datapoint)
                 puts "[error: 76957559-8830-400d-b4fb-6e00081446a0]"
                 return false

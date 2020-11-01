@@ -11,7 +11,6 @@ Nyx Objects
                   # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
                         -> line
                         -> url
-                        -> NyxFile
                         -> NGX15
 
     Set           # Sets.txt

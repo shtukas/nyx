@@ -121,11 +121,6 @@ class DataPortalUI
             )
 
             ms.item(
-                "2. NSNode1638_FileSystemElements::maintenance(true)",
-                lambda { NSNode1638_FileSystemElements::maintenance(true) }
-            )
-
-            ms.item(
                 "3. NyxGarbageCollection::run()",
                 lambda { NyxGarbageCollection::run() }
             )

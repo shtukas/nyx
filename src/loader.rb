@@ -137,13 +137,11 @@ require_relative "LucilleCore.rb"
 
 require_relative "NSNode1638@X0.rb"
 require_relative "NSNode1638@X1.rb"
-require_relative "NSNode1638@X2.rb"
 
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 require_relative "NyxObjectInterface.rb"
-require_relative "NyxFileSystemElementsMapping.rb"
 
 require_relative "ProgrammableBooleans.rb"
 

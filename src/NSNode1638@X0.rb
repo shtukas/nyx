@@ -42,14 +42,14 @@ class NSNode1638
         object
     end
 
-    # NSNode1638::issueNyxFile(nyxFileName)
-    def self.issueNyxFile(nyxFileName)
+    # NSNode1638::issueNGX15(code)
+    def self.issueNGX15(code)
         object = {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
-            "type"       => "NyxFile",
-            "name"       => nyxFileName
+            "type"       => "NGX15",
+            "ngx15"      => code
         }
         NyxObjects2::put(object)
         object
@@ -70,7 +70,7 @@ class NSNode1638
 
     # NSNode1638::issueNewPointInteractivelyOrNull()
     def self.issueNewPointInteractivelyOrNull()
-        types = ["line", "url", "text", "NyxFile", "NGX15", "set"]
+        types = ["line", "url", "text", "NGX15", "set"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -84,31 +84,30 @@ class NSNode1638
             return Quark::issueUrl(url)
         end
         if type == "text" then
-            nyxfilename = "NyxFile-#{SecureRandom.uuid}.txt"
-            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{nyxfilename}"
+            code = "NGX15-#{SecureRandom.uuid}"
+            textfilename = "#{code}.txt"
+            filepath = "/Users/pascal/Galaxy/Timeline/#{Time.new.strftime("%Y")}/Catalyst-Elements/#{Time.new.strftime("%Y-%m")}/#{textfilename}"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
             FileUtils.touch(filepath)
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
-            return NSNode1638::issueNyxFile(nyxfilename)
+            return NSNode1638::issueNGX15(code)
         end
-        if type == "NyxFile" then
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["nyxfilename already exists", "issue new nyxfilename"])
+        if type == "NGX15" then
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["location already exists", "issue new location name"])
             return nil if op.nil?
-            if op == "nyxfilename already exists" then
-                nyxfilename = LucilleCore::askQuestionAnswerAsString("nyxfile name: ")
-                return nil if nyxfilename.size == 0
+            if op == "location already exists" then
+                code = LucilleCore::askQuestionAnswerAsString("code name: ")
+                return nil if code.size == 0
             end
-            if op == "issue new nyxfilename" then
-                extention = LucilleCore::askQuestionAnswerAsString("extension with dot: ")
-                return nil if extention == ""
-                nyxfilename = "NyxFile-#{SecureRandom.uuid}#{extention}"
-                puts "nyxfilename: #{nyxfilename}"
+            if op == "issue new location name" then
+                code = "NGX15-#{SecureRandom.uuid}"
+                puts "code: #{code}"
                 LucilleCore::pressEnterToContinue()
             end
-            return NSNode1638::issueNyxFile(nyxfilename)
+            return NSNode1638::issueNGX15(code)
         end
         if type == "set" then
             set = Sets::selectExistingSetOrMakeNewOneOrNull()
@@ -120,9 +119,6 @@ class NSNode1638
     # NSNode1638::toString(datapoint)
     def self.toString(datapoint)
         suffixWithPadding = lambda {|datapoint|
-            if datapoint["type"] == "NyxFile" then
-                return " ( #{datapoint["name"]} )"
-            end
             if datapoint["type"] == "NGX15" then
                 return " ( #{datapoint["ngx15"]} )"
             end
@@ -134,9 +130,6 @@ class NSNode1638
         end
         if datapoint["type"] == "line" then
             return "[#{datapoint["type"]}] #{datapoint["line"]}"
-        end
-        if datapoint["type"] == "NyxFile" then
-            return "[#{datapoint["type"]}] #{datapoint["name"]}"
         end
         if datapoint["type"] == "NGX15" then
             return "[#{datapoint["type"]}] #{datapoint["ngx15"]}"
@@ -156,18 +149,6 @@ class NSNode1638
         if datapoint["type"] == "line" then
             puts "line: #{datapoint["line"]}"
             LucilleCore::pressEnterToContinue()
-            return nil
-        end
-        if datapoint["type"] == "NyxFile" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if location then
-                puts "filepath: #{location}"
-                system("open '#{location}'")
-                LucilleCore::pressEnterToContinue()
-            else
-                puts "I could not determine the location of #{datapoint["name"]}"
-                LucilleCore::pressEnterToContinue()
-            end
             return nil
         end
         if datapoint["type"] == "NGX15" then
@@ -284,23 +265,6 @@ class NSNode1638
 
         if datapoint["type"] == "line" then
 
-        end
-        if datapoint["type"] == "NyxFile" then
-            location = NSNode1638_FileSystemElements::getLocationByAllMeansOrNull(datapoint)
-            if location then
-                puts "NyxFile: #{location}"
-            end
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy target NyxFile file ? ") then
-                if location then
-                    FileUtils.rm(location)
-                else
-                    puts "Failure to find the target file."
-                    if !LucilleCore::askQuestionAnswerAsBoolean("Is this expected ? ") then
-                        puts "Very well. Exiting."
-                        exit
-                    end
-                end
-            end
         end
         if datapoint["type"] == "NGX15" then
             location = GalaxyFinder::uniqueStringToLocationOrNull(datapoint["ngx15"])
