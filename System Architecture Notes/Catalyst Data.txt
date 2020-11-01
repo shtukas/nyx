@@ -1,0 +1,5 @@
+Data in the Catalyst universe comes in 3 flavours: (1) lines in Wave objects, (2) NGX15 references and (3) Quark/Lepton pairs.
+
+We have a system of Tags, TodoListings and EncyclopediaListings for classification and search. 
+
+Asteroids and Waves are used to drive the main todo priority list. 
