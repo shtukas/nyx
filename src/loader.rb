@@ -134,6 +134,7 @@ require_relative "EstateServices.rb"
 require_relative "GeneralSearch.rb"
 
 require_relative "LucilleCore.rb"
+require_relative "Listings.rb"
 
 require_relative "NGX15.rb"
 require_relative "NGX15@X1.rb"

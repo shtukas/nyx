@@ -68,14 +68,6 @@ class NGX15
 
             mx = LCoreMenuItemsNX1.new()
 
-            source = Arrows::getSourcesForTarget(datapoint)
-            source.each{|source|
-                mx.item(
-                    "source: #{NyxObjectInterface::toString(source)}",
-                    lambda { NyxObjectInterface::landing(source) }
-                )
-            }
-
             puts ""
 
             puts NGX15::toString(datapoint).green
@@ -117,15 +109,21 @@ class NGX15
                 NyxObjects2::put(newpoint)
             })
 
-            mx.item("to cube system".yellow, lambda {
-                CubeTransformers::sendDatapointToCubeSystem(datapoint)
-            })
-
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(datapoint)}': ") then
                     NGX15::datapointTerminationProtocolReturnBoolean(datapoint)
                 end
             })
+
+            puts ""
+
+            source = Arrows::getSourcesForTarget(datapoint)
+            source.each{|source|
+                mx.item(
+                    "source: #{NyxObjectInterface::toString(source)}",
+                    lambda { NyxObjectInterface::landing(source) }
+                )
+            }
 
             puts ""
 
