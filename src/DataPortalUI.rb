@@ -55,7 +55,14 @@ class DataPortalUI
                 }
             )
 
-            ms.item("Cubes Listing all",lambda { Cubes::cubesListing() })
+            ms.item("Listings",lambda { 
+                loop {
+                    listings = Listings::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| Listings::toString(listing) })
+                    return if listing.nil?
+                    Listings::landing(listing)
+                }
+            })
 
             puts ""
 
@@ -87,13 +94,6 @@ class DataPortalUI
                     NyxObjects2::put(datapoint)
                 end
                 NGX15::landing(node)
-            })
-
-            ms.item("new cube", lambda {
-                description = LucilleCore::askQuestionAnswerAsString("cube description: ")
-                location =    LucilleCore::askQuestionAnswerAsString("cube location: ")
-                cube = Cubes::issueCube(description, location)
-                Cubes::landing(cube)
             })
 
             ms.item("dangerously edit a nyx object by uuid", lambda { 

@@ -114,26 +114,6 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidAgainstExistigCubeInteractivelyOrNull()
-    def self.issueAsteroidAgainstExistigCubeInteractivelyOrNull()
-        cube = Cubes::selectCubeOrNull()
-        return nil if cube.nil?
-        orbital = {
-            "type" => "daily-time-commitment-e1180643-fc7e-42bb-a2",
-            "time-commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-        }
-        asteroid = {
-            "uuid"     => SecureRandom.uuid,
-            "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
-            "unixtime" => Time.new.to_f,
-            "orbital"  => orbital,
-            "ordinal"  => Asteroids::ordinalMax()+1
-        }
-        NyxObjects2::put(asteroid)
-        Arrows::issueOrException(asteroid, cube)
-        asteroid
-    end
-
     # Asteroids::ordinalMax()
     def self.ordinalMax()
         ([0] + Asteroids::asteroids().map{|asteroid| asteroid["ordinal"] }).max

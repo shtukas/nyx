@@ -125,10 +125,6 @@ class CatalystUI
                 lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
             )
             ms.item(
-                "asteroid (cube)",
-                lambda { Asteroids::issueAsteroidAgainstExistigCubeInteractivelyOrNull() }
-            )
-            ms.item(
                 "wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
             )
@@ -169,7 +165,6 @@ class CatalystUI
         loop {
             # Some Admin
             Miscellaneous::importFromLucilleInbox()
-            Cubes::fsck()
 
             # Displays
             objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()

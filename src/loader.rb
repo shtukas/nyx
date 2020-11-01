@@ -118,7 +118,6 @@ require_relative "Bank.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
-require_relative "Cubes.rb"
 require_relative "Curation.rb"
 
 require_relative "DataPortalUI.rb"
