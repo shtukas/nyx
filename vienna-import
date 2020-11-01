@@ -45,7 +45,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
 
-    quark = Quark::issueUrl(link)
+    quark = Quarks::issueUrl(link)
     asteroid = Asteroids::issueAsteroidBurnerFromQuark(quark)
     viennaLinkFeeder.done(link)
 }

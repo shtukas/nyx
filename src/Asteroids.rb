@@ -64,7 +64,7 @@ class Asteroids
 
     # Asteroids::issueDatapointAndAsteroidInteractivelyOrNull()
     def self.issueDatapointAndAsteroidInteractivelyOrNull()
-        datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
+        datapoint = Datapoints::makeNewDatapointOrNull()
         return if datapoint.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
@@ -149,7 +149,7 @@ class Asteroids
             return "asteroid description: #{asteroid["description"]} (#{Arrows::getTargetsForSource(asteroid).size} targets)"
         end
         Arrows::getTargetsForSource(asteroid).each{|target|
-            return NyxObjectInterface::toString(target)
+            return GenericNyxObject::toString(target)
         }
         "no description / no target"
     end
@@ -352,7 +352,7 @@ class Asteroids
             return
         end
         if targets.size == 1 then
-            NyxObjectInterface::access(targets[0])
+            GenericNyxObject::access(targets[0])
             return
         end
         loop {
@@ -360,9 +360,9 @@ class Asteroids
             puts Asteroids::toString(asteroid)
             puts ""
             targets = Arrows::getTargetsForSource(asteroid)
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| NyxObjectInterface::toString(object) })
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| GenericNyxObject::toString(object) })
             return if target.nil?
-            NyxObjectInterface::access(target)
+            GenericNyxObject::access(target)
         }
     end
 
@@ -560,7 +560,7 @@ class Asteroids
             menuitems.item(
                 "add new target".yellow,
                 lambda { 
-                    datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
+                    datapoint = Datapoints::makeNewDatapointOrNull()
                     return if datapoint.nil?
                     Arrows::issueOrException(asteroid, datapoint)
                 }
@@ -570,10 +570,10 @@ class Asteroids
                 "select target ; destroy".yellow,
                 lambda {
                     targets = Arrows::getTargetsForSource(asteroid)
-                    targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| NyxObjectInterface::toString(target) })
+                    targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
                     return if target.nil?
-                    NyxObjectInterface::destroy(target)
+                    GenericNyxObject::destroy(target)
                 }
             )
 
@@ -581,8 +581,8 @@ class Asteroids
 
             Arrows::getTargetsForSource(asteroid).each{|target|
                 menuitems.item(
-                    "target: #{NyxObjectInterface::toString(target)}",
-                    lambda { NyxObjectInterface::landing(target) }
+                    "target: #{GenericNyxObject::toString(target)}",
+                    lambda { GenericNyxObject::landing(target) }
                 )
             }
 
@@ -628,14 +628,14 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
         puts "destroying asteroid: #{Asteroids::toString(asteroid)}"
         Arrows::getTargetsForSource(asteroid).each{|target|
-            next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{NyxObjectInterface::toString(target)}' ")
-            if NyxObjectInterface::isDataPoint(target) then
+            next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{GenericNyxObject::toString(target)}' ")
+            if GenericNyxObject::isNGX15(target) then
                 status = NGX15::datapointTerminationProtocolReturnBoolean(target)
                 return if !status
                 next
             end
-            if NyxObjectInterface::isQuark(target) then
-                Quark::destroyQuarkAndLepton(target)
+            if GenericNyxObject::isQuark(target) then
+                Quarks::destroyQuarkAndLepton(target)
                 next
             end
             puts target

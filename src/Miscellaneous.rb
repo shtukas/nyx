@@ -203,7 +203,7 @@ class Miscellaneous
                 FileUtils.mv(location, location2)
                 next
             end
-            quark = Quark::issueAionFileSystemLocation(location)
+            quark = Quarks::issueAionFileSystemLocation(location)
             puts JSON.pretty_generate(quark)
             asteroid = Asteroids::issueAsteroidInboxFromQuark(quark)
             puts JSON.pretty_generate(asteroid)

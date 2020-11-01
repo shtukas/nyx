@@ -72,7 +72,7 @@ class NGX15
 
             puts NGX15::toString(datapoint).green
             puts "uuid: #{datapoint["uuid"]}".yellow
-            puts "date: #{NyxObjectInterface::getObjectReferenceDateTime(datapoint)}".yellow
+            puts "date: #{GenericNyxObject::getObjectReferenceDateTime(datapoint)}".yellow
 
             puts ""
 
@@ -120,8 +120,8 @@ class NGX15
             source = Arrows::getSourcesForTarget(datapoint)
             source.each{|source|
                 mx.item(
-                    "source: #{NyxObjectInterface::toString(source)}",
-                    lambda { NyxObjectInterface::landing(source) }
+                    "source: #{GenericNyxObject::toString(source)}",
+                    lambda { GenericNyxObject::landing(source) }
                 )
             }
 
@@ -129,8 +129,8 @@ class NGX15
 
             Arrows::getTargetsForSource(datapoint).each{|target|
                 menuitems.item(
-                    "target: #{NyxObjectInterface::toString(target)}",
-                    lambda { NyxObjectInterface::landing(target) }
+                    "target: #{GenericNyxObject::toString(target)}",
+                    lambda { GenericNyxObject::landing(target) }
                 )
             }
 

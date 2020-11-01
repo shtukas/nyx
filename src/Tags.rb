@@ -50,14 +50,14 @@ class Tags
             mx = LCoreMenuItemsNX1.new()
 
             targets = Arrows::getTargetsForSource(tag)
-            targets = targets.select{|target| !NyxObjectInterface::isTag(target) }
-            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets = targets.select{|target| !GenericNyxObject::isTag(target) }
+            targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
                 .each{|object|
                     mx.item(
-                        NyxObjectInterface::toString(object),
-                        lambda { NyxObjectInterface::landing(object) }
+                        GenericNyxObject::toString(object),
+                        lambda { GenericNyxObject::landing(object) }
                     )
                 }
 

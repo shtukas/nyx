@@ -38,7 +38,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForQuark(quark)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quark::toString(quark))
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
@@ -132,13 +132,13 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["quark"]
 
-        Quark::quarks()
+        Quarks::quarks()
             .each{|quark|
                 if verbose then
-                    puts "quark: #{quark["uuid"]} , #{Quark::toString(quark)}"
+                    puts "quark: #{quark["uuid"]} , #{Quarks::toString(quark)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], Quark::toString(quark))
+                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], Quarks::toString(quark))
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["leptonfilename"])
             }
 

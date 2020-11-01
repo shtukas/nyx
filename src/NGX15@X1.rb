@@ -51,7 +51,7 @@ class NGX15_Search1
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
             return nil if pattern == ""
             nodes = SelectionLookupDataset::patternToDatapoints(pattern)
-            #nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
+            #nodes = GenericNyxObject::applyDateTimeOrderToObjects(nodes)
             next if nodes.empty?
             loop {
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop

@@ -131,7 +131,9 @@ require_relative "DoNotShowUntil.rb"
 require_relative "EstateServices.rb"
 
 require_relative "GeneralSearch.rb"
+require_relative "GenericNyxObject.rb"
 
+require_relative "Leptons.rb"
 require_relative "LucilleCore.rb"
 require_relative "Listings.rb"
 
@@ -141,11 +143,11 @@ require_relative "NGX15@X1.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
-require_relative "NyxObjectInterface.rb"
+
 
 require_relative "ProgrammableBooleans.rb"
 
-require_relative "QuarksAndLeptons.rb"
+require_relative "Quarks.rb"
 
 require_relative "Runner.rb"
 =begin 

@@ -3,28 +3,37 @@
 
 class Listings
 
-    # Listings::make(name1)
-    def self.make(name1)
+    # Listings::make(name1, category)
+    def self.make(name1, category)
+        raise "0A03D147-308A-4203-A864-BC76013268A2" if !["operations", "encyclopaedia"].include?(category)
         {
             "uuid"     => SecureRandom.hex,
             "nyxNxSet" => "abb20581-f020-43e1-9c37-6c3ef343d2f5",
             "unixtime" => Time.new.to_f,
+            "category" => category,
             "name"     => name1
         }
     end
 
-    # Listings::issue(name1)
-    def self.issue(name1)
-        listing = Listings::make(name1)
+    # Listings::issue(name1, category)
+    def self.issue(name1, category)
+        listing = Listings::make(name1, category)
         NyxObjects2::put(listing)
         listing
     end
 
-    # Listings::issueSetInteractivelyOrNull()
-    def self.issueSetInteractivelyOrNull()
+    # Listings::selectCategoryInteractivelyOrNull()
+    def self.selectCategoryInteractivelyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("category", ["operations", "encyclopaedia"])
+    end
+
+    # Listings::issueListingInteractivelyOrNull()
+    def self.issueListingInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("listing name: ")
         return nil if name1 == ""
-        Listings::issue(name1)
+        category = Listings::selectCategoryInteractivelyOrNull()
+        return nil if category.nil?
+        Listings::issue(name1, category)
     end
 
     # Listings::listings()
@@ -34,7 +43,7 @@ class Listings
 
     # Listings::toString(listing)
     def self.toString(listing)
-        "[listing] #{listing["name"]}"
+        "[listing] [#{listing["category"]}] #{listing["name"]}"
     end
 
     # Listings::landing(listing)
@@ -50,14 +59,14 @@ class Listings
             mx = LCoreMenuItemsNX1.new()
 
             targets = Arrows::getTargetsForSource(listing)
-            targets = targets.select{|target| !NyxObjectInterface::isTag(target) }
-            targets = NyxObjectInterface::applyDateTimeOrderToObjects(targets)
+            targets = targets.select{|target| !GenericNyxObject::isTag(target) }
+            targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
                 .each{|object|
                     mx.item(
-                        NyxObjectInterface::toString(object),
-                        lambda { NyxObjectInterface::landing(object) }
+                        GenericNyxObject::toString(object),
+                        lambda { GenericNyxObject::landing(object) }
                     )
                 }
 

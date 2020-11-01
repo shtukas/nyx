@@ -45,7 +45,7 @@ class DataPortalUI
                 "Datapoint Listing", 
                 lambda {
                     nodes = NGX15::datapoints()
-                    nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
+                    nodes = GenericNyxObject::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
                         node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NGX15::toString(o) })
@@ -86,12 +86,17 @@ class DataPortalUI
             puts ""
 
             ms.item("new datapoint", lambda {
-                datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
+                datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
                 if description.size > 0 then
-                    datapoint["description"] = description
-                    NyxObjects2::put(datapoint)
+                    if GenericNyxObject::isQuark(object) then
+                        Quarks::setDescription(object)
+                    end
+                    if GenericNyxObject::isNGX15(object) then
+                        datapoint["description"] = description
+                        NyxObjects2::put(datapoint)
+                    end
                 end
                 NGX15::landing(node)
             })

@@ -9,7 +9,7 @@ class GeneralSearch
             .map{|datapoint|
                 {
                     "description"   => NGX15::toString(datapoint),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(datapoint)).to_time.to_f,
                     "dive"          => lambda{ NGX15::landing(datapoint) }
                 }
             }
@@ -20,9 +20,9 @@ class GeneralSearch
         SelectionLookupDataset::patternToQuarks(pattern)
             .map{|quark|
                 {
-                    "description"   => Quark::toString(quark),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(quark)).to_time.to_f,
-                    "dive"          => lambda{ Quark::landing(quark) }
+                    "description"   => Quarks::toString(quark),
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(quark)).to_time.to_f,
+                    "dive"          => lambda{ Quarks::landing(quark) }
                 }
             }
     end
@@ -33,7 +33,7 @@ class GeneralSearch
             .map{|set|
                 {
                     "description"   => Tags::toString(set),
-                    "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(set)).to_time.to_f,
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(set)).to_time.to_f,
                     "dive"          => lambda{ Tags::landing(set) }
                 }
             }
