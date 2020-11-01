@@ -136,7 +136,7 @@ require_relative "GeneralSearch.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "NGX15.rb"
-require_relative "NSNode1638@X1.rb"
+require_relative "NGX15@X1.rb"
 
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"

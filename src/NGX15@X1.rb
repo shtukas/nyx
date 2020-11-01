@@ -1,16 +1,16 @@
 
-class NSNode1638_Search1
+class NGX15_Search1
 
     # --------------------------------------------------
     # Classic
     # --------------------------------------------------
 
-    # NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
+    # NGX15_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
     def self.selectOneDatapointFromDatapointsOrNull(nodes)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NGX15::toString(node) })
     end
 
-    # NSNode1638_Search1::selectOneDatapointFromExistingDatapointsOrNull()
+    # NGX15_Search1::selectOneDatapointFromExistingDatapointsOrNull()
     def self.selectOneDatapointFromExistingDatapointsOrNull()
         loop {
             pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
@@ -23,7 +23,7 @@ class NSNode1638_Search1
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            datapoint = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(datapoints)
+            datapoint = NGX15_Search1::selectOneDatapointFromDatapointsOrNull(datapoints)
             if datapoint.nil? then
                 next
             end
@@ -31,11 +31,11 @@ class NSNode1638_Search1
         }
     end
 
-    # NSNode1638_Search1::selectOneExistingDatapointOrMakeANewOneOrNull()
+    # NGX15_Search1::selectOneExistingDatapointOrMakeANewOneOrNull()
     def self.selectOneExistingDatapointOrMakeANewOneOrNull()
         puts "selectOneExistingDatapointOrMakeANewOneOrNull()"
         LucilleCore::pressEnterToContinue()
-        datapoint = NSNode1638_Search1::selectOneDatapointFromExistingDatapointsOrNull()
+        datapoint = NGX15_Search1::selectOneDatapointFromExistingDatapointsOrNull()
         return datapoint if datapoint
         status = LucilleCore::askQuestionAnswerAsBoolean("You did not select an existing point, would you like to create a new one ? ")
         if !status then
@@ -44,7 +44,7 @@ class NSNode1638_Search1
         NGX15::issueNewNGX15InteractivelyOrNull()
     end
 
-    # NSNode1638_Search1::interactiveDatapointSearchAndExplore()
+    # NGX15_Search1::interactiveDatapointSearchAndExplore()
     def self.interactiveDatapointSearchAndExplore()
         loop {
             system("clear")
@@ -57,7 +57,7 @@ class NSNode1638_Search1
                 #nodes = nodes.select{|node| NyxObjects2::getOrNull(node["uuid"])} # one could have been destroyed in the previous loop
                 break if nodes.empty?
                 system("clear")
-                node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
+                node = NGX15_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                 break if node.nil?
                 NGX15::landing(node)
             }
@@ -65,13 +65,13 @@ class NSNode1638_Search1
     end
 end
 
-class NSNode1638_Search2
+class NGX15_Search2
 
     # --------------------------------------------------
     # Interactive Ncurse
     # --------------------------------------------------
 
-    # NSNode1638_Search2::interactiveNodeNcursesSearch(): Array[Nodes]
+    # NGX15_Search2::interactiveNodeNcursesSearch(): Array[Nodes]
     def self.interactiveNodeNcursesSearch()
 
         Curses::init_screen
@@ -183,7 +183,7 @@ class NSNode1638_Search2
         return globalState["selectedObjets"]
     end
 
-    # NSNode1638_Search2::ncurseXp1OrNull(object, lambdaToString)
+    # NGX15_Search2::ncurseXp1OrNull(object, lambdaToString)
     # lambda1: pattern: String -> Array[String]
     # lambda2: string:  String -> Object
     def self.ncurseXp1OrNull(lambda1, lambda2)

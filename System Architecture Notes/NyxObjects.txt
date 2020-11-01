@@ -7,11 +7,8 @@ All nyx objects have the two following attributes
 -------------------------------------------------------------------------
 Nyx Objects
 
-    NSNode1638    # NSNode1638.txt
+    NGX15    # NGX15.txt
                   # nyxNxSet: "0f555c97-3843-4dfe-80c8-714d837eba69"
-                        -> line
-                        -> url
-                        -> NGX15
 
     Set           # Sets.txt
                   # nyxNxSet: "287041db-39ac-464c-b557-2f172e721111"

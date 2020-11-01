@@ -25,16 +25,16 @@ class DataPortalUI
 
             ms.item(
                 "Datapoint Exploration", 
-                lambda { NSNode1638_Search1::interactiveDatapointSearchAndExplore() }
+                lambda { NGX15_Search1::interactiveDatapointSearchAndExplore() }
             )
 
             ms.item(
                 "Datapoint Exploration (ncurses experimental)", 
                 lambda { 
                     loop {
-                        nodes = NSNode1638_Search2::interactiveNodeNcursesSearch()
+                        nodes = NGX15_Search2::interactiveNodeNcursesSearch()
                         return if nodes.empty?
-                        node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
+                        node = NGX15_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                         return if node.nil?
                         NGX15::landing(node)
                     }
