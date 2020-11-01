@@ -79,7 +79,7 @@ class Sets
                 Sets::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
-                datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(set, datapoint)
             })

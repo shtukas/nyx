@@ -7,7 +7,7 @@ class NSNode1638_Search1
 
     # NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
     def self.selectOneDatapointFromDatapointsOrNull(nodes)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NSNode1638::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda { |node| NGX15::toString(node) })
     end
 
     # NSNode1638_Search1::selectOneDatapointFromExistingDatapointsOrNull()
@@ -41,7 +41,7 @@ class NSNode1638_Search1
         if !status then
             return nil
         end
-        NSNode1638::issueNewPointInteractivelyOrNull()
+        NGX15::issueNewNGX15InteractivelyOrNull()
     end
 
     # NSNode1638_Search1::interactiveDatapointSearchAndExplore()
@@ -59,7 +59,7 @@ class NSNode1638_Search1
                 system("clear")
                 node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                 break if node.nil?
-                NSNode1638::landing(node)
+                NGX15::landing(node)
             }
         }
     end
@@ -133,7 +133,7 @@ class NSNode1638_Search2
                 win3.setpos(0,0)
                 objects.first(Miscellaneous::screenHeight()-3).each{|object|
                     win3.deleteln()
-                    win3 << "#{NSNode1638::toString(object)}\n"
+                    win3 << "#{NGX15::toString(object)}\n"
                 }
                 (win3.maxy - win3.cury).times {win3.deleteln()}
                 win3.refresh

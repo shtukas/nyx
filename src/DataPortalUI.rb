@@ -36,7 +36,7 @@ class DataPortalUI
                         return if nodes.empty?
                         node = NSNode1638_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
                         return if node.nil?
-                        NSNode1638::landing(node)
+                        NGX15::landing(node)
                     }
                 }
             )
@@ -44,13 +44,13 @@ class DataPortalUI
             ms.item(
                 "Datapoint Listing", 
                 lambda {
-                    nodes = NSNode1638::datapoints()
+                    nodes = NGX15::datapoints()
                     nodes = NyxObjectInterface::applyDateTimeOrderToObjects(nodes)
                     loop {
                         system("clear")
-                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NSNode1638::toString(o) })
+                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NGX15::toString(o) })
                         break if node.nil?
-                        NSNode1638::landing(node)
+                        NGX15::landing(node)
                     }
                 }
             )
@@ -79,14 +79,14 @@ class DataPortalUI
             puts ""
 
             ms.item("new datapoint", lambda {
-                datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
                 return if datapoint.nil?
                 description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
                 if description.size > 0 then
                     datapoint["description"] = description
-                    NSNode1638::commitDatapointToDiskOrNothingReturnBoolean(datapoint)
+                    NyxObjects2::put(datapoint)
                 end
-                NSNode1638::landing(node)
+                NGX15::landing(node)
             })
 
             ms.item("new cube", lambda {

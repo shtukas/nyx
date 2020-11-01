@@ -8,9 +8,9 @@ class GeneralSearch
         SelectionLookupDataset::patternToDatapoints(pattern)
             .map{|datapoint|
                 {
-                    "description"   => NSNode1638::toString(datapoint),
+                    "description"   => NGX15::toString(datapoint),
                     "referencetime" => DateTime.parse(NyxObjectInterface::getObjectReferenceDateTime(datapoint)).to_time.to_f,
-                    "dive"          => lambda{ NSNode1638::landing(datapoint) }
+                    "dive"          => lambda{ NGX15::landing(datapoint) }
                 }
             }
     end

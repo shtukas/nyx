@@ -31,7 +31,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForDatapoint(datapoint)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NSNode1638::toString(datapoint).downcase)
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForQuark(quark)
@@ -112,13 +112,13 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["datapoint"]
 
-        NSNode1638::datapoints()
+        NGX15::datapoints()
             .each{|datapoint|
                 if verbose then
-                    puts "datapoint: #{datapoint["uuid"]} , #{NSNode1638::toString(datapoint)}"
+                    puts "datapoint: #{datapoint["uuid"]} , #{NGX15::toString(datapoint)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NSNode1638::toString(datapoint))
+                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NGX15::toString(datapoint))
                 if datapoint["type"] == "NGX15" then
                     SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["ngx15"])
                 end

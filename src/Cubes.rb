@@ -284,7 +284,7 @@ class CubeTransformers
             raise "3249837493287"
         end
 
-        NSNode1638::datapointTerminationProtocolReturnBoolean(datapoint)
+        NGX15::datapointTerminationProtocolReturnBoolean(datapoint)
     end
 
     # CubeTransformers::sendLineToCubeSystem(line) # Boolean

@@ -64,7 +64,7 @@ class Asteroids
 
     # Asteroids::issueDatapointAndAsteroidInteractivelyOrNull()
     def self.issueDatapointAndAsteroidInteractivelyOrNull()
-        datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+        datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
         return if datapoint.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?
@@ -580,7 +580,7 @@ class Asteroids
             menuitems.item(
                 "add new target".yellow,
                 lambda { 
-                    datapoint = NSNode1638::issueNewPointInteractivelyOrNull()
+                    datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
                     return if datapoint.nil?
                     Arrows::issueOrException(asteroid, datapoint)
                 }
@@ -650,7 +650,7 @@ class Asteroids
         Arrows::getTargetsForSource(asteroid).each{|target|
             next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{NyxObjectInterface::toString(target)}' ")
             if NyxObjectInterface::isDataPoint(target) then
-                status = NSNode1638::datapointTerminationProtocolReturnBoolean(target)
+                status = NGX15::datapointTerminationProtocolReturnBoolean(target)
                 return if !status
                 next
             end

@@ -34,7 +34,7 @@ class NyxObjectInterface
             return Asteroids::toString(object)
         end
         if NyxObjectInterface::isDataPoint(object) then
-            return NSNode1638::toString(object)
+            return NGX15::toString(object)
         end
         if NyxObjectInterface::isCube(object) then
             return Cubes::toString(object)
@@ -79,7 +79,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isDataPoint(object) then
-            NSNode1638::landing(object)
+            NGX15::landing(object)
             return
         end
         if NyxObjectInterface::isSet(object) then
@@ -105,7 +105,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isDataPoint(object) then
-            NSNode1638::landing(object)
+            NGX15::landing(object)
             return
         end
         if NyxObjectInterface::isSet(object) then
@@ -131,7 +131,7 @@ class NyxObjectInterface
             return
         end
         if NyxObjectInterface::isDataPoint(object) then
-            NSNode1638::datapointTerminationProtocolReturnBoolean(object)
+            NGX15::datapointTerminationProtocolReturnBoolean(object)
             return
         end
         puts object
