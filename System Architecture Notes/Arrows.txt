@@ -1,6 +1,8 @@
 Arrows
 
-location: #{Miscellaneous::catalystDataCenterFolderpath()}/Arrows.sqlite3
+Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.
+
+They are currently stored in a SQLite database: Arrows.sqlite3
 
 table: arrows
     _sourceuuid_    text
@@ -15,11 +17,3 @@ Table was created once by hand.
     sqlite> create table arrows (_sourceuuid_ text, _targetuuid_ text);
     sqlite> .exit
     pascal@Lucille20 Catalyst % 
-
-
-ArrowsDatabaseIO::arrows(): Array[Arrow]
-
-Arrow {
-    "sourceuuid" => String,
-    "targetuuid" => String
-}

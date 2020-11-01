@@ -2,3 +2,15 @@
 NGX15 locations are markers in the Galaxy file system. They are the "open" counterparts of the quarks/leptons datapoints. NGX15s are used when the files and folders need to be naturaly available on the standard file system.
 
 The locations (files or directories) are identified by the fact that they are named NGX15-Identifier(possible suffix). We call the "NGX15-Identifier" part a code. The code is what is stored in a nyx NGX15 object. any file or folder with a name that start with the code is recognised as the target of the object. The reason why we use codes and not filenames is to allow directory "NGX15-caedde8d-6136-4ead-9279-58f8be14f3fd" to become file "NGX15-caedde8d-6136-4ead-9279-58f8be14f3fd.txt" without updating the object itself.
+
+NGX15
+
+{
+    "uuid"              : String
+    "nyxNxSet"          : "0f555c97-3843-4dfe-80c8-714d837eba69"
+    "unixtime"          : Float # Unixtime with decimals
+    "referenceDateTime" : nil or DateTime Iso8601
+    "type"              : "NGX15"
+    "ngx15"             : "NGX15-<UniqueIdentifier>"
+    "description"       : nil or String
+}
