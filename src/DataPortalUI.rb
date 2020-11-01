@@ -110,6 +110,8 @@ class DataPortalUI
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 object = NyxObjects2::getOrNull(uuid)
                 return if object.nil?
+                puts JSON.pretty_generate(object)
+                return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
                 NyxObjects2::destroy(object)
             })
 
