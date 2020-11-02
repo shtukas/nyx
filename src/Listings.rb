@@ -3,6 +3,11 @@
 
 class Listings
 
+    # Listings::listings()
+    def self.listings()
+        NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
+    end
+
     # Listings::make(name1, category)
     def self.make(name1, category)
         raise "0A03D147-308A-4203-A864-BC76013268A2" if !["operations", "encyclopaedia"].include?(category)
@@ -36,14 +41,17 @@ class Listings
         Listings::issue(name1, category)
     end
 
-    # Listings::listings()
-    def self.listings()
-        NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
+    # Listings::selectOneExistingListingOrNull()
+    def self.selectOneExistingListingOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings(), lambda{|listing| Listings::toString(listing) })
     end
 
-    # Listings::selectOneListingOrNull()
-    def self.selectOneListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings(), lambda{|listing| Listings::toString(listing) })
+    # Listings::selectOneExistingOrNewListingOrNull()
+    def self.selectOneExistingOrNewListingOrNull()
+        listing = Listings::selectOneExistingListingOrNull()
+        return listing if listing
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no listing selected, create a new one ? ")
+        Listings::issueListingInteractivelyOrNull()
     end
 
     # Listings::toString(listing)

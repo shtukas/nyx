@@ -573,7 +573,7 @@ class Asteroids
                     targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
                     return if target.nil?
-                    listing = Listings::selectOneListingOrNull()
+                    listing = Listings::selectOneExistingOrNewListingOrNull()
                     return if listing.nil?
                     Arrows::issueOrException(listing, target)
                     Arrows::unlink(asteroid, target)
