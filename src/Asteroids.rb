@@ -388,12 +388,18 @@ class Asteroids
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::access(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidTerminationProtocol(asteroid)
+            end
             return
         end
 
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::access(asteroid)
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+                Asteroids::asteroidTerminationProtocol(asteroid)
+            end
             return
         end
 
