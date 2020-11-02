@@ -167,7 +167,10 @@ class Quarks
                 return if description == ""
                 LeptonsFunctions::setDescription(leptonfilename, description)
             })
-
+            mx.item("json object".yellow, lambda { 
+                puts JSON.pretty_generate(quark)
+                LucilleCore::pressEnterToContinue()
+            })
             mx.item("add to set".yellow, lambda {
                 set = Tags::selectExistingTagOrMakeNewOneOrNull()
                 return if set.nil?
