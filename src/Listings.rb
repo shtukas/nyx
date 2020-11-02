@@ -41,6 +41,11 @@ class Listings
         NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
     end
 
+    # Listings::selectOneListingOrNull()
+    def self.selectOneListingOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings(), lambda{|listing| Listings::toString(listing) })
+    end
+
     # Listings::toString(listing)
     def self.toString(listing)
         "[listing] [#{listing["category"]}] #{listing["name"]}"

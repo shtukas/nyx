@@ -508,7 +508,7 @@ class Asteroids
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
             })
 
-            menuitems.item("to burner".yellow, lambda {
+            menuitems.item("to orbital burner".yellow, lambda {
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 asteroid["orbital"] = {
                     "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
@@ -516,7 +516,7 @@ class Asteroids
                 NyxObjects2::put(asteroid)
             })
 
-            menuitems.item("to stream".yellow, lambda {
+            menuitems.item("to orbital stream".yellow, lambda {
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 asteroid["orbital"] = {
                     "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
@@ -567,7 +567,21 @@ class Asteroids
             )
 
             menuitems.item(
-                "select target ; destroy".yellow,
+                "select target ; move it to listing".yellow,
+                lambda {
+                    targets = Arrows::getTargetsForSource(asteroid)
+                    targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
+                    return if target.nil?
+                    listing = Listings::selectOneListingOrNull()
+                    return if listing.nil?
+                    Arrows::issueOrException(listing, target)
+                    Arrows::unlink(asteroid, target)
+                }
+            )
+
+            menuitems.item(
+                "select target ; destroy it".yellow,
                 lambda {
                     targets = Arrows::getTargetsForSource(asteroid)
                     targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
