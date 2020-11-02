@@ -628,6 +628,7 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
         puts "destroying asteroid: #{Asteroids::toString(asteroid)}"
         Arrows::getTargetsForSource(asteroid).each{|target|
+            next if Arrows::getSourcesForTarget(target).size > 1
             next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{GenericNyxObject::toString(target)}' ")
             if GenericNyxObject::isNGX15(target) then
                 status = NGX15::datapointTerminationProtocolReturnBoolean(target)
