@@ -449,6 +449,19 @@ class Asteroids
         end
     end
 
+    # Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
+    def self.selectAsteroidTargetMoveItToListing(asteroid)
+        target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
+        return if target.nil?
+        listing = Listings::selectOneExistingOrNewListingOrNull()
+        return if listing.nil?
+        Arrows::issueOrException(listing, target)
+        Arrows::unlink(asteroid, target)
+        if Arrows::getTargetsForSource(asteroid).size == 0 then
+            NyxObjects2::destroy(asteroid)
+        end
+    end
+
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
         loop {
@@ -575,12 +588,7 @@ class Asteroids
             menuitems.item(
                 "select target ; move it to listing".yellow,
                 lambda {
-                    target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
-                    return if target.nil?
-                    listing = Listings::selectOneExistingOrNewListingOrNull()
-                    return if listing.nil?
-                    Arrows::issueOrException(listing, target)
-                    Arrows::unlink(asteroid, target)
+                    Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
                 }
             )
 

@@ -70,10 +70,15 @@ class CatalystUI
             return
         end
 
-        if command == ".." then
-            object = catalystObjects.first
-            return if object.nil?
-            object["execute"].call("c2c799b1-bcb9-4963-98d5-494a5a76e2e6")
+        if command == "::" then
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+            system("open '#{filepath}'")
+            return
+        end
+
+        if command == "[]" then
+            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+            Miscellaneous::applyNextTransformationToFile(filepath)
             return
         end
 
@@ -82,6 +87,13 @@ class CatalystUI
             return if object.nil?
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == ".." then
+            object = catalystObjects.first
+            return if object.nil?
+            object["execute"].call("c2c799b1-bcb9-4963-98d5-494a5a76e2e6")
             return
         end
 
@@ -102,38 +114,36 @@ class CatalystUI
             return
         end
 
-        if command == "::" then
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            system("open '#{filepath}'")
+        if command == "/" then
+            DataPortalUI::dataPortalFront()
             return
         end
 
-        if command == "[]" then
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            Miscellaneous::applyNextTransformationToFile(filepath)
-            return
-        end
-
-        if command == "l+" then
+        if command == "//" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(
-                "asteroid (line)",
+                "issue asteroid (line)",
                 lambda { Asteroids::issuePlainAsteroidInteractivelyOrNull() }
             )
             ms.item(
-                "asteroid (datapoint)",
+                "issue asteroid (datapoint)",
                 lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
             )
             ms.item(
-                "wave",
+                "issue wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
             )
+            ms.item(
+                "asteroid target to listing",
+                lambda { 
+                    object = catalystObjects.first
+                    return if object.nil?
+                    return if object["x-asteroid"].nil?
+                    asteroid = object["x-asteroid"]
+                    Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
+                }
+            )
             ms.promptAndRunSandbox()
-            return
-        end
-
-        if command == "/" then
-            DataPortalUI::dataPortalFront()
             return
         end
     end
