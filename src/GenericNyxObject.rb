@@ -72,6 +72,22 @@ class GenericNyxObject
         object["referenceDateTime"]
     end
 
+    # GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+    def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+        targets = Arrows::getTargetsForSource(object)
+        if targets.size == 0 then
+            return nil
+        end
+        if targets.size == 1 then
+            if LucilleCore::askQuestionAnswerAsBoolean("selecting target: '#{GenericNyxObject::toString(targets[0])}' confirm ? ", true) then
+                return targets[0]
+            end
+            return nil
+        end
+        targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
+    end
+
     # GenericNyxObject::access(object)
     def self.access(object)
         if GenericNyxObject::isAsteroid(object) then

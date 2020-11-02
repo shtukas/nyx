@@ -388,7 +388,7 @@ class Asteroids
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::access(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
@@ -397,7 +397,7 @@ class Asteroids
         if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::access(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
@@ -421,7 +421,7 @@ class Asteroids
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             # This case should not happen because we are not starting inbox items.
             Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
@@ -429,7 +429,7 @@ class Asteroids
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
@@ -442,7 +442,7 @@ class Asteroids
 
         if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
                 Asteroids::asteroidTerminationProtocol(asteroid)
             end
             return
@@ -575,9 +575,7 @@ class Asteroids
             menuitems.item(
                 "select target ; move it to listing".yellow,
                 lambda {
-                    targets = Arrows::getTargetsForSource(asteroid)
-                    targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
+                    target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
                     return if target.nil?
                     listing = Listings::selectOneExistingOrNewListingOrNull()
                     return if listing.nil?
@@ -589,9 +587,7 @@ class Asteroids
             menuitems.item(
                 "select target ; destroy it".yellow,
                 lambda {
-                    targets = Arrows::getTargetsForSource(asteroid)
-                    targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
+                    target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
                     return if target.nil?
                     GenericNyxObject::destroy(target)
                 }
