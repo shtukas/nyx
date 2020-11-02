@@ -70,7 +70,7 @@ class Tags
                 Tags::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
-                datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
+                datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(tag, datapoint)
             })

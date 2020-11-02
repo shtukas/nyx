@@ -23,24 +23,11 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("Listings",lambda { 
-                loop {
-                    listings = Listings::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| Listings::toString(listing) })
-                    return if listing.nil?
-                    Listings::landing(listing)
-                }
-            })
+            ms.item("Listings",lambda { Listings::main() })
 
-            ms.item(
-                "Waves",
-                lambda { Waves::main() }
-            )
+            ms.item("Waves", lambda { Waves::main() })
 
-            ms.item(
-                "Asteroids",
-                lambda { Asteroids::main() }
-            )
+            ms.item("Asteroids", lambda { Asteroids::main() })
 
             ms.item(
                 "Calendar",

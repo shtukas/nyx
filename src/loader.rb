@@ -120,10 +120,9 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
+require_relative "Datapoints.rb"
 require_relative "DataPortalUI.rb"
-
 require_relative "DisplayUtils.rb"
-
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)

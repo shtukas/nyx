@@ -84,7 +84,7 @@ class Listings
                 Listings::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
-                datapoint = NGX15::issueNewNGX15InteractivelyOrNull()
+                datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(listing, datapoint)
             })
@@ -99,6 +99,28 @@ class Listings
             })
             puts ""
             status = mx.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # Listings::main()
+    def self.main()
+        loop {
+            system("clear")
+            ms = LCoreMenuItemsNX1.new()
+
+            ms.item("listings dive",lambda { 
+                loop {
+                    listings = Listings::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| Listings::toString(listing) })
+                    return if listing.nil?
+                    Listings::landing(listing)
+                }
+            })
+
+            ms.item("make new listing",lambda { Listings::issueListingInteractivelyOrNull() })
+
+            status = ms.promptAndRunSandbox()
             break if !status
         }
     end

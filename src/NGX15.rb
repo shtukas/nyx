@@ -102,13 +102,6 @@ class NGX15
                 Arrows::issueOrException(set, datapoint)
             })
 
-            mx.item("transmute datapoint".yellow, lambda {
-                newpoint = NGX15::issueNewNGX15InteractivelyOrNull()
-                NyxObjects2::destroy(newpoint)
-                newpoint["uuid"] = datapoint["uuid"]
-                NyxObjects2::put(newpoint)
-            })
-
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(datapoint)}': ") then
                     NGX15::datapointTerminationProtocolReturnBoolean(datapoint)
