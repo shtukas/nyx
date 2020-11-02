@@ -13,47 +13,15 @@ class DataPortalUI
                 lambda { GeneralSearch::searchAndDive() }
             )
 
-            ms.item("Tags (listing all)",lambda { Tags::tagsListing() })
-
-            ms.item("Tags (peco iteractive select + landing)",lambda {
-                loop {
-                    set = Tags::selectExistingTagOrNull_v2()
-                    return if set.nil?
-                    Tags::landing(set)
-                }
-            })
-
             ms.item(
-                "Datapoint Exploration", 
-                lambda { NGX15_Search1::interactiveDatapointSearchAndExplore() }
-            )
-
-            ms.item(
-                "Datapoint Exploration (ncurses experimental)", 
+                "Catalyst General Exploration (ncurses experimental)", 
                 lambda { 
-                    loop {
-                        nodes = NGX15_Search2::interactiveNodeNcursesSearch()
-                        return if nodes.empty?
-                        node = NGX15_Search1::selectOneDatapointFromDatapointsOrNull(nodes)
-                        return if node.nil?
-                        NGX15::landing(node)
-                    }
+                    puts "Not implemented yet"
+                    LucilleCore::pressEnterToContinue()
                 }
             )
 
-            ms.item(
-                "Datapoint Listing", 
-                lambda {
-                    nodes = NGX15::datapoints()
-                    nodes = GenericNyxObject::applyDateTimeOrderToObjects(nodes)
-                    loop {
-                        system("clear")
-                        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|o| NGX15::toString(o) })
-                        break if node.nil?
-                        NGX15::landing(node)
-                    }
-                }
-            )
+            puts ""
 
             ms.item("Listings",lambda { 
                 loop {
@@ -64,7 +32,10 @@ class DataPortalUI
                 }
             })
 
-            puts ""
+            ms.item(
+                "Waves",
+                lambda { Waves::main() }
+            )
 
             ms.item(
                 "Asteroids",
@@ -76,11 +47,6 @@ class DataPortalUI
                 lambda { 
                     system("open '#{Calendar::pathToCalendarItems()}'") 
                 }
-            )
-
-            ms.item(
-                "Waves",
-                lambda { Waves::main() }
             )
 
             puts ""
