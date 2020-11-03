@@ -179,7 +179,11 @@ class Quarks
 
             mx.item(
                 "destroy".yellow,
-                lambda { Quarks::destroyQuarkAndLepton(quark) }
+                lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("are you sure you want to destroy this quark ? ") then
+                        Quarks::destroyQuarkAndLepton(quark)
+                    end
+                }
             )
 
             puts ""
