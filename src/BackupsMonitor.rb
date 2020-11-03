@@ -2,22 +2,17 @@
 
 class BackupsMonitor
 
-    # BackupsMonitor::scriptnames()
-    def self.scriptnames()
-        [ # Here we assume that they are all in the Backups-SubSystem folder
-            "EnergyGrid-to-Venus",
-            "Earth-to-Jupiter",
-            "Saturn-to-Pluto"
-        ]
-    end
-
     # BackupsMonitor::scriptnamesToPeriodInDays()
     def self.scriptnamesToPeriodInDays()
         {
-            "EnergyGrid-to-Venus" => 7,
             "Earth-to-Jupiter" => 20,
             "Saturn-to-Pluto" => 40
         }
+    end
+
+    # BackupsMonitor::scriptnames()
+    def self.scriptnames()
+        BackupsMonitor::scriptnamesToPeriodInDays().keys
     end
 
     def self.scriptNameToLastUnixtime(sname)
