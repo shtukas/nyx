@@ -382,75 +382,92 @@ class Asteroids
 
         uuid = asteroid["uuid"]
 
-        # ----------------------------------------
-        # Not Running
+        if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+        
+            if !Runner::isRunning?(uuid) then
+                Asteroids::startAsteroidIfNotRunning(asteroid)
+                Asteroids::access(asteroid)
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("-> asteroid target to listing ? ") then
+                        Asteroids::selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
+                    end
+                    return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    Asteroids::asteroidTerminationProtocol(asteroid)
+                    return
+                end
+            end
+        
+            if Runner::isRunning?(uuid) then
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    Asteroids::asteroidTerminationProtocol(asteroid)
+                    return
+                end
+            end
 
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            return
+        end
+
+        if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+
+            if !Runner::isRunning?(uuid) then
+                Asteroids::startAsteroidIfNotRunning(asteroid)
+                Asteroids::access(asteroid)
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
+                    Asteroids::asteroidTerminationProtocol(asteroid)
+                    return
+                end
+            end
+
+            if Runner::isRunning?(uuid) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
+                    Asteroids::asteroidTerminationProtocol(asteroid)
+                    return
+                end
+                return
+            end
+
+            return
+        end
+
+
+        if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             Asteroids::startAsteroidIfNotRunning(asteroid)
             Asteroids::access(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            end
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::access(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            end
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::access(asteroid)
-            return
-        end
-
-        if !Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::access(asteroid)
-            return
-        end
-
-        # ----------------------------------------
-        # Running
-
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            # This case should not happen because we are not starting inbox items.
             Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
-                Asteroids::asteroidTerminationProtocol(asteroid)
+            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
+                if LucilleCore::askQuestionAnswerAsBoolean("-> hide for 60 mins ? ", true) then
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+                    return
+                end
             end
             return
         end
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
-                Asteroids::asteroidTerminationProtocol(asteroid)
-            end
-            return
-        end
+        if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
 
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            return
-        end
-
-        if Runner::isRunning?(uuid) and asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
-                Asteroids::asteroidTerminationProtocol(asteroid)
+            if !Runner::isRunning?(uuid) then
+                Asteroids::startAsteroidIfNotRunning(asteroid)
+                Asteroids::access(asteroid)
+                return
             end
-            return
+
+            if Runner::isRunning?(uuid) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done/destroy asteroid ? ", false) then
+                    Asteroids::asteroidTerminationProtocol(asteroid)
+                    return
+                end
+                return
+            end
+
         end
     end
 
-    # Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
-    def self.selectAsteroidTargetMoveItToListing(asteroid)
+    # Asteroids::selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
+    def self.selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
         target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
         return if target.nil?
         listing = Listings::selectOneExistingOrNewListingOrNull()
@@ -588,7 +605,7 @@ class Asteroids
             menuitems.item(
                 "select target ; move it to listing".yellow,
                 lambda {
-                    Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
+                    Asteroids::selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
                 }
             )
 
@@ -653,7 +670,13 @@ class Asteroids
         puts "destroying asteroid: #{Asteroids::toString(asteroid)}"
         Arrows::getTargetsForSource(asteroid).each{|target|
             next if Arrows::getSourcesForTarget(target).size > 1
-            next if !LucilleCore::askQuestionAnswerAsBoolean("destroy target: '#{GenericNyxObject::toString(target)}' ")
+            puts "target: '#{GenericNyxObject::toString(target)}'"
+            if !LucilleCore::askQuestionAnswerAsBoolean("    -> destroy ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("    -> landing ? ") then
+                    GenericNyxObject::landing(target)
+                end
+                next
+            end
             if GenericNyxObject::isNGX15(target) then
                 status = NGX15::datapointTerminationProtocolReturnBoolean(target)
                 return if !status

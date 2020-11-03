@@ -114,12 +114,7 @@ class CatalystUI
             return
         end
 
-        if command == "/" then
-            DataPortalUI::dataPortalFront()
-            return
-        end
-
-        if command == "//" then
+        if command == "l+" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(
                 "issue asteroid (line)",
@@ -133,19 +128,15 @@ class CatalystUI
                 "issue wave",
                 lambda { Waves::issueNewWaveInteractivelyOrNull() }
             )
-            ms.item(
-                "asteroid target to listing",
-                lambda { 
-                    object = catalystObjects.first
-                    return if object.nil?
-                    return if object["x-asteroid"].nil?
-                    asteroid = object["x-asteroid"]
-                    Asteroids::selectAsteroidTargetMoveItToListing(asteroid)
-                }
-            )
             ms.promptAndRunSandbox()
             return
         end
+
+        if command == "/" then
+            DataPortalUI::dataPortalFront()
+            return
+        end
+
     end
 
     # CatalystUI::standardUILoop()
