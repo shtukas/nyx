@@ -1,63 +1,63 @@
 
 # encoding: UTF-8
 
-class OpsListings
+class KnowledgeNode
 
-    # OpsListings::listings()
+    # KnowledgeNode::listings()
     def self.listings()
-        NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
+        NyxObjects2::getSet("f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
     end
 
-    # OpsListings::make(name1)
+    # KnowledgeNode::make(name1)
     def self.make(name1)
         {
             "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "abb20581-f020-43e1-9c37-6c3ef343d2f5",
+            "nyxNxSet" => "f1ae7449-16d5-41c0-a89e-f2a8e486cc99",
             "unixtime" => Time.new.to_f,
             "name"     => name1
         }
     end
 
-    # OpsListings::issue(name1)
+    # KnowledgeNode::issue(name1)
     def self.issue(name1)
-        listing = OpsListings::make(name1)
+        listing = KnowledgeNode::make(name1)
         NyxObjects2::put(listing)
         listing
     end
 
-    # OpsListings::issueListingInteractivelyOrNull()
+    # KnowledgeNode::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("listing name: ")
         return nil if name1 == ""
-        OpsListings::issue(name1)
+        KnowledgeNode::issue(name1)
     end
 
-    # OpsListings::selectOneExistingListingOrNull()
+    # KnowledgeNode::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", OpsListings::listings(), lambda{|listing| OpsListings::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", KnowledgeNode::listings(), lambda{|listing| KnowledgeNode::toString(listing) })
     end
 
-    # OpsListings::selectOneExistingOrNewListingOrNull()
+    # KnowledgeNode::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = OpsListings::selectOneExistingListingOrNull()
+        listing = KnowledgeNode::selectOneExistingListingOrNull()
         return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no listing selected, create a new one ? ")
-        OpsListings::issueListingInteractivelyOrNull()
+        KnowledgeNode::issueListingInteractivelyOrNull()
     end
 
-    # OpsListings::toString(listing)
+    # KnowledgeNode::toString(listing)
     def self.toString(listing)
-        "[listing] #{listing["name"]}"
+        "[knowledge node] #{listing["name"]}"
     end
 
-    # OpsListings::landing(listing)
+    # KnowledgeNode::landing(listing)
     def self.landing(listing)
         loop {
             system("clear")
 
             return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
-            puts OpsListings::toString(listing).green
+            puts KnowledgeNode::toString(listing).green
             puts "uuid: #{listing["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
@@ -80,7 +80,7 @@ class OpsListings
                 return if name1 == ""
                 listing["name"] = name1
                 NyxObjects2::put(listing)
-                OpsListings::removeSetDuplicates()
+                KnowledgeNode::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
@@ -92,7 +92,7 @@ class OpsListings
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy listing: '#{OpsListings::toString(listing)}': ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy listing: '#{KnowledgeNode::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end
             })
@@ -102,7 +102,7 @@ class OpsListings
         }
     end
 
-    # OpsListings::main()
+    # KnowledgeNode::main()
     def self.main()
         loop {
             system("clear")
@@ -110,14 +110,14 @@ class OpsListings
 
             ms.item("listings dive",lambda { 
                 loop {
-                    listings = OpsListings::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| OpsListings::toString(listing) })
+                    listings = KnowledgeNode::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| KnowledgeNode::toString(listing) })
                     return if listing.nil?
-                    OpsListings::landing(listing)
+                    KnowledgeNode::landing(listing)
                 }
             })
 
-            ms.item("make new listing",lambda { OpsListings::issueListingInteractivelyOrNull() })
+            ms.item("make new listing",lambda { KnowledgeNode::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status

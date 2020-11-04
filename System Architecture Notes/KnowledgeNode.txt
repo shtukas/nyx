@@ -1,7 +1,7 @@
 
-OpsListing {
+KnowledgeNode {
     "uuid"     : UUID
-    "nyxNxSet" : "abb20581-f020-43e1-9c37-6c3ef343d2f5"
+    "nyxNxSet" : "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
     "unixtime" : Float # Unixtime with decimals
     "name"     : String
 }
