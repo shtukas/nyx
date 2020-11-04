@@ -409,9 +409,9 @@ class Asteroids
                 "move targets ; destroy asteroid".yellow,
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
-                        listing = OpsListings::selectOneExistingOrNewListingOrNull()
-                        return if listing.nil?
-                        Arrows::issueOrException(listing, target)
+                        xnode = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+                        return if xnode.nil?
+                        Arrows::issueOrException(xnode, target)
                         Arrows::unlink(asteroid, target)
                     }
                     NyxObjects2::destroy(asteroid)
@@ -458,14 +458,16 @@ class Asteroids
         end
     end
 
-    # Asteroids::selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
-    def self.selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
-        target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
-        return if target.nil?
-        listing = OpsListings::selectOneExistingOrNewListingOrNull()
-        return if listing.nil?
-        Arrows::issueOrException(listing, target)
-        Arrows::unlink(asteroid, target)
+    # Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
+    def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
+        Arrows::getTargetsForSource(asteroid).each{|target|
+            puts "Moving target: #{GenericNyxObject::toString(target)}"
+            xnode = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+            next if xnode.nil?
+            Arrows::issueOrException(xnode, target)
+            Arrows::unlink(asteroid, target)
+        }
+        return if Arrows::getTargetsForSource(asteroid).size > 0
         if Arrows::getTargetsForSource(asteroid).size == 0 then
             NyxObjects2::destroy(asteroid)
         end
@@ -595,14 +597,14 @@ class Asteroids
             )
 
             menuitems.item(
-                "select target ; move it to listing".yellow,
+                "select targets ; move them to listing ; destroy asteroid".yellow,
                 lambda {
-                    Asteroids::selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
+                    Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
                 }
             )
 
             menuitems.item(
-                "select target ; destroy it".yellow,
+                "select and destroy target".yellow,
                 lambda {
                     target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
                     return if target.nil?
