@@ -9,12 +9,12 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "Catalyst General Exploration", 
+                "General Exploration", 
                 lambda { GeneralSearch::searchAndDive() }
             )
 
             ms.item(
-                "Catalyst General Exploration (ncurses experimental)", 
+                "General Exploration (ncurses experimental)", 
                 lambda { 
                     puts "Not implemented yet"
                     LucilleCore::pressEnterToContinue()
@@ -23,7 +23,11 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("Listings",lambda { OpsListings::main() })
+            ms.item("OpsListings",lambda { OpsListings::main() })
+
+            ms.item("KnowledgeNodes",lambda { KnowledgeNodes::main() })
+
+            puts ""
 
             ms.item("Waves", lambda { Waves::main() })
 
@@ -54,6 +58,8 @@ class DataPortalUI
                 NGX15::landing(node)
             })
 
+            puts ""
+
             ms.item("dangerously edit a nyx object by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
@@ -76,12 +82,12 @@ class DataPortalUI
             puts ""
 
             ms.item(
-                "1. rebuild search lookup", 
+                "rebuild search lookup", 
                 lambda { SelectionLookupDataset::rebuildDataset(true) }
             )
 
             ms.item(
-                "3. NyxGarbageCollection::run()",
+                "NyxGarbageCollection::run()",
                 lambda { NyxGarbageCollection::run() }
             )
 

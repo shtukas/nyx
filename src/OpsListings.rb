@@ -27,27 +27,27 @@ class OpsListings
 
     # OpsListings::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
-        name1 = LucilleCore::askQuestionAnswerAsString("listing name: ")
+        name1 = LucilleCore::askQuestionAnswerAsString("ops listing name: ")
         return nil if name1 == ""
         OpsListings::issue(name1)
     end
 
     # OpsListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", OpsListings::listings(), lambda{|listing| OpsListings::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops listing", OpsListings::listings(), lambda{|listing| OpsListings::toString(listing) })
     end
 
     # OpsListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
         listing = OpsListings::selectOneExistingListingOrNull()
         return listing if listing
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no listing selected, create a new one ? ")
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no ops listing selected, create a new one ? ")
         OpsListings::issueListingInteractivelyOrNull()
     end
 
     # OpsListings::toString(listing)
     def self.toString(listing)
-        "[listing] #{listing["name"]}"
+        "[ops listing] #{listing["name"]}"
     end
 
     # OpsListings::landing(listing)
@@ -92,7 +92,7 @@ class OpsListings
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy listing: '#{OpsListings::toString(listing)}': ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops listing: '#{OpsListings::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end
             })
@@ -108,16 +108,16 @@ class OpsListings
             system("clear")
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("listings dive",lambda { 
+            ms.item("ops listings dive",lambda { 
                 loop {
                     listings = OpsListings::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| OpsListings::toString(listing) })
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops listing", listings, lambda{|listing| OpsListings::toString(listing) })
                     return if listing.nil?
                     OpsListings::landing(listing)
                 }
             })
 
-            ms.item("make new listing",lambda { OpsListings::issueListingInteractivelyOrNull() })
+            ms.item("make new ops listing",lambda { OpsListings::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status
