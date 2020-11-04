@@ -112,7 +112,7 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["datapoint"]
 
-        NGX15::datapoints()
+        NGX15::ngx15s()
             .each{|datapoint|
                 if verbose then
                     puts "datapoint: #{datapoint["uuid"]} , #{NGX15::toString(datapoint)}"

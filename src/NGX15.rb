@@ -3,8 +3,8 @@
 
 class NGX15
 
-    # NGX15::datapoints()
-    def self.datapoints()
+    # NGX15::ngx15s()
+    def self.ngx15s()
         NyxObjects2::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
