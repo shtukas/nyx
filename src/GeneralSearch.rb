@@ -3,14 +3,14 @@
 
 class GeneralSearch
 
-    # GeneralSearch::searchNx1630Datapoint(pattern)
-    def self.searchNx1630Datapoint(pattern)
-        SelectionLookupDataset::patternToDatapoints(pattern)
-            .map{|datapoint|
+    # GeneralSearch::searchNx1630NGX15(pattern)
+    def self.searchNx1630NGX15(pattern)
+        SelectionLookupDataset::patternToNGX15s(pattern)
+            .map{|ngx15|
                 {
-                    "description"   => NGX15::toString(datapoint),
-                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(datapoint)).to_time.to_f,
-                    "dive"          => lambda{ NGX15::landing(datapoint) }
+                    "description"   => NGX15::toString(ngx15),
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(ngx15)).to_time.to_f,
+                    "dive"          => lambda{ NGX15::landing(ngx15) }
                 }
             }
     end
@@ -66,7 +66,7 @@ class GeneralSearch
     # GeneralSearch::searchNx1630(pattern)
     def self.searchNx1630(pattern)
         [
-            GeneralSearch::searchNx1630Datapoint(pattern),
+            GeneralSearch::searchNx1630NGX15(pattern),
             GeneralSearch::searchNx1630Quark(pattern),
             GeneralSearch::searchNx1630Set(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),

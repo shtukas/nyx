@@ -27,8 +27,8 @@ class SelectionLookupDatabaseIO
         db.execute "insert into lookup (_objecttype_, _objectuuid_, _fragment_) values ( ?, ?, ? )", [objecttype, objectuuid, fragment]
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
-    def self.updateLookupForDatapoint(datapoint)
+    # SelectionLookupDatabaseIO::updateLookupForNGX15(datapoint)
+    def self.updateLookupForNGX15(datapoint)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint).downcase)
@@ -85,9 +85,9 @@ class SelectionLookupDataset
 
     # ---------------------------------------------------------
 
-    # SelectionLookupDataset::updateLookupForDatapoint(datapoint)
-    def self.updateLookupForDatapoint(datapoint)
-        SelectionLookupDatabaseIO::updateLookupForDatapoint(datapoint)
+    # SelectionLookupDataset::updateLookupForNGX15(datapoint)
+    def self.updateLookupForNGX15(datapoint)
+        SelectionLookupDatabaseIO::updateLookupForNGX15(datapoint)
     end
 
     # SelectionLookupDataset::updateLookupForQuark(quark)
@@ -107,20 +107,20 @@ class SelectionLookupDataset
 
     # ---------------------------------------------------------
 
-    # SelectionLookupDataset::rebuildDatapointsLookup(verbose)
-    def self.rebuildDatapointsLookup(verbose)
+    # SelectionLookupDataset::rebuildNGX15sLookup(verbose)
+    def self.rebuildNGX15sLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["datapoint"]
+        db.execute "delete from lookup where _objecttype_=?", ["ngx15"]
 
         NGX15::ngx15s()
-            .each{|datapoint|
+            .each{|ngx15|
                 if verbose then
-                    puts "datapoint: #{datapoint["uuid"]} , #{NGX15::toString(datapoint)}"
+                    puts "ngx15: #{ngx15["uuid"]} , #{NGX15::toString(ngx15)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], NGX15::toString(datapoint))
-                if datapoint["type"] == "NGX15" then
-                    SelectionLookupDatabaseIO::addRecord2(db, "datapoint", datapoint["uuid"], datapoint["ngx15"])
+                SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], ngx15["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], NGX15::toString(ngx15))
+                if ngx15["type"] == "NGX15" then
+                    SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], ngx15["ngx15"])
                 end
             }
 
@@ -202,7 +202,7 @@ class SelectionLookupDataset
         db.execute "delete from lookup", []
         db.close
 
-        SelectionLookupDataset::rebuildDatapointsLookup(verbose)
+        SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildSetsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
@@ -211,10 +211,10 @@ class SelectionLookupDataset
 
     # ---------------------------------------------------------
 
-    # SelectionLookupDataset::patternToDatapoints(pattern)
-    def self.patternToDatapoints(pattern)
+    # SelectionLookupDataset::patternToNGX15s(pattern)
+    def self.patternToNGX15s(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "datapoint" }
+            .select{|record| record["objecttype"] == "ngx15" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact
