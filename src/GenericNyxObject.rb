@@ -43,7 +43,7 @@ class GenericNyxObject
             return Quarks::toString(object)
         end
         if GenericNyxObject::isListing(object) then
-            return Listings::toString(object)
+            return OpsListings::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -107,7 +107,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isListing(object) then
-            Listings::landing(object)
+            OpsListings::landing(object)
             return 
         end
         puts object
@@ -133,7 +133,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isListing(object) then
-            Listings::landing(object)
+            OpsListings::landing(object)
             return 
         end
         puts object

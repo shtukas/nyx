@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class Listings
+class OpsListings
 
-    # Listings::listings()
+    # OpsListings::listings()
     def self.listings()
         NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
     end
 
-    # Listings::make(name1, category)
+    # OpsListings::make(name1, category)
     def self.make(name1, category)
         raise "0A03D147-308A-4203-A864-BC76013268A2" if !["operations", "encyclopaedia"].include?(category)
         {
@@ -20,53 +20,53 @@ class Listings
         }
     end
 
-    # Listings::issue(name1, category)
+    # OpsListings::issue(name1, category)
     def self.issue(name1, category)
-        listing = Listings::make(name1, category)
+        listing = OpsListings::make(name1, category)
         NyxObjects2::put(listing)
         listing
     end
 
-    # Listings::selectCategoryInteractivelyOrNull()
+    # OpsListings::selectCategoryInteractivelyOrNull()
     def self.selectCategoryInteractivelyOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("category", ["operations", "encyclopaedia"])
     end
 
-    # Listings::issueListingInteractivelyOrNull()
+    # OpsListings::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("listing name: ")
         return nil if name1 == ""
-        category = Listings::selectCategoryInteractivelyOrNull()
+        category = OpsListings::selectCategoryInteractivelyOrNull()
         return nil if category.nil?
-        Listings::issue(name1, category)
+        OpsListings::issue(name1, category)
     end
 
-    # Listings::selectOneExistingListingOrNull()
+    # OpsListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings(), lambda{|listing| Listings::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", OpsListings::listings(), lambda{|listing| OpsListings::toString(listing) })
     end
 
-    # Listings::selectOneExistingOrNewListingOrNull()
+    # OpsListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = Listings::selectOneExistingListingOrNull()
+        listing = OpsListings::selectOneExistingListingOrNull()
         return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no listing selected, create a new one ? ")
-        Listings::issueListingInteractivelyOrNull()
+        OpsListings::issueListingInteractivelyOrNull()
     end
 
-    # Listings::toString(listing)
+    # OpsListings::toString(listing)
     def self.toString(listing)
         "[listing] [#{listing["category"]}] #{listing["name"]}"
     end
 
-    # Listings::landing(listing)
+    # OpsListings::landing(listing)
     def self.landing(listing)
         loop {
             system("clear")
 
             return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
-            puts Listings::toString(listing).green
+            puts OpsListings::toString(listing).green
             puts "uuid: #{listing["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
@@ -89,7 +89,7 @@ class Listings
                 return if name1 == ""
                 listing["name"] = name1
                 NyxObjects2::put(listing)
-                Listings::removeSetDuplicates()
+                OpsListings::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
@@ -101,7 +101,7 @@ class Listings
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy listing: '#{Listings::toString(listing)}': ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy listing: '#{OpsListings::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end
             })
@@ -111,7 +111,7 @@ class Listings
         }
     end
 
-    # Listings::main()
+    # OpsListings::main()
     def self.main()
         loop {
             system("clear")
@@ -119,14 +119,14 @@ class Listings
 
             ms.item("listings dive",lambda { 
                 loop {
-                    listings = Listings::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| Listings::toString(listing) })
+                    listings = OpsListings::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| OpsListings::toString(listing) })
                     return if listing.nil?
-                    Listings::landing(listing)
+                    OpsListings::landing(listing)
                 }
             })
 
-            ms.item("make new listing",lambda { Listings::issueListingInteractivelyOrNull() })
+            ms.item("make new listing",lambda { OpsListings::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status

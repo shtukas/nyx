@@ -23,7 +23,7 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("Listings",lambda { Listings::main() })
+            ms.item("Listings",lambda { OpsListings::main() })
 
             ms.item("Waves", lambda { Waves::main() })
 

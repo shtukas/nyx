@@ -409,7 +409,7 @@ class Asteroids
                 "move targets ; destroy asteroid".yellow,
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
-                        listing = Listings::selectOneExistingOrNewListingOrNull()
+                        listing = OpsListings::selectOneExistingOrNewListingOrNull()
                         return if listing.nil?
                         Arrows::issueOrException(listing, target)
                         Arrows::unlink(asteroid, target)
@@ -462,7 +462,7 @@ class Asteroids
     def self.selectAsteroidTargetMoveItToListingPossiblyDestroyAsteroid(asteroid)
         target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
         return if target.nil?
-        listing = Listings::selectOneExistingOrNewListingOrNull()
+        listing = OpsListings::selectOneExistingOrNewListingOrNull()
         return if listing.nil?
         Arrows::issueOrException(listing, target)
         Arrows::unlink(asteroid, target)
