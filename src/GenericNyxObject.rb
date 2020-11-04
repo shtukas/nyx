@@ -51,7 +51,7 @@ class GenericNyxObject
             return OpsListings::toString(object)
         end
         if GenericNyxObject::isKnowledgeNode(object) then
-            return KnowledgeNodes::landing(object)
+            return KnowledgeNodes::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
