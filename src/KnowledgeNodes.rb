@@ -3,8 +3,8 @@
 
 class KnowledgeNodes
 
-    # KnowledgeNodes::listings()
-    def self.listings()
+    # KnowledgeNodes::knowledgeNodes()
+    def self.knowledgeNodes()
         NyxObjects2::getSet("f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
     end
 
@@ -25,8 +25,8 @@ class KnowledgeNodes
         listing
     end
 
-    # KnowledgeNodes::issueListingInteractivelyOrNull()
-    def self.issueListingInteractivelyOrNull()
+    # KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull()
+    def self.issueKnowledgeNodeInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("knowledge node name: ")
         return nil if name1 == ""
         KnowledgeNodes::issue(name1)
@@ -34,7 +34,7 @@ class KnowledgeNodes
 
     # KnowledgeNodes::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("knowledge node", KnowledgeNodes::listings(), lambda{|listing| KnowledgeNodes::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("knowledge node", KnowledgeNodes::knowledgeNodes(), lambda{|listing| KnowledgeNodes::toString(listing) })
     end
 
     # KnowledgeNodes::selectOneExistingOrNewListingOrNull()
@@ -42,7 +42,7 @@ class KnowledgeNodes
         listing = KnowledgeNodes::selectOneExistingListingOrNull()
         return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no knowledge node selected, create a new one ? ")
-        KnowledgeNodes::issueListingInteractivelyOrNull()
+        KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull()
     end
 
     # KnowledgeNodes::toString(listing)
@@ -110,14 +110,14 @@ class KnowledgeNodes
 
             ms.item("knowledge listings dive",lambda { 
                 loop {
-                    listings = KnowledgeNodes::listings()
+                    listings = KnowledgeNodes::knowledgeNodes()
                     listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| KnowledgeNodes::toString(listing) })
                     return if listing.nil?
                     KnowledgeNodes::landing(listing)
                 }
             })
 
-            ms.item("make new knowlege listing",lambda { KnowledgeNodes::issueListingInteractivelyOrNull() })
+            ms.item("make new knowlege listing",lambda { KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status

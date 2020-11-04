@@ -91,8 +91,6 @@ class DataPortalUI
                 lambda { NyxGarbageCollection::run() }
             )
 
-            puts ""
-
             ms.item(
                 "NyxFsck::main(runhash)",
                 lambda {

@@ -166,6 +166,8 @@ require_relative "VideoStream.rb"
 
 require_relative "Waves.rb"
 
+require_relative "XNodes.rb"
+
 # ------------------------------------------------------------
 
 
