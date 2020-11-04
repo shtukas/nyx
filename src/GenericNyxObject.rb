@@ -18,9 +18,14 @@ class GenericNyxObject
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
-    # GenericNyxObject::isListing(object)
-    def self.isListing(object)
+    # GenericNyxObject::isOpsListing(object)
+    def self.isOpsListing(object)
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
+    end
+
+    # GenericNyxObject::isKnowledgeNode(object)
+    def self.isKnowledgeNode(object)
+        object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
     end
 
     # GenericNyxObject::isAsteroid(object)
@@ -42,8 +47,11 @@ class GenericNyxObject
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
         end
-        if GenericNyxObject::isListing(object) then
+        if GenericNyxObject::isOpsListing(object) then
             return OpsListings::toString(object)
+        end
+        if GenericNyxObject::isKnowledgeNode(object) then
+            return KnowledgeNodes::landing(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -106,9 +114,13 @@ class GenericNyxObject
             Quarks::access(object)
             return
         end
-        if GenericNyxObject::isListing(object) then
+        if GenericNyxObject::isOpsListing(object) then
             OpsListings::landing(object)
             return 
+        end
+        if GenericNyxObject::isKnowledgeNode(object) then
+            KnowledgeNodes::landing(object)
+            return
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
@@ -132,9 +144,13 @@ class GenericNyxObject
             Quarks::landing(object)
             return
         end
-        if GenericNyxObject::isListing(object) then
+        if GenericNyxObject::isOpsListing(object) then
             OpsListings::landing(object)
-            return 
+            return
+        end
+        if GenericNyxObject::isKnowledgeNode(object) then
+            KnowledgeNodes::landing(object)
+            return
         end
         puts object
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
