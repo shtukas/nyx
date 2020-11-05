@@ -12,16 +12,6 @@ class CatalystUI
 
         puts ""
 
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-        text = IO.read(filepath).strip
-        if text.size > 0 then
-            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-            puts File.basename(filepath)
-            puts text
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 2)
-        end
-
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then
@@ -42,7 +32,31 @@ class CatalystUI
                 }
         end
 
-        catalystObjects
+        objects1, objects2 = catalystObjects.partition { |object| object["metric"] >= 0.6 }
+
+        objects1
+            .each{|object|
+                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+                menuitems.item(
+                    str,
+                    lambda { object["execute"].call("ec23a3a3-bfa0-45db-a162-fdd92da87f64") }
+                )
+            }
+
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+        text = IO.read(filepath).strip
+        if text.size > 0 then
+            puts ""
+            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
+            puts File.basename(filepath)
+            puts text
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 3)
+        end
+
+        objects2
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
@@ -136,7 +150,6 @@ class CatalystUI
             DataPortalUI::dataPortalFront()
             return
         end
-
     end
 
     # CatalystUI::standardUILoop()
