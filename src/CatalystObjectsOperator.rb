@@ -20,14 +20,6 @@ class CatalystObjectsOperator
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
 
-        # Removing any first asteroid with no target
-        if objects.size > 0 and objects[0]["x-asteroid"] and objects[0]["body"].include?("no description / no target") then
-            asteroid = objects[0]["x-asteroid"]
-            if Arrows::getTargetsForSource(asteroid).size == 0 then
-                NyxObjects2::destroy(asteroid)
-            end
-        end
-
         objects
     end
 

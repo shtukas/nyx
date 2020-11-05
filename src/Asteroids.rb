@@ -271,6 +271,7 @@ class Asteroids
 
         if !KeyValueStore::flagIsTrue(nil, "a3bd01f1-5366-4543-83aa-04477ec5f068:#{Miscellaneous::today()}") then
 
+            # Removing the x-stream-index marks from the day before
             asteroids
                 .select{|asteroid| asteroid["x-stream-index"] }
                 .each{|asteroid|
@@ -278,6 +279,7 @@ class Asteroids
                     NyxObjects2::put(asteroid)
                 }
 
+            # Marking 100 objects for today
             asteroids
                 .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
@@ -291,13 +293,28 @@ class Asteroids
 
         end
 
-        asteroids
-            .select{|asteroid| 
-                b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
-                b2 = asteroid["x-stream-index"]
-                b1 or b2
-            }
-            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+        asteroids = asteroids
+                        .select{|asteroid| 
+                            b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
+                            b2 = asteroid["x-stream-index"]
+                            b1 or b2
+                        }
+
+        catalystObjects = asteroids
+                            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                            .reverse
+
+        # Removing any first asteroid with no target
+        if catalystObjects.size > 0 then
+            asteroid = catalystObjects[0]["x-asteroid"]
+            if Arrows::getTargetsForSource(asteroid).size == 0 then
+                NyxObjects2::destroy(asteroid)
+                return Asteroids::catalystObjects()
+            end
+        end
+
+        catalystObjects
     end
 
     # -------------------------------------------------------------------
