@@ -42,11 +42,11 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForSet(set)
-    def self.updateLookupForSet(set)
+    # SelectionLookupDatabaseIO::updateLookupForTag(set)
+    def self.updateLookupForTag(set)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(setm["uuid"])
-        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], set["uuid"])
-        SelectionLookupDatabaseIO::addRecord("set", set["uuid"], Tags::toString(set).downcase)
+        SelectionLookupDatabaseIO::addRecord("tag", set["uuid"], set["uuid"])
+        SelectionLookupDatabaseIO::addRecord("tag", set["uuid"], Tags::toString(set).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -95,9 +95,9 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForQuark(quark)
     end
 
-    # SelectionLookupDataset::updateLookupForSet(set)
-    def self.updateLookupForSet(set)
-        SelectionLookupDatabaseIO::updateLookupForSet(set)
+    # SelectionLookupDataset::updateLookupForTag(set)
+    def self.updateLookupForTag(set)
+        SelectionLookupDatabaseIO::updateLookupForTag(set)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -145,18 +145,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildSetsLookup(verbose)
-    def self.rebuildSetsLookup(verbose)
+    # SelectionLookupDataset::rebuildTagsLookup(verbose)
+    def self.rebuildTagsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["set"]
 
         Tags::tags()
-            .each{|set|
+            .each{|tag|
                 if verbose then
-                    puts "set: #{set["uuid"]} , #{Tags::toString(set)}"
+                    puts "tag: #{tag["uuid"]} , #{Tags::toString(tag)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], set["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "set", set["uuid"], Tags::toString(set))
+                SelectionLookupDatabaseIO::addRecord2(db, "set", tag["uuid"], tag["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "set", tag["uuid"], Tags::toString(tag))
             }
 
         db.close
@@ -204,7 +204,7 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
-        SelectionLookupDataset::rebuildSetsLookup(verbose)
+        SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -229,8 +229,8 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToSets(pattern)
-    def self.patternToSets(pattern)
+    # SelectionLookupDataset::patternToTags(pattern)
+    def self.patternToTags(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "set" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
