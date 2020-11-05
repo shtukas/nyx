@@ -55,7 +55,6 @@ class Asteroids
             "nyxNxSet"    => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"    => Time.new.to_f,
             "orbital"     => orbital,
-            "ordinal"     => Asteroids::ordinalMax()+1,
             "description" => description
         }
         NyxObjects2::put(asteroid)
@@ -73,7 +72,6 @@ class Asteroids
             "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"   => Time.new.to_f,
             "orbital"    => orbital,
-            "ordinal"    => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
         Arrows::issueOrException(asteroid, datapoint)
@@ -90,7 +88,6 @@ class Asteroids
             "nyxNxSet" => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime" => Time.new.to_f,
             "orbital"  => orbital,
-            "ordinal"  => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
         Arrows::issueOrException(asteroid, quark)
@@ -107,16 +104,10 @@ class Asteroids
             "nyxNxSet"   => "b66318f4-2662-4621-a991-a6b966fb4398",
             "unixtime"   => Time.new.to_f,
             "orbital"    => orbital,
-            "ordinal"    => Asteroids::ordinalMax()+1
         }
         NyxObjects2::put(asteroid)
         Arrows::issueOrException(asteroid, quark)
         asteroid
-    end
-
-    # Asteroids::ordinalMax()
-    def self.ordinalMax()
-        ([0] + Asteroids::asteroids().map{|asteroid| asteroid["ordinal"] }).max
     end
 
     # -------------------------------------------------------------------
