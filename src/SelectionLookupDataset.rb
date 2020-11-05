@@ -42,11 +42,25 @@ class SelectionLookupDatabaseIO
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForTag(set)
-    def self.updateLookupForTag(set)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(setm["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", set["uuid"], set["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", set["uuid"], Tags::toString(set).downcase)
+    # SelectionLookupDatabaseIO::updateLookupForTag(tag)
+    def self.updateLookupForTag(tag)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
+        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
+        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag).downcase)
+    end
+
+    # SelectionLookupDatabaseIO::updateLookupForOpsNode(node)
+    def self.updateLookupForOpsNode(node)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OpsNodes::toString(node).downcase)
+    end
+
+    # SelectionLookupDatabaseIO::updateLookupForEncyclopediaNode(node)
+    def self.updateLookupForEncyclopediaNode(node)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaNodes::toString(node).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -95,14 +109,29 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::updateLookupForQuark(quark)
     end
 
-    # SelectionLookupDataset::updateLookupForTag(set)
-    def self.updateLookupForTag(set)
-        SelectionLookupDatabaseIO::updateLookupForTag(set)
+    # SelectionLookupDataset::updateLookupForTag(tag)
+    def self.updateLookupForTag(tag)
+        SelectionLookupDatabaseIO::updateLookupForTag(tag)
+    end
+
+    # SelectionLookupDataset::updateLookupForOpsNode(node)
+    def self.updateLookupForOpsNode(node)
+        SelectionLookupDatabaseIO::updateLookupForOpsNode(node)
+    end
+
+    # SelectionLookupDataset::updateLookupForEncyclopediaNode(node)
+    def self.updateLookupForEncyclopediaNode(node)
+        SelectionLookupDatabaseIO::updateLookupForEncyclopediaNode(node)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
+    end
+
+    # SelectionLookupDataset::updateLookupForWave(wave)
+    def self.updateLookupForWave(wave)
+        SelectionLookupDatabaseIO::updateLookupForWave(wave)
     end
 
     # ---------------------------------------------------------
@@ -148,15 +177,49 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildTagsLookup(verbose)
     def self.rebuildTagsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["set"]
+        db.execute "delete from lookup where _objecttype_=?", ["tag"]
 
         Tags::tags()
             .each{|tag|
                 if verbose then
                     puts "tag: #{tag["uuid"]} , #{Tags::toString(tag)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "set", tag["uuid"], tag["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "set", tag["uuid"], Tags::toString(tag))
+                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], tag["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], Tags::toString(tag))
+            }
+
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildOpsNodesLookup(verbose)
+    def self.rebuildOpsNodesLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["opsnode"]
+
+        OpsNodes::nodes()
+            .each{|node|
+                if verbose then
+                    puts "ops node: #{node["uuid"]} , #{OpsNodes::toString(node)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], OpsNodes::toString(node))
+            }
+
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildEncyclopediaNodesLookup(verbose)
+    def self.rebuildEncyclopediaNodesLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["encyclopedianode"]
+
+        EncyclopediaNodes::nodes()
+            .each{|node|
+                if verbose then
+                    puts "encyclopedia node: #{node["uuid"]} , #{EncyclopediaNodes::toString(node)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], EncyclopediaNodes::toString(node))
             }
 
         db.close
@@ -205,6 +268,8 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
+        SelectionLookupDataset::rebuildOpsNodesLookup(verbose)
+        SelectionLookupDataset::rebuildEncyclopediaNodesLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -232,7 +297,25 @@ class SelectionLookupDataset
     # SelectionLookupDataset::patternToTags(pattern)
     def self.patternToTags(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "set" }
+            .select{|record| record["objecttype"] == "tag" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
+    end
+
+    # SelectionLookupDataset::patternToOpsNodes(pattern)
+    def self.patternToOpsNodes(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "opsnode" }
+            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
+            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
+            .compact
+    end
+
+    # SelectionLookupDataset::patternToEncyclopediaNodes(pattern)
+    def self.patternToEncyclopediaNodes(pattern)
+        SelectionLookupDatabaseIO::getDatabaseRecords()
+            .select{|record| record["objecttype"] == "encyclopedianode" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
             .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
             .compact

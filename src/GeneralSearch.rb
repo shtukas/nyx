@@ -39,6 +39,30 @@ class GeneralSearch
             }
     end
 
+    # GeneralSearch::searchNx1630OpsNode(pattern)
+    def self.searchNx1630OpsNode(pattern)
+        SelectionLookupDataset::patternToOpsNodes(pattern)
+            .map{|node|
+                {
+                    "description"   => OpsNodes::toString(node),
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(node)).to_time.to_f,
+                    "dive"          => lambda{ OpsNodes::landing(node) }
+                }
+            }
+    end
+
+    # GeneralSearch::searchNx1630EncyclopediaNode(pattern)
+    def self.searchNx1630EncyclopediaNode(pattern)
+        SelectionLookupDataset::patternToEncyclopediaNodes(pattern)
+            .map{|node|
+                {
+                    "description"   => EncyclopediaNodes::toString(node),
+                    "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(node)).to_time.to_f,
+                    "dive"          => lambda{ EncyclopediaNodes::landing(node) }
+                }
+            }
+    end
+
     # GeneralSearch::searchNx1630Asteroid(pattern)
     def self.searchNx1630Asteroid(pattern)
         SelectionLookupDataset::patternToAsteroids(pattern)
@@ -69,6 +93,8 @@ class GeneralSearch
             GeneralSearch::searchNx1630NGX15(pattern),
             GeneralSearch::searchNx1630Quark(pattern),
             GeneralSearch::searchNx1630Tag(pattern),
+            GeneralSearch::searchNx1630OpsNode(pattern),
+            GeneralSearch::searchNx1630EncyclopediaNode(pattern),
             GeneralSearch::searchNx1630Asteroid(pattern),
             GeneralSearch::searchNx1630Wave(pattern)
         ]

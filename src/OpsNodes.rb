@@ -3,8 +3,8 @@
 
 class OpsNodes
 
-    # OpsNodes::listings()
-    def self.listings()
+    # OpsNodes::nodes()
+    def self.nodes()
         NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
     end
 
@@ -20,49 +20,49 @@ class OpsNodes
 
     # OpsNodes::issue(name1)
     def self.issue(name1)
-        listing = OpsNodes::make(name1)
-        NyxObjects2::put(listing)
-        listing
+        node = OpsNodes::make(name1)
+        NyxObjects2::put(node)
+        node
     end
 
     # OpsNodes::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
-        name1 = LucilleCore::askQuestionAnswerAsString("ops listing name: ")
+        name1 = LucilleCore::askQuestionAnswerAsString("ops node name: ")
         return nil if name1 == ""
         OpsNodes::issue(name1)
     end
 
     # OpsNodes::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops listing", OpsNodes::listings(), lambda{|listing| OpsNodes::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OpsNodes::nodes(), lambda{|node| OpsNodes::toString(node) })
     end
 
     # OpsNodes::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = OpsNodes::selectOneExistingListingOrNull()
-        return listing if listing
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no ops listing selected, create a new one ? ")
+        node = OpsNodes::selectOneExistingListingOrNull()
+        return node if node
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no ops node selected, create a new one ? ")
         OpsNodes::issueListingInteractivelyOrNull()
     end
 
-    # OpsNodes::toString(listing)
-    def self.toString(listing)
-        "[ops listing] #{listing["name"]}"
+    # OpsNodes::toString(node)
+    def self.toString(node)
+        "[ops node] #{node["name"]}"
     end
 
-    # OpsNodes::landing(listing)
-    def self.landing(listing)
+    # OpsNodes::landing(node)
+    def self.landing(node)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(listing["uuid"]).nil?
+            return if NyxObjects2::getOrNull(node["uuid"]).nil?
 
-            puts OpsNodes::toString(listing).green
-            puts "uuid: #{listing["uuid"]}".yellow
+            puts OpsNodes::toString(node).green
+            puts "uuid: #{node["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
-            targets = Arrows::getTargetsForSource(listing)
+            targets = Arrows::getTargetsForSource(node)
             targets = targets.select{|target| !GenericNyxObject::isTag(target) }
             targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
@@ -76,24 +76,24 @@ class OpsNodes
 
             puts ""
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
-                listing["name"] = name1
-                NyxObjects2::put(listing)
+                node["name"] = name1
+                NyxObjects2::put(node)
                 OpsNodes::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(listing, datapoint)
+                Arrows::issueOrException(node, datapoint)
             })
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(listing)
+                puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops listing: '#{OpsNodes::toString(listing)}': ") then
-                    NyxObjects2::destroy(listing)
+            mx.item("destroy node".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops node: '#{OpsNodes::toString(node)}': ") then
+                    NyxObjects2::destroy(node)
                 end
             })
             puts ""
@@ -108,16 +108,16 @@ class OpsNodes
             system("clear")
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("ops listings dive",lambda { 
+            ms.item("ops nodes dive",lambda { 
                 loop {
-                    listings = OpsNodes::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops listing", listings, lambda{|listing| OpsNodes::toString(listing) })
-                    return if listing.nil?
-                    OpsNodes::landing(listing)
+                    nodes = OpsNodes::nodes()
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OpsNodes::toString(node) })
+                    return if node.nil?
+                    OpsNodes::landing(node)
                 }
             })
 
-            ms.item("make new ops listing",lambda { OpsNodes::issueListingInteractivelyOrNull() })
+            ms.item("make new ops node",lambda { OpsNodes::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status

@@ -20,49 +20,49 @@ class EncyclopediaNodes
 
     # EncyclopediaNodes::issue(name1)
     def self.issue(name1)
-        listing = EncyclopediaNodes::make(name1)
-        NyxObjects2::put(listing)
-        listing
+        node = EncyclopediaNodes::make(name1)
+        NyxObjects2::put(node)
+        node
     end
 
     # EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull()
     def self.issueKnowledgeNodeInteractivelyOrNull()
-        name1 = LucilleCore::askQuestionAnswerAsString("knowledge node name: ")
+        name1 = LucilleCore::askQuestionAnswerAsString("encyclopedia node name: ")
         return nil if name1 == ""
         EncyclopediaNodes::issue(name1)
     end
 
     # EncyclopediaNodes::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("knowledge node", EncyclopediaNodes::nodes(), lambda{|listing| EncyclopediaNodes::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia node", EncyclopediaNodes::nodes(), lambda{|node| EncyclopediaNodes::toString(node) })
     end
 
     # EncyclopediaNodes::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = EncyclopediaNodes::selectOneExistingListingOrNull()
-        return listing if listing
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no knowledge node selected, create a new one ? ")
+        node = EncyclopediaNodes::selectOneExistingListingOrNull()
+        return node if node
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no encyclopedia node selected, create a new one ? ")
         EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull()
     end
 
-    # EncyclopediaNodes::toString(listing)
-    def self.toString(listing)
-        "[knowledge node] #{listing["name"]}"
+    # EncyclopediaNodes::toString(node)
+    def self.toString(node)
+        "[encyclopedia node] #{node["name"]}"
     end
 
-    # EncyclopediaNodes::landing(listing)
-    def self.landing(listing)
+    # EncyclopediaNodes::landing(node)
+    def self.landing(node)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(listing["uuid"]).nil?
+            return if NyxObjects2::getOrNull(node["uuid"]).nil?
 
-            puts EncyclopediaNodes::toString(listing).green
-            puts "uuid: #{listing["uuid"]}".yellow
+            puts EncyclopediaNodes::toString(node).green
+            puts "uuid: #{node["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
-            targets = Arrows::getTargetsForSource(listing)
+            targets = Arrows::getTargetsForSource(node)
             targets = targets.select{|target| !GenericNyxObject::isTag(target) }
             targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
@@ -76,24 +76,24 @@ class EncyclopediaNodes
 
             puts ""
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
-                listing["name"] = name1
-                NyxObjects2::put(listing)
+                node["name"] = name1
+                NyxObjects2::put(node)
                 EncyclopediaNodes::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(listing, datapoint)
+                Arrows::issueOrException(node, datapoint)
             })
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(listing)
+                puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy encyclopedia node".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia node: '#{EncyclopediaNodes::toString(listing)}': ") then
-                    NyxObjects2::destroy(listing)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia node: '#{EncyclopediaNodes::toString(node)}': ") then
+                    NyxObjects2::destroy(node)
                 end
             })
             puts ""
@@ -110,14 +110,14 @@ class EncyclopediaNodes
 
             ms.item("encyclopedia nodes dive",lambda { 
                 loop {
-                    listings = EncyclopediaNodes::nodes()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| EncyclopediaNodes::toString(listing) })
-                    return if listing.nil?
-                    EncyclopediaNodes::landing(listing)
+                    nodes = EncyclopediaNodes::nodes()
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| EncyclopediaNodes::toString(node) })
+                    return if node.nil?
+                    EncyclopediaNodes::landing(node)
                 }
             })
 
-            ms.item("make new knowlege listing",lambda { EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull() })
+            ms.item("make new knowlege node",lambda { EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status
