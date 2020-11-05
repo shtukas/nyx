@@ -1,6 +1,38 @@
 
 # encoding: UTF-8
 
+# specialOrder = Array[uuid: String]
+
+class SpecialUIListingOrder
+
+    # SpecialUIListingOrder::getCurrentSpecialOrder()
+    def self.getCurrentSpecialOrder()
+        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35", "[]"))
+    end
+
+    # SpecialUIListingOrder::setSpecialOrder(specialOrder)
+    def self.setSpecialOrder(specialOrder)
+        KeyValueStore::set(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35", JSON.generate(specialOrder))
+    end
+
+    # SpecialUIListingOrder::applySpecialOrderCore(specialOrder, objects)
+    def self.applySpecialOrderCore(specialOrder, objects)
+        objects2 = specialOrder.map{|uuid| objects.select{|o| o["uuid"] == uuid }.first }.compact
+        objects3 = objects.select{|o| objects2.none?{|o2| o2["uuid"] == o["uuid"] } }
+        objects4 = objects2 + objects3
+        specialOrder = objects4.map{|o| o["uuid"] }
+        SpecialUIListingOrder::setSpecialOrder(specialOrder)
+        objects4
+    end
+
+    # SpecialUIListingOrder::applySpecialOrder(objects)
+    def self.applySpecialOrder(objects)
+        above1Objects, below1Objects = objects.partition {|object| object["metric"] >= 1 }
+        above06Objects, below06Objects = below1Objects.partition {|object| object["metric"] >= 0.6 }
+        above1Objects + SpecialUIListingOrder::applySpecialOrderCore(SpecialUIListingOrder::getCurrentSpecialOrder(), above06Objects) + below06Objects
+    end
+end
+
 class CatalystObjectsOperator
 
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()
@@ -20,7 +52,7 @@ class CatalystObjectsOperator
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
 
-        objects
+        SpecialUIListingOrder::applySpecialOrder(objects)
     end
 
     # CatalystObjectsOperator::generationSpeedReport()

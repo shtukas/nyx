@@ -390,6 +390,7 @@ class Asteroids
         Asteroids::startAsteroidIfNotRunning(asteroid)
         Asteroids::access(asteroid)
         loop {
+
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item(
@@ -428,6 +429,8 @@ class Asteroids
 
             status = menuitems.promptAndRunSandbox()
             break if !status
+
+            break if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
         }
         Asteroids::stopAsteroidIfRunning(asteroid)
     end
