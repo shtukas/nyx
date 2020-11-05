@@ -1,5 +1,5 @@
 
-OpsListing {
+OpsNode {
     "uuid"     : UUID
     "nyxNxSet" : "abb20581-f020-43e1-9c37-6c3ef343d2f5"
     "unixtime" : Float # Unixtime with decimals

@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class KnowledgeNodes
+class EncyclopediaNodes
 
-    # KnowledgeNodes::knowledgeNodes()
-    def self.knowledgeNodes()
+    # EncyclopediaNodes::nodes()
+    def self.nodes()
         NyxObjects2::getSet("f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
     end
 
-    # KnowledgeNodes::make(name1)
+    # EncyclopediaNodes::make(name1)
     def self.make(name1)
         {
             "uuid"     => SecureRandom.hex,
@@ -18,46 +18,46 @@ class KnowledgeNodes
         }
     end
 
-    # KnowledgeNodes::issue(name1)
+    # EncyclopediaNodes::issue(name1)
     def self.issue(name1)
-        listing = KnowledgeNodes::make(name1)
+        listing = EncyclopediaNodes::make(name1)
         NyxObjects2::put(listing)
         listing
     end
 
-    # KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull()
+    # EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull()
     def self.issueKnowledgeNodeInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("knowledge node name: ")
         return nil if name1 == ""
-        KnowledgeNodes::issue(name1)
+        EncyclopediaNodes::issue(name1)
     end
 
-    # KnowledgeNodes::selectOneExistingListingOrNull()
+    # EncyclopediaNodes::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("knowledge node", KnowledgeNodes::knowledgeNodes(), lambda{|listing| KnowledgeNodes::toString(listing) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("knowledge node", EncyclopediaNodes::nodes(), lambda{|listing| EncyclopediaNodes::toString(listing) })
     end
 
-    # KnowledgeNodes::selectOneExistingOrNewListingOrNull()
+    # EncyclopediaNodes::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = KnowledgeNodes::selectOneExistingListingOrNull()
+        listing = EncyclopediaNodes::selectOneExistingListingOrNull()
         return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no knowledge node selected, create a new one ? ")
-        KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull()
+        EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull()
     end
 
-    # KnowledgeNodes::toString(listing)
+    # EncyclopediaNodes::toString(listing)
     def self.toString(listing)
         "[knowledge node] #{listing["name"]}"
     end
 
-    # KnowledgeNodes::landing(listing)
+    # EncyclopediaNodes::landing(listing)
     def self.landing(listing)
         loop {
             system("clear")
 
             return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
-            puts KnowledgeNodes::toString(listing).green
+            puts EncyclopediaNodes::toString(listing).green
             puts "uuid: #{listing["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
@@ -80,7 +80,7 @@ class KnowledgeNodes
                 return if name1 == ""
                 listing["name"] = name1
                 NyxObjects2::put(listing)
-                KnowledgeNodes::removeSetDuplicates()
+                EncyclopediaNodes::removeSetDuplicates()
             })
             mx.item("add datapoint".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
@@ -91,8 +91,8 @@ class KnowledgeNodes
                 puts JSON.pretty_generate(listing)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy knowledge listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy knowledge listing: '#{KnowledgeNodes::toString(listing)}': ") then
+            mx.item("destroy encyclopedia node".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia node: '#{EncyclopediaNodes::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end
             })
@@ -102,22 +102,22 @@ class KnowledgeNodes
         }
     end
 
-    # KnowledgeNodes::main()
+    # EncyclopediaNodes::main()
     def self.main()
         loop {
             system("clear")
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("knowledge listings dive",lambda { 
+            ms.item("encyclopedia nodes dive",lambda { 
                 loop {
-                    listings = KnowledgeNodes::knowledgeNodes()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| KnowledgeNodes::toString(listing) })
+                    listings = EncyclopediaNodes::nodes()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|listing| EncyclopediaNodes::toString(listing) })
                     return if listing.nil?
-                    KnowledgeNodes::landing(listing)
+                    EncyclopediaNodes::landing(listing)
                 }
             })
 
-            ms.item("make new knowlege listing",lambda { KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull() })
+            ms.item("make new knowlege listing",lambda { EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status

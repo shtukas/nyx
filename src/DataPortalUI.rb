@@ -23,9 +23,9 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("OpsListings",lambda { OpsListings::main() })
+            ms.item("OpsNodes",lambda { OpsNodes::main() })
 
-            ms.item("KnowledgeNodes",lambda { KnowledgeNodes::main() })
+            ms.item("EncyclopediaNodes",lambda { EncyclopediaNodes::main() })
 
             puts ""
 

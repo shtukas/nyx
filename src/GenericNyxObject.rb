@@ -48,10 +48,10 @@ class GenericNyxObject
             return Quarks::toString(object)
         end
         if GenericNyxObject::isOpsListing(object) then
-            return OpsListings::toString(object)
+            return OpsNodes::toString(object)
         end
         if GenericNyxObject::isKnowledgeNode(object) then
-            return KnowledgeNodes::toString(object)
+            return EncyclopediaNodes::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -115,11 +115,11 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isOpsListing(object) then
-            OpsListings::landing(object)
+            OpsNodes::landing(object)
             return 
         end
         if GenericNyxObject::isKnowledgeNode(object) then
-            KnowledgeNodes::landing(object)
+            EncyclopediaNodes::landing(object)
             return
         end
         puts object
@@ -145,11 +145,11 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isOpsListing(object) then
-            OpsListings::landing(object)
+            OpsNodes::landing(object)
             return
         end
         if GenericNyxObject::isKnowledgeNode(object) then
-            KnowledgeNodes::landing(object)
+            EncyclopediaNodes::landing(object)
             return
         end
         puts object

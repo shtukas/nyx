@@ -7,11 +7,11 @@ We refer to NGX15 and Quarks/Lepton collectively as Datapoints
 
 We have a system of
     - Tags
-    - OpsListings
-    - EncyclopediaListings
+    - OpsNodes
+    - EncyclopediaNodes
 
 for classification and search.
 
-We refer to OpsListings and EncyclopediaListings as collectively as Nodes.
+We refer to OpsNodes and EncyclopediaNodes as collectively as XNodes.
 
 Asteroids and Waves are used to drive the main todo priority list. 

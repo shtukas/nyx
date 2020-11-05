@@ -5,19 +5,19 @@ class XNodes
 
     # XNodes::makeNewNodeOrNull()
     def self.makeNewNodeOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["ops listing", "knowledge listing"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["ops listing", "encyclopedia node"])
         if type == "ops listing" then
-            return OpsListings::issueListingInteractivelyOrNull()
+            return OpsNodes::issueListingInteractivelyOrNull()
         end
-        if type == "knowledge listing" then
-            return KnowledgeNodes::issueKnowledgeNodeInteractivelyOrNull()
+        if type == "encyclopedia node" then
+            return EncyclopediaNodes::issueKnowledgeNodeInteractivelyOrNull()
         end
         nil
     end
 
     # XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
     def self.selectExistingXNodeOrMakeANewXNodeOrNull()
-        xnodes = OpsListings::listings() + KnowledgeNodes::knowledgeNodes()
+        xnodes = OpsNodes::listings() + EncyclopediaNodes::nodes()
         xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
         return xnode if xnode
         puts "You did not select an existing xnode"
