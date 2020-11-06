@@ -7,12 +7,12 @@ class SpecialUIListingOrder
 
     # SpecialUIListingOrder::getCurrentSpecialOrder()
     def self.getCurrentSpecialOrder()
-        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35", "[]"))
+        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35:#{Miscellaneous::today()}", "[]"))
     end
 
     # SpecialUIListingOrder::setSpecialOrder(specialOrder)
     def self.setSpecialOrder(specialOrder)
-        KeyValueStore::set(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35", JSON.generate(specialOrder))
+        KeyValueStore::set(nil, "8c4c13d9-d398-4834-96fd-a2e05705ad35:#{Miscellaneous::today()}", JSON.generate(specialOrder))
     end
 
     # SpecialUIListingOrder::applySpecialOrderCore(specialOrder, objects)
