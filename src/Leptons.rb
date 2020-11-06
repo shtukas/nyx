@@ -31,6 +31,22 @@ class LeptonsFunctions
         "/Users/pascal/Galaxy/Leptons/#{filename}"
     end
 
+    # LeptonsFunctions::filepaths()
+    def self.filepaths()
+        Dir.entries("/Users/pascal/Galaxy/Leptons")
+            .select{|filename|
+                filename[-8, 8] == ".sqlite3"
+            }
+            .map{|filename|
+                "/Users/pascal/Galaxy/Leptons/#{filename}"
+            }
+    end
+
+    # LeptonsFunctions::getQuarkForLeptonFilenameOrNull(filename)
+    def self.getQuarkForLeptonFilenameOrNull(filename)
+        Quarks::quarks().select{|quark| quark["leptonfilename"] == filename }.first
+    end
+
     # --------------------------------------------------------------
     # Makers
 
