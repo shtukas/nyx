@@ -41,19 +41,31 @@ class NyxFsck
 
         if object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" then
             # Datapoint
-            puts "fsck NGX15: #{datapoint["uuid"]}"
+            puts "fsck NGX15: #{object["uuid"]}"
             return NyxFsck::processNGX15(object)
         end
 
         if object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" then
             # Quark
-            puts "fsck quark: #{quark["uuid"]}"
+            puts "fsck quark: #{object["uuid"]}"
             return NyxFsck::processQuark(object)
         end
 
         if object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111" then
             # Set
             puts "fsck tag: #{object["uuid"]}"
+            return true
+        end
+
+        if object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5" then
+            # OpsNode
+            puts "fsck ops node: #{object["uuid"]}"
+            return true
+        end
+
+        if object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99" then
+            # EncyclopaediaNode
+            puts "fsck encyclopaedia node: #{object["uuid"]}"
             return true
         end
 
