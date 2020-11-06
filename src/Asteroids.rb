@@ -450,13 +450,15 @@ class Asteroids
             return
         end
 
-
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             if Asteroids::isRunning?(asteroid) then
                 Asteroids::stopAsteroidIfRunning(asteroid)
             else
                 Asteroids::startAsteroidIfNotRunning(asteroid)
                 Asteroids::access(asteroid)
+                if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                end
             end
             return
         end
