@@ -452,14 +452,11 @@ class Asteroids
 
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            Asteroids::startAsteroidIfNotRunning(asteroid)
-            Asteroids::access(asteroid)
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
-                if LucilleCore::askQuestionAnswerAsBoolean("-> hide for 60 mins ? ", true) then
-                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-                    return
-                end
+            if Asteroids::isRunning?(asteroid) then
+                Asteroids::stopAsteroidIfRunning(asteroid)
+            else
+                Asteroids::startAsteroidIfNotRunning(asteroid)
+                Asteroids::access(asteroid)
             end
             return
         end
