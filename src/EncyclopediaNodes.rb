@@ -62,14 +62,22 @@ class EncyclopediaNodes
 
             mx = LCoreMenuItemsNX1.new()
 
+            sources = Arrows::getSourcesForTarget(node)
+            puts "" if !sources.empty?
+            sources.each{|source|
+                mx.item(
+                    "source: #{GenericNyxObject::toString(source)}",
+                    lambda { GenericNyxObject::landing(source) }
+                )
+            }
+
             targets = Arrows::getTargetsForSource(node)
-            targets = targets.select{|target| !GenericNyxObject::isTag(target) }
             targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
                 .each{|object|
                     mx.item(
-                        GenericNyxObject::toString(object),
+                        "target: #{GenericNyxObject::toString(object)}",
                         lambda { GenericNyxObject::landing(object) }
                     )
                 }

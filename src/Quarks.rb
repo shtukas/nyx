@@ -188,8 +188,8 @@ class Quarks
 
             puts ""
 
-            source = Arrows::getSourcesForTarget(quark)
-            source.each{|source|
+            sources = Arrows::getSourcesForTarget(quark)
+            sources.each{|source|
                 mx.item(
                     "source: #{GenericNyxObject::toString(source)}",
                     lambda { GenericNyxObject::landing(source) }

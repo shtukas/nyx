@@ -110,8 +110,8 @@ class NGX15
 
             puts ""
 
-            source = Arrows::getSourcesForTarget(datapoint)
-            source.each{|source|
+            sources = Arrows::getSourcesForTarget(datapoint)
+            sources.each{|source|
                 mx.item(
                     "source: #{GenericNyxObject::toString(source)}",
                     lambda { GenericNyxObject::landing(source) }
