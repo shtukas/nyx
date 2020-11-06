@@ -10,7 +10,15 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
-        puts ""
+        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
+        text = IO.read(filepath).strip
+        if text.size > 0 then
+            puts ""
+            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
+            puts File.basename(filepath)
+            puts text
+            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 3)
+        end
 
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
@@ -34,6 +42,7 @@ class CatalystUI
 
         objects1, objects2 = catalystObjects.partition { |object| object["metric"] >= 0.6 }
 
+        puts "" if objects1.size > 0
         objects1
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
@@ -45,17 +54,7 @@ class CatalystUI
                 )
             }
 
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-        text = IO.read(filepath).strip
-        if text.size > 0 then
-            puts ""
-            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-            puts File.basename(filepath)
-            puts text
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 3)
-        end
-
+        puts "" if objects2.size > 0
         objects2
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
