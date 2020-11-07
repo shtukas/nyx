@@ -399,7 +399,7 @@ class Asteroids
                     Arrows::getTargetsForSource(asteroid).each{|target|
                         next if Arrows::getSourcesForTarget(target).size > 1
                         if GenericNyxObject::isNGX15(target) then
-                            status = NGX15::datapointTerminationProtocolReturnBoolean(target)
+                            status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
                             return if !status
                             next
                         end
@@ -682,7 +682,7 @@ class Asteroids
                 next
             end
             if GenericNyxObject::isNGX15(target) then
-                status = NGX15::datapointTerminationProtocolReturnBoolean(target)
+                status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
                 return if !status
                 next
             end

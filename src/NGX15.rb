@@ -37,32 +37,32 @@ class NGX15
         NGX15::issueNGX15(code)
     end
 
-    # NGX15::toString(datapoint)
-    def self.toString(datapoint)
-        if datapoint["description"] then
-            return "[#{datapoint["type"]}] #{datapoint["description"]} ( #{datapoint["ngx15"]} )"
+    # NGX15::toString(ngx15)
+    def self.toString(ngx15)
+        if ngx15["description"] then
+            return "[#{ngx15["type"]}] #{ngx15["description"]} ( #{ngx15["ngx15"]} )"
         end
-        "[#{datapoint["type"]}] #{datapoint["ngx15"]}"
+        "[#{ngx15["type"]}] #{ngx15["ngx15"]}"
     end
 
-    # NGX15::openNGX15(datapoint)
-    def self.openNGX15(datapoint)
-        location = GalaxyFinder::uniqueStringToLocationOrNull(datapoint["ngx15"])
+    # NGX15::openNGX15(ngx15)
+    def self.openNGX15(ngx15)
+        location = GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])
         if location then
             puts "target file '#{location}'"
             system("open '#{File.dirname(location)}'")
             LucilleCore::pressEnterToContinue()
         else
-            puts "I could not determine the location of #{datapoint["ngx15"]}"
+            puts "I could not determine the location of #{ngx15["ngx15"]}"
             LucilleCore::pressEnterToContinue()
         end
     end
 
-    # NGX15::landing(datapoint)
-    def self.landing(datapoint)
+    # NGX15::landing(ngx15)
+    def self.landing(ngx15)
         loop {
 
-            return if NyxObjects2::getOrNull(datapoint["uuid"]).nil?
+            return if NyxObjects2::getOrNull(ngx15["uuid"]).nil?
 
             system("clear")
 
@@ -70,47 +70,60 @@ class NGX15
 
             puts ""
 
-            puts NGX15::toString(datapoint).green
-            puts "uuid: #{datapoint["uuid"]}".yellow
-            puts "date: #{GenericNyxObject::getObjectReferenceDateTime(datapoint)}".yellow
+            puts NGX15::toString(ngx15).green
+            puts "uuid: #{ngx15["uuid"]}".yellow
+            puts "date: #{GenericNyxObject::getObjectReferenceDateTime(ngx15)}".yellow
 
             puts ""
 
             mx.item(
                 "open".yellow,
                 lambda {
-                    NGX15::openNGX15(datapoint)
+                    NGX15::openNGX15(ngx15)
                 }
             )
 
             mx.item("set/update description".yellow, lambda {
-                description = Miscellaneous::editTextSynchronously(datapoint["description"] || "").strip
+                description = Miscellaneous::editTextSynchronously(ngx15["description"] || "").strip
                 return if description == ""
-                datapoint["description"] = description
-                NyxObjects2::put(datapoint)
+                ngx15["description"] = description
+                NyxObjects2::put(ngx15)
             })
 
             mx.item("set/update datetime".yellow, lambda {
-                datetime = Miscellaneous::editTextSynchronously(datapoint["referenceDateTime"] || Time.new.utc.iso8601).strip
-                datapoint["referenceDateTime"] = datetime
-                NyxObjects2::put(datapoint)
+                datetime = Miscellaneous::editTextSynchronously(ngx15["referenceDateTime"] || Time.new.utc.iso8601).strip
+                ngx15["referenceDateTime"] = datetime
+                NyxObjects2::put(ngx15)
             })
 
             mx.item("add to set".yellow, lambda {
                 set = Tags::selectExistingTagOrMakeNewOneOrNull()
                 return if set.nil?
-                Arrows::issueOrException(set, datapoint)
+                Arrows::issueOrException(set, ngx15)
+            })
+
+            mx.item("add to node".yellow, lambda {
+                node = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+                return if node.nil?
+                Arrows::issueOrException(node, ngx15)
+            })
+
+            mx.item("remove from node".yellow, lambda {
+                xnodes = Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "abb20581-f020-43e1-9c37-6c3ef343d2f5") + Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
+                xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
+                return if xnode.nil?
+                Arrows::unlink(xnode, ngx15)
             })
 
             mx.item("destroy".yellow, lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(datapoint)}': ") then
-                    NGX15::datapointTerminationProtocolReturnBoolean(datapoint)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(ngx15)}': ") then
+                    NGX15::ngx15TerminationProtocolReturnBoolean(ngx15)
                 end
             })
 
             puts ""
 
-            sources = Arrows::getSourcesForTarget(datapoint)
+            sources = Arrows::getSourcesForTarget(ngx15)
             sources.each{|source|
                 mx.item(
                     "source: #{GenericNyxObject::toString(source)}",
@@ -120,7 +133,7 @@ class NGX15
 
             puts ""
 
-            Arrows::getTargetsForSource(datapoint).each{|target|
+            Arrows::getTargetsForSource(ngx15).each{|target|
                 menuitems.item(
                     "target: #{GenericNyxObject::toString(target)}",
                     lambda { GenericNyxObject::landing(target) }
@@ -134,25 +147,25 @@ class NGX15
         }
     end
 
-    # NGX15::datapointTerminationProtocolReturnBoolean(datapoint)
-    def self.datapointTerminationProtocolReturnBoolean(datapoint)
+    # NGX15::ngx15TerminationProtocolReturnBoolean(ngx15)
+    def self.ngx15TerminationProtocolReturnBoolean(ngx15)
 
-        puts "Destroying datapoint: #{NGX15::toString(datapoint)}"
+        puts "Destroying ngx15: #{NGX15::toString(ngx15)}"
 
-        location = GalaxyFinder::uniqueStringToLocationOrNull(datapoint["ngx15"])
+        location = GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])
         if location then
             puts "Target file '#{location}'"
             puts "Delete as appropriate"
             system("open '#{File.dirname(location)}'")
             LucilleCore::pressEnterToContinue()
         else
-            puts "I could not determine the location of #{datapoint["ngx15"]}"
-            if !LucilleCore::askQuestionAnswerAsBoolean("Continue with datapoint deletion ? ") then
+            puts "I could not determine the location of #{ngx15["ngx15"]}"
+            if !LucilleCore::askQuestionAnswerAsBoolean("Continue with ngx15 deletion ? ") then
                 return
             end
         end
 
-        NyxObjects2::destroy(datapoint)
+        NyxObjects2::destroy(ngx15)
 
         true
     end

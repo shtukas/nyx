@@ -17,7 +17,7 @@ class XNodes
 
     # XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
     def self.selectExistingXNodeOrMakeANewXNodeOrNull()
-        xnodes = OpsNodes::listings() + EncyclopediaNodes::nodes()
+        xnodes = OpsNodes::nodes() + EncyclopediaNodes::nodes()
         xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
         return xnode if xnode
         puts "You did not select an existing xnode"

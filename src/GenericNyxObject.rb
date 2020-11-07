@@ -137,7 +137,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isTag(object) then
-            Tags::landing(set)
+            Tags::landing(object)
             return
         end
         if GenericNyxObject::isQuark(object) then
@@ -163,7 +163,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isNGX15(object) then
-            NGX15::datapointTerminationProtocolReturnBoolean(object)
+            NGX15::ngx15TerminationProtocolReturnBoolean(object)
             return
         end
         puts object
