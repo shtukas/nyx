@@ -52,15 +52,17 @@ class OpsNodes
 
     # OpsNodes::landing(node)
     def self.landing(node)
-        loop {
-            system("clear")
 
-            return if NyxObjects2::getOrNull(node["uuid"]).nil?
+        mx = LCoreMenuItemsNX2.new()
+
+        lambdaDisplay = lambda {
+
+            node = NyxObjects2::getOrNull(node["uuid"])
+
+            mx.reset()
 
             puts OpsNodes::toString(node).green
             puts "uuid: #{node["uuid"]}".yellow
-
-            mx = LCoreMenuItemsNX1.new()
 
             sources = Arrows::getSourcesForTarget(node)
             puts "" if !sources.empty?
@@ -83,32 +85,56 @@ class OpsNodes
                     )
                 }
 
-            puts ""
-            mx.item("rename".yellow, lambda { 
+        }
+
+        lambdaHelpDisplay = lambda {
+            ""
+        }
+
+        lambdaPromptInterpreter = lambda { |command|
+
+            node = NyxObjects2::getOrNull(node["uuid"])
+
+            if Miscellaneous::isInteger(command) then
+                mx.executeFunctionAtPositionGetValueOrNull(command.to_i)
+                return
+            end
+
+            if command == "rename" then
                 name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
                 node["name"] = name1
                 NyxObjects2::put(node)
                 OpsNodes::removeSetDuplicates()
-            })
-            mx.item("add datapoint".yellow, lambda { 
+                return
+            end
+
+            if command == "add datapoint" then
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
-            })
-            mx.item("json object".yellow, lambda { 
+                return
+            end
+
+            if command == "json object" then
                 puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
-            })
-            mx.item("destroy node".yellow, lambda { 
+                return
+            end
+
+            if command == "destroy node" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops node: '#{OpsNodes::toString(node)}': ") then
                     NyxObjects2::destroy(node)
                 end
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+                return
+            end
         }
+
+        lambdaStillGoing = lambda {
+            !NyxObjects2::getOrNull(node["uuid"]).nil?
+        }
+
+        ProgramNx::Nx01(lambdaDisplay, lambdaHelpDisplay, lambdaPromptInterpreter, lambdaStillGoing)
     end
 
     # OpsNodes::main()

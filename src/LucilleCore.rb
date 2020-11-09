@@ -335,4 +335,31 @@ class LCoreMenuItemsNX1
     end
 end
 
+class LCoreMenuItemsNX2
+
+    def reset()
+        @items = []
+        @position = 0
+    end
+
+    def initialize()
+        reset()
+    end
+
+    def item(description, xlambda)
+        @position = @position + 1
+        @items << {
+            "position" => @position,
+            "lambda"   => xlambda
+        }
+        puts "[#{@position.to_s.rjust(2)}] #{description}"
+    end
+
+    def executeFunctionAtPositionGetValueOrNull(position) # for when the user will be prompting themselves and only call this if an integer, eg: Catalyst UI,
+        item = @items.select{|item| item["position"] == position }.first
+        return if item.nil?
+        item["lambda"].call()
+    end
+end
+
 

@@ -147,6 +147,7 @@ require_relative "NyxObjects.rb"
 require_relative "OpsNodes.rb"
 
 require_relative "ProgrammableBooleans.rb"
+require_relative "ProgramNx.rb"
 
 require_relative "Quarks.rb"
 
