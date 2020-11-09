@@ -45,6 +45,26 @@ class OpsNodes
         OpsNodes::issueListingInteractivelyOrNull()
     end
 
+    # OpsNodes::setTargetOrdinal(node, target, ordinal)
+    def self.setTargetOrdinal(node, target, ordinal)
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}", ordinal)
+    end
+
+    # OpsNodes::getTargetOrdinal(node, target)
+    def self.getTargetOrdinal(node, target)
+        ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}")
+        if ordinal then
+            return ordinal.to_f
+        end
+        ordinals = Arrows::getTargetsForSource(node)
+                    .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{t["uuid"]}") }
+                    .compact
+                    .map{|o| o.to_f }
+        ordinal = ([0] + ordinals).max + 1
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}", ordinal)
+        ordinal
+    end
+
     # OpsNodes::toString(node)
     def self.toString(node)
         "[ops node] #{node["name"]}"
@@ -78,17 +98,23 @@ class OpsNodes
             targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
-                .each{|object|
+                .each{|target|
                     mx.item(
-                        "target: #{GenericNyxObject::toString(object)}",
-                        lambda { GenericNyxObject::landing(object) }
+                        "target ( #{"%6.3f" % OpsNodes::getTargetOrdinal(node, target)} ) #{GenericNyxObject::toString(target)}",
+                        lambda { GenericNyxObject::landing(target) }
                     )
                 }
 
         }
 
         lambdaHelpDisplay = lambda {
-            ""
+            [
+                "-> rename",
+                "-> add datapoint",
+                "-> set target ordinal",
+                "-> json object",
+                "-> destroy node"
+            ].join("\n")
         }
 
         lambdaPromptInterpreter = lambda { |command|
@@ -113,6 +139,14 @@ class OpsNodes
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
+                return
+            end
+
+            if command == "set target ordinal" then
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(node), lambda{|t| GenericNyxObject::toString(t) })
+                return if target.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_i
+                OpsNodes::setTargetOrdinal(node, target, ordinal)
                 return
             end
 

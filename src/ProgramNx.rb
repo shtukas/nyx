@@ -13,7 +13,9 @@ class ProgramNx
             return if !lambdaStillGoing.call()
             system("clear")
             lambdaDisplay.call()
-            puts lambdaHelpDisplay.call().yellow
+            puts ""
+            puts lambdaHelpDisplay.call().strip.yellow
+            puts ""
             userInput = LucilleCore::askQuestionAnswerAsString("-> ")
             break if userInput == ""
             lambdaPromptInterpreter.call(userInput)
