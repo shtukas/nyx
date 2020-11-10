@@ -33,6 +33,10 @@ class DataPortalUI
 
             ms.item("Asteroids", lambda { Asteroids::main() })
 
+            ms.item("Asteroid: daily-time-commitment-e1180643-fc7e-42bb-a2", lambda { 
+                Asteroids::diveAsteroidOrbitalType("daily-time-commitment-e1180643-fc7e-42bb-a2")
+            })
+
             ms.item(
                 "Calendar",
                 lambda { 
