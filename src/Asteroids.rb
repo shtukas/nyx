@@ -185,6 +185,14 @@ class Asteroids
         "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}#{p7}"
     end
 
+    # Asteroids::opsNodesMetadata(asteroid)
+    def self.opsNodesMetadata(asteroid)
+        return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
+        ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
+        return "(#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
+    end
+
     # Asteroids::naturalOrdinalShift(asteroid)
     def self.naturalOrdinalShift(asteroid)
         bounds = JSON.parse(KeyValueStore::getOrNull(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d"))
@@ -254,12 +262,8 @@ class Asteroids
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
             "metric"           => metric,
-            "landing"          => lambda {
-                Asteroids::landing(asteroid)
-            },
-            "nextNaturalStep"  => lambda {
-                Asteroids::naturalNextOperation(asteroid)
-            },
+            "landing"          => lambda { Asteroids::landing(asteroid) },
+            "nextNaturalStep"  => lambda { Asteroids::naturalNextOperation(asteroid) },
             "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
@@ -270,14 +274,15 @@ class Asteroids
 
         object["metric"] = 0 if !targetsOpsNodes.empty?
 
-        secondaryObjects = targetsOpsNodes.map{|target|
-            if GenericNyxObject::isOpsNode(target) then
-                OpsNodes::nodeToCatalystObjects(target, metric, uuid)
-            else
-                []
-            end
-        }
-        .flatten
+        secondaryObjects = targetsOpsNodes
+                                .map{|target|
+                                    if GenericNyxObject::isOpsNode(target) then
+                                        OpsNodes::nodeToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
+                                    else
+                                        []
+                                    end
+                                }
+                                .flatten
 
         [object] + secondaryObjects
     end

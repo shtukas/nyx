@@ -70,8 +70,8 @@ class OpsNodes
         "[ops node] #{node["name"]}"
     end
 
-    # OpsNodes::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId)
-    def self.nodeToCatalystObjects(node, basemetric, asteroidBankAccountId)
+    # OpsNodes::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
+    def self.nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
         counter = -1
         Arrows::getTargetsForSource(node)
             .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
@@ -81,7 +81,7 @@ class OpsNodes
                 counter = counter + 1
                 {
                     "uuid"             => uuid,
-                    "body"             => "[asteroid] 💫 #{OpsNodes::toString(node)} / #{GenericNyxObject::toString(target)}",
+                    "body"             => "#{OpsNodes::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}",
                     "metric"           => basemetric - counter.to_f/100,
                     "landing"          => lambda { GenericNyxObject::landing(target) },
                     "nextNaturalStep"  => lambda { 
