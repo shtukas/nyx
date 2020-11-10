@@ -70,21 +70,37 @@ class OpsNodes
         "[ops node] #{node["name"]}"
     end
 
-    # OpsNodes::nodeToCatalystObjects(node, basemetric)
-    def self.nodeToCatalystObjects(node, basemetric)
+    # OpsNodes::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId)
+    def self.nodeToCatalystObjects(node, basemetric, asteroidBankAccountId)
         counter = -1
         Arrows::getTargetsForSource(node)
             .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
             .map{|target|
+                uuid = "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}"
+                isRunning = Runner::isRunning?(uuid)
                 counter = counter + 1
                 {
-                    "uuid"             => "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}",
+                    "uuid"             => uuid,
                     "body"             => "[asteroid] 💫 #{OpsNodes::toString(node)} / #{GenericNyxObject::toString(target)}",
                     "metric"           => basemetric - counter.to_f/100,
                     "landing"          => lambda { GenericNyxObject::landing(target) },
-                    "nextNaturalStep"  => lambda { GenericNyxObject::landing(target) },
-                    "isRunning"        => false,
-                    "isRunningForLong" => false
+                    "nextNaturalStep"  => lambda { 
+                        if isRunning then
+                            timespan = Runner::stop(uuid)
+                            # We do not put the time in the item's own bank account, we put it into the asteroid's bank account
+                            Bank::put(asteroidBankAccountId, timespan)
+                        else
+                            Runner::start(uuid)
+                            GenericNyxObject::landing(target)
+                            if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ") then
+                                timespan = Runner::stop(uuid)
+                                # We do not put the time in the item's own bank account, we put it into the asteroid's bank account
+                                Bank::put(asteroidBankAccountId, timespan)
+                            end
+                        end
+                    },
+                    "isRunning"        => isRunning,
+                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
                 }
             }
     end

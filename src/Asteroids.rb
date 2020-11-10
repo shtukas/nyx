@@ -272,7 +272,7 @@ class Asteroids
 
         secondaryObjects = targetsOpsNodes.map{|target|
             if GenericNyxObject::isOpsNode(target) then
-                OpsNodes::nodeToCatalystObjects(target, metric)
+                OpsNodes::nodeToCatalystObjects(target, metric, uuid)
             else
                 []
             end
