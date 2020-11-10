@@ -78,7 +78,7 @@ class OpsNodes
             .map{|target|
                 counter = counter + 1
                 {
-                    "uuid"             => "b7185097-dc3e-43cc-b573-676b411e1a44:#{target["uuid"]}",
+                    "uuid"             => "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}",
                     "body"             => "[asteroid] 💫 #{OpsNodes::toString(node)} / #{GenericNyxObject::toString(target)}",
                     "metric"           => basemetric - counter.to_f/100,
 
