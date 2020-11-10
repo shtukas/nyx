@@ -10,8 +10,9 @@ class Asteroids
         [
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
-            "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
             "daily-time-commitment-e1180643-fc7e-42bb-a2",
+            "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
+            "project-2d6ad423-4159-4091-a1c8-c8904996e43",
         ]
     end
 
@@ -39,6 +40,11 @@ class Asteroids
         if orbitalType == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             return {
                 "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+            }
+        end
+        if orbitalType == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
+            return {
+                "type" => "project-2d6ad423-4159-4091-a1c8-c8904996e43"
             }
         end
         raise "ef349b18-55ed-4fdb-abb0-1014f752416a"
@@ -132,6 +138,7 @@ class Asteroids
         return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         return "👩‍💻" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        return "🧘‍♂️" if orbital["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43"
     end
 
     # Asteroids::asteroidDescription(asteroid)
@@ -173,7 +180,9 @@ class Asteroids
             return " (#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
         }).call(asteroid)
 
-        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
+        p7 = " (metric: #{Asteroids::metric(asteroid).round(3)})"
+
+        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}#{p7}"
     end
 
     # Asteroids::naturalOrdinalShift(asteroid)
@@ -205,9 +214,10 @@ class Asteroids
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
-                return 0.65 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
+                return 0.65 - 0.1*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"]
+            else
+                return 0.65 - 0.3*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"]
             end
-            return 0
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
@@ -226,12 +236,16 @@ class Asteroids
             return 0
         end
 
+        if asteroid["orbital"]["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
+            return 0
+        end
+
         puts asteroid
         raise "[Asteroids] error: 46b84bdb"
     end
 
-    # Asteroids::asteroidToCalalystObject(asteroid)
-    def self.asteroidToCalalystObject(asteroid)
+    # Asteroids::asteroidToCalalystObjects(asteroid)
+    def self.asteroidToCalalystObjects(asteroid)
         executor = lambda { |command|
             if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
                 Asteroids::naturalNextOperation(asteroid) 
@@ -244,15 +258,29 @@ class Asteroids
         uuid = asteroid["uuid"]
         isRunning = Asteroids::isRunning?(asteroid)
 
-        {
+        metric = Asteroids::metric(asteroid)
+
+        object = {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
-            "metric"           => Asteroids::metric(asteroid),
+            "metric"           => metric,
             "execute"          => executor,
             "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
         }
+
+        objects = Arrows::getTargetsForSource(asteroid).map{|target|
+            if GenericNyxObject::isOpsNode(target) then
+                object["metric"] = object["metric"] - 0.01
+                OpsNodes::nodeToCatalystObjects(target, metric)
+            else
+                []
+            end
+        }
+        .flatten
+
+        [object] + objects
     end
 
     # Asteroids::catalystObjects()
@@ -301,16 +329,18 @@ class Asteroids
                         }
 
         catalystObjects = asteroids
-                            .map{|asteroid| Asteroids::asteroidToCalalystObject(asteroid) }
+                            .map{|asteroid| Asteroids::asteroidToCalalystObjects(asteroid) }
+                            .flatten
                             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                             .reverse
 
         # Removing any first asteroid with no target
         if catalystObjects.size > 0 then
-            asteroid = catalystObjects[0]["x-asteroid"]
-            if Arrows::getTargetsForSource(asteroid).size == 0 then
-                NyxObjects2::destroy(asteroid)
-                return Asteroids::catalystObjects()
+            if asteroid = catalystObjects[0]["x-asteroid"] then
+                if Arrows::getTargetsForSource(asteroid).size == 0 then
+                    NyxObjects2::destroy(asteroid)
+                    return Asteroids::catalystObjects()
+                end
             end
         end
 

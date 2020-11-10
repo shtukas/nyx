@@ -52,7 +52,9 @@ class CatalystObjectsOperator
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
 
-        SpecialUIListingOrder::applySpecialOrder(objects)
+        # SpecialUIListingOrder::applySpecialOrder(objects)
+
+        objects
     end
 
     # CatalystObjectsOperator::generationSpeedReport()

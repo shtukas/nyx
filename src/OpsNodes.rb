@@ -70,6 +70,33 @@ class OpsNodes
         "[ops node] #{node["name"]}"
     end
 
+    # OpsNodes::nodeToCatalystObjects(node, basemetric)
+    def self.nodeToCatalystObjects(node, basemetric)
+        counter = -1
+        Arrows::getTargetsForSource(node)
+            .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
+            .map{|target|
+                counter = counter + 1
+                {
+                    "uuid"             => "b7185097-dc3e-43cc-b573-676b411e1a44:#{target["uuid"]}",
+                    "body"             => "[asteroid] 💫 #{OpsNodes::toString(node)} / #{GenericNyxObject::toString(target)}",
+                    "metric"           => basemetric - counter.to_f/100,
+
+                    "execute"          => lambda { |command|
+                        if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
+                            GenericNyxObject::landing(target)
+                        end
+                        if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
+                            GenericNyxObject::landing(target)
+                        end
+                    },
+
+                    "isRunning"        => false,
+                    "isRunningForLong" => false
+                }
+            }
+    end
+
     # OpsNodes::landing(node)
     def self.landing(node)
 
