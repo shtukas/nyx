@@ -94,8 +94,7 @@ class OpsNodes
             }
 
             targets = Arrows::getTargetsForSource(node)
-            targets = targets.select{|target| !GenericNyxObject::isTag(target) }
-            targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
+            targets = targets.sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
             puts "" if !targets.empty?
             targets
                 .each{|target|
@@ -110,7 +109,7 @@ class OpsNodes
         lambdaHelpDisplay = lambda {
             [
                 "-> rename",
-                "-> add datapoint",
+                "-> insert datapoint at ordinal",
                 "-> set target ordinal",
                 "-> json object",
                 "-> destroy node"
@@ -135,10 +134,13 @@ class OpsNodes
                 return
             end
 
-            if command == "add datapoint" then
+            if command == "insert datapoint at ordinal" then
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                OpsNodes::setTargetOrdinal(node, datapoint, ordinal)
                 return
             end
 

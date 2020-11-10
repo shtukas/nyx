@@ -18,13 +18,13 @@ class GenericNyxObject
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
-    # GenericNyxObject::isOpsListing(object)
-    def self.isOpsListing(object)
+    # GenericNyxObject::isOpsNode(object)
+    def self.isOpsNode(object)
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
     end
 
-    # GenericNyxObject::isKnowledgeNode(object)
-    def self.isKnowledgeNode(object)
+    # GenericNyxObject::isEncyclopediaNode(object)
+    def self.isEncyclopediaNode(object)
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
     end
 
@@ -47,10 +47,10 @@ class GenericNyxObject
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
         end
-        if GenericNyxObject::isOpsListing(object) then
+        if GenericNyxObject::isOpsNode(object) then
             return OpsNodes::toString(object)
         end
-        if GenericNyxObject::isKnowledgeNode(object) then
+        if GenericNyxObject::isEncyclopediaNode(object) then
             return EncyclopediaNodes::toString(object)
         end
         puts object
@@ -114,11 +114,11 @@ class GenericNyxObject
             Quarks::access(object)
             return
         end
-        if GenericNyxObject::isOpsListing(object) then
+        if GenericNyxObject::isOpsNode(object) then
             OpsNodes::landing(object)
             return 
         end
-        if GenericNyxObject::isKnowledgeNode(object) then
+        if GenericNyxObject::isEncyclopediaNode(object) then
             EncyclopediaNodes::landing(object)
             return
         end
@@ -144,11 +144,11 @@ class GenericNyxObject
             Quarks::landing(object)
             return
         end
-        if GenericNyxObject::isOpsListing(object) then
+        if GenericNyxObject::isOpsNode(object) then
             OpsNodes::landing(object)
             return
         end
-        if GenericNyxObject::isKnowledgeNode(object) then
+        if GenericNyxObject::isEncyclopediaNode(object) then
             EncyclopediaNodes::landing(object)
             return
         end
