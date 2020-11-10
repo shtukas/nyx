@@ -165,14 +165,8 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
-        object["execute"] = lambda { |command| 
-            if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
-                Waves::openAndRunProcedure(wave)
-            end
-            if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
-                Waves::waveDive(wave)
-            end
-        }
+        object["landing"] = lambda { |command| Waves::waveDive(wave) }
+        object["nextNaturalStep"] = lambda { Waves::openAndRunProcedure(wave) }
         object['schedule'] = schedule
         object["x-wave"] = wave
         object

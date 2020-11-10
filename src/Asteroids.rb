@@ -245,15 +245,6 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObjects(asteroid)
     def self.asteroidToCalalystObjects(asteroid)
-        executor = lambda { |command|
-            if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
-                Asteroids::naturalNextOperation(asteroid) 
-            end
-            if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
-                Asteroids::landing(asteroid) 
-            end
-        }
-
         uuid = asteroid["uuid"]
         isRunning = Asteroids::isRunning?(asteroid)
 
@@ -263,7 +254,12 @@ class Asteroids
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
             "metric"           => metric,
-            "execute"          => executor,
+            "landing"          => lambda {
+                Asteroids::landing(asteroid)
+            },
+            "nextNaturalStep"  => lambda {
+                Asteroids::naturalNextOperation(asteroid)
+            },
             "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,

@@ -81,16 +81,8 @@ class OpsNodes
                     "uuid"             => "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}",
                     "body"             => "[asteroid] 💫 #{OpsNodes::toString(node)} / #{GenericNyxObject::toString(target)}",
                     "metric"           => basemetric - counter.to_f/100,
-
-                    "execute"          => lambda { |command|
-                        if command == "c2c799b1-bcb9-4963-98d5-494a5a76e2e6" then
-                            GenericNyxObject::landing(target)
-                        end
-                        if command == "ec23a3a3-bfa0-45db-a162-fdd92da87f64" then
-                            GenericNyxObject::landing(target)
-                        end
-                    },
-
+                    "landing"          => lambda { GenericNyxObject::landing(target) },
+                    "nextNaturalStep"  => lambda { GenericNyxObject::landing(target) },
                     "isRunning"        => false,
                     "isRunningForLong" => false
                 }
