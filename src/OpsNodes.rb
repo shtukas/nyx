@@ -97,6 +97,12 @@ class OpsNodes
             }
     end
 
+    # OpsNodes::getNodeTargetsInOrdinalOrder(node)
+    def self.getNodeTargetsInOrdinalOrder(node)
+        Arrows::getTargetsForSource(node)
+            .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
+    end
+
     # OpsNodes::landing(node)
     def self.landing(node)
 
@@ -120,8 +126,7 @@ class OpsNodes
                 )
             }
 
-            targets = Arrows::getTargetsForSource(node)
-            targets = targets.sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
+            targets = OpsNodes::getNodeTargetsInOrdinalOrder(node)
             puts "" if !targets.empty?
             targets
                 .each{|target|
@@ -172,9 +177,9 @@ class OpsNodes
             end
 
             if command == "set target ordinal" then
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(node), lambda{|t| GenericNyxObject::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OpsNodes::getNodeTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_i
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OpsNodes::setTargetOrdinal(node, target, ordinal)
                 return
             end

@@ -215,9 +215,8 @@ class Asteroids
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
                 return 0.65 - 0.1*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"]
-            else
-                return 0.65 - 0.3*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"]
             end
+            return 0
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
@@ -270,9 +269,13 @@ class Asteroids
             "x-asteroid"       => asteroid,
         }
 
-        objects = Arrows::getTargetsForSource(asteroid).map{|target|
+        targetsOpsNodes = Arrows::getTargetsForSource(asteroid)
+                              .select{|target| GenericNyxObject::isOpsNode(target) }
+
+        object["metric"] = 0 if !targetsOpsNodes.empty?
+
+        secondaryObjects = targetsOpsNodes.map{|target|
             if GenericNyxObject::isOpsNode(target) then
-                object["metric"] = object["metric"] - 0.01
                 OpsNodes::nodeToCatalystObjects(target, metric)
             else
                 []
@@ -280,7 +283,7 @@ class Asteroids
         }
         .flatten
 
-        [object] + objects
+        [object] + secondaryObjects
     end
 
     # Asteroids::catalystObjects()
