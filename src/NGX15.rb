@@ -96,19 +96,19 @@ class NGX15
                 NyxObjects2::put(ngx15)
             })
 
-            mx.item("add to set".yellow, lambda {
+            mx.item("add tag".yellow, lambda {
                 set = Tags::selectExistingTagOrMakeNewOneOrNull()
                 return if set.nil?
                 Arrows::issueOrException(set, ngx15)
             })
 
-            mx.item("add to node".yellow, lambda {
+            mx.item("add to xnode".yellow, lambda {
                 node = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
                 return if node.nil?
                 Arrows::issueOrException(node, ngx15)
             })
 
-            mx.item("remove from node".yellow, lambda {
+            mx.item("unlist from xnode".yellow, lambda {
                 xnodes = Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "abb20581-f020-43e1-9c37-6c3ef343d2f5") + Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
                 xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
                 return if xnode.nil?
