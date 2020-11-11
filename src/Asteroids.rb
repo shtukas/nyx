@@ -265,7 +265,7 @@ class Asteroids
         object = {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
-            "metric"           => targetsOpsNodes.empty? ? metric : 0,
+            "metric"           => (!isRunning and !targetsOpsNodes.empty?) ? 0 : metric,
             "landing"          => lambda { Asteroids::landing(asteroid) },
             "nextNaturalStep"  => lambda { Asteroids::naturalNextOperation(asteroid) },
             "isRunning"        => isRunning,
