@@ -165,7 +165,7 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
-        object["landing"] = lambda { |command| Waves::waveDive(wave) }
+        object["landing"] = lambda { Waves::waveDive(wave) }
         object["nextNaturalStep"] = lambda { Waves::openAndRunProcedure(wave) }
         object['schedule'] = schedule
         object["x-wave"] = wave
