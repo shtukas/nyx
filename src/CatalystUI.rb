@@ -40,22 +40,8 @@ class CatalystUI
                 }
         end
 
-        objects1, objects2 = catalystObjects.partition { |object| object["metric"] >= 0.6 }
-
-        puts "" if objects1.size > 0
-        objects1
-            .each{|object|
-                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                menuitems.item(
-                    str,
-                    lambda { object["landing"].call() }
-                )
-            }
-
-        puts "" if objects2.size > 0
-        objects2
+        puts "" if catalystObjects.size > 0
+        catalystObjects
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
