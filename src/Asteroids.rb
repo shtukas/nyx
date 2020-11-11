@@ -256,23 +256,22 @@ class Asteroids
         uuid = asteroid["uuid"]
         isRunning = Asteroids::isRunning?(asteroid)
 
+        targetsOpsNodes = Arrows::getTargetsForSource(asteroid)
+                              .select{|target| GenericNyxObject::isOpsNode(target) }
+
         metric = Asteroids::metric(asteroid)
+        metric = 1 if isRunning
 
         object = {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
-            "metric"           => metric,
+            "metric"           => targetsOpsNodes.empty? ? metric : 0,
             "landing"          => lambda { Asteroids::landing(asteroid) },
             "nextNaturalStep"  => lambda { Asteroids::naturalNextOperation(asteroid) },
             "isRunning"        => isRunning,
             "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
             "x-asteroid"       => asteroid,
         }
-
-        targetsOpsNodes = Arrows::getTargetsForSource(asteroid)
-                              .select{|target| GenericNyxObject::isOpsNode(target) }
-
-        object["metric"] = 0 if !targetsOpsNodes.empty?
 
         secondaryObjects = targetsOpsNodes
                                 .map{|target|
