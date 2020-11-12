@@ -51,7 +51,7 @@ class GenericNyxObject
             return OperationalListings::toString(object)
         end
         if GenericNyxObject::isEncyclopediaNode(object) then
-            return EncyclopediaNodes::toString(object)
+            return EncyclopediaListings::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -119,7 +119,7 @@ class GenericNyxObject
             return 
         end
         if GenericNyxObject::isEncyclopediaNode(object) then
-            EncyclopediaNodes::landing(object)
+            EncyclopediaListings::landing(object)
             return
         end
         puts object
@@ -149,7 +149,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isEncyclopediaNode(object) then
-            EncyclopediaNodes::landing(object)
+            EncyclopediaListings::landing(object)
             return
         end
         puts object

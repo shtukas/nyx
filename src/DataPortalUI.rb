@@ -25,7 +25,7 @@ class DataPortalUI
 
             ms.item("OperationalListings",lambda { OperationalListings::main() })
 
-            ms.item("EncyclopediaNodes",lambda { EncyclopediaNodes::main() })
+            ms.item("EncyclopediaListings",lambda { EncyclopediaListings::main() })
 
             puts ""
 

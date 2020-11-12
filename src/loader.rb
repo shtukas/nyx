@@ -132,7 +132,7 @@ require_relative "EstateServices.rb"
 require_relative "GeneralSearch.rb"
 require_relative "GenericNyxObject.rb"
 
-require_relative "EncyclopediaNodes.rb"
+require_relative "EncyclopediaListings.rb"
 
 require_relative "Leptons.rb"
 require_relative "Listings.rb"

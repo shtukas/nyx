@@ -60,7 +60,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForEncyclopediaNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaNodes::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaListings::toString(node).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
@@ -208,18 +208,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildEncyclopediaNodesLookup(verbose)
-    def self.rebuildEncyclopediaNodesLookup(verbose)
+    # SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
+    def self.rebuildEncyclopediaListingsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["encyclopedianode"]
 
-        EncyclopediaNodes::nodes()
+        EncyclopediaListings::nodes()
             .each{|node|
                 if verbose then
-                    puts "encyclopedia node: #{node["uuid"]} , #{EncyclopediaNodes::toString(node)}"
+                    puts "encyclopedia node: #{node["uuid"]} , #{EncyclopediaListings::toString(node)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], EncyclopediaNodes::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], EncyclopediaListings::toString(node))
             }
 
         db.close
@@ -269,7 +269,7 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
-        SelectionLookupDataset::rebuildEncyclopediaNodesLookup(verbose)
+        SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
@@ -312,8 +312,8 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToEncyclopediaNodes(pattern)
-    def self.patternToEncyclopediaNodes(pattern)
+    # SelectionLookupDataset::patternToEncyclopediaListings(pattern)
+    def self.patternToEncyclopediaListings(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "encyclopedianode" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }

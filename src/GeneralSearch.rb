@@ -53,12 +53,12 @@ class GeneralSearch
 
     # GeneralSearch::searchNx1630EncyclopediaNode(pattern)
     def self.searchNx1630EncyclopediaNode(pattern)
-        SelectionLookupDataset::patternToEncyclopediaNodes(pattern)
+        SelectionLookupDataset::patternToEncyclopediaListings(pattern)
             .map{|node|
                 {
-                    "description"   => EncyclopediaNodes::toString(node),
+                    "description"   => EncyclopediaListings::toString(node),
                     "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(node)).to_time.to_f,
-                    "dive"          => lambda{ EncyclopediaNodes::landing(node) }
+                    "dive"          => lambda{ EncyclopediaListings::landing(node) }
                 }
             }
     end
