@@ -256,7 +256,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         isRunning = Asteroids::isRunning?(asteroid)
 
-        targetsOpsNodes = Arrows::getTargetsForSource(asteroid)
+        targetsOperationalListings = Arrows::getTargetsForSource(asteroid)
                               .select{|target| GenericNyxObject::isOpsNode(target) }
 
         metric = Asteroids::metric(asteroid)
@@ -265,7 +265,7 @@ class Asteroids
         object = {
             "uuid"             => uuid,
             "body"             => Asteroids::toString(asteroid),
-            "metric"           => (!isRunning and !targetsOpsNodes.empty?) ? 0 : metric,
+            "metric"           => (!isRunning and !targetsOperationalListings.empty?) ? 0 : metric,
             "landing"          => lambda { Asteroids::landing(asteroid) },
             "nextNaturalStep"  => lambda { Asteroids::naturalNextOperation(asteroid) },
             "isRunning"        => isRunning,
@@ -273,10 +273,10 @@ class Asteroids
             "x-asteroid"       => asteroid,
         }
 
-        secondaryObjects = targetsOpsNodes
+        secondaryObjects = targetsOperationalListings
                                 .map{|target|
                                     if GenericNyxObject::isOpsNode(target) then
-                                        OpsNodes::nodeToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
+                                        OperationalListings::nodeToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
                                     else
                                         []
                                     end

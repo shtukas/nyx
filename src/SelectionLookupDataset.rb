@@ -53,7 +53,7 @@ class SelectionLookupDatabaseIO
     def self.updateLookupForOpsNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OpsNodes::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OperationalListings::toString(node).downcase)
     end
 
     # SelectionLookupDatabaseIO::updateLookupForEncyclopediaNode(node)
@@ -191,18 +191,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildOpsNodesLookup(verbose)
-    def self.rebuildOpsNodesLookup(verbose)
+    # SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
+    def self.rebuildOperationalListingsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["opsnode"]
 
-        OpsNodes::nodes()
+        OperationalListings::nodes()
             .each{|node|
                 if verbose then
-                    puts "ops node: #{node["uuid"]} , #{OpsNodes::toString(node)}"
+                    puts "ops node: #{node["uuid"]} , #{OperationalListings::toString(node)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], OpsNodes::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], OperationalListings::toString(node))
             }
 
         db.close
@@ -268,7 +268,7 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
-        SelectionLookupDataset::rebuildOpsNodesLookup(verbose)
+        SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
         SelectionLookupDataset::rebuildEncyclopediaNodesLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
@@ -303,8 +303,8 @@ class SelectionLookupDataset
             .compact
     end
 
-    # SelectionLookupDataset::patternToOpsNodes(pattern)
-    def self.patternToOpsNodes(pattern)
+    # SelectionLookupDataset::patternToOperationalListings(pattern)
+    def self.patternToOperationalListings(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
             .select{|record| record["objecttype"] == "opsnode" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }

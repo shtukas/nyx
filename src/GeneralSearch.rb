@@ -41,12 +41,12 @@ class GeneralSearch
 
     # GeneralSearch::searchNx1630OpsNode(pattern)
     def self.searchNx1630OpsNode(pattern)
-        SelectionLookupDataset::patternToOpsNodes(pattern)
+        SelectionLookupDataset::patternToOperationalListings(pattern)
             .map{|node|
                 {
-                    "description"   => OpsNodes::toString(node),
+                    "description"   => OperationalListings::toString(node),
                     "referencetime" => DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(node)).to_time.to_f,
-                    "dive"          => lambda{ OpsNodes::landing(node) }
+                    "dive"          => lambda{ OperationalListings::landing(node) }
                 }
             }
     end

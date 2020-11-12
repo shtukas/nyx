@@ -23,7 +23,7 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("OpsNodes",lambda { OpsNodes::main() })
+            ms.item("OperationalListings",lambda { OperationalListings::main() })
 
             ms.item("EncyclopediaNodes",lambda { EncyclopediaNodes::main() })
 
@@ -36,7 +36,7 @@ class DataPortalUI
             ms.item("[ops node] Pascal Guardian Work", lambda { 
                 uuid = "0a9ef4e7c31439c9e66a324c75f7beb2"
                 node = NyxObjects2::getOrNull(uuid)
-                OpsNodes::landing(node)
+                OperationalListings::landing(node)
             })
 
             ms.item(

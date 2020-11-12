@@ -48,7 +48,7 @@ class GenericNyxObject
             return Quarks::toString(object)
         end
         if GenericNyxObject::isOpsNode(object) then
-            return OpsNodes::toString(object)
+            return OperationalListings::toString(object)
         end
         if GenericNyxObject::isEncyclopediaNode(object) then
             return EncyclopediaNodes::toString(object)
@@ -115,7 +115,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isOpsNode(object) then
-            OpsNodes::landing(object)
+            OperationalListings::landing(object)
             return 
         end
         if GenericNyxObject::isEncyclopediaNode(object) then
@@ -145,7 +145,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isOpsNode(object) then
-            OpsNodes::landing(object)
+            OperationalListings::landing(object)
             return
         end
         if GenericNyxObject::isEncyclopediaNode(object) then

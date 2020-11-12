@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class OpsNodes
+class OperationalListings
 
-    # OpsNodes::nodes()
+    # OperationalListings::nodes()
     def self.nodes()
         NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
     end
 
-    # OpsNodes::make(name1)
+    # OperationalListings::make(name1)
     def self.make(name1)
         {
             "uuid"     => SecureRandom.hex,
@@ -18,39 +18,39 @@ class OpsNodes
         }
     end
 
-    # OpsNodes::issue(name1)
+    # OperationalListings::issue(name1)
     def self.issue(name1)
-        node = OpsNodes::make(name1)
+        node = OperationalListings::make(name1)
         NyxObjects2::put(node)
         node
     end
 
-    # OpsNodes::issueListingInteractivelyOrNull()
+    # OperationalListings::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("ops node name: ")
         return nil if name1 == ""
-        OpsNodes::issue(name1)
+        OperationalListings::issue(name1)
     end
 
-    # OpsNodes::selectOneExistingListingOrNull()
+    # OperationalListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OpsNodes::nodes(), lambda{|node| OpsNodes::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OperationalListings::nodes(), lambda{|node| OperationalListings::toString(node) })
     end
 
-    # OpsNodes::selectOneExistingOrNewListingOrNull()
+    # OperationalListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        node = OpsNodes::selectOneExistingListingOrNull()
+        node = OperationalListings::selectOneExistingListingOrNull()
         return node if node
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no ops node selected, create a new one ? ")
-        OpsNodes::issueListingInteractivelyOrNull()
+        OperationalListings::issueListingInteractivelyOrNull()
     end
 
-    # OpsNodes::setTargetOrdinal(node, target, ordinal)
+    # OperationalListings::setTargetOrdinal(node, target, ordinal)
     def self.setTargetOrdinal(node, target, ordinal)
         KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}", ordinal)
     end
 
-    # OpsNodes::getTargetOrdinal(node, target)
+    # OperationalListings::getTargetOrdinal(node, target)
     def self.getTargetOrdinal(node, target)
         ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}")
         if ordinal then
@@ -65,23 +65,23 @@ class OpsNodes
         ordinal
     end
 
-    # OpsNodes::toString(node)
+    # OperationalListings::toString(node)
     def self.toString(node)
         "[ops node] #{node["name"]}"
     end
 
-    # OpsNodes::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
+    # OperationalListings::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
     def self.nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
         counter = -1
         Arrows::getTargetsForSource(node)
-            .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
+            .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
             .map{|target|
                 uuid = "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}"
                 isRunning = Runner::isRunning?(uuid)
                 counter = counter + 1
                 {
                     "uuid"             => uuid,
-                    "body"             => "#{OpsNodes::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}",
+                    "body"             => "#{OperationalListings::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}",
                     "metric"           => basemetric - counter.to_f/100,
                     "landing"          => lambda { GenericNyxObject::landing(target) },
                     "nextNaturalStep"  => lambda { 
@@ -105,13 +105,13 @@ class OpsNodes
             }
     end
 
-    # OpsNodes::getNodeTargetsInOrdinalOrder(node)
+    # OperationalListings::getNodeTargetsInOrdinalOrder(node)
     def self.getNodeTargetsInOrdinalOrder(node)
         Arrows::getTargetsForSource(node)
-            .sort{|t1, t2| OpsNodes::getTargetOrdinal(node, t1) <=> OpsNodes::getTargetOrdinal(node, t2) }
+            .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
     end
 
-    # OpsNodes::landing(node)
+    # OperationalListings::landing(node)
     def self.landing(node)
 
         mx = LCoreMenuItemsNX2.new()
@@ -122,7 +122,7 @@ class OpsNodes
 
             mx.reset()
 
-            puts OpsNodes::toString(node).green
+            puts OperationalListings::toString(node).green
             puts "uuid: #{node["uuid"]}".yellow
 
             sources = Arrows::getSourcesForTarget(node)
@@ -134,12 +134,12 @@ class OpsNodes
                 )
             }
 
-            targets = OpsNodes::getNodeTargetsInOrdinalOrder(node)
+            targets = OperationalListings::getNodeTargetsInOrdinalOrder(node)
             puts "" if !targets.empty?
             targets
                 .each{|target|
                     mx.item(
-                        "target ( #{"%6.3f" % OpsNodes::getTargetOrdinal(node, target)} ) #{GenericNyxObject::toString(target)}",
+                        "target ( #{"%6.3f" % OperationalListings::getTargetOrdinal(node, target)} ) #{GenericNyxObject::toString(target)}",
                         lambda { GenericNyxObject::landing(target) }
                     )
                 }
@@ -170,7 +170,7 @@ class OpsNodes
                 return if name1 == ""
                 node["name"] = name1
                 NyxObjects2::put(node)
-                OpsNodes::removeSetDuplicates()
+                OperationalListings::removeSetDuplicates()
                 return
             end
 
@@ -180,15 +180,15 @@ class OpsNodes
                 Arrows::issueOrException(node, datapoint)
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                OpsNodes::setTargetOrdinal(node, datapoint, ordinal)
+                OperationalListings::setTargetOrdinal(node, datapoint, ordinal)
                 return
             end
 
             if command == "set target ordinal" then
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OpsNodes::getNodeTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getNodeTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                OpsNodes::setTargetOrdinal(node, target, ordinal)
+                OperationalListings::setTargetOrdinal(node, target, ordinal)
                 return
             end
 
@@ -199,7 +199,7 @@ class OpsNodes
             end
 
             if command == "destroy node" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops node: '#{OpsNodes::toString(node)}': ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops node: '#{OperationalListings::toString(node)}': ") then
                     NyxObjects2::destroy(node)
                 end
                 return
@@ -213,7 +213,7 @@ class OpsNodes
         ProgramNx::Nx01(lambdaDisplay, lambdaHelpDisplay, lambdaPromptInterpreter, lambdaStillGoing)
     end
 
-    # OpsNodes::main()
+    # OperationalListings::main()
     def self.main()
         loop {
             system("clear")
@@ -221,14 +221,14 @@ class OpsNodes
 
             ms.item("ops nodes dive",lambda { 
                 loop {
-                    nodes = OpsNodes::nodes()
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OpsNodes::toString(node) })
+                    nodes = OperationalListings::nodes()
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OperationalListings::toString(node) })
                     return if node.nil?
-                    OpsNodes::landing(node)
+                    OperationalListings::landing(node)
                 }
             })
 
-            ms.item("make new ops node",lambda { OpsNodes::issueListingInteractivelyOrNull() })
+            ms.item("make new ops node",lambda { OperationalListings::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status
