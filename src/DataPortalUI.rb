@@ -51,14 +51,16 @@ class DataPortalUI
             ms.item("new datapoint", lambda {
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
-                if description.size > 0 then
-                    if GenericNyxObject::isQuark(object) then
-                        Quarks::setDescription(object)
-                    end
-                    if GenericNyxObject::isNGX15(object) then
-                        datapoint["description"] = description
-                        NyxObjects2::put(datapoint)
+                if !(GenericNyxObject::isQuark(datapoint) and Quarks::getTypeOrNull(datapoint) == "line") then
+                    description = LucilleCore::askQuestionAnswerAsString("datapoint description ? (empty for null) : ")
+                    if description.size > 0 then
+                        if GenericNyxObject::isQuark(object) then
+                            Quarks::setDescription(object)
+                        end
+                        if GenericNyxObject::isNGX15(object) then
+                            datapoint["description"] = description
+                            NyxObjects2::put(datapoint)
+                        end
                     end
                 end
                 NGX15::landing(node)

@@ -8,6 +8,8 @@ class Quarks
         NyxObjects2::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
     end
 
+    # --------------------------------------------------
+
     # Quarks::issueLine(line)
     def self.issueLine(line)
         # We need to create the quark and the lepton (in the opposite order)
@@ -84,6 +86,8 @@ class Quarks
         nil
     end
 
+    # --------------------------------------------------
+
     # Quarks::setDescription(quark)
     def self.setDescription(quark)
         filename = object["leptonfilename"]
@@ -98,6 +102,15 @@ class Quarks
         description = LeptonsFunctions::getDescription(leptonFilepath)
         "[quark] #{description}"
     end
+
+    # Quarks::getTypeOrNull(quark)
+    def self.getTypeOrNull(quark)
+        filename = quark["leptonfilename"]
+        filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
+        LeptonsFunctions::getTypeOrNull(filepath)
+    end
+
+    # --------------------------------------------------
 
     # Quarks::access(quark)
     def self.access(quark)
