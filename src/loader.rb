@@ -135,8 +135,8 @@ require_relative "GenericNyxObject.rb"
 require_relative "EncyclopediaNodes.rb"
 
 require_relative "Leptons.rb"
+require_relative "Listings.rb"
 require_relative "LucilleCore.rb"
-
 
 require_relative "NGX15.rb"
 
@@ -169,7 +169,7 @@ require_relative "VideoStream.rb"
 
 require_relative "Waves.rb"
 
-require_relative "XNodes.rb"
+
 
 # ------------------------------------------------------------
 

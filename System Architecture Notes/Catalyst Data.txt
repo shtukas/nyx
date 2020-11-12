@@ -12,6 +12,6 @@ We have a system of
 
 for classification and search.
 
-We refer to OpsNodes and EncyclopediaNodes as collectively as XNodes.
+We refer to OpsNodes and EncyclopediaNodes as collectively as Listings.
 
 Asteroids and Waves are used to drive the main todo priority list. 

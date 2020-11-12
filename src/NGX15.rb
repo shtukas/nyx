@@ -103,7 +103,7 @@ class NGX15
             })
 
             mx.item("add to xnode".yellow, lambda {
-                node = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+                node = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
                 return if node.nil?
                 Arrows::issueOrException(node, ngx15)
             })

@@ -451,7 +451,7 @@ class Asteroids
                 "move targets ; destroy asteroid".yellow,
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
-                        xnode = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+                        xnode = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
                         return if xnode.nil?
                         Arrows::issueOrException(xnode, target)
                         Arrows::unlink(asteroid, target)
@@ -505,7 +505,7 @@ class Asteroids
     def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
         Arrows::getTargetsForSource(asteroid).each{|target|
             puts "Moving target: #{GenericNyxObject::toString(target)}"
-            xnode = XNodes::selectExistingXNodeOrMakeANewXNodeOrNull()
+            xnode = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
             next if xnode.nil?
             Arrows::issueOrException(xnode, target)
             Arrows::unlink(asteroid, target)
