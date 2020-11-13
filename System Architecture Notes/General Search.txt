@@ -1,9 +1,0 @@
-
-General Search queries all over the place for Nx1630 objects
-
-Nx1630 {
-    "description"   : String
-    "referencetime" : Float    # Used to order the items at display
-    "dive"          : Lambda
-}
-

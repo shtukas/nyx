@@ -196,7 +196,7 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["opsnode"]
 
-        OperationalListings::nodes()
+        OperationalListings::listings()
             .each{|node|
                 if verbose then
                     puts "ops node: #{node["uuid"]} , #{OperationalListings::toString(node)}"
@@ -213,7 +213,7 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["encyclopedianode"]
 
-        EncyclopediaListings::nodes()
+        EncyclopediaListings::listings()
             .each{|node|
                 if verbose then
                     puts "encyclopedia node: #{node["uuid"]} , #{EncyclopediaListings::toString(node)}"
@@ -276,66 +276,14 @@ class SelectionLookupDataset
 
     # ---------------------------------------------------------
 
-    # SelectionLookupDataset::patternToNGX15s(pattern)
-    def self.patternToNGX15s(pattern)
+    # SelectionLookupDataset::patternToRecords(pattern)
+    def self.patternToRecords(pattern)
         SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "ngx15" }
             .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToQuarks(pattern)
-    def self.patternToQuarks(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "quark" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToTags(pattern)
-    def self.patternToTags(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "tag" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToOperationalListings(pattern)
-    def self.patternToOperationalListings(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "opsnode" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToEncyclopediaListings(pattern)
-    def self.patternToEncyclopediaListings(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "encyclopedianode" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToAsteroids(pattern)
-    def self.patternToAsteroids(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "asteroid" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
-    end
-
-    # SelectionLookupDataset::patternToWaves(pattern)
-    def self.patternToWaves(pattern)
-        SelectionLookupDatabaseIO::getDatabaseRecords()
-            .select{|record| record["objecttype"] == "wave" }
-            .select{|record| record["fragment"].downcase.include?(pattern.downcase) }
-            .map{|record| NyxObjects2::getOrNull(record["objectuuid"]) }
-            .compact
+        #{
+        #    "objecttype"
+        #    "objectuuid"
+        #    "fragment"
+        #}
     end
 end

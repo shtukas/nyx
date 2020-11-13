@@ -3,8 +3,8 @@
 
 class OperationalListings
 
-    # OperationalListings::nodes()
-    def self.nodes()
+    # OperationalListings::listings()
+    def self.listings()
         NyxObjects2::getSet("abb20581-f020-43e1-9c37-6c3ef343d2f5")
     end
 
@@ -34,7 +34,7 @@ class OperationalListings
 
     # OperationalListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OperationalListings::nodes(), lambda{|node| OperationalListings::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OperationalListings::listings(), lambda{|node| OperationalListings::toString(node) })
     end
 
     # OperationalListings::selectOneExistingOrNewListingOrNull()
@@ -70,8 +70,8 @@ class OperationalListings
         "[ops node] #{node["name"]}"
     end
 
-    # OperationalListings::nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
-    def self.nodeToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
+    # OperationalListings::listingToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
+    def self.listingToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
         counter = -1
         Arrows::getTargetsForSource(node)
             .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
@@ -105,8 +105,8 @@ class OperationalListings
             }
     end
 
-    # OperationalListings::getNodeTargetsInOrdinalOrder(node)
-    def self.getNodeTargetsInOrdinalOrder(node)
+    # OperationalListings::getListingTargetsInOrdinalOrder(node)
+    def self.getListingTargetsInOrdinalOrder(node)
         Arrows::getTargetsForSource(node)
             .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
     end
@@ -134,7 +134,7 @@ class OperationalListings
                 )
             }
 
-            targets = OperationalListings::getNodeTargetsInOrdinalOrder(node)
+            targets = OperationalListings::getListingTargetsInOrdinalOrder(node)
             puts "" if !targets.empty?
             targets
                 .each{|target|
@@ -185,7 +185,7 @@ class OperationalListings
             end
 
             if command == "set target ordinal" then
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getNodeTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getListingTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OperationalListings::setTargetOrdinal(node, target, ordinal)
@@ -221,7 +221,7 @@ class OperationalListings
 
             ms.item("ops nodes dive",lambda { 
                 loop {
-                    nodes = OperationalListings::nodes()
+                    nodes = OperationalListings::listings()
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OperationalListings::toString(node) })
                     return if node.nil?
                     OperationalListings::landing(node)

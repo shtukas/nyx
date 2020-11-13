@@ -3,14 +3,14 @@
 
 class GenericNyxObject
 
-    # GenericNyxObject::isNGX15(object)
-    def self.isNGX15(object)
-        object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
-    end
-
     # GenericNyxObject::isQuark(object)
     def self.isQuark(object)
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    end
+
+    # GenericNyxObject::isNGX15(object)
+    def self.isNGX15(object)
+        object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
     # GenericNyxObject::isTag(object)
@@ -18,19 +18,29 @@ class GenericNyxObject
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
     end
 
-    # GenericNyxObject::isOpsNode(object)
-    def self.isOpsNode(object)
+    # GenericNyxObject::isOperationalListing(object)
+    def self.isOperationalListing(object)
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
     end
 
-    # GenericNyxObject::isEncyclopediaNode(object)
-    def self.isEncyclopediaNode(object)
+    # GenericNyxObject::isEncyclopediaListing(object)
+    def self.isEncyclopediaListing(object)
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
+    end
+
+    # GenericNyxObject::isGenericListing(object)
+    def self.isGenericListing(object)
+        GenericNyxObject::isOperationalListing(object) or GenericNyxObject::isEncyclopediaListing(object)
     end
 
     # GenericNyxObject::isAsteroid(object)
     def self.isAsteroid(object)
         object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
+    end
+
+    # GenericNyxObject::isWave(object)
+    def self.isWave(object)
+        object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
     end
 
     # GenericNyxObject::toString(object)
@@ -47,11 +57,14 @@ class GenericNyxObject
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
         end
-        if GenericNyxObject::isOpsNode(object) then
+        if GenericNyxObject::isOperationalListing(object) then
             return OperationalListings::toString(object)
         end
-        if GenericNyxObject::isEncyclopediaNode(object) then
+        if GenericNyxObject::isEncyclopediaListing(object) then
             return EncyclopediaListings::toString(object)
+        end
+        if GenericNyxObject::isWave(object) then
+            return Waves::toString(object)
         end
         puts object
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -114,11 +127,11 @@ class GenericNyxObject
             Quarks::access(object)
             return
         end
-        if GenericNyxObject::isOpsNode(object) then
+        if GenericNyxObject::isOperationalListing(object) then
             OperationalListings::landing(object)
             return 
         end
-        if GenericNyxObject::isEncyclopediaNode(object) then
+        if GenericNyxObject::isEncyclopediaListing(object) then
             EncyclopediaListings::landing(object)
             return
         end
@@ -144,11 +157,11 @@ class GenericNyxObject
             Quarks::landing(object)
             return
         end
-        if GenericNyxObject::isOpsNode(object) then
+        if GenericNyxObject::isOperationalListing(object) then
             OperationalListings::landing(object)
             return
         end
-        if GenericNyxObject::isEncyclopediaNode(object) then
+        if GenericNyxObject::isEncyclopediaListing(object) then
             EncyclopediaListings::landing(object)
             return
         end

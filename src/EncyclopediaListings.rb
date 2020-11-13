@@ -3,8 +3,8 @@
 
 class EncyclopediaListings
 
-    # EncyclopediaListings::nodes()
-    def self.nodes()
+    # EncyclopediaListings::listings()
+    def self.listings()
         NyxObjects2::getSet("f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
     end
 
@@ -34,7 +34,7 @@ class EncyclopediaListings
 
     # EncyclopediaListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia node", EncyclopediaListings::nodes(), lambda{|node| EncyclopediaListings::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia node", EncyclopediaListings::listings(), lambda{|node| EncyclopediaListings::toString(node) })
     end
 
     # EncyclopediaListings::selectOneExistingOrNewListingOrNull()
@@ -118,7 +118,7 @@ class EncyclopediaListings
 
             ms.item("encyclopedia nodes dive",lambda { 
                 loop {
-                    nodes = EncyclopediaListings::nodes()
+                    nodes = EncyclopediaListings::listings()
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| EncyclopediaListings::toString(node) })
                     return if node.nil?
                     EncyclopediaListings::landing(node)

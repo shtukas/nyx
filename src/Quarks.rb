@@ -191,7 +191,7 @@ class Quarks
             })
 
             mx.item("add to xnode".yellow, lambda {
-                node = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
+                node = Listings::extractionSelectListingOrMakeListingOrNull()
                 return if node.nil?
                 Arrows::issueOrException(node, ngx15)
             })

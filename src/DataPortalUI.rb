@@ -9,8 +9,8 @@ class DataPortalUI
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "General Exploration", 
-                lambda { GeneralSearch::searchAndDive() }
+                "Patricia::searchAndLanding()", 
+                lambda { Patricia::searchAndLanding() }
             )
 
             ms.item(

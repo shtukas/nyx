@@ -257,7 +257,7 @@ class Asteroids
         isRunning = Asteroids::isRunning?(asteroid)
 
         targetsOperationalListings = Arrows::getTargetsForSource(asteroid)
-                              .select{|target| GenericNyxObject::isOpsNode(target) }
+                              .select{|target| GenericNyxObject::isOperationalListing(target) }
 
         metric = Asteroids::metric(asteroid)
         metric = 1 if isRunning
@@ -275,8 +275,8 @@ class Asteroids
 
         secondaryObjects = targetsOperationalListings
                                 .map{|target|
-                                    if GenericNyxObject::isOpsNode(target) then
-                                        OperationalListings::nodeToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
+                                    if GenericNyxObject::isOperationalListing(target) then
+                                        OperationalListings::listingToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
                                     else
                                         []
                                     end
@@ -451,7 +451,7 @@ class Asteroids
                 "move targets ; destroy asteroid".yellow,
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
-                        xnode = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
+                        xnode = Listings::extractionSelectListingOrMakeListingOrNull()
                         return if xnode.nil?
                         Arrows::issueOrException(xnode, target)
                         Arrows::unlink(asteroid, target)
@@ -505,7 +505,7 @@ class Asteroids
     def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
         Arrows::getTargetsForSource(asteroid).each{|target|
             puts "Moving target: #{GenericNyxObject::toString(target)}"
-            xnode = Listings::selectExistingXNodeOrMakeANewXNodeOrNull()
+            xnode = Listings::extractionSelectListingOrMakeListingOrNull()
             next if xnode.nil?
             Arrows::issueOrException(xnode, target)
             Arrows::unlink(asteroid, target)
