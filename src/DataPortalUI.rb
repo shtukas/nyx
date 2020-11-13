@@ -13,14 +13,6 @@ class DataPortalUI
                 lambda { Patricia::searchAndLanding() }
             )
 
-            ms.item(
-                "General Exploration (ncurses experimental)", 
-                lambda { 
-                    puts "Not implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
             puts ""
 
             ms.item("OperationalListings",lambda { OperationalListings::main() })
