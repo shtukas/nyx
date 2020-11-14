@@ -95,6 +95,7 @@ class OperationalListings
                             if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ") then
                                 timespan = Runner::stop(uuid)
                                 # We do not put the time in the item's own bank account, we put it into the asteroid's bank account
+                                puts "Adding #{timespan.round(2)} seconds to asteroidBankAccountId: #{asteroidBankAccountId}"
                                 Bank::put(asteroidBankAccountId, timespan)
                             end
                         end

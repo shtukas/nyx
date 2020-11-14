@@ -383,6 +383,7 @@ class Asteroids
         timespan = Runner::stop(asteroid["uuid"])
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        puts "Adding #{timespan} seconds to '#{Asteroids::toString(asteroid)}'"
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
