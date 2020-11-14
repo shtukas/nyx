@@ -191,16 +191,16 @@ class Quarks
             })
 
             mx.item("add to listing".yellow, lambda {
-                node = Listings::extractionSelectListingOrMakeListingOrNull()
-                return if node.nil?
-                Arrows::issueOrException(node, ngx15)
+                listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                return if listing.nil?
+                Arrows::issueOrException(listing, quark)
             })
 
-            mx.item("remove from listing".yellow, lambda {
-                xnodes = Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "abb20581-f020-43e1-9c37-6c3ef343d2f5") + Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
-                xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
-                return if xnode.nil?
-                Arrows::unlink(xnode, ngx15)
+            mx.item("remove from parent".yellow, lambda {
+                parents = Arrows::getSourcesForTarget(quark)
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |xnode| GenericNyxObject::toString(parent) })
+                return if parent.nil?
+                Arrows::unlink(parent, quark)
             })
 
             mx.item(
