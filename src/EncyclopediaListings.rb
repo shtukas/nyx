@@ -95,6 +95,11 @@ class EncyclopediaListings
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
             })
+            mx.item("add to listing".yellow, lambda { 
+                l2 = Listings::extractionSelectListingOrMakeListingOrNull()
+                return if l2.nil?
+                Arrows::issueOrException(l2, node)
+            })
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
