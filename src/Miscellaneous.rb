@@ -310,7 +310,7 @@ class Miscellaneous
                 lastSearchedForString = inputString
                 currentLines = lambda1.call(inputString)
                 windowUpdate.call(win2, currentLines)
-                windowUpdate.call(win1, [inputString])
+                windowUpdate.call(win1, ["-> #{inputString}"])
             }
         }
 
@@ -324,7 +324,7 @@ class Miscellaneous
                 next if inputString.length == 0
                 inputString = inputString[0, inputString.length-1]
                 inputString_lastModificationUnixtime = Time.new.to_f
-                windowUpdate.call(win1, [inputString])
+                windowUpdate.call(win1, ["-> #{inputString}"])
                 next
             end
 
@@ -335,7 +335,7 @@ class Miscellaneous
 
             inputString = inputString + char
             inputString_lastModificationUnixtime = Time.new.to_f
-            windowUpdate.call(win1, [inputString])
+            windowUpdate.call(win1, ["-> #{inputString}"])
         }
 
         thread1.terminate
