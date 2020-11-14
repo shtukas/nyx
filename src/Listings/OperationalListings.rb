@@ -27,21 +27,21 @@ class OperationalListings
 
     # OperationalListings::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
-        name1 = LucilleCore::askQuestionAnswerAsString("ops node name: ")
+        name1 = LucilleCore::askQuestionAnswerAsString("operational listing name: ")
         return nil if name1 == ""
         OperationalListings::issue(name1)
     end
 
     # OperationalListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", OperationalListings::listings(), lambda{|node| OperationalListings::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", OperationalListings::listings(), lambda{|node| OperationalListings::toString(node) })
     end
 
     # OperationalListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
         node = OperationalListings::selectOneExistingListingOrNull()
         return node if node
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no ops node selected, create a new one ? ")
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no operational listing selected, create a new one ? ")
         OperationalListings::issueListingInteractivelyOrNull()
     end
 
@@ -67,7 +67,7 @@ class OperationalListings
 
     # OperationalListings::toString(node)
     def self.toString(node)
-        "[ops node] #{node["name"]}"
+        "[operational listing] #{node["name"]}"
     end
 
     # OperationalListings::listingToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
@@ -207,7 +207,7 @@ class OperationalListings
             end
 
             if command == "destroy node" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy ops node: '#{OperationalListings::toString(node)}': ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy operational listing: '#{OperationalListings::toString(node)}': ") then
                     NyxObjects2::destroy(node)
                 end
                 return
@@ -230,7 +230,7 @@ class OperationalListings
             ms.item("operational listings dive",lambda { 
                 loop {
                     nodes = OperationalListings::listings()
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OperationalListings::toString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", nodes, lambda{|node| OperationalListings::toString(node) })
                     return if node.nil?
                     OperationalListings::landing(node)
                 }

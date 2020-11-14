@@ -25,7 +25,7 @@ class DataPortalUI
 
             ms.item("Asteroids", lambda { Asteroids::main() })
 
-            ms.item("[ops node] Pascal Guardian Work", lambda { 
+            ms.item("[operational listing] Pascal Guardian Work", lambda { 
                 uuid = "0a9ef4e7c31439c9e66a324c75f7beb2"
                 node = NyxObjects2::getOrNull(uuid)
                 OperationalListings::landing(node)

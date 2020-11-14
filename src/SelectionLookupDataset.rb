@@ -186,7 +186,7 @@ class SelectionLookupDataset
         OperationalListings::listings()
             .each{|node|
                 if verbose then
-                    puts "ops node: #{node["uuid"]} , #{OperationalListings::toString(node)}"
+                    puts "operational listing: #{node["uuid"]} , #{OperationalListings::toString(node)}"
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], node["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], OperationalListings::toString(node))

@@ -59,7 +59,7 @@ class NyxFsck
 
         if object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5" then
             # OpsNode
-            puts "fsck ops node: #{object["uuid"]}"
+            puts "fsck operational listing: #{object["uuid"]}"
             return true
         end
 
