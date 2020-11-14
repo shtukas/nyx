@@ -82,6 +82,25 @@ class NGX15
 
             puts ""
 
+            sources = Arrows::getSourcesForTarget(ngx15)
+            sources.each{|source|
+                mx.item(
+                    "source: #{GenericNyxObject::toString(source)}",
+                    lambda { GenericNyxObject::landing(source) }
+                )
+            }
+
+            puts ""
+
+            Arrows::getTargetsForSource(ngx15).each{|target|
+                menuitems.item(
+                    "target: #{GenericNyxObject::toString(target)}",
+                    lambda { GenericNyxObject::landing(target) }
+                )
+            }
+
+            puts ""
+
             mx.item(
                 "open".yellow,
                 lambda {
@@ -126,25 +145,6 @@ class NGX15
                     NGX15::ngx15TerminationProtocolReturnBoolean(ngx15)
                 end
             })
-
-            puts ""
-
-            sources = Arrows::getSourcesForTarget(ngx15)
-            sources.each{|source|
-                mx.item(
-                    "source: #{GenericNyxObject::toString(source)}",
-                    lambda { GenericNyxObject::landing(source) }
-                )
-            }
-
-            puts ""
-
-            Arrows::getTargetsForSource(ngx15).each{|target|
-                menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
-                )
-            }
 
             puts ""
 
