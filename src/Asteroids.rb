@@ -451,6 +451,7 @@ class Asteroids
                 "move targets ; destroy asteroid".yellow,
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
+                        puts "moving: #{GenericNyxObject::toString(target)}"
                         xnode = Listings::extractionSelectListingOrMakeListingOrNull()
                         return if xnode.nil?
                         Arrows::issueOrException(xnode, target)
