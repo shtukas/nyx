@@ -3,8 +3,8 @@
 
 class Listings
 
-    # Listings::makeNewListingOrNull()
-    def self.makeNewListingOrNull()
+    # Listings::issueNewListingInteractivelyOrNull()
+    def self.issueNewListingInteractivelyOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["operational listing", "encyclopedia listing"])
         if type == "operational listing" then
             return OperationalListings::issueListingInteractivelyOrNull()
@@ -104,11 +104,14 @@ class Listings
                 listing = Listings::searchAndReturnListingOrNullIntellisense()
                 if listing then
                     puts "selected: #{GenericNyxObject::toString(listing)}"
-                    operations = ["return listing", "landing then return listing", "select listing descendant"]
+                    operations = ["return listing", "landing only", "landing then return listing", "select listing descendant"]
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                     next if operation.nil?
                     if operation == "return listing" then
                         return listing
+                    end
+                    if operation == "landing only" then
+                        GenericNyxObject::landing(listing)
                     end
                     if operation == "landing then return listing" then
                         GenericNyxObject::landing(listing)
@@ -123,7 +126,7 @@ class Listings
                 end
             end
             if operation == "make listing" then
-                listing = Listings::makeNewListingOrNull()
+                listing = Listings::issueNewListingInteractivelyOrNull()
                 if listing then
                     puts "made: #{GenericNyxObject::toString(listing)}"
                     if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then

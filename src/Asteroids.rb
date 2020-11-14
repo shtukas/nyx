@@ -427,6 +427,20 @@ class Asteroids
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item(
+                "move targets ; destroy asteroid".yellow,
+                lambda {
+                    Arrows::getTargetsForSource(asteroid).each{|target|
+                        puts "moving: #{GenericNyxObject::toString(target)}"
+                        xnode = Listings::extractionSelectListingOrMakeListingOrNull()
+                        return if xnode.nil?
+                        Arrows::issueOrException(xnode, target)
+                        Arrows::unlink(asteroid, target)
+                    }
+                    NyxObjects2::destroy(asteroid)
+                }
+            )
+
+            menuitems.item(
                 "destroy asteroid and targets".yellow,
                 lambda { 
                     Arrows::getTargetsForSource(asteroid).each{|target|
@@ -442,20 +456,6 @@ class Asteroids
                         end
                         puts target
                         raise "exception: 2f64e981-a5cb-401d-8532-7eca19e82adc"
-                    }
-                    NyxObjects2::destroy(asteroid)
-                }
-            )
-
-            menuitems.item(
-                "move targets ; destroy asteroid".yellow,
-                lambda {
-                    Arrows::getTargetsForSource(asteroid).each{|target|
-                        puts "moving: #{GenericNyxObject::toString(target)}"
-                        xnode = Listings::extractionSelectListingOrMakeListingOrNull()
-                        return if xnode.nil?
-                        Arrows::issueOrException(xnode, target)
-                        Arrows::unlink(asteroid, target)
                     }
                     NyxObjects2::destroy(asteroid)
                 }

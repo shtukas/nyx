@@ -95,6 +95,11 @@ class EncyclopediaListings
                 return if datapoint.nil?
                 Arrows::issueOrException(listing, datapoint)
             })
+            mx.item("make listing ; add as target".yellow, lambda { 
+                l = Listings::issueNewListingInteractivelyOrNull()
+                return if l.nil?
+                Arrows::issueOrException(listing, l)
+            })
             mx.item("select object ; add as target".yellow, lambda { 
                 o = Patricia::searchAndReturnObjectOrNullSequential()
                 return if o.nil?

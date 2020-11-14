@@ -53,14 +53,14 @@ class SelectionLookupDataset
     def self.updateLookupForNGX15(datapoint)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
         SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint).downcase)
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint))
     end
 
     # SelectionLookupDataset::updateLookupForQuark(quark)
     def self.updateLookupForQuark(quark)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark).downcase)
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
@@ -68,42 +68,42 @@ class SelectionLookupDataset
     def self.updateLookupForDataContainer(container)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(container["uuid"])
         SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], container["uuid"])
-        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], DataContainers::toString(container).downcase)
+        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], DataContainers::toString(container))
     end
 
     # SelectionLookupDataset::updateLookupForTag(tag)
     def self.updateLookupForTag(tag)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
         SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag).downcase)
+        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag))
     end
 
     # SelectionLookupDataset::updateLookupForOperationalListing(node)
     def self.updateLookupForOperationalListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], OperationalListings::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], OperationalListings::toString(node))
     end
 
     # SelectionLookupDataset::updateLookupForEncyclopediaListing(node)
     def self.updateLookupForEncyclopediaListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node))
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
         SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid).downcase)
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
     end
 
     # SelectionLookupDataset::updateLookupForWave(wave)
     def self.updateLookupForWave(wave)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
         SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], wave["uuid"])
-        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave).downcase)
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave))
     end
 
     # ---------------------------------------------------------
