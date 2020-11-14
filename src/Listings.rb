@@ -60,9 +60,43 @@ class Listings
         Miscellaneous::ncurseSelection1410(lambda1, lambda2)
     end
 
+    # Listings::selectSelfOrDescendantOrNull(object)
+    def self.selectSelfOrDescendantOrNull(object)
+        loop {
+            puts ""
+            puts "object: #{GenericNyxObject::toString(object)}"
+            puts "targets:"
+            Arrows::getTargetsForSource(object).each{|target|
+                puts "    #{GenericNyxObject::toString(target)}"
+            }
+            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "return object" then
+                return object
+            end
+            if operation == "select and return one target" then
+                t = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return t
+                end
+            end
+            if operation == "select and focus on target" then
+                t =  GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return Listings::selectSelfOrDescendantOrNull(t)
+                end
+            end
+            if operation == "return null" then
+                return nil
+            end
+        }
+    end
+
     # Listings::extractionSelectListingOrMakeListingOrNull()
     def self.extractionSelectListingOrMakeListingOrNull()
         loop {
+            puts ""
             operations = ["select listing", "make listing", "return null"]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return nil if operation.nil?
@@ -70,12 +104,22 @@ class Listings
                 listing = Listings::searchAndReturnListingOrNullIntellisense()
                 if listing then
                     puts "selected: #{GenericNyxObject::toString(listing)}"
-                    if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
+                    operations = ["return listing", "landing then return listing", "select listing descendant"]
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                    next if operation.nil?
+                    if operation == "return listing" then
+                        return listing
+                    end
+                    if operation == "landing then return listing" then
                         GenericNyxObject::landing(listing)
                         listing = NyxObjects2::getOrNull(listing["uuid"])
+                        next if listing.nil?
+                        return listing
                     end
-                    next if listing.nil?
-                    return listing
+                    if operation == "select listing descendant" then
+                        d = Listings::selectSelfOrDescendantOrNull(listing)
+                        return d if d
+                    end
                 end
             end
             if operation == "make listing" then

@@ -286,7 +286,7 @@ class Miscellaneous
         # windowUpdate.call(win1, ["line1"])
         # windowUpdate.call(win2, ["line3", "line4"])
 
-        windowUpdate.call(win1, [""])
+        windowUpdate.call(win1, ["-> "])
 
         thread1 = Thread.new {
             lastSearchedForString = nil
@@ -347,9 +347,7 @@ class Miscellaneous
 
         # -----------------------------------------------------------------------
 
-        system("clear")
-
-        line = LucilleCore::selectEntityFromListOfEntitiesOrNull("", currentLines)
+        line = LucilleCore::selectEntityFromListOfEntitiesOrNull("selection", lambda1.call(inputString))
         return nil if line.nil?
         lambda2.call(line) # this returns an object or null
     end
