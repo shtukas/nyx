@@ -81,8 +81,8 @@ class OperationalListings
                 counter = counter + 1
                 {
                     "uuid"             => uuid,
-                    "body"             => "#{OperationalListings::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}",
-                    "metric"           => basemetric - counter.to_f/100,
+                    "body"             => "#{OperationalListings::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)" : ""}",
+                    "metric"           => isRunning ? 1 : (basemetric - counter.to_f/100),
                     "landing"          => lambda { GenericNyxObject::landing(target) },
                     "nextNaturalStep"  => lambda { 
                         if isRunning then
