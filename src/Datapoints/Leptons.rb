@@ -100,12 +100,12 @@ class LeptonsFunctions
         db = SQLite3::Database.new(filepath)
         db.results_as_hash = true # to get the results as hash
 
-        description = LeptonsFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
-        return description if description
-
         type = LeptonsFunctions::getValueOrNull(db, "18da4008-6cb2-4df0-b9d5-bb9e3b4f949a")
         type = type || "unkown type for lepton file #{filepath}, how did that happen?"
-        
+
+        description = LeptonsFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
+        return "[#{type}] #{description}" if description
+
         description = nil
 
         if type == "line" then
@@ -128,7 +128,7 @@ class LeptonsFunctions
         end
 
         db.close
-        "[lepton] [#{type}] #{description}"
+        "[#{type}] #{description}"
     end
 
     # LeptonsFunctions::getTypeOrNull(filepath)
