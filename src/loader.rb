@@ -148,7 +148,6 @@ require_relative "NyxObjects.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
-require_relative "ProgramNx.rb"
 
 require_relative "Runner.rb"
 =begin 

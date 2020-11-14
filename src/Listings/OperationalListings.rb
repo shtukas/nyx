@@ -113,14 +113,10 @@ class OperationalListings
 
     # OperationalListings::landing(node)
     def self.landing(node)
+        loop {
+            return if NyxObjects2::getOrNull(node["uuid"]).nil?
 
-        mx = LCoreMenuItemsNX2.new()
-
-        lambdaDisplay = lambda {
-
-            node = NyxObjects2::getOrNull(node["uuid"])
-
-            mx.reset()
+            mx = LCoreMenuItemsNX1.new()
 
             puts OperationalListings::toString(node).green
             puts "uuid: #{node["uuid"]}".yellow
@@ -135,6 +131,7 @@ class OperationalListings
             }
 
             targets = OperationalListings::getListingTargetsInOrdinalOrder(node)
+
             puts "" if !targets.empty?
             targets
                 .each{|target|
@@ -144,81 +141,55 @@ class OperationalListings
                     )
                 }
 
-        }
+            puts ""
 
-        lambdaHelpDisplay = lambda {
-            [
-                "-> rename",
-                "-> insert datapoint at ordinal",
-                "-> set target ordinal",
-                "-> json object",
-                "-> destroy node"
-            ].join("\n")
-        }
-
-        lambdaPromptInterpreter = lambda { |command|
-
-            node = NyxObjects2::getOrNull(node["uuid"])
-
-            if Miscellaneous::isInteger(command) then
-                mx.executeFunctionAtPositionGetValueOrNull(command.to_i)
-                return
-            end
-
-            if command == "rename" then
+            mx.item("rename".yellow, lambda { 
                 name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
                 node["name"] = name1
                 NyxObjects2::put(node)
                 OperationalListings::removeSetDuplicates()
-                return
-            end
+            })
 
-            if command == "insert datapoint at ordinal" then
+            mx.item("make datapoint ; insert at ordinal".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OperationalListings::setTargetOrdinal(node, datapoint, ordinal)
-                return
-            end
+            })
 
-            if command == "select object ; add at ordinal" then
+            mx.item("select object ; add at ordinal".yellow, lambda { 
                 o = Patricia::searchAndReturnObjectOrNullSequential()
                 return if o.nil?
                 Arrows::issueOrException(node, o)
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OperationalListings::setTargetOrdinal(node, o, ordinal)
-                return
-            end
+            })
 
-            if command == "set target ordinal" then
+            mx.item("set target ordinal".yellow, lambda { 
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getListingTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OperationalListings::setTargetOrdinal(node, target, ordinal)
-                return
-            end
+            })
 
-            if command == "json object" then
+            mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
-                return
-            end
+            })
 
-            if command == "destroy node" then
+            mx.item("destroy node".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy operational listing: '#{OperationalListings::toString(node)}': ") then
                     NyxObjects2::destroy(node)
                 end
-                return
-            end
-        }
+            })
 
-        lambdaStillGoing = lambda {
-            !NyxObjects2::getOrNull(node["uuid"]).nil?
-        }
+            puts ""
 
-        ProgramNx::Nx01(lambdaDisplay, lambdaHelpDisplay, lambdaPromptInterpreter, lambdaStillGoing)
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
     end
 
     # OperationalListings::main()
