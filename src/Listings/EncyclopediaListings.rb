@@ -20,9 +20,9 @@ class EncyclopediaListings
 
     # EncyclopediaListings::issue(name1)
     def self.issue(name1)
-        node = EncyclopediaListings::make(name1)
-        NyxObjects2::put(node)
-        node
+        listing = EncyclopediaListings::make(name1)
+        NyxObjects2::put(listing)
+        listing
     end
 
     # EncyclopediaListings::issueListingInteractivelyOrNull()
@@ -34,35 +34,35 @@ class EncyclopediaListings
 
     # EncyclopediaListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia listing", EncyclopediaListings::listings(), lambda{|node| EncyclopediaListings::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia listing", EncyclopediaListings::listings(), lambda{|l| EncyclopediaListings::toString(l) })
     end
 
     # EncyclopediaListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        node = EncyclopediaListings::selectOneExistingListingOrNull()
-        return node if node
+        listing = EncyclopediaListings::selectOneExistingListingOrNull()
+        return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no encyclopedia listing selected, create a new one ? ")
         EncyclopediaListings::issueListingInteractivelyOrNull()
     end
 
-    # EncyclopediaListings::toString(node)
-    def self.toString(node)
-        "[encyclopedia listing] #{node["name"]}"
+    # EncyclopediaListings::toString(listing)
+    def self.toString(listing)
+        "[encyclopedia listing] #{listing["name"]}"
     end
 
-    # EncyclopediaListings::landing(node)
-    def self.landing(node)
+    # EncyclopediaListings::landing(listing)
+    def self.landing(listing)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(node["uuid"]).nil?
+            return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
-            puts EncyclopediaListings::toString(node).green
-            puts "uuid: #{node["uuid"]}".yellow
+            puts EncyclopediaListings::toString(listing).green
+            puts "uuid: #{listing["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
-            sources = Arrows::getSourcesForTarget(node)
+            sources = Arrows::getSourcesForTarget(listing)
             puts "" if !sources.empty?
             sources.each{|source|
                 mx.item(
@@ -71,7 +71,7 @@ class EncyclopediaListings
                 )
             }
 
-            targets = Arrows::getTargetsForSource(node)
+            targets = Arrows::getTargetsForSource(listing)
             targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
@@ -84,45 +84,45 @@ class EncyclopediaListings
 
             puts ""
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
                 return if name1 == ""
-                node["name"] = name1
-                NyxObjects2::put(node)
+                listing["name"] = name1
+                NyxObjects2::put(listing)
                 EncyclopediaListings::removeSetDuplicates()
             })
             mx.item("make datapoint ; add as target".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(node, datapoint)
+                Arrows::issueOrException(listing, datapoint)
             })
             mx.item("select object ; add as target".yellow, lambda { 
                 o = Patricia::searchAndReturnObjectOrNullSequential()
                 return if o.nil?
-                Arrows::issueOrException(node, o)
+                Arrows::issueOrException(listing, o)
             })
             mx.item("add self to listing".yellow, lambda { 
                 l2 = Listings::extractionSelectListingOrMakeListingOrNull()
                 return if l2.nil?
-                Arrows::issueOrException(l2, node)
+                Arrows::issueOrException(l2, listing)
             })
             mx.item("select multiple targets ; inject data container".yellow, lambda {
-                targets = Arrows::getTargetsForSource(node)
+                targets = Arrows::getTargetsForSource(listing)
                 selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| GenericNyxObject::toString(item) })
                 datacontainer = DataContainers::issueContainerInteractivelyOrNull()
                 return if datacontainer.nil?
-                Arrows::issueOrException(node, datacontainer)
+                Arrows::issueOrException(listing, datacontainer)
                 selectedtargets.each{|target|
                     Arrows::issueOrException(datacontainer, target)
-                    Arrows::unlink(node, target)
+                    Arrows::unlink(listing, target)
                 }
             })
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(node)
+                puts JSON.pretty_generate(listing)
                 LucilleCore::pressEnterToContinue()
             })
             mx.item("destroy encyclopedia listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia listing: '#{EncyclopediaListings::toString(node)}': ") then
-                    NyxObjects2::destroy(node)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia listing: '#{EncyclopediaListings::toString(listing)}': ") then
+                    NyxObjects2::destroy(listing)
                 end
             })
             puts ""
@@ -139,14 +139,18 @@ class EncyclopediaListings
 
             ms.item("encyclopedia listings dive",lambda { 
                 loop {
-                    nodes = EncyclopediaListings::listings()
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| EncyclopediaListings::toString(node) })
-                    return if node.nil?
-                    EncyclopediaListings::landing(node)
+                    listings = EncyclopediaListings::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|l| EncyclopediaListings::toString(l) })
+                    return if listing.nil?
+                    EncyclopediaListings::landing(listing)
                 }
             })
 
-            ms.item("make new encyclopedia listing",lambda { EncyclopediaListings::issueListingInteractivelyOrNull() })
+            ms.item("make new encyclopedia listing",lambda { 
+                listing = EncyclopediaListings::issueListingInteractivelyOrNull()
+                return if listing.nil?
+                EncyclopediaListings::landing(listing)
+            })
 
             status = ms.promptAndRunSandbox()
             break if !status

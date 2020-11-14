@@ -76,20 +76,26 @@ class Quarks
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
-            return Quarks::issueUrl(url)
+            quark = Quarks::issueUrl(url)
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            Quarks::setDescription(quark, description)
+            return quark
         end
         if type == "aion-point" then
             locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
             aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-            return Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
+            quark = Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            Quarks::setDescription(quark, description)
+            return quark
         end
         nil
     end
 
     # --------------------------------------------------
 
-    # Quarks::setDescription(quark)
-    def self.setDescription(quark)
+    # Quarks::setDescription(quark, description)
+    def self.setDescription(quark, description)
         filename = object["leptonfilename"]
         filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
         LeptonsFunctions::setDescription(filepath, description)
