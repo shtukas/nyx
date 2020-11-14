@@ -227,7 +227,7 @@ class OperationalListings
             system("clear")
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("ops nodes dive",lambda { 
+            ms.item("operational listings dive",lambda { 
                 loop {
                     nodes = OperationalListings::listings()
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("ops node", nodes, lambda{|node| OperationalListings::toString(node) })
@@ -236,7 +236,7 @@ class OperationalListings
                 }
             })
 
-            ms.item("make new ops node",lambda { OperationalListings::issueListingInteractivelyOrNull() })
+            ms.item("make new operational listing",lambda { OperationalListings::issueListingInteractivelyOrNull() })
 
             status = ms.promptAndRunSandbox()
             break if !status
