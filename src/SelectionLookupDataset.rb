@@ -60,8 +60,15 @@ class SelectionLookupDataset
     def self.updateLookupForQuark(quark)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark).downcase)
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
+    end
+
+    # SelectionLookupDataset::updateLookupForDataContainer(container)
+    def self.updateLookupForDataContainer(container)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(container["uuid"])
+        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], container["uuid"])
+        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], DataContainers::toString(container).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForTag(tag)
@@ -74,15 +81,15 @@ class SelectionLookupDataset
     # SelectionLookupDataset::updateLookupForOperationalListing(node)
     def self.updateLookupForOperationalListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OperationalListings::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], OperationalListings::toString(node).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForEncyclopediaListing(node)
     def self.updateLookupForEncyclopediaListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaListings::toString(node).downcase)
+        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -118,6 +125,21 @@ class SelectionLookupDataset
                 end
             }
 
+        db.close
+    end
+
+    # SelectionLookupDataset::rebuildDataContainersLookup(verbose)
+    def self.rebuildDataContainersLookup(verbose)
+        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.execute "delete from lookup where _objecttype_=?", ["data-container"]
+        DataContainers::containers()
+            .each{|container|
+                if verbose then
+                    puts "container: #{container["uuid"]} , #{DataContainers::toString(container)}"
+                end
+                SelectionLookupDatabaseIO::addRecord2(db, "data-container", container["uuid"], container["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "data-container", container["uuid"], DataContainers::toString(container))
+            }
         db.close
     end
 
@@ -159,15 +181,15 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
     def self.rebuildOperationalListingsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["opsnode"]
+        db.execute "delete from lookup where _objecttype_=?", ["operational-listing"]
 
         OperationalListings::listings()
             .each{|node|
                 if verbose then
                     puts "ops node: #{node["uuid"]} , #{OperationalListings::toString(node)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "opsnode", node["uuid"], OperationalListings::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], OperationalListings::toString(node))
             }
 
         db.close
@@ -176,15 +198,15 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
     def self.rebuildEncyclopediaListingsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["encyclopedianode"]
+        db.execute "delete from lookup where _objecttype_=?", ["encyclopedia-listing"]
 
         EncyclopediaListings::listings()
             .each{|node|
                 if verbose then
-                    puts "encyclopedia node: #{node["uuid"]} , #{EncyclopediaListings::toString(node)}"
+                    puts "encyclopedia listing: #{node["uuid"]} , #{EncyclopediaListings::toString(node)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedianode", node["uuid"], EncyclopediaListings::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedia-listing", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node))
             }
 
         db.close
@@ -232,6 +254,7 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
+        SelectionLookupDataset::rebuildDataContainersLookup(verbose)
         SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
         SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)

@@ -178,9 +178,17 @@ class OperationalListings
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
                 Arrows::issueOrException(node, datapoint)
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 OperationalListings::setTargetOrdinal(node, datapoint, ordinal)
+                return
+            end
+
+            if command == "select object ; add at ordinal" then
+                o = Patricia::searchAndReturnObjectOrNullSequential()
+                return if o.nil?
+                Arrows::issueOrException(node, o)
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                OperationalListings::setTargetOrdinal(node, o, ordinal)
                 return
             end
 

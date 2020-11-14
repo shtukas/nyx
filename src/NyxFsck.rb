@@ -69,6 +69,12 @@ class NyxFsck
             return true
         end
 
+        if object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb" then
+            # DataContainer
+            puts "fsck data container: #{object["uuid"]}"
+            return true
+        end
+
         puts JSON.pretty_generate(object)
         puts "[error: eed35593-c378-4715-bbb7-5cbefbcd47ce]"
         false

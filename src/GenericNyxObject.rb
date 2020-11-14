@@ -16,6 +16,11 @@ class GenericNyxObject
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
+    # GenericNyxObject::isDataContainer(object)
+    def self.isDataContainer(object)
+        object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb"
+    end
+
     # GenericNyxObject::isTag(object)
     def self.isTag(object)
         object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
@@ -56,6 +61,9 @@ class GenericNyxObject
         end
         if GenericNyxObject::isNGX15(object) then
             return NGX15::toString(object)
+        end
+        if GenericNyxObject::isDataContainer(object) then
+            return DataContainers::toString(object)
         end
         if GenericNyxObject::isTag(object) then
             return Tags::toString(object)
@@ -122,24 +130,35 @@ class GenericNyxObject
     def self.updateSearchLookupDatabase(object)
         if GenericNyxObject::isAsteroid(object) then
             SelectionLookupDataset::updateLookupForAsteroid(object)
+            return
         end
         if GenericNyxObject::isNGX15(object) then
             SelectionLookupDataset::updateLookupForNGX15(object)
+            return
+        end
+        if GenericNyxObject::isDataContainer(object) then
+            SelectionLookupDataset::updateLookupForDataContainer(object)
+            return
         end
         if GenericNyxObject::isTag(object) then
             SelectionLookupDataset::updateLookupForTag(object)
+            return
         end
         if GenericNyxObject::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
+            return
         end
         if GenericNyxObject::isOperationalListing(object) then
             SelectionLookupDataset::updateLookupForOperationalListing(object)
+            return
         end
         if GenericNyxObject::isEncyclopediaListing(object) then
             SelectionLookupDataset::updateLookupForEncyclopediaListing(object)
+            return
         end
         if GenericNyxObject::isWave(object) then
             SelectionLookupDataset::updateLookupForWave(object)
+            return
         end
         puts object
         raise "[error: 199551db-bd83-44fa-be7b-82274d95563f]"
@@ -153,6 +172,10 @@ class GenericNyxObject
         end
         if GenericNyxObject::isNGX15(object) then
             NGX15::landing(object)
+            return
+        end
+        if GenericNyxObject::isDataContainer(object) then
+            DataContainers::landing(object)
             return
         end
         if GenericNyxObject::isTag(object) then
@@ -183,6 +206,10 @@ class GenericNyxObject
         end
         if GenericNyxObject::isNGX15(object) then
             NGX15::landing(object)
+            return
+        end
+        if GenericNyxObject::isDataContainer(object) then
+            DataContainers::landing(object)
             return
         end
         if GenericNyxObject::isTag(object) then

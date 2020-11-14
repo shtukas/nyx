@@ -10,7 +10,7 @@ class Listings
             return OperationalListings::issueListingInteractivelyOrNull()
         end
         if type == "encyclopedia listing" then
-            return EncyclopediaListings::issueKnowledgeNodeInteractivelyOrNull()
+            return EncyclopediaListings::issueListingInteractivelyOrNull()
         end
         nil
     end
