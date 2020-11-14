@@ -120,7 +120,11 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
-require_relative "Datapoints.rb"
+require_relative "Datapoints/Datapoints.rb"
+require_relative "Datapoints/Leptons.rb"
+require_relative "Datapoints/Quarks.rb"
+require_relative "Datapoints/NGX15.rb"
+
 require_relative "DataPortalUI.rb"
 require_relative "DisplayUtils.rb"
 require_relative "DoNotShowUntil.rb"
@@ -133,11 +137,8 @@ require_relative "GenericNyxObject.rb"
 
 require_relative "EncyclopediaListings.rb"
 
-require_relative "Leptons.rb"
 require_relative "Listings.rb"
 require_relative "LucilleCore.rb"
-
-require_relative "NGX15.rb"
 
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
@@ -149,8 +150,6 @@ require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "ProgramNx.rb"
 
-require_relative "Quarks.rb"
-
 require_relative "Runner.rb"
 =begin 
     Runner::isRunning?(uuid)
@@ -158,7 +157,6 @@ require_relative "Runner.rb"
     Runner::start(uuid)
     Runner::stop(uuid) # null | Float
 =end
-
 
 require_relative "SectionsType0141.rb"
 require_relative "SelectionLookupDataset.rb"
