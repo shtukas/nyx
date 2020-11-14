@@ -62,23 +62,37 @@ class Listings
 
     # Listings::extractionSelectListingOrMakeListingOrNull()
     def self.extractionSelectListingOrMakeListingOrNull()
-        operations = ["select listing", "make listing", "return null"]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-        return nil if operation.nil?
-        if operation == "select listing" then
-            listing = Listings::searchAndReturnListingOrNullIntellisense()
-            if listing then
-                return listing
+        loop {
+            operations = ["select listing", "make listing", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "select listing" then
+                listing = Listings::searchAndReturnListingOrNullIntellisense()
+                if listing then
+                    puts "selected: #{GenericNyxObject::toString(listing)}"
+                    if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
+                        GenericNyxObject::landing(listing)
+                        listing = NyxObjects2::getOrNull(listing["uuid"])
+                    end
+                    next if listing.nil?
+                    return listing
+                end
             end
-        end
-        if operation == "make listing" then
-            listing = Listings::makeNewListingOrNull()
-            if listing then
-                return listing
+            if operation == "make listing" then
+                listing = Listings::makeNewListingOrNull()
+                if listing then
+                    puts "made: #{GenericNyxObject::toString(listing)}"
+                    if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
+                        GenericNyxObject::landing(listing)
+                        listing = NyxObjects2::getOrNull(listing["uuid"])
+                    end
+                    next if listing.nil?
+                    return listing
+                end
             end
-        end
-        if operation == "return null" then
-            return nil
-        end
+            if operation == "return null" then
+                return nil
+            end
+        }
     end
 end
