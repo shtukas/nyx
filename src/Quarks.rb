@@ -169,6 +169,25 @@ class Quarks
 
             puts ""
 
+            sources = Arrows::getSourcesForTarget(quark)
+            sources.each{|source|
+                mx.item(
+                    "source: #{GenericNyxObject::toString(source)}",
+                    lambda { GenericNyxObject::landing(source) }
+                )
+            }
+
+            puts ""
+
+            Arrows::getTargetsForSource(quark).each{|target|
+                menuitems.item(
+                    "target: #{GenericNyxObject::toString(target)}",
+                    lambda { GenericNyxObject::landing(target) }
+                )
+            }
+
+            puts ""
+
             mx.item(
                 "access".yellow,
                 lambda { Quarks::access(quark) }
@@ -211,25 +230,6 @@ class Quarks
                     end
                 }
             )
-
-            puts ""
-
-            sources = Arrows::getSourcesForTarget(quark)
-            sources.each{|source|
-                mx.item(
-                    "source: #{GenericNyxObject::toString(source)}",
-                    lambda { GenericNyxObject::landing(source) }
-                )
-            }
-
-            puts ""
-
-            Arrows::getTargetsForSource(quark).each{|target|
-                menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
-                )
-            }
 
             puts ""
 
