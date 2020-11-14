@@ -102,13 +102,13 @@ class NGX15
                 Arrows::issueOrException(set, ngx15)
             })
 
-            mx.item("add to xnode".yellow, lambda {
+            mx.item("add to listing".yellow, lambda {
                 node = Listings::extractionSelectListingOrMakeListingOrNull()
                 return if node.nil?
                 Arrows::issueOrException(node, ngx15)
             })
 
-            mx.item("unlist from xnode".yellow, lambda {
+            mx.item("remove from listing".yellow, lambda {
                 xnodes = Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "abb20581-f020-43e1-9c37-6c3ef343d2f5") + Arrows::getSourcesForTargetOfGivenNyxType(ngx15, "f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
                 xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("xnodes", xnodes, lambda { |xnode| GenericNyxObject::toString(xnode) })
                 return if xnode.nil?
