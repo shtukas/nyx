@@ -545,6 +545,15 @@ class Asteroids
 
             puts ""
 
+            Arrows::getTargetsForSource(asteroid).each{|target|
+                menuitems.item(
+                    "target: #{GenericNyxObject::toString(target)}",
+                    lambda { GenericNyxObject::landing(target) }
+                )
+            }
+
+            puts ""
+
             menuitems.item(
                 "update asteroid description".yellow,
                 lambda { 
@@ -655,15 +664,6 @@ class Asteroids
                     GenericNyxObject::destroy(target)
                 }
             )
-
-            puts ""
-
-            Arrows::getTargetsForSource(asteroid).each{|target|
-                menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
-                )
-            }
 
             puts ""
 
