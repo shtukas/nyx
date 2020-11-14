@@ -650,7 +650,7 @@ class Asteroids
             )
 
             menuitems.item(
-                "select targets ; move them to listing ; destroy asteroid".yellow,
+                "select targets ; move them to listings ; destroy asteroid".yellow,
                 lambda {
                     Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
                 }
