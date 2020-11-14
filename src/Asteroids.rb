@@ -476,6 +476,50 @@ class Asteroids
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             Asteroids::runAsteroidForPossibleDeletion(asteroid)
+            if Asteroids::getAsteroidOrNull(asteroid["uuid"]) then
+
+                menuitems = LCoreMenuItemsNX1.new()
+
+                menuitems.item("hide for one hour".yellow, lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+                })
+
+                menuitems.item("hide until tomorrow".yellow, lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
+                })
+
+                menuitems.item("hide for n days".yellow, lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+                })
+
+                menuitems.item("to orbital burner".yellow, lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    asteroid["orbital"] = {
+                        "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+                    }
+                    NyxObjects2::put(asteroid)
+                })
+
+                menuitems.item("to orbital stream".yellow, lambda {
+                    Asteroids::stopAsteroidIfRunning(asteroid)
+                    asteroid["orbital"] = {
+                        "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+                    }
+                    NyxObjects2::put(asteroid)
+                })
+
+                menuitems.item(
+                    "re-orbital".yellow,
+                    lambda { Asteroids::reOrbitalOrNothing(asteroid) }
+                )
+
+                menuitems.promptAndRunSandbox()
+
+            end
             return
         end
 
