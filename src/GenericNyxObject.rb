@@ -3,6 +3,9 @@
 
 class GenericNyxObject
 
+    # -----------------------------------------------
+    # is
+
     # GenericNyxObject::isQuark(object)
     def self.isQuark(object)
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
@@ -42,6 +45,9 @@ class GenericNyxObject
     def self.isWave(object)
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
     end
+
+    # -----------------------------------------------
+    # properties
 
     # GenericNyxObject::toString(object)
     def self.toString(object)
@@ -93,6 +99,9 @@ class GenericNyxObject
         object["referenceDateTime"]
     end
 
+    # -----------------------------------------------
+    # operations
+
     # GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
     def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
         targets = Arrows::getTargetsForSource(object)
@@ -107,6 +116,33 @@ class GenericNyxObject
         end
         targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| GenericNyxObject::toString(target) })
+    end
+
+    # GenericNyxObject::updateSearchLookupDatabase(object)
+    def self.updateSearchLookupDatabase(object)
+        if GenericNyxObject::isAsteroid(object) then
+            SelectionLookupDataset::updateLookupForAsteroid(object)
+        end
+        if GenericNyxObject::isNGX15(object) then
+            SelectionLookupDataset::updateLookupForNGX15(object)
+        end
+        if GenericNyxObject::isTag(object) then
+            SelectionLookupDataset::updateLookupForTag(object)
+        end
+        if GenericNyxObject::isQuark(object) then
+            SelectionLookupDataset::updateLookupForQuark(object)
+        end
+        if GenericNyxObject::isOperationalListing(object) then
+            SelectionLookupDataset::updateLookupForOperationalListing(object)
+        end
+        if GenericNyxObject::isEncyclopediaListing(object) then
+            SelectionLookupDataset::updateLookupForEncyclopediaListing(object)
+        end
+        if GenericNyxObject::isWave(object) then
+            SelectionLookupDataset::updateLookupForWave(object)
+        end
+        puts object
+        raise "[error: 199551db-bd83-44fa-be7b-82274d95563f]"
     end
 
     # GenericNyxObject::access(object)

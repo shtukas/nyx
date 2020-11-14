@@ -23,15 +23,14 @@ class NyxObjects2
 
     # NyxObjects2::put(object)
     def self.put(object)
-
         db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
         db.transaction 
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
-
         $NyxObjectsCache76DBF964[object["uuid"]] = object
+        GenericNyxObject::updateSearchLookupDatabase(object)
     end
 
     # NyxObjects2::getOrNull(uuid)
@@ -57,6 +56,7 @@ class NyxObjects2
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
         $NyxObjectsCache76DBF964.delete(object["uuid"])
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(object["uuid"])
     end
 end
 

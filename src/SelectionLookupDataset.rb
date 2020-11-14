@@ -27,56 +27,6 @@ class SelectionLookupDatabaseIO
         db.execute "insert into lookup (_objecttype_, _objectuuid_, _fragment_) values ( ?, ?, ? )", [objecttype, objectuuid, fragment]
     end
 
-    # SelectionLookupDatabaseIO::updateLookupForNGX15(datapoint)
-    def self.updateLookupForNGX15(datapoint)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint).downcase)
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForQuark(quark)
-    def self.updateLookupForQuark(quark)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForTag(tag)
-    def self.updateLookupForTag(tag)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag).downcase)
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForOpsNode(node)
-    def self.updateLookupForOpsNode(node)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OperationalListings::toString(node).downcase)
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForEncyclopediaNode(node)
-    def self.updateLookupForEncyclopediaNode(node)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaListings::toString(node).downcase)
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
-    def self.updateLookupForAsteroid(asteroid)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid).downcase)
-    end
-
-    # SelectionLookupDatabaseIO::updateLookupForWave(wave)
-    def self.updateLookupForWave(wave)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
-        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], wave["uuid"])
-        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave).downcase)
-    end
-
     # SelectionLookupDatabaseIO::getDatabaseRecords(): Array[DatabaseRecord]
     # DatabaseRecord: [objecttype: string, objectuuid: String, fragment: String]
     def self.getDatabaseRecords()
@@ -101,37 +51,52 @@ class SelectionLookupDataset
 
     # SelectionLookupDataset::updateLookupForNGX15(datapoint)
     def self.updateLookupForNGX15(datapoint)
-        SelectionLookupDatabaseIO::updateLookupForNGX15(datapoint)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
+        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForQuark(quark)
     def self.updateLookupForQuark(quark)
-        SelectionLookupDatabaseIO::updateLookupForQuark(quark)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
+        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
     # SelectionLookupDataset::updateLookupForTag(tag)
     def self.updateLookupForTag(tag)
-        SelectionLookupDatabaseIO::updateLookupForTag(tag)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
+        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
+        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag).downcase)
     end
 
-    # SelectionLookupDataset::updateLookupForOpsNode(node)
-    def self.updateLookupForOpsNode(node)
-        SelectionLookupDatabaseIO::updateLookupForOpsNode(node)
+    # SelectionLookupDataset::updateLookupForOperationalListing(node)
+    def self.updateLookupForOperationalListing(node)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("opsnode", node["uuid"], OperationalListings::toString(node).downcase)
     end
 
-    # SelectionLookupDataset::updateLookupForEncyclopediaNode(node)
-    def self.updateLookupForEncyclopediaNode(node)
-        SelectionLookupDatabaseIO::updateLookupForEncyclopediaNode(node)
+    # SelectionLookupDataset::updateLookupForEncyclopediaListing(node)
+    def self.updateLookupForEncyclopediaListing(node)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("encyclopedianode", node["uuid"], EncyclopediaListings::toString(node).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
     def self.updateLookupForAsteroid(asteroid)
-        SelectionLookupDatabaseIO::updateLookupForAsteroid(asteroid)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
+        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid).downcase)
     end
 
     # SelectionLookupDataset::updateLookupForWave(wave)
     def self.updateLookupForWave(wave)
-        SelectionLookupDatabaseIO::updateLookupForWave(wave)
+        SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], wave["uuid"])
+        SelectionLookupDatabaseIO::addRecord("wave", wave["uuid"], Waves::toString(wave).downcase)
     end
 
     # ---------------------------------------------------------
