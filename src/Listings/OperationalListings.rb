@@ -91,7 +91,7 @@ class OperationalListings
                 return
             end
             if GenericNyxObject::isQuark(object) then
-                Quarks::open1(quark)
+                Quarks::open1(object)
                 return
             end
             puts GenericNyxObject::toString(object)
