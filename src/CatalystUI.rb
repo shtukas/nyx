@@ -69,6 +69,12 @@ class CatalystUI
             return
         end
 
+        if command.size >= 3 and command[-2, 2] == ".." and Miscellaneous::isInteger(command[0, command.size-2].strip) then
+            position = command[0, command.size-2].strip.to_i
+            catalystObjects[position-1]["nextNaturalStep"].call()
+            return
+        end
+
         if command == "::" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
