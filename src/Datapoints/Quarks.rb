@@ -223,7 +223,7 @@ class Quarks
 
             mx.item("remove from parent".yellow, lambda {
                 parents = Arrows::getSourcesForTarget(quark)
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |xnode| GenericNyxObject::toString(parent) })
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |px| GenericNyxObject::toString(px) })
                 return if parent.nil?
                 Arrows::unlink(parent, quark)
             })
