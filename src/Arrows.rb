@@ -227,16 +227,4 @@ class Arrows
     def self.getSourcesForTarget(target)
         $ArrowsInMemory099be9e4.getSourcesForTarget(target)
     end
-
-    # Arrows::getTargetForSourceOfGivenNyxType(source, setid)
-    def self.getTargetForSourceOfGivenNyxType(source, setid)
-        Arrows::getTargetsForSource(source)
-            .select{|object| object["nyxNxSet"] == setid }
-    end
-
-    # Arrows::getSourcesForTargetOfGivenNyxType(target, setid)
-    def self.getSourceForTargetOfGivenNyxType(target, setid)
-        Arrows::getSourcesForTarget(target)
-            .select{|object| object["nyxNxSet"] == setid }
-    end
 end
