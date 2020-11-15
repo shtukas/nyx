@@ -451,7 +451,7 @@ class Asteroids
                         end
 
                         listing = Listings::extractionSelectListingOrMakeListingOrNull()
-                        if listing.nil? then
+                        if !listing.nil? then
                             Arrows::issueOrException(listing, target)
                             Arrows::unlink(asteroid, target)
                         end
@@ -540,6 +540,37 @@ class Asteroids
             lambda { Asteroids::reOrbitalOrNothing(asteroid) }
         )
 
+        menuitems.item(
+            "send targets to listings".yellow,
+            lambda {
+                Arrows::getTargetsForSource(asteroid).each{|target|
+                    puts "moving: #{GenericNyxObject::toString(target)}"
+
+                    if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+                        description = LucilleCore::askQuestionAnswerAsString("target description: ")
+                        if description.size > 0 then
+                            Quarks::setDescription(target, description)
+                        end
+                    end
+
+                    if GenericNyxObject::isNGX15(target) and target["description"].nil? then
+                        description = LucilleCore::askQuestionAnswerAsString("target description: ")
+                        if description.size > 0 then
+                            target["description"] = description
+                            NyxObjects2::put(target)
+                        end
+                    end
+
+                    listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                    if !listing.nil? then
+                        puts "moving to: #{GenericNyxObject::toString(listing)}"
+                        Arrows::issueOrException(listing, target)
+                        Arrows::unlink(asteroid, target)
+                    end
+                }
+            }
+        )
+
         menuitems.promptAndRunSandbox()
     end
 
@@ -556,6 +587,7 @@ class Asteroids
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             Asteroids::runAsteroidAndTryAndDelete(asteroid)
+            Asteroids::tryReclassifyAsteroid(asteroid)
             return
         end
 
@@ -574,6 +606,7 @@ class Asteroids
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             Asteroids::runAsteroidAndTryAndDelete(asteroid)
+            Asteroids::tryReclassifyAsteroid(asteroid)
         end
     end
 
