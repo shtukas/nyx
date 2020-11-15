@@ -198,6 +198,40 @@ class GenericNyxObject
         raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end
 
+    # GenericNyxObject::open1(object)
+    def self.open1(object)
+        if GenericNyxObject::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if GenericNyxObject::isNGX15(object) then
+            NGX15::openNGX15(object)
+            return
+        end
+        if GenericNyxObject::isDataContainer(object) then
+            DataContainers::landing(object)
+            return
+        end
+        if GenericNyxObject::isTag(object) then
+            Tags::landing(object)
+            return
+        end
+        if GenericNyxObject::isQuark(object) then
+            Quarks::open1(object)
+            return
+        end
+        if GenericNyxObject::isOperationalListing(object) then
+            OperationalListings::landing(object)
+            return
+        end
+        if GenericNyxObject::isEncyclopediaListing(object) then
+            EncyclopediaListings::landing(object)
+            return
+        end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+    end
+
     # GenericNyxObject::destroy(object)
     def self.destroy(object)
         if GenericNyxObject::isAsteroid(object) then

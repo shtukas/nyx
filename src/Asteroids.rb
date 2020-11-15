@@ -136,8 +136,8 @@ class Asteroids
     def self.asteroidOrbitalAsUserFriendlyString(orbital)
         return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "👩‍💻" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
         return "🧘‍♂️" if orbital["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43"
     end
 
@@ -228,7 +228,7 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0.6 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
+            return 0.6 - 0.01*Asteroids::naturalOrdinalShift(asteroid) - 0.2*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955")
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -236,11 +236,10 @@ class Asteroids
                 # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
                 return 0
             end
-            targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
-            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < 1.to_f/(2**asteroid["x-stream-index"]) then
-                return 0.50 - 0.001*asteroid["x-stream-index"] # smaller indices first
+            if !BankExtended::multiTaskingTopWithGeometricProgressionShouldShowItem(asteroid["uuid"], 1, asteroid["x-stream-index"]) then
+                return 0
             end
-            return 0
+            return 0.50 - 0.001*asteroid["x-stream-index"]
         end
 
         if asteroid["orbital"]["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
@@ -398,7 +397,7 @@ class Asteroids
             return
         end
         if targets.size == 1 then
-            GenericNyxObject::landing(targets[0])
+            GenericNyxObject::open1(targets[0])
             return
         end
         loop {
@@ -408,7 +407,7 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| GenericNyxObject::toString(object) })
             return if target.nil?
-            GenericNyxObject::landing(target)
+            GenericNyxObject::open1(target)
         }
     end
 
