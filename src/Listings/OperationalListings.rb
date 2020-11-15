@@ -158,6 +158,8 @@ class OperationalListings
         loop {
             return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
+            system("clear")
+
             mx = LCoreMenuItemsNX1.new()
 
             puts OperationalListings::toString(listing).green
