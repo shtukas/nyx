@@ -20,9 +20,9 @@ class OperationalListings
 
     # OperationalListings::issue(name1)
     def self.issue(name1)
-        node = OperationalListings::make(name1)
-        NyxObjects2::put(node)
-        node
+        listing = OperationalListings::make(name1)
+        NyxObjects2::put(listing)
+        listing
     end
 
     # OperationalListings::issueListingInteractivelyOrNull()
@@ -34,95 +34,123 @@ class OperationalListings
 
     # OperationalListings::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", OperationalListings::listings(), lambda{|node| OperationalListings::toString(node) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", OperationalListings::listings(), lambda{|l| OperationalListings::toString(l) })
     end
 
     # OperationalListings::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        node = OperationalListings::selectOneExistingListingOrNull()
-        return node if node
+        listing = OperationalListings::selectOneExistingListingOrNull()
+        return listing if listing
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no operational listing selected, create a new one ? ")
         OperationalListings::issueListingInteractivelyOrNull()
     end
 
-    # OperationalListings::setTargetOrdinal(node, target, ordinal)
-    def self.setTargetOrdinal(node, target, ordinal)
-        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}", ordinal)
+    # OperationalListings::setTargetOrdinal(listing, target, ordinal)
+    def self.setTargetOrdinal(listing, target, ordinal)
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{listing["uuid"]}:#{target["uuid"]}", ordinal)
     end
 
-    # OperationalListings::getTargetOrdinal(node, target)
-    def self.getTargetOrdinal(node, target)
-        ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}")
+    # OperationalListings::getTargetOrdinal(listing, target)
+    def self.getTargetOrdinal(listing, target)
+        ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{listing["uuid"]}:#{target["uuid"]}")
         if ordinal then
             return ordinal.to_f
         end
-        ordinals = Arrows::getTargetsForSource(node)
-                    .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{t["uuid"]}") }
+        ordinals = Arrows::getTargetsForSource(listing)
+                    .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{listing["uuid"]}:#{t["uuid"]}") }
                     .compact
                     .map{|o| o.to_f }
         ordinal = ([0] + ordinals).max + 1
-        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{node["uuid"]}:#{target["uuid"]}", ordinal)
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{listing["uuid"]}:#{target["uuid"]}", ordinal)
         ordinal
     end
 
-    # OperationalListings::toString(node)
-    def self.toString(node)
-        "[operational listing] #{node["name"]}"
+    # OperationalListings::toString(listing)
+    def self.toString(listing)
+        "[operational listing] #{listing["name"]}"
     end
 
-    # OperationalListings::listingToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
-    def self.listingToCatalystObjects(node, basemetric, asteroidBankAccountId, asteroidMetadata)
-        counter = -1
-        Arrows::getTargetsForSource(node)
-            .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
+    # OperationalListings::listingToCatalystObjects(listing, basemetric, asteroidBankAccountId, asteroidDailyTimeCommitmentNumbers, asteroidDailyTimeExpectationInHours)
+    def self.listingToCatalystObjects(listing, basemetric, asteroidBankAccountId, asteroidDailyTimeCommitmentNumbers, asteroidDailyTimeExpectationInHours)
+
+        itemMetric = lambda { |isRunning, itemuuid, asteroidDailyTimeExpectationInHours, itemIndex, basemetric|
+            if isRunning then
+                1
+            else
+                if BankExtended::multiTaskingTopWithGeometricProgressionShouldShowItem(itemuuid, asteroidDailyTimeExpectationInHours, itemIndex) then
+                    basemetric - itemIndex.to_f/100
+                else
+                    0
+                end
+            end
+        }
+
+        itemIndex = -1
+        Arrows::getTargetsForSource(listing)
+            .sort{|t1, t2| OperationalListings::getTargetOrdinal(listing, t1) <=> OperationalListings::getTargetOrdinal(listing, t2) }
             .map{|target|
-                uuid = "b7185097-dc3e-43cc-b573-676b411e1a44:#{node["uuid"]}:#{target["uuid"]}"
+                uuid = "b7185097-dc3e-43cc-b573-676b411e1a44:#{listing["uuid"]}:#{target["uuid"]}"
                 isRunning = Runner::isRunning?(uuid)
-                counter = counter + 1
+                itemIndex = itemIndex + 1
+                metric = itemMetric.call(isRunning, uuid, asteroidDailyTimeExpectationInHours, itemIndex, basemetric)
+                body = "#{OperationalListings::toString(listing)} #{GenericNyxObject::toString(target)}#{asteroidDailyTimeCommitmentNumbers} (item daily time: #{BankExtended::recoveredDailyTimeInHours(uuid).round(2)} hours)#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)" : ""}"
                 {
                     "uuid"             => uuid,
-                    "body"             => "#{OperationalListings::toString(node)} #{GenericNyxObject::toString(target)} #{asteroidMetadata}#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)" : ""}",
-                    "metric"           => isRunning ? 1 : (basemetric - counter.to_f/100),
+                    "body"             => body,
+                    "metric"           => metric,
                     "landing"          => lambda { GenericNyxObject::landing(target) },
                     "nextNaturalStep"  => lambda { 
                         if isRunning then
                             timespan = Runner::stop(uuid)
-                            # We do not put the time in the item's own bank account, we put it into the asteroid's bank account
+                            puts "Adding #{timespan.round(2)} seconds to item '#{body}'"
+                            Bank::put(uuid, timespan)
+                            puts "Adding #{timespan.round(2)} seconds to asteroidBankAccountId: #{asteroidBankAccountId}"
                             Bank::put(asteroidBankAccountId, timespan)
                         else
                             Runner::start(uuid)
                             GenericNyxObject::landing(target)
                             if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ") then
                                 timespan = Runner::stop(uuid)
-                                # We do not put the time in the item's own bank account, we put it into the asteroid's bank account
+                                puts "Adding #{timespan.round(2)} seconds to item '#{body}'"
+                                Bank::put(uuid, timespan)
                                 puts "Adding #{timespan.round(2)} seconds to asteroidBankAccountId: #{asteroidBankAccountId}"
                                 Bank::put(asteroidBankAccountId, timespan)
                             end
                         end
                     },
                     "isRunning"        => isRunning,
-                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
+                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600,
+                    "x-metadata-1113"  => {
+                        "basemetric" => basemetric,
+                        "asteroidBankAccountId" => asteroidBankAccountId,
+                        "asteroidDailyTimeCommitmentNumbers" => asteroidDailyTimeCommitmentNumbers,
+                        "asteroidDailyTimeExpectationInHours" => asteroidDailyTimeExpectationInHours,
+                        "uuid" => uuid,
+                        "isRunning" => isRunning,
+                        "itemIndex" => itemIndex,
+                        "metric" => metric
+                    }
                 }
             }
     end
 
-    # OperationalListings::getListingTargetsInOrdinalOrder(node)
-    def self.getListingTargetsInOrdinalOrder(node)
-        Arrows::getTargetsForSource(node)
-            .sort{|t1, t2| OperationalListings::getTargetOrdinal(node, t1) <=> OperationalListings::getTargetOrdinal(node, t2) }
+    # OperationalListings::getListingTargetsInOrdinalOrder(listing)
+    def self.getListingTargetsInOrdinalOrder(listing)
+        Arrows::getTargetsForSource(listing)
+            .sort{|t1, t2| OperationalListings::getTargetOrdinal(listing, t1) <=> OperationalListings::getTargetOrdinal(listing, t2) }
     end
 
-    # OperationalListings::landing(node)
-    def self.landing(node)
+    # OperationalListings::landing(listing)
+    def self.landing(listing)
         loop {
-            return if NyxObjects2::getOrNull(node["uuid"]).nil?
+            return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
             mx = LCoreMenuItemsNX1.new()
 
-            puts OperationalListings::toString(node).green
-            puts "uuid: #{node["uuid"]}".yellow
+            puts OperationalListings::toString(listing).green
+            puts "uuid: #{listing["uuid"]}".yellow
 
-            sources = Arrows::getSourcesForTarget(node)
+            sources = Arrows::getSourcesForTarget(listing)
             puts "" if !sources.empty?
             sources.each{|source|
                 mx.item(
@@ -131,13 +159,13 @@ class OperationalListings
                 )
             }
 
-            targets = OperationalListings::getListingTargetsInOrdinalOrder(node)
+            targets = OperationalListings::getListingTargetsInOrdinalOrder(listing)
 
             puts "" if !targets.empty?
             targets
                 .each{|target|
                     mx.item(
-                        "target ( #{"%6.3f" % OperationalListings::getTargetOrdinal(node, target)} ) #{GenericNyxObject::toString(target)}",
+                        "target ( #{"%6.3f" % OperationalListings::getTargetOrdinal(listing, target)} ) #{GenericNyxObject::toString(target)}",
                         lambda { GenericNyxObject::landing(target) }
                     )
                 }
@@ -145,44 +173,44 @@ class OperationalListings
             puts ""
 
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
                 return if name1 == ""
-                node["name"] = name1
-                NyxObjects2::put(node)
+                listing["name"] = name1
+                NyxObjects2::put(listing)
                 OperationalListings::removeSetDuplicates()
             })
 
             mx.item("make datapoint ; insert at ordinal".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                Arrows::issueOrException(node, datapoint)
+                Arrows::issueOrException(listing, datapoint)
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                OperationalListings::setTargetOrdinal(node, datapoint, ordinal)
+                OperationalListings::setTargetOrdinal(listing, datapoint, ordinal)
             })
 
             mx.item("select object ; add at ordinal".yellow, lambda { 
                 o = Patricia::searchAndReturnObjectOrNullSequential()
                 return if o.nil?
-                Arrows::issueOrException(node, o)
+                Arrows::issueOrException(listing, o)
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                OperationalListings::setTargetOrdinal(node, o, ordinal)
+                OperationalListings::setTargetOrdinal(listing, o, ordinal)
             })
 
             mx.item("set target ordinal".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getListingTargetsInOrdinalOrder(node), lambda{|t| GenericNyxObject::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", OperationalListings::getListingTargetsInOrdinalOrder(listing), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                OperationalListings::setTargetOrdinal(node, target, ordinal)
+                OperationalListings::setTargetOrdinal(listing, target, ordinal)
             })
 
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(node)
+                puts JSON.pretty_generate(listing)
                 LucilleCore::pressEnterToContinue()
             })
 
-            mx.item("destroy node".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy operational listing: '#{OperationalListings::toString(node)}': ") then
-                    NyxObjects2::destroy(node)
+            mx.item("destroy listing".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy operational listing: '#{OperationalListings::toString(listing)}': ") then
+                    NyxObjects2::destroy(listing)
                 end
             })
 
@@ -201,10 +229,10 @@ class OperationalListings
 
             ms.item("operational listings dive",lambda { 
                 loop {
-                    nodes = OperationalListings::listings()
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", nodes, lambda{|node| OperationalListings::toString(node) })
-                    return if node.nil?
-                    OperationalListings::landing(node)
+                    listings = OperationalListings::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("operational listing", listings, lambda{|l| OperationalListings::toString(l) })
+                    return if listing.nil?
+                    OperationalListings::landing(listing)
                 }
             })
 

@@ -42,7 +42,7 @@ class NGX15
             return "[NGX15] [Extended] #{ngx15["description"]} ; #{NGX15_Extended1::toString(ngx15)}"
         end
         if ngx15["description"] then
-            return "[NGX15] #{ngx15["description"]} ( #{ngx15["ngx15"]} )"
+            return "[NGX15] #{ngx15["description"]}"
         end
         "[NGX15] #{ngx15["ngx15"]}"
     end

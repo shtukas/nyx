@@ -185,12 +185,12 @@ class Asteroids
         "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}#{p7}"
     end
 
-    # Asteroids::opsNodesMetadata(asteroid)
-    def self.opsNodesMetadata(asteroid)
+    # Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid)
+    def self.asteroidDailyTimeCommitmentNumbers(asteroid)
         return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
         commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
         ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
-        return "(#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
+        return " (#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
     end
 
     # Asteroids::naturalOrdinalShift(asteroid)
@@ -276,7 +276,8 @@ class Asteroids
         secondaryObjects = targetsOperationalListings
                                 .map{|target|
                                     if GenericNyxObject::isOperationalListing(target) then
-                                        OperationalListings::listingToCatalystObjects(target, metric, uuid, Asteroids::opsNodesMetadata(asteroid))
+                                        asteroidDailyTimeExpectationInHours = (asteroid["orbital"]["time-commitment-in-hours"] || 1)
+                                        OperationalListings::listingToCatalystObjects(target, metric, uuid, Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid), asteroidDailyTimeExpectationInHours)
                                     else
                                         []
                                     end
