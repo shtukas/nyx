@@ -239,7 +239,7 @@ class Asteroids
             if !BankExtended::multiTaskingTopWithGeometricProgressionShouldShowItem(asteroid["uuid"], 1, asteroid["x-stream-index"]) then
                 return 0
             end
-            return 0.50 - 0.001*asteroid["x-stream-index"]
+            return 0.50 - 0.001*asteroid["x-stream-index"] - 0.2*BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
         end
 
         if asteroid["orbital"]["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
