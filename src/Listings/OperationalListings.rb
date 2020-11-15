@@ -106,7 +106,8 @@ class OperationalListings
                 isRunning = Runner::isRunning?(uuid)
                 itemIndex = itemIndex + 1
                 metric = itemMetric.call(isRunning, uuid, asteroidDailyTimeExpectationInHours, itemIndex, basemetric)
-                body = "#{OperationalListings::toString(listing)} #{GenericNyxObject::toString(target)}#{asteroidDailyTimeCommitmentNumbers} (item daily time: #{BankExtended::recoveredDailyTimeInHours(uuid).round(2)} hours)#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)" : ""}"
+                itemExpectationInHours = asteroidDailyTimeExpectationInHours * 0.5 * ( 1.to_f / (2 ** itemIndex) )
+                body = "[asteroid] 💫 #{asteroidDailyTimeCommitmentNumbers.strip} #{OperationalListings::toString(listing)} #{GenericNyxObject::toString(target)} (item expectation: #{itemExpectationInHours.round(2)} hours, recovered: #{BankExtended::recoveredDailyTimeInHours(uuid).round(2)} hours)#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)" : ""}"
                 {
                     "uuid"             => uuid,
                     "body"             => body,
