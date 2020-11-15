@@ -118,9 +118,9 @@ class Quarks
 
     # --------------------------------------------------
 
-    # Quarks::access(quark)
-    def self.access(quark)
-        puts "access: #{Quarks::toString(quark)}"
+    # Quarks::open1(quark)
+    def self.open1(quark)
+        puts "opening: #{Quarks::toString(quark)}"
         filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
         type = LeptonsFunctions::getTypeOrNull(filepath)
         if type == "line" then
@@ -196,7 +196,7 @@ class Quarks
 
             mx.item(
                 "access".yellow,
-                lambda { Quarks::access(quark) }
+                lambda { Quarks::open1(quark) }
             )
 
             mx.item("set/update description".yellow, lambda {

@@ -164,40 +164,6 @@ class GenericNyxObject
         raise "[error: 199551db-bd83-44fa-be7b-82274d95563f]"
     end
 
-    # GenericNyxObject::access(object)
-    def self.access(object)
-        if GenericNyxObject::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
-        if GenericNyxObject::isNGX15(object) then
-            NGX15::landing(object)
-            return
-        end
-        if GenericNyxObject::isDataContainer(object) then
-            DataContainers::landing(object)
-            return
-        end
-        if GenericNyxObject::isTag(object) then
-            Tags::landing(set)
-            return
-        end
-        if GenericNyxObject::isQuark(object) then
-            Quarks::access(object)
-            return
-        end
-        if GenericNyxObject::isOperationalListing(object) then
-            OperationalListings::landing(object)
-            return 
-        end
-        if GenericNyxObject::isEncyclopediaListing(object) then
-            EncyclopediaListings::landing(object)
-            return
-        end
-        puts object
-        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
-    end
-
     # GenericNyxObject::landing(object)
     def self.landing(object)
         if GenericNyxObject::isAsteroid(object) then

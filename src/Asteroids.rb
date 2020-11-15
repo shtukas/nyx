@@ -388,14 +388,14 @@ class Asteroids
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
-    # Asteroids::access(asteroid)
-    def self.access(asteroid)
+    # Asteroids::open1(asteroid)
+    def self.open1(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if targets.size == 0 then
             return
         end
         if targets.size == 1 then
-            GenericNyxObject::access(targets[0])
+            GenericNyxObject::landing(targets[0])
             return
         end
         loop {
@@ -405,7 +405,7 @@ class Asteroids
             targets = Arrows::getTargetsForSource(asteroid)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| GenericNyxObject::toString(object) })
             return if target.nil?
-            GenericNyxObject::access(target)
+            GenericNyxObject::landing(target)
         }
     end
 
@@ -420,10 +420,10 @@ class Asteroids
         }
     end
 
-    # Asteroids::runAsteroidForPossibleDeletion(asteroid)
-    def self.runAsteroidForPossibleDeletion(asteroid)
+    # Asteroids::runAsteroidAndTryAndDelete(asteroid)
+    def self.runAsteroidAndTryAndDelete(asteroid)
         Asteroids::startAsteroidIfNotRunning(asteroid)
-        Asteroids::access(asteroid)
+        Asteroids::open1(asteroid)
         loop {
 
             menuitems = LCoreMenuItemsNX1.new()
@@ -471,62 +471,64 @@ class Asteroids
         Asteroids::stopAsteroidIfRunning(asteroid)
     end
 
+    # Asteroids::tryReclassifyAsteroid(asteroid)
+    def self.tryReclassifyAsteroid(asteroid)
+        return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
+        menuitems = LCoreMenuItemsNX1.new()
+
+        menuitems.item("hide for one hour".yellow, lambda {
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
+        })
+
+        menuitems.item("hide until tomorrow".yellow, lambda {
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
+        })
+
+        menuitems.item("hide for n days".yellow, lambda {
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
+            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
+        })
+
+        menuitems.item("to orbital burner".yellow, lambda {
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            asteroid["orbital"] = {
+                "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+            }
+            NyxObjects2::put(asteroid)
+        })
+
+        menuitems.item("to orbital stream".yellow, lambda {
+            Asteroids::stopAsteroidIfRunning(asteroid)
+            asteroid["orbital"] = {
+                "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+            }
+            NyxObjects2::put(asteroid)
+        })
+
+        menuitems.item(
+            "re-orbital".yellow,
+            lambda { Asteroids::reOrbitalOrNothing(asteroid) }
+        )
+
+        menuitems.promptAndRunSandbox()
+    end
+
     # Asteroids::naturalNextOperation(asteroid)
     def self.naturalNextOperation(asteroid)
 
         uuid = asteroid["uuid"]
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            Asteroids::runAsteroidForPossibleDeletion(asteroid)
-            if Asteroids::getAsteroidOrNull(asteroid["uuid"]) then
-
-                menuitems = LCoreMenuItemsNX1.new()
-
-                menuitems.item("hide for one hour".yellow, lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-                })
-
-                menuitems.item("hide until tomorrow".yellow, lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
-                })
-
-                menuitems.item("hide for n days".yellow, lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                    DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-                })
-
-                menuitems.item("to orbital burner".yellow, lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    asteroid["orbital"] = {
-                        "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-                    }
-                    NyxObjects2::put(asteroid)
-                })
-
-                menuitems.item("to orbital stream".yellow, lambda {
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                    asteroid["orbital"] = {
-                        "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                    }
-                    NyxObjects2::put(asteroid)
-                })
-
-                menuitems.item(
-                    "re-orbital".yellow,
-                    lambda { Asteroids::reOrbitalOrNothing(asteroid) }
-                )
-
-                menuitems.promptAndRunSandbox()
-
-            end
+            Asteroids::runAsteroidAndTryAndDelete(asteroid)
+            Asteroids::tryReclassifyAsteroid(asteroid)
             return
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            Asteroids::runAsteroidForPossibleDeletion(asteroid)
+            Asteroids::runAsteroidAndTryAndDelete(asteroid)
             return
         end
 
@@ -535,7 +537,7 @@ class Asteroids
                 Asteroids::stopAsteroidIfRunning(asteroid)
             else
                 Asteroids::startAsteroidIfNotRunning(asteroid)
-                Asteroids::access(asteroid)
+                Asteroids::open1(asteroid)
                 if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
                     Asteroids::stopAsteroidIfRunning(asteroid)
                 end
@@ -544,7 +546,7 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            Asteroids::runAsteroidForPossibleDeletion(asteroid)
+            Asteroids::runAsteroidAndTryAndDelete(asteroid)
         end
     end
 

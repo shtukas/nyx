@@ -85,6 +85,19 @@ class OperationalListings
             end
         }
 
+        open1 = lambda {|object|
+            if GenericNyxObject::isNGX15(object) then
+                NGX15::openNGX15(object)
+                return
+            end
+            if GenericNyxObject::isQuark(object) then
+                Quarks::open1(quark)
+                return
+            end
+            puts GenericNyxObject::toString(object)
+            raise "741252ae-c6bf-4663-9cbf-2256b97ffd66"
+        }
+
         itemIndex = -1
         Arrows::getTargetsForSource(listing)
             .sort{|t1, t2| OperationalListings::getTargetOrdinal(listing, t1) <=> OperationalListings::getTargetOrdinal(listing, t2) }
@@ -108,7 +121,7 @@ class OperationalListings
                             Bank::put(asteroidBankAccountId, timespan)
                         else
                             Runner::start(uuid)
-                            GenericNyxObject::landing(target)
+                            open1.call(target)
                             if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ") then
                                 timespan = Runner::stop(uuid)
                                 puts "Adding #{timespan.round(2)} seconds to item '#{body}'"
