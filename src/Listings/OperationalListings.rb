@@ -122,7 +122,7 @@ class OperationalListings
                         else
                             Runner::start(uuid)
                             open1.call(target)
-                            if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ") then
+                            if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
                                 timespan = Runner::stop(uuid)
                                 puts "Adding #{timespan.round(2)} seconds to item '#{body}'"
                                 Bank::put(uuid, timespan)
