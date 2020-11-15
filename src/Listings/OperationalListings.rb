@@ -119,6 +119,9 @@ class OperationalListings
                             Bank::put(uuid, timespan)
                             puts "Adding #{timespan.round(2)} seconds to asteroidBankAccountId: #{asteroidBankAccountId}"
                             Bank::put(asteroidBankAccountId, timespan)
+                            if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ", false) then
+                                GenericNyxObject::destroy(target)
+                            end
                         else
                             Runner::start(uuid)
                             open1.call(target)
@@ -128,6 +131,9 @@ class OperationalListings
                                 Bank::put(uuid, timespan)
                                 puts "Adding #{timespan.round(2)} seconds to asteroidBankAccountId: #{asteroidBankAccountId}"
                                 Bank::put(asteroidBankAccountId, timespan)
+                                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                                    GenericNyxObject::destroy(target)
+                                end
                             end
                         end
                     },
