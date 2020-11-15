@@ -260,6 +260,9 @@ class Asteroids
                               .select{|target| GenericNyxObject::isOperationalListing(target) }
 
         metric = Asteroids::metric(asteroid)
+        if asteroid["activeDays"] and !asteroid["activeDays"].include?(Time.new.wday) then
+            metric = 0
+        end
         metric = 1 if isRunning
 
         object = {
@@ -582,6 +585,7 @@ class Asteroids
 
             puts "uuid: #{asteroid["uuid"]}".yellow
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
+            puts "activeDays: #{JSON.generate(asteroid["activeDays"])}".yellow
             puts "bank value: #{Bank::value(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
             puts "x-stream-index: #{asteroid["x-stream-index"]}".yellow
