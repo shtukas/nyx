@@ -74,6 +74,15 @@ class VideoStream
 
     # VideoStream::playStopComplete(filepath)
     def self.playStopComplete(filepath)
+
+        stopAndRecordTime = lambda {|uuid|
+            timespan = Runner::stop(uuid)
+            puts "Watched for #{timespan} seconds"
+            timespan = [timespan, 3600*2].min
+            puts "Adding #{timespan} seconds to bank"
+            Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
+        }
+
         puts filepath
         uuid = "8410f77a-0624-442d-b413-f2be0fcce5ba:#{filepath}"
         isRunning = Runner::isRunning?(uuid)
@@ -81,17 +90,17 @@ class VideoStream
             if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
                 FileUtils.rm(filepath)
             end
-            timespan = Runner::stop(uuid)
-            puts "Watched for #{timespan} seconds"
-            timespan = [timespan, 3600*2].min
-            puts "Adding #{timespan} seconds to bank"
-            Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
+            stopAndRecordTime.call(uuid)
         else
             options = ["play", "completed"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             if option == "play" then
                 Runner::start(uuid)
                 system("open '#{filepath}'")
+                if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", false) then
+                    FileUtils.rm(filepath)
+                    stopAndRecordTime.call(uuid)
+                end
             end
             if option == "completed" then
                 FileUtils.rm(filepath)
