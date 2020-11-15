@@ -95,6 +95,14 @@ class LeptonsFunctions
         nil
     end
 
+    # LeptonsFunctions::getStoredDescriptionOrNull(filepath)
+    def self.getStoredDescriptionOrNull(filepath)
+        db = SQLite3::Database.new(filepath)
+        description = LeptonsFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
+        db.close
+        description
+    end
+
     # LeptonsFunctions::getDescription(filepath)
     def self.getDescription(filepath)
         db = SQLite3::Database.new(filepath)

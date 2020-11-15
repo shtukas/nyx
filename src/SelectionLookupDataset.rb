@@ -75,7 +75,7 @@ class SelectionLookupDataset
     def self.updateLookupForTag(tag)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
         SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tagt["uuid"], Tags::toString(tag))
+        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], Tags::toString(tag))
     end
 
     # SelectionLookupDataset::updateLookupForOperationalListing(node)

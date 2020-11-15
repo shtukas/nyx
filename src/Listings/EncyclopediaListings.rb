@@ -105,7 +105,7 @@ class EncyclopediaListings
                 return if o.nil?
                 Arrows::issueOrException(listing, o)
             })
-            mx.item("add self to listing".yellow, lambda { 
+            mx.item("select listing ; add as parent".yellow, lambda { 
                 l2 = Listings::extractionSelectListingOrMakeListingOrNull()
                 return if l2.nil?
                 Arrows::issueOrException(l2, listing)

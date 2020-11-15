@@ -94,6 +94,13 @@ class Quarks
 
     # --------------------------------------------------
 
+    # Quarks::getStoredDescriptionOrNull(quark)
+    def self.getStoredDescriptionOrNull(quark)
+        filename = quark["leptonfilename"]
+        filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
+        LeptonsFunctions::getStoredDescriptionOrNull(filepath)
+    end
+
     # Quarks::setDescription(quark, description)
     def self.setDescription(quark, description)
         filename = quark["leptonfilename"]

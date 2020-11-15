@@ -434,10 +434,36 @@ class Asteroids
                 lambda {
                     Arrows::getTargetsForSource(asteroid).each{|target|
                         puts "moving: #{GenericNyxObject::toString(target)}"
-                        xnode = Listings::extractionSelectListingOrMakeListingOrNull()
-                        return if xnode.nil?
-                        Arrows::issueOrException(xnode, target)
-                        Arrows::unlink(asteroid, target)
+
+                        if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+                            description = LucilleCore::askQuestionAnswerAsString("target description: ")
+                            if description.size > 0 then
+                                Quarks::setDescription(target, description)
+                            end
+                        end
+
+                        if GenericNyxObject::isNGX15(target) and target["description"].nil? then
+                            description = LucilleCore::askQuestionAnswerAsString("target description: ")
+                            if description.size > 0 then
+                                target["description"] = description
+                                NyxObjects2::put(target)
+                            end
+                        end
+
+                        listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                        if listing.nil? then
+                            Arrows::issueOrException(listing, target)
+                            Arrows::unlink(asteroid, target)
+                        end
+
+                        puts "moving: #{GenericNyxObject::toString(target)}"
+
+                        loop {
+                            payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit): ")
+                            break if payload == ""
+                            tag = Tags::issue(payload)
+                            Arrows::issueOrException(tag, target)
+                        }
                     }
                     NyxObjects2::destroy(asteroid)
                 }
