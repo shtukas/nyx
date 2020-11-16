@@ -75,6 +75,34 @@ class CatalystUI
             return
         end
 
+        if command == "done" then
+            object = catalystObjects.first
+            return if object.nil?
+            if object["x-asteroid"] then
+                asteroid = object["x-asteroid"]
+                puts "deleting: #{GenericNyxObject::toString(asteroid)}"
+                Arrows::getTargetsForSource(asteroid).each{|target|
+                    return if Arrows::getSourcesForTarget(target).size > 1
+                    if GenericNyxObject::isNGX15(target) then
+                        status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
+                        return if !status
+                        next
+                    end
+                    if GenericNyxObject::isQuark(target) then
+                        Quarks::destroyQuarkAndLepton(target)
+                        next
+                    end
+                    puts target
+                    raise "exception: d45a4616-839a-4b74-bbb8-b4cb0e846564"
+                }
+                NyxObjects2::destroy(asteroid)
+                puts "completed"
+            end
+            catalystObjects = catalystObjects.drop(1)
+            CatalystUI::standardDisplay(catalystObjects)
+            return
+        end
+
         if command == "::" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
@@ -108,6 +136,8 @@ class CatalystUI
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
+            catalystObjects = catalystObjects.drop(1)
+            CatalystUI::standardDisplay(catalystObjects)
             return
         end
 
@@ -116,6 +146,8 @@ class CatalystUI
             return if object.nil?
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
+            catalystObjects = catalystObjects.drop(1)
+            CatalystUI::standardDisplay(catalystObjects)
             return
         end
 

@@ -59,9 +59,11 @@ class Patricia
                 ms = LCoreMenuItemsNX1.new()
                 searchresults
                     .each{|sr| 
+                        object = sr["object"]
+                        next if NyxObjects2::getOrNull(object["uuid"]).nil? # could have been deleted in the previous loop
                         ms.item(
-                            GenericNyxObject::toString(sr["object"]), 
-                            lambda { GenericNyxObject::landing(sr["object"]) }
+                            GenericNyxObject::toString(object), 
+                            lambda { GenericNyxObject::landing(object) }
                         )
                     }
                 status = ms.promptAndRunSandbox()

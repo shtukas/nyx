@@ -210,6 +210,7 @@ class NGX15_Extended1
     # NGX15_Extended1::ngx15IsExtended(ngx15)
     def self.ngx15IsExtended(ngx15)
         location = GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])
+        return false if location.nil?
         return false if File.file?(location)
         NGX15_Extended1::folderIsExtended1(location)
     end
