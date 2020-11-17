@@ -126,7 +126,7 @@ class NGX15
             })
 
             mx.item("add to listing".yellow, lambda {
-                node = Listings::extractionSelectListingOrMakeListingOrNull()
+                node = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
                 return if node.nil?
                 Arrows::issueOrException(node, ngx15)
             })

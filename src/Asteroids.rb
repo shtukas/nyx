@@ -451,7 +451,7 @@ class Asteroids
                             end
                         end
 
-                        listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                        listing = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
                         if !listing.nil? then
                             Arrows::issueOrException(listing, target)
                             Arrows::unlink(asteroid, target)
@@ -563,7 +563,7 @@ class Asteroids
                         end
                     end
 
-                    listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                    listing = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
                     if !listing.nil? then
                         puts "moving to: #{GenericNyxObject::toString(listing)}"
                         Arrows::issueOrException(listing, target)
@@ -616,7 +616,7 @@ class Asteroids
     def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
         Arrows::getTargetsForSource(asteroid).each{|target|
             puts "Moving target: #{GenericNyxObject::toString(target)}"
-            xnode = Listings::extractionSelectListingOrMakeListingOrNull()
+            xnode = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
             next if xnode.nil?
             Arrows::issueOrException(xnode, target)
             Arrows::unlink(asteroid, target)

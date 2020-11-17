@@ -225,4 +225,38 @@ class GenericNyxObject
         puts object
         raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
     end
+
+    # GenericNyxObject::selectSelfOrDescendantOrNull(object)
+    def self.selectSelfOrDescendantOrNull(object)
+        loop {
+            puts ""
+            puts "object: #{GenericNyxObject::toString(object)}"
+            puts "targets:"
+            Arrows::getTargetsForSource(object).each{|target|
+                puts "    #{GenericNyxObject::toString(target)}"
+            }
+            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "return object" then
+                return object
+            end
+            if operation == "select and return one target" then
+                t = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return t
+                end
+            end
+            if operation == "select and focus on target" then
+                t =  GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return GenericNyxObject::selectSelfOrDescendantOrNull(t)
+                end
+            end
+            if operation == "return null" then
+                return nil
+            end
+        }
+    end
+
 end

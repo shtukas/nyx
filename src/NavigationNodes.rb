@@ -50,6 +50,85 @@ class NavigationNodes
         NavigationNodes::nodes().select{|node| node["name"].downcase == name1.downcase }.first
     end
 
+    # NavigationNodes::searchAndReturnNavigationNodeOrNullIntellisense()
+    def self.searchAndReturnNavigationNodeOrNullIntellisense()
+        # lambda1: pattern: String -> Array[String]
+        # lambda2: string:  String -> Object or null
+
+        #{
+        #    "objecttype"
+        #    "objectuuid"
+        #    "fragment"
+        #    "object"
+        #    "referenceunixtime"
+        #}
+
+        lambda1 = lambda { |pattern|
+            Patricia::patternToOrderedSearchResults(pattern)
+                .select{|item| GenericNyxObject::isNavigationNode(item["object"]) }
+                .map{|item| item["fragment"] }
+        }
+
+        lambda2 = lambda { |fragment|
+            Patricia::patternToOrderedSearchResults(fragment)
+                .select{|item| item["fragment"] == fragment }
+                .map{|item| item["object"] }
+                .first
+        }
+
+        Miscellaneous::ncurseSelection1410(lambda1, lambda2)
+    end
+
+    # NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
+    def self.extractionSelectNavigationNodeOrMakeOneOrNull()
+        loop {
+            puts ""
+            operations = ["select navigation node", "make navigation node", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "select navigation node" then
+                listing = NavigationNodes::searchAndReturnNavigationNodeOrNullIntellisense()
+                if listing then
+                    puts "selected: #{GenericNyxObject::toString(listing)}"
+                    operations = ["return navigation node", "landing only", "landing then return navigation node", "select navigation node descendant"]
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                    next if operation.nil?
+                    if operation == "return navigation node" then
+                        return listing
+                    end
+                    if operation == "landing only" then
+                        GenericNyxObject::landing(listing)
+                    end
+                    if operation == "landing then return navigation node" then
+                        GenericNyxObject::landing(listing)
+                        listing = NyxObjects2::getOrNull(listing["uuid"])
+                        next if listing.nil?
+                        return listing
+                    end
+                    if operation == "select navigation node descendant" then
+                        d = GenericNyxObject::selectSelfOrDescendantOrNull(listing)
+                        return d if d
+                    end
+                end
+            end
+            if operation == "make navigation node" then
+                listing = NavigationNodes::issueNodeInteractivelyOrNull()
+                if listing then
+                    puts "made: #{GenericNyxObject::toString(listing)}"
+                    if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
+                        GenericNyxObject::landing(listing)
+                        listing = NyxObjects2::getOrNull(listing["uuid"])
+                    end
+                    next if listing.nil?
+                    return listing
+                end
+            end
+            if operation == "return null" then
+                return nil
+            end
+        }
+    end
+
     # NavigationNodes::toString(listing)
     def self.toString(listing)
         "[navigation node] #{listing["name"]}"

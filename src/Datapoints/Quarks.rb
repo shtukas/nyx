@@ -221,7 +221,7 @@ class Quarks
             })
 
             mx.item("add to listing".yellow, lambda {
-                listing = Listings::extractionSelectListingOrMakeListingOrNull()
+                listing = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
                 return if listing.nil?
                 Arrows::issueOrException(listing, quark)
             })

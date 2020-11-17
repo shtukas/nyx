@@ -83,7 +83,7 @@ class DataContainers
                 Arrows::issueOrException(container, datapoint)
             })
             mx.item("add to container".yellow, lambda { 
-                l2 = Listings::extractionSelectListingOrMakeListingOrNull()
+                l2 = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
                 return if l2.nil?
                 Arrows::issueOrException(l2, container)
             })
