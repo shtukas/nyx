@@ -136,15 +136,16 @@ require_relative "EstateServices.rb"
 
 require_relative "GenericNyxObject.rb"
 
-require_relative "Listings/NavigationNodes.rb"
-require_relative "Listings/Listings.rb"
-require_relative "Listings/OperationalListings.rb"
+require_relative "Listings.rb"
 
 require_relative "LucilleCore.rb"
 
+require_relative "NavigationNodes.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
+
+require_relative "OperationalListings.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
