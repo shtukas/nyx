@@ -177,16 +177,17 @@ class Quarks
             mx = LCoreMenuItemsNX1.new()
 
             puts Quarks::toString(quark)
+            puts "uuid: #{quark["uuid"]}".yellow
             puts "filename: #{quark["leptonfilename"]}".yellow
             puts "filepath: #{LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
 
             puts ""
 
-            sources = Arrows::getSourcesForTarget(quark)
-            sources.each{|source|
+            GenericNyxObject::getAllParentingPathsOfSize2(quark).each{|item|
+                announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
                 mx.item(
-                    "source: #{GenericNyxObject::toString(source)}",
-                    lambda { GenericNyxObject::landing(source) }
+                    "source: #{announce}",
+                    lambda { GenericNyxObject::landing(item["p1"]) }
                 )
             }
 

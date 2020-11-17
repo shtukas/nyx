@@ -153,12 +153,11 @@ class NavigationNodes
 
             mx = LCoreMenuItemsNX1.new()
 
-            sources = Arrows::getSourcesForTarget(listing)
-            puts "" if !sources.empty?
-            sources.each{|source|
+            GenericNyxObject::getAllParentingPathsOfSize2(listing).each{|item|
+                announce = "#{GenericNyxObject::toString(item["object"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""} -> #{GenericNyxObject::toString(item["p1"])}"
                 mx.item(
-                    "source: #{GenericNyxObject::toString(source)}",
-                    lambda { GenericNyxObject::landing(source) }
+                    "source: #{announce}",
+                    lambda { GenericNyxObject::landing(item["p1"]) }
                 )
             }
 

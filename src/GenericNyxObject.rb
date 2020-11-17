@@ -239,4 +239,27 @@ class GenericNyxObject
         }
     end
 
+    # GenericNyxObject::getAllParentingPathsOfSize2(object)
+    def self.getAllParentingPathsOfSize2(object)
+        Arrows::getSourcesForTarget(object).map{|source|
+            {
+                "object" => object,
+                "p1"     => source
+            }
+        }.map{|item|
+            sources = Arrows::getSourcesForTarget(item["p1"])
+            if sources.size > 0 then
+                sources.map{|source|
+                    item["p2"] = source
+                    item
+                }
+            else
+                item["p2"] = nil
+                item
+            end
+
+        }
+        .flatten
+    end
+
 end

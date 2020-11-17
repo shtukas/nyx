@@ -82,11 +82,11 @@ class NGX15
 
             puts ""
 
-            sources = Arrows::getSourcesForTarget(ngx15)
-            sources.each{|source|
+            GenericNyxObject::getAllParentingPathsOfSize2(ngx15).each{|item|
+                announce = "#{GenericNyxObject::toString(item["object"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""} -> #{GenericNyxObject::toString(item["p1"])}"
                 mx.item(
-                    "source: #{GenericNyxObject::toString(source)}",
-                    lambda { GenericNyxObject::landing(source) }
+                    "source: #{announce}",
+                    lambda { GenericNyxObject::landing(item["p1"]) }
                 )
             }
 
