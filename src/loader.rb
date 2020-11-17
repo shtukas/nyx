@@ -136,7 +136,7 @@ require_relative "EstateServices.rb"
 
 require_relative "GenericNyxObject.rb"
 
-require_relative "Listings/EncyclopediaListings.rb"
+require_relative "Listings/NavigationNodes.rb"
 require_relative "Listings/Listings.rb"
 require_relative "Listings/OperationalListings.rb"
 

@@ -81,8 +81,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::updateLookupForEncyclopediaListing(node)
     def self.updateLookupForEncyclopediaListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node))
+        SelectionLookupDatabaseIO::addRecord("navigation-node", node["uuid"], node["uuid"])
+        SelectionLookupDatabaseIO::addRecord("navigation-node", node["uuid"], NavigationNodes::toString(node))
     end
 
     # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
@@ -171,18 +171,18 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
-    def self.rebuildEncyclopediaListingsLookup(verbose)
+    # SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
+    def self.rebuildNavigationNodesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["encyclopedia-listing"]
+        db.execute "delete from lookup where _objecttype_=?", ["navigation-node"]
 
-        EncyclopediaListings::listings()
+        NavigationNodes::listings()
             .each{|node|
                 if verbose then
-                    puts "encyclopedia listing: #{node["uuid"]} , #{EncyclopediaListings::toString(node)}"
+                    puts "navigation node: #{node["uuid"]} , #{NavigationNodes::toString(node)}"
                 end
-                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedia-listing", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "encyclopedia-listing", node["uuid"], EncyclopediaListings::toString(node))
+                SelectionLookupDatabaseIO::addRecord2(db, "navigation-node", node["uuid"], node["uuid"])
+                SelectionLookupDatabaseIO::addRecord2(db, "navigation-node", node["uuid"], NavigationNodes::toString(node))
             }
 
         db.close
@@ -232,7 +232,7 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildDataContainersLookup(verbose)
         SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
-        SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
+        SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end

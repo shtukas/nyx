@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class EncyclopediaListings
+class NavigationNodes
 
-    # EncyclopediaListings::listings()
+    # NavigationNodes::listings()
     def self.listings()
         NyxObjects2::getSet("f1ae7449-16d5-41c0-a89e-f2a8e486cc99")
     end
 
-    # EncyclopediaListings::make(name1)
+    # NavigationNodes::make(name1)
     def self.make(name1)
         {
             "uuid"     => SecureRandom.hex,
@@ -18,46 +18,46 @@ class EncyclopediaListings
         }
     end
 
-    # EncyclopediaListings::issue(name1)
+    # NavigationNodes::issue(name1)
     def self.issue(name1)
-        listing = EncyclopediaListings::make(name1)
+        listing = NavigationNodes::make(name1)
         NyxObjects2::put(listing)
         listing
     end
 
-    # EncyclopediaListings::issueListingInteractivelyOrNull()
+    # NavigationNodes::issueListingInteractivelyOrNull()
     def self.issueListingInteractivelyOrNull()
-        name1 = LucilleCore::askQuestionAnswerAsString("encyclopedia listing name: ")
+        name1 = LucilleCore::askQuestionAnswerAsString("navigation node name: ")
         return nil if name1 == ""
-        EncyclopediaListings::issue(name1)
+        NavigationNodes::issue(name1)
     end
 
-    # EncyclopediaListings::selectOneExistingListingOrNull()
+    # NavigationNodes::selectOneExistingListingOrNull()
     def self.selectOneExistingListingOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("encyclopedia listing", EncyclopediaListings::listings(), lambda{|l| EncyclopediaListings::toString(l) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("navigation node", NavigationNodes::listings(), lambda{|l| NavigationNodes::toString(l) })
     end
 
-    # EncyclopediaListings::selectOneExistingOrNewListingOrNull()
+    # NavigationNodes::selectOneExistingOrNewListingOrNull()
     def self.selectOneExistingOrNewListingOrNull()
-        listing = EncyclopediaListings::selectOneExistingListingOrNull()
+        listing = NavigationNodes::selectOneExistingListingOrNull()
         return listing if listing
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no encyclopedia listing selected, create a new one ? ")
-        EncyclopediaListings::issueListingInteractivelyOrNull()
+        return nil if !LucilleCore::askQuestionAnswerAsBoolean("no navigation node selected, create a new one ? ")
+        NavigationNodes::issueListingInteractivelyOrNull()
     end
 
-    # EncyclopediaListings::toString(listing)
+    # NavigationNodes::toString(listing)
     def self.toString(listing)
-        "[encyclopedia listing] #{listing["name"]}"
+        "[navigation node] #{listing["name"]}"
     end
 
-    # EncyclopediaListings::landing(listing)
+    # NavigationNodes::landing(listing)
     def self.landing(listing)
         loop {
             system("clear")
 
             return if NyxObjects2::getOrNull(listing["uuid"]).nil?
 
-            puts EncyclopediaListings::toString(listing).green
+            puts NavigationNodes::toString(listing).green
             puts "uuid: #{listing["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
@@ -88,7 +88,7 @@ class EncyclopediaListings
                 return if name1 == ""
                 listing["name"] = name1
                 NyxObjects2::put(listing)
-                EncyclopediaListings::removeSetDuplicates()
+                NavigationNodes::removeSetDuplicates()
             })
             mx.item("make datapoint ; add as target".yellow, lambda { 
                 datapoint = Datapoints::makeNewDatapointOrNull()
@@ -125,8 +125,8 @@ class EncyclopediaListings
                 puts JSON.pretty_generate(listing)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy encyclopedia listing".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy encyclopedia listing: '#{EncyclopediaListings::toString(listing)}': ") then
+            mx.item("destroy navigation node".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy navigation node: '#{NavigationNodes::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end
             })
@@ -136,25 +136,25 @@ class EncyclopediaListings
         }
     end
 
-    # EncyclopediaListings::main()
+    # NavigationNodes::main()
     def self.main()
         loop {
             system("clear")
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("encyclopedia listings dive",lambda { 
+            ms.item("navigation nodes dive",lambda { 
                 loop {
-                    listings = EncyclopediaListings::listings()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|l| EncyclopediaListings::toString(l) })
+                    listings = NavigationNodes::listings()
+                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|l| NavigationNodes::toString(l) })
                     return if listing.nil?
-                    EncyclopediaListings::landing(listing)
+                    NavigationNodes::landing(listing)
                 }
             })
 
-            ms.item("make new encyclopedia listing",lambda { 
-                listing = EncyclopediaListings::issueListingInteractivelyOrNull()
+            ms.item("make new navigation node",lambda { 
+                listing = NavigationNodes::issueListingInteractivelyOrNull()
                 return if listing.nil?
-                EncyclopediaListings::landing(listing)
+                NavigationNodes::landing(listing)
             })
 
             status = ms.promptAndRunSandbox()

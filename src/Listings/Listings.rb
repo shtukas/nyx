@@ -5,12 +5,12 @@ class Listings
 
     # Listings::issueNewListingInteractivelyOrNull()
     def self.issueNewListingInteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["operational listing", "encyclopedia listing"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["operational listing", "navigation node"])
         if type == "operational listing" then
             return OperationalListings::issueListingInteractivelyOrNull()
         end
-        if type == "encyclopedia listing" then
-            return EncyclopediaListings::issueListingInteractivelyOrNull()
+        if type == "navigation node" then
+            return NavigationNodes::issueListingInteractivelyOrNull()
         end
         nil
     end

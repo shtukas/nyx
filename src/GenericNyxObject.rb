@@ -67,7 +67,7 @@ class GenericNyxObject
             return OperationalListings::toString(object)
         end
         if GenericNyxObject::isEncyclopediaListing(object) then
-            return EncyclopediaListings::toString(object)
+            return NavigationNodes::toString(object)
         end
         if GenericNyxObject::isWave(object) then
             return Waves::toString(object)
@@ -175,7 +175,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isEncyclopediaListing(object) then
-            EncyclopediaListings::landing(object)
+            NavigationNodes::landing(object)
             return
         end
         puts object
@@ -205,7 +205,7 @@ class GenericNyxObject
             return
         end
         if GenericNyxObject::isEncyclopediaListing(object) then
-            EncyclopediaListings::landing(object)
+            NavigationNodes::landing(object)
             return
         end
         puts object
