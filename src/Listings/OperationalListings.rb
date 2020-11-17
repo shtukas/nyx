@@ -26,7 +26,7 @@ class OperationalListings
     end
 
     # OperationalListings::issueListingInteractivelyOrNull()
-    def self.issueListingInteractivelyOrNull()
+    def self.issueNodeInteractivelyOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("operational listing name: ")
         return nil if name1 == ""
         OperationalListings::issue(name1)

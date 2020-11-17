@@ -26,14 +26,14 @@ class GenericNyxObject
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
     end
 
-    # GenericNyxObject::isEncyclopediaListing(object)
-    def self.isEncyclopediaListing(object)
+    # GenericNyxObject::isNavigationNode(object)
+    def self.isNavigationNode(object)
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
     end
 
     # GenericNyxObject::isGenericListing(object)
     def self.isGenericListing(object)
-        GenericNyxObject::isOperationalListing(object) or GenericNyxObject::isEncyclopediaListing(object)
+        GenericNyxObject::isOperationalListing(object) or GenericNyxObject::isNavigationNode(object)
     end
 
     # GenericNyxObject::isAsteroid(object)
@@ -66,7 +66,7 @@ class GenericNyxObject
         if GenericNyxObject::isOperationalListing(object) then
             return OperationalListings::toString(object)
         end
-        if GenericNyxObject::isEncyclopediaListing(object) then
+        if GenericNyxObject::isNavigationNode(object) then
             return NavigationNodes::toString(object)
         end
         if GenericNyxObject::isWave(object) then
@@ -140,8 +140,8 @@ class GenericNyxObject
             SelectionLookupDataset::updateLookupForOperationalListing(object)
             return
         end
-        if GenericNyxObject::isEncyclopediaListing(object) then
-            SelectionLookupDataset::updateLookupForEncyclopediaListing(object)
+        if GenericNyxObject::isNavigationNode(object) then
+            SelectionLookupDataset::updateLookupForNavigationNode(object)
             return
         end
         if GenericNyxObject::isWave(object) then
@@ -174,7 +174,7 @@ class GenericNyxObject
             OperationalListings::landing(object)
             return
         end
-        if GenericNyxObject::isEncyclopediaListing(object) then
+        if GenericNyxObject::isNavigationNode(object) then
             NavigationNodes::landing(object)
             return
         end
@@ -204,7 +204,7 @@ class GenericNyxObject
             OperationalListings::landing(object)
             return
         end
-        if GenericNyxObject::isEncyclopediaListing(object) then
+        if GenericNyxObject::isNavigationNode(object) then
             NavigationNodes::landing(object)
             return
         end

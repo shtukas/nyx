@@ -78,8 +78,8 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], OperationalListings::toString(node))
     end
 
-    # SelectionLookupDataset::updateLookupForEncyclopediaListing(node)
-    def self.updateLookupForEncyclopediaListing(node)
+    # SelectionLookupDataset::updateLookupForNavigationNode(node)
+    def self.updateLookupForNavigationNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
         SelectionLookupDatabaseIO::addRecord("navigation-node", node["uuid"], node["uuid"])
         SelectionLookupDatabaseIO::addRecord("navigation-node", node["uuid"], NavigationNodes::toString(node))
@@ -176,7 +176,7 @@ class SelectionLookupDataset
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
         db.execute "delete from lookup where _objecttype_=?", ["navigation-node"]
 
-        NavigationNodes::listings()
+        NavigationNodes::nodes()
             .each{|node|
                 if verbose then
                     puts "navigation node: #{node["uuid"]} , #{NavigationNodes::toString(node)}"

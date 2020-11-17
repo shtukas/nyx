@@ -10,7 +10,7 @@ class Listings
             return OperationalListings::issueListingInteractivelyOrNull()
         end
         if type == "navigation node" then
-            return NavigationNodes::issueListingInteractivelyOrNull()
+            return NavigationNodes::issueNodeInteractivelyOrNull()
         end
         nil
     end
@@ -22,7 +22,7 @@ class Listings
             NyxObjects2::put(listing)
             return nil
         end
-        if GenericNyxObject::isEncyclopediaListing(listing) then
+        if GenericNyxObject::isNavigationNode(listing) then
             listing["name"] = name_
             NyxObjects2::put(listing)
             return nil
