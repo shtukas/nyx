@@ -180,9 +180,7 @@ class Asteroids
             return " (#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
         }).call(asteroid)
 
-        p7 = " (metric: #{Asteroids::metric(asteroid).round(3)})"
-
-        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}#{p7}"
+        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
     end
 
     # Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid)
@@ -255,8 +253,7 @@ class Asteroids
         uuid = asteroid["uuid"]
         isRunning = Asteroids::isRunning?(asteroid)
 
-        targetsOperationalListings = Arrows::getTargetsForSource(asteroid)
-                              .select{|target| GenericNyxObject::isOperationalListing(target) }
+        targetsOperationalListings = Arrows::getTargetsForSource(asteroid).select{|target| GenericNyxObject::isOperationalListing(target) }
 
         metric = Asteroids::metric(asteroid)
         if asteroid["activeDays"] and !asteroid["activeDays"].include?(Time.new.wday) then
