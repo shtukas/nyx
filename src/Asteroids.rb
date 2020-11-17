@@ -423,6 +423,7 @@ class Asteroids
 
     # Asteroids::runAsteroidAndTryAndDelete(asteroid)
     def self.runAsteroidAndTryAndDelete(asteroid)
+        raise "TODO: 75463144-E83F-496B-9D35-1A83DD3AE43B"
         Asteroids::startAsteroidIfNotRunning(asteroid)
         Asteroids::open1(asteroid)
         loop {
@@ -459,10 +460,11 @@ class Asteroids
                         puts "moving: #{GenericNyxObject::toString(target)}"
 
                         loop {
-                            payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit): ")
-                            break if payload == ""
-                            tag = Tags::issue(payload)
-                            Arrows::issueOrException(tag, target)
+                            #TODO:
+                            #payload = LucilleCore::askQuestionAnswerAsString("tag payload (empty to exit): ")
+                            #break if payload == ""
+                            #tag = Tags issue(payload)
+                            #Arrows::issueOrException(tag, target)
                         }
                     }
                     NyxObjects2::destroy(asteroid)

@@ -21,11 +21,6 @@ class GenericNyxObject
         object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb"
     end
 
-    # GenericNyxObject::isTag(object)
-    def self.isTag(object)
-        object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111"
-    end
-
     # GenericNyxObject::isOperationalListing(object)
     def self.isOperationalListing(object)
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
@@ -64,9 +59,6 @@ class GenericNyxObject
         end
         if GenericNyxObject::isDataContainer(object) then
             return DataContainers::toString(object)
-        end
-        if GenericNyxObject::isTag(object) then
-            return Tags::toString(object)
         end
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
@@ -140,10 +132,6 @@ class GenericNyxObject
             SelectionLookupDataset::updateLookupForDataContainer(object)
             return
         end
-        if GenericNyxObject::isTag(object) then
-            SelectionLookupDataset::updateLookupForTag(object)
-            return
-        end
         if GenericNyxObject::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
             return
@@ -178,10 +166,6 @@ class GenericNyxObject
             DataContainers::landing(object)
             return
         end
-        if GenericNyxObject::isTag(object) then
-            Tags::landing(object)
-            return
-        end
         if GenericNyxObject::isQuark(object) then
             Quarks::landing(object)
             return
@@ -210,10 +194,6 @@ class GenericNyxObject
         end
         if GenericNyxObject::isDataContainer(object) then
             DataContainers::landing(object)
-            return
-        end
-        if GenericNyxObject::isTag(object) then
-            Tags::landing(object)
             return
         end
         if GenericNyxObject::isQuark(object) then

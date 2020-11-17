@@ -216,10 +216,8 @@ class Quarks
                 puts JSON.pretty_generate(quark)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("add tag".yellow, lambda {
-                set = Tags::selectExistingTagOrMakeNewOneOrNull()
-                return if set.nil?
-                Arrows::issueOrException(set, quark)
+            mx.item("add parenting path".yellow, lambda {
+                raise "6269ECCA-CFED-4459-8A91-5457B8020AC6"
             })
 
             mx.item("add to listing".yellow, lambda {

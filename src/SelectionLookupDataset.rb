@@ -71,13 +71,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], DataContainers::toString(container))
     end
 
-    # SelectionLookupDataset::updateLookupForTag(tag)
-    def self.updateLookupForTag(tag)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], tag["uuid"])
-        SelectionLookupDatabaseIO::addRecord("tag", tag["uuid"], Tags::toString(tag))
-    end
-
     # SelectionLookupDataset::updateLookupForOperationalListing(node)
     def self.updateLookupForOperationalListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
@@ -161,23 +154,6 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildTagsLookup(verbose)
-    def self.rebuildTagsLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["tag"]
-
-        Tags::tags()
-            .each{|tag|
-                if verbose then
-                    puts "tag: #{tag["uuid"]} , #{Tags::toString(tag)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], tag["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "tag", tag["uuid"], Tags::toString(tag))
-            }
-
-        db.close
-    end
-
     # SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
     def self.rebuildOperationalListingsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
@@ -255,7 +231,6 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildDataContainersLookup(verbose)
-        SelectionLookupDataset::rebuildTagsLookup(verbose)
         SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
         SelectionLookupDataset::rebuildEncyclopediaListingsLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)

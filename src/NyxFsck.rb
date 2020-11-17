@@ -51,12 +51,6 @@ class NyxFsck
             return NyxFsck::processQuark(object)
         end
 
-        if object["nyxNxSet"] == "287041db-39ac-464c-b557-2f172e721111" then
-            # Set
-            puts "fsck tag: #{object["uuid"]}"
-            return true
-        end
-
         if object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5" then
             # OpsNode
             puts "fsck operational listing: #{object["uuid"]}"

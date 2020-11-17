@@ -121,10 +121,8 @@ class NGX15
                 NyxObjects2::put(ngx15)
             })
 
-            mx.item("add tag".yellow, lambda {
-                set = Tags::selectExistingTagOrMakeNewOneOrNull()
-                return if set.nil?
-                Arrows::issueOrException(set, ngx15)
+            mx.item("add parenting path".yellow, lambda {
+                raise "ADD8715D-416E-4FD8-9FC3-92B086A50C82"
             })
 
             mx.item("add to listing".yellow, lambda {

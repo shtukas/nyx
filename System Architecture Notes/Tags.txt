@@ -1,9 +1,0 @@
-
-Tag payloads must be unique
-
-Tag {
-    "uuid"     : UUID
-    "nyxNxSet" : "287041db-39ac-464c-b557-2f172e721111"
-    "unixtime" : Float # Unixtime with decimals
-    "payload"  : String
-}
