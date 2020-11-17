@@ -220,10 +220,26 @@ class Quarks
                 raise "6269ECCA-CFED-4459-8A91-5457B8020AC6"
             })
 
-            mx.item("add to listing".yellow, lambda {
-                listing = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
-                return if listing.nil?
-                Arrows::issueOrException(listing, quark)
+            mx.item("ensure parenting path".yellow, lambda {
+                nameToNodeProcessSelfCreateIfNeeded = lambda {|name1, defaultNode|
+                    if name1 == "[self]" then
+                        return defaultNode
+                    end
+                    node = NavigationNodes::selectNodeByNameCaseInsensitiveOrNull(name1)
+                    return node if node
+                    NavigationNodes::issue(name1)
+                }
+
+                path = LucilleCore::askQuestionAnswerAsString("path (should finish with '[self]'): ")
+                return if path == ""
+                objects = path
+                            .split("->")
+                            .map{|e| e.strip }
+                            .map{|name1| nameToNodeProcessSelfCreateIfNeeded.call(name1, quark) }
+                NavigationNodes::arrayToconsecutivePairs(objects).each{|pair|
+                    puts "linking: #{pair[0]["name"]} -> #{pair[1]["name"]}"
+                    Arrows::issueOrException(pair[0], pair[1])
+                }
             })
 
             mx.item("remove from parent".yellow, lambda {

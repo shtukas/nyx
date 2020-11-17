@@ -125,10 +125,26 @@ class NGX15
                 raise "ADD8715D-416E-4FD8-9FC3-92B086A50C82"
             })
 
-            mx.item("add to listing".yellow, lambda {
-                node = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
-                return if node.nil?
-                Arrows::issueOrException(node, ngx15)
+            mx.item("ensure parenting path".yellow, lambda {
+                nameToNodeProcessSelfCreateIfNeeded = lambda {|name1, defaultNode|
+                    if name1 == "[self]" then
+                        return defaultNode
+                    end
+                    node = NavigationNodes::selectNodeByNameCaseInsensitiveOrNull(name1)
+                    return node if node
+                    NavigationNodes::issue(name1)
+                }
+
+                path = LucilleCore::askQuestionAnswerAsString("path (should finish with '[self]'): ")
+                return if path == ""
+                objects = path
+                            .split("->")
+                            .map{|e| e.strip }
+                            .map{|name1| nameToNodeProcessSelfCreateIfNeeded.call(name1, ngx15) }
+                NavigationNodes::arrayToconsecutivePairs(objects).each{|pair|
+                    puts "linking: #{pair[0]["name"]} -> #{pair[1]["name"]}"
+                    Arrows::issueOrException(pair[0], pair[1])
+                }
             })
 
             mx.item("remove from parent".yellow, lambda {
