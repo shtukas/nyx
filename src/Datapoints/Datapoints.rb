@@ -12,9 +12,6 @@ class Datapoints
         if type == "NGX15" then
             return NGX15::issueNewNGX15InteractivelyOrNull()
         end
-        if type == "container" then
-            return DataContainers::issueContainerInteractivelyOrNull()
-        end
         nil
     end
 end

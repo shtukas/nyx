@@ -212,14 +212,15 @@ class NavigationNodes
                 return if o.nil?
                 Arrows::issueOrException(listing, o)
             })
-            mx.item("select multiple targets ; inject data container".yellow, lambda {
+            mx.item("select multiple targets ; inject navigation node".yellow, lambda {
                 targets = Arrows::getTargetsForSource(listing)
                 selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| GenericNyxObject::toString(item) })
-                datacontainer = DataContainers::issueContainerInteractivelyOrNull()
-                return if datacontainer.nil?
-                Arrows::issueOrException(listing, datacontainer)
+                name1 = LucilleCore::askQuestionAnswerAsString("new navigation node name (empty to abort): ")
+                return if name1 == ""
+                n1 = NavigationNodes::issue(name1)
+                Arrows::issueOrException(listing, n1)
                 selectedtargets.each{|target|
-                    Arrows::issueOrException(datacontainer, target)
+                    Arrows::issueOrException(n1, target)
                     Arrows::unlink(listing, target)
                 }
             })

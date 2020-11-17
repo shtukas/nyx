@@ -120,7 +120,6 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
-require_relative "Datapoints/DataContainers.rb"
 require_relative "Datapoints/Datapoints.rb"
 require_relative "Datapoints/Leptons.rb"
 require_relative "Datapoints/Quarks.rb"

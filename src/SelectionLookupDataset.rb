@@ -64,13 +64,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
-    # SelectionLookupDataset::updateLookupForDataContainer(container)
-    def self.updateLookupForDataContainer(container)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(container["uuid"])
-        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], container["uuid"])
-        SelectionLookupDatabaseIO::addRecord("data-container", container["uuid"], DataContainers::toString(container))
-    end
-
     # SelectionLookupDataset::updateLookupForOperationalListing(node)
     def self.updateLookupForOperationalListing(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
@@ -118,21 +111,6 @@ class SelectionLookupDataset
                 end
             }
 
-        db.close
-    end
-
-    # SelectionLookupDataset::rebuildDataContainersLookup(verbose)
-    def self.rebuildDataContainersLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["data-container"]
-        DataContainers::containers()
-            .each{|container|
-                if verbose then
-                    puts "container: #{container["uuid"]} , #{DataContainers::toString(container)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "data-container", container["uuid"], container["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "data-container", container["uuid"], DataContainers::toString(container))
-            }
         db.close
     end
 
@@ -230,7 +208,6 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
-        SelectionLookupDataset::rebuildDataContainersLookup(verbose)
         SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
         SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)

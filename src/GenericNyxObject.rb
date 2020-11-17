@@ -16,11 +16,6 @@ class GenericNyxObject
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # GenericNyxObject::isDataContainer(object)
-    def self.isDataContainer(object)
-        object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb"
-    end
-
     # GenericNyxObject::isOperationalListing(object)
     def self.isOperationalListing(object)
         object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
@@ -56,9 +51,6 @@ class GenericNyxObject
         end
         if GenericNyxObject::isNGX15(object) then
             return NGX15::toString(object)
-        end
-        if GenericNyxObject::isDataContainer(object) then
-            return DataContainers::toString(object)
         end
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
@@ -128,10 +120,6 @@ class GenericNyxObject
             SelectionLookupDataset::updateLookupForNGX15(object)
             return
         end
-        if GenericNyxObject::isDataContainer(object) then
-            SelectionLookupDataset::updateLookupForDataContainer(object)
-            return
-        end
         if GenericNyxObject::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
             return
@@ -162,10 +150,6 @@ class GenericNyxObject
             NGX15::landing(object)
             return
         end
-        if GenericNyxObject::isDataContainer(object) then
-            DataContainers::landing(object)
-            return
-        end
         if GenericNyxObject::isQuark(object) then
             Quarks::landing(object)
             return
@@ -190,10 +174,6 @@ class GenericNyxObject
         end
         if GenericNyxObject::isNGX15(object) then
             NGX15::openNGX15(object)
-            return
-        end
-        if GenericNyxObject::isDataContainer(object) then
-            DataContainers::landing(object)
             return
         end
         if GenericNyxObject::isQuark(object) then
