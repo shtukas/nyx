@@ -8,50 +8,39 @@ class Bank
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
     end
 
-    # Bank::getTimePackets(setuuid)
-    def self.getTimePackets(setuuid)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from table2 where _setuuid_=?" , [setuuid] ) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
-        uuid = Time.new.to_f.to_s
-        packet = {
-            "uuid" => uuid,
-            "weight" => weight,
-            "unixtime" => Time.new.to_f
-        }
+        operationuuid = SecureRandom.hex
+        unixtime = Time.new.to_i
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.transaction 
-        db.execute "delete from table2 where _setuuid_=? and _objectuuid_=?", [setuuid, uuid]
-        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [setuuid, uuid, JSON.generate(packet)]
-        db.commit 
+        db.execute "insert into _operations_ (_setuuid_, _operationuuid_ , _unixtime_, _weight_) values (?, ?, ?, ?)", [setuuid, operationuuid, unixtime, weight]
         db.close
         nil
     end
 
     # Bank::value(setuuid)
     def self.value(setuuid)
-        unixtime = Time.new.to_f
-        Bank::getTimePackets(setuuid)
-            .map{|packet| packet["weight"] }
-            .inject(0, :+)
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=?" , [setuuid] ) do |row|
+            answer = row["_sum_"]
+        end
+        db.close
+        answer
     end
 
     # Bank::valueOverTimespan(setuuid, timespanInSeconds)
     def self.valueOverTimespan(setuuid, timespanInSeconds)
-        unixtime = Time.new.to_f
-        Bank::getTimePackets(setuuid)
-                .select{|packet| (unixtime - packet["unixtime"]) <= timespanInSeconds }
-                .map{|packet| packet["weight"] }
-                .inject(0, :+)
+        horizon = Time.new.to_i - timespanInSeconds
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
+            answer = row["_sum_"]
+        end
+        db.close
+        answer
     end
 end
 
