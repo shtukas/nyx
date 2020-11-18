@@ -10,16 +10,6 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
-        filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-        text = IO.read(filepath).strip
-        if text.size > 0 then
-            puts ""
-            text = text.lines.first(10).join().strip.lines.map{|line| "    #{line}" }.join()
-            puts File.basename(filepath)
-            puts text
-            verticalSpaceLeft = verticalSpaceLeft - (DisplayUtils::verticalSize(text) + 3)
-        end
-
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then
@@ -72,18 +62,6 @@ class CatalystUI
         if command.size >= 3 and command[-2, 2] == ".." and Miscellaneous::isInteger(command[0, command.size-2].strip) then
             position = command[0, command.size-2].strip.to_i
             catalystObjects[position-1]["nextNaturalStep"].call()
-            return
-        end
-
-        if command == "::" then
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            system("open '#{filepath}'")
-            return
-        end
-
-        if command == "[]" then
-            filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
-            Miscellaneous::applyNextTransformationToFile(filepath)
             return
         end
 
