@@ -9,6 +9,7 @@ class CatalystObjectsOperator
             Asteroids::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
+            ODCOs::getCatalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -32,6 +33,10 @@ class CatalystObjectsOperator
     def self.generationSpeedReport()
         generators = [
             {
+                "name" => "Asteroids",
+                "exec" => lambda{ Asteroids::catalystObjects() }
+            },
+            {
                 "name" => "BackupsMonitor",
                 "exec" => lambda{ BackupsMonitor::catalystObjects() }
             },
@@ -40,8 +45,8 @@ class CatalystObjectsOperator
                 "exec" => lambda{ Calendar::catalystObjects() }
             },
             {
-                "name" => "Asteroids",
-                "exec" => lambda{ Asteroids::catalystObjects() }
+                "name" => "ODCO",
+                "exec" => lambda{ ODCOs::getCatalystObjects() }
             },
             {
                 "name" => "VideoStream",

@@ -1,0 +1,8 @@
+repository objects
+
+{
+  "uuid":       "58b02181-120d-4f24-9105-114d1d19fc47",
+  "type":       "text",
+  "storageKey": "c53b326c-2672-4f90-a05d-4e11abc35ab3",
+  "ordinal":    0.8400521760325421,
+}

@@ -163,6 +163,7 @@ require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 
 require_relative "OperationalListings.rb"
+require_relative "ODCOs.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
