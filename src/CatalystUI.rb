@@ -2,8 +2,8 @@
 
 class CatalystUI
 
-    # CatalystUI::standardDisplay(catalystObjects)
-    def self.standardDisplay(catalystObjects)
+    # CatalystUI::standardDisplayWithPrompt(catalystObjects)
+    def self.standardDisplayWithPrompt(catalystObjects)
 
         system("clear")
 
@@ -75,34 +75,6 @@ class CatalystUI
             return
         end
 
-        if command == "done" then
-            object = catalystObjects.first
-            return if object.nil?
-            if object["x-asteroid"] then
-                asteroid = object["x-asteroid"]
-                puts "deleting: #{GenericNyxObject::toString(asteroid)}"
-                Arrows::getTargetsForSource(asteroid).each{|target|
-                    return if Arrows::getSourcesForTarget(target).size > 1
-                    if GenericNyxObject::isNGX15(target) then
-                        status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
-                        return if !status
-                        next
-                    end
-                    if GenericNyxObject::isQuark(target) then
-                        Quarks::destroyQuarkAndLepton(target)
-                        next
-                    end
-                    puts target
-                    raise "exception: d45a4616-839a-4b74-bbb8-b4cb0e846564"
-                }
-                NyxObjects2::destroy(asteroid)
-                puts "completed"
-            end
-            catalystObjects = catalystObjects.drop(1)
-            CatalystUI::standardDisplay(catalystObjects)
-            return
-        end
-
         if command == "::" then
             filepath = "#{Miscellaneous::catalystDataCenterFolderpath()}/Interface-Top.txt"
             system("open '#{filepath}'")
@@ -137,7 +109,7 @@ class CatalystUI
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             catalystObjects = catalystObjects.drop(1)
-            CatalystUI::standardDisplay(catalystObjects)
+            CatalystUI::standardDisplayWithPrompt(catalystObjects)
             return
         end
 
@@ -147,25 +119,73 @@ class CatalystUI
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             catalystObjects = catalystObjects.drop(1)
-            CatalystUI::standardDisplay(catalystObjects)
+            CatalystUI::standardDisplayWithPrompt(catalystObjects)
             return
         end
 
-        if command == "l+" then
+        if command == "waves new" then
+            Waves::issueNewWaveInteractivelyOrNull()
+            return
+        end
+
+        if command == "asteroids new" then
             ms = LCoreMenuItemsNX1.new()
             ms.item(
-                "issue asteroid (line)",
+                "new asteroid (line)",
                 lambda { Asteroids::issuePlainAsteroidInteractivelyOrNull() }
             )
             ms.item(
-                "issue asteroid (datapoint)",
+                "new asteroid (datapoint)",
                 lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
             )
-            ms.item(
-                "issue wave",
-                lambda { Waves::issueNewWaveInteractivelyOrNull() }
-            )
             ms.promptAndRunSandbox()
+            return
+        end
+
+        if command == "ordinals new" then
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            object = OrdinalPoints::issueTextPointInteractivelyOrNull(ordinal)
+            puts JSON.pretty_generate(object)
+            return
+        end
+
+        if command == "ordinals update" then
+            points = OrdinalPoints::ordinalPoints().sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"] }
+            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| OrdinalPoints::toString(point) })
+            return if point.nil?
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            point["ordinal"] = ordinal
+            uuid = point["uuid"]
+            filepath = "#{OrdinalPoints::repositoryPath()}/#{uuid}.json"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(point)) }
+            return
+        end
+
+        if command == "done" then
+            object = catalystObjects.first
+            return if object.nil?
+            if object["x-asteroid"] then
+                asteroid = object["x-asteroid"]
+                puts "deleting: #{GenericNyxObject::toString(asteroid)}"
+                Arrows::getTargetsForSource(asteroid).each{|target|
+                    return if Arrows::getSourcesForTarget(target).size > 1
+                    if GenericNyxObject::isNGX15(target) then
+                        status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
+                        return if !status
+                        next
+                    end
+                    if GenericNyxObject::isQuark(target) then
+                        Quarks::destroyQuarkAndLepton(target)
+                        next
+                    end
+                    puts target
+                    raise "exception: d45a4616-839a-4b74-bbb8-b4cb0e846564"
+                }
+                NyxObjects2::destroy(asteroid)
+                puts "completed"
+                catalystObjects = catalystObjects.drop(1)
+                CatalystUI::standardDisplayWithPrompt(catalystObjects)
+            end
             return
         end
 
@@ -211,7 +231,7 @@ class CatalystUI
                 next
             end
 
-            CatalystUI::standardDisplay(objects)
+            CatalystUI::standardDisplayWithPrompt(objects)
         }
     end
 end

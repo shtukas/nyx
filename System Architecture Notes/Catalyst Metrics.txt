@@ -12,7 +12,7 @@
         0.70-            Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         0.70  -> 0.20    VideoStream
 
-        0.69  -> 0.66    Ordinal Driven Catalyst Objects # ODCO
+        0.69  -> 0.66    OrdinalPoints
 
 
         0.65- -> 0.60; 0 Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"

@@ -9,7 +9,7 @@ class CatalystObjectsOperator
             Asteroids::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
-            ODCOs::getCatalystObjects(),
+            OrdinalPoints::getCatalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -45,8 +45,8 @@ class CatalystObjectsOperator
                 "exec" => lambda{ Calendar::catalystObjects() }
             },
             {
-                "name" => "ODCO",
-                "exec" => lambda{ ODCOs::getCatalystObjects() }
+                "name" => "OrdinalPoints",
+                "exec" => lambda{ OrdinalPoints::getCatalystObjects() }
             },
             {
                 "name" => "VideoStream",
