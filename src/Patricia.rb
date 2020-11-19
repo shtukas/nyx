@@ -176,6 +176,10 @@ class Patricia
             NGX15::ngx15TerminationProtocolReturnBoolean(object)
             return
         end
+        if Patricia::isQuark(object) then
+            Quarks::destroyQuarkAndLepton(object)
+            return
+        end
         puts object
         raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
     end
