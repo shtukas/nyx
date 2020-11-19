@@ -8,7 +8,8 @@ CatalystObject
 
     "landing"          : Lambda { code }
     "nextNaturalStep"  : Lambda { code }
-    "done"             : Lambda { code }
+    "done"             : nil or Lambda { code }
+    "move"             : nil or Lambda { code } # move an asteroid target to a navigation point, or else.
 
     "isRunning"        : Boolean # Optional [2]
     "isRunningForLong" : Boolean # Optional [3]

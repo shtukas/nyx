@@ -82,7 +82,7 @@ class OrdinalPoints
             "landing"          => lambda {},
             "nextNaturalStep"  => lambda {},
             "done"             => lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm '#{OrdinalPoints::toString(point)}' done ? ") then
                     OrdinalPoints::destroyPointUuid(uuid)
                 end
             },

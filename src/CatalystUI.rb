@@ -114,6 +114,19 @@ class CatalystUI
             return
         end
 
+        if command == "move" then
+            object = catalystObjects.first
+            return if object.nil?
+            if object["move"] then
+                object["move"].call()
+                return
+            end
+            puts "I do not know how to move this object"
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if command == "waves new" then
             Waves::issueNewWaveInteractivelyOrNull()
             return
