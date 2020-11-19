@@ -154,7 +154,7 @@ class NavigationNodes
             mx = LCoreMenuItemsNX1.new()
 
             GenericNyxObject::getAllParentingPathsOfSize2(listing).each{|item|
-                announce = "#{GenericNyxObject::toString(item["object"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""} -> #{GenericNyxObject::toString(item["p1"])}"
+                announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
                     lambda { GenericNyxObject::landing(item["p1"]) }

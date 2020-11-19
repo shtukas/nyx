@@ -163,7 +163,18 @@ class CatalystUI
                 puts "completed"
                 catalystObjects = catalystObjects.drop(1)
                 CatalystUI::standardDisplayWithPrompt(catalystObjects)
+                return
             end
+            if object["x-ordinal-point"] then
+                uuid = object["uuid"]
+                OrdinalPoints::destroyPointUuid(uuid)
+                catalystObjects = catalystObjects.drop(1)
+                CatalystUI::standardDisplayWithPrompt(catalystObjects)
+                return
+            end
+            puts "I do not know how to done this object"
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
             return
         end
 

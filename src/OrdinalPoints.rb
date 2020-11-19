@@ -32,6 +32,13 @@ class OrdinalPoints
         JSON.parse(IO.read(filepath))
     end
 
+    # OrdinalPoints::destroyPointUuid(uuid)
+    def self.destroyPointUuid(uuid)
+        filepath = "#{OrdinalPoints::repositoryPath()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
     # OrdinalPoints::repositoryUuids()
     def self.repositoryUuids()
         Dir.entries(OrdinalPoints::repositoryPath())
@@ -75,7 +82,8 @@ class OrdinalPoints
             "landing"          => lambda {},
             "nextNaturalStep"  => lambda {},
             "isRunning"        => false,
-            "isRunningForLong" => false
+            "isRunningForLong" => false,
+            "x-ordinal-point"  => true
         }
     end
 
