@@ -65,7 +65,7 @@ class NavigationNodes
 
         lambda1 = lambda { |pattern|
             Patricia::patternToOrderedSearchResults(pattern)
-                .select{|item| GenericNyxObject::isNavigationNode(item["object"]) }
+                .select{|item| Patricia::isNavigationNode(item["object"]) }
                 .map{|item| item["fragment"] }
         }
 
@@ -89,7 +89,7 @@ class NavigationNodes
             if operation == "select navigation node" then
                 listing = NavigationNodes::searchAndReturnNavigationNodeOrNullIntellisense()
                 if listing then
-                    puts "selected: #{GenericNyxObject::toString(listing)}"
+                    puts "selected: #{Patricia::toString(listing)}"
                     operations = ["return navigation node", "landing only", "landing then return navigation node", "select navigation node descendant"]
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                     next if operation.nil?
@@ -97,10 +97,10 @@ class NavigationNodes
                         return listing
                     end
                     if operation == "landing only" then
-                        GenericNyxObject::landing(listing)
+                        Patricia::landing(listing)
                     end
                     if operation == "landing then return navigation node" then
-                        GenericNyxObject::landing(listing)
+                        Patricia::landing(listing)
                         listing = NyxObjects2::getOrNull(listing["uuid"])
                         next if listing.nil?
                         return listing
@@ -114,9 +114,9 @@ class NavigationNodes
             if operation == "make navigation node" then
                 listing = NavigationNodes::issueNodeInteractivelyOrNull()
                 if listing then
-                    puts "made: #{GenericNyxObject::toString(listing)}"
+                    puts "made: #{Patricia::toString(listing)}"
                     if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
-                        GenericNyxObject::landing(listing)
+                        Patricia::landing(listing)
                         listing = NyxObjects2::getOrNull(listing["uuid"])
                     end
                     next if listing.nil?
@@ -154,21 +154,21 @@ class NavigationNodes
             mx = LCoreMenuItemsNX1.new()
 
             Patricia::getAllParentingPathsOfSize2(listing).each{|item|
-                announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
+                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
-                    lambda { GenericNyxObject::landing(item["p1"]) }
+                    lambda { Patricia::landing(item["p1"]) }
                 )
             }
 
             targets = Arrows::getTargetsForSource(listing)
-            targets = GenericNyxObject::applyDateTimeOrderToObjects(targets)
+            targets = Patricia::applyDateTimeOrderToObjects(targets)
             puts "" if !targets.empty?
             targets
                 .each{|object|
                     mx.item(
-                        "target: #{GenericNyxObject::toString(object)}",
-                        lambda { GenericNyxObject::landing(object) }
+                        "target: #{Patricia::toString(object)}",
+                        lambda { Patricia::landing(object) }
                     )
                 }
 
@@ -196,7 +196,7 @@ class NavigationNodes
 
             mx.item("select multiple targets ; inject navigation node".yellow, lambda {
                 targets = Arrows::getTargetsForSource(listing)
-                selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| GenericNyxObject::toString(item) })
+                selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| Patricia::toString(item) })
                 name1 = LucilleCore::askQuestionAnswerAsString("new navigation node name (empty to abort): ")
                 return if name1 == ""
                 n1 = NavigationNodes::issue(name1)

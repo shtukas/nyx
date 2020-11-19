@@ -3,6 +3,183 @@
 
 class Patricia
 
+    # -----------------------------------------------
+    # is
+
+    # Patricia::isQuark(object)
+    def self.isQuark(object)
+        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    end
+
+    # Patricia::isNGX15(object)
+    def self.isNGX15(object)
+        object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
+    end
+
+    # Patricia::isNavigationNode(object)
+    def self.isNavigationNode(object)
+        object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
+    end
+
+    # Patricia::isAsteroid(object)
+    def self.isAsteroid(object)
+        object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
+    end
+
+    # Patricia::isWave(object)
+    def self.isWave(object)
+        object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+    end
+
+    # -----------------------------------------------
+    # properties
+
+    # Patricia::toString(object)
+    def self.toString(object)
+        if Patricia::isAsteroid(object) then
+            return Asteroids::toString(object)
+        end
+        if Patricia::isNGX15(object) then
+            return NGX15::toString(object)
+        end
+        if Patricia::isQuark(object) then
+            return Quarks::toString(object)
+        end
+        if Patricia::isNavigationNode(object) then
+            return NavigationNodes::toString(object)
+        end
+        if Patricia::isWave(object) then
+            return Waves::toString(object)
+        end
+        puts object
+        raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
+    end
+
+    # Patricia::applyDateTimeOrderToObjects(objects)
+    def self.applyDateTimeOrderToObjects(objects)
+        objects
+            .map{|object|
+                {
+                    "object"   => object,
+                    "datetime" => Patricia::getObjectReferenceDateTime(object)
+                }
+            }
+            .sort{|i1, i2|
+                i1["datetime"] <=> i2["datetime"]
+            }
+            .map{|i| i["object"] }
+    end
+
+    # Patricia::getObjectReferenceDateTime(object)
+    def self.getObjectReferenceDateTime(object)
+        return object["referenceDateTime"] if object["referenceDateTime"]
+        object["referenceDateTime"] = Time.at(object["unixtime"]).utc.iso8601
+        NyxObjects2::put(object)
+        object["referenceDateTime"]
+    end
+
+    # -----------------------------------------------
+    # operations
+
+    # Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+    def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+        targets = Arrows::getTargetsForSource(object)
+        if targets.size == 0 then
+            return nil
+        end
+        if targets.size == 1 then
+            if LucilleCore::askQuestionAnswerAsBoolean("selecting target: '#{Patricia::toString(targets[0])}' confirm ? ", true) then
+                return targets[0]
+            end
+            return nil
+        end
+        targets = Patricia::applyDateTimeOrderToObjects(targets)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| Patricia::toString(target) })
+    end
+
+    # Patricia::updateSearchLookupDatabase(object)
+    def self.updateSearchLookupDatabase(object)
+        if Patricia::isAsteroid(object) then
+            SelectionLookupDataset::updateLookupForAsteroid(object)
+            return
+        end
+        if Patricia::isNGX15(object) then
+            SelectionLookupDataset::updateLookupForNGX15(object)
+            return
+        end
+        if Patricia::isQuark(object) then
+            SelectionLookupDataset::updateLookupForQuark(object)
+            return
+        end
+        if Patricia::isNavigationNode(object) then
+            SelectionLookupDataset::updateLookupForNavigationNode(object)
+            return
+        end
+        if Patricia::isWave(object) then
+            SelectionLookupDataset::updateLookupForWave(object)
+            return
+        end
+        puts object
+        raise "[error: 199551db-bd83-44fa-be7b-82274d95563f]"
+    end
+
+    # Patricia::landing(object)
+    def self.landing(object)
+        if Patricia::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if Patricia::isNGX15(object) then
+            NGX15::landing(object)
+            return
+        end
+        if Patricia::isQuark(object) then
+            Quarks::landing(object)
+            return
+        end
+        if Patricia::isNavigationNode(object) then
+            NavigationNodes::landing(object)
+            return
+        end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+    end
+
+    # Patricia::open1(object)
+    def self.open1(object)
+        if Patricia::isAsteroid(object) then
+            Asteroids::landing(object)
+            return
+        end
+        if Patricia::isNGX15(object) then
+            NGX15::openNGX15(object)
+            return
+        end
+        if Patricia::isQuark(object) then
+            Quarks::open1(object)
+            return
+        end
+        if Patricia::isNavigationNode(object) then
+            NavigationNodes::landing(object)
+            return
+        end
+        puts object
+        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+    end
+
+    # Patricia::destroy(object)
+    def self.destroy(object)
+        if Patricia::isAsteroid(object) then
+            return
+        end
+        if Patricia::isNGX15(object) then
+            NGX15::ngx15TerminationProtocolReturnBoolean(object)
+            return
+        end
+        puts object
+        raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
+    end
+
     # --------------------------------------------------
     # Genealogy
 
@@ -10,10 +187,10 @@ class Patricia
     def self.selectSelfOrDescendantOrNull(object)
         loop {
             puts ""
-            puts "object: #{GenericNyxObject::toString(object)}"
+            puts "object: #{Patricia::toString(object)}"
             puts "targets:"
             Arrows::getTargetsForSource(object).each{|target|
-                puts "    #{GenericNyxObject::toString(target)}"
+                puts "    #{Patricia::toString(target)}"
             }
             operations = ["return object", "select and return one target", "select and focus on target", "return null"]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -22,13 +199,13 @@ class Patricia
                 return object
             end
             if operation == "select and return one target" then
-                t = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                t = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
                 if t then
                     return t
                 end
             end
             if operation == "select and focus on target" then
-                t =  GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                t =  Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
                 if t then
                     return Patricia::selectSelfOrDescendantOrNull(t)
                 end
@@ -83,7 +260,7 @@ class Patricia
                             }
                             .map{|record|
                                 object = record["object"]
-                                record["referenceunixtime"] = DateTime.parse(GenericNyxObject::getObjectReferenceDateTime(object)).to_time.to_f
+                                record["referenceunixtime"] = DateTime.parse(Patricia::getObjectReferenceDateTime(object)).to_time.to_f
                                 record
                             }
         #{
@@ -125,7 +302,7 @@ class Patricia
                 searchresults
                     .each{|sr| 
                         ms.item(
-                            GenericNyxObject::toString(sr["object"]), 
+                            Patricia::toString(sr["object"]), 
                             lambda { answer = sr["object"] }
                         )
                     }
@@ -140,7 +317,7 @@ class Patricia
     def self.searchAndLanding()
         object = Patricia::searchSequentialAndReturnObjectOrNull()
         return if object.nil?
-        GenericNyxObject::landing(object)
+        Patricia::landing(object)
     end
 
     # --------------------------------------------------
@@ -164,17 +341,28 @@ class Patricia
 
     # Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
     def self.searchAndReturnObjectOrMakeNewObjectOrNull()
+        landingBehindAsk = lambda {|object|
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ?") then
+                Patricia::landing(object)
+            end
+        }
         loop {
             options = ["search existing objects", "make new object"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "search existing objects" then
                 object = Patricia::searchSequentialAndReturnObjectOrNull()
-                return object if object
+                if object then
+                    landingBehindAsk.call(object)
+                    return object
+                end
             end
             if option == "make new object" then
                 object = Patricia::makeNewObjectOrNull()
-                return object if object
+                if object then
+                    landingBehindAsk.call(object)
+                    return object
+                end
             end
         }
     end

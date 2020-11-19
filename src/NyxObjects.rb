@@ -30,7 +30,7 @@ class NyxObjects2
         db.commit 
         db.close
         $NyxObjectsCache76DBF964[object["uuid"]] = object
-        GenericNyxObject::updateSearchLookupDatabase(object)
+        Patricia::updateSearchLookupDatabase(object)
     end
 
     # NyxObjects2::getOrNull(uuid)

@@ -152,8 +152,6 @@ require_relative "DoNotShowUntil.rb"
 
 require_relative "EstateServices.rb"
 
-require_relative "GenericNyxObject.rb"
-
 require_relative "LucilleCore.rb"
 
 require_relative "NavigationNodes.rb"

@@ -151,7 +151,7 @@ class Asteroids
             return "no description / no target"
         end 
         if targets.size == 1 then
-            return GenericNyxObject::toString(targets[0])
+            return Patricia::toString(targets[0])
         end 
         return "(#{targets.size} targets)"
     end
@@ -261,13 +261,13 @@ class Asteroids
             metric = 1 if isRunning
             {
                 "uuid"             => uuid,
-                "body"             => "#{Asteroids::toString(asteroid)}; #{GenericNyxObject::toString(target)}",
+                "body"             => "#{Asteroids::toString(asteroid)}; #{Patricia::toString(target)}",
                 "metric"           => metric,
                 "landing"          => lambda { Asteroids::landing(target) },
                 "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
                 "done"             => lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{GenericNyxObject::toString(target)}' ? ") then
-                        GenericNyxObject::destroy(target)
+                    if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{Patricia::toString(target)}' ? ") then
+                        Patricia::destroy(target)
                     end
                 },
                 "isRunning"        => isRunning,
@@ -426,7 +426,7 @@ class Asteroids
         if !Runner::isRunning?(runId) then
             # Is not running
             Runner::start(runId)
-            GenericNyxObject::open1(target)
+            Patricia::open1(target)
             if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
                 timespan = Runner::stop(runId)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
@@ -435,14 +435,14 @@ class Asteroids
                 menuitems.item(
                     "move target".yellow,
                     lambda {
-                        puts "moving: #{GenericNyxObject::toString(target)}"
-                        if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+                        puts "moving: #{Patricia::toString(target)}"
+                        if Patricia::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
                             description = LucilleCore::askQuestionAnswerAsString("target description: ")
                             if description.size > 0 then
                                 Quarks::setDescription(target, description)
                             end
                         end
-                        if GenericNyxObject::isNGX15(target) and target["description"].nil? then
+                        if Patricia::isNGX15(target) and target["description"].nil? then
                             description = LucilleCore::askQuestionAnswerAsString("target description: ")
                             if description.size > 0 then
                                 target["description"] = description
@@ -454,13 +454,13 @@ class Asteroids
                             Arrows::issueOrException(px1, target)
                             Arrows::unlink(asteroid, target)
                         end
-                        GenericNyxObject::landing(target)
+                        Patricia::landing(target)
                     }
                 )
                 menuitems.item(
                     "destroy target".yellow,
                     lambda { 
-                        GenericNyxObject::destroy(target)
+                        Patricia::destroy(target)
                     }
                 )
                 status = menuitems.promptAndRunSandbox()
@@ -482,7 +482,7 @@ class Asteroids
                     timespan = Runner::stop(runId)
                     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                     Asteroids::asteroidReceivesTime(asteroid, timespan)
-                    GenericNyxObject::destroy(target)
+                    Patricia::destroy(target)
                 }
             )
             menuitems.item(
@@ -491,14 +491,14 @@ class Asteroids
                     timespan = Runner::stop(runId)
                     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                     Asteroids::asteroidReceivesTime(asteroid, timespan)
-                    puts "moving: #{GenericNyxObject::toString(target)}"
-                    if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+                    puts "moving: #{Patricia::toString(target)}"
+                    if Patricia::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
                         description = LucilleCore::askQuestionAnswerAsString("target description: ")
                         if description.size > 0 then
                             Quarks::setDescription(target, description)
                         end
                     end
-                    if GenericNyxObject::isNGX15(target) and target["description"].nil? then
+                    if Patricia::isNGX15(target) and target["description"].nil? then
                         description = LucilleCore::askQuestionAnswerAsString("target description: ")
                         if description.size > 0 then
                             target["description"] = description
@@ -510,13 +510,13 @@ class Asteroids
                         Arrows::issueOrException(px1, target)
                         Arrows::unlink(asteroid, target)
                     end
-                    GenericNyxObject::landing(target)
+                    Patricia::landing(target)
                 }
             )
             menuitems.item(
                 "landing".yellow,
                 lambda { 
-                    GenericNyxObject::landing(target)
+                    Patricia::landing(target)
                 }
             )
             status = menuitems.promptAndRunSandbox()
@@ -526,7 +526,7 @@ class Asteroids
     # Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
     def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
         Arrows::getTargetsForSource(asteroid).each{|target|
-            puts "Moving target: #{GenericNyxObject::toString(target)}"
+            puts "Moving target: #{Patricia::toString(target)}"
             xnode = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
             next if xnode.nil?
             Arrows::issueOrException(xnode, target)
@@ -570,8 +570,8 @@ class Asteroids
             Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
             .each{|target|
                 menuitems.item(
-                    "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
+                    "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}",
+                    lambda { Patricia::landing(target) }
                 )
             }
 
@@ -614,7 +614,7 @@ class Asteroids
             puts ""
 
             menuitems.item("update target's ordinal".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| GenericNyxObject::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 Asteroids::setTargetOrdinal(asteroid, target, ordinal)
@@ -643,9 +643,9 @@ class Asteroids
             menuitems.item(
                 "select and destroy target".yellow,
                 lambda {
-                    target = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
+                    target = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
                     return if target.nil?
-                    GenericNyxObject::destroy(target)
+                    Patricia::destroy(target)
                 }
             )
 

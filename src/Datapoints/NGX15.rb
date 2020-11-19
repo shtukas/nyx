@@ -78,15 +78,15 @@ class NGX15
 
             puts NGX15::toString(ngx15).green
             puts "uuid: #{ngx15["uuid"]}".yellow
-            puts "date: #{GenericNyxObject::getObjectReferenceDateTime(ngx15)}".yellow
+            puts "date: #{Patricia::getObjectReferenceDateTime(ngx15)}".yellow
 
             puts ""
 
             Patricia::getAllParentingPathsOfSize2(ngx15).each{|item|
-                announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
+                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
-                    lambda { GenericNyxObject::landing(item["p1"]) }
+                    lambda { Patricia::landing(item["p1"]) }
                 )
             }
 
@@ -94,8 +94,8 @@ class NGX15
 
             Arrows::getTargetsForSource(ngx15).each{|target|
                 menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
+                    "target: #{Patricia::toString(target)}",
+                    lambda { Patricia::landing(target) }
                 )
             }
 
@@ -129,7 +129,7 @@ class NGX15
 
             mx.item("remove parent".yellow, lambda {
                 parents = Arrows::getSourcesForTarget(ngx15)
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| GenericNyxObject::toString(parent) })
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| Patricia::toString(parent) })
                 return if parent.nil?
                 Arrows::unlink(parent, ngx15)
             })

@@ -184,10 +184,10 @@ class Quarks
             puts ""
 
             Patricia::getAllParentingPathsOfSize2(quark).each{|item|
-                announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
+                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
-                    lambda { GenericNyxObject::landing(item["p1"]) }
+                    lambda { Patricia::landing(item["p1"]) }
                 )
             }
 
@@ -195,8 +195,8 @@ class Quarks
 
             Arrows::getTargetsForSource(quark).each{|target|
                 menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
-                    lambda { GenericNyxObject::landing(target) }
+                    "target: #{Patricia::toString(target)}",
+                    lambda { Patricia::landing(target) }
                 )
             }
 
@@ -226,7 +226,7 @@ class Quarks
 
             mx.item("remove parent".yellow, lambda {
                 parents = Arrows::getSourcesForTarget(quark)
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |px| GenericNyxObject::toString(px) })
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |px| Patricia::toString(px) })
                 return if parent.nil?
                 Arrows::unlink(parent, quark)
             })

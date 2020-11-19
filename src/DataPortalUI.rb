@@ -35,7 +35,7 @@ class DataPortalUI
             ms.item("new datapoint", lambda {
                 datapoint = Datapoints::makeNewDatapointOrNull()
                 return if datapoint.nil?
-                GenericNyxObject::landing(datapoint)
+                Patricia::landing(datapoint)
             })
 
             puts ""
