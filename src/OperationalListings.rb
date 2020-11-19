@@ -124,6 +124,7 @@ class OperationalListings
                                 GenericNyxObject::destroy(target)
                             end
                         else
+                            puts "Starting '#{body}'"
                             Runner::start(uuid)
                             open1.call(target)
                             if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then

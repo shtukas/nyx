@@ -42,7 +42,7 @@ class Patricia
     def self.searchAndLanding()
         loop {
             system("clear")
-            pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
+            pattern = LucilleCore::askQuestionAnswerAsString("[synchronous] search pattern: ")
             return if pattern.size == 0
             next if pattern.size < 3
             searchresults = Patricia::patternToOrderedSearchResults(pattern)
@@ -78,7 +78,7 @@ class Patricia
         loop {
             break if answer
             system("clear")
-            pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
+            pattern = LucilleCore::askQuestionAnswerAsString("[synchronous] search pattern: ")
             return nil if pattern.size == 0
             next if pattern.size < 3
             searchresults = Patricia::patternToOrderedSearchResults(pattern)

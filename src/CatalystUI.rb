@@ -166,10 +166,12 @@ class CatalystUI
                 return
             end
             if object["x-ordinal-point"] then
-                uuid = object["uuid"]
-                OrdinalPoints::destroyPointUuid(uuid)
-                catalystObjects = catalystObjects.drop(1)
-                CatalystUI::standardDisplayWithPrompt(catalystObjects)
+                if LucilleCore::askQuestionAnswerAsString("Confirm deletion of #{object["body"]} ? : ") then
+                    uuid = object["uuid"]
+                    OrdinalPoints::destroyPointUuid(uuid)
+                    catalystObjects = catalystObjects.drop(1)
+                    CatalystUI::standardDisplayWithPrompt(catalystObjects)
+                end
                 return
             end
             puts "I do not know how to done this object"
