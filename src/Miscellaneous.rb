@@ -245,6 +245,8 @@ class Miscellaneous
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
+    # --------------------------------------------------------------------------------
+
     # Miscellaneous::pecoStyleSelectionOrNull(lines)
     def self.pecoStyleSelectionOrNull(lines)
         lines  = [""] + lines
@@ -351,5 +353,4 @@ class Miscellaneous
         return nil if line.nil?
         lambda2.call(line) # this returns an object or null
     end
-
 end

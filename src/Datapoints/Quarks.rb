@@ -219,7 +219,7 @@ class Quarks
             })
 
             mx.item("add parent".yellow, lambda {
-                o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                o1 = Patricia::architect()
                 return if o1.nil?
                 Arrows::issueOrException(o1, quark)
             })

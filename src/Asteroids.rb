@@ -449,7 +449,7 @@ class Asteroids
                                 NyxObjects2::put(target)
                             end
                         end
-                        px1 = Patricia::searchSequentialAndReturnObjectOrNull()
+                        px1 = Patricia::searchAndReturnObjectOrNull()
                         if !px1.nil? then
                             Arrows::issueOrException(px1, target)
                             Arrows::unlink(asteroid, target)
@@ -505,7 +505,7 @@ class Asteroids
                             NyxObjects2::put(target)
                         end
                     end
-                    px1 = Patricia::searchSequentialAndReturnObjectOrNull()
+                    px1 = Patricia::searchAndReturnObjectOrNull()
                     if !px1.nil? then
                         Arrows::issueOrException(px1, target)
                         Arrows::unlink(asteroid, target)
@@ -623,7 +623,7 @@ class Asteroids
             menuitems.item(
                 "add new target at ordinal".yellow,
                 lambda { 
-                    o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                    o1 = Patricia::architect()
                     return if o1.nil?
                     Arrows::issueOrException(asteroid, o1)
                     ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f

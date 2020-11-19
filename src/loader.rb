@@ -34,9 +34,23 @@ require 'thread'
 
 require "time"
 
-require 'curses'
-
 require 'colorize'
+
+# -----------------------------------------------------------------------
+# require 'curses' # I commented that out, thereby disabling 
+# Miscellaneous::ncurseSelection1410(lambda1, lambda2) ,
+# when I introduced pepin 
+
+require 'pepin'
+
+=begin
+list = SelectionLookupDatabaseIO::getDatabaseRecords().map{|record| record["fragment"] }
+item = Pepin.search(list) # Launches interactive window and returns selected item
+
+puts %(You selected "#{item}" from #{list.inspect}.)
+=end
+
+# -----------------------------------------------------------------------
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin

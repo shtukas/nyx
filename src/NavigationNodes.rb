@@ -183,13 +183,13 @@ class NavigationNodes
             })
 
             mx.item("add parent".yellow, lambda {
-                o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                o1 = Patricia::architect()
                 return if o1.nil?
                 Arrows::issueOrException(o1, listing)
             })
 
             mx.item("add target".yellow, lambda { 
-                o = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                o = Patricia::architect()
                 return if o.nil?
                 Arrows::issueOrException(listing, o)
             })

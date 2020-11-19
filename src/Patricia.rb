@@ -277,8 +277,8 @@ class Patricia
     # --------------------------------------------------
     # Search Interface
 
-    # Patricia::searchSequentialAndReturnObjectOrNull()
-    def self.searchSequentialAndReturnObjectOrNull()
+    # Patricia::sequentialSearchAndReturnObjectOrNull()
+    def self.sequentialSearchAndReturnObjectOrNull()
         answer = nil
         loop {
             break if answer
@@ -313,9 +313,36 @@ class Patricia
         answer
     end
 
+    # Patricia::interactiveSearchAndReturnObjectOrNull()
+    def self.interactiveSearchAndReturnObjectOrNull()
+        fragments = SelectionLookupDatabaseIO::getDatabaseRecords().map{|record| record["fragment"] }
+        fragment = Pepin.search(fragments)
+        searchresults = Patricia::patternToOrderedSearchResults(fragment)
+        if searchresults.size == 1 then
+            return searchresults[0]["object"]
+        end
+        answer = nil
+        ms = LCoreMenuItemsNX1.new()
+        searchresults
+            .each{|sr| 
+                ms.item(
+                    Patricia::toString(sr["object"]), 
+                    lambda { answer = sr["object"] }
+                )
+            }
+        status = ms.promptAndRunSandbox()
+        answer
+    end
+
+    # Patricia::searchAndReturnObjectOrNull()
+    def self.searchAndReturnObjectOrNull()
+        # Patricia::sequentialSearchAndReturnObjectOrNull()
+        Patricia::interactiveSearchAndReturnObjectOrNull()
+    end
+
     # Patricia::searchAndLanding()
     def self.searchAndLanding()
-        object = Patricia::searchSequentialAndReturnObjectOrNull()
+        object = Patricia::searchAndReturnObjectOrNull()
         return if object.nil?
         Patricia::landing(object)
     end
@@ -339,8 +366,8 @@ class Patricia
     # --------------------------------------------------
     # Architect
 
-    # Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
-    def self.searchAndReturnObjectOrMakeNewObjectOrNull()
+    # Patricia::architect()
+    def self.architect()
         landingBehindAsk = lambda {|object|
             if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ?") then
                 Patricia::landing(object)
@@ -351,7 +378,7 @@ class Patricia
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "search existing objects" then
-                object = Patricia::searchSequentialAndReturnObjectOrNull()
+                object = Patricia::searchAndReturnObjectOrNull()
                 if object then
                     landingBehindAsk.call(object)
                     return object
