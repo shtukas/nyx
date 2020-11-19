@@ -353,6 +353,35 @@ class Asteroids
     # -------------------------------------------------------------------
     # Operations
 
+    # Asteroids::setTargetOrdinal(asteroid, target, ordinal)
+    def self.setTargetOrdinal(asteroid, target, ordinal)
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}", ordinal)
+    end
+
+    # Asteroids::getTargetOrdinal(asteroid, target)
+    def self.getTargetOrdinal(asteroid, target)
+        ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}")
+        if ordinal then
+            return ordinal.to_f
+        end
+        ordinals = Arrows::getTargetsForSource(listing)
+                    .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{t["uuid"]}") }
+                    .compact
+                    .map{|o| o.to_f }
+        ordinal = ([0] + ordinals).max + 1
+        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}", ordinal)
+        ordinal
+    end
+
+    # Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+    def self.getAsteroidTargetsInOrdinalOrder(asteroid)
+        Arrows::getTargetsForSource(asteroid)
+            .sort{|t1, t2| OperationalListings::getTargetOrdinal(asteroid, t1) <=> OperationalListings::getTargetOrdinal(asteroid, t2) }
+    end
+
+    # -------------------------------------------------------------------
+    # Operations
+
     # Asteroids::reOrbitalOrNothing(asteroid)
     def self.reOrbitalOrNothing(asteroid)
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
@@ -646,9 +675,10 @@ class Asteroids
 
             puts ""
 
-            Arrows::getTargetsForSource(asteroid).each{|target|
+            Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+            .each{|target|
                 menuitems.item(
-                    "target: #{GenericNyxObject::toString(target)}",
+                    "target ( #{"%6.3f" % OperationalListings::getTargetOrdinal(asteroid, target)} ) : #{GenericNyxObject::toString(target)}",
                     lambda { GenericNyxObject::landing(target) }
                 )
             }
@@ -692,6 +722,8 @@ class Asteroids
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
             })
 
+            puts ""
+
             menuitems.item("to orbital burner".yellow, lambda {
                 Asteroids::stopAsteroidIfRunning(asteroid)
                 asteroid["orbital"] = {
@@ -729,6 +761,28 @@ class Asteroids
                 }
             )
 
+            puts ""
+
+            menuitems.item("set target ordinal".yellow, lambda { 
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| GenericNyxObject::toString(t) })
+                return if target.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                Asteroids::setTargetOrdinal(asteroid, target, ordinal)
+            })
+
+            menuitems.item(
+                "add new target at ordinal".yellow,
+                lambda { 
+                    datapoint = Datapoints::makeNewDatapointOrNull()
+                    return if datapoint.nil?
+                    Arrows::issueOrException(asteroid, datapoint)
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    Asteroids::setTargetOrdinal(asteroid, datapoint, ordinal)
+                }
+            )
+
+            puts ""
+
             menuitems.item(
                 "destroy".yellow,
                 lambda {
@@ -740,15 +794,6 @@ class Asteroids
             )
 
             puts ""
-
-            menuitems.item(
-                "add new target".yellow,
-                lambda { 
-                    datapoint = Datapoints::makeNewDatapointOrNull()
-                    return if datapoint.nil?
-                    Arrows::issueOrException(asteroid, datapoint)
-                }
-            )
 
             menuitems.item(
                 "select targets ; move them to listings ; destroy asteroid".yellow,
