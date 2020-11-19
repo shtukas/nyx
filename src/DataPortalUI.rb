@@ -15,8 +15,6 @@ class DataPortalUI
 
             puts ""
 
-            ms.item("Operational Listings",lambda { OperationalListings::main() })
-
             ms.item("Navigation Nodes",lambda { NavigationNodes::main() })
 
             puts ""
@@ -24,12 +22,6 @@ class DataPortalUI
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("Asteroids", lambda { Asteroids::main() })
-
-            ms.item("[operational listing] Pascal Guardian Work", lambda { 
-                uuid = "0a9ef4e7c31439c9e66a324c75f7beb2"
-                node = NyxObjects2::getOrNull(uuid)
-                OperationalListings::landing(node)
-            })
 
             ms.item(
                 "Calendar",

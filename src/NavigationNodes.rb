@@ -106,7 +106,7 @@ class NavigationNodes
                         return listing
                     end
                     if operation == "select navigation node descendant" then
-                        d = GenericNyxObject::selectSelfOrDescendantOrNull(listing)
+                        d = Patricia::selectSelfOrDescendantOrNull(listing)
                         return d if d
                     end
                 end
@@ -153,7 +153,7 @@ class NavigationNodes
 
             mx = LCoreMenuItemsNX1.new()
 
-            GenericNyxObject::getAllParentingPathsOfSize2(listing).each{|item|
+            Patricia::getAllParentingPathsOfSize2(listing).each{|item|
                 announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
@@ -173,6 +173,7 @@ class NavigationNodes
                 }
 
             puts ""
+
             mx.item("rename".yellow, lambda { 
                 name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
                 return if name1 == ""
@@ -180,37 +181,19 @@ class NavigationNodes
                 NyxObjects2::put(listing)
                 NavigationNodes::removeSetDuplicates()
             })
-            mx.item("make datapoint ; add as target".yellow, lambda { 
-                datapoint = Datapoints::makeNewDatapointOrNull()
-                return if datapoint.nil?
-                Arrows::issueOrException(listing, datapoint)
-            })
-            mx.item("ensure navigation path".yellow, lambda {
-                nameToNodeProcessSelfCreateIfNeeded = lambda {|name1, defaultNode|
-                    if name1 == "[self]" then
-                        return defaultNode
-                    end
-                    node = NavigationNodes::selectNodeByNameCaseInsensitiveOrNull(name1)
-                    return node if node
-                    NavigationNodes::issue(name1)
-                }
 
-                path = LucilleCore::askQuestionAnswerAsString("path: ")
-                return if path == ""
-                nodes = path
-                            .split("->")
-                            .map{|e| e.strip }
-                            .map{|name1| nameToNodeProcessSelfCreateIfNeeded.call(name1, listing) }
-                NavigationNodes::arrayToconsecutivePairs(nodes).each{|pair|
-                    puts "linking: #{pair[0]["name"]} -> #{pair[1]["name"]}"
-                    Arrows::issueOrException(pair[0], pair[1])
-                }
+            mx.item("add parent".yellow, lambda {
+                o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                return if o1.nil?
+                Arrows::issueOrException(o1, listing)
             })
-            mx.item("select object ; add as target".yellow, lambda { 
-                o = Patricia::searchAndReturnObjectOrNullSequential()
+
+            mx.item("add target".yellow, lambda { 
+                o = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
                 return if o.nil?
                 Arrows::issueOrException(listing, o)
             })
+
             mx.item("select multiple targets ; inject navigation node".yellow, lambda {
                 targets = Arrows::getTargetsForSource(listing)
                 selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| GenericNyxObject::toString(item) })
@@ -223,11 +206,13 @@ class NavigationNodes
                     Arrows::unlink(listing, target)
                 }
             })
+
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(listing)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("destroy navigation node".yellow, lambda { 
+            
+            mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy navigation node: '#{NavigationNodes::toString(listing)}': ") then
                     NyxObjects2::destroy(listing)
                 end

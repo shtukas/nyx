@@ -2,7 +2,7 @@
 location: #{Miscellaneous::catalystDataCenterFolderpath()}/Selection-Lookup-Database.sqlite3
 
 table: lookup
-    _objecttype_    text # values: "ngx15", "quark", "tag", "data-container", "operational-listing", "navigation-node", "asteroid", "wave"
+    _objecttype_    text # values: "ngx15", "quark", "tag", "data-container", "navigation-node", "asteroid", "wave"
     _objectuuid_    text
     _fragment_      text
 

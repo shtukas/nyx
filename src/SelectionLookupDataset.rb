@@ -64,13 +64,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
-    # SelectionLookupDataset::updateLookupForOperationalListing(node)
-    def self.updateLookupForOperationalListing(node)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], node["uuid"])
-        SelectionLookupDatabaseIO::addRecord("operational-listing", node["uuid"], OperationalListings::toString(node))
-    end
-
     # SelectionLookupDataset::updateLookupForNavigationNode(node)
     def self.updateLookupForNavigationNode(node)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(node["uuid"])
@@ -127,23 +120,6 @@ class SelectionLookupDataset
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], Quarks::toString(quark))
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["leptonfilename"])
-            }
-
-        db.close
-    end
-
-    # SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
-    def self.rebuildOperationalListingsLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.execute "delete from lookup where _objecttype_=?", ["operational-listing"]
-
-        OperationalListings::listings()
-            .each{|node|
-                if verbose then
-                    puts "operational listing: #{node["uuid"]} , #{OperationalListings::toString(node)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], node["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "operational-listing", node["uuid"], OperationalListings::toString(node))
             }
 
         db.close
@@ -208,7 +184,6 @@ class SelectionLookupDataset
 
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
-        SelectionLookupDataset::rebuildOperationalListingsLookup(verbose)
         SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
         SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)

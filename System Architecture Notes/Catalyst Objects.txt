@@ -8,6 +8,7 @@ CatalystObject
 
     "landing"          : Lambda { code }
     "nextNaturalStep"  : Lambda { code }
+    "done"             : Lambda { code }
 
     "isRunning"        : Boolean # Optional [2]
     "isRunningForLong" : Boolean # Optional [3]

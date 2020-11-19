@@ -183,7 +183,7 @@ class Quarks
 
             puts ""
 
-            GenericNyxObject::getAllParentingPathsOfSize2(quark).each{|item|
+            Patricia::getAllParentingPathsOfSize2(quark).each{|item|
                 announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
@@ -217,33 +217,14 @@ class Quarks
                 puts JSON.pretty_generate(quark)
                 LucilleCore::pressEnterToContinue()
             })
-            mx.item("add parenting path".yellow, lambda {
-                raise "6269ECCA-CFED-4459-8A91-5457B8020AC6"
+
+            mx.item("add parent".yellow, lambda {
+                o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                return if o1.nil?
+                Arrows::issueOrException(o1, quark)
             })
 
-            mx.item("ensure parenting path".yellow, lambda {
-                nameToNodeProcessSelfCreateIfNeeded = lambda {|name1, defaultNode|
-                    if name1 == "[self]" then
-                        return defaultNode
-                    end
-                    node = NavigationNodes::selectNodeByNameCaseInsensitiveOrNull(name1)
-                    return node if node
-                    NavigationNodes::issue(name1)
-                }
-
-                path = LucilleCore::askQuestionAnswerAsString("path (should finish with '[self]'): ")
-                return if path == ""
-                objects = path
-                            .split("->")
-                            .map{|e| e.strip }
-                            .map{|name1| nameToNodeProcessSelfCreateIfNeeded.call(name1, quark) }
-                NavigationNodes::arrayToconsecutivePairs(objects).each{|pair|
-                    puts "linking: #{pair[0]["name"]} -> #{pair[1]["name"]}"
-                    Arrows::issueOrException(pair[0], pair[1])
-                }
-            })
-
-            mx.item("remove from parent".yellow, lambda {
+            mx.item("remove parent".yellow, lambda {
                 parents = Arrows::getSourcesForTarget(quark)
                 parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |px| GenericNyxObject::toString(px) })
                 return if parent.nil?

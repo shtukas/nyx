@@ -81,6 +81,11 @@ class OrdinalPoints
             "metric"           => OrdinalPoints::ordinalToMetric(ordinal),
             "landing"          => lambda {},
             "nextNaturalStep"  => lambda {},
+            "done"             => lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done ? ") then
+                    OrdinalPoints::destroyPointUuid(uuid)
+                end
+            },
             "isRunning"        => false,
             "isRunningForLong" => false,
             "x-ordinal-point"  => true

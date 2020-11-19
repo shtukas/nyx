@@ -4,7 +4,66 @@
 class Patricia
 
     # --------------------------------------------------
-    # Search
+    # Genealogy
+
+    # Patricia::selectSelfOrDescendantOrNull(object)
+    def self.selectSelfOrDescendantOrNull(object)
+        loop {
+            puts ""
+            puts "object: #{GenericNyxObject::toString(object)}"
+            puts "targets:"
+            Arrows::getTargetsForSource(object).each{|target|
+                puts "    #{GenericNyxObject::toString(target)}"
+            }
+            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "return object" then
+                return object
+            end
+            if operation == "select and return one target" then
+                t = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return t
+                end
+            end
+            if operation == "select and focus on target" then
+                t =  GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return Patricia::selectSelfOrDescendantOrNull(t)
+                end
+            end
+            if operation == "return null" then
+                return nil
+            end
+        }
+    end
+
+    # Patricia::getAllParentingPathsOfSize2(object)
+    def self.getAllParentingPathsOfSize2(object)
+        Arrows::getSourcesForTarget(object).map{|source|
+            {
+                "object" => object,
+                "p1"     => source
+            }
+        }.map{|item|
+            sources = Arrows::getSourcesForTarget(item["p1"])
+            if sources.size > 0 then
+                sources.map{|source|
+                    item["p2"] = source
+                    item
+                }
+            else
+                item["p2"] = nil
+                item
+            end
+
+        }
+        .flatten
+    end
+
+    # --------------------------------------------------
+    # Search Utils
 
     # Patricia::patternToOrderedSearchResults(pattern)
     def self.patternToOrderedSearchResults(pattern)
@@ -38,42 +97,11 @@ class Patricia
             .sort{|i1, i2| i1["referenceunixtime"] <=> i2["referenceunixtime"] }
     end
 
-    # Patricia::searchAndLanding()
-    def self.searchAndLanding()
-        loop {
-            system("clear")
-            pattern = LucilleCore::askQuestionAnswerAsString("[synchronous] search pattern: ")
-            return if pattern.size == 0
-            next if pattern.size < 3
-            searchresults = Patricia::patternToOrderedSearchResults(pattern)
-            #{
-            #    "objecttype"
-            #    "objectuuid"
-            #    "fragment"
-            #    "object"
-            #    "referenceunixtime"
-            #}
-            loop {
-                system("clear")
-                puts "search results for '#{pattern}':"
-                ms = LCoreMenuItemsNX1.new()
-                searchresults
-                    .each{|sr| 
-                        object = sr["object"]
-                        next if NyxObjects2::getOrNull(object["uuid"]).nil? # could have been deleted in the previous loop
-                        ms.item(
-                            GenericNyxObject::toString(object), 
-                            lambda { GenericNyxObject::landing(object) }
-                        )
-                    }
-                status = ms.promptAndRunSandbox()
-                break if !status
-            }
-        }
-    end
+    # --------------------------------------------------
+    # Search Interface
 
-    # Patricia::searchAndReturnObjectOrNullSequential()
-    def self.searchAndReturnObjectOrNullSequential()
+    # Patricia::searchSequentialAndReturnObjectOrNull()
+    def self.searchSequentialAndReturnObjectOrNull()
         answer = nil
         loop {
             break if answer
@@ -106,5 +134,48 @@ class Patricia
             }
         }
         answer
+    end
+
+    # Patricia::searchAndLanding()
+    def self.searchAndLanding()
+        object = Patricia::searchSequentialAndReturnObjectOrNull()
+        return if object.nil?
+        GenericNyxObject::landing(object)
+    end
+
+    # --------------------------------------------------
+    # Maker
+
+    # Patricia::makeNewObjectOrNull()
+    def self.makeNewObjectOrNull()
+        loop {
+            options = ["asteroid"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+            return nil if option.nil?
+            if option == "asteroid" then
+                object = Asteroids::issueAsteroidInteractivelyOrNull()
+                return object if object
+            end
+        }
+    end
+
+    # --------------------------------------------------
+    # Architect
+
+    # Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+    def self.searchAndReturnObjectOrMakeNewObjectOrNull()
+        loop {
+            options = ["search existing objects", "make new object"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+            return nil if option.nil?
+            if option == "search existing objects" then
+                object = Patricia::searchSequentialAndReturnObjectOrNull()
+                return object if object
+            end
+            if option == "make new object" then
+                object = Patricia::makeNewObjectOrNull()
+                return object if object
+            end
+        }
     end
 end

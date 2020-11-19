@@ -82,7 +82,7 @@ class NGX15
 
             puts ""
 
-            GenericNyxObject::getAllParentingPathsOfSize2(ngx15).each{|item|
+            Patricia::getAllParentingPathsOfSize2(ngx15).each{|item|
                 announce = "#{GenericNyxObject::toString(item["p1"])} <- #{item["p2"] ? GenericNyxObject::toString(item["p2"]) : ""}"
                 mx.item(
                     "source: #{announce}",
@@ -121,33 +121,13 @@ class NGX15
                 NyxObjects2::put(ngx15)
             })
 
-            mx.item("add parenting path".yellow, lambda {
-                raise "ADD8715D-416E-4FD8-9FC3-92B086A50C82"
+            mx.item("add parent".yellow, lambda {
+                o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                return if o1.nil?
+                Arrows::issueOrException(o1, ngx15)
             })
 
-            mx.item("ensure parenting path".yellow, lambda {
-                nameToNodeProcessSelfCreateIfNeeded = lambda {|name1, defaultNode|
-                    if name1 == "[self]" then
-                        return defaultNode
-                    end
-                    node = NavigationNodes::selectNodeByNameCaseInsensitiveOrNull(name1)
-                    return node if node
-                    NavigationNodes::issue(name1)
-                }
-
-                path = LucilleCore::askQuestionAnswerAsString("path (should finish with '[self]'): ")
-                return if path == ""
-                objects = path
-                            .split("->")
-                            .map{|e| e.strip }
-                            .map{|name1| nameToNodeProcessSelfCreateIfNeeded.call(name1, ngx15) }
-                NavigationNodes::arrayToconsecutivePairs(objects).each{|pair|
-                    puts "linking: #{pair[0]["name"]} -> #{pair[1]["name"]}"
-                    Arrows::issueOrException(pair[0], pair[1])
-                }
-            })
-
-            mx.item("remove from parent".yellow, lambda {
+            mx.item("remove parent".yellow, lambda {
                 parents = Arrows::getSourcesForTarget(ngx15)
                 parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| GenericNyxObject::toString(parent) })
                 return if parent.nil?

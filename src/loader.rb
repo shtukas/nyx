@@ -138,7 +138,6 @@ require_relative "Bank.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
-require_relative "Curation.rb"
 
 require_relative "Datapoints/Datapoints.rb"
 require_relative "Datapoints/Leptons.rb"
@@ -162,7 +161,6 @@ require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 
-require_relative "OperationalListings.rb"
 require_relative "OrdinalPoints.rb"
 
 require_relative "Patricia.rb"

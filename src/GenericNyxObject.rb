@@ -16,19 +16,9 @@ class GenericNyxObject
         object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
     end
 
-    # GenericNyxObject::isOperationalListing(object)
-    def self.isOperationalListing(object)
-        object["nyxNxSet"] == "abb20581-f020-43e1-9c37-6c3ef343d2f5"
-    end
-
     # GenericNyxObject::isNavigationNode(object)
     def self.isNavigationNode(object)
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
-    end
-
-    # GenericNyxObject::isGenericListing(object)
-    def self.isGenericListing(object)
-        GenericNyxObject::isOperationalListing(object) or GenericNyxObject::isNavigationNode(object)
     end
 
     # GenericNyxObject::isAsteroid(object)
@@ -54,9 +44,6 @@ class GenericNyxObject
         end
         if GenericNyxObject::isQuark(object) then
             return Quarks::toString(object)
-        end
-        if GenericNyxObject::isOperationalListing(object) then
-            return OperationalListings::toString(object)
         end
         if GenericNyxObject::isNavigationNode(object) then
             return NavigationNodes::toString(object)
@@ -124,10 +111,6 @@ class GenericNyxObject
             SelectionLookupDataset::updateLookupForQuark(object)
             return
         end
-        if GenericNyxObject::isOperationalListing(object) then
-            SelectionLookupDataset::updateLookupForOperationalListing(object)
-            return
-        end
         if GenericNyxObject::isNavigationNode(object) then
             SelectionLookupDataset::updateLookupForNavigationNode(object)
             return
@@ -154,10 +137,6 @@ class GenericNyxObject
             Quarks::landing(object)
             return
         end
-        if GenericNyxObject::isOperationalListing(object) then
-            OperationalListings::landing(object)
-            return
-        end
         if GenericNyxObject::isNavigationNode(object) then
             NavigationNodes::landing(object)
             return
@@ -180,10 +159,6 @@ class GenericNyxObject
             Quarks::open1(object)
             return
         end
-        if GenericNyxObject::isOperationalListing(object) then
-            OperationalListings::landing(object)
-            return
-        end
         if GenericNyxObject::isNavigationNode(object) then
             NavigationNodes::landing(object)
             return
@@ -195,7 +170,6 @@ class GenericNyxObject
     # GenericNyxObject::destroy(object)
     def self.destroy(object)
         if GenericNyxObject::isAsteroid(object) then
-            Asteroids::asteroidTerminationProtocol(object)
             return
         end
         if GenericNyxObject::isNGX15(object) then
@@ -205,61 +179,4 @@ class GenericNyxObject
         puts object
         raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
     end
-
-    # GenericNyxObject::selectSelfOrDescendantOrNull(object)
-    def self.selectSelfOrDescendantOrNull(object)
-        loop {
-            puts ""
-            puts "object: #{GenericNyxObject::toString(object)}"
-            puts "targets:"
-            Arrows::getTargetsForSource(object).each{|target|
-                puts "    #{GenericNyxObject::toString(target)}"
-            }
-            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return nil if operation.nil?
-            if operation == "return object" then
-                return object
-            end
-            if operation == "select and return one target" then
-                t = GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-                if t then
-                    return t
-                end
-            end
-            if operation == "select and focus on target" then
-                t =  GenericNyxObject::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-                if t then
-                    return GenericNyxObject::selectSelfOrDescendantOrNull(t)
-                end
-            end
-            if operation == "return null" then
-                return nil
-            end
-        }
-    end
-
-    # GenericNyxObject::getAllParentingPathsOfSize2(object)
-    def self.getAllParentingPathsOfSize2(object)
-        Arrows::getSourcesForTarget(object).map{|source|
-            {
-                "object" => object,
-                "p1"     => source
-            }
-        }.map{|item|
-            sources = Arrows::getSourcesForTarget(item["p1"])
-            if sources.size > 0 then
-                sources.map{|source|
-                    item["p2"] = source
-                    item
-                }
-            else
-                item["p2"] = nil
-                item
-            end
-
-        }
-        .flatten
-    end
-
 end

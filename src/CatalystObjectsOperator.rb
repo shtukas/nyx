@@ -21,11 +21,6 @@ class CatalystObjectsOperator
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
 
-        if objects.size > 0 and objects.first["x-asteroid"] and objects.first["body"].include?("no description / no target") then
-            NyxObjects2::destroy(objects.first["x-asteroid"])
-            return CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-        end
-
         objects
     end
 

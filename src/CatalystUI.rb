@@ -101,6 +101,19 @@ class CatalystUI
             return
         end
 
+        if command == "done" then
+            object = catalystObjects.first
+            return if object.nil?
+            if object["done"] then
+                object["done"].call()
+                return
+            end
+            puts "I do not know how to done this object"
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if command == "waves new" then
             Waves::issueNewWaveInteractivelyOrNull()
             return
@@ -110,7 +123,7 @@ class CatalystUI
             ms = LCoreMenuItemsNX1.new()
             ms.item(
                 "new asteroid (line)",
-                lambda { Asteroids::issuePlainAsteroidInteractivelyOrNull() }
+                lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
             )
             ms.item(
                 "new asteroid (datapoint)",
@@ -136,47 +149,6 @@ class CatalystUI
             uuid = point["uuid"]
             filepath = "#{OrdinalPoints::repositoryPath()}/#{uuid}.json"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(point)) }
-            return
-        end
-
-        if command == "done" then
-            object = catalystObjects.first
-            return if object.nil?
-            if object["x-asteroid"] then
-                asteroid = object["x-asteroid"]
-                puts "deleting: #{GenericNyxObject::toString(asteroid)}"
-                Arrows::getTargetsForSource(asteroid).each{|target|
-                    return if Arrows::getSourcesForTarget(target).size > 1
-                    if GenericNyxObject::isNGX15(target) then
-                        status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
-                        return if !status
-                        next
-                    end
-                    if GenericNyxObject::isQuark(target) then
-                        Quarks::destroyQuarkAndLepton(target)
-                        next
-                    end
-                    puts target
-                    raise "exception: d45a4616-839a-4b74-bbb8-b4cb0e846564"
-                }
-                NyxObjects2::destroy(asteroid)
-                puts "completed"
-                catalystObjects = catalystObjects.drop(1)
-                CatalystUI::standardDisplayWithPrompt(catalystObjects)
-                return
-            end
-            if object["x-ordinal-point"] then
-                if LucilleCore::askQuestionAnswerAsString("Confirm deletion of #{object["body"]} ? : ") then
-                    uuid = object["uuid"]
-                    OrdinalPoints::destroyPointUuid(uuid)
-                    catalystObjects = catalystObjects.drop(1)
-                    CatalystUI::standardDisplayWithPrompt(catalystObjects)
-                end
-                return
-            end
-            puts "I do not know how to done this object"
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
             return
         end
 

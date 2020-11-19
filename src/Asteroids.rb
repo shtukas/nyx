@@ -33,7 +33,7 @@ class Asteroids
         end
         if orbitalType == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
             return {
-                "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
+                "type" => "daily-time-commitment-e1180643-fc7e-42bb-a2",
                 "time-commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             }
         end
@@ -50,8 +50,8 @@ class Asteroids
         raise "ef349b18-55ed-4fdb-abb0-1014f752416a"
     end
 
-    # Asteroids::issuePlainAsteroidInteractivelyOrNull()
-    def self.issuePlainAsteroidInteractivelyOrNull()
+    # Asteroids::issueAsteroidInteractivelyOrNull()
+    def self.issueAsteroidInteractivelyOrNull()
         description = LucilleCore::askQuestionAnswerAsString("asteroid description: ")
         return nil if (description == "")
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
@@ -143,13 +143,17 @@ class Asteroids
 
     # Asteroids::asteroidDescription(asteroid)
     def self.asteroidDescription(asteroid)
+        targets = Arrows::getTargetsForSource(asteroid)
         if asteroid["description"] then
-            return "asteroid description: #{asteroid["description"]} (#{Arrows::getTargetsForSource(asteroid).size} targets)"
+            return "#{asteroid["description"]} (#{targets.size} targets)"
         end
-        Arrows::getTargetsForSource(asteroid).each{|target|
-            return GenericNyxObject::toString(target)
-        }
-        "no description / no target"
+        if targets.size == 0 then
+            return "no description / no target"
+        end 
+        if targets.size == 1 then
+            return GenericNyxObject::toString(targets[0])
+        end 
+        return "(#{targets.size} targets)"
     end
 
     # Asteroids::toString(asteroid)
@@ -202,12 +206,6 @@ class Asteroids
         Runner::isRunning?(asteroid["uuid"])
     end
 
-    # Asteroids::isRunningForLong?(asteroid)
-    def self.isRunningForLong?(asteroid)
-        return false if !Asteroids::isRunning?(asteroid)
-        ( Runner::runTimeInSecondsOrNull(asteroid["uuid"]) || 0 ) > 3600
-    end
-
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
         uuid = asteroid["uuid"]
@@ -250,40 +248,36 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObjects(asteroid)
     def self.asteroidToCalalystObjects(asteroid)
-        uuid = asteroid["uuid"]
-        isRunning = Asteroids::isRunning?(asteroid)
-
-        targetsOperationalListings = Arrows::getTargetsForSource(asteroid).select{|target| GenericNyxObject::isOperationalListing(target) }
-
-        metric = Asteroids::metric(asteroid)
         if asteroid["activeDays"] and !asteroid["activeDays"].include?(Time.new.wday) then
-            metric = 0
+            return []
         end
-        metric = 1 if isRunning
 
-        object = {
-            "uuid"             => uuid,
-            "body"             => Asteroids::toString(asteroid),
-            "metric"           => (!isRunning and !targetsOperationalListings.empty?) ? 0 : metric,
-            "landing"          => lambda { Asteroids::landing(asteroid) },
-            "nextNaturalStep"  => lambda { Asteroids::naturalNextOperation(asteroid) },
-            "isRunning"        => isRunning,
-            "isRunningForLong" => Asteroids::isRunningForLong?(asteroid),
-            "x-asteroid"       => asteroid,
+        asteroidmetric = Asteroids::metric(asteroid)
+
+        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target|
+            uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+            isRunning = Asteroids::isRunning?(uuid)
+            metric = asteroidmetric - Math.atan(Asteroids::getTargetOrdinal(asteroid, target)).to_f/100
+            metric = 1 if isRunning
+            {
+                "uuid"             => uuid,
+                "body"             => "#{Asteroids::toString(asteroid)}; #{GenericNyxObject::toString(target)}",
+                "metric"           => metric,
+                "landing"          => lambda { Asteroids::landing(target) },
+                "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
+                "done"             => lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{GenericNyxObject::toString(target)}' ? ") then
+                        GenericNyxObject::destroy(target)
+                    end
+                },
+                "isRunning"        => isRunning,
+                "isRunningForLong" => (lambda {
+                    return false if !Runner::isRunning?(uuid)
+                    ( Runner::runTimeInSecondsOrNull(uuid) || 0 ) > 3600
+                }).call(),
+                "x-asteroid"       => asteroid,
+            }
         }
-
-        secondaryObjects = targetsOperationalListings
-                                .map{|target|
-                                    if GenericNyxObject::isOperationalListing(target) then
-                                        asteroidDailyTimeExpectationInHours = (asteroid["orbital"]["time-commitment-in-hours"] || 1)
-                                        OperationalListings::listingToCatalystObjects(target, metric, uuid, Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid), asteroidDailyTimeExpectationInHours)
-                                    else
-                                        []
-                                    end
-                                }
-                                .flatten
-
-        [object] + secondaryObjects
     end
 
     # Asteroids::catalystObjects()
@@ -364,7 +358,7 @@ class Asteroids
         if ordinal then
             return ordinal.to_f
         end
-        ordinals = Arrows::getTargetsForSource(listing)
+        ordinals = Arrows::getTargetsForSource(asteroid)
                     .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{t["uuid"]}") }
                     .compact
                     .map{|o| o.to_f }
@@ -376,7 +370,7 @@ class Asteroids
     # Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
     def self.getAsteroidTargetsInOrdinalOrder(asteroid)
         Arrows::getTargetsForSource(asteroid)
-            .sort{|t1, t2| OperationalListings::getTargetOrdinal(asteroid, t1) <=> OperationalListings::getTargetOrdinal(asteroid, t2) }
+            .sort{|t1, t2| Asteroids::getTargetOrdinal(asteroid, t1) <=> Asteroids::getTargetOrdinal(asteroid, t2) }
     end
 
     # -------------------------------------------------------------------
@@ -415,27 +409,6 @@ class Asteroids
         Asteroids::asteroidReceivesTime(asteroid, timespan)
     end
 
-    # Asteroids::open1(asteroid)
-    def self.open1(asteroid)
-        targets = Arrows::getTargetsForSource(asteroid)
-        if targets.size == 0 then
-            return
-        end
-        if targets.size == 1 then
-            GenericNyxObject::open1(targets[0])
-            return
-        end
-        loop {
-            system("clear")
-            puts Asteroids::toString(asteroid)
-            puts ""
-            targets = Arrows::getTargetsForSource(asteroid)
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{ |object| GenericNyxObject::toString(object) })
-            return if target.nil?
-            GenericNyxObject::open1(target)
-        }
-    end
-
     # Asteroids::diveAsteroidOrbitalType(orbitalType)
     def self.diveAsteroidOrbitalType(orbitalType)
         loop {
@@ -447,27 +420,28 @@ class Asteroids
         }
     end
 
-    # Asteroids::runAsteroidAndTryAndDelete(asteroid)
-    def self.runAsteroidAndTryAndDelete(asteroid)
-        Asteroids::startAsteroidIfNotRunning(asteroid)
-        Asteroids::open1(asteroid)
-        loop {
+    # Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, runId)
+    def self.asteroidTargetNaturalNextOperation(asteroid, target, runId)
 
-            menuitems = LCoreMenuItemsNX1.new()
-
-            menuitems.item(
-                "move targets ; destroy asteroid".yellow,
-                lambda {
-                    Arrows::getTargetsForSource(asteroid).each{|target|
+        if !Runner::isRunning?(runId) then
+            # Is not running
+            Runner::start(runId)
+            GenericNyxObject::open1(target)
+            if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                menuitems = LCoreMenuItemsNX1.new()
+                menuitems.item(
+                    "move target".yellow,
+                    lambda {
                         puts "moving: #{GenericNyxObject::toString(target)}"
-
                         if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
                             description = LucilleCore::askQuestionAnswerAsString("target description: ")
                             if description.size > 0 then
                                 Quarks::setDescription(target, description)
                             end
                         end
-
                         if GenericNyxObject::isNGX15(target) and target["description"].nil? then
                             description = LucilleCore::askQuestionAnswerAsString("target description: ")
                             if description.size > 0 then
@@ -475,105 +449,55 @@ class Asteroids
                                 NyxObjects2::put(target)
                             end
                         end
-
-                        px1 = Patricia::searchAndReturnObjectOrNullSequential()
+                        px1 = Patricia::searchSequentialAndReturnObjectOrNull()
                         if !px1.nil? then
                             Arrows::issueOrException(px1, target)
                             Arrows::unlink(asteroid, target)
                         end
-
-                        puts "moving: #{GenericNyxObject::toString(target)}"
-
                         GenericNyxObject::landing(target)
                     }
-                    NyxObjects2::destroy(asteroid)
-                }
-            )
-
-            menuitems.item(
-                "destroy asteroid and targets".yellow,
-                lambda { 
-                    Arrows::getTargetsForSource(asteroid).each{|target|
-                        next if Arrows::getSourcesForTarget(target).size > 1
-                        if GenericNyxObject::isNGX15(target) then
-                            status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
-                            return if !status
-                            next
-                        end
-                        if GenericNyxObject::isQuark(target) then
-                            Quarks::destroyQuarkAndLepton(target)
-                            next
-                        end
-                        puts target
-                        raise "exception: 2f64e981-a5cb-401d-8532-7eca19e82adc"
+                )
+                menuitems.item(
+                    "destroy target".yellow,
+                    lambda { 
+                        GenericNyxObject::destroy(target)
                     }
-                    NyxObjects2::destroy(asteroid)
+                )
+                status = menuitems.promptAndRunSandbox()
+            end
+        else
+            # Is running
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item(
+                "stop".yellow,
+                lambda {
+                    timespan = Runner::stop(runId)
+                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                    Asteroids::asteroidReceivesTime(asteroid, timespan)
                 }
             )
-
-            status = menuitems.promptAndRunSandbox()
-            break if !status
-
-            break if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
-        }
-        Asteroids::stopAsteroidIfRunning(asteroid)
-    end
-
-    # Asteroids::tryReclassifyAsteroid(asteroid)
-    def self.tryReclassifyAsteroid(asteroid)
-        return if Asteroids::getAsteroidOrNull(asteroid["uuid"]).nil?
-        menuitems = LCoreMenuItemsNX1.new()
-
-        menuitems.item("hide for one hour".yellow, lambda {
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-        })
-
-        menuitems.item("hide until tomorrow".yellow, lambda {
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
-        })
-
-        menuitems.item("hide for n days".yellow, lambda {
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-            DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-        })
-
-        menuitems.item("to orbital burner".yellow, lambda {
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            asteroid["orbital"] = {
-                "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-            }
-            NyxObjects2::put(asteroid)
-        })
-
-        menuitems.item("to orbital stream".yellow, lambda {
-            Asteroids::stopAsteroidIfRunning(asteroid)
-            asteroid["orbital"] = {
-                "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-            }
-            NyxObjects2::put(asteroid)
-        })
-
-        menuitems.item(
-            "re-orbital".yellow,
-            lambda { Asteroids::reOrbitalOrNothing(asteroid) }
-        )
-
-        menuitems.item(
-            "send targets to listings".yellow,
-            lambda {
-                Arrows::getTargetsForSource(asteroid).each{|target|
+            menuitems.item(
+                "stop and destroy".yellow,
+                lambda {
+                    timespan = Runner::stop(runId)
+                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                    Asteroids::asteroidReceivesTime(asteroid, timespan)
+                    GenericNyxObject::destroy(target)
+                }
+            )
+            menuitems.item(
+                "stop and move".yellow,
+                lambda {
+                    timespan = Runner::stop(runId)
+                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                    Asteroids::asteroidReceivesTime(asteroid, timespan)
                     puts "moving: #{GenericNyxObject::toString(target)}"
-
                     if GenericNyxObject::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
                         description = LucilleCore::askQuestionAnswerAsString("target description: ")
                         if description.size > 0 then
                             Quarks::setDescription(target, description)
                         end
                     end
-
                     if GenericNyxObject::isNGX15(target) and target["description"].nil? then
                         description = LucilleCore::askQuestionAnswerAsString("target description: ")
                         if description.size > 0 then
@@ -581,53 +505,21 @@ class Asteroids
                             NyxObjects2::put(target)
                         end
                     end
-
-                    listing = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
-                    if !listing.nil? then
-                        puts "moving to: #{GenericNyxObject::toString(listing)}"
-                        Arrows::issueOrException(listing, target)
+                    px1 = Patricia::searchSequentialAndReturnObjectOrNull()
+                    if !px1.nil? then
+                        Arrows::issueOrException(px1, target)
                         Arrows::unlink(asteroid, target)
                     end
+                    GenericNyxObject::landing(target)
                 }
-            }
-        )
-
-        menuitems.promptAndRunSandbox()
-    end
-
-    # Asteroids::naturalNextOperation(asteroid)
-    def self.naturalNextOperation(asteroid)
-
-        uuid = asteroid["uuid"]
-
-        if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            Asteroids::runAsteroidAndTryAndDelete(asteroid)
-            Asteroids::tryReclassifyAsteroid(asteroid)
-            return
-        end
-
-        if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            Asteroids::runAsteroidAndTryAndDelete(asteroid)
-            Asteroids::tryReclassifyAsteroid(asteroid)
-            return
-        end
-
-        if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            if Asteroids::isRunning?(asteroid) then
-                Asteroids::stopAsteroidIfRunning(asteroid)
-            else
-                Asteroids::startAsteroidIfNotRunning(asteroid)
-                Asteroids::open1(asteroid)
-                if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
-                    Asteroids::stopAsteroidIfRunning(asteroid)
-                end
-            end
-            return
-        end
-
-        if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            Asteroids::runAsteroidAndTryAndDelete(asteroid)
-            Asteroids::tryReclassifyAsteroid(asteroid)
+            )
+            menuitems.item(
+                "landing".yellow,
+                lambda { 
+                    GenericNyxObject::landing(target)
+                }
+            )
+            status = menuitems.promptAndRunSandbox()
         end
     end
 
@@ -678,7 +570,7 @@ class Asteroids
             Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
             .each{|target|
                 menuitems.item(
-                    "target ( #{"%6.3f" % OperationalListings::getTargetOrdinal(asteroid, target)} ) : #{GenericNyxObject::toString(target)}",
+                    "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{GenericNyxObject::toString(target)}",
                     lambda { GenericNyxObject::landing(target) }
                 )
             }
@@ -696,49 +588,7 @@ class Asteroids
                 }
             )
 
-            menuitems.item(
-                "start".yellow,
-                lambda { Asteroids::startAsteroidIfNotRunning(asteroid) }
-            )
-
-            menuitems.item(
-                "stop".yellow,
-                lambda { Asteroids::stopAsteroidIfRunning(asteroid) }
-            )
-
-            menuitems.item("hide for one hour".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600)
-            })
-
-            menuitems.item("hide until tomorrow".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+3600*(24-Time.new.hour))
-            })
-
-            menuitems.item("hide for n days".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan in days: ").to_f
-                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i+86400*timespanInDays)
-            })
-
             puts ""
-
-            menuitems.item("to orbital burner".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["orbital"] = {
-                    "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-                }
-                NyxObjects2::put(asteroid)
-            })
-
-            menuitems.item("to orbital stream".yellow, lambda {
-                Asteroids::stopAsteroidIfRunning(asteroid)
-                asteroid["orbital"] = {
-                    "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-                }
-                NyxObjects2::put(asteroid)
-            })
 
             menuitems.item(
                 "re-orbital".yellow,
@@ -763,7 +613,7 @@ class Asteroids
 
             puts ""
 
-            menuitems.item("set target ordinal".yellow, lambda { 
+            menuitems.item("update target's ordinal".yellow, lambda { 
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| GenericNyxObject::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
@@ -773,30 +623,18 @@ class Asteroids
             menuitems.item(
                 "add new target at ordinal".yellow,
                 lambda { 
-                    datapoint = Datapoints::makeNewDatapointOrNull()
-                    return if datapoint.nil?
-                    Arrows::issueOrException(asteroid, datapoint)
+                    o1 = Patricia::searchAndReturnObjectOrMakeNewObjectOrNull()
+                    return if o1.nil?
+                    Arrows::issueOrException(asteroid, o1)
                     ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    Asteroids::setTargetOrdinal(asteroid, datapoint, ordinal)
+                    Asteroids::setTargetOrdinal(asteroid, o1, ordinal)
                 }
             )
 
             puts ""
 
             menuitems.item(
-                "destroy".yellow,
-                lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this asteroid ? ") then
-                        Asteroids::stopAsteroidIfRunning(asteroid)
-                        Asteroids::asteroidTerminationProtocol(asteroid)
-                    end
-                }
-            )
-
-            puts ""
-
-            menuitems.item(
-                "select targets ; move them to listings ; destroy asteroid".yellow,
+                "select targets ; move them to navigation node ; destroy asteroid".yellow,
                 lambda {
                     Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
                 }
@@ -832,7 +670,7 @@ class Asteroids
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             break if option.nil?
             if option == "make new asteroid" then
-                asteroid = Asteroids::issuePlainAsteroidInteractivelyOrNull()
+                asteroid = Asteroids::issueAsteroidInteractivelyOrNull()
                 next if asteroid.nil?
                 puts JSON.pretty_generate(asteroid)
                 Asteroids::landing(asteroid)
@@ -846,34 +684,6 @@ class Asteroids
                 }
             end
         }
-    end
-
-    # Asteroids::asteroidTerminationProtocol(asteroid)
-    def self.asteroidTerminationProtocol(asteroid)
-        Asteroids::stopAsteroidIfRunning(asteroid)
-        puts "destroying asteroid: #{Asteroids::toString(asteroid)}"
-        Arrows::getTargetsForSource(asteroid).each{|target|
-            next if Arrows::getSourcesForTarget(target).size > 1
-            puts "target: '#{GenericNyxObject::toString(target)}'"
-            if !LucilleCore::askQuestionAnswerAsBoolean("    -> destroy ? ") then
-                if LucilleCore::askQuestionAnswerAsBoolean("    -> landing ? ") then
-                    GenericNyxObject::landing(target)
-                end
-                next
-            end
-            if GenericNyxObject::isNGX15(target) then
-                status = NGX15::ngx15TerminationProtocolReturnBoolean(target)
-                return if !status
-                next
-            end
-            if GenericNyxObject::isQuark(target) then
-                Quarks::destroyQuarkAndLepton(target)
-                next
-            end
-            puts target
-            raise "exception: 5e7c6b48-c920-4474-bb81-25146307bd35"
-        }
-        NyxObjects2::destroy(asteroid)
     end
 
     # ------------------------------------------------------------------
