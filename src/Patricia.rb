@@ -177,7 +177,7 @@ class Patricia
             return
         end
         if Patricia::isQuark(object) then
-            Quarks::destroyQuarkAndLepton(object)
+            NyxObjects2::destroy(object)
             return
         end
         puts object

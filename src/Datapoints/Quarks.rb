@@ -13,18 +13,12 @@ class Quarks
     # Quarks::issueLine(line)
     def self.issueLine(line)
         # We need to create the quark and the lepton (in the opposite order)
-
-        leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        LeptonsFunctions::createLeptonLine(leptonfilepath, line)
-
         object = {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
-            "type"              => "line",
-            "leptonfilename"    => leptonfilename
+            "type"              => "line"
         }
         NyxObjects2::put(object)
         object
@@ -33,18 +27,12 @@ class Quarks
     # Quarks::issueUrl(url)
     def self.issueUrl(url)
         # We need to create the quark and the lepton (in the opposite order)
-
-        leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        LeptonsFunctions::createLeptonUrl(leptonfilepath, url)
-
         object = {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
-            "type"              => "url",
-            "leptonfilename"    => leptonfilename
+            "type"              => "url"
         }
         NyxObjects2::put(object)
         object
@@ -107,13 +95,21 @@ class Quarks
     # Quarks::toString(quark)
     def self.toString(quark)
         if quark["description"] then
-            "[quark] #{quark["description"]}"
-        else
-            leptonfilename = quark["leptonfilename"]
-            leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-            description = LeptonsFunctions::getDescription(leptonFilepath)
-            "[quark] #{description}"
+            return "[quark] #{quark["description"]}"
         end
+
+        if quark["type"] == "line" then
+            return "[quark] #{quark["line"]}"
+        end
+
+        if quark["type"] == "url" then
+            return "[quark] #{quark["url"]}"
+        end
+
+        leptonfilename = quark["leptonfilename"]
+        leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
+        description = LeptonsFunctions::getDescription(leptonFilepath)
+        "[quark] #{description}"
     end
 
     # --------------------------------------------------
@@ -121,20 +117,21 @@ class Quarks
     # Quarks::open1(quark)
     def self.open1(quark)
         puts "opening: #{Quarks::toString(quark)}"
-        filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
+
         type = quark["type"]
         if type == "line" then
-            puts LeptonsFunctions::getTypeLineLineOrNull(filepath)
+            puts quark["line"]
             LucilleCore::pressEnterToContinue()
             return
         end
         if type == "url" then
-            url = LeptonsFunctions::getTypeUrlUrlOrNull(filepath)
+            url = quark["url"]
             puts url
             system("open '#{url}'")
             return
         end
         if type == "aion-location" then
+            filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
             leptonFilename = quark["leptonfilename"]
             leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonFilename)
             operator = ElizabethLeptons.new(leptonFilepath)
@@ -146,17 +143,6 @@ class Quarks
             return
         end
         raise "error: c9b7f9a2-c0d0-4a86-add8-3ca411b8c240"
-    end
-
-    # Quarks::destroyQuarkAndLepton(quark)
-    def self.destroyQuarkAndLepton(quark)
-        leptonfilename = quark["leptonfilename"]
-        leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        puts "deleting file: #{leptonfilepath}"
-        FileUtils.rm(leptonfilepath)
-        puts "deleting quark:"
-        puts JSON.pretty_generate(quark)
-        NyxObjects2::destroy(quark)
     end
 
     # Quarks::landing(quark)
@@ -171,8 +157,6 @@ class Quarks
 
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
-            puts "filename: #{quark["leptonfilename"]}".yellow
-            puts "filepath: #{LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])}".yellow
 
             puts ""
 
@@ -227,7 +211,7 @@ class Quarks
                 "destroy".yellow,
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("are you sure you want to destroy this quark ? ") then
-                        Quarks::destroyQuarkAndLepton(quark)
+                        NyxObjects2::destroy(quark)
                     end
                 }
             )

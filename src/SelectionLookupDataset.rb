@@ -61,7 +61,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["uuid"])
         SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], Quarks::toString(quark))
-        SelectionLookupDatabaseIO::addRecord("quark", quark["uuid"], quark["leptonfilename"])
     end
 
     # SelectionLookupDataset::updateLookupForNavigationNode(node)
@@ -119,7 +118,6 @@ class SelectionLookupDataset
                 end
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["uuid"])
                 SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], Quarks::toString(quark))
-                SelectionLookupDatabaseIO::addRecord2(db, "quark", quark["uuid"], quark["leptonfilename"])
             }
 
         db.close

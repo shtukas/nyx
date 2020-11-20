@@ -9,6 +9,26 @@ Quark
     "unixtime"          : Float # Unixtime with decimals
     "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
-    "type"              : String # "line", "url", "aion-location"
+    "type"              : "line"
+    "line"              : String
+}
+
+{
+    "uuid"              : String
+    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    "unixtime"          : Float # Unixtime with decimals
+    "referenceDateTime" : nil or DateTime Iso8601
+    "description"       : String
+    "type"              : "url"
+    "url"               : String
+}
+
+{
+    "uuid"              : String
+    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    "unixtime"          : Float # Unixtime with decimals
+    "referenceDateTime" : nil or DateTime Iso8601
+    "description"       : String
+    "type"              : "aion-location"
     "leptonfilename"    : String
 }

@@ -19,6 +19,8 @@ class NyxFsck
 
     # NyxFsck::processQuark(quark)
     def self.processQuark(quark)
+        return true if quark["type"] == "line"
+        return true if quark["type"] == "url"
         leptonfilename = quark["leptonfilename"]
         leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
         File.exists?(leptonfilepath)
