@@ -357,11 +357,19 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["asteroid"]
+            options = ["asteroid", "quark", "NGX15"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "asteroid" then
                 object = Asteroids::issueAsteroidInteractivelyOrNull()
+                return object if object
+            end
+            if option == "quark" then
+                object = Quarks::interactivelyIssueQuarkOrNull()
+                return object if object
+            end
+            if option == "NGX15" then
+                object = NGX15::issueNewNGX15InteractivelyOrNull()
                 return object if object
             end
         }
@@ -373,7 +381,7 @@ class Patricia
     # Patricia::architect()
     def self.architect()
         landingBehindAsk = lambda {|object|
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ?") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ? ") then
                 Patricia::landing(object)
             end
         }
