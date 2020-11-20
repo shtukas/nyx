@@ -79,6 +79,7 @@ class VideoStream
             timespan = Runner::stop(uuid)
             puts "Watched for #{timespan} seconds"
             timespan = [timespan, 3600*2].min
+            timespan = [timespan, 300].max
             puts "Adding #{timespan} seconds to bank"
             Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
         }
