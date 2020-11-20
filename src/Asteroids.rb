@@ -417,7 +417,7 @@ class Asteroids
     # Asteroids::moveAsteroidTarget(asteroid, target)
     def self.moveAsteroidTarget(asteroid, target)
         puts "moving: #{Patricia::toString(target)}"
-        if Patricia::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+        if Patricia::isQuark(target) and target["description"].nil? then
             description = LucilleCore::askQuestionAnswerAsString("target description: ")
             if description.size > 0 then
                 Quarks::setDescription(target, description)
@@ -483,7 +483,7 @@ class Asteroids
                     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                     Asteroids::asteroidReceivesTime(asteroid, timespan)
                     puts "moving: #{Patricia::toString(target)}"
-                    if Patricia::isQuark(target) and Quarks::getStoredDescriptionOrNull(target).nil? then
+                    if Patricia::isQuark(target) and target["description"].nil? then
                         description = LucilleCore::askQuestionAnswerAsString("target description: ")
                         if description.size > 0 then
                             Quarks::setDescription(target, description)

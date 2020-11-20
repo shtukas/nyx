@@ -95,14 +95,6 @@ class LeptonsFunctions
         nil
     end
 
-    # LeptonsFunctions::getStoredDescriptionOrNull(filepath)
-    def self.getStoredDescriptionOrNull(filepath)
-        db = SQLite3::Database.new(filepath)
-        description = LeptonsFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
-        db.close
-        description
-    end
-
     # LeptonsFunctions::getDescription(filepath)
     def self.getDescription(filepath)
         db = SQLite3::Database.new(filepath)
@@ -110,9 +102,6 @@ class LeptonsFunctions
 
         type = LeptonsFunctions::getValueOrNull(db, "18da4008-6cb2-4df0-b9d5-bb9e3b4f949a")
         type = type || "unkown type for lepton file #{filepath}, how did that happen?"
-
-        description = LeptonsFunctions::getValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0")
-        return "[#{type}] #{description}" if description
 
         description = nil
 
@@ -195,14 +184,6 @@ class LeptonsFunctions
         db.execute "delete from lepton where _key_=?", [key]
         db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", [key, value]
     end
-
-    # LeptonsFunctions::setDescription(filepath, description)
-    def self.setDescription(filepath, description)
-        db = SQLite3::Database.new(filepath)
-        LeptonsFunctions::setValueOrNull(db, "9fb612ab-698c-4f6a-ab99-5aadb3f727d0", description)
-        db.close
-    end
-
 end
 
 # -------------------------------------------------------------------------------------

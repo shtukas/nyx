@@ -94,26 +94,23 @@ class Quarks
 
     # --------------------------------------------------
 
-    # Quarks::getStoredDescriptionOrNull(quark)
-    def self.getStoredDescriptionOrNull(quark)
-        filename = quark["leptonfilename"]
-        filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
-        LeptonsFunctions::getStoredDescriptionOrNull(filepath)
-    end
-
     # Quarks::setDescription(quark, description)
     def self.setDescription(quark, description)
-        filename = quark["leptonfilename"]
-        filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
-        LeptonsFunctions::setDescription(filepath, description)
+        quark["description"] = description
+        NyxObjects2::put(quark)
+        quark
     end
 
     # Quarks::toString(quark)
     def self.toString(quark)
-        leptonfilename = quark["leptonfilename"]
-        leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        description = LeptonsFunctions::getDescription(leptonFilepath)
-        "[quark] #{description}"
+        if quark["description"] then
+            "[quark] #{quark["description"]}"
+        else
+            leptonfilename = quark["leptonfilename"]
+            leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
+            description = LeptonsFunctions::getDescription(leptonFilepath)
+            "[quark] #{description}"
+        end
     end
 
     # Quarks::getTypeOrNull(quark)
@@ -208,10 +205,9 @@ class Quarks
             )
 
             mx.item("set/update description".yellow, lambda {
-                leptonfilename = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
-                LeptonsFunctions::setDescription(leptonfilename, description)
+                Quarks::setDescription(quark, description)
             })
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(quark)
