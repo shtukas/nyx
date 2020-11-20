@@ -69,7 +69,7 @@ class LeptonsFunctions
         db.execute("create table lepton (_key_ text, _value_ data);")
         db.close
 
-        operator = ElizabethLeptons.new(leptonFilepath)
+        operator = ElizabethX2.new(leptonFilepath)
         roothash = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
 
         db = SQLite3::Database.new(leptonFilepath)
@@ -110,7 +110,7 @@ class LeptonsFunctions
 
         if type == "aion-location" then
             aionroothash = LeptonsFunctions::getValueOrNull(db, "374809ce-ee4c-46c4-9639-c7028731ce64") # aion root hash
-            operator = ElizabethLeptons.new(filepath)
+            operator = ElizabethX2.new(filepath)
             aionobject = AionCore::getAionObjectByHash(operator, aionroothash)
             description = aionobject["name"]
         end
@@ -171,7 +171,7 @@ end
 
 # -------------------------------------------------------------------------------------
 
-class ElizabethLeptons
+class ElizabethX2
 
     # @databaseFilepath
 
@@ -181,10 +181,11 @@ class ElizabethLeptons
 
     def commitBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        db = SQLite3::Database.new(@databaseFilepath)
-        db.execute "delete from lepton where _key_=?", [nhash]
-        db.execute "insert into lepton (_key_, _value_) values ( ?, ? )", [nhash, blob]
-        db.close
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end
 
@@ -193,6 +194,11 @@ class ElizabethLeptons
     end
 
     def readBlobErrorIfNotFound(nhash)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            return IO.read(filepath)
+        end
+
         db = SQLite3::Database.new(@databaseFilepath)
         db.results_as_hash = true # to get the results as hash
         blob = nil
@@ -201,6 +207,9 @@ class ElizabethLeptons
         end
         db.close
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+
+        commitBlob(blob)
+
         blob
     end
 

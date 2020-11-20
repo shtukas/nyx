@@ -30,5 +30,6 @@ Quark
     "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
     "type"              : "aion-location"
+    "roothash"          : String
     "leptonfilename"    : String
 }

@@ -134,7 +134,7 @@ class Quarks
             filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
             leptonFilename = quark["leptonfilename"]
             leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonFilename)
-            operator = ElizabethLeptons.new(leptonFilepath)
+            operator = ElizabethX2.new(leptonFilepath)
             nhash = LeptonsFunctions::getTypeAionLocationRootHashOrNull(leptonFilepath)
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
