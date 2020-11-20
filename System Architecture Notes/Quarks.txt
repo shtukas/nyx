@@ -9,5 +9,6 @@ Quark
     "unixtime"          : Float # Unixtime with decimals
     "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
+    "type"              : String # "line", "url", "aion-location"
     "leptonfilename"    : String
 }

@@ -128,18 +128,6 @@ class LeptonsFunctions
         "[#{type}] #{description}"
     end
 
-    # LeptonsFunctions::getTypeOrNull(filepath)
-    def self.getTypeOrNull(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.results_as_hash = true # to get the results as hash
-        type = nil
-        db.execute( "select * from lepton where _key_=?" , ["18da4008-6cb2-4df0-b9d5-bb9e3b4f949a"]) do |row|
-          type = row["_value_"]
-        end
-        db.close
-        type
-    end
-
     # LeptonsFunctions::getTypeLineLineOrNull(filepath)
     def self.getTypeLineLineOrNull(filepath)
         db = SQLite3::Database.new(filepath)

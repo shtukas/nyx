@@ -23,6 +23,7 @@ class Quarks
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
+            "type"              => "line",
             "leptonfilename"    => leptonfilename
         }
         NyxObjects2::put(object)
@@ -42,6 +43,7 @@ class Quarks
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
+            "type"              => "url",
             "leptonfilename"    => leptonfilename
         }
         NyxObjects2::put(object)
@@ -61,6 +63,7 @@ class Quarks
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
+            "type"              => "aion-location",
             "leptonfilename"    => leptonfilename
         }
         NyxObjects2::put(object)
@@ -113,20 +116,13 @@ class Quarks
         end
     end
 
-    # Quarks::getTypeOrNull(quark)
-    def self.getTypeOrNull(quark)
-        filename = quark["leptonfilename"]
-        filepath = LeptonsFunctions::leptonFilenameToFilepath(filename)
-        LeptonsFunctions::getTypeOrNull(filepath)
-    end
-
     # --------------------------------------------------
 
     # Quarks::open1(quark)
     def self.open1(quark)
         puts "opening: #{Quarks::toString(quark)}"
         filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
-        type = LeptonsFunctions::getTypeOrNull(filepath)
+        type = quark["type"]
         if type == "line" then
             puts LeptonsFunctions::getTypeLineLineOrNull(filepath)
             LucilleCore::pressEnterToContinue()
