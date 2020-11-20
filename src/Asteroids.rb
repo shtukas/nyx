@@ -201,16 +201,9 @@ class Asteroids
         ( asteroid["unixtime"]-bounds["lower"] ).to_f/( bounds["upper"] - bounds["lower"] )
     end
 
-    # Asteroids::isRunning?(asteroid)
-    def self.isRunning?(asteroid)
-        Runner::isRunning?(asteroid["uuid"])
-    end
-
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
         uuid = asteroid["uuid"]
-
-        return 1 if Asteroids::isRunning?(asteroid)
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             return 0.70 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
@@ -256,7 +249,7 @@ class Asteroids
 
         Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target|
             uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
-            isRunning = Asteroids::isRunning?(uuid)
+            isRunning = Runner::isRunning?(uuid)
             metric = asteroidmetric - Math.atan(Asteroids::getTargetOrdinal(asteroid, target)).to_f/100
             metric = 1 if isRunning
             {
@@ -396,14 +389,14 @@ class Asteroids
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)
     def self.startAsteroidIfNotRunning(asteroid)
-        return if Asteroids::isRunning?(asteroid)
+        return if Runner::isRunning?(asteroid["uuid"])
         puts "start asteroid: #{Asteroids::toString(asteroid)}"
         Runner::start(asteroid["uuid"])
     end
 
     # Asteroids::stopAsteroidIfRunning(asteroid)
     def self.stopAsteroidIfRunning(asteroid)
-        return if !Asteroids::isRunning?(asteroid)
+        return if !Runner::isRunning?(asteroid["uuid"])
         timespan = Runner::stop(asteroid["uuid"])
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
