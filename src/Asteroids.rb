@@ -430,7 +430,7 @@ class Asteroids
                 NyxObjects2::put(target)
             end
         end
-        px1 = Patricia::searchAndReturnObjectOrNull()
+        px1 = Patricia::architect()
         if !px1.nil? then
             Arrows::issueOrException(px1, target)
             Arrows::unlink(asteroid, target)
@@ -496,7 +496,7 @@ class Asteroids
                             NyxObjects2::put(target)
                         end
                     end
-                    px1 = Patricia::searchAndReturnObjectOrNull()
+                    px1 = Patricia::architect()
                     if !px1.nil? then
                         Arrows::issueOrException(px1, target)
                         Arrows::unlink(asteroid, target)
@@ -516,7 +516,12 @@ class Asteroids
     def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
         Arrows::getTargetsForSource(asteroid).each{|target|
             puts "Moving target: #{Patricia::toString(target)}"
-            xnode = NavigationNodes::extractionSelectNavigationNodeOrMakeOneOrNull()
+            if Arrows::getSourcesForTarget(target).size > 1 then
+                # The target belongs to other things than the asteroid
+                Arrows::unlink(asteroid, target)
+                next
+            end
+            xnode = Patricia::architect()
             next if xnode.nil?
             Arrows::issueOrException(xnode, target)
             Arrows::unlink(asteroid, target)
@@ -546,6 +551,7 @@ class Asteroids
             puts "orbital: #{JSON.generate(asteroid["orbital"])}".yellow
             puts "activeDays: #{JSON.generate(asteroid["activeDays"])}".yellow
             puts "bank value: #{Bank::value(asteroid["uuid"])}".yellow
+            puts "BankExtended::recoveredDailyTimeInHours: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
             puts "x-stream-index: #{asteroid["x-stream-index"]}".yellow
 

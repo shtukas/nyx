@@ -323,7 +323,11 @@ class Patricia
         fragment = Pepin.search(fragments)
         searchresults = Patricia::patternToOrderedSearchResults(fragment)
         if searchresults.size == 1 then
-            return searchresults[0]["object"]
+            object = searchresults[0]["object"]
+            if LucilleCore::askQuestionAnswerAsBoolean("return '#{Patricia::toString(object)}' ? ", true) then
+                return object
+            end
+            return nil
         end
         answer = nil
         ms = LCoreMenuItemsNX1.new()
@@ -357,7 +361,7 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["asteroid", "quark", "NGX15"]
+            options = ["asteroid", "quark", "NGX15", "navigation node"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "asteroid" then
@@ -370,6 +374,10 @@ class Patricia
             end
             if option == "NGX15" then
                 object = NGX15::issueNewNGX15InteractivelyOrNull()
+                return object if object
+            end
+            if option == "navigation node" then
+                object = NavigationNodes::issueNodeInteractivelyOrNull()
                 return object if object
             end
         }
