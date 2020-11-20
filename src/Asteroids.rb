@@ -417,13 +417,13 @@ class Asteroids
     # Asteroids::moveAsteroidTarget(asteroid, target)
     def self.moveAsteroidTarget(asteroid, target)
         puts "moving: #{Patricia::toString(target)}"
-        if Patricia::isQuark(target) and target["description"].nil? then
+        if Patricia::isQuark(target) and target["type"] == "aion-location" and target["description"].nil? then
             description = LucilleCore::askQuestionAnswerAsString("target description: ")
             if description.size > 0 then
                 Quarks::setDescription(target, description)
             end
         end
-        if Patricia::isNGX15(target) and target["description"].nil? then
+        if Patricia::isNGX15(target) and target["type"] == "aion-location" and target["description"].nil? then
             description = LucilleCore::askQuestionAnswerAsString("target description: ")
             if description.size > 0 then
                 target["description"] = description

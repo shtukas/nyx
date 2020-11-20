@@ -180,6 +180,40 @@ class Quarks
                 return if description == ""
                 Quarks::setDescription(quark, description)
             })
+
+            mx.item("edit".yellow, lambda {
+                if quark["type"] == "line" then
+                    line = Miscellaneous::editTextSynchronously(quark["line"]).strip
+                    return if line == ""
+                    quark["line"] = line
+                    NyxObjects2::put(quark)
+                    return
+                end
+                if quark["type"] == "url" then
+                    url = Miscellaneous::editTextSynchronously(quark["url"]).strip
+                    return if url == ""
+                    quark["url"] = url
+                    NyxObjects2::put(quark)
+                    return
+                end
+                if quark["type"] == "aion-location" then
+                    operator = ElizabethX2.new()
+                    nhash = quark["roothash"]
+                    targetReconstructionFolderpath = "/Users/pascal/Desktop"
+                    AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
+                    puts "aion point exported ; edit and ..."
+                    LucilleCore::pressEnterToContinue()
+                    locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
+                    aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
+                    quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
+                    NyxObjects2::put(quark)
+                    return
+                end
+                puts quark
+                raise "error: 08bd13f4-dbb6-4823-aa7e-2e9960936eb6"
+            })
+
+
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(quark)
                 LucilleCore::pressEnterToContinue()
