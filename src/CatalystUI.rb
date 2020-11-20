@@ -165,6 +165,11 @@ class CatalystUI
             return
         end
 
+        if command == "ordinals drop" then
+            OrdinalPoints::setTimeMark()
+            return
+        end
+
         if command == "/" then
             DataPortalUI::dataPortalFront()
             return

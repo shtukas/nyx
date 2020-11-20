@@ -56,10 +56,21 @@ class OrdinalPoints
             .map{|uuid| OrdinalPoints::getOrdinalPointByUuid(uuid) }
     end
 
+    # OrdinalPoints::getTimeMark()
+    def self.getTimeMark()
+        KeyValueStore::getOrDefaultValue(nil, "d4cc170d-4bdd-4a2e-87f4-2f742584e4df", "0").to_f
+    end
+
+    # OrdinalPoints::setTimeMark()
+    def self.setTimeMark()
+        KeyValueStore::set(nil, "d4cc170d-4bdd-4a2e-87f4-2f742584e4df", Time.new.to_f)
+    end
+
     # OrdinalPoints::ordinalToMetric(ordinal)
     def self.ordinalToMetric(ordinal)
         # 0.69  -> 0.66 
-        0.66 + 0.03 * Math.exp(-ordinal) # We should probably keep the ordinals positive
+        shift = 0.1*Math.exp(-(Time.new.to_i - OrdinalPoints::getTimeMark()).to_f/3600)
+        0.66 - shift + 0.03 * Math.exp(-ordinal) # We should probably keep the ordinals positive
     end
 
     # OrdinalPoints::toString(point)

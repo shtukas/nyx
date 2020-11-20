@@ -263,7 +263,7 @@ class Asteroids
                 "uuid"             => uuid,
                 "body"             => "#{Asteroids::toString(asteroid)}; #{Patricia::toString(target)}",
                 "metric"           => metric,
-                "landing"          => lambda { Asteroids::landing(target) },
+                "landing"          => lambda { Patricia::landing(target) },
                 "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
                 "done"             => lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{Patricia::toString(target)}' ? ") then
