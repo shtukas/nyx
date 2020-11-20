@@ -21,9 +21,10 @@ class NyxFsck
     def self.processQuark(quark)
         return true if quark["type"] == "line"
         return true if quark["type"] == "url"
-        leptonfilename = quark["leptonfilename"]
-        leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        File.exists?(leptonfilepath)
+        roothash = quark["roothash"]
+        puts "roothash: #{roothash}"
+        operator = ElizabethX2.new()
+        AionFsck::structureCheckAionHash(operator, roothash)
     end
 
     # NyxFsck::processObject(object, runhash)

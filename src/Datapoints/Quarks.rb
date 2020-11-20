@@ -12,7 +12,6 @@ class Quarks
 
     # Quarks::issueLine(line)
     def self.issueLine(line)
-        # We need to create the quark and the lepton (in the opposite order)
         object = {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
@@ -26,7 +25,6 @@ class Quarks
 
     # Quarks::issueUrl(url)
     def self.issueUrl(url)
-        # We need to create the quark and the lepton (in the opposite order)
         object = {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
@@ -40,19 +38,14 @@ class Quarks
 
     # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
     def self.issueAionFileSystemLocation(aionFileSystemLocation)
-        # We need to create the quark and the lepton (in the opposite order)
-
-        leptonfilename = "#{SecureRandom.uuid}.sqlite3"
-        leptonfilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        LeptonsFunctions::createLeptonAionFileSystemLocation(leptonfilepath, aionFileSystemLocation)
-
+        operator = ElizabethX2.new()
         object = {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
             "type"              => "aion-location",
-            "leptonfilename"    => leptonfilename
+            "roothash"          => AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
         }
         NyxObjects2::put(object)
         object
@@ -97,19 +90,20 @@ class Quarks
         if quark["description"] then
             return "[quark] #{quark["description"]}"
         end
-
         if quark["type"] == "line" then
             return "[quark] #{quark["line"]}"
         end
-
         if quark["type"] == "url" then
             return "[quark] #{quark["url"]}"
         end
-
-        leptonfilename = quark["leptonfilename"]
-        leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonfilename)
-        description = LeptonsFunctions::getDescription(leptonFilepath)
-        "[quark] #{description}"
+        if quark["type"] == "aion-location" then
+            operator = ElizabethX2.new()
+            aionobject = AionCore::getAionObjectByHash(operator, quark["roothash"])
+            description = aionobject["name"]
+            return "[quark] #{description}"
+        end
+        puts quark
+        raise "error: 963c91c2-1370-4807-8d89-96c9065de3ea"
     end
 
     # --------------------------------------------------
@@ -131,11 +125,8 @@ class Quarks
             return
         end
         if type == "aion-location" then
-            filepath = LeptonsFunctions::leptonFilenameToFilepath(quark["leptonfilename"])
-            leptonFilename = quark["leptonfilename"]
-            leptonFilepath = LeptonsFunctions::leptonFilenameToFilepath(leptonFilename)
-            operator = ElizabethX2.new(leptonFilepath)
-            nhash = LeptonsFunctions::getTypeAionLocationRootHashOrNull(leptonFilepath)
+            operator = ElizabethX2.new()
+            nhash = quark["roothash"]
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
             puts "aion point exported"

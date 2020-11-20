@@ -154,7 +154,7 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 
 require_relative "Datapoints/Datapoints.rb"
-require_relative "Datapoints/Leptons.rb"
+require_relative "Datapoints/ElizabethX2.rb"
 require_relative "Datapoints/Quarks.rb"
 require_relative "Datapoints/NGX15.rb"
 

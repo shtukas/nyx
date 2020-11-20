@@ -1,9 +1,9 @@
 Data in the Catalyst universe comes in 3 flavours:
     1. lines in Wave objects
     2. NGX15 references
-    3. Quark/Lepton pairs
+    3. Quarks
 
-We refer to NGX15 and Quarks/Lepton collectively as Datapoints
+We refer to NGX15 and Quarks collectively as Datapoints
 
 We have a system of
     - Tags

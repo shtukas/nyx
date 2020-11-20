@@ -31,5 +31,4 @@ Quark
     "description"       : String
     "type"              : "aion-location"
     "roothash"          : String
-    "leptonfilename"    : String
 }
