@@ -151,22 +151,11 @@ class Quarks
 
             puts ""
 
-            Patricia::getAllParentingPathsOfSize2(quark).each{|item|
-                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
-                mx.item(
-                    "source: #{announce}",
-                    lambda { Patricia::landing(item["p1"]) }
-                )
-            }
+            Patricia::mxSourcing(quark, mx)
 
             puts ""
 
-            Arrows::getTargetsForSource(quark).each{|target|
-                menuitems.item(
-                    "target: #{Patricia::toString(target)}",
-                    lambda { Patricia::landing(target) }
-                )
-            }
+            Patricia::mxTargetting(quark, mx)
 
             puts ""
 
@@ -219,18 +208,7 @@ class Quarks
                 LucilleCore::pressEnterToContinue()
             })
 
-            mx.item("add parent".yellow, lambda {
-                o1 = Patricia::architect()
-                return if o1.nil?
-                Arrows::issueOrException(o1, quark)
-            })
-
-            mx.item("remove parent".yellow, lambda {
-                parents = Arrows::getSourcesForTarget(quark)
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |px| Patricia::toString(px) })
-                return if parent.nil?
-                Arrows::unlink(parent, quark)
-            })
+            Patricia::mxParentsManagement(quark, mx)
 
             mx.item(
                 "destroy".yellow,

@@ -243,6 +243,62 @@ class Patricia
         .flatten
     end
 
+    # Patricia::mxSourcing(object, mx)
+    def self.mxSourcing(object, mx)
+        Patricia::getAllParentingPathsOfSize2(object).each{|item|
+            sourcing = "#{Patricia::toString(item["p1"])}#{item["p2"] ? " <- #{Patricia::toString(item["p2"])}" : ""}"
+            mx.item(
+                "source: #{sourcing}",
+                lambda { Patricia::landing(item["p1"]) }
+            )
+        }
+    end
+
+    # Patricia::mxTargetting(object, mx)
+    def self.mxTargetting(object, mx)
+        targets = Arrows::getTargetsForSource(object)
+        targets = Patricia::applyDateTimeOrderToObjects(targets)
+        targets
+            .each{|o|
+                mx.item(
+                    "target: #{Patricia::toString(o)}",
+                    lambda { Patricia::landing(o) }
+                )
+            }
+    end
+
+    # Patricia::mxParentsManagement(object, mx)
+    def self.mxParentsManagement(object, mx)
+        mx.item("add parent".yellow, lambda {
+            o1 = Patricia::architect()
+            return if o1.nil?
+            Arrows::issueOrException(o1, object)
+        })
+
+        mx.item("remove parent".yellow, lambda {
+            parents = Arrows::getSourcesForTarget(object)
+            parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| Patricia::toString(parent) })
+            return if parent.nil?
+            Arrows::unlink(parent, object)
+        })
+    end
+
+    # Patricia::mxTargetsManagement(object, mx)
+    def self.mxTargetsManagement(object, mx)
+        mx.item("add target".yellow, lambda { 
+            o = Patricia::architect()
+            return if o.nil?
+            Arrows::issueOrException(object, o)
+        })
+
+        mx.item("remove target".yellow, lambda { 
+            targets = Arrows::getTargetsForSource(object)
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
+            return if target.nil?
+            Arrows::unlink(object, target)
+        })
+    end
+
     # --------------------------------------------------
     # Search Utils
 
@@ -319,8 +375,9 @@ class Patricia
 
     # Patricia::interactiveSearchAndReturnObjectOrNull()
     def self.interactiveSearchAndReturnObjectOrNull()
-        fragments = SelectionLookupDatabaseIO::getDatabaseRecords().map{|record| record["fragment"] }
+        fragments = SelectionLookupDatabaseIO::getDatabaseRecords().map{|record| "#{record["fragment"]} -" }
         fragment = Pepin.search(fragments)
+        fragment = fragment[0, fragment.size-2]
         searchresults = Patricia::patternToOrderedSearchResults(fragment)
         if searchresults.size == 1 then
             object = searchresults[0]["object"]

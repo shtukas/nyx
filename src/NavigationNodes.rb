@@ -141,80 +141,72 @@ class NavigationNodes
         array1.reverse.drop(1).reverse.zip(array2.drop(1))
     end
 
-    # NavigationNodes::landing(listing)
-    def self.landing(listing)
+    # NavigationNodes::landing(node)
+    def self.landing(node)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(listing["uuid"]).nil?
+            return if NyxObjects2::getOrNull(node["uuid"]).nil?
 
-            puts NavigationNodes::toString(listing).green
-            puts "uuid: #{listing["uuid"]}".yellow
+            puts NavigationNodes::toString(node).green
+            puts "uuid: #{node["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
-            Patricia::getAllParentingPathsOfSize2(listing).each{|item|
-                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
-                mx.item(
-                    "source: #{announce}",
-                    lambda { Patricia::landing(item["p1"]) }
-                )
-            }
+            puts ""
 
-            targets = Arrows::getTargetsForSource(listing)
-            targets = Patricia::applyDateTimeOrderToObjects(targets)
-            puts "" if !targets.empty?
-            targets
-                .each{|object|
-                    mx.item(
-                        "target: #{Patricia::toString(object)}",
-                        lambda { Patricia::landing(object) }
-                    )
-                }
+            Patricia::mxSourcing(node, mx)
+
+            puts ""
+
+            Patricia::mxTargetting(node, mx)
 
             puts ""
 
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(listing["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
-                listing["name"] = name1
-                NyxObjects2::put(listing)
-                NavigationNodes::removeSetDuplicates()
+                node["name"] = name1
+                NyxObjects2::put(node)
             })
 
-            mx.item("add parent".yellow, lambda {
-                o1 = Patricia::architect()
-                return if o1.nil?
-                Arrows::issueOrException(o1, listing)
+            Patricia::mxParentsManagement(node, mx)
+
+            Patricia::mxTargetsManagement(node, mx)
+
+            mx.item("select multiple targets ; move to existing target".yellow, lambda {
+                targets = Arrows::getTargetsForSource(node)
+                targets = Patricia::applyDateTimeOrderToObjects(targets)
+                selectedtargets, _ = LucilleCore::selectZeroOrMore("targets", [], targets, lambda{ |i| Patricia::toString(i) })
+                n1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|l| Patricia::toString(l) })
+                selectedtargets.each{|target|
+                    Arrows::issueOrException(n1, target)
+                    Arrows::unlink(node, target)
+                }
             })
 
-            mx.item("add target".yellow, lambda { 
-                o = Patricia::architect()
-                return if o.nil?
-                Arrows::issueOrException(listing, o)
-            })
-
-            mx.item("select multiple targets ; inject navigation node".yellow, lambda {
-                targets = Arrows::getTargetsForSource(listing)
-                selectedtargets, _ = LucilleCore::selectZeroOrMore("target", [], targets, lambda{ |item| Patricia::toString(item) })
+            mx.item("select multiple targets ; move to new target".yellow, lambda {
+                targets = Arrows::getTargetsForSource(node)
+                targets = Patricia::applyDateTimeOrderToObjects(targets)
+                selectedtargets, _ = LucilleCore::selectZeroOrMore("targets", [], targets, lambda{ |item| Patricia::toString(item) })
                 name1 = LucilleCore::askQuestionAnswerAsString("new navigation node name (empty to abort): ")
                 return if name1 == ""
                 n1 = NavigationNodes::issue(name1)
-                Arrows::issueOrException(listing, n1)
+                Arrows::issueOrException(node, n1)
                 selectedtargets.each{|target|
                     Arrows::issueOrException(n1, target)
-                    Arrows::unlink(listing, target)
+                    Arrows::unlink(node, target)
                 }
             })
 
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(listing)
+                puts JSON.pretty_generate(node)
                 LucilleCore::pressEnterToContinue()
             })
             
             mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy navigation node: '#{NavigationNodes::toString(listing)}': ") then
-                    NyxObjects2::destroy(listing)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy navigation node: '#{NavigationNodes::toString(node)}': ") then
+                    NyxObjects2::destroy(node)
                 end
             })
             puts ""

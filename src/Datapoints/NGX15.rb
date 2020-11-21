@@ -82,22 +82,11 @@ class NGX15
 
             puts ""
 
-            Patricia::getAllParentingPathsOfSize2(ngx15).each{|item|
-                announce = "#{Patricia::toString(item["p1"])} <- #{item["p2"] ? Patricia::toString(item["p2"]) : ""}"
-                mx.item(
-                    "source: #{announce}",
-                    lambda { Patricia::landing(item["p1"]) }
-                )
-            }
+            Patricia::mxSourcing(ngx15, mx)
 
             puts ""
 
-            Arrows::getTargetsForSource(ngx15).each{|target|
-                menuitems.item(
-                    "target: #{Patricia::toString(target)}",
-                    lambda { Patricia::landing(target) }
-                )
-            }
+            Patricia::mxTargetting(ngx15, mx)
 
             puts ""
 
@@ -121,18 +110,7 @@ class NGX15
                 NyxObjects2::put(ngx15)
             })
 
-            mx.item("add parent".yellow, lambda {
-                o1 = Patricia::architect()
-                return if o1.nil?
-                Arrows::issueOrException(o1, ngx15)
-            })
-
-            mx.item("remove parent".yellow, lambda {
-                parents = Arrows::getSourcesForTarget(ngx15)
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| Patricia::toString(parent) })
-                return if parent.nil?
-                Arrows::unlink(parent, ngx15)
-            })
+            Patricia::mxParentsManagement(ngx15, mx)
 
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(ngx15)}': ") then
