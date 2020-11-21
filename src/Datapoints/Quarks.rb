@@ -210,6 +210,8 @@ class Quarks
 
             Patricia::mxParentsManagement(quark, mx)
 
+            Patricia::mxMoveToNewParent(quark, mx)
+
             mx.item(
                 "destroy".yellow,
                 lambda { 

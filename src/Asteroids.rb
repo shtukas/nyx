@@ -245,6 +245,13 @@ class Asteroids
             return []
         end
 
+        makeBody = lambda {|asteroid, target|
+            if Asteroids::toString(asteroid).include?(Patricia::toString(target)) then
+                return Asteroids::toString(asteroid)
+            end
+            "#{Asteroids::toString(asteroid)}; #{Patricia::toString(target)}"
+        }
+
         asteroidmetric = Asteroids::metric(asteroid)
 
         Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target|
@@ -254,7 +261,7 @@ class Asteroids
             metric = 1 if isRunning
             {
                 "uuid"             => uuid,
-                "body"             => "#{Asteroids::toString(asteroid)}; #{Patricia::toString(target)}",
+                "body"             => makeBody.call(asteroid, target),
                 "metric"           => metric,
                 "landing"          => lambda { Patricia::landing(target) },
                 "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
@@ -440,74 +447,56 @@ class Asteroids
 
     # Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, runId)
     def self.asteroidTargetNaturalNextOperation(asteroid, target, runId)
-
         if !Runner::isRunning?(runId) then
             # Is not running
             Runner::start(runId)
             Patricia::open1(target)
-            if !LucilleCore::askQuestionAnswerAsBoolean("keep running ? ", true) then
+            menuitems = LCoreMenuItemsNX1.new()
+            menuitems.item("keep running".yellow, lambda {})
+            menuitems.item("stop".yellow, lambda { 
                 timespan = Runner::stop(runId)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                 Asteroids::asteroidReceivesTime(asteroid, timespan)
-                menuitems = LCoreMenuItemsNX1.new()
-                menuitems.item("move target".yellow,
-                    lambda { Asteroids::moveAsteroidTarget(asteroid, target)}
-                )
-                menuitems.item("destroy target".yellow,
-                    lambda { 
-                        Patricia::destroy(target)
-                    })
-                status = menuitems.promptAndRunSandbox()
-            end
+            })
+            menuitems.item("target landing".yellow, lambda { 
+                Patricia::landing(target)
+            })
+            menuitems.item("stop ; move target".yellow, lambda { 
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                Asteroids::moveAsteroidTarget(asteroid, target)
+            })
+            menuitems.item("stop ; destroy target".yellow,lambda {
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                Patricia::destroy(target)
+            })
+            status = menuitems.promptAndRunSandbox()
         else
             # Is running
             menuitems = LCoreMenuItemsNX1.new()
-            menuitems.item("stop".yellow,
-                lambda {
-                    timespan = Runner::stop(runId)
-                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                    Asteroids::asteroidReceivesTime(asteroid, timespan)
-                }
-            )
-            menuitems.item("stop and destroy".yellow,
-                lambda {
-                    timespan = Runner::stop(runId)
-                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                    Asteroids::asteroidReceivesTime(asteroid, timespan)
-                    Patricia::destroy(target)
-                }
-            )
-            menuitems.item("stop and move".yellow,
-                lambda {
-                    timespan = Runner::stop(runId)
-                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                    Asteroids::asteroidReceivesTime(asteroid, timespan)
-                    puts "moving: #{Patricia::toString(target)}"
-                    if Patricia::isQuark(target) and target["description"].nil? then
-                        description = LucilleCore::askQuestionAnswerAsString("target description: ")
-                        if description.size > 0 then
-                            Quarks::setDescription(target, description)
-                        end
-                    end
-                    if Patricia::isNGX15(target) and target["description"].nil? then
-                        description = LucilleCore::askQuestionAnswerAsString("target description: ")
-                        if description.size > 0 then
-                            target["description"] = description
-                            NyxObjects2::put(target)
-                        end
-                    end
-                    px1 = Patricia::architect()
-                    if !px1.nil? then
-                        Arrows::issueOrException(px1, target)
-                        Arrows::unlink(asteroid, target)
-                    end
-                    Patricia::landing(target)
-                }
-            )
-            menuitems.item("landing".yellow,
-                lambda { 
-                    Patricia::landing(target)
-                })
+            menuitems.item("stop".yellow, lambda {
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+            })
+            menuitems.item("stop ; move target".yellow, lambda {
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                Asteroids::moveAsteroidTarget(asteroid, target)
+            })
+            menuitems.item("stop ; destroy target".yellow, lambda {
+                timespan = Runner::stop(runId)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                Patricia::destroy(target)
+            })
+            menuitems.item("target landing".yellow, lambda { 
+                Patricia::landing(target)
+            })
             status = menuitems.promptAndRunSandbox()
         end
     end

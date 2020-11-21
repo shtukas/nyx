@@ -172,6 +172,8 @@ class NavigationNodes
 
             Patricia::mxParentsManagement(node, mx)
 
+            Patricia::mxMoveToNewParent(node, mx)
+
             Patricia::mxTargetsManagement(node, mx)
 
             mx.item("select multiple targets ; move to existing target".yellow, lambda {

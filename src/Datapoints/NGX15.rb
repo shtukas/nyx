@@ -79,6 +79,7 @@ class NGX15
             puts NGX15::toString(ngx15).green
             puts "uuid: #{ngx15["uuid"]}".yellow
             puts "date: #{Patricia::getObjectReferenceDateTime(ngx15)}".yellow
+            puts "location: #{GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])}".yellow
 
             puts ""
 
@@ -111,6 +112,8 @@ class NGX15
             })
 
             Patricia::mxParentsManagement(ngx15, mx)
+
+            Patricia::mxMoveToNewParent(ngx15, mx)
 
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy '#{NGX15::toString(ngx15)}': ") then

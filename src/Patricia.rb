@@ -299,6 +299,19 @@ class Patricia
         })
     end
 
+    # Patricia::mxMoveToNewParent(object, mx)
+    def self.mxMoveToNewParent(object, mx)
+        mx.item("move to new parent".yellow, lambda {
+            sources = Arrows::getSourcesForTarget(object)
+            newparent = Patricia::architect()
+            return if newparent.nil?
+            Arrows::issueOrException(newparent, object)
+            sources.each{|source|
+                Arrows::unlink(source, object)
+            }
+        })
+    end
+
     # --------------------------------------------------
     # Search Utils
 
@@ -446,7 +459,7 @@ class Patricia
     # Patricia::architect()
     def self.architect()
         landingBehindAsk = lambda {|object|
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to land on '#{Patricia::toString(object)}' ? ", false) then
                 Patricia::landing(object)
             end
         }
