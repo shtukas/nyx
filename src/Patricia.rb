@@ -402,6 +402,7 @@ class Patricia
         answer = nil
         ms = LCoreMenuItemsNX1.new()
         searchresults
+            .sort{|sr1, sr2| Patricia::getObjectReferenceDateTime(sr1["object"]) <=> Patricia::getObjectReferenceDateTime(sr2["object"]) }
             .each{|sr| 
                 ms.item(
                     Patricia::toString(sr["object"]), 

@@ -11,18 +11,19 @@ class NavigationNodes
     # NavigationNodes::make(name1)
     def self.make(name1)
         {
-            "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "f1ae7449-16d5-41c0-a89e-f2a8e486cc99",
-            "unixtime" => Time.new.to_f,
-            "name"     => name1
+            "uuid"       => SecureRandom.hex,
+            "nyxNxSet"   => "f1ae7449-16d5-41c0-a89e-f2a8e486cc99",
+            "unixtime"   => Time.new.to_f,
+            "name"       => name1,
+            "isRootNode" => false
         }
     end
 
     # NavigationNodes::issue(name1)
     def self.issue(name1)
-        listing = NavigationNodes::make(name1)
-        NyxObjects2::put(listing)
-        listing
+        node = NavigationNodes::make(name1)
+        NyxObjects2::put(node)
+        node
     end
 
     # NavigationNodes::issueNodeInteractivelyOrNull()
@@ -39,8 +40,8 @@ class NavigationNodes
 
     # NavigationNodes::selectOneExistingNodeOrMakeNewNodeOrNull()
     def self.selectOneExistingNodeOrMakeNewNodeOrNull()
-        listing = NavigationNodes::selectOneExistingNodeOrNull()
-        return listing if listing
+        node = NavigationNodes::selectOneExistingNodeOrNull()
+        return node if node
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("no navigation node selected, create a new one ? ")
         NavigationNodes::issueNodeInteractivelyOrNull()
     end
@@ -87,40 +88,40 @@ class NavigationNodes
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return nil if operation.nil?
             if operation == "select navigation node" then
-                listing = NavigationNodes::searchAndReturnNavigationNodeOrNullIntellisense()
-                if listing then
-                    puts "selected: #{Patricia::toString(listing)}"
+                node = NavigationNodes::searchAndReturnNavigationNodeOrNullIntellisense()
+                if node then
+                    puts "selected: #{Patricia::toString(node)}"
                     operations = ["return navigation node", "landing only", "landing then return navigation node", "select navigation node descendant"]
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                     next if operation.nil?
                     if operation == "return navigation node" then
-                        return listing
+                        return node
                     end
                     if operation == "landing only" then
-                        Patricia::landing(listing)
+                        Patricia::landing(node)
                     end
                     if operation == "landing then return navigation node" then
-                        Patricia::landing(listing)
-                        listing = NyxObjects2::getOrNull(listing["uuid"])
-                        next if listing.nil?
-                        return listing
+                        Patricia::landing(node)
+                        node = NyxObjects2::getOrNull(node["uuid"])
+                        next if node.nil?
+                        return node
                     end
                     if operation == "select navigation node descendant" then
-                        d = Patricia::selectSelfOrDescendantOrNull(listing)
+                        d = Patricia::selectSelfOrDescendantOrNull(node)
                         return d if d
                     end
                 end
             end
             if operation == "make navigation node" then
-                listing = NavigationNodes::issueNodeInteractivelyOrNull()
-                if listing then
-                    puts "made: #{Patricia::toString(listing)}"
+                node = NavigationNodes::issueNodeInteractivelyOrNull()
+                if node then
+                    puts "made: #{Patricia::toString(node)}"
                     if LucilleCore::askQuestionAnswerAsBoolean("Landing before returning ? ") then
-                        Patricia::landing(listing)
-                        listing = NyxObjects2::getOrNull(listing["uuid"])
+                        Patricia::landing(node)
+                        node = NyxObjects2::getOrNull(node["uuid"])
                     end
-                    next if listing.nil?
-                    return listing
+                    next if node.nil?
+                    return node
                 end
             end
             if operation == "return null" then
@@ -129,9 +130,9 @@ class NavigationNodes
         }
     end
 
-    # NavigationNodes::toString(listing)
-    def self.toString(listing)
-        "[navigation node] #{listing["name"]}"
+    # NavigationNodes::toString(node)
+    def self.toString(node)
+        "[navigation node] #{node["name"]}"
     end
 
     # NavigationNodes::arrayToconsecutivePairs(array)
@@ -150,6 +151,7 @@ class NavigationNodes
 
             puts NavigationNodes::toString(node).green
             puts "uuid: #{node["uuid"]}".yellow
+            puts "rootnode: #{node["isRootNode"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -167,6 +169,11 @@ class NavigationNodes
                 name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
                 node["name"] = name1
+                NyxObjects2::put(node)
+            })
+
+            mx.item("promote to root node".yellow, lambda { 
+                node["isRootNode"] = true
                 NyxObjects2::put(node)
             })
 
@@ -225,17 +232,26 @@ class NavigationNodes
 
             ms.item("navigation nodes dive",lambda { 
                 loop {
-                    listings = NavigationNodes::nodes()
-                    listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", listings, lambda{|l| NavigationNodes::toString(l) })
-                    return if listing.nil?
-                    NavigationNodes::landing(listing)
+                    nodes = NavigationNodes::nodes()
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|l| NavigationNodes::toString(l) })
+                    return if node.nil?
+                    NavigationNodes::landing(node)
+                }
+            })
+
+            ms.item("root nodes dive",lambda { 
+                loop {
+                    nodes = NavigationNodes::nodes().select{|node| node["isRootNode"] }
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|l| NavigationNodes::toString(l) })
+                    return if node.nil?
+                    NavigationNodes::landing(node)
                 }
             })
 
             ms.item("make new navigation node",lambda { 
-                listing = NavigationNodes::issueNodeInteractivelyOrNull()
-                return if listing.nil?
-                NavigationNodes::landing(listing)
+                node = NavigationNodes::issueNodeInteractivelyOrNull()
+                return if node.nil?
+                NavigationNodes::landing(node)
             })
 
             status = ms.promptAndRunSandbox()
