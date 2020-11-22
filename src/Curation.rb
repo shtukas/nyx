@@ -35,14 +35,16 @@ class Curation
 
     # Curation::run()
     def self.run()
-        startTime = Time.new.to_f
+        functionStartTime = Time.new.to_f
         loop {
+            loopStartTime = Time.new.to_f
             l = Curation::getCurationLambdaOrNull()
             break if l.nil?
             l.call()
-            break if (Time.new.to_f - startTime) > 600
+            Bank::put("e8ee808e-1175-425f-87cc-3a5824baccd5", Time.new.to_f - loopStartTime)
+            break if (Time.new.to_f - functionStartTime) > 600
         }
-        Bank::put("e8ee808e-1175-425f-87cc-3a5824baccd5", Time.new.to_f-startTime)
+        
     end
 
     # Curation::catalystObjects()

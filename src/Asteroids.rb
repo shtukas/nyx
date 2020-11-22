@@ -69,7 +69,7 @@ class Asteroids
 
     # Asteroids::issueDatapointAndAsteroidInteractivelyOrNull()
     def self.issueDatapointAndAsteroidInteractivelyOrNull()
-        datapoint = Datapoints::makeNewDatapointOrNull()
+        datapoint = Patricia::makeNewDatapointOrNull()
         return if datapoint.nil?
         orbital = Asteroids::makeOrbitalInteractivelyOrNull()
         return nil if orbital.nil?

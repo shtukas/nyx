@@ -154,11 +154,6 @@ require_relative "CatalystObjectsOperator.rb"
 require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
-require_relative "Datapoints/Datapoints.rb"
-require_relative "Datapoints/ElizabethX2.rb"
-require_relative "Datapoints/Quarks.rb"
-require_relative "Datapoints/NGX15.rb"
-
 require_relative "DataPortalUI.rb"
 require_relative "DisplayUtils.rb"
 require_relative "DoNotShowUntil.rb"
@@ -166,10 +161,12 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::isVisible(uid)
 
 require_relative "EstateServices.rb"
+require_relative "ElizabethX2.rb"
 
 require_relative "LucilleCore.rb"
 
 require_relative "NavigationNodes.rb"
+require_relative "NGX15.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
@@ -178,6 +175,8 @@ require_relative "OrdinalPoints.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
+
+require_relative "Quarks.rb"
 
 require_relative "Runner.rb"
 =begin 
