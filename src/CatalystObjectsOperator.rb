@@ -9,6 +9,7 @@ class CatalystObjectsOperator
             Asteroids::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
+            Curation::catalystObjects(),
             OrdinalPoints::getCatalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
@@ -38,6 +39,10 @@ class CatalystObjectsOperator
             {
                 "name" => "Calendar",
                 "exec" => lambda{ Calendar::catalystObjects() }
+            },
+            {
+                "name" => "Curation",
+                "exec" => lambda{ Curation::catalystObjects() }
             },
             {
                 "name" => "OrdinalPoints",

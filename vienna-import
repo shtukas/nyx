@@ -46,6 +46,6 @@ loop {
     puts "vienna: #{link}"
 
     quark = Quarks::issueUrl(link)
-    asteroid = Asteroids::issueAsteroidBurnerFromQuark(quark)
+    asteroid = Asteroids::issueAsteroidBurnerFromTarget(quark)
     viennaLinkFeeder.done(link)
 }

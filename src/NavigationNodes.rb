@@ -135,11 +135,17 @@ class NavigationNodes
         "[navigation node] #{node["name"]}"
     end
 
-    # NavigationNodes::arrayToconsecutivePairs(array)
-    def self.arrayToconsecutivePairs(array)
-        array1 = array.clone
-        array2 = array.clone
-        array1.reverse.drop(1).reverse.zip(array2.drop(1))
+    # NavigationNodes::objectDescentFromNavigationRootCore(object, ancestors, focus)
+    def self.objectDescentFromNavigationRootCore(object, ancestors, focus)
+        return true if (Patricia::isNavigationNode(object) and object["isRootNode"])
+        return true if (Patricia::isNavigationNode(focus) and focus["isRootNode"])
+        return false if ancestors.map{|o| o["uuid"]}.include?(focus["uuid"])
+        Arrows::getSourcesForTarget(focus).any?{|s| NavigationNodes::objectDescentFromNavigationRootCore(object, ancestors + [focus], s) }
+    end
+
+    # NavigationNodes::objectDescentFromNavigationRoot(object)
+    def self.objectDescentFromNavigationRoot(object)
+        NavigationNodes::objectDescentFromNavigationRootCore(object, [], object)
     end
 
     # NavigationNodes::landing(node)

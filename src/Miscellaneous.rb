@@ -205,7 +205,7 @@ class Miscellaneous
             end
             quark = Quarks::issueAionFileSystemLocation(location)
             puts JSON.pretty_generate(quark)
-            asteroid = Asteroids::issueAsteroidInboxFromQuark(quark)
+            asteroid = Asteroids::issueAsteroidInboxFromTarget(quark)
             puts JSON.pretty_generate(asteroid)
             LucilleCore::removeFileSystemLocation(location)
         end

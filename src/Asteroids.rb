@@ -84,8 +84,8 @@ class Asteroids
         asteroid
     end
 
-    # Asteroids::issueAsteroidInboxFromQuark(quark)
-    def self.issueAsteroidInboxFromQuark(quark)
+    # Asteroids::issueAsteroidInboxFromTarget(target)
+    def self.issueAsteroidInboxFromTarget(target)
         orbital = {
             "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         }
@@ -96,12 +96,12 @@ class Asteroids
             "orbital"  => orbital,
         }
         NyxObjects2::put(asteroid)
-        Arrows::issueOrException(asteroid, quark)
+        Arrows::issueOrException(asteroid, target)
         asteroid
     end
 
-    # Asteroids::issueAsteroidBurnerFromQuark(quark)
-    def self.issueAsteroidBurnerFromQuark(quark)
+    # Asteroids::issueAsteroidBurnerFromTarget(target)
+    def self.issueAsteroidBurnerFromTarget(target)
         orbital = {
             "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         }
@@ -112,7 +112,7 @@ class Asteroids
             "orbital"    => orbital,
         }
         NyxObjects2::put(asteroid)
-        Arrows::issueOrException(asteroid, quark)
+        Arrows::issueOrException(asteroid, target)
         asteroid
     end
 
