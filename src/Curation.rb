@@ -35,14 +35,13 @@ class Curation
 
     # Curation::run()
     def self.run()
-        functionStartTime = Time.new.to_f
         loop {
             loopStartTime = Time.new.to_f
             l = Curation::getCurationLambdaOrNull()
             break if l.nil?
             l.call()
             Bank::put("e8ee808e-1175-425f-87cc-3a5824baccd5", Time.new.to_f - loopStartTime)
-            break if (Time.new.to_f - functionStartTime) > 600
+            break if !LucilleCore::askQuestionAnswerAsBoolean("continue ? : ", true)
         }
         
     end
@@ -54,7 +53,7 @@ class Curation
         {
             "uuid"             => "e113b812-d495-4735-b831-16ac69ef5d92",
             "body"             => "nyx curation",
-            "metric"           => 0.8,
+            "metric"           => 0.8 - BankExtended::recoveredDailyTimeInHours("e8ee808e-1175-425f-87cc-3a5824baccd5"),
             "landing"          => lambda {
                 puts "Curation doesn't have a landing per se"
                 LucilleCore::pressEnterToContinue()
