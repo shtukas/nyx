@@ -145,7 +145,7 @@ class Asteroids
     def self.asteroidDescription(asteroid)
         targets = Arrows::getTargetsForSource(asteroid)
         if asteroid["description"] then
-            return "#{asteroid["description"]} (#{targets.size} targets)"
+            return "#{asteroid["description"]}"
         end
         if targets.size == 0 then
             return "no description / no target"
@@ -169,26 +169,13 @@ class Asteroids
             else
                 ""
             end
-        p5 = (lambda {|asteroid|
-            return "" if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-            return "" if asteroid["x-stream-index"].nil?
-            targetHours = 1.to_f/(2**asteroid["x-stream-index"]) # For index 0 that's 1 hour, so total two hours commitment per day
-            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/targetHours
-            return " (#{(100*ratio).round(2)} % completed)"
-        }).call(asteroid)
 
-        p6 = (lambda {|asteroid|
-            return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
-            commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
-            ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
-            return " (#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
-        }).call(asteroid)
-
-        "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
+        "#{p1}#{p2}#{p3}#{p4}"
     end
 
-    # Asteroids::dailyTimeCommitmentRatio(asteroid)
-    def self.dailyTimeCommitmentRatio(asteroid)
+    # Asteroids::dailyTimeCommitmentRatioOrNull(asteroid)
+    def self.dailyTimeCommitmentRatioOrNull(asteroid)
+        return nil if (asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2")
         commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
         BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
     end
@@ -207,7 +194,7 @@ class Asteroids
                 ""
             end
 
-        ratio = Asteroids::dailyTimeCommitmentRatio(asteroid)
+        ratio = Asteroids::dailyTimeCommitmentRatioOrNull(asteroid)
         p6 = " [#{"%.2f" % asteroid["orbital"]["time-commitment-in-hours"]} hours, #{"%6.2f" % (100*ratio).round(2)} % completed]"
 
         ["#{p1}#{p2}#{p6}#{p3}#{p4}", ratio]
@@ -271,19 +258,26 @@ class Asteroids
             return []
         end
 
+        if Asteroids::dailyTimeCommitmentRatioOrNull(asteroid) and Asteroids::dailyTimeCommitmentRatioOrNull(asteroid) > 1 then
+            return []
+        end
+
         makeBody = lambda {|asteroid, target|
             if Asteroids::toString(asteroid).include?(Patricia::toString(target)) then
                 return Asteroids::toString(asteroid)
             end
-            "#{Asteroids::toString(asteroid)}; #{Patricia::toString(target)}"
+            "#{Asteroids::toString(asteroid)} ; #{Patricia::toString(target)}"
         }
 
         asteroidmetric = Asteroids::metric(asteroid)
 
-        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target|
+        counter = -1
+
+        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).first(3).map{|target|
+            counter = counter + 1
             uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
             isRunning = Runner::isRunning?(uuid)
-            metric = asteroidmetric - Math.atan(Asteroids::getTargetOrdinal(asteroid, target)).to_f/100
+            metric = asteroidmetric - counter.to_f/100
             metric = 1 if isRunning
             {
                 "uuid"             => uuid,

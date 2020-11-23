@@ -234,7 +234,7 @@ class CatalystUI
             floatingobjects         = Floats::getFloatsForUIListing()
             asteroidsTimeCommitment = Asteroids::asteroids()
                                         .select{|asteroid| asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" }
-                                        .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatio(a1) <=> Asteroids::dailyTimeCommitmentRatio(a2) }
+                                        .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatioOrNull(a1) <=> Asteroids::dailyTimeCommitmentRatioOrNull(a2) }
                                         .map{|asteroid|
                                             asteroid["landing"] = lambda { Asteroids::landing(asteroid) }
                                             asteroid
