@@ -16,8 +16,8 @@ end
 
 class CatalystUI
 
-    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects)
-    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects)
+    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects, asteroidsTimeCommitment)
+    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects, asteroidsTimeCommitment)
 
         locker = Locker.new()
 
@@ -63,6 +63,20 @@ class CatalystUI
         floatingobjects.each{|floating|
             verticalSpaceLeft = verticalSpaceLeft - 1
             puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).red}"
+        }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        asteroidsTimeCommitment.each{|asteroid|
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            str, ratio = Asteroids::toStringXpDailyTimeCommitmentUIListing(asteroid)
+            if ratio < 1 then
+                puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str.red}"
+            else
+                puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str}"
+            end
+            
         }
 
         puts ""
@@ -216,10 +230,17 @@ class CatalystUI
         loop {
             Miscellaneous::importFromLucilleInbox()
 
-            catalystobjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            floatingobjects = Floats::getFloatsForUIListing()
+            catalystobjects         = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            floatingobjects         = Floats::getFloatsForUIListing()
+            asteroidsTimeCommitment = Asteroids::asteroids()
+                                        .select{|asteroid| asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" }
+                                        .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatio(a1) <=> Asteroids::dailyTimeCommitmentRatio(a2) }
+                                        .map{|asteroid|
+                                            asteroid["landing"] = lambda { Asteroids::landing(asteroid) }
+                                            asteroid
+                                        }
 
-            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects)
+            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, asteroidsTimeCommitment)
         }
     end
 end

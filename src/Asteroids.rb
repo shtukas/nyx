@@ -187,6 +187,32 @@ class Asteroids
         "#{p1}#{p2}#{p3}#{p4}#{p5}#{p6}"
     end
 
+    # Asteroids::dailyTimeCommitmentRatio(asteroid)
+    def self.dailyTimeCommitmentRatio(asteroid)
+        commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
+        BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
+    end
+
+    # Asteroids::toStringXpDailyTimeCommitmentUIListing(asteroid)
+    def self.toStringXpDailyTimeCommitmentUIListing(asteroid)
+        uuid = asteroid["uuid"]
+        isRunning = Runner::isRunning?(uuid)
+        p1 = "[asteroid]"
+        p2 = " #{Asteroids::asteroidOrbitalAsUserFriendlyString(asteroid["orbital"])}"
+        p3 = " #{Asteroids::asteroidDescription(asteroid)}"
+        p4 =
+            if isRunning then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+
+        ratio = Asteroids::dailyTimeCommitmentRatio(asteroid)
+        p6 = " [#{"%.2f" % asteroid["orbital"]["time-commitment-in-hours"]} hours, #{"%6.2f" % (100*ratio).round(2)} % completed]"
+
+        ["#{p1}#{p2}#{p6}#{p3}#{p4}", ratio]
+    end
+
     # Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid)
     def self.asteroidDailyTimeCommitmentNumbers(asteroid)
         return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
