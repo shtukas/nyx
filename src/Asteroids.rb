@@ -473,6 +473,9 @@ class Asteroids
                 Asteroids::asteroidReceivesTime(asteroid, timespan)
                 Patricia::destroy(target)
             })
+            menuitems.item("stop ; re-orbital asteroid".yellow, lambda { 
+                Asteroids::reOrbitalOrNothing(asteroid)
+            })
             status = menuitems.promptAndRunSandbox()
         else
             # Is running
@@ -493,6 +496,9 @@ class Asteroids
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                 Asteroids::asteroidReceivesTime(asteroid, timespan)
                 Patricia::destroy(target)
+            })
+            menuitems.item("stop ; re-orbital asteroid".yellow, lambda { 
+                Asteroids::reOrbitalOrNothing(asteroid)
             })
             menuitems.item("target landing".yellow, lambda { 
                 Patricia::landing(target)

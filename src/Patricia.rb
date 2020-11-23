@@ -101,26 +101,19 @@ class Patricia
     def self.updateSearchLookupDatabase(object)
         if Patricia::isAsteroid(object) then
             SelectionLookupDataset::updateLookupForAsteroid(object)
-            return
         end
         if Patricia::isNGX15(object) then
             SelectionLookupDataset::updateLookupForNGX15(object)
-            return
         end
         if Patricia::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
-            return
         end
         if Patricia::isNavigationNode(object) then
             SelectionLookupDataset::updateLookupForNavigationNode(object)
-            return
         end
         if Patricia::isWave(object) then
             SelectionLookupDataset::updateLookupForWave(object)
-            return
         end
-        puts object
-        raise "[error: 199551db-bd83-44fa-be7b-82274d95563f]"
     end
 
     # Patricia::landing(object)

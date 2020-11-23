@@ -10,7 +10,6 @@ class CatalystObjectsOperator
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             Curation::catalystObjects(),
-            OrdinalPoints::getCatalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -45,8 +44,8 @@ class CatalystObjectsOperator
                 "exec" => lambda{ Curation::catalystObjects() }
             },
             {
-                "name" => "OrdinalPoints",
-                "exec" => lambda{ OrdinalPoints::getCatalystObjects() }
+                "name" => "Floats",
+                "exec" => lambda{ Floats::getCatalystObjects() }
             },
             {
                 "name" => "VideoStream",

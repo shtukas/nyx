@@ -171,7 +171,7 @@ require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"
 
-require_relative "OrdinalPoints.rb"
+require_relative "Floats.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"

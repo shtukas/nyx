@@ -1,9 +1,25 @@
 # encoding: UTF-8
 
+class Locker
+    def initialize()
+        @items = [nil]
+    end
+    def store(object)
+        position = @items.size
+        @items << object
+        position
+    end
+    def get(position)
+        @items[position]
+    end
+end
+
 class CatalystUI
 
-    # CatalystUI::standardDisplayWithPrompt(catalystObjects)
-    def self.standardDisplayWithPrompt(catalystObjects)
+    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects)
+    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects)
+
+        locker = Locker.new()
 
         system("clear")
 
@@ -30,16 +46,21 @@ class CatalystUI
                 }
         end
 
-        puts "" if catalystObjects.size > 0
+        puts ""
+
+        floatingobjects.each{|floating|
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            puts "[#{locker.store(floating)}] #{Floats::toString(floating).red}"
+        }
+
+        puts ""
+        
         catalystObjects
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                menuitems.item(
-                    str,
-                    lambda { object["landing"].call() }
-                )
+                puts "[#{locker.store(object)}] #{str}"
             }
 
         # --------------------------------------------------------------------------
@@ -55,18 +76,14 @@ class CatalystUI
 
         if Miscellaneous::isInteger(command) then
             position = command.to_i
-            menuitems.executeFunctionAtPositionGetValueOrNull(position)
-            return
-        end
-
-        if command.size >= 3 and command[-2, 2] == ".." and Miscellaneous::isInteger(command[0, command.size-2].strip) then
-            position = command[0, command.size-2].strip.to_i
-            catalystObjects[position-1]["nextNaturalStep"].call()
+            object = locker.get(position)
+            return if object.nil?
+            object["landing"].call()
             return
         end
 
         if command == 'expose' then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
@@ -74,35 +91,31 @@ class CatalystUI
         end
 
         if command == ".." then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             object["nextNaturalStep"].call()
             return
         end
 
         if command == "++" then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-            catalystObjects = catalystObjects.drop(1)
-            CatalystUI::standardDisplayWithPrompt(catalystObjects)
             return
         end
 
         if command.start_with?('+') and (unixtime = Miscellaneous::codeToUnixtimeOrNull(command)) then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-            catalystObjects = catalystObjects.drop(1)
-            CatalystUI::standardDisplayWithPrompt(catalystObjects)
             return
         end
 
         if command == "done" then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             if object["done"] then
                 object["done"].call()
@@ -115,7 +128,7 @@ class CatalystUI
         end
 
         if command == "move" then
-            object = catalystObjects.first
+            object = locker.get(1)
             return if object.nil?
             if object["move"] then
                 object["move"].call()
@@ -127,46 +140,33 @@ class CatalystUI
             return
         end
 
-        if command == "waves new" then
-            Waves::issueNewWaveInteractivelyOrNull()
-            return
+        if command == ":new" then
+            operations = [
+                "float",
+                "asteroid",
+                "wave",
+
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return if operation.nil?
+            if operation == "float" then
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                object = Floats::issueFloatTextInteractivelyOrNull(ordinal)
+                puts JSON.pretty_generate(object)
+                return
+            end
+            if operation == "asteroid" then
+                Asteroids::issueAsteroidInteractivelyOrNull()
+                return
+            end
+            if operation == "wave" then
+                Waves::issueNewWaveInteractivelyOrNull()
+                return
+            end
         end
 
-        if command == "asteroids new" then
-            ms = LCoreMenuItemsNX1.new()
-            ms.item(
-                "new asteroid (line)",
-                lambda { Asteroids::issueAsteroidInteractivelyOrNull() }
-            )
-            ms.item(
-                "new asteroid (datapoint)",
-                lambda { Asteroids::issueDatapointAndAsteroidInteractivelyOrNull() }
-            )
-            ms.promptAndRunSandbox()
-            return
-        end
-
-        if command == "ordinals new" then
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            object = OrdinalPoints::issueTextPointInteractivelyOrNull(ordinal)
-            puts JSON.pretty_generate(object)
-            return
-        end
-
-        if command == "ordinals update" then
-            points = OrdinalPoints::ordinalPoints().sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"] }
-            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("point", points, lambda{|point| OrdinalPoints::toString(point) })
-            return if point.nil?
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            point["ordinal"] = ordinal
-            uuid = point["uuid"]
-            filepath = "#{OrdinalPoints::repositoryPath()}/#{uuid}.json"
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(point)) }
-            return
-        end
-
-        if command == "ordinals drop" then
-            OrdinalPoints::setTimeMark()
+        if command == ":search" then
+            Patricia::searchAndLanding()
             return
         end
 
@@ -201,18 +201,12 @@ class CatalystUI
         }
 
         loop {
-            # Some Admin
             Miscellaneous::importFromLucilleInbox()
 
-            # Displays
-            objects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            if objects.empty? then
-                puts "No catalyst object found..."
-                sleep 2
-                next
-            end
+            catalystobjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            floatingobjects = Floats::getFloatsForUIListing()
 
-            CatalystUI::standardDisplayWithPrompt(objects)
+            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects)
         }
     end
 end
