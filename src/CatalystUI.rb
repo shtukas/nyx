@@ -23,7 +23,7 @@ class CatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = Miscellaneous::screenHeight()-4
+        verticalSpaceLeft = Miscellaneous::screenHeight()-3
         menuitems = LCoreMenuItemsNX1.new()
 
         dates =  Calendar::dates()
@@ -47,20 +47,33 @@ class CatalystUI
         end
 
         puts ""
-
-        floatingobjects.each{|floating|
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            puts "[#{locker.store(floating)}] #{Floats::toString(floating).red}"
-        }
-
-        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
         
-        catalystObjects
+        catalystObjects.take(5)
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                puts "[#{locker.store(object)}] #{str}"
+                puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
+            }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        floatingobjects.each{|floating|
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).red}"
+        }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        catalystObjects.drop(5)
+            .each{|object|
+                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
+                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+                puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
             }
 
         # --------------------------------------------------------------------------

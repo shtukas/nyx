@@ -22,25 +22,20 @@ class Floats
 
     # Floats::issueFloatTextInteractivelyOrNull(ordinal)
     def self.issueFloatTextInteractivelyOrNull(ordinal)
-        text = Miscellaneous::editTextSynchronously("")
-        storageKey = SecureRandom.hex
-        KeyValueStore::set(nil, storageKey, text)
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
         uuid = Miscellaneous::l22()
         object = {
-          "uuid"       => uuid,
-          "nyxNxSet"   => "c1d07170-ed5f-49fe-9997-5cd928ae1928",
-          "type"       => "text",
-          "storageKey" => storageKey
+          "uuid"     => uuid,
+          "nyxNxSet" => "c1d07170-ed5f-49fe-9997-5cd928ae1928",
+          "type"     => "line",
+          "line"     => line 
         }
         NyxObjects2::put(object)
         object
     end
 
-    # Floats::toString(point)
-    def self.toString(point)
-        text = KeyValueStore::getOrNull(nil, point["storageKey"]) 
-        return "[float] -> no body found" if text.nil?
-        return "[float] -> empty body" if text == ""
-        "[float] #{text.lines.first.strip}"
+    # Floats::toString(float)
+    def self.toString(float)
+        "[float] #{float["line"]}"
     end
 end
