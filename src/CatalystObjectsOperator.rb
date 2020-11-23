@@ -44,10 +44,6 @@ class CatalystObjectsOperator
                 "exec" => lambda{ Curation::catalystObjects() }
             },
             {
-                "name" => "Floats",
-                "exec" => lambda{ Floats::getCatalystObjects() }
-            },
-            {
                 "name" => "VideoStream",
                 "exec" => lambda{ VideoStream::catalystObjects() }
             },
