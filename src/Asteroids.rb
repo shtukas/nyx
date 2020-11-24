@@ -271,40 +271,47 @@ class Asteroids
 
         asteroidmetric = Asteroids::metric(asteroid)
 
-        counter = -1
 
-        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
-        .select{|target|
-            uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
-            DoNotShowUntil::isVisible(uuid)
-        }
-        .first(3)
-        .map{|target|
-            counter = counter + 1
-            uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
-            isRunning = Runner::isRunning?(uuid)
-            metric = asteroidmetric - counter.to_f/100
-            metric = 1 if isRunning
-            {
-                "uuid"             => uuid,
-                "body"             => makeBody.call(asteroid, target),
-                "metric"           => metric,
-                "landing"          => lambda { Patricia::landing(target) },
-                "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
-                "done"             => lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{Patricia::toString(target)}' ? ") then
-                        Patricia::destroy(target)
-                    end
-                },
-                "move"             => lambda { Asteroids::moveAsteroidTarget(asteroid, target) },
-                "isRunning"        => isRunning,
-                "isRunningForLong" => (lambda {
-                    return false if !Runner::isRunning?(uuid)
-                    ( Runner::runTimeInSecondsOrNull(uuid) || 0 ) > 3600
-                }).call(),
-                "x-asteroid"       => asteroid,
+        targets = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+                    .select{|target|
+                        uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+                        DoNotShowUntil::isVisible(uuid)
+                    }
+                    .first(3)
+
+        if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" and Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).size == 0 and ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("dfd91b81-9cab-4cef-b90b-0a24cc88191c:#{asteroid["uuid"]}", 86400) then
+            puts "Asteroid '#{Asteroids::toString(asteroid)}' has no targets"
+            if LucilleCore::askQuestionAnswerAsBoolean("Destroy it ? : ", false) then
+                Patricia::destroy(asteroid)
+            end
+        end
+
+        targets
+            .map{|target|
+                asteroidTargetUUID = "#{asteroid["uuid"]}-#{target["uuid"]}"
+                metric = asteroidmetric - 0.01*BankExtended::recoveredDailyTimeInHours(asteroidTargetUUID)
+                isRunning = Runner::isRunning?(asteroidTargetUUID)
+                metric = 1 if isRunning
+                {
+                    "uuid"             => asteroidTargetUUID,
+                    "body"             => makeBody.call(asteroid, target),
+                    "metric"           => metric,
+                    "landing"          => lambda { Patricia::landing(target) },
+                    "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID) },
+                    "done"             => lambda {
+                        if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{Patricia::toString(target)}' ? ") then
+                            Patricia::destroy(target)
+                        end
+                    },
+                    "move"             => lambda { Asteroids::moveAsteroidTarget(asteroid, target) },
+                    "isRunning"        => isRunning,
+                    "isRunningForLong" => (lambda {
+                        return false if !Runner::isRunning?(asteroidTargetUUID)
+                        ( Runner::runTimeInSecondsOrNull(asteroidTargetUUID) || 0 ) > 3600
+                    }).call(),
+                    "x-asteroid"       => asteroid,
+                }
             }
-        }
     end
 
     # Asteroids::catalystObjects()
@@ -471,32 +478,38 @@ class Asteroids
         Patricia::landing(target)
     end
 
-    # Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, runId)
-    def self.asteroidTargetNaturalNextOperation(asteroid, target, runId)
-        if !Runner::isRunning?(runId) then
+    # Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID)
+    def self.asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID)
+        addTime = lambda {|asteroid, asteroidTargetUUID, timespan|
+            puts "Adding #{timespan} seconds to asteroid/target runId '#{asteroidTargetUUID}'"
+            Bank::put(asteroidTargetUUID, timespan)
+            Asteroids::asteroidReceivesTime(asteroid, timespan)
+        }
+        if !Runner::isRunning?(asteroidTargetUUID) then
             # Is not running
-            Runner::start(runId)
+            Runner::start(asteroidTargetUUID)
             Patricia::open1(target)
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item("keep running".yellow, lambda {})
             menuitems.item("stop".yellow, lambda { 
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
+
             })
             menuitems.item("target landing".yellow, lambda { 
                 Patricia::landing(target)
             })
             menuitems.item("stop ; move target".yellow, lambda { 
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
                 Asteroids::moveAsteroidTarget(asteroid, target)
             })
             menuitems.item("stop ; destroy target".yellow,lambda {
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
                 Patricia::destroy(target)
             })
             menuitems.item("stop ; re-orbital asteroid".yellow, lambda { 
@@ -507,20 +520,20 @@ class Asteroids
             # Is running
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item("stop".yellow, lambda {
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
             })
             menuitems.item("stop ; move target".yellow, lambda {
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
                 Asteroids::moveAsteroidTarget(asteroid, target)
             })
             menuitems.item("stop ; destroy target".yellow, lambda {
-                timespan = Runner::stop(runId)
+                timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                Asteroids::asteroidReceivesTime(asteroid, timespan)
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
                 Patricia::destroy(target)
             })
             menuitems.item("stop ; re-orbital asteroid".yellow, lambda { 
