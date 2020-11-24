@@ -298,11 +298,7 @@ class Asteroids
                     "metric"           => metric,
                     "landing"          => lambda { Patricia::landing(target) },
                     "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID) },
-                    "done"             => lambda {
-                        if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{Patricia::toString(target)}' ? ") then
-                            Patricia::destroy(target)
-                        end
-                    },
+                    "done"             => lambda { Patricia::destroy(target) },
                     "move"             => lambda { Asteroids::moveAsteroidTarget(asteroid, target) },
                     "isRunning"        => isRunning,
                     "isRunningForLong" => (lambda {
