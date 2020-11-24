@@ -172,7 +172,8 @@ class CatalystUI
                 "float",
                 "asteroid",
                 "wave",
-
+                "datatpoint",
+                "navigation point",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -188,6 +189,14 @@ class CatalystUI
             end
             if operation == "wave" then
                 Waves::issueNewWaveInteractivelyOrNull()
+                return
+            end
+            if operation == "datatpoint" then
+                Patricia::makeNewDatapointOrNull()
+                return
+            end
+            if operation == "navigation point" then
+                NavigationNodes::issueNodeInteractivelyOrNull()
                 return
             end
         end
