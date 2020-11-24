@@ -184,19 +184,23 @@ class CatalystUI
                 return
             end
             if operation == "asteroid" then
-                Asteroids::issueAsteroidInteractivelyOrNull()
+                object = Asteroids::issueAsteroidInteractivelyOrNull()
+                Patricia::landing(object)
                 return
             end
             if operation == "wave" then
-                Waves::issueNewWaveInteractivelyOrNull()
+                object = Waves::issueNewWaveInteractivelyOrNull()
+                Patricia::landing(object)
                 return
             end
             if operation == "datatpoint" then
-                Patricia::makeNewDatapointOrNull()
+                object = Patricia::makeNewDatapointOrNull()
+                Patricia::landing(object)
                 return
             end
             if operation == "navigation point" then
-                NavigationNodes::issueNodeInteractivelyOrNull()
+                object = NavigationNodes::issueNodeInteractivelyOrNull()
+                Patricia::landing(object)
                 return
             end
         end
