@@ -122,6 +122,7 @@ class Patricia
             Asteroids::landing(object)
             return
         end
+
         if Patricia::isNGX15(object) then
             NGX15::landing(object)
             return
@@ -134,8 +135,12 @@ class Patricia
             NavigationNodes::landing(object)
             return
         end
+        if Patricia::isWave(object) then
+            Waves::waveDive(object)
+            return 
+        end
         puts object
-        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
+        raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
     end
 
     # Patricia::open1(object)

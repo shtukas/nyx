@@ -273,7 +273,13 @@ class Asteroids
 
         counter = -1
 
-        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).first(3).map{|target|
+        Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+        .select{|target|
+            uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+            DoNotShowUntil::isVisible(uuid)
+        }
+        .first(3)
+        .map{|target|
             counter = counter + 1
             uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
             isRunning = Runner::isRunning?(uuid)
