@@ -495,7 +495,13 @@ class Asteroids
                 timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                 addTime.call(asteroid, asteroidTargetUUID, timespan)
-
+            })
+            menuitems.item("stop ; hide for n days".yellow, lambda { 
+                timespan = Runner::stop(asteroidTargetUUID)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
+                n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroidTargetUUID, Time.new.to_i + n*86400)
             })
             menuitems.item("target landing".yellow, lambda { 
                 Patricia::landing(target)
@@ -523,6 +529,13 @@ class Asteroids
                 timespan = Runner::stop(asteroidTargetUUID)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                 addTime.call(asteroid, asteroidTargetUUID, timespan)
+            })
+            menuitems.item("stop ; hide for n days".yellow, lambda { 
+                timespan = Runner::stop(asteroidTargetUUID)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                addTime.call(asteroid, asteroidTargetUUID, timespan)
+                n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroidTargetUUID, Time.new.to_i + n*86400)
             })
             menuitems.item("stop ; move target".yellow, lambda {
                 timespan = Runner::stop(asteroidTargetUUID)
