@@ -502,7 +502,7 @@ class Patricia
 
     # Patricia::makeNewDatapointOrNull()
     def self.makeNewDatapointOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15", "container"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
         if type == "quark" then
             return Quarks::interactivelyIssueQuarkOrNull()
         end
