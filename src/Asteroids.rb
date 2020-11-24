@@ -298,7 +298,10 @@ class Asteroids
                     "metric"           => metric,
                     "landing"          => lambda { Patricia::landing(target) },
                     "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID) },
-                    "done"             => lambda { Patricia::destroy(target) },
+                    "done"             => lambda {
+                        Asteroids::asteroidReceivesTime(asteroid, 60)
+                        Patricia::destroy(target) 
+                    },
                     "move"             => lambda { Asteroids::moveAsteroidTarget(asteroid, target) },
                     "isRunning"        => isRunning,
                     "isRunningForLong" => (lambda {
