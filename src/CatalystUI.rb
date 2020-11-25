@@ -27,7 +27,7 @@ class CatalystUI
         menuitems = LCoreMenuItemsNX1.new()
 
         puts ""
-        puts "-> SingleExecutionContext / recovered time in hours: #{BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")}"
+        puts "-> SingleExecutionContext / recovered time in hours: #{BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")}".red
         verticalSpaceLeft = verticalSpaceLeft - 2
 
         dates =  Calendar::dates()
@@ -66,7 +66,7 @@ class CatalystUI
 
         floatingobjects.each{|floating|
             verticalSpaceLeft = verticalSpaceLeft - 1
-            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).red}"
+            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).green}"
         }
 
         puts ""
