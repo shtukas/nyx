@@ -29,6 +29,3 @@ orbital:
     "type": "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 }
 
-{
-    "type": "project-2d6ad423-4159-4091-a1c8-c8904996e43"
-}

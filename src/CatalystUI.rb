@@ -23,7 +23,7 @@ class CatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = Miscellaneous::screenHeight()-3
+        verticalSpaceLeft = Miscellaneous::screenHeight()-6
         menuitems = LCoreMenuItemsNX1.new()
 
         dates =  Calendar::dates()
@@ -245,8 +245,7 @@ class CatalystUI
 
             catalystobjects         = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             floatingobjects         = Floats::getFloatsForUIListing()
-            asteroidsTimeCommitment = Asteroids::asteroids()
-                                        .select{|asteroid| asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" }
+            asteroidsTimeCommitment = Asteroids::asteroidsDailyTimeCommitments()
                                         .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatioOrNull(a1) <=> Asteroids::dailyTimeCommitmentRatioOrNull(a2) }
                                         .map{|asteroid|
                                             asteroid["landing"] = lambda { Asteroids::landing(asteroid) }

@@ -12,7 +12,6 @@ class Asteroids
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
             "daily-time-commitment-e1180643-fc7e-42bb-a2",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
-            "project-2d6ad423-4159-4091-a1c8-c8904996e43",
         ]
     end
 
@@ -40,11 +39,6 @@ class Asteroids
         if orbitalType == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
             return {
                 "type" => "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-            }
-        end
-        if orbitalType == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
-            return {
-                "type" => "project-2d6ad423-4159-4091-a1c8-c8904996e43"
             }
         end
         raise "ef349b18-55ed-4fdb-abb0-1014f752416a"
@@ -138,7 +132,6 @@ class Asteroids
         return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
         return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
-        return "🧘‍♂️" if orbital["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43"
     end
 
     # Asteroids::asteroidDescription(asteroid)
@@ -214,6 +207,21 @@ class Asteroids
         ( asteroid["unixtime"]-bounds["lower"] ).to_f/( bounds["upper"] - bounds["lower"] )
     end
 
+    # Asteroids::asteroidsDailyTimeCommitments()
+    def self.asteroidsDailyTimeCommitments()
+        Asteroids::asteroids()
+            .select{|asteroid| asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" }
+    end
+
+    # Asteroids::selectOneDailyTimeCommitmentOrNull()
+    def self.selectOneDailyTimeCommitmentOrNull()
+        asteroids = Asteroids::asteroidsDailyTimeCommitments()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
+    end
+
+    # -------------------------------------------------------------------
+    # Catalyst Objects
+
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
         uuid = asteroid["uuid"]
@@ -242,10 +250,6 @@ class Asteroids
                 return 0
             end
             return 0.50 - 0.001*asteroid["x-stream-index"] - 0.2*BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
-        end
-
-        if asteroid["orbital"]["type"] == "project-2d6ad423-4159-4091-a1c8-c8904996e43" then
-            return 0
         end
 
         puts asteroid
@@ -378,7 +382,7 @@ class Asteroids
     end
 
     # -------------------------------------------------------------------
-    # Operations
+    # Targets Ordinals
 
     # Asteroids::setTargetOrdinal(asteroid, target, ordinal)
     def self.setTargetOrdinal(asteroid, target, ordinal)
@@ -453,6 +457,15 @@ class Asteroids
         }
     end
 
+    # Asteroids::getAsteroidTargetDestinationOrNull()
+    def self.getAsteroidTargetDestinationOrNull()
+        puts "Asteroids::getAsteroidTargetDestinationOrNull()"
+        if LucilleCore::askQuestionAnswerAsBoolean("Select existing daily time commitment ? : ") then
+            return Asteroids::selectOneDailyTimeCommitmentOrNull()
+        end
+        Patricia::architect()
+    end
+
     # Asteroids::moveAsteroidTarget(asteroid, target)
     def self.moveAsteroidTarget(asteroid, target)
         puts "moving: #{Patricia::toString(target)}"
@@ -469,11 +482,10 @@ class Asteroids
                 NyxObjects2::put(target)
             end
         end
-        px1 = Patricia::architect()
-        if !px1.nil? then
-            Arrows::issueOrException(px1, target)
-            Arrows::unlink(asteroid, target)
-        end
+        destination = Asteroids::getAsteroidTargetDestinationOrNull()
+        return if destination.nil?
+        Arrows::issueOrException(destination, target)
+        Arrows::unlink(asteroid, target)
         Patricia::landing(target)
     end
 
@@ -558,24 +570,15 @@ class Asteroids
         end
     end
 
-    # Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
-    def self.selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
-        Arrows::getTargetsForSource(asteroid).each{|target|
-            puts "Moving target: #{Patricia::toString(target)}"
-            if Arrows::getSourcesForTarget(target).size > 1 then
-                # The target belongs to other things than the asteroid
-                Arrows::unlink(asteroid, target)
-                next
-            end
-            xnode = Patricia::architect()
-            next if xnode.nil?
-            Arrows::issueOrException(xnode, target)
+    # Asteroids::selectAsteroidTargetsMoveThem(asteroid)
+    def self.selectAsteroidTargetsMoveThem(asteroid)
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        return if selected.size == 0
+        destination = Asteroids::getAsteroidTargetDestinationOrNull()
+        selected.each{|target|
+            Arrows::issueOrException(destination, target)
             Arrows::unlink(asteroid, target)
         }
-        return if Arrows::getTargetsForSource(asteroid).size > 0
-        if Arrows::getTargetsForSource(asteroid).size == 0 then
-            NyxObjects2::destroy(asteroid)
-        end
     end
 
     # Asteroids::landing(asteroid)
@@ -675,9 +678,9 @@ class Asteroids
             puts ""
 
             menuitems.item(
-                "select targets ; move them to navigation node ; destroy asteroid".yellow,
+                "select targets ; move them".yellow,
                 lambda {
-                    Asteroids::selectAsteroidTargetsMoveThemToListingsPossiblyDestroyAsteroid(asteroid)
+                    Asteroids::selectAsteroidTargetsMoveThem(asteroid)
                 }
             )
 
