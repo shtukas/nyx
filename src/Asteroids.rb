@@ -9,8 +9,9 @@ class Asteroids
     def self.asteroidOrbitalTypes()
         [
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
-            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
             "daily-time-commitment-e1180643-fc7e-42bb-a2",
+            "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
+            "long-running-entertainment-single-ec-023090",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
         ]
     end
@@ -25,15 +26,20 @@ class Asteroids
                 "type" => "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
             }
         end
+        if orbitalType == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+            return {
+                "type" => "daily-time-commitment-e1180643-fc7e-42bb-a2",
+                "time-commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+            }
+        end
         if orbitalType == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return {
                 "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
             }
         end
-        if orbitalType == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
+        if orbitalType == "long-running-entertainment-single-ec-023090" then
             return {
-                "type" => "daily-time-commitment-e1180643-fc7e-42bb-a2",
-                "time-commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+                "type" => "long-running-entertainment-single-ec-023090"
             }
         end
         if orbitalType == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -129,8 +135,9 @@ class Asteroids
     # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
     def self.asteroidOrbitalAsUserFriendlyString(orbital)
         return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        return "⏱" if orbital["type"] == "long-running-entertainment-single-ec-023090"
         return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
@@ -224,7 +231,11 @@ class Asteroids
 
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
-        uuid = asteroid["uuid"]
+
+        if asteroid["uuid"] == "701133f9-fdc9-4379-90ca-ffa8854e11cd" then
+            # [asteroid] 💫 Pascal Personal Entertainment Stream
+            return LondRunningEntertainementScheduler::metric(asteroid["uuid"])
+        end
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             return 0.70 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
@@ -239,6 +250,10 @@ class Asteroids
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
             return 0.6 - 0.01*Asteroids::naturalOrdinalShift(asteroid) - 0.2*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955")
+        end
+
+        if asteroid["orbital"]["type"] == "long-running-entertainment-single-ec-023090" then
+            return LondRunningEntertainementScheduler::metric(asteroid["uuid"])
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -428,6 +443,10 @@ class Asteroids
         Bank::put(asteroid["uuid"], timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{asteroid["orbital"]["type"]}"
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
+        if asteroid["orbital"]["type"] == "long-running-entertainment-single-ec-023090" then
+            puts "Adding #{timespanInSeconds} seconds to SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2"
+            Bank::put("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2", timespanInSeconds)
+        end
     end
 
     # Asteroids::startAsteroidIfNotRunning(asteroid)

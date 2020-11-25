@@ -16,6 +16,7 @@
         0.70  -> 0.20    VideoStream
 
         0.65- -> 0.60; 0 Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        0.60-            LondRunningEntertainementScheduler
         0.60-            Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
         0.50-            Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 

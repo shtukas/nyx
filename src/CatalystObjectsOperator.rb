@@ -1,6 +1,15 @@
 
 # encoding: UTF-8
 
+class LondRunningEntertainementScheduler
+
+    # LondRunningEntertainementScheduler::metric(itemBankAccount)
+    def self.metric(itemBankAccount)
+        return 0 if BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2") > 2
+        0.6 - 0.1*BankExtended::recoveredDailyTimeInHours(itemBankAccount)
+    end
+end
+
 class CatalystObjectsOperator
 
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()

@@ -29,3 +29,6 @@ orbital:
     "type": "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 }
 
+{
+    "type": "long-running-entertainment-single-ec-023090"
+}

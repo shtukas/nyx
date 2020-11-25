@@ -53,10 +53,12 @@ class VideoStream
             .with_index{|filepath, indx|
                 isRunning = VideoStream::videoIsRunning(filepath)
                 uuid = VideoStream::filepathToVideoUUID(filepath)
+                metric = LondRunningEntertainementScheduler::metric(uuid) - indx.to_f/1000
+                metric = 1 if isRunning
                 objects << {
                     "uuid"        => uuid,
                     "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
-                    "metric"      => isRunning ? 1 : VideoStream::metric(indx),
+                    "metric"      => metric,
                     "landing"         => lambda { VideoStream::execute(filepath) },
                     "nextNaturalStep" => lambda { VideoStream::execute(filepath) },
                     "done"        => lambda { FileUtils.rm(filepath) },
@@ -83,6 +85,7 @@ class VideoStream
             timespan = [timespan, 300].max
             puts "Adding #{timespan} seconds to bank"
             Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
+            Bank::put("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2", timespan)
         }
 
         puts filepath
