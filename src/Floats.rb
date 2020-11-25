@@ -16,12 +16,12 @@ class Floats
         }
         .map{|float|
             float["landing"] = lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm '#{Floats::toString(float)}' done ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Floats::toString(float)}' ? ") then
                     NyxObjects2::destroy(float)
                 end
             }
             float["nextNaturalStep"] = lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm '#{Floats::toString(float)}' done ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Floats::toString(float)}' ? ") then
                     NyxObjects2::destroy(float)
                 end
             }
