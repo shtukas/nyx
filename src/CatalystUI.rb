@@ -26,6 +26,10 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-6
         menuitems = LCoreMenuItemsNX1.new()
 
+        puts ""
+        puts "-> SingleExecutionContext / recovered time in hours: #{BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")}"
+        verticalSpaceLeft = verticalSpaceLeft - 2
+
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then

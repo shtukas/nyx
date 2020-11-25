@@ -61,11 +61,4 @@ class BankExtended
     def self.recoveredDailyTimeInHours(bankuuid)
         (BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, 86400*7)*86400).to_f/3600
     end
-
-    # BankExtended::multiTaskingTopWithGeometricProgressionShouldShowItem(bankuuid, groupTargetTimeInHours, itemIndex)
-    # itemIndex start at 0
-    def self.multiTaskingTopWithGeometricProgressionShouldShowItem(bankuuid, groupTargetTimeInHours, itemIndex)
-        itemExpectationInHours = groupTargetTimeInHours * 0.5 * ( 1.to_f / (2 ** itemIndex) )
-        BankExtended::recoveredDailyTimeInHours(bankuuid) < itemExpectationInHours
-    end
 end

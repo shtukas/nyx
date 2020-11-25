@@ -1,23 +1,32 @@
 
-                         Floats
+                       Floats
 
 🗓️
-        0.93             Calendar
+        0.93           Calendar
 
 💫
-        0.84+            Waves sticky
-        0.82+            Waves every-this-day-of-the-month
-        0.80+            Waves every-this-day-of-the-week
-        0.78+            Waves every-n-hours / every-n-days
+        0.84+          Waves sticky
+        0.82+          Waves every-this-day-of-the-month
+        0.80+          Waves every-this-day-of-the-week
+        0.78+          Waves every-n-hours / every-n-days
 
 👩‍💻
-        0.73             Backups Monitor
-        0.70-            Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        0.70  -> 0.20    VideoStream
+        0.73           Backups Monitor
+        0.70-          Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
-        0.65- -> 0.60; 0 Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"
-        0.60-            LondRunningEntertainementScheduler
-        0.60-            Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        0.50-            Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
 
-        0.20 ----------- Water level ------------------------------
+        0.70  -> 0.60  Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"
+                       # [asteroid] 💫 [0.50 hours,  34.09 % completed] Pascal Personal Admin Stream
+                       # [asteroid] 💫 [2.00 hours,  42.92 % completed] Pascal Technology Jedi
+                       # [asteroid] 💫 [6.00 hours,  77.78 % completed] Pascal Guardian Work
+
+        0.60  -> 0.40  LondRunningEntertainementScheduler                         # 2 hours total
+                       # Asteroids "long-running-entertainment-single-ec-023090"
+                       # VideoStream
+                       # [asteroid] 💫 Pascal Personal Entertainment Stream
+                       # Curation
+
+        0.50  -> 0.40  Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"   # 1 hour total
+        0.40  -> 0.30  Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"   # 1 hour total
+
+        0.20 ----------Water level ------------------------------

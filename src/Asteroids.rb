@@ -249,7 +249,8 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0.6 - 0.01*Asteroids::naturalOrdinalShift(asteroid) - 0.2*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955")
+            return 0 if BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955") > 1
+            return 0.50 - 0.10*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955") - 0.001*Asteroids::naturalOrdinalShift(asteroid)
         end
 
         if asteroid["orbital"]["type"] == "long-running-entertainment-single-ec-023090" then
@@ -261,10 +262,8 @@ class Asteroids
                 # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
                 return 0
             end
-            if !BankExtended::multiTaskingTopWithGeometricProgressionShouldShowItem(asteroid["uuid"], 1, asteroid["x-stream-index"]) then
-                return 0
-            end
-            return 0.50 - 0.001*asteroid["x-stream-index"] - 0.2*BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
+            return 0 if BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c") > 1
+            return 0.40 - 0.10*BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c") - 0.001*asteroid["x-stream-index"]
         end
 
         puts asteroid
@@ -273,6 +272,9 @@ class Asteroids
 
     # Asteroids::asteroidToCalalystObjects(asteroid)
     def self.asteroidToCalalystObjects(asteroid)
+
+        return [] if !DoNotShowUntil::isVisible(asteroid["uuid"])
+
         if asteroid["activeDays"] and !asteroid["activeDays"].include?(Time.new.wday) then
             return []
         end
@@ -665,6 +667,12 @@ class Asteroids
                     LucilleCore::pressEnterToContinue()
                 }
             )
+
+            menuitems.item("stop ; hide for n days".yellow, lambda { 
+                Asteroids::stopAsteroidIfRunning(asteroid)
+                n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
+                DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i + n*86400)
+            })
 
             menuitems.item(
                 "add time".yellow,

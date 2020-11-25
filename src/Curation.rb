@@ -53,7 +53,7 @@ class Curation
         {
             "uuid"             => "e113b812-d495-4735-b831-16ac69ef5d92",
             "body"             => "nyx curation",
-            "metric"           => 0.8 - BankExtended::recoveredDailyTimeInHours("e8ee808e-1175-425f-87cc-3a5824baccd5"),
+            "metric"           => LondRunningEntertainementScheduler::metric("e8ee808e-1175-425f-87cc-3a5824baccd5"),
             "landing"          => lambda {
                 puts "Curation doesn't have a landing per se"
                 LucilleCore::pressEnterToContinue()
