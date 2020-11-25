@@ -59,6 +59,7 @@ class VideoStream
                     "metric"      => isRunning ? 1 : VideoStream::metric(indx),
                     "landing"         => lambda { VideoStream::execute(filepath) },
                     "nextNaturalStep" => lambda { VideoStream::execute(filepath) },
+                    "done"        => lambda { FileUtils.rm(filepath) },
                     "isRunning"   => isRunning,
                     "x-video-stream" => true,
                     "x-filepath"  => filepath
