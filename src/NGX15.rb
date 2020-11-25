@@ -38,9 +38,6 @@ class NGX15
 
     # NGX15::toString(ngx15)
     def self.toString(ngx15)
-        if NGX15_Extended1::ngx15IsExtended(ngx15) then
-            return "[NGX15] [Extended] #{ngx15["description"]} ; #{NGX15_Extended1::toString(ngx15)}"
-        end
         if ngx15["description"] then
             return "[NGX15] #{ngx15["description"]}"
         end
@@ -149,70 +146,5 @@ class NGX15
         NyxObjects2::destroy(ngx15)
 
         true
-    end
-end
-
-class NGX15_Extended1
-
-    # NGX15_Extended1::isDigit(char)
-    def self.isDigit(char)
-        ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(char)
-    end
-
-    # NGX15_Extended1::filenameiIsExtended1(filename)
-    def self.filenameiIsExtended1(filename)
-        return false if filename.size < 3
-        return false if filename[0, 1] != "X"
-        return false if !NGX15_Extended1::isDigit(filename[1, 1])
-        return false if !NGX15_Extended1::isDigit(filename[2, 1])
-        true
-    end
-
-    # NGX15_Extended1::filepathIsExtended1(filepath)
-    def self.filepathIsExtended1(filepath)
-        NGX15_Extended1::filenameiIsExtended1(File.basename(filepath))
-    end
-
-    # NGX15_Extended1::folderIsExtended1(folderpath)
-    def self.folderIsExtended1(folderpath)
-        return false if LucilleCore::locationsAtFolder(folderpath).size == 0
-        LucilleCore::locationsAtFolder(folderpath)
-            .all?{|location|
-                NGX15_Extended1::filepathIsExtended1(location)
-            }
-    end
-
-    # NGX15_Extended1::ngx15IsExtended(ngx15)
-    def self.ngx15IsExtended(ngx15)
-        location = GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])
-        return false if location.nil?
-        return false if File.file?(location)
-        NGX15_Extended1::folderIsExtended1(location)
-    end
-
-    # NGX15_Extended1::transformPathFragmentForToString(fragment)
-    def self.transformPathFragmentForToString(fragment)
-        fragment.split("/").drop(1).map{|t| t[3, t.size].strip }.join(" ; ")
-    end
-
-    # NGX15_Extended1::toStringCore(originalFolderPath, currentLocationCursor)
-    def self.toStringCore(originalFolderPath, currentLocationCursor)
-        if File.file?(currentLocationCursor) then
-            fragment = currentLocationCursor[originalFolderPath.size, currentLocationCursor.size]
-            NGX15_Extended1::transformPathFragmentForToString(fragment)
-        else
-            if !NGX15_Extended1::folderIsExtended1(currentLocationCursor) then
-                fragment = currentLocationCursor[originalFolderPath.size, currentLocationCursor.size]
-                NGX15_Extended1::transformPathFragmentForToString(fragment)
-            else
-                NGX15_Extended1::toStringCore(originalFolderPath, LucilleCore::locationsAtFolder(currentLocationCursor).sort.first)
-            end
-        end
-    end
-
-    # NGX15_Extended1::toString(ngx15)
-    def self.toString(ngx15)
-        location = GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])
-        NGX15_Extended1::toStringCore(location, location)
     end
 end

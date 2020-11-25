@@ -14,4 +14,3 @@ NGX15
     "description"       : nil or String
 }
 
-There is a special case of NGX15 directory that was introduced for the case of learning cycles, where the structure of the folder acts as a recursive todo list. If all the elements of the folders start with X followed by two digits, for instance X12, then every element is seen as list item, recursively. The toString and access of those special folders is different to that of standard NGX15s. The supporting code is found in NGX15_Extended1.
