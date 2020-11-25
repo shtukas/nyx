@@ -10,12 +10,22 @@ class Floats
 
     # Floats::getFloatsForUIListing()
     def self.getFloatsForUIListing()
-        Floats::floats().map{|float|
+        Floats::floats()
+        .select{|float|
+            DoNotShowUntil::isVisible(float["uuid"])
+        }
+        .map{|float|
             float["landing"] = lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm '#{Floats::toString(float)}' done ? ") then
                     NyxObjects2::destroy(float)
                 end
             }
+            float["nextNaturalStep"] = lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm '#{Floats::toString(float)}' done ? ") then
+                    NyxObjects2::destroy(float)
+                end
+            }
+            float["done"] = lambda { NyxObjects2::destroy(float) }
             float
         }
     end
