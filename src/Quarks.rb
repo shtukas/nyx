@@ -17,7 +17,8 @@ class Quarks
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
-            "type"              => "line"
+            "type"              => "line",
+            "line"              => line
         }
         NyxObjects2::put(object)
         object
@@ -30,7 +31,8 @@ class Quarks
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "referenceDateTime" => nil,
-            "type"              => "url"
+            "type"              => "url",
+            "url"               => url
         }
         NyxObjects2::put(object)
         object
