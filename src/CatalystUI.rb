@@ -66,7 +66,7 @@ class CatalystUI
 
         floatingobjects.each{|floating|
             verticalSpaceLeft = verticalSpaceLeft - 1
-            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).green}"
+            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
         }
 
         puts ""
