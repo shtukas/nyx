@@ -11,7 +11,7 @@ class Asteroids
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "daily-time-commitment-e1180643-fc7e-42bb-a2",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
-            "long-running-entertainment-single-ec-023090",
+            "single-execution-context-ceb9f3cf-fa19-41d1",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
         ]
     end
@@ -37,9 +37,9 @@ class Asteroids
                 "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
             }
         end
-        if orbitalType == "long-running-entertainment-single-ec-023090" then
+        if orbitalType == "single-execution-context-ceb9f3cf-fa19-41d1" then
             return {
-                "type" => "long-running-entertainment-single-ec-023090"
+                "type" => "single-execution-context-ceb9f3cf-fa19-41d1"
             }
         end
         if orbitalType == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -137,7 +137,7 @@ class Asteroids
         return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
         return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "⏱" if orbital["type"] == "long-running-entertainment-single-ec-023090"
+        return "⏱" if orbital["type"] == "single-execution-context-ceb9f3cf-fa19-41d1"
         return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
@@ -226,16 +226,27 @@ class Asteroids
         LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
     end
 
+    # Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
+    def self.selectOneTargetOfThisAsteroidOrNull(asteroid)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+    end
+
+    # Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
+    def self.selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        selected
+    end
+
+    # Asteroids::selectOneParentOfThisAsteroidOrNull(asteroid)
+    def self.selectOneParentOfThisAsteroidOrNull(asteroid)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(asteroid), lambda{|t| Patricia::toString(t) })
+    end
+
     # -------------------------------------------------------------------
     # Catalyst Objects
 
     # Asteroids::metric(asteroid)
     def self.metric(asteroid)
-
-        if asteroid["uuid"] == "701133f9-fdc9-4379-90ca-ffa8854e11cd" then
-            # [asteroid] 💫 Pascal Personal Entertainment Stream
-            return LondRunningEntertainementScheduler::metric(asteroid["uuid"])
-        end
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
             return 0.70 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
@@ -253,8 +264,8 @@ class Asteroids
             return 0.50 - 0.10*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955") - 0.001*Asteroids::naturalOrdinalShift(asteroid)
         end
 
-        if asteroid["orbital"]["type"] == "long-running-entertainment-single-ec-023090" then
-            return LondRunningEntertainementScheduler::metric(asteroid["uuid"])
+        if asteroid["orbital"]["type"] == "single-execution-context-ceb9f3cf-fa19-41d1" then
+            return SingleExecutionContext::metric(asteroid["uuid"])
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -348,7 +359,7 @@ class Asteroids
 
         KeyValueStore::set(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d", JSON.generate(bounds))
 
-        if !KeyValueStore::flagIsTrue(nil, "a3bd01f1-5366-4543-83aa-04477ec5f068:#{Miscellaneous::today()}") then
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2b8b3b77-86cd-448c-9c8c-951ab2578e7a", 3600) then
 
             # Removing the x-stream-index marks from the day before
             asteroids
@@ -362,7 +373,7 @@ class Asteroids
             asteroids
                 .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
                 .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .first(100)
+                .first(20)
                 .each_with_index{|asteroid, indx|
                     asteroid["x-stream-index"] = indx
                     NyxObjects2::put(asteroid)
@@ -445,7 +456,7 @@ class Asteroids
         Bank::put(asteroid["uuid"], timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to #{asteroid["orbital"]["type"]}"
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
-        if asteroid["orbital"]["type"] == "long-running-entertainment-single-ec-023090" then
+        if asteroid["orbital"]["type"] == "single-execution-context-ceb9f3cf-fa19-41d1" then
             puts "Adding #{timespanInSeconds} seconds to SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2"
             Bank::put("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2", timespanInSeconds)
         end
@@ -478,13 +489,21 @@ class Asteroids
         }
     end
 
-    # Asteroids::getAsteroidTargetDestinationOrNull()
-    def self.getAsteroidTargetDestinationOrNull()
-        puts "Asteroids::getAsteroidTargetDestinationOrNull()"
-        if LucilleCore::askQuestionAnswerAsBoolean("Select existing daily time commitment ? : ") then
-            return Asteroids::selectOneDailyTimeCommitmentOrNull()
+    # Asteroids::getAsteroidTargetDestinationOrNull(asteroid)
+    def self.getAsteroidTargetDestinationOrNull(asteroid)
+        recipient = nil
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["move to a target", "move to a parent", "move to a Patricia selected element"]) 
+        return nil if option.nil?
+        if option == "move to a target" then
+            recipient = Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
         end
-        Patricia::architect()
+        if option == "move to a parent" then
+            recipient = Asteroids::selectOneParentOfThisAsteroidOrNull(asteroid)
+        end
+        if option == "move to a Patricia selected element" then
+            recipient = Patricia::architect()
+        end
+        recipient
     end
 
     # Asteroids::moveAsteroidTarget(asteroid, target)
@@ -503,11 +522,26 @@ class Asteroids
                 NyxObjects2::put(target)
             end
         end
-        destination = Asteroids::getAsteroidTargetDestinationOrNull()
+        destination = Asteroids::getAsteroidTargetDestinationOrNull(asteroid)
         return if destination.nil?
+        return if destination["uuid"] == asteroid["uuid"]
         Arrows::issueOrException(destination, target)
         Arrows::unlink(asteroid, target)
         Patricia::landing(target)
+    end
+
+
+    # Asteroids::moveSelectedAsteroidTargets(asteroid)
+    def self.moveSelectedAsteroidTargets(asteroid)
+        selected = Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
+        return if selected.size == 0
+        destination = Asteroids::getAsteroidTargetDestinationOrNull(asteroid)
+        return if destination.nil?
+        return if destination["uuid"] == asteroid["uuid"]
+        selected.each{|target|
+            Arrows::issueOrException(destination, target)
+            Arrows::unlink(asteroid, target)
+        }
     end
 
     # Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID)
@@ -591,16 +625,7 @@ class Asteroids
         end
     end
 
-    # Asteroids::selectAsteroidTargetsMoveThem(asteroid)
-    def self.selectAsteroidTargetsMoveThem(asteroid)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-        return if selected.size == 0
-        destination = Asteroids::getAsteroidTargetDestinationOrNull()
-        selected.each{|target|
-            Arrows::issueOrException(destination, target)
-            Arrows::unlink(asteroid, target)
-        }
-    end
+
 
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
@@ -707,7 +732,7 @@ class Asteroids
             menuitems.item(
                 "select targets ; move them".yellow,
                 lambda {
-                    Asteroids::selectAsteroidTargetsMoveThem(asteroid)
+                    Asteroids::moveSelectedAsteroidTargets(asteroid)
                 }
             )
 

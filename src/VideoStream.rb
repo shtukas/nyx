@@ -53,7 +53,7 @@ class VideoStream
             .with_index{|filepath, indx|
                 isRunning = VideoStream::videoIsRunning(filepath)
                 uuid = VideoStream::filepathToVideoUUID(filepath)
-                metric = LondRunningEntertainementScheduler::metric(uuid) - indx.to_f/1000
+                metric = SingleExecutionContext::metric(uuid) - indx.to_f/1000
                 metric = 1 if isRunning
                 objects << {
                     "uuid"        => uuid,

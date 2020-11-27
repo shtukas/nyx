@@ -16,14 +16,12 @@
 
 
         0.70  -> 0.60  Asteroids "daily-time-commitment-e1180643-fc7e-42bb-a2"
-                       # [asteroid] 💫 [0.50 hours,  34.09 % completed] Pascal Personal Admin Stream
                        # [asteroid] 💫 [2.00 hours,  42.92 % completed] Pascal Technology Jedi
                        # [asteroid] 💫 [6.00 hours,  77.78 % completed] Pascal Guardian Work
 
-        0.60  -> 0.40  LondRunningEntertainementScheduler                         # 2 hours total
-                       # Asteroids "long-running-entertainment-single-ec-023090"
+        0.60  -> 0.40  SingleExecutionContext                         # 2 hours total
+                       # Asteroids "single-execution-context-ceb9f3cf-fa19-41d1"
                        # VideoStream
-                       # [asteroid] 💫 Pascal Personal Entertainment Stream
                        # Curation
 
         0.50  -> 0.40  Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"   # 1 hour total

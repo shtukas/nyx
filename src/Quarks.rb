@@ -90,19 +90,19 @@ class Quarks
     # Quarks::toString(quark)
     def self.toString(quark)
         if quark["description"] then
-            return "[quark] #{quark["description"]}"
+            return "[quark] [#{quark["type"]}] #{quark["description"]}"
         end
         if quark["type"] == "line" then
-            return "[quark] #{quark["line"]}"
+            return "[quark] line: #{quark["line"]}"
         end
         if quark["type"] == "url" then
-            return "[quark] #{quark["url"]}"
+            return "[quark] url: #{quark["url"]}"
         end
         if quark["type"] == "aion-location" then
             operator = ElizabethX2.new()
             aionobject = AionCore::getAionObjectByHash(operator, quark["roothash"])
             description = aionobject["name"]
-            return "[quark] #{description}"
+            return "[quark] aion-location: #{description}"
         end
         puts quark
         raise "error: 963c91c2-1370-4807-8d89-96c9065de3ea"
