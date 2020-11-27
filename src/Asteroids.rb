@@ -137,7 +137,7 @@ class Asteroids
         return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
         return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
         return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "⏱" if orbital["type"] == "single-execution-context-ceb9f3cf-fa19-41d1"
+        return "⏱ " if orbital["type"] == "single-execution-context-ceb9f3cf-fa19-41d1"
         return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
