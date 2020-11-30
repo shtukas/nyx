@@ -182,8 +182,7 @@ class CatalystUI
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "float" then
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                object = Floats::issueFloatTextInteractivelyOrNull(ordinal)
+                object = Floats::issueFloatTextInteractivelyOrNull()
                 puts JSON.pretty_generate(object)
                 return
             end

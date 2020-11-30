@@ -11,6 +11,7 @@ class Floats
     # Floats::getFloatsForUIListing()
     def self.getFloatsForUIListing()
         Floats::floats()
+        .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
         .select{|float|
             DoNotShowUntil::isVisible(float["uuid"])
         }
@@ -30,13 +31,14 @@ class Floats
         }
     end
 
-    # Floats::issueFloatTextInteractivelyOrNull(ordinal)
-    def self.issueFloatTextInteractivelyOrNull(ordinal)
+    # Floats::issueFloatTextInteractivelyOrNull()
+    def self.issueFloatTextInteractivelyOrNull()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         uuid = Miscellaneous::l22()
         object = {
           "uuid"     => uuid,
           "nyxNxSet" => "c1d07170-ed5f-49fe-9997-5cd928ae1928",
+          "unixtime" => Time.new.to_f,
           "type"     => "line",
           "line"     => line 
         }
