@@ -33,7 +33,7 @@ class DataPortalUI
             puts ""
 
             ms.item("new datapoint", lambda {
-                datapoint = Patricia::makeNewDatapointOrNull()
+                datapoint = Patricia::issueNewDatapointOrNull()
                 return if datapoint.nil?
                 Patricia::landing(datapoint)
             })

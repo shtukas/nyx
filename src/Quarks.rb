@@ -10,9 +10,9 @@ class Quarks
 
     # --------------------------------------------------
 
-    # Quarks::issueLine(line)
-    def self.issueLine(line)
-        object = {
+    # Quarks::makeLine(line)
+    def self.makeLine(line)
+        {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
@@ -20,13 +20,11 @@ class Quarks
             "type"              => "line",
             "line"              => line
         }
-        NyxObjects2::put(object)
-        object
     end
 
-    # Quarks::issueUrl(url)
-    def self.issueUrl(url)
-        object = {
+    # Quarks::makeUrl(url)
+    def self.makeUrl(url)
+         {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
@@ -34,14 +32,11 @@ class Quarks
             "type"              => "url",
             "url"               => url
         }
-        NyxObjects2::put(object)
-        object
     end
 
-    # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
-    def self.issueAionFileSystemLocation(aionFileSystemLocation)
-        operator = ElizabethX2.new()
-        object = {
+    # Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+    def self.makeAionFileSystemLocation(aionFileSystemLocation)
+        {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
@@ -49,30 +44,74 @@ class Quarks
             "type"              => "aion-location",
             "roothash"          => AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
         }
+    end
+
+    # --------------------------------------------------
+
+    # Quarks::issueUrl(url)
+    def self.issueUrl(url)
+        object = Quarks::makeUrl(url)
         NyxObjects2::put(object)
         object
     end
 
-    # Quarks::interactivelyIssueQuarkOrNull()
-    def self.interactivelyIssueQuarkOrNull()
+    # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
+    def self.issueAionFileSystemLocation(aionFileSystemLocation)
+        object = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+        NyxObjects2::put(object)
+        object
+    end
+
+    # --------------------------------------------------
+
+    # Quarks::issueNewQuarkInteractivelyOrNull()
+    def self.issueNewQuarkInteractivelyOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point"])
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
-            return Quarks::issueLine(line)
+            quark = Quarks::makeLine(line)
+            quark["description"] = line
+            NyxObjects2::put(quark)
+            return quark
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
-            quark = Quarks::issueUrl(url)
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            Quarks::setDescription(quark, description)
+            quark = Quarks::makeUrl(url)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxObjects2::put(quark)
             return quark
         end
         if type == "aion-point" then
             locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
             aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-            quark = Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            Quarks::setDescription(quark, description)
+            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxObjects2::put(quark)
+            return quark
+        end
+        nil
+    end
+
+    # Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+    def self.makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point"])
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            quark = Quarks::makeLine(line)
+            quark["description"] = line
+            return quark
+        end
+        if type == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            quark = Quarks::makeUrl(url)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            return quark
+        end
+        if type == "aion-point" then
+            locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
+            aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
+            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
             return quark
         end
         nil
@@ -131,8 +170,25 @@ class Quarks
             nhash = quark["roothash"]
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
-            puts "aion point exported"
-            LucilleCore::pressEnterToContinue()
+            puts "aion point exported (nhash: #{nhash})"
+            options = ["read only", "read ; edit ; update", "read ; transmute"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", options)
+            return if option.nil? # We assume read only
+            if option == "read only" then
+
+            end
+            if option == "read ; edit ; update" then
+                # Same as b83fd7f7-b906-44dc-96a0-71b9f1684b3a
+                locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
+                aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
+                quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
+                NyxObjects2::put(quark)
+            end
+            if option == "read ; transmute" then
+                object = Patricia::makeNewUnsavedDatapointOrNullForTransmutation()
+                object["uuid"] = quark["uuid"] # transmutation
+                NyxObjects2::put(object)
+            end
             return
         end
         raise "error: c9b7f9a2-c0d0-4a86-add8-3ca411b8c240"
@@ -143,6 +199,7 @@ class Quarks
         loop {
 
             return if NyxObjects2::getOrNull(quark["uuid"]).nil?
+            return if quark["nyxNxSet"] != "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" # could have been transmuted during access/opening
 
             system("clear")
 
@@ -194,6 +251,7 @@ class Quarks
                     AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
                     puts "aion point exported ; edit and ..."
                     LucilleCore::pressEnterToContinue()
+                    # Same as b83fd7f7-b906-44dc-96a0-71b9f1684b3a
                     locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
                     aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
                     quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)

@@ -158,6 +158,11 @@ class CatalystUI
             return
         end
 
+        if command == "streaming" then
+            CatalystUI::streamingUILoop()
+            return
+        end
+
         if command == ":new" then
             operations = [
                 "float",
@@ -184,7 +189,7 @@ class CatalystUI
                 return
             end
             if operation == "datatpoint" then
-                object = Patricia::makeNewDatapointOrNull()
+                object = Patricia::issueNewDatapointOrNull()
                 Patricia::landing(object)
                 return
             end
@@ -253,6 +258,8 @@ class CatalystUI
             return if object.nil?
             system('clear')
             puts DisplayUtils::makeDisplayStringForCatalystListing(object)
+            puts ""
+            return if !LucilleCore::askQuestionAnswerAsBoolean("do : ", true)
             object["nextNaturalStep"].call()
         }
     end

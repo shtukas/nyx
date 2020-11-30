@@ -483,7 +483,7 @@ class Patricia
                 return object if object
             end
             if option == "quark" then
-                object = Quarks::interactivelyIssueQuarkOrNull()
+                object = Quarks::issueNewQuarkInteractivelyOrNull()
                 return object if object
             end
             if option == "NGX15" then
@@ -500,14 +500,26 @@ class Patricia
     # --------------------------------------------------
     # Architect
 
-    # Patricia::makeNewDatapointOrNull()
-    def self.makeNewDatapointOrNull()
+    # Patricia::issueNewDatapointOrNull()
+    def self.issueNewDatapointOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
         if type == "quark" then
-            return Quarks::interactivelyIssueQuarkOrNull()
+            return Quarks::issueNewQuarkInteractivelyOrNull()
         end
         if type == "NGX15" then
             return NGX15::issueNewNGX15InteractivelyOrNull()
+        end
+        nil
+    end
+
+    # Patricia::makeNewUnsavedDatapointOrNullForTransmutation()
+    def self.makeNewUnsavedForTransmutationDatapointOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
+        if type == "quark" then
+            return Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+        end
+        if type == "NGX15" then
+            return NGX15::makeUnsavedNGX15ForTransmutationInteractivelyOrNull()
         end
         nil
     end

@@ -8,20 +8,18 @@ class NGX15
         NyxObjects2::getSet("0f555c97-3843-4dfe-80c8-714d837eba69")
     end
 
-    # NGX15::issueNGX15(code)
-    def self.issueNGX15(code)
-        object = {
+    # NGX15::makeNGX15(code)
+    def self.makeNGX15(code)
+        {
             "uuid"       => SecureRandom.uuid,
             "nyxNxSet"   => "0f555c97-3843-4dfe-80c8-714d837eba69",
             "unixtime"   => Time.new.to_f,
             "ngx15"      => code
         }
-        NyxObjects2::put(object)
-        object
     end
 
-    # NGX15::issueNewNGX15InteractivelyOrNull()
-    def self.issueNewNGX15InteractivelyOrNull()
+    # NGX15::makeUnsavedNGX15ForTransmutationInteractivelyOrNull()
+    def self.makeUnsavedNGX15ForTransmutationInteractivelyOrNull()
         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["location already exists", "issue new location name"])
         return nil if op.nil?
         if op == "location already exists" then
@@ -33,7 +31,14 @@ class NGX15
             puts "code: #{code}"
             LucilleCore::pressEnterToContinue()
         end
-        NGX15::issueNGX15(code)
+        NGX15::makeNGX15(code)
+    end
+
+    # NGX15::issueNewNGX15InteractivelyOrNull()
+    def self.issueNewNGX15InteractivelyOrNull()
+        object = NGX15::makeUnsavedNGX15ForTransmutationInteractivelyOrNull()
+        NyxObjects2::put(object)
+        object
     end
 
     # NGX15::toString(ngx15)
