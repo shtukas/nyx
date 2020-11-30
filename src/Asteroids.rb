@@ -303,14 +303,18 @@ class Asteroids
 
         asteroidmetric = Asteroids::metric(asteroid)
 
+        # We take the first one and then the active others
+        targets1 = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).take(1) 
+        targets2 = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).drop(1)
+                    .select{|target|
+                        Asteroids::targetIsActive(asteroid, target)
+                    }
 
-        targets = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
-                    .first(6)
+        targets = (targets1 + targets2)
                     .select{|target|
                         uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
                         DoNotShowUntil::isVisible(uuid)
                     }
-                    .first(3)
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" and Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).size == 0 and ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("dfd91b81-9cab-4cef-b90b-0a24cc88191c:#{asteroid["uuid"]}", 86400) then
             puts "Asteroid '#{Asteroids::toString(asteroid)}' has no targets"
@@ -439,6 +443,24 @@ class Asteroids
     end
 
     # -------------------------------------------------------------------
+    # Targets Activations
+
+    # Asteroids::targetIsActive(asteroid, target)
+    def self.targetIsActive(asteroid, target)
+        KeyValueStore::flagIsTrue(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
+    end
+
+    # Asteroids::activateTarget(asteroid, target)
+    def self.activateTarget(asteroid, target)
+        KeyValueStore::setFlagTrue(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
+    end
+
+    # Asteroids::disactivateTarget(asteroid, target)
+    def self.disactivateTarget(asteroid, target)
+        KeyValueStore::setFlagFalse(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
+    end
+
+    # -------------------------------------------------------------------
     # Operations
 
     # Asteroids::reOrbitalOrNothing(asteroid)
@@ -529,7 +551,6 @@ class Asteroids
         Arrows::unlink(asteroid, target)
         Patricia::landing(target)
     end
-
 
     # Asteroids::moveSelectedAsteroidTargets(asteroid)
     def self.moveSelectedAsteroidTargets(asteroid)
@@ -625,8 +646,6 @@ class Asteroids
         end
     end
 
-
-
     # Asteroids::landing(asteroid)
     def self.landing(asteroid)
         loop {
@@ -659,24 +678,22 @@ class Asteroids
 
             Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
             .each{|target|
-                menuitems.item(
-                    "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}",
-                    lambda { Patricia::landing(target) }
-                )
+                message = "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}"
+                if Asteroids::targetIsActive(asteroid, target) then
+                    message = message.green
+                end
+                menuitems.item(message, lambda { Patricia::landing(target) })
             }
 
             puts ""
 
-            menuitems.item(
-                "update asteroid description".yellow,
-                lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
-                    return if description == ""
-                    asteroid["description"] = description
-                    NyxObjects2::put(asteroid)
-                    KeyValueStore::destroy(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
-                }
-            )
+            menuitems.item("update asteroid description".yellow, lambda { 
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                asteroid["description"] = description
+                NyxObjects2::put(asteroid)
+                KeyValueStore::destroy(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
+            })
 
             puts ""
 
@@ -685,13 +702,10 @@ class Asteroids
                 lambda { Asteroids::reOrbitalOrNothing(asteroid) }
             )
 
-            menuitems.item(
-                "show json".yellow,
-                lambda {
-                    puts JSON.pretty_generate(asteroid)
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
+            menuitems.item("show json".yellow, lambda {
+                puts JSON.pretty_generate(asteroid)
+                LucilleCore::pressEnterToContinue()
+            })
 
             menuitems.item("stop ; hide for n days".yellow, lambda { 
                 Asteroids::stopAsteroidIfRunning(asteroid)
@@ -699,13 +713,10 @@ class Asteroids
                 DoNotShowUntil::setUnixtime(asteroid["uuid"], Time.new.to_i + n*86400)
             })
 
-            menuitems.item(
-                "add time".yellow,
-                lambda {
-                    timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-                    Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
-                }
-            )
+            menuitems.item( "add time".yellow, lambda {
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                Asteroids::asteroidReceivesTime(asteroid, timeInHours*3600)
+            })
 
             puts ""
 
@@ -716,34 +727,43 @@ class Asteroids
                 Asteroids::setTargetOrdinal(asteroid, target, ordinal)
             })
 
-            menuitems.item(
-                "add new target at ordinal".yellow,
-                lambda { 
-                    o1 = Patricia::architect()
-                    return if o1.nil?
-                    Arrows::issueOrException(asteroid, o1)
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    Asteroids::setTargetOrdinal(asteroid, o1, ordinal)
-                }
-            )
+            menuitems.item("add new target at ordinal".yellow, lambda { 
+                o1 = Patricia::architect()
+                return if o1.nil?
+                Arrows::issueOrException(asteroid, o1)
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                if ordinal == 0 then
+                    ordinal = ([1] + Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target| Asteroids::getTargetOrdinal(asteroid, target) }).max
+                end
+                Asteroids::setTargetOrdinal(asteroid, o1, ordinal)
+            })
 
             puts ""
 
-            menuitems.item(
-                "select targets ; move them".yellow,
-                lambda {
-                    Asteroids::moveSelectedAsteroidTargets(asteroid)
-                }
-            )
+            menuitems.item("activate target".yellow, lambda { 
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+                return if target.nil?
+                Asteroids::activateTarget(asteroid, target)
+            })
 
-            menuitems.item(
-                "select and destroy target".yellow,
-                lambda {
-                    target = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
-                    return if target.nil?
-                    Patricia::destroy(target)
-                }
-            )
+            menuitems.item("disactivate target".yellow, lambda { 
+                o1 = Patricia::architect()
+                return if o1.nil?
+                Arrows::issueOrException(asteroid, o1)
+                Asteroids::disactivateTarget(asteroid, target)
+            })
+
+            puts ""
+
+            menuitems.item("select targets ; move them".yellow, lambda {
+                Asteroids::moveSelectedAsteroidTargets(asteroid)
+            })
+
+            menuitems.item("select and destroy target".yellow, lambda {
+                target = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
+                return if target.nil?
+                Patricia::destroy(target)
+            })
 
             puts ""
 
