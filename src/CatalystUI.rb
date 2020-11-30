@@ -26,10 +26,6 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-6
         menuitems = LCoreMenuItemsNX1.new()
 
-        puts ""
-        puts "-> SingleExecutionContext / recovered time in hours: #{BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")}".red
-        verticalSpaceLeft = verticalSpaceLeft - 2
-
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then
@@ -78,6 +74,10 @@ class CatalystUI
             puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str}"
             
         }
+
+        rt = BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")
+        puts "                   [2.00 hours, #{"%6.2f" % (100*rt.to_f/2)} % completed] Single Execution Context"
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
