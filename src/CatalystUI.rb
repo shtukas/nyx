@@ -75,11 +75,7 @@ class CatalystUI
         asteroidsTimeCommitment.each{|asteroid|
             verticalSpaceLeft = verticalSpaceLeft - 1
             str, ratio = Asteroids::toStringXpDailyTimeCommitmentUIListing(asteroid)
-            if ratio < 1 then
-                puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str.red}"
-            else
-                puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str}"
-            end
+            puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str}"
             
         }
 
