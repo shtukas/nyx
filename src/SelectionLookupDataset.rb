@@ -11,6 +11,8 @@ class SelectionLookupDatabaseIO
     # SelectionLookupDatabaseIO::removeRecordsAgainstObject(objectuuid)
     def self.removeRecordsAgainstObject(objectuuid)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objectuuid_=?", [objectuuid]
         db.close
     end
@@ -18,6 +20,8 @@ class SelectionLookupDatabaseIO
     # SelectionLookupDatabaseIO::addRecord(objecttype, objectuuid, fragment)
     def self.addRecord(objecttype, objectuuid, fragment)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "insert into lookup (_objecttype_, _objectuuid_, _fragment_) values ( ?, ?, ? )", [objecttype, objectuuid, fragment]
         db.close
     end
@@ -31,6 +35,8 @@ class SelectionLookupDatabaseIO
     # DatabaseRecord: [objecttype: string, objectuuid: String, fragment: String]
     def self.getDatabaseRecords()
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
         db.execute( "select * from lookup" , [] ) do |row|
@@ -89,6 +95,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildNGX15sLookup(verbose)
     def self.rebuildNGX15sLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objecttype_=?", ["ngx15"]
 
         NGX15::ngx15s()
@@ -109,6 +117,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildQuarksLookup(verbose)
     def self.rebuildQuarksLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objecttype_=?", ["quark"]
 
         Quarks::quarks()
@@ -126,6 +136,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
     def self.rebuildNavigationNodesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objecttype_=?", ["navigation-node"]
 
         NavigationNodes::nodes()
@@ -143,6 +155,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
     def self.rebuildAsteroidsLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objecttype_=?", ["asteroid"]
 
         Asteroids::asteroids()
@@ -160,6 +174,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildWavesLookup(verbose)
     def self.rebuildWavesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup where _objecttype_=?", ["wave"]
 
         Waves::waves()
@@ -177,6 +193,8 @@ class SelectionLookupDataset
     # SelectionLookupDataset::rebuildDataset(verbose)
     def self.rebuildDataset(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from lookup", []
         db.close
 

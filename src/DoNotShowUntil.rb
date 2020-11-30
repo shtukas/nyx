@@ -10,6 +10,8 @@ class DoNotShowUntil
     # DoNotShowUntil::setUnixtime(uid, unixtime)
     def self.setUnixtime(uid, unixtime)
         db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from table1 where _key_=?", [uid]
         db.execute "insert into table1 (_key_, _value_) values ( ?, ? )", [uid, unixtime]
@@ -21,6 +23,8 @@ class DoNotShowUntil
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
         db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.results_as_hash = true
         unixtime = nil
         db.execute( "select * from table1 where _key_=?" , [uid] ) do |row|

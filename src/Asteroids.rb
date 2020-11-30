@@ -335,7 +335,6 @@ class Asteroids
                         Asteroids::asteroidReceivesTime(asteroid, 60)
                         Patricia::destroy(target) 
                     },
-                    "move"             => lambda { Asteroids::moveAsteroidTarget(asteroid, target) },
                     "isRunning"        => isRunning,
                     "isRunningForLong" => (lambda {
                         return false if !Runner::isRunning?(asteroidTargetUUID)

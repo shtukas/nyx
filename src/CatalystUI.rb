@@ -158,19 +158,6 @@ class CatalystUI
             return
         end
 
-        if command == "move" then
-            object = locker.get(1)
-            return if object.nil?
-            if object["move"] then
-                object["move"].call()
-                return
-            end
-            puts "I do not know how to move this object"
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == ":new" then
             operations = [
                 "float",
@@ -256,6 +243,17 @@ class CatalystUI
                                         }
 
             CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, asteroidsTimeCommitment)
+        }
+    end
+
+    # CatalystUI::streamingUILoop()
+    def self.streamingUILoop()
+        loop {
+            object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
+            return if object.nil?
+            system('clear')
+            puts DisplayUtils::makeDisplayStringForCatalystListing(object)
+            object["nextNaturalStep"].call()
         }
     end
 end

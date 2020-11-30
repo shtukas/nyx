@@ -12,6 +12,8 @@ class NyxObjects2
     # NyxObjects2::getAllObjects()
     def self.getAllObjects()
         db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
         db.execute( "select * from table2" , [] ) do |row|
@@ -24,6 +26,8 @@ class NyxObjects2
     # NyxObjects2::put(object)
     def self.put(object)
         db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
@@ -41,6 +45,8 @@ class NyxObjects2
     # NyxObjects2::getSet(setid)
     def self.getSet(setid)
         db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
         db.execute( "select * from table2 where _setuuid_=?" , [setid] ) do |row|
@@ -53,6 +59,8 @@ class NyxObjects2
     # NyxObjects2::destroy(object)
     def self.destroy(object)
         db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
         $NyxObjectsCache76DBF964.delete(object["uuid"])
