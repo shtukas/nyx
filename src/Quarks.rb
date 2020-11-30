@@ -36,6 +36,7 @@ class Quarks
 
     # Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
     def self.makeAionFileSystemLocation(aionFileSystemLocation)
+        operator = ElizabethX2.new()
         {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
