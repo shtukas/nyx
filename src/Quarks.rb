@@ -185,7 +185,7 @@ class Quarks
                 NyxObjects2::put(quark)
             end
             if option == "read ; transmute" then
-                object = Patricia::makeNewUnsavedDatapointOrNullForTransmutation()
+                object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
                 object["uuid"] = quark["uuid"] # transmutation
                 NyxObjects2::put(object)
             end
@@ -199,7 +199,7 @@ class Quarks
         loop {
 
             return if NyxObjects2::getOrNull(quark["uuid"]).nil?
-            return if quark["nyxNxSet"] != "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" # could have been transmuted during access/opening
+            return if (NyxObjects2::getOrNull(quark["uuid"])["nyxNxSet"] != "d65674c7-c8c4-4ed4-9de9-7c600b43eaab") # could have been transmuted in the previous loop
 
             system("clear")
 
@@ -221,6 +221,15 @@ class Quarks
             mx.item(
                 "access".yellow,
                 lambda { Quarks::open1(quark) }
+            )
+
+            mx.item(
+                "transmute".yellow,
+                lambda { 
+                    object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
+                    object["uuid"] = quark["uuid"] # transmutation
+                    NyxObjects2::put(object)
+                }
             )
 
             mx.item("set/update description".yellow, lambda {

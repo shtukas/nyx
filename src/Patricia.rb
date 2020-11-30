@@ -512,8 +512,8 @@ class Patricia
         nil
     end
 
-    # Patricia::makeNewUnsavedDatapointOrNullForTransmutation()
-    def self.makeNewUnsavedForTransmutationDatapointOrNull()
+    # Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
+    def self.makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
         if type == "quark" then
             return Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
