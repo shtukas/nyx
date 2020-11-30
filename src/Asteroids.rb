@@ -305,6 +305,7 @@ class Asteroids
 
 
         targets = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+                    .first(6)
                     .select{|target|
                         uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
                         DoNotShowUntil::isVisible(uuid)
