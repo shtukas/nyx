@@ -124,6 +124,16 @@ class CatalystUI
             return
         end
 
+        if command.start_with?('..') and command.size > 2 then
+            fragment = command[2, 9].strip
+            if Miscellaneous::isInteger(fragment) then
+                position = fragment.to_i
+                object = locker.get(position)
+                object["nextNaturalStep"].call()
+            end
+            return
+        end
+
         if command == "++" then
             object = locker.get(1)
             return if object.nil?
