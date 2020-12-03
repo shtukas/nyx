@@ -16,8 +16,8 @@ end
 
 class CatalystUI
 
-    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects, asteroidsTimeCommitment)
-    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects, asteroidsTimeCommitment)
+    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects, ng12TimeReports)
+    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects, ng12TimeReports)
 
         locker = Locker.new()
 
@@ -67,17 +67,12 @@ class CatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-
-        asteroidsTimeCommitment.each{|asteroid|
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            str, ratio = Asteroids::toStringXpDailyTimeCommitmentUIListing(asteroid)
-            puts "[#{locker.store(asteroid).to_s.rjust(2)}] #{str}"
-            
-        }
-
-        rt = BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2")
-        puts "                   [2.00 hours, #{"%6.2f" % (100*rt.to_f/2)} % completed] Single Execution Context"
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        ng12TimeReports
+            .sort{|r1, r2| r1["currentExpectationRealisedRatio"] <=> r2["currentExpectationRealisedRatio"] }
+            .each{|report|
+                str = "NG12TimeReport [#{"%4.2f" % report["dailyTimeExpectationInHours"]} hours, #{"%6.2f" % (100*report["currentExpectationRealisedRatio"])} % completed] #{report["description"]}"
+                puts "[#{locker.store(report).to_s.rjust(2)}] #{str}"
+            }
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
@@ -244,16 +239,10 @@ class CatalystUI
         loop {
             Miscellaneous::importFromLucilleInbox()
 
-            catalystobjects         = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            floatingobjects         = Floats::getFloatsForUIListing()
-            asteroidsTimeCommitment = Asteroids::asteroidsDailyTimeCommitments()
-                                        .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatioOrNull(a1) <=> Asteroids::dailyTimeCommitmentRatioOrNull(a2) }
-                                        .map{|asteroid|
-                                            asteroid["landing"] = lambda { Asteroids::landing(asteroid) }
-                                            asteroid
-                                        }
-
-            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, asteroidsTimeCommitment)
+            catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            floatingobjects   = Floats::getFloatsForUIListing()
+            reports           = NG12TimeReports::reports()
+            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, reports)
         }
     end
 

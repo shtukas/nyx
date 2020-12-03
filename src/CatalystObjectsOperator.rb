@@ -1,6 +1,8 @@
 
 # encoding: UTF-8
 
+# -- SingleExecutionContext ----------------------------------------------------------
+
 class SingleExecutionContext
 
     # SingleExecutionContext::metric(itemBankAccount)
@@ -9,6 +11,56 @@ class SingleExecutionContext
         0.6 - 0.1*BankExtended::recoveredDailyTimeInHours(itemBankAccount)
     end
 end
+
+
+# -- NG12TimeReports ----------------------------------------------------------
+
+=begin
+
+NG12TimeReport {
+    "description"                     : Float
+    "dailyTimeExpectationInHours"     : Float
+    "currentExpectationRealisedRatio" : Float
+    "landing"                         : Lambda
+}
+
+=end
+
+class NG12TimeReports
+
+    # NG12TimeReports::singleExecutionContextNG12TimeReport()
+    def self.singleExecutionContextNG12TimeReport()
+        {
+            "description"                     => "Single Execution Context",
+            "dailyTimeExpectationInHours"     => 2,
+            "currentExpectationRealisedRatio" => BankExtended::recoveredDailyTimeInHours("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2").to_f/2,
+            "landing"                         => lambda {
+                puts "There currently is no particular implementation of the Single Execution Context lambda"
+                LucilleCore::pressEnterToContinue()
+            }
+        }
+    end
+
+    # NG12TimeReports::reports()
+    def self.reports()
+        objects1 = Asteroids::asteroidsDailyTimeCommitments()
+                        .sort{|a1, a2| Asteroids::dailyTimeCommitmentRatioOrNull(a1) <=> Asteroids::dailyTimeCommitmentRatioOrNull(a2) }
+                        .map{|asteroid|
+                            {
+                                "description"                     => Asteroids::toString(asteroid),
+                                "dailyTimeExpectationInHours"     => asteroid["orbital"]["time-commitment-in-hours"],
+                                "currentExpectationRealisedRatio" => BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"],
+                                "landing"                         => lambda { Asteroids::landing(asteroid) }
+                            }
+                        }
+        objects2 = [ NG12TimeReports::singleExecutionContextNG12TimeReport() ]
+        objects1 + objects2
+    end
+
+end
+
+
+# -- CatalystObjectsOperator ----------------------------------------------------------
 
 class CatalystObjectsOperator
 
