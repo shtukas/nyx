@@ -475,12 +475,15 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["asteroid", "quark", "NGX15", "navigation node"]
+            options = ["line", "quark", "NGX15", "navigation node", "asteroid"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
-            if option == "asteroid" then
-                object = Asteroids::issueAsteroidInteractivelyOrNull()
-                return object if object
+            if option == "line" then
+                line = LucilleCore::askQuestionAnswerAsString("line: ")
+                quark = Quarks::makeLine(line)
+                quark["description"] = line
+                NyxObjects2::put(quark)
+                return quark
             end
             if option == "quark" then
                 object = Quarks::issueNewQuarkInteractivelyOrNull()
@@ -492,6 +495,10 @@ class Patricia
             end
             if option == "navigation node" then
                 object = NavigationNodes::issueNodeInteractivelyOrNull()
+                return object if object
+            end
+            if option == "asteroid" then
+                object = Asteroids::issueAsteroidInteractivelyOrNull()
                 return object if object
             end
         }
@@ -532,18 +539,18 @@ class Patricia
             end
         }
         loop {
-            options = ["search existing objects", "make new object"]
+            options = ["make new object", "search existing objects"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
-            if option == "search existing objects" then
-                object = Patricia::searchAndReturnObjectOrNull()
+            if option == "make new object" then
+                object = Patricia::makeNewObjectOrNull()
                 if object then
                     landingBehindAsk.call(object)
                     return object
                 end
             end
-            if option == "make new object" then
-                object = Patricia::makeNewObjectOrNull()
+            if option == "search existing objects" then
+                object = Patricia::searchAndReturnObjectOrNull()
                 if object then
                     landingBehindAsk.call(object)
                     return object

@@ -720,13 +720,6 @@ class Asteroids
 
             puts ""
 
-            mx.item("update target's ordinal".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-                return if target.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                Asteroids::setTargetOrdinal(asteroid, target, ordinal)
-            })
-
             mx.item("add new target at ordinal".yellow, lambda { 
                 o1 = Patricia::architect()
                 return if o1.nil?
@@ -736,6 +729,13 @@ class Asteroids
                     ordinal = ([1] + Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target| Asteroids::getTargetOrdinal(asteroid, target) }).max
                 end
                 Asteroids::setTargetOrdinal(asteroid, o1, ordinal)
+            })
+
+            mx.item("update target's ordinal".yellow, lambda { 
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+                return if target.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                Asteroids::setTargetOrdinal(asteroid, target, ordinal)
             })
 
             puts ""
