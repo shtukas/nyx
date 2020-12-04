@@ -48,8 +48,28 @@ class NG12TimeReports
                 "dailyTimeExpectationInHours"     => 2,
                 "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2),
                 "landing"                         => lambda {
-                    puts "There currently is no particular implementation for ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
-                    LucilleCore::pressEnterToContinue()
+                    loop {
+                        options = [
+                            "asteroids: execution-context-fbc-837c-88a007b3cad0-837",
+                            "VideoStream",
+                            "curation"
+                        ]
+                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+                        break if option.nil?
+                        if option == "asteroids: execution-context-fbc-837c-88a007b3cad0-837" then
+                            Asteroids::diveAsteroidOrbitalType("asteroids: execution-context-fbc-837c-88a007b3cad0-837")
+                        end
+                        if option == "VideoStream" then
+                            objects = VideoStream::catalystObjects()
+                            object = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", objects, lambda{|o| o["body"] })
+                            if object then
+                                object["landing"].call()
+                            end
+                        end
+                        if option == "curation" then
+                            Curation::run()
+                        end
+                    }
                 }
             },
             {
@@ -57,8 +77,7 @@ class NG12TimeReports
                 "dailyTimeExpectationInHours"     => 1,
                 "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204", 1),
                 "landing"                         => lambda {
-                    puts "There currently is no particular implementation for ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204"
-                    LucilleCore::pressEnterToContinue()
+                    Asteroids::diveAsteroidOrbitalType("burner-5d333e86-230d-4fab-aaee-a5548ec4b955")
                 }
             },
             {
