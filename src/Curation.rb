@@ -40,7 +40,9 @@ class Curation
             l = Curation::getCurationLambdaOrNull()
             break if l.nil?
             l.call()
-            Bank::put("e8ee808e-1175-425f-87cc-3a5824baccd5", Time.new.to_f - loopStartTime)
+            timespan = Time.new.to_f - loopStartTime
+            Bank::put("curation-12774764-77df-4185-ae4c-85bb176484ca", timespan)
+            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
             break if !LucilleCore::askQuestionAnswerAsBoolean("continue ? : ", true)
         }
         
@@ -49,11 +51,11 @@ class Curation
     # Curation::catalystObjects()
     def self.catalystObjects()
         return [] if Curation::getCurationLambdaOrNull().nil?
-        return [] if BankExtended::recoveredDailyTimeInHours("e8ee808e-1175-425f-87cc-3a5824baccd5") > 0.5
+        metric = ExecutionContexts::metric2("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2, "curation-12774764-77df-4185-ae4c-85bb176484ca")
         {
             "uuid"             => "e113b812-d495-4735-b831-16ac69ef5d92",
             "body"             => "nyx curation",
-            "metric"           => SingleExecutionContext::metric("e8ee808e-1175-425f-87cc-3a5824baccd5"),
+            "metric"           => metric,
             "landing"          => lambda {
                 puts "Curation doesn't have a landing per se"
                 LucilleCore::pressEnterToContinue()

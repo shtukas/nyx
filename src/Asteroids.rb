@@ -11,7 +11,7 @@ class Asteroids
             "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860",
             "daily-time-commitment-e1180643-fc7e-42bb-a2",
             "burner-5d333e86-230d-4fab-aaee-a5548ec4b955",
-            "single-execution-context-ceb9f3cf-fa19-41d1",
+            "execution-context-fbc-837c-88a007b3cad0-837",
             "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c",
         ]
     end
@@ -37,9 +37,9 @@ class Asteroids
                 "type" => "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
             }
         end
-        if orbitalType == "single-execution-context-ceb9f3cf-fa19-41d1" then
+        if orbitalType == "execution-context-fbc-837c-88a007b3cad0-837" then
             return {
-                "type" => "single-execution-context-ceb9f3cf-fa19-41d1"
+                "type" => "execution-context-fbc-837c-88a007b3cad0-837"
             }
         end
         if orbitalType == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -134,11 +134,11 @@ class Asteroids
 
     # Asteroids::asteroidOrbitalAsUserFriendlyString(orbital)
     def self.asteroidOrbitalAsUserFriendlyString(orbital)
-        return "📥" if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-        return "💫" if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
-        return "🔥" if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-        return "⏱ " if orbital["type"] == "single-execution-context-ceb9f3cf-fa19-41d1"
-        return "✨" if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+        return "📥"  if orbital["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
+        return "💫"  if orbital["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2"
+        return "🔥"  if orbital["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
+        return "⏱ " if orbital["type"] == "execution-context-fbc-837c-88a007b3cad0-837"
+        return "✨"  if orbital["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
     end
 
     # Asteroids::asteroidDescription(asteroid)
@@ -253,19 +253,15 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
-            if BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f < asteroid["orbital"]["time-commitment-in-hours"] then
-                return 0.65 - 0.05*BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/asteroid["orbital"]["time-commitment-in-hours"]
-            end
-            return 0
+            return ExecutionContexts::metric2(asteroid["uuid"], asteroid["orbital"]["time-commitment-in-hours"], asteroid["uuid"])
         end
 
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
-            return 0 if BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955") > 1
-            return 0.50 - 0.10*BankExtended::recoveredDailyTimeInHours("burner-5d333e86-230d-4fab-aaee-a5548ec4b955") - 0.001*Asteroids::naturalOrdinalShift(asteroid)
+            return ExecutionContexts::metric2("ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204", 1, asteroid["uuid"])
         end
 
-        if asteroid["orbital"]["type"] == "single-execution-context-ceb9f3cf-fa19-41d1" then
-            return SingleExecutionContext::metric(asteroid["uuid"])
+        if asteroid["orbital"]["type"] == "execution-context-fbc-837c-88a007b3cad0-837" then
+            return ExecutionContexts::metric2("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2, asteroid["uuid"])
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
@@ -273,8 +269,7 @@ class Asteroids
                 # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
                 return 0
             end
-            return 0 if BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c") > 1
-            return 0.40 - 0.10*BankExtended::recoveredDailyTimeInHours("stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c") - 0.001*asteroid["x-stream-index"]
+            return ExecutionContexts::metric2("ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", 1, nil) - 0.001*asteroid["x-stream-index"]
         end
 
         puts asteroid
@@ -475,12 +470,22 @@ class Asteroids
     # Asteroids::asteroidReceivesTime(asteroid, timespanInSeconds)
     def self.asteroidReceivesTime(asteroid, timespanInSeconds)
         puts "Adding #{timespanInSeconds} seconds to '#{Asteroids::toString(asteroid)}'"
-        Bank::put(asteroid["uuid"], timespanInSeconds)
+        Bank::put(asteroid["uuid"], timespanInSeconds) # This also feeds the asteroids that are their own execution context, eg: the daily time commitments. 
+
         puts "Adding #{timespanInSeconds} seconds to #{asteroid["orbital"]["type"]}"
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
-        if asteroid["orbital"]["type"] == "single-execution-context-ceb9f3cf-fa19-41d1" then
-            puts "Adding #{timespanInSeconds} seconds to SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2"
-            Bank::put("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2", timespanInSeconds)
+
+        if asteroid["orbital"]["type"] == "execution-context-fbc-837c-88a007b3cad0-837" then
+            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
+            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespanInSeconds)
+        end
+        if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
+            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204"
+            Bank::put("ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204", timespanInSeconds)
+        end
+        if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC"
+            Bank::put("ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", timespanInSeconds)
         end
     end
 

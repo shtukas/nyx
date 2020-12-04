@@ -72,6 +72,7 @@ class CatalystUI
             .each{|report|
                 str = "NG12TimeReport [#{"%4.2f" % report["dailyTimeExpectationInHours"]} hours, #{"%6.2f" % (100*report["currentExpectationRealisedRatio"])} % completed] #{report["description"]}"
                 puts "[#{locker.store(report).to_s.rjust(2)}] #{str}"
+                verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
         puts ""
@@ -255,6 +256,7 @@ class CatalystUI
             puts DisplayUtils::makeDisplayStringForCatalystListing(object)
             puts ""
             return if !LucilleCore::askQuestionAnswerAsBoolean("do : ", true)
+            puts ""
             object["nextNaturalStep"].call()
         }
     end

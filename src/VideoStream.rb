@@ -31,7 +31,7 @@ class VideoStream
 
     # VideoStream::metric(indx)
     def self.metric(indx)
-        0.2 + 0.5*Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")) - indx.to_f/1000000
+        ExecutionContexts::metric2("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2, "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02") - indx.to_f/1000000
     end
 
     # VideoStream::videoIsRunning(filepath)
@@ -53,7 +53,7 @@ class VideoStream
             .with_index{|filepath, indx|
                 isRunning = VideoStream::videoIsRunning(filepath)
                 uuid = VideoStream::filepathToVideoUUID(filepath)
-                metric = SingleExecutionContext::metric(uuid) - indx.to_f/1000
+                metric = VideoStream::metric(indx)
                 metric = 1 if isRunning
                 objects << {
                     "uuid"        => uuid,
@@ -85,7 +85,7 @@ class VideoStream
             timespan = [timespan, 300].max
             puts "Adding #{timespan} seconds to bank"
             Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
-            Bank::put("SingleExecutionContext-ECBED390-DE32-496D-BAA1-4418B6FD64C2", timespan)
+            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
         }
 
         puts filepath
