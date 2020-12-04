@@ -160,11 +160,6 @@ class CatalystUI
             return
         end
 
-        if command == "streaming" then
-            CatalystUI::streamingUILoop()
-            return
-        end
-
         if command == ":new" then
             operations = [
                 "float",
@@ -240,24 +235,17 @@ class CatalystUI
         loop {
             Miscellaneous::importFromLucilleInbox()
 
+            if [0, 6].include?(Time.new.wday) or (Time.new.hour < 9 or Time.new.hour >= 17) then
+                object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
+                return if object.nil?
+                object["nextNaturalStep"].call()
+                next
+            end
+
             catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             floatingobjects   = Floats::getFloatsForUIListing()
             reports           = NG12TimeReports::reports()
             CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, reports)
-        }
-    end
-
-    # CatalystUI::streamingUILoop()
-    def self.streamingUILoop()
-        loop {
-            object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
-            return if object.nil?
-            system('clear')
-            puts DisplayUtils::makeDisplayStringForCatalystListing(object)
-            puts ""
-            return if !LucilleCore::askQuestionAnswerAsBoolean("do : ", true)
-            puts ""
-            object["nextNaturalStep"].call()
         }
     end
 end
