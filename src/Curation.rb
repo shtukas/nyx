@@ -33,23 +33,19 @@ class Curation
         lambda { Patricia::landing(object) }
     end
 
-    # Curation::run()
-    def self.run()
-        loop {
-            loopStartTime = Time.new.to_f
-            l = Curation::getCurationLambdaOrNull()
-            break if l.nil?
-            l.call()
-            timespan = Time.new.to_f - loopStartTime
+    # Curation::runOnce()
+    def self.runOnce()
+        startTime = Time.new.to_f
+        l = Curation::getCurationLambdaOrNull()
+        return if l.nil?
+        l.call()
+        timespan = Time.new.to_f - startTime
 
-            puts "#{timespan} at curation-12774764-77df-4185-ae4c-85bb176484ca"
-            Bank::put("curation-12774764-77df-4185-ae4c-85bb176484ca", timespan)
+        puts "#{timespan} at curation-12774764-77df-4185-ae4c-85bb176484ca"
+        Bank::put("curation-12774764-77df-4185-ae4c-85bb176484ca", timespan)
 
-            puts "#{timespan} at ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
-            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
-            break if !LucilleCore::askQuestionAnswerAsBoolean("continue ? : ", true)
-        }
-        
+        puts "#{timespan} at ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
+        Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
     end
 
     # Curation::catalystObjects()
@@ -64,7 +60,7 @@ class Curation
                 puts "Curation doesn't have a landing per se"
                 LucilleCore::pressEnterToContinue()
             },
-            "nextNaturalStep"  => lambda { Curation::run() }
+            "nextNaturalStep"  => lambda { Curation::runOnce() }
         }
     end
 end

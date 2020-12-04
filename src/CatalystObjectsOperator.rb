@@ -67,7 +67,7 @@ class NG12TimeReports
                             end
                         end
                         if option == "curation" then
-                            Curation::run()
+                            Curation::runOnce()
                         end
                     }
                 }
