@@ -238,8 +238,16 @@ class CatalystUI
             if [0, 6].include?(Time.new.wday) or (Time.new.hour < 9 or Time.new.hour >= 17) then
                 object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
                 return if object.nil?
-                object["nextNaturalStep"].call()
-                next
+                if object["isRunning"] then
+                    puts "running: #{object["body"]}".green
+                    object["nextNaturalStep"].call()
+                    next
+                end
+                if LucilleCore::askQuestionAnswerAsBoolean("#{object["body"]} ? ".yellow, true) then
+                    puts object["body"].green
+                    object["nextNaturalStep"].call()
+                    next
+                end
             end
 
             catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
