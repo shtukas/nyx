@@ -41,7 +41,11 @@ class Curation
             break if l.nil?
             l.call()
             timespan = Time.new.to_f - loopStartTime
+
+            puts "#{timespan} at curation-12774764-77df-4185-ae4c-85bb176484ca"
             Bank::put("curation-12774764-77df-4185-ae4c-85bb176484ca", timespan)
+
+            puts "#{timespan} at ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
             Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
             break if !LucilleCore::askQuestionAnswerAsBoolean("continue ? : ", true)
         }
