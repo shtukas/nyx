@@ -160,6 +160,11 @@ class CatalystUI
             return
         end
 
+        if command == "streaming" then
+            CatalystUI::streaming()
+            return
+        end
+        
         if command == ":new" then
             operations = [
                 "float",
@@ -234,28 +239,37 @@ class CatalystUI
 
         loop {
             Miscellaneous::importFromLucilleInbox()
-
-            if [0, 6].include?(Time.new.wday) or (Time.new.hour < 9 or Time.new.hour >= 17) then
-                object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
-                return if object.nil?
-                if object["isRunning"] then
-                    puts "running: #{object["body"]}".green
-                    object["nextNaturalStep"].call()
-                    next
-                end
-                if LucilleCore::askQuestionAnswerAsBoolean("#{object["body"]} ? ".yellow, true) then
-                    puts object["body"].green
-                    object["nextNaturalStep"].call()
-                    next
-                end
-            end
-
             catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             floatingobjects   = Floats::getFloatsForUIListing()
             reports           = NG12TimeReports::reports()
             CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, reports)
         }
     end
+
+    # CatalystUI::streaming()
+    def self.streaming()
+        previousStreamingLoopObjectUuid  = nil
+        loop {
+            object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
+            break if object.nil?
+            if object["isRunning"] then
+                puts "running: #{object["body"]}".green
+                object["nextNaturalStep"].call()
+                next
+            end
+            if previousStreamingLoopObjectUuid == object["uuid"] then
+                DoNotShowUntil::setUnixtime(object["uuid"], Time.new.to_i+3600)
+                next
+            end
+            if !LucilleCore::askQuestionAnswerAsBoolean("#{object["body"]} ? ".yellow, true) then
+                break
+            end
+            puts object["body"].green
+            object["nextNaturalStep"].call()
+            previousStreamingLoopObjectUuid = object["uuid"]
+        }
+    end
+
 end
 
 
