@@ -193,24 +193,6 @@ class Asteroids
         LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
     end
 
-    # Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
-    def self.selectOneTargetOfThisAsteroidOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-    end
-
-    # Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
-    def self.selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-        selected
-    end
-
-    # Asteroids::selectOneParentOfThisAsteroidOrNull(asteroid)
-    def self.selectOneParentOfThisAsteroidOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(asteroid), lambda{|t| Patricia::toString(t) })
-    end
-
-
-
     # -------------------------------------------------------------------
     # Catalyst Objects
 
@@ -385,10 +367,10 @@ class Asteroids
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["move to a target", "move to a parent", "move to a Patricia selected element"]) 
         return nil if option.nil?
         if option == "move to a target" then
-            recipient = Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
+            recipient = Patricia::selectOneTargetOfThisObjectOrNull(asteroid)
         end
         if option == "move to a parent" then
-            recipient = Asteroids::selectOneParentOfThisAsteroidOrNull(asteroid)
+            recipient = Patricia::selectOneParentOfThisObjectOrNull(asteroid)
         end
         if option == "move to a Patricia selected element" then
             recipient = Patricia::architect()
@@ -422,7 +404,7 @@ class Asteroids
 
     # Asteroids::moveSelectedAsteroidTargets(asteroid)
     def self.moveSelectedAsteroidTargets(asteroid)
-        selected = Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
+        selected = Patricia::selectZeroOrMoreTargetsFromThisObject(asteroid)
         return if selected.size == 0
         destination = Asteroids::getAsteroidTargetDestinationOrNull(asteroid)
         return if destination.nil?

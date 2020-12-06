@@ -32,7 +32,7 @@ class Patricia
     end
 
     # -----------------------------------------------
-    # properties
+    # gets
 
     # Patricia::toString(object)
     def self.toString(object)
@@ -65,21 +65,6 @@ class Patricia
 
     # -----------------------------------------------
     # operations
-
-    # Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-    def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
-        if targets.size == 0 then
-            return nil
-        end
-        if targets.size == 1 then
-            if LucilleCore::askQuestionAnswerAsBoolean("selecting target: '#{Patricia::toString(targets[0])}' confirm ? ", true) then
-                return targets[0]
-            end
-            return nil
-        end
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| Patricia::toString(target) })
-    end
 
     # Patricia::updateSearchLookupDatabase(object)
     def self.updateSearchLookupDatabase(object)
@@ -167,66 +152,41 @@ class Patricia
     end
 
     # --------------------------------------------------
-    # Genealogy
+    # User Interface (Part 1)
 
-    # Patricia::selectSelfOrDescendantOrNull(object)
-    def self.selectSelfOrDescendantOrNull(object)
-        loop {
-            puts ""
-            puts "object: #{Patricia::toString(object)}"
-            puts "targets:"
-            Arrows::getTargetsForSource(object).each{|target|
-                puts "    #{Patricia::toString(target)}"
-            }
-            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return nil if operation.nil?
-            if operation == "return object" then
-                return object
+    # Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+    def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
+        if targets.size == 0 then
+            return nil
+        end
+        if targets.size == 1 then
+            if LucilleCore::askQuestionAnswerAsBoolean("selecting target: '#{Patricia::toString(targets[0])}' confirm ? ", true) then
+                return targets[0]
             end
-            if operation == "select and return one target" then
-                t = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-                if t then
-                    return t
-                end
-            end
-            if operation == "select and focus on target" then
-                t =  Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-                if t then
-                    return Patricia::selectSelfOrDescendantOrNull(t)
-                end
-            end
-            if operation == "return null" then
-                return nil
-            end
-        }
+            return nil
+        end
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| Patricia::toString(target) })
     end
 
-    # Patricia::getAllParentingPathsOfSize2(object)
-    def self.getAllParentingPathsOfSize2(object)
-        Arrows::getSourcesForTarget(object).map{|source|
-            {
-                "object" => object,
-                "p1"     => source
-            }
-        }.map{|item|
-            sources = Arrows::getSourcesForTarget(item["p1"])
-            if sources.size > 0 then
-                sources.map{|source|
-                    item["p2"] = source
-                    item
-                }
-            else
-                item["p2"] = nil
-                item
-            end
+    # Patricia::selectOneTargetOfThisObjectOrNull(asteroid)
+    def self.selectOneTargetOfThisObjectOrNull(asteroid)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+    end
 
-        }
-        .flatten
+    # Patricia::selectZeroOrMoreTargetsFromThisObject(asteroid)
+    def self.selectZeroOrMoreTargetsFromThisObject(asteroid)
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        selected
+    end
+
+    # Patricia::selectOneParentOfThisObjectOrNull(asteroid)
+    def self.selectOneParentOfThisObjectOrNull(asteroid)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(asteroid), lambda{|t| Patricia::toString(t) })
     end
 
     # --------------------------------------------------
-    # User Interface
+    # User Interface (Part 2)
 
     # Patricia::mxSourcing(object, mx)
     def self.mxSourcing(object, mx)
@@ -306,6 +266,65 @@ class Patricia
                 Arrows::unlink(source, object)
             }
         })
+    end
+
+    # --------------------------------------------------
+    # Genealogy
+
+    # Patricia::selectSelfOrDescendantOrNull(object)
+    def self.selectSelfOrDescendantOrNull(object)
+        loop {
+            puts ""
+            puts "object: #{Patricia::toString(object)}"
+            puts "targets:"
+            Arrows::getTargetsForSource(object).each{|target|
+                puts "    #{Patricia::toString(target)}"
+            }
+            operations = ["return object", "select and return one target", "select and focus on target", "return null"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return nil if operation.nil?
+            if operation == "return object" then
+                return object
+            end
+            if operation == "select and return one target" then
+                t = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return t
+                end
+            end
+            if operation == "select and focus on target" then
+                t =  Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
+                if t then
+                    return Patricia::selectSelfOrDescendantOrNull(t)
+                end
+            end
+            if operation == "return null" then
+                return nil
+            end
+        }
+    end
+
+    # Patricia::getAllParentingPathsOfSize2(object)
+    def self.getAllParentingPathsOfSize2(object)
+        Arrows::getSourcesForTarget(object).map{|source|
+            {
+                "object" => object,
+                "p1"     => source
+            }
+        }.map{|item|
+            sources = Arrows::getSourcesForTarget(item["p1"])
+            if sources.size > 0 then
+                sources.map{|source|
+                    item["p2"] = source
+                    item
+                }
+            else
+                item["p2"] = nil
+                item
+            end
+
+        }
+        .flatten
     end
 
     # --------------------------------------------------
