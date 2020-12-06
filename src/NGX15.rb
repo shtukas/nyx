@@ -80,7 +80,6 @@ class NGX15
 
             puts NGX15::toString(ngx15).green
             puts "uuid: #{ngx15["uuid"]}".yellow
-            puts "date: #{Patricia::getObjectReferenceDateTime(ngx15)}".yellow
             puts "location: #{GalaxyFinder::uniqueStringToLocationOrNull(ngx15["ngx15"])}".yellow
 
             puts ""

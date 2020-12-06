@@ -190,8 +190,7 @@ class NavigationNodes
             Patricia::mxTargetsManagement(node, mx)
 
             mx.item("select multiple targets ; move to existing target".yellow, lambda {
-                targets = Arrows::getTargetsForSource(node)
-                targets = Patricia::applyDateTimeOrderToObjects(targets)
+                targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(node)
                 selectedtargets, _ = LucilleCore::selectZeroOrMore("targets", [], targets, lambda{ |i| Patricia::toString(i) })
                 n1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|l| Patricia::toString(l) })
                 selectedtargets.each{|target|
@@ -201,8 +200,7 @@ class NavigationNodes
             })
 
             mx.item("select multiple targets ; move to new target".yellow, lambda {
-                targets = Arrows::getTargetsForSource(node)
-                targets = Patricia::applyDateTimeOrderToObjects(targets)
+                targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(node)
                 selectedtargets, _ = LucilleCore::selectZeroOrMore("targets", [], targets, lambda{ |item| Patricia::toString(item) })
                 name1 = LucilleCore::askQuestionAnswerAsString("new navigation node name (empty to abort): ")
                 return if name1 == ""

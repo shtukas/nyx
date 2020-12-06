@@ -55,21 +55,6 @@ class Patricia
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
     end
 
-    # Patricia::applyDateTimeOrderToObjects(objects)
-    def self.applyDateTimeOrderToObjects(objects)
-        objects
-            .map{|object|
-                {
-                    "object"   => object,
-                    "datetime" => Patricia::getObjectReferenceDateTime(object)
-                }
-            }
-            .sort{|i1, i2|
-                i1["datetime"] <=> i2["datetime"]
-            }
-            .map{|i| i["object"] }
-    end
-
     # Patricia::getObjectReferenceDateTime(object)
     def self.getObjectReferenceDateTime(object)
         return object["referenceDateTime"] if object["referenceDateTime"]
@@ -83,7 +68,7 @@ class Patricia
 
     # Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
     def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-        targets = Arrows::getTargetsForSource(object)
+        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
         if targets.size == 0 then
             return nil
         end
@@ -93,7 +78,6 @@ class Patricia
             end
             return nil
         end
-        targets = Patricia::applyDateTimeOrderToObjects(targets)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| Patricia::toString(target) })
     end
 
@@ -241,6 +225,9 @@ class Patricia
         .flatten
     end
 
+    # --------------------------------------------------
+    # User Interface
+
     # Patricia::mxSourcing(object, mx)
     def self.mxSourcing(object, mx)
         Patricia::getAllParentingPathsOfSize2(object).each{|item|
@@ -254,7 +241,7 @@ class Patricia
 
     # Patricia::mxTargetting(object, mx)
     def self.mxTargetting(object, mx)
-        targets = TargetOrdinals::getSourceTargetsInOrdinalOrder(object)
+        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
         targets
             .each{|target|
                 mx.item("target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(object, target)} ) #{Patricia::toString(target)}", lambda { 
@@ -288,20 +275,20 @@ class Patricia
             Arrows::issueOrException(object, o1)
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             if ordinal == 0 then
-                ordinal = ([1] + TargetOrdinals::getSourceTargetsInOrdinalOrder(object).map{|target| TargetOrdinals::getTargetOrdinal(object, target) }).max
+                ordinal = ([1] + TargetOrdinals::getTargetsForSourceInOrdinalOrder(object).map{|target| TargetOrdinals::getTargetOrdinal(object, target) }).max
             end
             TargetOrdinals::setTargetOrdinal(object, o1, ordinal)
         })
 
         mx.item("update target's ordinal".yellow, lambda { 
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
             return if target.nil?
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             TargetOrdinals::setTargetOrdinal(object, target, ordinal)
         })
 
         mx.item("remove target".yellow, lambda { 
-            targets = TargetOrdinals::getSourceTargetsInOrdinalOrder(object)
+            targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
             return if target.nil?
             Arrows::unlink(object, target)
@@ -340,20 +327,14 @@ class Patricia
                             .select{|record|
                                 !record["object"].nil?
                             }
-                            .map{|record|
-                                object = record["object"]
-                                record["referenceunixtime"] = DateTime.parse(Patricia::getObjectReferenceDateTime(object)).to_time.to_f
-                                record
-                            }
         #{
         #    "objecttype"
         #    "objectuuid"
         #    "fragment"
         #    "object"
-        #    "referenceunixtime"
         #}
         searchresults
-            .sort{|i1, i2| i1["referenceunixtime"] <=> i2["referenceunixtime"] }
+            .sort{|i1, i2| i1["object"]["unixtime"] <=> i2["object"]["unixtime"] }
     end
 
     # --------------------------------------------------
@@ -411,12 +392,11 @@ class Patricia
         answer = nil
         ms = LCoreMenuItemsNX1.new()
         searchresults
-            .sort{|sr1, sr2| Patricia::getObjectReferenceDateTime(sr1["object"]) <=> Patricia::getObjectReferenceDateTime(sr2["object"]) }
+            .sort{|sr1, sr2| sr1["object"]["unixtime"] <=> sr2["object"]["unixtime"] }
             .each{|sr| 
-                ms.item(
-                    Patricia::toString(sr["object"]), 
-                    lambda { answer = sr["object"] }
-                )
+                ms.item(Patricia::toString(sr["object"]), lambda { 
+                    answer = sr["object"] 
+                })
             }
         status = ms.promptAndRunSandbox()
         answer

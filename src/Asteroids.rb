@@ -195,12 +195,12 @@ class Asteroids
 
     # Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
     def self.selectOneTargetOfThisAsteroidOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
     end
 
     # Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
     def self.selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
         selected
     end
 
@@ -208,6 +208,8 @@ class Asteroids
     def self.selectOneParentOfThisAsteroidOrNull(asteroid)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(asteroid), lambda{|t| Patricia::toString(t) })
     end
+
+
 
     # -------------------------------------------------------------------
     # Catalyst Objects
@@ -258,7 +260,7 @@ class Asteroids
         asteroidmetric = Asteroids::metric(asteroid)
 
         # We take the first one and then the active others
-        TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid)
+        TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid)
             .select{|target|
                 uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
                 DoNotShowUntil::isVisible(uuid)

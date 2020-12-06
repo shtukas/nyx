@@ -23,8 +23,8 @@ class TargetOrdinals
         ordinal
     end
 
-    # TargetOrdinals::getSourceTargetsInOrdinalOrder(source)
-    def self.getSourceTargetsInOrdinalOrder(source)
+    # TargetOrdinals::getTargetsForSourceInOrdinalOrder(source)
+    def self.getTargetsForSourceInOrdinalOrder(source)
         Arrows::getTargetsForSource(source)
             .sort{|t1, t2| TargetOrdinals::getTargetOrdinal(source, t1) <=> TargetOrdinals::getTargetOrdinal(source, t2) }
     end
