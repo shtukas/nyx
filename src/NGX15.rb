@@ -115,6 +115,8 @@ class NGX15
 
             Patricia::mxParentsManagement(ngx15, mx)
 
+            Patricia::mxTargetsManagement(ngx15, mx)
+
             Patricia::mxMoveToNewParent(ngx15, mx)
 
             mx.item("destroy".yellow, lambda {

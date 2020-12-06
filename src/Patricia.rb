@@ -254,14 +254,12 @@ class Patricia
 
     # Patricia::mxTargetting(object, mx)
     def self.mxTargetting(object, mx)
-        targets = Arrows::getTargetsForSource(object)
-        targets = Patricia::applyDateTimeOrderToObjects(targets)
+        targets = TargetOrdinals::getSourceTargetsInOrdinalOrder(object)
         targets
-            .each{|o|
-                mx.item(
-                    "target: #{Patricia::toString(o)}",
-                    lambda { Patricia::landing(o) }
-                )
+            .each{|target|
+                mx.item("target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(object, target)} ) #{Patricia::toString(target)}", lambda { 
+                    Patricia::landing(target) 
+                })
             }
     end
 
@@ -283,14 +281,27 @@ class Patricia
 
     # Patricia::mxTargetsManagement(object, mx)
     def self.mxTargetsManagement(object, mx)
-        mx.item("add target".yellow, lambda { 
-            o = Patricia::architect()
-            return if o.nil?
-            Arrows::issueOrException(object, o)
+
+        mx.item("add new target at ordinal".yellow, lambda { 
+            o1 = Patricia::architect()
+            return if o1.nil?
+            Arrows::issueOrException(object, o1)
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            if ordinal == 0 then
+                ordinal = ([1] + TargetOrdinals::getSourceTargetsInOrdinalOrder(object).map{|target| TargetOrdinals::getTargetOrdinal(object, target) }).max
+            end
+            TargetOrdinals::setTargetOrdinal(object, o1, ordinal)
+        })
+
+        mx.item("update target's ordinal".yellow, lambda { 
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
+            return if target.nil?
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            TargetOrdinals::setTargetOrdinal(object, target, ordinal)
         })
 
         mx.item("remove target".yellow, lambda { 
-            targets = Arrows::getTargetsForSource(object)
+            targets = TargetOrdinals::getSourceTargetsInOrdinalOrder(object)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
             return if target.nil?
             Arrows::unlink(object, target)

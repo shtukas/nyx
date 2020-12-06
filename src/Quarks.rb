@@ -272,7 +272,6 @@ class Quarks
                 raise "error: 08bd13f4-dbb6-4823-aa7e-2e9960936eb6"
             })
 
-
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(quark)
                 LucilleCore::pressEnterToContinue()
@@ -280,12 +279,14 @@ class Quarks
 
             Patricia::mxParentsManagement(quark, mx)
 
+            Patricia::mxTargetsManagement(quark, mx)
+
             Patricia::mxMoveToNewParent(quark, mx)
 
             mx.item(
                 "destroy".yellow,
                 lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("are you sure you want to destroy this quark ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this quark ? ") then
                         NyxObjects2::destroy(quark)
                     end
                 }

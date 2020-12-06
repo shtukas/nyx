@@ -541,11 +541,7 @@ class Asteroids
 
             puts ""
 
-            TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid)
-                .each{|target|
-                    message = "target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(asteroid, target)} ) #{Patricia::toString(target)}"
-                    mx.item(message, lambda { Patricia::landing(target) })
-                }
+            Patricia::mxTargetting(asteroid, mx)
 
             puts ""
 
@@ -582,23 +578,7 @@ class Asteroids
 
             puts ""
 
-            mx.item("add new target at ordinal".yellow, lambda { 
-                o1 = Patricia::architect()
-                return if o1.nil?
-                Arrows::issueOrException(asteroid, o1)
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                if ordinal == 0 then
-                    ordinal = ([1] + TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).map{|target| TargetOrdinals::getTargetOrdinal(asteroid, target) }).max
-                end
-                TargetOrdinals::setTargetOrdinal(asteroid, o1, ordinal)
-            })
-
-            mx.item("update target's ordinal".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-                return if target.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                TargetOrdinals::setTargetOrdinal(asteroid, target, ordinal)
-            })
+            Patricia::mxTargetsManagement(asteroid, mx)
 
             puts ""
 
