@@ -44,7 +44,7 @@ class NG12TimeReports
 
         objects1 = [ 
             {
-                "description"                     => "The original execution context: some pooled asteroids, video and curation",
+                "description"                     => "waves, asteroids: execution-context-fbc-837c-88a007b3cad0-837, video stream and curation",
                 "dailyTimeExpectationInHours"     => 2,
                 "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2),
                 "landing"                         => lambda {
