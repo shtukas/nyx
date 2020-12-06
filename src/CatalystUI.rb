@@ -26,6 +26,10 @@ class CatalystUI
         verticalSpaceLeft = Miscellaneous::screenHeight()-6
         menuitems = LCoreMenuItemsNX1.new()
 
+        puts ""
+        puts "Asteroids count: #{Asteroids::asteroids().size}".yellow
+        verticalSpaceLeft = verticalSpaceLeft - 2
+
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then
