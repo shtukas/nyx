@@ -56,10 +56,7 @@ class Curation
             "uuid"             => "e113b812-d495-4735-b831-16ac69ef5d92",
             "body"             => "nyx curation",
             "metric"           => metric,
-            "landing"          => lambda {
-                puts "Curation doesn't have a landing per se"
-                LucilleCore::pressEnterToContinue()
-            },
+            "landing"          => lambda { Curation::runOnce() },
             "nextNaturalStep"  => lambda { Curation::runOnce() }
         }
     end

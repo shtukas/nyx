@@ -48,19 +48,35 @@ class Bank
         db.close
         answer
     end
+
+    # Bank::valueOverTimespanWithConnection(db, setuuid, timespanInSeconds)
+    def self.valueOverTimespanWithConnection(db, setuuid, timespanInSeconds)
+        horizon = Time.new.to_i - timespanInSeconds
+        answer = []
+        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
+            answer = row["_sum_"]
+        end
+        answer
+    end
 end
 
 class BankExtended
 
     # BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
     def self.best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
-        (1..7)
-            .map{|i|
-                lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
-                timedone = Bank::valueOverTimespan(bankuuid, lookupPeriodInSeconds)
-                timedone.to_f/lookupPeriodInSeconds
-            }
-            .max
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        value = (1..7)
+                    .map{|i|
+                        lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
+                        timedone = Bank::valueOverTimespanWithConnection(db, bankuuid, lookupPeriodInSeconds)
+                        timedone.to_f/lookupPeriodInSeconds
+                    }
+                    .max
+        db.close
+        value
     end
 
     # BankExtended::recoveredDailyTimeInHours(bankuuid)

@@ -12,12 +12,12 @@ class ExecutionContexts
         recovered.to_f/dailyExpectationInHours
     end
 
-    # ExecutionContexts::metric2(contextId, dailyExpectationInHours, null or itemBankAccountId)
+    # ExecutionContexts::metric2(contextId, dailyExpectationInHours, itemBankAccountId)
     def self.metric2(contextId, dailyExpectationInHours, itemBankAccountId)
         recovered = BankExtended::recoveredDailyTimeInHours(contextId)
         ratio = recovered.to_f/dailyExpectationInHours
         if ratio < 1 then
-            0.6 - 0.2*ratio - (itemBankAccountId ? 0.01*BankExtended::recoveredDailyTimeInHours(itemBankAccountId) : 0)
+            0.6 - 0.2*ratio - 0.001*BankExtended::recoveredDailyTimeInHours(itemBankAccountId)
         else
             0
         end

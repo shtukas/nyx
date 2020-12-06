@@ -120,8 +120,8 @@ class CatalystUI
             return
         end
 
-        if command.start_with?('..') and command.size > 2 then
-            fragment = command[2, 9].strip
+        if command.size > 2 and command[-2, 2] == ".." then
+            fragment = command[0, command.size-2].strip
             if Miscellaneous::isInteger(fragment) then
                 position = fragment.to_i
                 object = locker.get(position)
@@ -269,7 +269,6 @@ class CatalystUI
             previousStreamingLoopObjectUuid = object["uuid"]
         }
     end
-
 end
 
 

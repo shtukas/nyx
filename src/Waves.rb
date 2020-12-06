@@ -246,9 +246,13 @@ class Waves
 
     # Waves::openAndRunProcedure(wave)
     def self.openAndRunProcedure(wave)
+        startTime = Time.new.to_f
         Waves::openItem(wave)
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
+            timespan = Time.new.to_f - startTime
+            puts "Adding #{timespan} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
+            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
         end
     end
 

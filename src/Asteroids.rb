@@ -173,45 +173,12 @@ class Asteroids
         "#{p1}#{p2}#{p3}#{p4}"
     end
 
-    # Asteroids::dailyTimeCommitmentRatioOrNull(asteroid)
-    def self.dailyTimeCommitmentRatioOrNull(asteroid)
-        return nil if (asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2")
-        commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
-        BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
-    end
-
-    # Asteroids::toStringXpDailyTimeCommitmentUIListing(asteroid)
-    def self.toStringXpDailyTimeCommitmentUIListing(asteroid)
-        uuid = asteroid["uuid"]
-        isRunning = Runner::isRunning?(uuid)
-        p1 = "[asteroid]"
-        p2 = " #{Asteroids::asteroidOrbitalAsUserFriendlyString(asteroid["orbital"])}"
-        p3 = " #{Asteroids::asteroidDescription(asteroid)}"
-        p4 =
-            if isRunning then
-                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
-            else
-                ""
-            end
-
-        ratio = Asteroids::dailyTimeCommitmentRatioOrNull(asteroid)
-        p6 = " [#{"%.2f" % asteroid["orbital"]["time-commitment-in-hours"]} hours, #{"%6.2f" % (100*ratio).round(2)} % completed]"
-
-        ["#{p1}#{p2}#{p6}#{p3}#{p4}", ratio]
-    end
-
     # Asteroids::asteroidDailyTimeCommitmentNumbers(asteroid)
     def self.asteroidDailyTimeCommitmentNumbers(asteroid)
         return "" if asteroid["orbital"]["type"] != "daily-time-commitment-e1180643-fc7e-42bb-a2"
         commitmentInHours = asteroid["orbital"]["time-commitment-in-hours"]
         ratio = BankExtended::recoveredDailyTimeInHours(asteroid["uuid"]).to_f/commitmentInHours
         return " (#{asteroid["orbital"]["time-commitment-in-hours"]} hours, #{(100*ratio).round(2)} % completed)"
-    end
-
-    # Asteroids::naturalOrdinalShift(asteroid)
-    def self.naturalOrdinalShift(asteroid)
-        bounds = JSON.parse(KeyValueStore::getOrNull(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d"))
-        ( asteroid["unixtime"]-bounds["lower"] ).to_f/( bounds["upper"] - bounds["lower"] )
     end
 
     # Asteroids::asteroidsDailyTimeCommitments()
@@ -249,7 +216,7 @@ class Asteroids
     def self.metric(asteroid)
 
         if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
-            return 0.70 - 0.01*Asteroids::naturalOrdinalShift(asteroid)
+            return 0.70
         end
 
         if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" then
@@ -265,11 +232,7 @@ class Asteroids
         end
 
         if asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
-            if asteroid["x-stream-index"].nil? then
-                # This never happens during a regular Asteroids::catalystObjects() call, but can happen if this function is manually called on an asteroid
-                return 0
-            end
-            return ExecutionContexts::metric2("ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", 1, nil) - 0.001*asteroid["x-stream-index"]
+            return ExecutionContexts::metric2("ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", 1, asteroid["uuid"])
         end
 
         puts asteroid
@@ -282,10 +245,6 @@ class Asteroids
         return [] if !DoNotShowUntil::isVisible(asteroid["uuid"])
 
         if asteroid["activeDays"] and !asteroid["activeDays"].include?(Time.new.wday) then
-            return []
-        end
-
-        if Asteroids::dailyTimeCommitmentRatioOrNull(asteroid) and Asteroids::dailyTimeCommitmentRatioOrNull(asteroid) > 1 then
             return []
         end
 
@@ -311,17 +270,10 @@ class Asteroids
                         DoNotShowUntil::isVisible(uuid)
                     }
 
-        if asteroid["orbital"]["type"] == "daily-time-commitment-e1180643-fc7e-42bb-a2" and Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).size == 0 and ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("dfd91b81-9cab-4cef-b90b-0a24cc88191c:#{asteroid["uuid"]}", 86400) then
-            puts "Asteroid '#{Asteroids::toString(asteroid)}' has no targets"
-            if LucilleCore::askQuestionAnswerAsBoolean("Destroy it ? : ", false) then
-                Patricia::destroy(asteroid)
-            end
-        end
-
         targets
             .map{|target|
                 asteroidTargetUUID = "#{asteroid["uuid"]}-#{target["uuid"]}"
-                metric = asteroidmetric - 0.01*BankExtended::recoveredDailyTimeInHours(asteroidTargetUUID)
+                metric = asteroidmetric - 0.001*BankExtended::recoveredDailyTimeInHours(asteroidTargetUUID)
                 isRunning = Runner::isRunning?(asteroidTargetUUID)
                 metric = 1 if isRunning
                 {
@@ -346,66 +298,29 @@ class Asteroids
 
     # Asteroids::catalystObjects()
     def self.catalystObjects()
+        struct = Asteroids::asteroids()
+                    .reduce({"objects" => [], "streamCounter" => 0}) {|struct, asteroid|
+                        if asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" then
+                            {
+                                "objects" => struct["objects"] + Asteroids::asteroidToCalalystObjects(asteroid), 
+                                "streamCounter" => struct["streamCounter"]
+                            }
+                        else
+                            if struct["streamCounter"] < 10 then
+                                {
+                                    "objects" => struct["objects"] + Asteroids::asteroidToCalalystObjects(asteroid), 
+                                    "streamCounter" => struct["streamCounter"]+1
+                                }
+                            else
+                                {
+                                    "objects" => struct["objects"], 
+                                    "streamCounter" => struct["streamCounter"]+1
+                                }
+                            end
 
-        asteroids = Asteroids::asteroids()
-
-        return [] if asteroids.empty?
-
-        bounds = {
-            "lower" => asteroids.map{|asteroid| asteroid["unixtime"] }.min,
-            "upper" => asteroids.map{|asteroid| asteroid["unixtime"] }.max
-        }
-
-        KeyValueStore::set(nil, "af59dd5d-135d-46c1-ab9a-65f54582266d", JSON.generate(bounds))
-
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2b8b3b77-86cd-448c-9c8c-951ab2578e7a", 3600) then
-
-            # Removing the x-stream-index marks from the day before
-            asteroids
-                .select{|asteroid| asteroid["x-stream-index"] }
-                .each{|asteroid|
-                    asteroid.delete("x-stream-index")
-                    NyxObjects2::put(asteroid)
-                }
-
-            # Marking 100 objects for today
-            asteroids
-                .select{|asteroid| asteroid["orbital"]["type"] == "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c" }
-                .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-                .first(20)
-                .each_with_index{|asteroid, indx|
-                    asteroid["x-stream-index"] = indx
-                    NyxObjects2::put(asteroid)
-                }
-
-            KeyValueStore::setFlagTrue(nil, "a3bd01f1-5366-4543-83aa-04477ec5f068:#{Miscellaneous::today()}")
-
-        end
-
-        asteroids = asteroids
-                        .select{|asteroid| 
-                            b1 = (asteroid["orbital"]["type"] != "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c")
-                            b2 = asteroid["x-stream-index"]
-                            b1 or b2
-                        }
-
-        catalystObjects = asteroids
-                            .map{|asteroid| Asteroids::asteroidToCalalystObjects(asteroid) }
-                            .flatten
-                            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                            .reverse
-
-        # Removing any first asteroid with no target
-        if catalystObjects.size > 0 then
-            if asteroid = catalystObjects[0]["x-asteroid"] then
-                if Arrows::getTargetsForSource(asteroid).size == 0 then
-                    NyxObjects2::destroy(asteroid)
-                    return Asteroids::catalystObjects()
-                end
-            end
-        end
-
-        catalystObjects
+                        end
+                    }
+        struct["objects"]
     end
 
     # -------------------------------------------------------------------
@@ -672,7 +587,6 @@ class Asteroids
             puts "bank value: #{Bank::value(asteroid["uuid"])}".yellow
             puts "BankExtended::recoveredDailyTimeInHours: #{BankExtended::recoveredDailyTimeInHours(asteroid["uuid"])}".yellow
             puts "metric: #{Asteroids::metric(asteroid)}".yellow
-            puts "x-stream-index: #{asteroid["x-stream-index"]}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(asteroid["uuid"])
             if unixtime and (Time.new.to_i < unixtime) then
