@@ -195,12 +195,12 @@ class Asteroids
 
     # Asteroids::selectOneTargetOfThisAsteroidOrNull(asteroid)
     def self.selectOneTargetOfThisAsteroidOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
     end
 
     # Asteroids::selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
     def self.selectZeroOrMoreTargetsFromThisAsteroid(asteroid)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
         selected
     end
 
@@ -258,8 +258,8 @@ class Asteroids
         asteroidmetric = Asteroids::metric(asteroid)
 
         # We take the first one and then the active others
-        targets1 = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).take(1) 
-        targets2 = Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).drop(1)
+        targets1 = TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).take(1) 
+        targets2 = TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).drop(1)
                     .select{|target|
                         Asteroids::targetIsActive(asteroid, target)
                     }
@@ -321,35 +321,6 @@ class Asteroids
                         end
                     }
         struct["objects"]
-    end
-
-    # -------------------------------------------------------------------
-    # Targets Ordinals
-
-    # Asteroids::setTargetOrdinal(asteroid, target, ordinal)
-    def self.setTargetOrdinal(asteroid, target, ordinal)
-        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}", ordinal)
-    end
-
-    # Asteroids::getTargetOrdinal(asteroid, target)
-    def self.getTargetOrdinal(asteroid, target)
-        ordinal = KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}")
-        if ordinal then
-            return ordinal.to_f
-        end
-        ordinals = Arrows::getTargetsForSource(asteroid)
-                    .map{|t| KeyValueStore::getOrNull(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{t["uuid"]}") }
-                    .compact
-                    .map{|o| o.to_f }
-        ordinal = ([0] + ordinals).max + 1
-        KeyValueStore::set(nil, "60d47387-cdd4-44f1-a334-904c2b7c4b5c:#{asteroid["uuid"]}:#{target["uuid"]}", ordinal)
-        ordinal
-    end
-
-    # Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
-    def self.getAsteroidTargetsInOrdinalOrder(asteroid)
-        Arrows::getTargetsForSource(asteroid)
-            .sort{|t1, t2| Asteroids::getTargetOrdinal(asteroid, t1) <=> Asteroids::getTargetOrdinal(asteroid, t2) }
     end
 
     # -------------------------------------------------------------------
@@ -595,9 +566,9 @@ class Asteroids
 
             puts ""
 
-            Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid)
+            TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid)
             .each{|target|
-                message = "target ( #{"%6.3f" % Asteroids::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}"
+                message = "target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}"
                 if Asteroids::targetIsActive(asteroid, target) then
                     message = message.green
                 end
@@ -645,28 +616,28 @@ class Asteroids
                 Arrows::issueOrException(asteroid, o1)
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 if ordinal == 0 then
-                    ordinal = ([1] + Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid).map{|target| Asteroids::getTargetOrdinal(asteroid, target) }).max
+                    ordinal = ([1] + TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).map{|target| TargetOrdinals::getTargetOrdinal(asteroid, target) }).max
                 end
-                Asteroids::setTargetOrdinal(asteroid, o1, ordinal)
+                TargetOrdinals::setTargetOrdinal(asteroid, o1, ordinal)
             })
 
             mx.item("update target's ordinal".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                Asteroids::setTargetOrdinal(asteroid, target, ordinal)
+                TargetOrdinals::setTargetOrdinal(asteroid, target, ordinal)
             })
 
             puts ""
 
             mx.item("activate target".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
                 return if target.nil?
                 Asteroids::activateTarget(asteroid, target)
             })
 
             mx.item("disactivate target".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Asteroids::getAsteroidTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
                 return if target.nil?
                 Asteroids::disactivateTarget(asteroid, target)
             })
