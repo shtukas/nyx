@@ -19,7 +19,7 @@ class ExecutionContexts
         if ratio < 1 then
             0.6 - 0.2*ratio - 0.001*BankExtended::recoveredDailyTimeInHours(itemBankAccountId)
         else
-            0
+            0.3 - 0.1*(1-Math.exp(-(ratio-1)))
         end
     end
 end
