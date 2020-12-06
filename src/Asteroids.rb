@@ -193,6 +193,30 @@ class Asteroids
         LucilleCore::selectEntityFromListOfEntitiesOrNull("asteroid", asteroids, lambda{|asteroid| Asteroids::toString(asteroid) })
     end
 
+    # Asteroids::getNx39Sequence(sequence)
+    def self.getNx39Sequence(sequence)
+        return [] if sequence.empty?
+        last = sequence.last
+        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(last)
+        return sequence if targets.empty?
+        sequence + [targets.first]
+    end
+
+    # Asteroids::nx39ToString(sequence)
+    def self.nx39ToString(sequence)
+        strs = sequence.map{|object| Patricia::toString(object) }
+        # Turning
+        # [asteroid] 📥 [quark] [aion-location] How I Made a Self-Quoting Tweet / [quark] [aion-location] How I Made a Self-Quoting Tweet
+        # into
+        # [asteroid] 📥 / [quark] [aion-location] How I Made a Self-Quoting Tweet
+        if strs.size >= 2 then
+            if strs[0][-strs[1].size, strs[1].size] == strs[1] then
+                strs[0] = strs[0][0, strs[0].size-strs[1].size].strip
+            end
+        end
+        strs.join(" / ")
+    end
+
     # -------------------------------------------------------------------
     # Catalyst Objects
 
@@ -232,13 +256,6 @@ class Asteroids
             return []
         end
 
-        makeBody = lambda {|asteroid, target|
-            if Asteroids::toString(asteroid).include?(Patricia::toString(target)) then
-                return Asteroids::toString(asteroid)
-            end
-            "#{Asteroids::toString(asteroid)} ; #{Patricia::toString(target)}"
-        }
-
         asteroidmetric = Asteroids::metric(asteroid)
 
         # We take the first one and then the active others
@@ -249,24 +266,20 @@ class Asteroids
             }
             .first(3)
             .map{|target|
-                asteroidTargetUUID = "#{asteroid["uuid"]}-#{target["uuid"]}"
-                metric = asteroidmetric - 0.001*BankExtended::recoveredDailyTimeInHours(asteroidTargetUUID)
-                isRunning = Runner::isRunning?(asteroidTargetUUID)
+                uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+                metric = asteroidmetric - 0.001*BankExtended::recoveredDailyTimeInHours(uuid)
+                isRunning = Runner::isRunning?(uuid)
                 metric = 1 if isRunning
                 {
-                    "uuid"             => asteroidTargetUUID,
-                    "body"             => makeBody.call(asteroid, target),
+                    "uuid"             => uuid,
+                    "body"             => Asteroids::nx39ToString(Asteroids::getNx39Sequence([asteroid, target])),
                     "metric"           => metric,
                     "landing"          => lambda { Patricia::landing(target) },
-                    "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, asteroidTargetUUID) },
-                    "done"             => lambda {
-                        Asteroids::asteroidReceivesTime(asteroid, 60)
-                        Patricia::destroy(target) 
-                    },
+                    "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
                     "isRunning"        => isRunning,
                     "isRunningForLong" => (lambda {
-                        return false if !Runner::isRunning?(asteroidTargetUUID)
-                        ( Runner::runTimeInSecondsOrNull(asteroidTargetUUID) || 0 ) > 3600
+                        return false if !Runner::isRunning?(uuid)
+                        ( Runner::runTimeInSecondsOrNull(uuid) || 0 ) > 3600
                     }).call(),
                     "x-asteroid"       => asteroid,
                 }

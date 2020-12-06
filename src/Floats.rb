@@ -26,7 +26,6 @@ class Floats
                     NyxObjects2::destroy(float)
                 end
             }
-            float["done"] = lambda { NyxObjects2::destroy(float) }
             float
         }
     end

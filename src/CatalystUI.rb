@@ -151,19 +151,6 @@ class CatalystUI
             return
         end
 
-        if command == "done" then
-            object = locker.get(1)
-            return if object.nil?
-            if object["done"] then
-                object["done"].call()
-                return
-            end
-            puts "I do not know how to done this object"
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == "streaming" then
             CatalystUI::streaming()
             return
