@@ -258,19 +258,12 @@ class Asteroids
         asteroidmetric = Asteroids::metric(asteroid)
 
         # We take the first one and then the active others
-        targets1 = TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).take(1) 
-        targets2 = TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid).drop(1)
-                    .select{|target|
-                        Asteroids::targetIsActive(asteroid, target)
-                    }
-
-        targets = (targets1 + targets2)
-                    .select{|target|
-                        uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
-                        DoNotShowUntil::isVisible(uuid)
-                    }
-
-        targets
+        TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid)
+            .select{|target|
+                uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+                DoNotShowUntil::isVisible(uuid)
+            }
+            .first(3)
             .map{|target|
                 asteroidTargetUUID = "#{asteroid["uuid"]}-#{target["uuid"]}"
                 metric = asteroidmetric - 0.001*BankExtended::recoveredDailyTimeInHours(asteroidTargetUUID)
@@ -321,24 +314,6 @@ class Asteroids
                         end
                     }
         struct["objects"]
-    end
-
-    # -------------------------------------------------------------------
-    # Targets Activations
-
-    # Asteroids::targetIsActive(asteroid, target)
-    def self.targetIsActive(asteroid, target)
-        KeyValueStore::flagIsTrue(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
-    end
-
-    # Asteroids::activateTarget(asteroid, target)
-    def self.activateTarget(asteroid, target)
-        KeyValueStore::setFlagTrue(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
-    end
-
-    # Asteroids::disactivateTarget(asteroid, target)
-    def self.disactivateTarget(asteroid, target)
-        KeyValueStore::setFlagFalse(nil, "c7919d38-e302-4b25-9ee9-491d0132bfe3:#{asteroid["uuid"]}:#{target["uuid"]}")
     end
 
     # -------------------------------------------------------------------
@@ -567,13 +542,10 @@ class Asteroids
             puts ""
 
             TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid)
-            .each{|target|
-                message = "target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(asteroid, target)} ) : #{Patricia::toString(target)}"
-                if Asteroids::targetIsActive(asteroid, target) then
-                    message = message.green
-                end
-                mx.item(message, lambda { Patricia::landing(target) })
-            }
+                .each{|target|
+                    message = "target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(asteroid, target)} ) #{Patricia::toString(target)}"
+                    mx.item(message, lambda { Patricia::landing(target) })
+                }
 
             puts ""
 
@@ -626,20 +598,6 @@ class Asteroids
                 return if target.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 TargetOrdinals::setTargetOrdinal(asteroid, target, ordinal)
-            })
-
-            puts ""
-
-            mx.item("activate target".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-                return if target.nil?
-                Asteroids::activateTarget(asteroid, target)
-            })
-
-            mx.item("disactivate target".yellow, lambda { 
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getSourceTargetsInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
-                return if target.nil?
-                Asteroids::disactivateTarget(asteroid, target)
             })
 
             puts ""
