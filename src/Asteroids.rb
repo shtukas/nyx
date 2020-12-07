@@ -333,8 +333,12 @@ class Asteroids
         puts "Adding #{timespanInSeconds} seconds to #{asteroid["orbital"]["type"]}"
         Bank::put(asteroid["orbital"]["type"], timespanInSeconds)
 
+        if asteroid["orbital"]["type"] == "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860" then
+            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0" # The original context
+            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespanInSeconds)
+        end
         if asteroid["orbital"]["type"] == "execution-context-fbc-837c-88a007b3cad0-837" then
-            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
+            puts "Adding #{timespanInSeconds} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0" # The original context
             Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespanInSeconds)
         end
         if asteroid["orbital"]["type"] == "burner-5d333e86-230d-4fab-aaee-a5548ec4b955" then
@@ -548,6 +552,15 @@ class Asteroids
                 asteroid["description"] = description
                 NyxObjects2::put(asteroid)
                 KeyValueStore::destroy(nil, "f16f78bd-c5a1-490e-8f28-9df73f43733d:#{asteroid["uuid"]}")
+            })
+
+            puts ""
+
+            mx.item("start target".yellow, lambda {
+                target = Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(asteroid)
+                return if target.nil?
+                uuid = "#{asteroid["uuid"]}-#{target["uuid"]}"
+                Runner::start(uuid)
             })
 
             puts ""
