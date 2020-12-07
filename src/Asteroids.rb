@@ -438,7 +438,7 @@ class Asteroids
         if !Runner::isRunning?(asteroidTargetUUID) then
             # Is not running
             Runner::start(asteroidTargetUUID)
-            Patricia::open1(target)
+            Patricia::open1(Asteroids::getNx39Sequence([asteroid, target]).last)
             menuitems = LCoreMenuItemsNX1.new()
             menuitems.item("keep running".yellow, lambda {})
             menuitems.item("stop".yellow, lambda { 
