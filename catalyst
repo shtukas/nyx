@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "src/loader.rb"
+require_relative "Implementations/Ruby/loader.rb"
 
 # -------------------------------------------------------------------------
 
