@@ -1,6 +1,8 @@
 
 # encoding: UTF-8
 
+$BankInMemorySetuuidDateToValueStore = {}
+
 class Bank
 
     # Bank::databaseFilepath()
@@ -12,11 +14,15 @@ class Bank
     def self.put(setuuid, weight)
         operationuuid = SecureRandom.hex
         unixtime = Time.new.to_i
+        date = Time.new.to_s[0, 10]
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
-        db.execute "insert into _operations_ (_setuuid_, _operationuuid_ , _unixtime_, _weight_) values (?, ?, ?, ?)", [setuuid, operationuuid, unixtime, weight]
+        db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
+
+        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{Miscellaneous::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Miscellaneous::today())
+
         nil
     end
 
@@ -26,8 +32,8 @@ class Bank
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = []
-        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=?" , [setuuid] ) do |row|
+        answer = 0
+        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=?" , [setuuid] ) do |row|
             answer = row["_sum_"]
         end
         db.close
@@ -41,46 +47,85 @@ class Bank
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = []
-        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
-            answer = row["_sum_"]
+        answer = 0
+        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
+            answer = (row["_sum_"] || 0)
         end
         db.close
         answer
     end
 
-    # Bank::valueOverTimespanWithConnection(db, setuuid, timespanInSeconds)
-    def self.valueOverTimespanWithConnection(db, setuuid, timespanInSeconds)
-        horizon = Time.new.to_i - timespanInSeconds
-        answer = []
-        db.execute( "select sum(_weight_) as _sum_ from _operations_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
-            answer = row["_sum_"]
+    # Bank::valueAtDateUseTheForce(setuuid, date)
+    def self.valueAtDateUseTheForce(setuuid, date)
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = 0
+        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _date_=?" , [setuuid, date] ) do |row|
+            answer = (row["_sum_"] || 0)
         end
+        db.close
+        answer
+    end
+
+    # Bank::valueAtDate(setuuid, date)
+    def self.valueAtDate(setuuid, date)
+
+        computationCore = lambda{|setuuid, date|
+            db = SQLite3::Database.new(Bank::databaseFilepath())
+            db.busy_timeout = 117  
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            answer = 0
+            db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _date_=?" , [setuuid, date] ) do |row|
+                answer = (row["_sum_"] || 0)
+            end
+            db.close
+            answer
+        }
+
+        if $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"].nil? then
+            $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
+        end
+        
+        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"]
+    end
+
+    # Bank::valueOverTimespanWithConnection(setuuid, timespanInSeconds)
+    def self.valueOverTimespanWithConnection(setuuid, timespanInSeconds)
+        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        horizon = Time.new.to_i - timespanInSeconds
+        answer = 0
+        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
+            answer = (row["_sum_"] || 0)
+        end
+        db.close
         answer
     end
 end
 
 class BankExtended
 
-    # BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
-    def self.best7SamplesTimeRatioOverPeriod(bankuuid, timespanInSeconds)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        value = (1..7)
-                    .map{|i|
-                        lookupPeriodInSeconds = timespanInSeconds*(i.to_f/7)
-                        timedone = Bank::valueOverTimespanWithConnection(db, bankuuid, lookupPeriodInSeconds)
-                        timedone.to_f/lookupPeriodInSeconds
-                    }
-                    .max
-        db.close
-        value
+    # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
+    def self.timeRatioOverDayCount(setuuid, daysCount)
+        value = (0..(daysCount-1))
+                    .map{|i| Miscellaneous::nDaysInTheFuture(-i) }
+                    .map{|date| Bank::valueAtDate(setuuid, date) }
+                    .inject(0, :+)
+        value.to_f/(daysCount*86400)
     end
 
-    # BankExtended::recoveredDailyTimeInHours(bankuuid)
-    def self.recoveredDailyTimeInHours(bankuuid)
-        (BankExtended::best7SamplesTimeRatioOverPeriod(bankuuid, 86400*7)*86400).to_f/3600
+    # BankExtended::bestTimeRatioWithinDayCount(setuuid, daysCount)
+    def self.bestTimeRatioWithinDayCount(setuuid, daysCount)
+        (0..(daysCount-1)).map{|dayCount| BankExtended::timeRatioOverDayCount(setuuid, daysCount) }.max
+    end
+
+    # BankExtended::recoveredDailyTimeInHours(setuuid)
+    def self.recoveredDailyTimeInHours(setuuid)
+        (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
     end
 end
