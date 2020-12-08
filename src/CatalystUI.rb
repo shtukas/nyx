@@ -27,7 +27,11 @@ class CatalystUI
         menuitems = LCoreMenuItemsNX1.new()
 
         puts ""
-        puts "Asteroids count: #{Asteroids::asteroids().size}".yellow
+        count1 = Asteroids::asteroids().size
+        KeyValueStore::set(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::today()}", count1)
+        count2 = KeyValueStore::getOrDefaultValue(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::nDaysInTheFuture(-1)}", 0).to_i
+        count3 = KeyValueStore::getOrDefaultValue(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::nDaysInTheFuture(-7)}", 0).to_i
+        puts "Asteroids count: #{count1}, #{count1-count2}, #{count1-count3}".yellow
         verticalSpaceLeft = verticalSpaceLeft - 2
 
         dates =  Calendar::dates()
