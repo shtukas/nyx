@@ -14,7 +14,7 @@ class Bank
     def self.put(setuuid, weight)
         operationuuid = SecureRandom.hex
         unixtime = Time.new.to_i
-        date = Time.new.to_s[0, 10]
+        date = Miscellaneous::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -121,7 +121,7 @@ class BankExtended
 
     # BankExtended::bestTimeRatioWithinDayCount(setuuid, daysCount)
     def self.bestTimeRatioWithinDayCount(setuuid, daysCount)
-        (0..(daysCount-1)).map{|dayCount| BankExtended::timeRatioOverDayCount(setuuid, daysCount) }.max
+        (1..daysCount).map{|i| BankExtended::timeRatioOverDayCount(setuuid, i) }.max
     end
 
     # BankExtended::recoveredDailyTimeInHours(setuuid)
