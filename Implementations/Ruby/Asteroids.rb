@@ -258,6 +258,12 @@ class Asteroids
 
         asteroidmetric = Asteroids::metric(asteroid)
 
+        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid)
+        if targets.empty? then
+            NyxObjects2::destroy(asteroid)
+            return []
+        end
+
         # We take the first one and then the active others
         TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid)
             .select{|target|
