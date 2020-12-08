@@ -8,13 +8,6 @@ class Runner
         !KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}").nil?
     end
 
-    # Runner::runTimeInSecondsOrNull(uuid)
-    def self.runTimeInSecondsOrNull(uuid)
-        unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
-        return nil if unixtime.nil?
-        Time.new.to_f - unixtime.to_i
-    end
-
     # Runner::start(uuid)
     def self.start(uuid)
         return if Runner::isRunning?(uuid)
@@ -28,5 +21,19 @@ class Runner
         timespan = Time.new.to_f - unixtime
         KeyValueStore::destroy(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
         timespan
+    end
+
+    # Runner::runTimeInSecondsOrNull(uuid)
+    def self.runTimeInSecondsOrNull(uuid)
+        unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
+        return nil if unixtime.nil?
+        Time.new.to_f - unixtime.to_i
+    end
+
+    # Runner::runTimeAsString(uuid, padding = "")
+    def self.runTimeAsString(uuid, padding = "")
+        runtime = Runner::runTimeInSecondsOrNull(uuid)
+        return "" if runtime.nil?
+        "#{padding}(running for #{(runtime.to_f/3600).round(2)} hours)"
     end
 end

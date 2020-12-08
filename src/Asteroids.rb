@@ -202,8 +202,8 @@ class Asteroids
         sequence + [targets.first]
     end
 
-    # Asteroids::nx39ToString(sequence)
-    def self.nx39ToString(sequence)
+    # Asteroids::nx39ToString(uuid, sequence)
+    def self.nx39ToString(uuid, sequence)
         strs = sequence.map{|object| Patricia::toString(object) }
         # Turning
         # [asteroid] 📥 [quark] [aion-location] How I Made a Self-Quoting Tweet / [quark] [aion-location] How I Made a Self-Quoting Tweet
@@ -214,7 +214,7 @@ class Asteroids
                 strs[0] = strs[0][0, strs[0].size-strs[1].size].strip
             end
         end
-        strs.join(" / ")
+        strs.join(" / ") + Runner::runTimeAsString(uuid, " ")
     end
 
     # -------------------------------------------------------------------
@@ -272,7 +272,7 @@ class Asteroids
                 metric = 1 if isRunning
                 {
                     "uuid"             => uuid,
-                    "body"             => Asteroids::nx39ToString(Asteroids::getNx39Sequence([asteroid, target])),
+                    "body"             => Asteroids::nx39ToString(uuid, Asteroids::getNx39Sequence([asteroid, target])),
                     "metric"           => metric,
                     "landing"          => lambda { Patricia::landing(target) },
                     "nextNaturalStep"  => lambda { Asteroids::asteroidTargetNaturalNextOperation(asteroid, target, uuid) },
