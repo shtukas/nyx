@@ -16,8 +16,8 @@ end
 
 class CatalystUI
 
-    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floatingobjects, ng12TimeReports)
-    def self.standardDisplayWithPrompt(catalystObjects,  floatingobjects, ng12TimeReports)
+    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
+    def self.standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
 
         locker = Locker.new()
 
@@ -76,6 +76,17 @@ class CatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
+
+        floats
+            .select{|float| float["ordinal"] }
+            .sort{|f1, f2| f1["ordinal"] <=> f2["ordinal"] }
+            .each{|floating|
+                verticalSpaceLeft = verticalSpaceLeft - 1
+                puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
+            }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
         
         catalystObjects.take(5)
             .each{|object|
@@ -88,10 +99,13 @@ class CatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        floatingobjects.each{|floating|
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
-        }
+        floats
+            .select{|float| float["ordinal"].nil? }
+            .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
+            .each{|floating|
+                verticalSpaceLeft = verticalSpaceLeft - 1
+                puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
+            }
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
@@ -255,9 +269,9 @@ class CatalystUI
         loop {
             Miscellaneous::importFromLucilleInbox()
             catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            floatingobjects   = Floats::getFloatsForUIListing()
+            floats   = Floats::getFloatsForUIListing()
             reports           = NG12TimeReports::reports()
-            CatalystUI::standardDisplayWithPrompt(catalystobjects, floatingobjects, reports)
+            CatalystUI::standardDisplayWithPrompt(catalystobjects, floats, reports)
         }
     end
 

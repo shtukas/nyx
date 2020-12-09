@@ -1,6 +1,7 @@
 {
-    "uuid"       : uuid,
-    "nyxNxSet"   : "c1d07170-ed5f-49fe-9997-5cd928ae1928"
-    "type"       : "line",
-    "line        : String
+    "uuid"     : uuid,
+    "nyxNxSet" : "c1d07170-ed5f-49fe-9997-5cd928ae1928"
+    "type"     : "line",
+    "line      : String
+    "ordinal"  : nil or Floats
 }
