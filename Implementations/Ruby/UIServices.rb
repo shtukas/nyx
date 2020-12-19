@@ -14,9 +14,120 @@ class Locker
     end
 end
 
-class CatalystUI
+class UIServices
+    # UIServices::dataPortalFront()
+    def self.dataPortalFront()
+        loop {
+            system("clear")
 
-    # CatalystUI::standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
+            ms = LCoreMenuItemsNX1.new()
+
+            ms.item(
+                "General Search and Landing()", 
+                lambda { Patricia::searchAndLanding() }
+            )
+
+            puts ""
+
+            ms.item("Navigation Nodes",lambda { NavigationNodes::main() })
+
+            puts ""
+
+            ms.item("Waves", lambda { Waves::main() })
+
+            ms.item("Asteroids", lambda { Asteroids::main() })
+
+            ms.item(
+                "Calendar",
+                lambda { 
+                    system("open '#{Calendar::pathToCalendarItems()}'") 
+                }
+            )
+
+            puts ""
+
+            ms.item("new datapoint", lambda {
+                datapoint = Patricia::issueNewDatapointOrNull()
+                return if datapoint.nil?
+                Patricia::landing(datapoint)
+            })
+
+            puts ""
+
+            ms.item("dangerously edit a nyx object by uuid", lambda { 
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                return if uuid == ""
+                object = NyxObjects2::getOrNull(uuid)
+                return if object.nil?
+                object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
+                object = JSON.parse(object)
+                NyxObjects2::put(object)
+            })
+
+            ms.item("dangerously delete a nyx object by uuid", lambda { 
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                object = NyxObjects2::getOrNull(uuid)
+                return if object.nil?
+                puts JSON.pretty_generate(object)
+                return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
+                NyxObjects2::destroy(object)
+            })
+
+            status = ms.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # UIServices::systemFront()
+    def self.systemFront()
+        loop {
+            system("clear")
+
+            ms = LCoreMenuItemsNX1.new()
+
+            ms.item(
+                "rebuild search lookup", 
+                lambda { SelectionLookupDataset::rebuildDataset(true) }
+            )
+
+            ms.item(
+                "NyxGarbageCollection::run()",
+                lambda { NyxGarbageCollection::run() }
+            )
+
+            ms.item(
+                "NyxFsck::main(runhash)",
+                lambda {
+                    runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
+                    if runhash == "" then
+                        runhash = SecureRandom.hex
+                    end
+                    status = NyxFsck::main(runhash)
+                    if status then
+                        puts "All good".green
+                    else
+                        puts "Failed!".red
+                    end
+                    LucilleCore::pressEnterToContinue()
+                }
+            )
+
+            ms.item(
+                "Print Generation Speed Report", 
+                lambda { CatalystObjectsOperator::generationSpeedReport() }
+            )
+
+            ms.item(
+                "Curation::session()", 
+                lambda { Curation::session() }
+            )
+
+            status = ms.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # UIServices::standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
     def self.standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
 
         locker = Locker.new()
@@ -188,11 +299,6 @@ class CatalystUI
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             return
         end
-
-        if command == "streaming" then
-            CatalystUI::streaming()
-            return
-        end
         
         if command == ":new" then
             operations = [
@@ -230,20 +336,10 @@ class CatalystUI
                 return
             end
         end
-
-        if command == ":search" then
-            Patricia::searchAndLanding()
-            return
-        end
-
-        if command == "/" then
-            DataPortalUI::dataPortalFront()
-            return
-        end
     end
 
-    # CatalystUI::standardUILoop()
-    def self.standardUILoop()
+    # UIServices::standardTodoListingLoop()
+    def self.standardTodoListingLoop()
 
         Thread.new {
             loop {
@@ -271,31 +367,7 @@ class CatalystUI
             catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             floats   = Floats::getFloatsForUIListing()
             reports           = NG12TimeReports::reports()
-            CatalystUI::standardDisplayWithPrompt(catalystobjects, floats, reports)
-        }
-    end
-
-    # CatalystUI::streaming()
-    def self.streaming()
-        previousStreamingLoopObjectUuid  = nil
-        loop {
-            object = CatalystObjectsOperator::getCatalystListingObjectsOrdered().first
-            break if object.nil?
-            if object["isRunning"] then
-                puts "running: #{object["body"]}".green
-                object["nextNaturalStep"].call()
-                next
-            end
-            if previousStreamingLoopObjectUuid == object["uuid"] then
-                DoNotShowUntil::setUnixtime(object["uuid"], Time.new.to_i+3600)
-                next
-            end
-            if !LucilleCore::askQuestionAnswerAsBoolean("#{object["body"]} ? ".yellow, true) then
-                break
-            end
-            puts object["body"].green
-            object["nextNaturalStep"].call()
-            previousStreamingLoopObjectUuid = object["uuid"]
+            UIServices::standardDisplayWithPrompt(catalystobjects, floats, reports)
         }
     end
 end

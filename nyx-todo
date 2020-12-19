@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Implementations/Ruby/loader.rb"
+
+# -------------------------------------------------------------------------
+
+UIServices::standardTodoListingLoop()
+
+# -------------------------------------------------------------------------

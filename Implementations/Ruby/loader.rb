@@ -151,10 +151,8 @@ require_relative "Bank.rb"
 
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
-require_relative "CatalystUI.rb"
 require_relative "Curation.rb"
 
-require_relative "DataPortalUI.rb"
 require_relative "DisplayUtils.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -190,6 +188,8 @@ require_relative "SectionsType0141.rb"
 require_relative "SelectionLookupDataset.rb"
 
 require_relative "TargetsOrdinals.rb"
+
+require_relative "UIServices.rb"
 
 require_relative "VideoStream.rb"
 
