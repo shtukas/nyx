@@ -423,7 +423,7 @@ class Patricia
 
     # Patricia::searchAndReturnObjectOrNull()
     def self.searchAndReturnObjectOrNull()
-        atricia::interactiveSearchAndReturnObjectOrNull()
+        Patricia::interactiveSearchAndReturnObjectOrNull()
     end
 
     # Patricia::searchAndLanding()
