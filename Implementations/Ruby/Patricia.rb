@@ -473,9 +473,29 @@ class Patricia
 
     # Patricia::issueNewDatapointOrNull()
     def self.issueNewDatapointOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
-        if type == "quark" then
-            return Quarks::issueNewQuarkInteractivelyOrNull()
+        # This function is a blend of Quarks::issueNewQuarkInteractivelyOrNull() and NGX15::issueNewNGX15InteractivelyOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point", "NGX15"])
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            quark = Quarks::makeLine(line)
+            quark["description"] = line
+            NyxObjects2::put(quark)
+            return quark
+        end
+        if type == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            quark = Quarks::makeUrl(url)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxObjects2::put(quark)
+            return quark
+        end
+        if type == "aion-point" then
+            locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
+            aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
+            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxObjects2::put(quark)
+            return quark
         end
         if type == "NGX15" then
             return NGX15::issueNewNGX15InteractivelyOrNull()
