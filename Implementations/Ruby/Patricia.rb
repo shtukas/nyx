@@ -421,55 +421,9 @@ class Patricia
         answer
     end
 
-    # Patricia::selectionDiveCore(objects)
-    def self.selectionDiveCore(objects)
-        loop {
-            selectedobject = nil
-            ms = LCoreMenuItemsNX1.new()
-            objects
-                .sort{|o1, o2| Patricia::getObjectReferenceDateTime(o1) <=> Patricia::getObjectReferenceDateTime(o2) }
-                .each{|object| 
-                    ms.item(
-                        Patricia::toString(object), 
-                        lambda { selectedobject = object }
-                    )
-                }
-            status = ms.promptAndRunSandbox()
-            if selectedobject then
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["return selected",  "dive selected"])
-                next if option.nil?
-                if option == "return selected" then
-                    return selectedobject
-                end
-                if option == "dive selected" then
-                    x1selectedobject = Patricia::selectionDiveCore(Arrows::getTargetsForSource(selectedobject))
-                    return x1selectedobject if x1selectedobject
-                end
-                next
-            end
-            return nil if !status
-        }
-    end
-
-    # Patricia::selectionDiveStartingPoint()
-    def self.selectionDiveStartingPoint()
-        Patricia::selectionDiveCore(NavigationNodes::nodes().select{|node| node["isRootNode"] })
-    end
-
     # Patricia::searchAndReturnObjectOrNull()
     def self.searchAndReturnObjectOrNull()
-        loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["search by dive",  "search by pattern"])
-            return nil if option.nil?
-            if option == "search by dive" then
-                selected = Patricia::selectionDiveStartingPoint()
-                return selected if selected
-            end
-            if option == "search by pattern" then
-                selected = Patricia::interactiveSearchAndReturnObjectOrNull()
-                return selected if selected
-            end
-        }
+        atricia::interactiveSearchAndReturnObjectOrNull()
     end
 
     # Patricia::searchAndLanding()

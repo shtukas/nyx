@@ -14,8 +14,7 @@ class NavigationNodes
             "uuid"       => SecureRandom.hex,
             "nyxNxSet"   => "f1ae7449-16d5-41c0-a89e-f2a8e486cc99",
             "unixtime"   => Time.new.to_f,
-            "name"       => name1,
-            "isRootNode" => false
+            "name"       => name1
         }
     end
 
@@ -135,19 +134,6 @@ class NavigationNodes
         "[navigation node] #{node["name"]}"
     end
 
-    # NavigationNodes::objectDescentFromNavigationRootCore(object, ancestors, focus)
-    def self.objectDescentFromNavigationRootCore(object, ancestors, focus)
-        return true if (Patricia::isNavigationNode(object) and object["isRootNode"])
-        return true if (Patricia::isNavigationNode(focus) and focus["isRootNode"])
-        return false if ancestors.map{|o| o["uuid"]}.include?(focus["uuid"])
-        Arrows::getSourcesForTarget(focus).any?{|s| NavigationNodes::objectDescentFromNavigationRootCore(object, ancestors + [focus], s) }
-    end
-
-    # NavigationNodes::objectDescentFromNavigationRoot(object)
-    def self.objectDescentFromNavigationRoot(object)
-        NavigationNodes::objectDescentFromNavigationRootCore(object, [], object)
-    end
-
     # NavigationNodes::landing(node)
     def self.landing(node)
         loop {
@@ -157,7 +143,6 @@ class NavigationNodes
 
             puts NavigationNodes::toString(node).green
             puts "uuid: #{node["uuid"]}".yellow
-            puts "rootnode: #{node["isRootNode"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -175,11 +160,6 @@ class NavigationNodes
                 name1 = Miscellaneous::editTextSynchronously(node["name"]).strip
                 return if name1 == ""
                 node["name"] = name1
-                NyxObjects2::put(node)
-            })
-
-            mx.item("promote to root node".yellow, lambda { 
-                node["isRootNode"] = true
                 NyxObjects2::put(node)
             })
 
@@ -237,15 +217,6 @@ class NavigationNodes
             ms.item("navigation nodes dive",lambda { 
                 loop {
                     nodes = NavigationNodes::nodes()
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|l| NavigationNodes::toString(l) })
-                    return if node.nil?
-                    NavigationNodes::landing(node)
-                }
-            })
-
-            ms.item("root nodes dive",lambda { 
-                loop {
-                    nodes = NavigationNodes::nodes().select{|node| node["isRootNode"] }
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|l| NavigationNodes::toString(l) })
                     return if node.nil?
                     NavigationNodes::landing(node)

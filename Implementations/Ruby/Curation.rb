@@ -4,33 +4,7 @@ class Curation
 
     # Curation::getCurationLambdaOrNull()
     def self.getCurationLambdaOrNull()
-        objectShouldHaveAnAsteroidParent = lambda {|x2|
-            [
-                "smbc-comics.com", 
-                "thekidshouldseethis.com", 
-                "xkcd.com",
-                "apod.nasa.gov",
-                "dilbert.com",
-                "geekculture.com",
-                "schneier.com",
-                "ribbonfarm.com",
-                "terrytao.wordpress.com"
-            ].any?{|fragment| Patricia::toString(x2).include?(fragment) }
-        }
-
-        objects = Quarks::quarks()
-                    .select{|x| Arrows::getSourcesForTarget(x).none?{|x2| Patricia::isAsteroid(x2) } }
-                    .select{|x| !NavigationNodes::objectDescentFromNavigationRoot(x) }
-
-        return nil if objects.size == 0
-
-        object = objects.first
-        if objectShouldHaveAnAsteroidParent.call(object) then
-            Asteroids::issueAsteroidBurnerFromTarget(object)
-            return Curation::getCurationLambdaOrNull()
-        end
-
-        lambda { Patricia::landing(object) }
+        nil
     end
 
     # Curation::runOnce()
