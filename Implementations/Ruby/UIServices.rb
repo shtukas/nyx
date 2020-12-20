@@ -37,6 +37,8 @@ class UIServices
 
             ms.item("Asteroids", lambda { Asteroids::main() })
 
+            ms.item("DxThreads", lambda { DxThreads::main() })
+
             ms.item(
                 "Calendar",
                 lambda { 
@@ -220,6 +222,7 @@ class UIServices
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
+
         ng12TimeReports
             .sort{|r1, r2| r1["currentExpectationRealisedRatio"] <=> r2["currentExpectationRealisedRatio"] }
             .each{|report|
@@ -227,6 +230,26 @@ class UIServices
                 puts "[#{locker.store(report).to_s.rjust(2)}] #{str}"
                 verticalSpaceLeft = verticalSpaceLeft - 1
             }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+
+        DxThreads::objects()
+        .map {|dxthread|
+            dxthread["landing"] = lambda {
+                DxThreads::landing(dxthread)
+            }
+            dxthread["nextNaturalStep"] = lambda {
+                DxThreads::landing(dxthread)
+            }
+            dxthread
+        }
+        .each{|dxthread|
+            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toString(dxthread)}"
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        }
+
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1

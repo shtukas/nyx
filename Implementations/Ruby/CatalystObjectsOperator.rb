@@ -118,6 +118,7 @@ class CatalystObjectsOperator
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             Curation::catalystObjects(),
+            DxThreads::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -137,27 +138,31 @@ class CatalystObjectsOperator
         generators = [
             {
                 "name" => "Asteroids",
-                "exec" => lambda{ Asteroids::catalystObjects() }
+                "exec" => lambda { Asteroids::catalystObjects() }
             },
             {
                 "name" => "BackupsMonitor",
-                "exec" => lambda{ BackupsMonitor::catalystObjects() }
+                "exec" => lambda { BackupsMonitor::catalystObjects() }
             },
             {
                 "name" => "Calendar",
-                "exec" => lambda{ Calendar::catalystObjects() }
+                "exec" => lambda { Calendar::catalystObjects() }
             },
             {
                 "name" => "Curation",
-                "exec" => lambda{ Curation::catalystObjects() }
+                "exec" => lambda { Curation::catalystObjects() }
             },
             {
                 "name" => "VideoStream",
-                "exec" => lambda{ VideoStream::catalystObjects() }
+                "exec" => lambda { VideoStream::catalystObjects() }
             },
             {
                 "name" => "Waves",
-                "exec" => lambda{ Waves::catalystObjects() }
+                "exec" => lambda { Waves::catalystObjects() }
+            },
+            {
+                "name" => "DxThreads",
+                "exec" => lambda { DxThreads::catalystObjects() }
             }
         ]
 
