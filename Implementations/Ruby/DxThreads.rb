@@ -139,6 +139,41 @@ class DxThreads
         return if Runner::isRunning?(uuid)
         puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
         Runner::start(uuid)
+        Patricia::open1(target)
+        menuitems = LCoreMenuItemsNX1.new()
+        menuitems.item("keep running".yellow, lambda {})
+        menuitems.item("stop".yellow, lambda { 
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+        })
+        menuitems.item("stop ; hide for n days".yellow, lambda { 
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
+            DoNotShowUntil::setUnixtime(uuid, Time.new.to_i + n*86400)
+        })
+        menuitems.item("target landing".yellow, lambda { 
+            Patricia::landing(target)
+        })
+        menuitems.item("stop ; move target".yellow, lambda { 
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            puts "The move per se (away from threading or to another DxThread is not yet implemented)"
+            LucilleCore::pressEnterToContinue()
+        })
+        menuitems.item("stop ; destroy target".yellow,lambda {
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            Patricia::destroy(target)
+        })
+        status = menuitems.promptAndRunSandbox()
     end
 
     # DxThreads::nextNaturalStepStop(dxthread, target)
@@ -150,6 +185,40 @@ class DxThreads
         return if timespan.nil?
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
         DxThreads::receiveTime(dxthread, target, timespan)
+        menuitems = LCoreMenuItemsNX1.new()
+        menuitems.item("".yellow, lambda {})
+        menuitems.item("stop".yellow, lambda {
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+        })
+        menuitems.item("stop ; hide for n days".yellow, lambda {
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
+            DoNotShowUntil::setUnixtime(uuid, Time.new.to_i + n*86400)
+        })
+        menuitems.item("target landing".yellow, lambda { 
+            Patricia::landing(target)
+        })
+        menuitems.item("stop ; move target".yellow, lambda {
+            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            puts "The move per se (away from threading or to another DxThread is not yet implemented)"
+            LucilleCore::pressEnterToContinue()
+        })
+        menuitems.item("stop ; destroy target".yellow, lambda {
+            timespan = Runner::stop(uuid)
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            DxThreads::receiveTime(dxthread, target, timespan)
+            Patricia::destroy(target)
+        })
+        status = menuitems.promptAndRunSandbox()
     end
 
     # DxThreads::nextNaturalStep(dxthread, target)
