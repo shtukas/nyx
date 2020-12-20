@@ -1,29 +1,6 @@
 
 # encoding: UTF-8
 
-# -- SingleExecutionContext ----------------------------------------------------------
-
-
-class ExecutionContexts
-
-    # ExecutionContexts::contextRealisationRatio(contextId, dailyExpectationInHours)
-    def self.contextRealisationRatio(contextId, dailyExpectationInHours)
-        recovered = BankExtended::recoveredDailyTimeInHours(contextId)
-        recovered.to_f/dailyExpectationInHours
-    end
-
-    # ExecutionContexts::metric2(contextId, dailyExpectationInHours, itemBankAccountId)
-    def self.metric2(contextId, dailyExpectationInHours, itemBankAccountId)
-        recovered = BankExtended::recoveredDailyTimeInHours(contextId)
-        ratio = recovered.to_f/dailyExpectationInHours
-        if ratio < 1 then
-            0.6 - 0.2*ratio - 0.001*BankExtended::recoveredDailyTimeInHours(itemBankAccountId)
-        else
-            0.3 - 0.1*(1-Math.exp(-(ratio-1)))
-        end
-    end
-end
-
 # -- CatalystObjectsOperator ----------------------------------------------------------
 
 class CatalystObjectsOperator

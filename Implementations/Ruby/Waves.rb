@@ -251,8 +251,8 @@ class Waves
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
             timespan = [Time.new.to_f - startTime, 3600].min
-            puts "Adding #{timespan} seconds to ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0"
-            Bank::put("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", timespan)
+            puts "Add #{timespan} seconds to DxThread Stream (for time management)"
+            Bank::put(DxThreads::getStream()["uuid"], timespan)
         end
     end
 

@@ -13,6 +13,11 @@ class DxThreads
         NyxObjects2::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
     end
 
+    # DxThreads::getStream()
+    def self.getStream()
+        NyxObjects2::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
+    end
+
     # DxThreads::make(description, timeCommitmentPerDayInHours)
     def self.make(description, timeCommitmentPerDayInHours)
         {
