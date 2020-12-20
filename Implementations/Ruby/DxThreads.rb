@@ -125,6 +125,49 @@ class DxThreads
 
     # --------------------------------------------------------------
 
+    # DxThreads::receiveTime(dxthread, target, timespanInSeconds)
+    def self.receiveTime(dxthread, target, timespanInSeconds)
+        puts "sending #{timespanInSeconds} to thread item '#{Patricia::toString(target)}'"
+        Bank::put(target["uuid"], timespanInSeconds)
+        puts "sending #{timespanInSeconds} to DxThread'#{DxThreads::toString(dxthread)}'"
+        Bank::put(dxthread["uuid"], timespanInSeconds)
+    end
+
+    # DxThreads::nextNaturalStepStart(dxthread, target)
+    def self.nextNaturalStepStart(dxthread, target)
+        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        return if Runner::isRunning?(uuid)
+        puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
+        Runner::start(uuid)
+    end
+
+    # DxThreads::nextNaturalStepStop(dxthread, target)
+    def self.nextNaturalStepStop(dxthread, target)
+        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        return if !Runner::isRunning?(uuid)
+        puts "stopping DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
+        timespan = Runner::stop(uuid)
+        return if timespan.nil?
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        DxThreads::receiveTime(dxthread, target, timespan)
+    end
+
+    # DxThreads::nextNaturalStep(dxthread, target)
+    def self.nextNaturalStep(dxthread, target)
+        # The thing to start is the combined uuid, but the time will be given separately to the thread and the item
+        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        if Runner::isRunning?(uuid) then
+            DxThreads::nextNaturalStepStop(dxthread, target)
+        else
+            DxThreads::nextNaturalStepStart(dxthread, target)
+        end
+    end
+
+    # DxThreads::dxThreadAndTargetToString(dxthread, target)
+    def self.dxThreadAndTargetToString(dxthread, target)
+        "#{DxThreads::toString(dxthread).ljust(35)} #{Patricia::toString(target)}"
+    end
+
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
         indexing = -1
@@ -133,16 +176,12 @@ class DxThreads
             uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
             {
                 "uuid"             => uuid,
-                "body"             => "#{DxThreads::toString(dxthread).ljust(35)} #{Patricia::toString(target)}",
+                "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
                 "metric"           => 0.9 - indexing.to_f/1000,
-                "landing"          => lambda {
-                    Patricia::landing(target)
-                },
-                "nextNaturalStep"  => lambda {
-                    puts "not implemented yet"
-                },
-                "isRunning"        => false,
-                "isRunningForLong" => false
+                "landing"          => lambda { Patricia::landing(target) },
+                "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
+                "isRunning"        => Runner::isRunning?(uuid),
+                "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
             }
         }
     end
