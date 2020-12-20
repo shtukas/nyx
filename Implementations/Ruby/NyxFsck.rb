@@ -60,6 +60,12 @@ class NyxFsck
             return true
         end
 
+        if object["nyxNxSet"] == "c1d07170-ed5f-49fe-9997-5cd928ae1928" then
+            # Floats
+            puts "fsck float: #{object["uuid"]}"
+            return true
+        end
+
         puts JSON.pretty_generate(object)
         puts "[error: eed35593-c378-4715-bbb7-5cbefbcd47ce]"
         false
