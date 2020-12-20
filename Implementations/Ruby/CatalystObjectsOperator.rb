@@ -10,7 +10,6 @@ class CatalystObjectsOperator
         objects = [
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
-            Curation::catalystObjects(),
             DxThreads::catalystObjects(),
             Floats::catalystObjects(),
             VideoStream::catalystObjects(),
@@ -37,10 +36,6 @@ class CatalystObjectsOperator
             {
                 "name" => "Calendar",
                 "exec" => lambda { Calendar::catalystObjects() }
-            },
-            {
-                "name" => "Curation",
-                "exec" => lambda { Curation::catalystObjects() }
             },
             {
                 "name" => "DxThreads",

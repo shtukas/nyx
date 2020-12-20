@@ -130,7 +130,6 @@ require_relative "Bank.rb"
 
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
-require_relative "Curation.rb"
 
 require_relative "DisplayUtils.rb"
 require_relative "DoNotShowUntil.rb"

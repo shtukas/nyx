@@ -113,11 +113,6 @@ class UIServices
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
             )
 
-            ms.item(
-                "Curation::session()", 
-                lambda { Curation::session() }
-            )
-
             status = ms.promptAndRunSandbox()
             break if !status
         }
