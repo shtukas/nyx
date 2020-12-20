@@ -55,13 +55,6 @@ class SelectionLookupDataset
 
     # ---------------------------------------------------------
 
-    # SelectionLookupDataset::updateLookupForNGX15(datapoint)
-    def self.updateLookupForNGX15(datapoint)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], datapoint["uuid"])
-        SelectionLookupDatabaseIO::addRecord("datapoint", datapoint["uuid"], NGX15::toString(datapoint))
-    end
-
     # SelectionLookupDataset::updateLookupForQuark(quark)
     def self.updateLookupForQuark(quark)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(quark["uuid"])
@@ -84,28 +77,6 @@ class SelectionLookupDataset
     end
 
     # ---------------------------------------------------------
-
-    # SelectionLookupDataset::rebuildNGX15sLookup(verbose)
-    def self.rebuildNGX15sLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.execute "delete from lookup where _objecttype_=?", ["ngx15"]
-
-        NGX15::ngx15s()
-            .each{|ngx15|
-                if verbose then
-                    puts "ngx15: #{ngx15["uuid"]} , #{NGX15::toString(ngx15)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], ngx15["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], NGX15::toString(ngx15))
-                if ngx15["type"] == "NGX15" then
-                    SelectionLookupDatabaseIO::addRecord2(db, "ngx15", ngx15["uuid"], ngx15["ngx15"])
-                end
-            }
-
-        db.close
-    end
 
     # SelectionLookupDataset::rebuildQuarksLookup(verbose)
     def self.rebuildQuarksLookup(verbose)
@@ -172,7 +143,6 @@ class SelectionLookupDataset
         db.execute "delete from lookup", []
         db.close
 
-        SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)

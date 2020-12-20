@@ -34,6 +34,18 @@ class Quarks
         }
     end
 
+    # Quarks::fileSystemUniqueString(mark)
+    def self.fileSystemUniqueString(mark)
+         {
+            "uuid"              => SecureRandom.uuid,
+            "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+            "unixtime"          => Time.new.to_f,
+            "referenceDateTime" => nil,
+            "type"              => "filesystem-unique-string",
+            "mark"              => mark
+        }
+    end
+
     # Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
     def self.makeAionFileSystemLocation(aionFileSystemLocation)
         operator = ElizabethX2.new()
@@ -56,6 +68,13 @@ class Quarks
         object
     end
 
+    # Quarks::issuefileSystemUniqueString(mark)
+    def self.issuefileSystemUniqueString(mark)
+        object = Quarks::fileSystemUniqueString(mark)
+        NyxObjects2::put(object)
+        object
+    end
+
     # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
     def self.issueAionFileSystemLocation(aionFileSystemLocation)
         object = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
@@ -67,7 +86,7 @@ class Quarks
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "filesystem-unique-string", "aion-point"])
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             quark = Quarks::makeLine(line)
@@ -78,6 +97,24 @@ class Quarks
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             quark = Quarks::makeUrl(url)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            NyxObjects2::put(quark)
+            return quark
+        end
+        if type == "filesystem-unique-string" then
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["location already exists", "issue new location name"])
+            return nil if op.nil?
+            mark = nil
+            if op == "location already exists" then
+                mark = LucilleCore::askQuestionAnswerAsString("mark: ")
+                return nil if mark.size == 0
+            end
+            if op == "issue new location name" then
+                mark = "NX141-#{SecureRandom.hex(5)}" # Although filesystem-unique-string is more general than Nx141, by default we create one of those.
+                puts "mark: #{mark}"
+                LucilleCore::pressEnterToContinue()
+            end
+            quark = Quarks::fileSystemUniqueString(mark)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
             NyxObjects2::put(quark)
             return quark
@@ -138,6 +175,9 @@ class Quarks
         if quark["type"] == "url" then
             return "[quark] url: #{quark["url"]}"
         end
+        if quark["type"] == "filesystem-unique-string" then
+            return "[quark] filesystem-unique-string: #{quark["mark"]}"
+        end
         if quark["type"] == "aion-location" then
             operator = ElizabethX2.new()
             aionobject = AionCore::getAionObjectByHash(operator, quark["roothash"])
@@ -164,6 +204,27 @@ class Quarks
             url = quark["url"]
             puts url
             system("open '#{url}'")
+            return
+        end
+        if type == "filesystem-unique-string" then
+            location = GalaxyFinder::uniqueStringToLocationOrNull(quark["mark"])
+            if location.nil? then
+                puts "I could not determine location for mark: #{quark["mark"]}"
+                LucilleCore::pressEnterToContinue()
+            else
+                if File.file?(location) then
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open file", "open parent folder"])
+                    return if option.nil?
+                    if option == "open file" then
+                        system("open '#{location}'")
+                    end
+                    if option == "open parent folder" then
+                        system("open '#{File.dirname(location)}'")
+                    end
+                else
+                    system("open '#{location}'")
+                end
+            end
             return
         end
         if type == "aion-location" then
@@ -287,7 +348,7 @@ class Quarks
                 "destroy".yellow,
                 lambda { 
                     if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this quark ? ") then
-                        NyxObjects2::destroy(quark)
+                        Quarks::destroyQuark(quark)
                     end
                 }
             )
@@ -297,5 +358,25 @@ class Quarks
             status = mx.promptAndRunSandbox()
             break if !status
         }
+    end
+
+    # Quarks::destroyQuark(quark)
+    def self.destroyQuark(quark)
+        if quark["type"] == "filesystem-unique-string" then
+            puts "deleting quark filesystem-unique-string: #{Quarks::toString(quark)}"
+            location = GalaxyFinder::uniqueStringToLocationOrNull(quark["mark"])
+            if location then
+                puts "Target file '#{location}'"
+                puts "Delete as appropriate"
+                system("open '#{File.dirname(location)}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not determine the location of #{quark["mark"]}"
+                if !LucilleCore::askQuestionAnswerAsBoolean("Continue with quark deletion ? ") then
+                    return
+                end
+            end
+        end
+        NyxObjects2::destroy(quark)
     end
 end

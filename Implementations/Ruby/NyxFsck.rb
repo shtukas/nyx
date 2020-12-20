@@ -3,28 +3,30 @@
 
 class NyxFsck
 
-    # NyxFsck::processNGX15(datapoint)
-    def self.processNGX15(datapoint)
-        code = datapoint["ngx15"]
-        puts "Finding #{code}"
-        location = GalaxyFinder::uniqueStringToLocationOrNull(code)
-        if location.nil? then
-            puts "Failing to find: #{code}"
-            puts JSON.pretty_generate(datapoint)
-            puts "[error: 76957559-8830-400d-b4fb-6e00081446a0]"
-            return false
-        end
-        return true
-    end
-
     # NyxFsck::processQuark(quark)
     def self.processQuark(quark)
         return true if quark["type"] == "line"
         return true if quark["type"] == "url"
-        roothash = quark["roothash"]
-        puts "roothash: #{roothash}"
-        operator = ElizabethX2.new()
-        AionFsck::structureCheckAionHash(operator, roothash)
+        if quark["type"] == "aion-location" then
+            roothash = quark["roothash"]
+            puts "roothash: #{roothash}"
+            operator = ElizabethX2.new()
+            return AionFsck::structureCheckAionHash(operator, roothash)
+        end
+        if quark["type"] == "filesystem-unique-string" then
+            puts "Finding filesystem-unique-string mark: #{quark["mark"]}"
+            location = GalaxyFinder::uniqueStringToLocationOrNull(quark["mark"])
+            if location.nil? then
+                puts "Failing to find mark: #{quark["mark"]}"
+                puts JSON.pretty_generate(quark)
+                puts "[error: 76957559-8830-400d-b4fb-6e00081446a0]"
+                return false
+            end
+            return true
+        end
+        puts "[error: e57fcfd1-f78c-4890-90e1-621df274eac7]"
+        puts JSON.pretty_generate(quark)
+        false
     end
 
     # NyxFsck::processObject(object, runhash)
@@ -35,13 +37,7 @@ class NyxFsck
             puts "fsck wave: #{object["uuid"]}"
             return true
         end
-
-        if object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69" then
-            # Datapoint
-            puts "fsck NGX15: #{object["uuid"]}"
-            return NyxFsck::processNGX15(object)
-        end
-
+        
         if object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" then
             # Quark
             puts "fsck quark: #{object["uuid"]}"

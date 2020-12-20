@@ -144,7 +144,6 @@ require_relative "ElizabethX2.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "NavigationNodes.rb"
-require_relative "NGX15.rb"
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
 require_relative "NyxObjects.rb"

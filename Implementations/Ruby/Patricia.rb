@@ -11,11 +11,6 @@ class Patricia
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     end
 
-    # Patricia::isNGX15(object)
-    def self.isNGX15(object)
-        object["nyxNxSet"] == "0f555c97-3843-4dfe-80c8-714d837eba69"
-    end
-
     # Patricia::isNavigationNode(object)
     def self.isNavigationNode(object)
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
@@ -36,9 +31,6 @@ class Patricia
 
     # Patricia::toString(object)
     def self.toString(object)
-        if Patricia::isNGX15(object) then
-            return NGX15::toString(object)
-        end
         if Patricia::isQuark(object) then
             return Quarks::toString(object)
         end
@@ -68,9 +60,6 @@ class Patricia
 
     # Patricia::updateSearchLookupDatabase(object)
     def self.updateSearchLookupDatabase(object)
-        if Patricia::isNGX15(object) then
-            SelectionLookupDataset::updateLookupForNGX15(object)
-        end
         if Patricia::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
         end
@@ -84,10 +73,6 @@ class Patricia
 
     # Patricia::landing(object)
     def self.landing(object)
-        if Patricia::isNGX15(object) then
-            NGX15::landing(object)
-            return
-        end
         if Patricia::isQuark(object) then
             Quarks::landing(object)
             return
@@ -109,10 +94,6 @@ class Patricia
 
     # Patricia::open1(object)
     def self.open1(object)
-        if Patricia::isNGX15(object) then
-            NGX15::openNGX15(object)
-            return
-        end
         if Patricia::isQuark(object) then
             Quarks::open1(object)
             return
@@ -127,12 +108,8 @@ class Patricia
 
     # Patricia::destroy(object)
     def self.destroy(object)
-        if Patricia::isNGX15(object) then
-            NGX15::ngx15TerminationProtocolReturnBoolean(object)
-            return
-        end
         if Patricia::isQuark(object) then
-            NyxObjects2::destroy(object)
+            Quarks::destroyQuark(object)
             return
         end
         puts object
@@ -427,7 +404,7 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["line", "quark", "NGX15", "navigation node"]
+            options = ["line", "quark", "navigation node"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "line" then
@@ -439,10 +416,6 @@ class Patricia
             end
             if option == "quark" then
                 object = Quarks::issueNewQuarkInteractivelyOrNull()
-                return object if object
-            end
-            if option == "NGX15" then
-                object = NGX15::issueNewNGX15InteractivelyOrNull()
                 return object if object
             end
             if option == "navigation node" then
@@ -457,46 +430,12 @@ class Patricia
 
     # Patricia::issueNewDatapointOrNull()
     def self.issueNewDatapointOrNull()
-        # This function is a blend of Quarks::issueNewQuarkInteractivelyOrNull() and NGX15::issueNewNGX15InteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point", "NGX15"])
-        if type == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            quark = Quarks::makeLine(line)
-            quark["description"] = line
-            NyxObjects2::put(quark)
-            return quark
-        end
-        if type == "url" then
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            quark = Quarks::makeUrl(url)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            NyxObjects2::put(quark)
-            return quark
-        end
-        if type == "aion-point" then
-            locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
-            aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            NyxObjects2::put(quark)
-            return quark
-        end
-        if type == "NGX15" then
-            return NGX15::issueNewNGX15InteractivelyOrNull()
-        end
-        nil
+        Quarks::issueNewQuarkInteractivelyOrNull()
     end
 
     # Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
     def self.makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["quark", "NGX15"])
-        if type == "quark" then
-            return Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
-        end
-        if type == "NGX15" then
-            return NGX15::makeUnsavedNGX15ForTransmutationInteractivelyOrNull()
-        end
-        nil
+        Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
     end
 
     # Patricia::architect()
