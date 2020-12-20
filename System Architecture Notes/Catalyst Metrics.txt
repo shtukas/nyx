@@ -14,19 +14,6 @@
         0.73           Backups Monitor
         0.70-          Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
 
-
-        0.60  -> 0.40  Execution Contexts
-                           Each Asteroid "daily-time-commitment-e1180643-fc7e-42bb-a2" is its own context, 8 hours total
-
-                           "ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2 hours # The original context
-                               All Asteroids "execution-context-fbc-837c-88a007b3cad0-837", item id: is the asteroid uuid
-                               VideoStream, item id: "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02"
-                               Curation, item id: "curation-12774764-77df-4185-ae4c-85bb176484ca"
-
-                           "ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204", 1 hours
-                               All Asteroids "burner-5d333e86-230d-4fab-aaee-a5548ec4b955"
-
-                           "ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", 1 hours
-                               All Asteroids "stream-78680b9b-a450-4b7f-8e15-d61b2a6c5f7c"
+        0.60  -> 0.20  DxThreads (0.4 at daily completion)
 
         0.20 ----------Water level ------------------------------

@@ -116,6 +116,9 @@ class Patricia
             Waves::waveDive(object)
             return 
         end
+        if Patricia::isDxThread(object) then
+            return DxThreads::landing(object)
+        end
         puts object
         raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
     end

@@ -168,16 +168,30 @@ class DxThreads
         "#{DxThreads::toString(dxthread).ljust(35)} #{Patricia::toString(target)}"
     end
 
+    # DxThreads::dxThreadBaseMetric(dxthread)
+    def self.dxThreadBaseMetric(dxthread)
+        ratio = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+        if ratio <= 1 then
+            0.6 - 0.2*ratio # from 0.6 to 0.4 as ratio from 0 to 1
+        else
+            0.4 - 0.2*(1 - Math.exp(-(ratio-1))) # from 0.4 to 0.2 as ration from 1 t infinity
+        end
+        
+    end
+
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
         indexing = -1
-        TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread).map{|target|
+        basemetric = DxThreads::dxThreadBaseMetric(dxthread)
+        TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
+        .first(1)
+        .map{|target|
             indexing = indexing + 1
             uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
             {
                 "uuid"             => uuid,
                 "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
-                "metric"           => 0.9 - indexing.to_f/1000,
+                "metric"           => basemetric - indexing.to_f/1000,
                 "landing"          => lambda { Patricia::landing(target) },
                 "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
                 "isRunning"        => Runner::isRunning?(uuid),
