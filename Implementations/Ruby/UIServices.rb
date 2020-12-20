@@ -22,13 +22,6 @@ class UIServices
 
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item(
-                "General Search and Landing()", 
-                lambda { Patricia::searchAndLanding() }
-            )
-
-            puts ""
-
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("DxThreads", lambda { DxThreads::main() })
@@ -43,7 +36,7 @@ class UIServices
             puts ""
 
             ms.item("new datapoint", lambda {
-                datapoint = Patricia::issueNewDatapointOrNull()
+                datapoint = Patricia::makeNewObjectOrNull()
                 return if datapoint.nil?
                 Patricia::landing(datapoint)
             })
@@ -80,11 +73,6 @@ class UIServices
             system("clear")
 
             ms = LCoreMenuItemsNX1.new()
-
-            ms.item(
-                "rebuild search lookup", 
-                lambda { SelectionLookupDataset::rebuildDataset(true) }
-            )
 
             ms.item(
                 "NyxGarbageCollection::run()",
@@ -295,7 +283,7 @@ class UIServices
                 return
             end
             if operation == "datatpoint" then
-                object = Patricia::issueNewDatapointOrNull()
+                object = Patricia::makeNewObjectOrNull()
                 Patricia::landing(object)
                 return
             end
