@@ -44,12 +44,6 @@ class NyxFsck
             return NyxFsck::processQuark(object)
         end
 
-        if object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99" then
-            # EncyclopaediaNode
-            puts "fsck encyclopaedia node: #{object["uuid"]}"
-            return true
-        end
-
         if object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb" then
             # DataContainer
             puts "fsck data container: #{object["uuid"]}"

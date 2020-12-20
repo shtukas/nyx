@@ -11,11 +11,6 @@ class Patricia
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     end
 
-    # Patricia::isNavigationNode(object)
-    def self.isNavigationNode(object)
-        object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
-    end
-
     # Patricia::isWave(object)
     def self.isWave(object)
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
@@ -33,9 +28,6 @@ class Patricia
     def self.toString(object)
         if Patricia::isQuark(object) then
             return Quarks::toString(object)
-        end
-        if Patricia::isNavigationNode(object) then
-            return NavigationNodes::toString(object)
         end
         if Patricia::isWave(object) then
             return Waves::toString(object)
@@ -63,9 +55,6 @@ class Patricia
         if Patricia::isQuark(object) then
             SelectionLookupDataset::updateLookupForQuark(object)
         end
-        if Patricia::isNavigationNode(object) then
-            SelectionLookupDataset::updateLookupForNavigationNode(object)
-        end
         if Patricia::isWave(object) then
             SelectionLookupDataset::updateLookupForWave(object)
         end
@@ -75,10 +64,6 @@ class Patricia
     def self.landing(object)
         if Patricia::isQuark(object) then
             Quarks::landing(object)
-            return
-        end
-        if Patricia::isNavigationNode(object) then
-            NavigationNodes::landing(object)
             return
         end
         if Patricia::isWave(object) then
@@ -96,10 +81,6 @@ class Patricia
     def self.open1(object)
         if Patricia::isQuark(object) then
             Quarks::open1(object)
-            return
-        end
-        if Patricia::isNavigationNode(object) then
-            NavigationNodes::landing(object)
             return
         end
         puts object
@@ -404,7 +385,7 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["line", "quark", "navigation node"]
+            options = ["line", "quark"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "line" then
@@ -416,10 +397,6 @@ class Patricia
             end
             if option == "quark" then
                 object = Quarks::issueNewQuarkInteractivelyOrNull()
-                return object if object
-            end
-            if option == "navigation node" then
-                object = NavigationNodes::issueNodeInteractivelyOrNull()
                 return object if object
             end
         }

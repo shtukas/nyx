@@ -29,10 +29,6 @@ class UIServices
 
             puts ""
 
-            ms.item("Navigation Nodes",lambda { NavigationNodes::main() })
-
-            puts ""
-
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("DxThreads", lambda { DxThreads::main() })
@@ -289,8 +285,7 @@ class UIServices
             operations = [
                 "float",
                 "wave",
-                "datatpoint",
-                "navigation point",
+                "datatpoint"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -306,11 +301,6 @@ class UIServices
             end
             if operation == "datatpoint" then
                 object = Patricia::issueNewDatapointOrNull()
-                Patricia::landing(object)
-                return
-            end
-            if operation == "navigation point" then
-                object = NavigationNodes::issueNodeInteractivelyOrNull()
                 Patricia::landing(object)
                 return
             end

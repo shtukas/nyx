@@ -1,7 +1,0 @@
-
-NavigationNode {
-    "uuid"       : UUID
-    "nyxNxSet"   : "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
-    "unixtime"   : Float # Unixtime with decimals
-    "name"       : String
-}
