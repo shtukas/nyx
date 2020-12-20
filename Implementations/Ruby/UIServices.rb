@@ -193,7 +193,7 @@ class UIServices
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        DxThreads::objects()
+        DxThreads::dxthreads()
         .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
         .map {|dxthread|
             dxthread["landing"] = lambda { DxThreads::landing(dxthread) }

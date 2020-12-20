@@ -3,8 +3,8 @@
 
 class DxThreads
 
-    # DxThreads::objects()
-    def self.objects()
+    # DxThreads::dxthreads()
+    def self.dxthreads()
         NyxObjects2::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
@@ -59,7 +59,7 @@ class DxThreads
 
     # DxThreads::selectOneExistingNodeOrNull()
     def self.selectOneExistingNodeOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::objects(), lambda{|o| DxThreads::toString(o) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::dxthreads(), lambda{|o| DxThreads::toString(o) })
     end
 
     # DxThreads::landing(object)
@@ -249,7 +249,8 @@ class DxThreads
 
     # DxThreads::dxThreadAndTargetToString(dxthread, target)
     def self.dxThreadAndTargetToString(dxthread, target)
-        "#{DxThreads::toString(dxthread).ljust(35)} #{Patricia::toString(target)}"
+        padding = KeyValueStore::getOrDefaultValue(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", "0").to_i
+        "#{DxThreads::toString(dxthread).ljust(padding)} #{Patricia::toString(target)}"
     end
 
     # DxThreads::dxThreadBaseMetric(dxthread)
@@ -285,7 +286,9 @@ class DxThreads
 
     # DxThreads::catalystObjects()
     def self.catalystObjects()
-        DxThreads::objects().map{|dxthread|
+        padding = ([0] + DxThreads::dxthreads().map{|dx| DxThreads::toString(dx).size }).max
+        KeyValueStore::set(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", padding)
+        DxThreads::dxthreads().map{|dxthread|
             DxThreads::catalystObjectsForDxThread(dxthread)
         }
         .flatten
