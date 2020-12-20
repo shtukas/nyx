@@ -1,6 +1,21 @@
 
 # encoding: UTF-8
 
+class EvaporatingWeights
+
+    # EvaporatingWeights::getRatio(uuid)
+    def self.getRatio(uuid)
+        lastResetTime = KeyValueStore::getOrDefaultValue(nil, "d3ee3724-a6d1-4d2d-8912-81b47264251b:#{uuid}", "0").to_f
+        1 - Math.exp( -(Time.new.to_i - lastResetTime).to_f/86400 )
+    end
+
+    # EvaporatingWeights::mark(uuid)
+    def self.mark(uuid)
+        KeyValueStore::set(nil, "d3ee3724-a6d1-4d2d-8912-81b47264251b:#{uuid}", Time.new.to_i)
+    end
+
+end
+
 class Floats
 
     # Floats::floats()
@@ -8,60 +23,55 @@ class Floats
         NyxObjects2::getSet("c1d07170-ed5f-49fe-9997-5cd928ae1928")
     end
 
-    # Floats::getFloatsForUIListing()
-    def self.getFloatsForUIListing()
-        Floats::floats()
-        .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
-        .select{|float|
-            DoNotShowUntil::isVisible(float["uuid"])
-        }
-        .map{|float|
-            float["landing"] = lambda {
-                operations = [
-                    "update/set ordinal",
-                    "destroy"
-                ]
-                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-                return if operation.nil?
-                if operation == "update/set ordinal" then
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal ? (leave empty for none) : ")
-                    ordinal = ordinal.size > 0 ? ordinal.to_f : nil
-                    float["ordinal"] = ordinal
-                    NyxObjects2::put(float)               
-                end
-                if operation == "destroy" then
-                    NyxObjects2::destroy(float)
-                end
-            }
-            float["nextNaturalStep"] = lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Floats::toString(float)}' ? ") then
-                    NyxObjects2::destroy(float)
-                end
-            }
-            float
-        }
+    # Floats::toString(float)
+    def self.toString(float)
+        "[float] #{float["line"]}"
     end
 
     # Floats::issueFloatTextInteractivelyOrNull()
     def self.issueFloatTextInteractivelyOrNull()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal ? (leave empty for none) : ")
-        ordinal = ordinal.size > 0 ? ordinal.to_f : nil
         uuid = Miscellaneous::l22()
         object = {
           "uuid"     => uuid,
           "nyxNxSet" => "c1d07170-ed5f-49fe-9997-5cd928ae1928",
           "unixtime" => Time.new.to_f,
           "type"     => "line",
-          "line"     => line,
-          "ordinal"  => ordinal
+          "line"     => line
         }
         NyxObjects2::put(object)
         object
     end
 
-    # Floats::toString(float)
-    def self.toString(float)
-        "[float]#{float["ordinal"] ? " #{float["ordinal"]}" : ""} #{float["line"]}"
+    # Floats::catalystObjects()
+    def self.catalystObjects()
+        Floats::floats()
+        .map{|float|
+            uuid = float["uuid"]
+            {
+                "uuid"             => uuid,
+                "body"             => Floats::toString(float).yellow,
+                "metric"           => 0.2 + 0.7*EvaporatingWeights::getRatio(uuid),
+                "landing"          => lambda {
+                    operations = [
+                        "destroy"
+                    ]
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                    return if operation.nil?
+                    if operation == "destroy" then
+                        NyxObjects2::destroy(float)
+                    end
+                },
+                "nextNaturalStep"  => lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Floats::toString(float)}' ? ") then
+                        NyxObjects2::destroy(float)
+                    end
+                },
+                "isRunning"          => false,
+                "isRunningForLong"   => false,
+                "x-isFloat"          => true,
+                "x-float-add-weight" => lambda { EvaporatingWeights::mark(uuid) }
+            }
+        }
     end
 end

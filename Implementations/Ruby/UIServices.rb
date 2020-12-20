@@ -181,17 +181,6 @@ class UIServices
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Floats::getFloatsForUIListing()
-            .select{|float| float["ordinal"] }
-            .sort{|f1, f2| f1["ordinal"] <=> f2["ordinal"] }
-            .each{|floating|
-                verticalSpaceLeft = verticalSpaceLeft - 1
-                puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
-            }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
         
         catalystObjects.take(5)
             .each{|object|
@@ -199,17 +188,6 @@ class UIServices
                 break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
-            }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        Floats::getFloatsForUIListing()
-            .select{|float| float["ordinal"].nil? }
-            .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
-            .each{|floating|
-                verticalSpaceLeft = verticalSpaceLeft - 1
-                puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
             }
 
         puts ""
@@ -223,7 +201,7 @@ class UIServices
             dxthread
         }
         .each{|dxthread|
-            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}"
+            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
         }
 
@@ -285,6 +263,14 @@ class UIServices
         if command == "++" then
             object = locker.get(1)
             return if object.nil?
+
+            if object["x-isFloat"] then
+                # Floats have this thing by which they never actually disapear, not unless one uses a proper +timecode command
+                # Instead, we push them back, but that's managed by them.
+                object["x-float-add-weight"].call()
+                return
+            end
+
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)

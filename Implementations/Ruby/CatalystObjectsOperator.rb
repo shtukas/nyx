@@ -12,6 +12,7 @@ class CatalystObjectsOperator
             Calendar::catalystObjects(),
             Curation::catalystObjects(),
             DxThreads::catalystObjects(),
+            Floats::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -42,16 +43,20 @@ class CatalystObjectsOperator
                 "exec" => lambda { Curation::catalystObjects() }
             },
             {
+                "name" => "DxThreads",
+                "exec" => lambda { DxThreads::catalystObjects() }
+            },
+            {
+                "name" => "Floats",
+                "exec" => lambda { Floats::catalystObjects() }
+            },
+            {
                 "name" => "VideoStream",
                 "exec" => lambda { VideoStream::catalystObjects() }
             },
             {
                 "name" => "Waves",
                 "exec" => lambda { Waves::catalystObjects() }
-            },
-            {
-                "name" => "DxThreads",
-                "exec" => lambda { DxThreads::catalystObjects() }
             }
         ]
 

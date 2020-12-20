@@ -116,26 +116,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 # ------------------------------------------------------------
 
-class MessageDispatch
-    def initialize()
-        @channels_to_lambdas = {}
-    end
-    def registerLambda(channelId, lambda1)
-        if @channels_to_lambdas[channelId].nil? then
-            @channels_to_lambdas[channelId] = []
-        end
-        @channels_to_lambdas[channelId] << lambda1
-    end
-    def broadcast(channelId, message)
-        return if @channels_to_lambdas[channelId].nil?
-        @channels_to_lambdas[channelId].each{|lambda1| lambda1.call(message) }
-    end
-end
-
-$dispatcher = MessageDispatch.new()
-
-# ------------------------------------------------------------
-
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
 
 require_relative "Arrows.rb"
