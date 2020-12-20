@@ -30,12 +30,6 @@ class NyxFsck
     # NyxFsck::processObject(object, runhash)
     def self.processObject(object, runhash)
 
-        if object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398" then
-            # Asteroid
-            puts "fsck asteroid: #{object["uuid"]}"
-            return true
-        end
-
         if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
             # Wave
             puts "fsck wave: #{object["uuid"]}"

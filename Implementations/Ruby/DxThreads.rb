@@ -8,6 +8,11 @@ class DxThreads
         NyxObjects2::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
+    # DxThreads::getInbox()
+    def self.getInbox()
+        NyxObjects2::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
+    end
+
     # DxThreads::make(description, timeCommitmentPerDayInHours)
     def self.make(description, timeCommitmentPerDayInHours)
         {

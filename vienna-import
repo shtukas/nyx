@@ -44,8 +44,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-
     quark = Quarks::issueUrl(link)
-    asteroid = Asteroids::issueAsteroidBurnerFromTarget(quark)
+    Arrows::issueOrException(DxThreads::getInbox(), quark)
     viennaLinkFeeder.done(link)
 }

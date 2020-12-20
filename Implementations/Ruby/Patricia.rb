@@ -21,11 +21,6 @@ class Patricia
         object["nyxNxSet"] == "f1ae7449-16d5-41c0-a89e-f2a8e486cc99"
     end
 
-    # Patricia::isAsteroid(object)
-    def self.isAsteroid(object)
-        object["nyxNxSet"] == "b66318f4-2662-4621-a991-a6b966fb4398"
-    end
-
     # Patricia::isWave(object)
     def self.isWave(object)
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
@@ -41,9 +36,6 @@ class Patricia
 
     # Patricia::toString(object)
     def self.toString(object)
-        if Patricia::isAsteroid(object) then
-            return Asteroids::toString(object)
-        end
         if Patricia::isNGX15(object) then
             return NGX15::toString(object)
         end
@@ -76,9 +68,6 @@ class Patricia
 
     # Patricia::updateSearchLookupDatabase(object)
     def self.updateSearchLookupDatabase(object)
-        if Patricia::isAsteroid(object) then
-            SelectionLookupDataset::updateLookupForAsteroid(object)
-        end
         if Patricia::isNGX15(object) then
             SelectionLookupDataset::updateLookupForNGX15(object)
         end
@@ -95,11 +84,6 @@ class Patricia
 
     # Patricia::landing(object)
     def self.landing(object)
-        if Patricia::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
-
         if Patricia::isNGX15(object) then
             NGX15::landing(object)
             return
@@ -125,10 +109,6 @@ class Patricia
 
     # Patricia::open1(object)
     def self.open1(object)
-        if Patricia::isAsteroid(object) then
-            Asteroids::landing(object)
-            return
-        end
         if Patricia::isNGX15(object) then
             NGX15::openNGX15(object)
             return
@@ -147,9 +127,6 @@ class Patricia
 
     # Patricia::destroy(object)
     def self.destroy(object)
-        if Patricia::isAsteroid(object) then
-            return
-        end
         if Patricia::isNGX15(object) then
             NGX15::ngx15TerminationProtocolReturnBoolean(object)
             return
@@ -180,20 +157,20 @@ class Patricia
         LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| Patricia::toString(target) })
     end
 
-    # Patricia::selectOneTargetOfThisObjectOrNull(asteroid)
-    def self.selectOneTargetOfThisObjectOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+    # Patricia::selectOneTargetOfThisObjectOrNull(object)
+    def self.selectOneTargetOfThisObjectOrNull(object)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
     end
 
-    # Patricia::selectZeroOrMoreTargetsFromThisObject(asteroid)
-    def self.selectZeroOrMoreTargetsFromThisObject(asteroid)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(asteroid), lambda{|t| Patricia::toString(t) })
+    # Patricia::selectZeroOrMoreTargetsFromThisObject(object)
+    def self.selectZeroOrMoreTargetsFromThisObject(object)
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
         selected
     end
 
-    # Patricia::selectOneParentOfThisObjectOrNull(asteroid)
-    def self.selectOneParentOfThisObjectOrNull(asteroid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(asteroid), lambda{|t| Patricia::toString(t) })
+    # Patricia::selectOneParentOfThisObjectOrNull(object)
+    def self.selectOneParentOfThisObjectOrNull(object)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getSourcesForTarget(object), lambda{|t| Patricia::toString(t) })
     end
 
     # --------------------------------------------------
@@ -450,7 +427,7 @@ class Patricia
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
         loop {
-            options = ["line", "quark", "NGX15", "navigation node", "asteroid"]
+            options = ["line", "quark", "NGX15", "navigation node"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return nil if option.nil?
             if option == "line" then
@@ -470,10 +447,6 @@ class Patricia
             end
             if option == "navigation node" then
                 object = NavigationNodes::issueNodeInteractivelyOrNull()
-                return object if object
-            end
-            if option == "asteroid" then
-                object = Asteroids::issueAsteroidInteractivelyOrNull()
                 return object if object
             end
         }

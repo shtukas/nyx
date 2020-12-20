@@ -139,7 +139,6 @@ $dispatcher = MessageDispatch.new()
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
 
 require_relative "Arrows.rb"
-require_relative "Asteroids.rb"
 require_relative "GalaxyFinder.rb"
 
 require_relative "BackupsMonitor.rb"

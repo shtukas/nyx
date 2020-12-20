@@ -12,8 +12,6 @@
 
 👩‍💻
         0.73           Backups Monitor
-        0.70-          Asteroids "inbox-cb1e2cb7-4264-4c66-acef-687846e4ff860"
-
         0.60  -> 0.20  DxThreads (0.4 at daily completion)
 
         0.20 ----------Water level ------------------------------

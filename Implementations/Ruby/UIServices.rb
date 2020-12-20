@@ -35,8 +35,6 @@ class UIServices
 
             ms.item("Waves", lambda { Waves::main() })
 
-            ms.item("Asteroids", lambda { Asteroids::main() })
-
             ms.item("DxThreads", lambda { DxThreads::main() })
 
             ms.item(
@@ -129,8 +127,10 @@ class UIServices
         }
     end
 
-    # UIServices::standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
-    def self.standardDisplayWithPrompt(catalystObjects,  floats, ng12TimeReports)
+    # UIServices::standardDisplayWithPrompt()
+    def self.standardDisplayWithPrompt()
+
+        catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
 
         locker = Locker.new()
 
@@ -154,14 +154,6 @@ class UIServices
         end
         db.close
         entries << "24 hours presence ratio: #{(100*sum.to_f/86400).round(2)} %".yellow
-        # -----------------------------------------------------------
-
-        # -----------------------------------------------------------
-        count1 = Asteroids::asteroids().size
-        KeyValueStore::set(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::today()}", count1)
-        count2 = KeyValueStore::getOrDefaultValue(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::nDaysInTheFuture(-1)}", 0).to_i
-        count3 = KeyValueStore::getOrDefaultValue(nil, "157ae850-c9ba-42ff-bd89-f551fe32cdbb:#{Miscellaneous::nDaysInTheFuture(-7)}", 0).to_i
-        entries << "asteroids count: #{count1}, #{count1-count2}, #{count1-count3}".yellow
         # -----------------------------------------------------------
 
         puts entries.join(", ")
@@ -190,7 +182,7 @@ class UIServices
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        floats
+        Floats::getFloatsForUIListing()
             .select{|float| float["ordinal"] }
             .sort{|f1, f2| f1["ordinal"] <=> f2["ordinal"] }
             .each{|floating|
@@ -212,23 +204,12 @@ class UIServices
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        floats
+        Floats::getFloatsForUIListing()
             .select{|float| float["ordinal"].nil? }
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
             .each{|floating|
                 verticalSpaceLeft = verticalSpaceLeft - 1
                 puts "[#{locker.store(floating).to_s.rjust(2)}] #{Floats::toString(floating).yellow}"
-            }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
-        ng12TimeReports
-            .sort{|r1, r2| r1["currentExpectationRealisedRatio"] <=> r2["currentExpectationRealisedRatio"] }
-            .each{|report|
-                str = "NG12TimeReport [#{"%4.2f" % report["dailyTimeExpectationInHours"]} hours, #{"%6.2f" % (100*report["currentExpectationRealisedRatio"])} % completed] #{report["description"]}"
-                puts "[#{locker.store(report).to_s.rjust(2)}] #{str}"
-                verticalSpaceLeft = verticalSpaceLeft - 1
             }
 
         puts ""
@@ -321,7 +302,6 @@ class UIServices
         if command == ":new" then
             operations = [
                 "float",
-                "asteroid",
                 "wave",
                 "datatpoint",
                 "navigation point",
@@ -331,11 +311,6 @@ class UIServices
             if operation == "float" then
                 object = Floats::issueFloatTextInteractivelyOrNull()
                 puts JSON.pretty_generate(object)
-                return
-            end
-            if operation == "asteroid" then
-                object = Asteroids::issueAsteroidInteractivelyOrNull()
-                Patricia::landing(object)
                 return
             end
             if operation == "wave" then
@@ -382,10 +357,7 @@ class UIServices
 
         loop {
             Miscellaneous::importFromLucilleInbox()
-            catalystobjects   = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            floats   = Floats::getFloatsForUIListing()
-            reports           = NG12TimeReports::reports()
-            UIServices::standardDisplayWithPrompt(catalystobjects, floats, reports)
+            UIServices::standardDisplayWithPrompt()
         }
     end
 end

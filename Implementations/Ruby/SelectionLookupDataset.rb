@@ -76,13 +76,6 @@ class SelectionLookupDataset
         SelectionLookupDatabaseIO::addRecord("navigation-node", node["uuid"], NavigationNodes::toString(node))
     end
 
-    # SelectionLookupDataset::updateLookupForAsteroid(asteroid)
-    def self.updateLookupForAsteroid(asteroid)
-        SelectionLookupDatabaseIO::removeRecordsAgainstObject(asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], asteroid["uuid"])
-        SelectionLookupDatabaseIO::addRecord("asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
-    end
-
     # SelectionLookupDataset::updateLookupForWave(wave)
     def self.updateLookupForWave(wave)
         SelectionLookupDatabaseIO::removeRecordsAgainstObject(wave["uuid"])
@@ -152,25 +145,6 @@ class SelectionLookupDataset
         db.close
     end
 
-    # SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
-    def self.rebuildAsteroidsLookup(verbose)
-        db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.execute "delete from lookup where _objecttype_=?", ["asteroid"]
-
-        Asteroids::asteroids()
-            .each{|asteroid|
-                if verbose then
-                    puts "asteroid: #{asteroid["uuid"]} , #{Asteroids::toString(asteroid)}"
-                end
-                SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], asteroid["uuid"])
-                SelectionLookupDatabaseIO::addRecord2(db, "asteroid", asteroid["uuid"], Asteroids::toString(asteroid))
-            }
-
-        db.close
-    end
-
     # SelectionLookupDataset::rebuildWavesLookup(verbose)
     def self.rebuildWavesLookup(verbose)
         db = SQLite3::Database.new(SelectionLookupDatabaseIO::databaseFilepath())
@@ -201,7 +175,6 @@ class SelectionLookupDataset
         SelectionLookupDataset::rebuildNGX15sLookup(verbose)
         SelectionLookupDataset::rebuildQuarksLookup(verbose)
         SelectionLookupDataset::rebuildNavigationNodesLookup(verbose)
-        SelectionLookupDataset::rebuildAsteroidsLookup(verbose)
         SelectionLookupDataset::rebuildWavesLookup(verbose)
     end
 

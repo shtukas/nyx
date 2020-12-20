@@ -24,89 +24,6 @@ class ExecutionContexts
     end
 end
 
-# -- NG12TimeReports ----------------------------------------------------------
-
-=begin
-
-NG12TimeReport {
-    "description"                     : Float
-    "dailyTimeExpectationInHours"     : Float
-    "currentExpectationRealisedRatio" : Float
-    "landing"                         : Lambda
-}
-
-=end
-
-class NG12TimeReports
-
-    # NG12TimeReports::reports()
-    def self.reports()
-
-        objects1 = [ 
-            {
-                "description"                     => "waves, asteroids: execution-context-fbc-837c-88a007b3cad0-837, video stream and curation",
-                "dailyTimeExpectationInHours"     => 2,
-                "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-62CA63E8-190D-4C05-AA0F-027A999003C0", 2),
-                "landing"                         => lambda {
-                    loop {
-                        options = [
-                            "asteroids: execution-context-fbc-837c-88a007b3cad0-837",
-                            "VideoStream",
-                            "curation"
-                        ]
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-                        break if option.nil?
-                        if option == "asteroids: execution-context-fbc-837c-88a007b3cad0-837" then
-                            Asteroids::diveAsteroidOrbitalType("asteroids: execution-context-fbc-837c-88a007b3cad0-837")
-                        end
-                        if option == "VideoStream" then
-                            objects = VideoStream::catalystObjects()
-                            object = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", objects, lambda{|o| o["body"] })
-                            if object then
-                                object["landing"].call()
-                            end
-                        end
-                        if option == "curation" then
-                            Curation::runOnce()
-                        end
-                    }
-                }
-            },
-            {
-                "description"                     => "All asteroid burners",
-                "dailyTimeExpectationInHours"     => 1,
-                "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-47C73AE6-D40B-4099-B79C-3373E5070204", 1),
-                "landing"                         => lambda {
-                    Asteroids::diveAsteroidOrbitalType("burner-5d333e86-230d-4fab-aaee-a5548ec4b955")
-                }
-            },
-            {
-                "description"                     => "All asteroid streams",
-                "dailyTimeExpectationInHours"     => 1,
-                "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio("ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC", 1),
-                "landing"                         => lambda {
-                    puts "There currently is no particular implementation for ExecutionContext-2943891F-27BC-4C82-B29E-4254389A86BC"
-                    LucilleCore::pressEnterToContinue()
-                }
-            },
-        ]
-
-        objects2 = Asteroids::asteroidsDailyTimeCommitments()
-                        .map{|asteroid|
-                            {
-                                "description"                     => Asteroids::toString(asteroid),
-                                "dailyTimeExpectationInHours"     => asteroid["orbital"]["time-commitment-in-hours"],
-                                "currentExpectationRealisedRatio" => ExecutionContexts::contextRealisationRatio(asteroid["uuid"], asteroid["orbital"]["time-commitment-in-hours"]),
-                                "landing"                         => lambda { Asteroids::landing(asteroid) }
-                            }
-                        }
-
-        objects1 + objects2
-    end
-
-end
-
-
 # -- CatalystObjectsOperator ----------------------------------------------------------
 
 class CatalystObjectsOperator
@@ -114,7 +31,6 @@ class CatalystObjectsOperator
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = [
-            Asteroids::catalystObjects(),
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             Curation::catalystObjects(),
@@ -136,10 +52,6 @@ class CatalystObjectsOperator
     # CatalystObjectsOperator::generationSpeedReport()
     def self.generationSpeedReport()
         generators = [
-            {
-                "name" => "Asteroids",
-                "exec" => lambda { Asteroids::catalystObjects() }
-            },
             {
                 "name" => "BackupsMonitor",
                 "exec" => lambda { BackupsMonitor::catalystObjects() }
