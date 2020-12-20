@@ -42,6 +42,11 @@ class DxThreads
         "[DxThread] #{object["description"]}"
     end
 
+    # DxThreads::completionRatio(dxthread)
+    def self.completionRatio(dxthread)
+        BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+    end
+
     # DxThreads::selectOneExistingNodeOrNull()
     def self.selectOneExistingNodeOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::objects(), lambda{|o| DxThreads::toString(o) })
@@ -239,13 +244,12 @@ class DxThreads
 
     # DxThreads::dxThreadBaseMetric(dxthread)
     def self.dxThreadBaseMetric(dxthread)
-        ratio = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+        ratio = DxThreads::completionRatio(dxthread)
         if ratio <= 1 then
             0.6 - 0.2*ratio # from 0.6 to 0.4 as ratio from 0 to 1
         else
             0.4 - 0.2*(1 - Math.exp(-(ratio-1))) # from 0.4 to 0.2 as ration from 1 t infinity
         end
-        
     end
 
     # DxThreads::catalystObjectsForDxThread(dxthread)
@@ -276,5 +280,12 @@ class DxThreads
         }
         .flatten
     end
-    
+
+    # --------------------------------------------------------------
+
+    # DxThreads::toStringWithAnalytics(dxthread)
+    def self.toStringWithAnalytics(dxthread)
+        ratio = DxThreads::completionRatio(dxthread)
+        "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
+    end
 end

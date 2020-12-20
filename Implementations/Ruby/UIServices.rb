@@ -234,22 +234,17 @@ class UIServices
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-
         DxThreads::objects()
+        .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
         .map {|dxthread|
-            dxthread["landing"] = lambda {
-                DxThreads::landing(dxthread)
-            }
-            dxthread["nextNaturalStep"] = lambda {
-                DxThreads::landing(dxthread)
-            }
+            dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
+            dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
             dxthread
         }
         .each{|dxthread|
-            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toString(dxthread)}"
+            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}"
             verticalSpaceLeft = verticalSpaceLeft - 1
         }
-
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
