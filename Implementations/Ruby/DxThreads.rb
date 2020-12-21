@@ -62,49 +62,55 @@ class DxThreads
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::dxthreads(), lambda{|o| DxThreads::toString(o) })
     end
 
-    # DxThreads::landing(object)
-    def self.landing(object)
+    # DxThreads::landing(dxthread)
+    def self.landing(dxthread)
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(object["uuid"]).nil?
+            return if NyxObjects2::getOrNull(dxthread["uuid"]).nil?
 
-            puts DxThreads::toString(object).green
-            puts "uuid: #{object["uuid"]}".yellow
+            puts DxThreads::toString(dxthread).green
+            puts "uuid: #{dxthread["uuid"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
             puts ""
 
-            Patricia::mxSourcing(object, mx)
+            Patricia::mxSourcing(dxthread, mx)
 
             puts ""
 
-            Patricia::mxTargetting(object, mx)
+            Patricia::mxTargetting(dxthread, mx)
 
             puts ""
 
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(object["name"]).strip
+                name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
-                object["name"] = name1
-                NyxObjects2::put(object)
+                dxthread["name"] = name1
+                NyxObjects2::put(dxthread)
             })
 
-            Patricia::mxParentsManagement(object, mx)
+            mx.item("add time".yellow, lambda { 
+                timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ")
+                return if timeInHours == ""
+                Bank::put(dxthread["uuid"], timeInHours.to_f*3600)
+            })
 
-            Patricia::mxMoveToNewParent(object, mx)
+            Patricia::mxParentsManagement(dxthread, mx)
 
-            Patricia::mxTargetsManagement(object, mx)
+            Patricia::mxMoveToNewParent(dxthread, mx)
+
+            Patricia::mxTargetsManagement(dxthread, mx)
 
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(object)
+                puts JSON.pretty_generate(dxthread)
                 LucilleCore::pressEnterToContinue()
             })
             
             mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(object)}': ") then
-                    NyxObjects2::destroy(object)
+                if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(dxthread)}': ") then
+                    NyxObjects2::destroy(dxthread)
                 end
             })
             puts ""
