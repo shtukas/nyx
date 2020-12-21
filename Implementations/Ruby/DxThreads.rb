@@ -25,7 +25,8 @@ class DxThreads
             "nyxNxSet"    => "2ed4c63e-56df-4247-8f20-e8d220958226",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "timeCommitmentPerDayInHours" => timeCommitmentPerDayInHours
+            "timeCommitmentPerDayInHours" => timeCommitmentPerDayInHours,
+            "depth"       => 1 # The default depth is 1 we can change that later if we want
         }
     end
 
@@ -71,6 +72,7 @@ class DxThreads
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
+            puts "depth: #{dxthread["depth"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -88,6 +90,13 @@ class DxThreads
                 name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
+                NyxObjects2::put(dxthread)
+            })
+
+            mx.item("update depth".yellow, lambda { 
+                depth = LucilleCore::askQuestionAnswerAsString("depth: ").to_i
+                return if depth < 1
+                dxthread["depth"] = depth
                 NyxObjects2::put(dxthread)
             })
 
@@ -297,17 +306,15 @@ class DxThreads
 
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
-        indexing = -1
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
         objects = TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
-                    .first(1)
+                    .first(dxthread["depth"])
                     .map{|target|
-                        indexing = indexing + 1
                         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
                         {
                             "uuid"             => uuid,
                             "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
-                            "metric"           => basemetric - indexing.to_f/1000,
+                            "metric"           => basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000,
                             "landing"          => lambda { Patricia::landing(target) },
                             "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
                             "isRunning"        => Runner::isRunning?(uuid),
