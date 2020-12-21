@@ -91,6 +91,10 @@ class DxThreads
                 NyxObjects2::put(dxthread)
             })
 
+            mx.item("start thread".yellow, lambda { 
+                Runner::start(dxthread["uuid"])
+            })
+
             mx.item("add time".yellow, lambda { 
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ")
                 return if timeInHours == ""
@@ -269,25 +273,48 @@ class DxThreads
         end
     end
 
+    # DxThreads::dxThreadCatalystObjectOrNull(dxthread)
+    def self.dxThreadCatalystObjectOrNull(dxthread)
+        uuid = dxthread["uuid"]
+        return nil if !Runner::isRunning?(uuid)
+        {
+            "uuid"             => uuid,
+            "body"             => DxThreads::toString(dxthread),
+            "metric"           => 1,
+            "landing"          => lambda {
+                DxThreads::landing(dxthread)
+            },
+            "nextNaturalStep"  => lambda {
+                timespan = Runner::stop(uuid)
+                timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                puts "sending #{timespan} to DxThread'#{DxThreads::toString(dxthread)}'"
+                Bank::put(dxthread["uuid"], timespan)
+            },
+            "isRunning"        => Runner::isRunning?(uuid),
+            "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
+        }
+    end
+
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
         indexing = -1
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
-        TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
-        .first(1)
-        .map{|target|
-            indexing = indexing + 1
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
-            {
-                "uuid"             => uuid,
-                "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
-                "metric"           => basemetric - indexing.to_f/1000,
-                "landing"          => lambda { Patricia::landing(target) },
-                "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
-                "isRunning"        => Runner::isRunning?(uuid),
-                "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
-            }
-        }
+        objects = TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
+                    .first(1)
+                    .map{|target|
+                        indexing = indexing + 1
+                        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+                        {
+                            "uuid"             => uuid,
+                            "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
+                            "metric"           => basemetric - indexing.to_f/1000,
+                            "landing"          => lambda { Patricia::landing(target) },
+                            "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
+                            "isRunning"        => Runner::isRunning?(uuid),
+                            "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
+                        }
+                    }
+        (objects + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
     end
 
     # DxThreads::catalystObjects()
