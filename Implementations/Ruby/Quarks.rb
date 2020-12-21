@@ -34,8 +34,8 @@ class Quarks
         }
     end
 
-    # Quarks::fileSystemUniqueString(mark)
-    def self.fileSystemUniqueString(mark)
+    # Quarks::makeFileSystemUniqueString(mark)
+    def self.makeFileSystemUniqueString(mark)
          {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
@@ -70,7 +70,7 @@ class Quarks
 
     # Quarks::issuefileSystemUniqueString(mark)
     def self.issuefileSystemUniqueString(mark)
-        object = Quarks::fileSystemUniqueString(mark)
+        object = Quarks::makeFileSystemUniqueString(mark)
         NyxObjects2::put(object)
         object
     end
@@ -83,6 +83,23 @@ class Quarks
     end
 
     # --------------------------------------------------
+
+    # Quarks::determineMarkOrNull()
+    def self.determineMarkOrNull()
+        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["unique string already exists", "issue new unique string"])
+        return nil if op.nil?
+        mark = nil
+        if op == "unique string already exists" then
+            mark = LucilleCore::askQuestionAnswerAsString("mark: ")
+            return nil if mark.size == 0
+        end
+        if op == "issue new unique string" then
+            mark = "NX141-#{SecureRandom.hex(5)}" # Although filesystem-unique-string is more general than Nx141, by default we create one of those.
+            puts "mark: #{mark}"
+            LucilleCore::pressEnterToContinue()
+        end
+        mark
+    end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
@@ -97,25 +114,15 @@ class Quarks
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             quark = Quarks::makeUrl(url)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             NyxObjects2::put(quark)
             return quark
         end
         if type == "filesystem-unique-string" then
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["location already exists", "issue new location name"])
-            return nil if op.nil?
-            mark = nil
-            if op == "location already exists" then
-                mark = LucilleCore::askQuestionAnswerAsString("mark: ")
-                return nil if mark.size == 0
-            end
-            if op == "issue new location name" then
-                mark = "NX141-#{SecureRandom.hex(5)}" # Although filesystem-unique-string is more general than Nx141, by default we create one of those.
-                puts "mark: #{mark}"
-                LucilleCore::pressEnterToContinue()
-            end
-            quark = Quarks::fileSystemUniqueString(mark)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            mark = Quarks::determineMarkOrNull()
+            return if mark.nil?
+            quark = Quarks::makeFileSystemUniqueString(mark)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             NyxObjects2::put(quark)
             return quark
         end
@@ -123,7 +130,7 @@ class Quarks
             locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
             aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
             quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             NyxObjects2::put(quark)
             return quark
         end
@@ -132,7 +139,7 @@ class Quarks
 
     # Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
     def self.makeUnsavedQuarkForTransmutationInteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "aion-point"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "filesystem-unique-string"])
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             quark = Quarks::makeLine(line)
@@ -142,14 +149,14 @@ class Quarks
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             quark = Quarks::makeUrl(url)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             return quark
         end
-        if type == "aion-point" then
-            locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
-            aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
-            quark["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+        if type == "filesystem-unique-string" then
+            mark = Quarks::determineMarkOrNull()
+            return nil if mark.nil?
+            quark = Quarks::makeFileSystemUniqueString(mark)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             return quark
         end
         nil
@@ -261,7 +268,7 @@ class Quarks
         loop {
 
             return if NyxObjects2::getOrNull(quark["uuid"]).nil?
-            return if (NyxObjects2::getOrNull(quark["uuid"])["nyxNxSet"] != "d65674c7-c8c4-4ed4-9de9-7c600b43eaab") # could have been transmuted in the previous loop
+            quark = NyxObjects2::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
 
             system("clear")
 

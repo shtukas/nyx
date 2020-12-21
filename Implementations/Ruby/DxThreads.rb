@@ -110,10 +110,6 @@ class DxThreads
                 Bank::put(dxthread["uuid"], timeInHours.to_f*3600)
             })
 
-            Patricia::mxParentsManagement(dxthread, mx)
-
-            Patricia::mxMoveToNewParent(dxthread, mx)
-
             Patricia::mxTargetsManagement(dxthread, mx)
 
             mx.item("json object".yellow, lambda { 
@@ -210,15 +206,10 @@ class DxThreads
         status = menuitems.promptAndRunSandbox()
     end
 
-    # DxThreads::nextNaturalStepStop(dxthread, target)
-    def self.nextNaturalStepStop(dxthread, target)
+    # DxThreads::nextNaturalStepWhileRunning(dxthread, target)
+    def self.nextNaturalStepWhileRunning(dxthread, target)
         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
         return if !Runner::isRunning?(uuid)
-        puts "stopping DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
-        timespan = Runner::stop(uuid)
-        return if timespan.nil?
-        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        DxThreads::receiveTime(dxthread, target, timespan)
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item("".yellow, lambda {})
         menuitems.item("stop".yellow, lambda {
@@ -260,7 +251,7 @@ class DxThreads
         # The thing to start is the combined uuid, but the time will be given separately to the thread and the item
         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
         if Runner::isRunning?(uuid) then
-            DxThreads::nextNaturalStepStop(dxthread, target)
+            DxThreads::nextNaturalStepWhileRunning(dxthread, target)
         else
             DxThreads::nextNaturalStepStart(dxthread, target)
         end
