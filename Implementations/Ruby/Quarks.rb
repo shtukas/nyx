@@ -288,6 +288,11 @@ class Quarks
             puts ""
 
             mx.item(
+                "access".yellow,
+                lambda { Quarks::open1(quark) }
+            )
+
+            mx.item(
                 "start".yellow,
                 lambda { 
                     parents = Arrows::getSourcesForTarget(quark)
@@ -301,11 +306,6 @@ class Quarks
                     puts "I do not yet know how to start a quark which has more than one DxThread parent"
                     LucilleCore::pressEnterToContinue()
                 }
-            )
-
-            mx.item(
-                "access".yellow,
-                lambda { Quarks::open1(quark) }
             )
 
             mx.item(
