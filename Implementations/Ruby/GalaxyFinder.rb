@@ -33,31 +33,36 @@ class GalaxyFinder
         end
     end
 
+    # GalaxyFinder::extractNX141MarkerFromFilenameOrNull(filename)
+    def self.extractNX141MarkerFromFilenameOrNull(filename)
+        # From the convention
+        # NX141-[*], where [*] is a string of unspecified length with no space and no dot.
+        correction = lambda {|str|
+            if str.include?(' ') then
+                return correction.call(str[0, str.size-1])
+            end
+            if str.include?('.') then
+                return correction.call(str[0, str.size-1])
+            end
+            str
+        }
+        if filename.include?('NX141-') then
+            extraction = filename[filename.index('NX141-'), filename.size]
+            return correction.call(extraction)
+        end
+        nil
+    end
+
     # GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
     def self.uniqueStringToLocationOrNullUseTheForce(uniquestring)
         GalaxyFinder::locationEnumerator(GalaxyFinder::scanroots())
             .each{|location|
                 next if GalaxyFinder::locationIsUnisonTmp(location)
-
-                # We used to have NGX15s as Nyx objects. We got rid of them after migrating all of them to filesystem-unique-string quarks
-                # We keep this short cut for convenience as many filesystem-unique-string carry NGX15 references as mark
-                if File.basename(location).start_with?("NGX15-") then
-                    basename = File.basename(location)
-                    (6..basename.size).each{|indx|
-                        KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{basename[0, indx]}", location)
-                    }
+                if ( mark = GalaxyFinder::extractNX141MarkerFromFilenameOrNull(File.basename(location)) ) then
+                    KeyValueStore::set(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{mark}", location)
                 end
-
-                # NX141 is the default mark when a filesystem-unique-string quark is created
-                if File.basename(location).index("NX141-") then
-                    basename  = File.basename(location)
-                    position  = basename.index("NX141-")
-                    nx141name = basename[position+16]
-                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{nx141name}", location)
-                end
-
                 if File.basename(location).include?(uniquestring) then
-                    KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", location)
+                    KeyValueStore::set(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{uniquestring}", location)
                     return location
                 end
             }
@@ -66,13 +71,13 @@ class GalaxyFinder
 
     # GalaxyFinder::uniqueStringToLocationOrNull(uniquestring)
     def self.uniqueStringToLocationOrNull(uniquestring)
-        maybefilepath = KeyValueStore::getOrNull(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}")
+        maybefilepath = KeyValueStore::getOrNull(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{uniquestring}")
         if maybefilepath and File.exists?(maybefilepath) and File.basename(maybefilepath).include?(uniquestring) then
             return maybefilepath
         end
         maybefilepath = GalaxyFinder::uniqueStringToLocationOrNullUseTheForce(uniquestring)
         if maybefilepath then
-            KeyValueStore::set(nil, "932fce73-2582-468b-bacc-ebdb4f140654:#{uniquestring}", maybefilepath)
+            KeyValueStore::set(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{uniquestring}", maybefilepath)
         end
         maybefilepath
     end
