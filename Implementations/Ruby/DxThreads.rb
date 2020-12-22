@@ -302,10 +302,12 @@ class DxThreads
                     .first(dxthread["depth"])
                     .map{|target|
                         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+                        metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
+                        metric = 1 if Runner::isRunning?(uuid)
                         {
                             "uuid"             => uuid,
                             "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
-                            "metric"           => basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000,
+                            "metric"           => metric,
                             "landing"          => lambda { Patricia::landing(target) },
                             "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
                             "isRunning"        => Runner::isRunning?(uuid),
