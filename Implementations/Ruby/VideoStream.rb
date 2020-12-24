@@ -48,7 +48,18 @@ class VideoStream
         objects = []
 
         VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
-            .first(3)
+            .reduce([]){|filepaths, filepath|
+                if filepaths.size >= 3 then
+                    filepaths
+                else
+                    uuid = VideoStream::filepathToVideoUUID(filepath)
+                    if DoNotShowUntil::isVisible(uuid) then
+                        filepaths + [filepath]
+                    else
+                        filepaths
+                    end
+                end
+            }
             .map
             .with_index{|filepath, indx|
                 isRunning = VideoStream::videoIsRunning(filepath)
