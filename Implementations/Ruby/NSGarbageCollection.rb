@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class NyxGarbageCollection
+class NSGarbageCollection
 
-    # NyxGarbageCollection::run()
+    # NSGarbageCollection::run()
     def self.run()
 
         ArrowsDatabaseIO::arrows().each{|arrow|

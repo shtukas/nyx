@@ -75,8 +75,8 @@ class UIServices
             ms = LCoreMenuItemsNX1.new()
 
             ms.item(
-                "NyxGarbageCollection::run()",
-                lambda { NyxGarbageCollection::run() }
+                "NSGarbageCollection::run()",
+                lambda { NSGarbageCollection::run() }
             )
 
             ms.item(
