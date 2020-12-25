@@ -5,7 +5,7 @@ class Quarks
 
     # Quarks::quarks()
     def self.quarks()
-        NyxObjects2::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
+        NSCoreObjects::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
     end
 
     # --------------------------------------------------
@@ -64,21 +64,21 @@ class Quarks
     # Quarks::issueUrl(url)
     def self.issueUrl(url)
         object = Quarks::makeUrl(url)
-        NyxObjects2::put(object)
+        NSCoreObjects::put(object)
         object
     end
 
     # Quarks::issuefileSystemUniqueString(mark)
     def self.issuefileSystemUniqueString(mark)
         object = Quarks::makeFileSystemUniqueString(mark)
-        NyxObjects2::put(object)
+        NSCoreObjects::put(object)
         object
     end
 
     # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
     def self.issueAionFileSystemLocation(aionFileSystemLocation)
         object = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
-        NyxObjects2::put(object)
+        NSCoreObjects::put(object)
         object
     end
 
@@ -108,14 +108,14 @@ class Quarks
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             quark = Quarks::makeLine(line)
             quark["description"] = line
-            NyxObjects2::put(quark)
+            NSCoreObjects::put(quark)
             return quark
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             quark = Quarks::makeUrl(url)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            NyxObjects2::put(quark)
+            NSCoreObjects::put(quark)
             return quark
         end
         if type == "filesystem-unique-string" then
@@ -123,7 +123,7 @@ class Quarks
             return if mark.nil?
             quark = Quarks::makeFileSystemUniqueString(mark)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            NyxObjects2::put(quark)
+            NSCoreObjects::put(quark)
             return quark
         end
         if type == "aion-point" then
@@ -131,7 +131,7 @@ class Quarks
             aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
             quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
-            NyxObjects2::put(quark)
+            NSCoreObjects::put(quark)
             return quark
         end
         nil
@@ -167,7 +167,7 @@ class Quarks
     # Quarks::setDescription(quark, description)
     def self.setDescription(quark, description)
         quark["description"] = description
-        NyxObjects2::put(quark)
+        NSCoreObjects::put(quark)
         quark
     end
 
@@ -251,12 +251,12 @@ class Quarks
                 locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
                 aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
                 quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
-                NyxObjects2::put(quark)
+                NSCoreObjects::put(quark)
             end
             if option == "read ; transmute" then
                 object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
                 object["uuid"] = quark["uuid"] # transmutation
-                NyxObjects2::put(object)
+                NSCoreObjects::put(object)
             end
             return
         end
@@ -267,8 +267,8 @@ class Quarks
     def self.landing(quark)
         loop {
 
-            return if NyxObjects2::getOrNull(quark["uuid"]).nil?
-            quark = NyxObjects2::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
+            return if NSCoreObjects::getOrNull(quark["uuid"]).nil?
+            quark = NSCoreObjects::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
 
             system("clear")
 
@@ -313,7 +313,7 @@ class Quarks
                 lambda { 
                     object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
                     object["uuid"] = quark["uuid"] # transmutation
-                    NyxObjects2::put(object)
+                    NSCoreObjects::put(object)
                 }
             )
 
@@ -328,14 +328,14 @@ class Quarks
                     line = Miscellaneous::editTextSynchronously(quark["line"]).strip
                     return if line == ""
                     quark["line"] = line
-                    NyxObjects2::put(quark)
+                    NSCoreObjects::put(quark)
                     return
                 end
                 if quark["type"] == "url" then
                     url = Miscellaneous::editTextSynchronously(quark["url"]).strip
                     return if url == ""
                     quark["url"] = url
-                    NyxObjects2::put(quark)
+                    NSCoreObjects::put(quark)
                     return
                 end
                 if quark["type"] == "aion-location" then
@@ -349,7 +349,7 @@ class Quarks
                     locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
                     aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
                     quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
-                    NyxObjects2::put(quark)
+                    NSCoreObjects::put(quark)
                     return
                 end
                 puts quark
@@ -400,6 +400,6 @@ class Quarks
                 end
             end
         end
-        NyxObjects2::destroy(quark)
+        NSCoreObjects::destroy(quark)
     end
 end

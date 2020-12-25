@@ -1,6 +1,6 @@
 Arrows
 
-Arrows provide network topology between NyxObjects, but are now not nyx objects themselves.
+Arrows provide network topology between NSCoreObjects, but are now not nyx objects themselves.
 
 They are currently stored in a SQLite database: Arrows.sqlite3
 

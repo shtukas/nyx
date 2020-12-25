@@ -1,17 +1,17 @@
 # encoding: UTF-8
 
-$NyxObjectsCache76DBF964 = {}
+$CatalystObjectsCache76DBF964 = {}
 
-class NyxObjects2
+class CatalystObjects
 
-    # NyxObjects2::databaseFilepath()
+    # CatalystObjects::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx-Objects.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Catalyst-Objects.sqlite3"
     end
 
-    # NyxObjects2::getAllObjects()
+    # CatalystObjects::getAllObjects()
     def self.getAllObjects()
-        db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db = SQLite3::Database.new(CatalystObjects::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -23,9 +23,9 @@ class NyxObjects2
         answer
     end
 
-    # NyxObjects2::put(object)
+    # CatalystObjects::put(object)
     def self.put(object)
-        db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db = SQLite3::Database.new(CatalystObjects::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -33,17 +33,17 @@ class NyxObjects2
         db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
-        $NyxObjectsCache76DBF964[object["uuid"]] = object
+        $CatalystObjectsCache76DBF964[object["uuid"]] = object
     end
 
-    # NyxObjects2::getOrNull(uuid)
+    # CatalystObjects::getOrNull(uuid)
     def self.getOrNull(uuid)
-        $NyxObjectsCache76DBF964[uuid]
+        $CatalystObjectsCache76DBF964[uuid]
     end
 
-    # NyxObjects2::getSet(setid)
+    # CatalystObjects::getSet(setid)
     def self.getSet(setid)
-        db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db = SQLite3::Database.new(CatalystObjects::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -55,17 +55,17 @@ class NyxObjects2
         answer
     end
 
-    # NyxObjects2::destroy(object)
+    # CatalystObjects::destroy(object)
     def self.destroy(object)
-        db = SQLite3::Database.new(NyxObjects2::databaseFilepath())
+        db = SQLite3::Database.new(CatalystObjects::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
-        $NyxObjectsCache76DBF964.delete(object["uuid"])
+        $CatalystObjectsCache76DBF964.delete(object["uuid"])
     end
 end
 
-NyxObjects2::getAllObjects().each{|object|
-    $NyxObjectsCache76DBF964[object["uuid"]] = object
+CatalystObjects::getAllObjects().each{|object|
+    $CatalystObjectsCache76DBF964[object["uuid"]] = object
 }

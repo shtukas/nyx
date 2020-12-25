@@ -46,20 +46,20 @@ class UIServices
             ms.item("dangerously edit a nyx object by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
-                object = NyxObjects2::getOrNull(uuid)
+                object = NSCoreObjects::getOrNull(uuid)
                 return if object.nil?
                 object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                NyxObjects2::put(object)
+                NSCoreObjects::put(object)
             })
 
             ms.item("dangerously delete a nyx object by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = NyxObjects2::getOrNull(uuid)
+                object = NSCoreObjects::getOrNull(uuid)
                 return if object.nil?
                 puts JSON.pretty_generate(object)
                 return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
-                NyxObjects2::destroy(object)
+                NSCoreObjects::destroy(object)
             })
 
             status = ms.promptAndRunSandbox()

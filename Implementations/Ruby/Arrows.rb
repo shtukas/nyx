@@ -94,7 +94,7 @@ class ArrowsDatabaseIO
 
     # ArrowsDatabaseIO::getTargetsForSource(source)
     def self.getTargetsForSource(source)
-        ArrowsDatabaseIO::getTargetUUIDsForSource(source).map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
+        ArrowsDatabaseIO::getTargetUUIDsForSource(source).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
     end
 
     # ArrowsDatabaseIO::getSourcesForTarget(target)
@@ -108,7 +108,7 @@ class ArrowsDatabaseIO
             uuids << row["_sourceuuid_"]
         end
         db.close
-        uuids.uniq.map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
+        uuids.uniq.map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
     end
 end
 
@@ -184,7 +184,7 @@ class ArrowsInMemory
     end
 
     def getTargetsForSource(source)
-        getTargetUUIDsForSource(source).map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
+        getTargetUUIDsForSource(source).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
     end
 
     def getSourceUUIDsForTarget(target)
@@ -192,7 +192,7 @@ class ArrowsInMemory
     end
 
     def getSourcesForTarget(target)
-        getSourceUUIDsForTarget(target).map{|uuid| NyxObjects2::getOrNull(uuid) }.compact
+        getSourceUUIDsForTarget(target).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
     end
 end
 

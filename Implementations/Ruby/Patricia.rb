@@ -208,7 +208,7 @@ class Patricia
                 line = LucilleCore::askQuestionAnswerAsString("line: ")
                 quark = Quarks::makeLine(line)
                 quark["description"] = line
-                NyxObjects2::put(quark)
+                NSCoreObjects::put(quark)
                 return quark
             end
             if option == "quark" then

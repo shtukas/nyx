@@ -5,17 +5,17 @@ class DxThreads
 
     # DxThreads::dxthreads()
     def self.dxthreads()
-        NyxObjects2::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
+        NSCoreObjects::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
     # DxThreads::getInbox()
     def self.getInbox()
-        NyxObjects2::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
+        NSCoreObjects::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
     end
 
     # DxThreads::getStream()
     def self.getStream()
-        NyxObjects2::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
+        NSCoreObjects::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
     end
 
     # DxThreads::make(description, timeCommitmentPerDayInHours)
@@ -33,7 +33,7 @@ class DxThreads
     # DxThreads::issue(description, timeCommitmentPerDayInHours)
     def self.issue(description, timeCommitmentPerDayInHours)
         object = DxThreads::make(description, timeCommitmentPerDayInHours)
-        NyxObjects2::put(object)
+        NSCoreObjects::put(object)
         object
     end
 
@@ -68,7 +68,7 @@ class DxThreads
         loop {
             system("clear")
 
-            return if NyxObjects2::getOrNull(dxthread["uuid"]).nil?
+            return if NSCoreObjects::getOrNull(dxthread["uuid"]).nil?
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
@@ -90,14 +90,14 @@ class DxThreads
                 name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
-                NyxObjects2::put(dxthread)
+                NSCoreObjects::put(dxthread)
             })
 
             mx.item("update depth".yellow, lambda { 
                 depth = LucilleCore::askQuestionAnswerAsString("depth: ").to_i
                 return if depth < 1
                 dxthread["depth"] = depth
-                NyxObjects2::put(dxthread)
+                NSCoreObjects::put(dxthread)
             })
 
             mx.item("start thread".yellow, lambda { 
@@ -119,7 +119,7 @@ class DxThreads
             
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(dxthread)}': ") then
-                    NyxObjects2::destroy(dxthread)
+                    NSCoreObjects::destroy(dxthread)
                 end
             })
             puts ""

@@ -69,7 +69,7 @@ class NyxFsck
 
     # NyxFsck::main(runhash)
     def self.main(runhash)
-        NyxObjects2::getAllObjects().each{|object|
+        NSCoreObjects::getAllObjects().each{|object|
             next if KeyValueStore::flagIsTrue(nil, "#{runhash}:#{object["uuid"]}")
             status = NyxFsck::processObject(object, runhash)
             return false if !status

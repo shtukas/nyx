@@ -144,7 +144,7 @@ require_relative "LucilleCore.rb"
 
 require_relative "NyxGarbageCollection.rb"
 require_relative "NyxFsck.rb"
-require_relative "NyxObjects.rb"
+require_relative "NSCoreObjects.rb"
 
 require_relative "Floats.rb"
 

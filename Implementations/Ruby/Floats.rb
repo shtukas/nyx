@@ -20,7 +20,7 @@ class Floats
 
     # Floats::floats()
     def self.floats()
-        NyxObjects2::getSet("c1d07170-ed5f-49fe-9997-5cd928ae1928")
+        NSCoreObjects::getSet("c1d07170-ed5f-49fe-9997-5cd928ae1928")
     end
 
     # Floats::toString(float)
@@ -39,7 +39,7 @@ class Floats
           "type"     => "line",
           "line"     => line
         }
-        NyxObjects2::put(object)
+        NSCoreObjects::put(object)
         object
     end
 
@@ -59,12 +59,12 @@ class Floats
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                     return if operation.nil?
                     if operation == "destroy" then
-                        NyxObjects2::destroy(float)
+                        NSCoreObjects::destroy(float)
                     end
                 },
                 "nextNaturalStep"  => lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Floats::toString(float)}' ? ") then
-                        NyxObjects2::destroy(float)
+                        NSCoreObjects::destroy(float)
                     end
                 },
                 "isRunning"          => false,

@@ -180,7 +180,7 @@ class Waves
 
     # Waves::commitToDisk(wave)
     def self.commitToDisk(wave)
-        NyxObjects2::put(wave)
+        NSCoreObjects::put(wave)
     end
 
     # Waves::issueWave(uuid, description, schedule)
@@ -206,12 +206,12 @@ class Waves
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects2::getOrNull(uuid)
+        NSCoreObjects::getOrNull(uuid)
     end
 
     # Waves::waves()
     def self.waves()
-        NyxObjects2::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        NSCoreObjects::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::toString(wave)
@@ -265,7 +265,7 @@ class Waves
     def self.waveDive(wave)
         loop {
             system("clear")
-            return if NyxObjects2::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+            return if NSCoreObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             if DoNotShowUntil::isVisible(wave["uuid"]) then
@@ -322,7 +322,7 @@ class Waves
                 "destroy",
                 lambda {
                     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                        NyxObjects2::destroy(wave)
+                        NSCoreObjects::destroy(wave)
                     end
                 }
             )
