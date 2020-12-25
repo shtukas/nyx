@@ -80,13 +80,13 @@ class UIServices
             )
 
             ms.item(
-                "NyxFsck::main(runhash)",
+                "NSFsck::main(runhash)",
                 lambda {
                     runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
                     if runhash == "" then
                         runhash = SecureRandom.hex
                     end
-                    status = NyxFsck::main(runhash)
+                    status = NSFsck::main(runhash)
                     if status then
                         puts "All good".green
                     else

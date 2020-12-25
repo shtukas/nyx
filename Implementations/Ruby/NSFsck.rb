@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NyxFsck
+class NSFsck
 
-    # NyxFsck::processQuark(quark)
+    # NSFsck::processQuark(quark)
     def self.processQuark(quark)
         return true if quark["type"] == "line"
         return true if quark["type"] == "url"
@@ -29,7 +29,7 @@ class NyxFsck
         false
     end
 
-    # NyxFsck::processObject(object, runhash)
+    # NSFsck::processObject(object, runhash)
     def self.processObject(object, runhash)
 
         if object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4" then
@@ -41,7 +41,7 @@ class NyxFsck
         if object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab" then
             # Quark
             puts "fsck quark: #{object["uuid"]}"
-            return NyxFsck::processQuark(object)
+            return NSFsck::processQuark(object)
         end
 
         if object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb" then
@@ -67,11 +67,11 @@ class NyxFsck
         false
     end
 
-    # NyxFsck::main(runhash)
+    # NSFsck::main(runhash)
     def self.main(runhash)
         NSCoreObjects::getAllObjects().each{|object|
             next if KeyValueStore::flagIsTrue(nil, "#{runhash}:#{object["uuid"]}")
-            status = NyxFsck::processObject(object, runhash)
+            status = NSFsck::processObject(object, runhash)
             return false if !status
             KeyValueStore::setFlagTrue(nil, "#{runhash}:#{object["uuid"]}")
         }

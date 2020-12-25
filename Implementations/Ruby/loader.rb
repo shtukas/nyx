@@ -143,7 +143,7 @@ require_relative "ElizabethX2.rb"
 require_relative "LucilleCore.rb"
 
 require_relative "NSGarbageCollection.rb"
-require_relative "NyxFsck.rb"
+require_relative "NSFsck.rb"
 require_relative "NSCoreObjects.rb"
 
 require_relative "Floats.rb"
