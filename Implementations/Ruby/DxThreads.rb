@@ -299,7 +299,22 @@ class DxThreads
     def self.catalystObjectsForDxThread(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
         objects = TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
-                    .first(dxthread["depth"])
+                    .reduce([]) {|targets, target|
+                        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+                        if Runner::isRunning?(uuid) then
+                            targets + [target]
+                        else
+                            if targets.size >= dxthread["depth"] then
+                                targets
+                            else
+                                if DoNotShowUntil::isVisible(uuid) then
+                                    targets + [target]
+                                else
+                                    targets
+                                end
+                            end
+                        end                     
+                    }
                     .map{|target|
                         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
                         metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
