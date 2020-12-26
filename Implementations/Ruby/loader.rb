@@ -52,6 +52,8 @@ puts %(You selected "#{item}" from #{list.inspect}.)
 
 # -----------------------------------------------------------------------
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
@@ -139,8 +141,6 @@ require_relative "DxThreads.rb"
 
 require_relative "EstateServices.rb"
 require_relative "ElizabethX2.rb"
-
-require_relative "LucilleCore.rb"
 
 require_relative "NSGarbageCollection.rb"
 require_relative "NSFsck.rb"
