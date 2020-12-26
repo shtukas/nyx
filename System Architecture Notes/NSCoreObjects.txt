@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
-All nyx objects have the two following attributes
+All NSCoreObjects have the two following attributes
 
     - uuid     : String
     - nyxNxSet : String

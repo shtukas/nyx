@@ -43,7 +43,7 @@ class UIServices
 
             puts ""
 
-            ms.item("dangerously edit a nyx object by uuid", lambda { 
+            ms.item("dangerously edit a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
                 object = NSCoreObjects::getOrNull(uuid)
@@ -53,7 +53,7 @@ class UIServices
                 NSCoreObjects::put(object)
             })
 
-            ms.item("dangerously delete a nyx object by uuid", lambda { 
+            ms.item("dangerously delete a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 object = NSCoreObjects::getOrNull(uuid)
                 return if object.nil?
