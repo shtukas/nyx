@@ -17,6 +17,12 @@ class GalaxyFinder
         ]
     end
 
+    # GalaxyFinder::locationIsTarget(location, uniquestring)
+    def self.locationIsTarget(location, uniquestring)
+        return false if GalaxyFinder::locationIsUnisonTmp(location)
+        File.basename(location).include?(uniquestring)
+    end
+
     # GalaxyFinder::locationEnumerator(roots)
     def self.locationEnumerator(roots)
         Enumerator.new do |filepaths|
@@ -61,7 +67,7 @@ class GalaxyFinder
                 if ( mark = GalaxyFinder::extractNX141MarkerFromFilenameOrNull(File.basename(location)) ) then
                     KeyValueStore::set(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{mark}", location)
                 end
-                if File.basename(location).include?(uniquestring) then
+                if GalaxyFinder::locationIsTarget(location, uniquestring) then
                     KeyValueStore::set(nil, "3ecadb11-dfd5-4d02-be89-4565a67e9891:#{uniquestring}", location)
                     return location
                 end
