@@ -44,10 +44,8 @@ require 'colorize'
 require 'pepin'
 
 =begin
-list = SelectionLookupDatabaseIO::getDatabaseRecords().map{|record| record["fragment"] }
+list = Array[String]
 item = Pepin.search(list) # Launches interactive window and returns selected item
-
-puts %(You selected "#{item}" from #{list.inspect}.)
 =end
 
 # -----------------------------------------------------------------------
@@ -172,5 +170,7 @@ require_relative "VideoStream.rb"
 require_relative "Waves.rb"
 
 # ------------------------------------------------------------
+
+
 
 

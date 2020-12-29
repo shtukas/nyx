@@ -1,5 +1,18 @@
-
 # encoding: UTF-8
+
+$XE0A1F55_DxThreadUUIDToCatalystObjects = {}
+$XE0A1F55_DxThreadUUIDToLastUpdateTime = {}
+
+def updateCache5E0A1F55(dxthread)
+    $XE0A1F55_DxThreadUUIDToCatalystObjects[dxthread["uuid"]] = DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
+    $XE0A1F55_DxThreadUUIDToLastUpdateTime[dxthread["uuid"]] = Time.new.to_i
+end
+
+def getCachedCatalystObjects(dxthread)
+    lastUpdateTime = $XE0A1F55_DxThreadUUIDToLastUpdateTime[dxthread["uuid"]] || 0
+    return nil if (Time.new.to_i - lastUpdateTime) > 1200
+    $XE0A1F55_DxThreadUUIDToCatalystObjects[dxthread["uuid"]]
+end
 
 class DxThreads
 
@@ -58,8 +71,8 @@ class DxThreads
         BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
     end
 
-    # DxThreads::selectOneExistingNodeOrNull()
-    def self.selectOneExistingNodeOrNull()
+    # DxThreads::selectOneExistingDxThreadOrNull()
+    def self.selectOneExistingDxThreadOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::dxthreads(), lambda{|o| DxThreads::toString(o) })
     end
 
@@ -136,7 +149,7 @@ class DxThreads
 
             ms.item("DxThreads dive", lambda { 
                 loop {
-                    object = DxThreads::selectOneExistingNodeOrNull()
+                    object = DxThreads::selectOneExistingDxThreadOrNull()
                     return if object.nil?
                     DxThreads::landing(object)
                 }
@@ -295,8 +308,8 @@ class DxThreads
         }
     end
 
-    # DxThreads::catalystObjectsForDxThread(dxthread)
-    def self.catalystObjectsForDxThread(dxthread)
+    # DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
+    def self.catalystObjectsForDxThreadUseTheForce(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
         objects = TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
                     .reduce([]) {|targets, target|
@@ -323,8 +336,14 @@ class DxThreads
                             "uuid"             => uuid,
                             "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
                             "metric"           => metric,
-                            "landing"          => lambda { Patricia::landing(target) },
-                            "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
+                            "landing"          => lambda { 
+                                Patricia::landing(target) 
+                                updateCache5E0A1F55(dxthread)
+                            },
+                            "nextNaturalStep"  => lambda { 
+                                DxThreads::nextNaturalStep(dxthread, target) 
+                                updateCache5E0A1F55(dxthread)
+                            },
                             "isRunning"        => Runner::isRunning?(uuid),
                             "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
                         }
@@ -332,14 +351,24 @@ class DxThreads
         (objects + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
     end
 
+    # DxThreads::catalystObjectsForDxThread(dxthread)
+    def self.catalystObjectsForDxThread(dxthread)
+        catalystObjects = getCachedCatalystObjects(dxthread)
+        return catalystObjects if catalystObjects
+        updateCache5E0A1F55(dxthread)
+        getCachedCatalystObjects(dxthread)
+    end
+
     # DxThreads::catalystObjects()
     def self.catalystObjects()
+        # ------------------------------------------------------------
         padding = ([0] + DxThreads::dxthreads().map{|dx| DxThreads::toString(dx).size }).max
         KeyValueStore::set(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", padding)
-        DxThreads::dxthreads().map{|dxthread|
-            DxThreads::catalystObjectsForDxThread(dxthread)
-        }
-        .flatten
+        DxThreads::dxthreads()
+            .map{|dxthread|
+                DxThreads::catalystObjectsForDxThread(dxthread)
+            }
+            .flatten
     end
 
     # --------------------------------------------------------------
@@ -350,3 +379,11 @@ class DxThreads
         "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
     end
 end
+
+Thread.new {
+    loop {
+        sleep 120
+        DxThreads::dxthreads()
+            .each{|dxthread| updateCache5E0A1F55(dxthread) }
+    }
+}

@@ -35,10 +35,8 @@ class UIServices
 
             puts ""
 
-            ms.item("new datapoint", lambda {
-                datapoint = Patricia::makeNewObjectOrNull()
-                return if datapoint.nil?
-                Patricia::landing(datapoint)
+            ms.item("new DxThread element", lambda {
+                Patricia::issueDxThreadElement()
             })
 
             puts ""
@@ -268,7 +266,7 @@ class UIServices
             operations = [
                 "float",
                 "wave",
-                "datatpoint"
+                "DxThread"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -282,9 +280,8 @@ class UIServices
                 Patricia::landing(object)
                 return
             end
-            if operation == "datatpoint" then
-                object = Patricia::makeNewObjectOrNull()
-                Patricia::landing(object)
+            if operation == "DxThread" then
+                Patricia::issueDxThreadElement()
                 return
             end
         end

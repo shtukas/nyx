@@ -200,22 +200,7 @@ class Patricia
 
     # Patricia::makeNewObjectOrNull()
     def self.makeNewObjectOrNull()
-        loop {
-            options = ["line", "quark"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-            return nil if option.nil?
-            if option == "line" then
-                line = LucilleCore::askQuestionAnswerAsString("line: ")
-                quark = Quarks::makeLine(line)
-                quark["description"] = line
-                NSCoreObjects::put(quark)
-                return quark
-            end
-            if option == "quark" then
-                object = Quarks::issueNewQuarkInteractivelyOrNull()
-                return object if object
-            end
-        }
+        Quarks::issueNewQuarkInteractivelyOrNull()
     end
 
     # --------------------------------------------------
@@ -224,5 +209,15 @@ class Patricia
     # Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
     def self.makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
         Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+    end
+
+    # Patricia::issueDxThreadElement()
+    def self.issueDxThreadElement()
+        dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+        return if dxthread.nil?
+        datapoint = Patricia::makeNewObjectOrNull()
+        return if datapoint.nil?
+        Arrows::issueOrException(dxthread, datapoint)
+        Patricia::landing(datapoint)
     end
 end
