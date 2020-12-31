@@ -78,6 +78,7 @@ class Floats
                         return if operation.nil?
                         if operation == "stop" then
                             dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                            return if dxthread.nil?
                             timespan = Runner::stop(uuid)
                             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                             puts "sending #{timespan} to '#{DxThreads::toString(dxthread)}'"
@@ -85,6 +86,7 @@ class Floats
                         end
                         if operation == "stop and destroy" then
                             dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                            return if dxthread.nil?
                             timespan = Runner::stop(uuid)
                             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                             puts "sending #{timespan} to '#{DxThreads::toString(dxthread)}'"
