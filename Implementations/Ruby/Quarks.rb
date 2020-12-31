@@ -16,7 +16,6 @@ class Quarks
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
-            "referenceDateTime" => nil,
             "type"              => "line",
             "line"              => line
         }
@@ -28,7 +27,6 @@ class Quarks
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
-            "referenceDateTime" => nil,
             "type"              => "url",
             "url"               => url
         }
@@ -40,7 +38,6 @@ class Quarks
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
-            "referenceDateTime" => nil,
             "type"              => "filesystem-unique-string",
             "mark"              => mark
         }
@@ -53,7 +50,6 @@ class Quarks
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
-            "referenceDateTime" => nil,
             "type"              => "aion-location",
             "roothash"          => AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
         }

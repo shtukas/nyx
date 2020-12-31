@@ -13,7 +13,6 @@ class EvaporatingWeights
     def self.mark(uuid)
         KeyValueStore::set(nil, "d3ee3724-a6d1-4d2d-8912-81b47264251b:#{uuid}", Time.new.to_i)
     end
-
 end
 
 class Floats
@@ -43,6 +42,19 @@ class Floats
         object
     end
 
+    # Floats::moveFloatToDxThread(float, dxthread)
+    def self.moveFloatToDxThread(float, dxthread)
+        quark = {
+            "uuid"              => float["uuid"],
+            "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+            "unixtime"          => Time.new.to_f,
+            "type"              => "line",
+            "line"              => float["line"]                              
+        }
+        NSCoreObjects::put(quark)
+        Arrows::issueOrException(dxthread, quark)
+    end
+
     # Floats::catalystObjects()
     def self.catalystObjects()
         Floats::floats()
@@ -56,7 +68,8 @@ class Floats
                     uuid = float["uuid"]
                     operations = [
                         "start",
-                        "destroy"
+                        "destroy",
+                        "migrate to DxThread"
                     ]
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                     return if operation.nil?
@@ -66,13 +79,26 @@ class Floats
                     if operation == "destroy" then
                         NSCoreObjects::destroy(float)
                     end
+                    if operation == "migrate to DxThread" then
+                        dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                        return if dxthread.nil?
+                        if Runner::isRunning?(uuid) then
+                            timespan = Runner::stop(uuid)
+                            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                            puts "sending #{timespan} to '#{DxThreads::toString(dxthread)}'"
+                            Bank::put(dxthread["uuid"], timespan)
+                        end
+                        # Now we convert the float to a quark and attach it to the threaf
+                        Floats::moveFloatToDxThread(float, dxthread)
+                    end
                 },
                 "nextNaturalStep"  => lambda {
                     uuid = float["uuid"]
                     if Runner::isRunning?(uuid) then
                         operations = [
                             "stop",
-                            "stop and destroy"
+                            "stop and destroy",
+                            "migrate to DxThread"
                         ]
                         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                         return if operation.nil?
@@ -93,8 +119,32 @@ class Floats
                             Bank::put(dxthread["uuid"], timespan)
                             NSCoreObjects::destroy(float)
                         end
+                        if operation == "migrate to DxThread" then
+                            dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                            return if dxthread.nil?
+                            timespan = Runner::stop(uuid)
+                            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                            puts "sending #{timespan} to '#{DxThreads::toString(dxthread)}'"
+                            Bank::put(dxthread["uuid"], timespan)
+                            # Now we convert the float to a quark and attach it to the threaf
+                            Floats::moveFloatToDxThread(float, dxthread)
+                        end
                     else
-                        Runner::start(uuid)
+                        operations = [
+                            "start",
+                            "migrate to DxThread"
+                        ]
+                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                        return if operation.nil?
+                        if operation == "start" then
+                            Runner::start(uuid)
+                        end
+                        if operation == "migrate to DxThread" then
+                            dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                            return if dxthread.nil?
+                            Floats::moveFloatToDxThread(float, dxthread)
+                        end
+
                     end
                 },
                 "isRunning"          => Runner::isRunning?(uuid),
