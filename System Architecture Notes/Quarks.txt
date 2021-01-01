@@ -7,7 +7,6 @@ Quark
     "uuid"              : String
     "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     "unixtime"          : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
     "type"              : "line"
     "line"              : String
@@ -17,7 +16,6 @@ Quark
     "uuid"              : String
     "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     "unixtime"          : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
     "type"              : "url"
     "url"               : String
@@ -27,7 +25,6 @@ Quark
     "uuid"              : String
     "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     "unixtime"          : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
     "type"              : "aion-location"
     "roothash"          : String
@@ -37,7 +34,6 @@ Quark
     "uuid"              : String
     "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     "unixtime"          : Float # Unixtime with decimals
-    "referenceDateTime" : nil or DateTime Iso8601
     "description"       : String
     "type"              : "filesystem-unique-string"
     "mark"              : String
