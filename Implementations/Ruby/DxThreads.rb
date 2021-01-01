@@ -311,44 +311,43 @@ class DxThreads
     # DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
     def self.catalystObjectsForDxThreadUseTheForce(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
-        objects = TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
-                    .reduce([]) {|targets, target|
-                        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
-                        if Runner::isRunning?(uuid) then
+        TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
+            .reduce([]) {|targets, target|
+                uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+                if Runner::isRunning?(uuid) then
+                    targets + [target]
+                else
+                    if targets.size >= dxthread["depth"] then
+                        targets
+                    else
+                        if DoNotShowUntil::isVisible(uuid) then
                             targets + [target]
                         else
-                            if targets.size >= dxthread["depth"] then
-                                targets
-                            else
-                                if DoNotShowUntil::isVisible(uuid) then
-                                    targets + [target]
-                                else
-                                    targets
-                                end
-                            end
-                        end                     
-                    }
-                    .map{|target|
-                        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
-                        metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
-                        metric = 1 if Runner::isRunning?(uuid)
-                        {
-                            "uuid"             => uuid,
-                            "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
-                            "metric"           => metric,
-                            "landing"          => lambda { 
-                                Patricia::landing(target) 
-                                updateCache5E0A1F55(dxthread)
-                            },
-                            "nextNaturalStep"  => lambda { 
-                                DxThreads::nextNaturalStep(dxthread, target) 
-                                updateCache5E0A1F55(dxthread)
-                            },
-                            "isRunning"        => Runner::isRunning?(uuid),
-                            "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
-                        }
-                    }
-        (objects + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
+                            targets
+                        end
+                    end
+                end                     
+            }
+            .map{|target|
+                uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+                metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
+                metric = 1 if Runner::isRunning?(uuid)
+                {
+                    "uuid"             => uuid,
+                    "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
+                    "metric"           => metric,
+                    "landing"          => lambda { 
+                        Patricia::landing(target) 
+                        updateCache5E0A1F55(dxthread)
+                    },
+                    "nextNaturalStep"  => lambda { 
+                        DxThreads::nextNaturalStep(dxthread, target) 
+                        updateCache5E0A1F55(dxthread)
+                    },
+                    "isRunning"        => Runner::isRunning?(uuid),
+                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
+                }
+            }
     end
 
     # DxThreads::catalystObjectsForDxThread(dxthread)
