@@ -354,9 +354,12 @@ class DxThreads
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
         catalystObjects = getCachedCatalystObjects(dxthread)
-        return catalystObjects if catalystObjects
-        updateCache5E0A1F55(dxthread)
-        getCachedCatalystObjects(dxthread)
+        if catalystObjects then
+            (catalystObjects + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
+        else
+            updateCache5E0A1F55(dxthread)
+            (getCachedCatalystObjects(dxthread) + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
+        end
     end
 
     # DxThreads::catalystObjects()
