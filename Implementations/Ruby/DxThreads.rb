@@ -176,8 +176,8 @@ class DxThreads
         Bank::put(dxthread["uuid"], timespanInSeconds)
     end
 
-    # DxThreads::nextNaturalStepStart(dxthread, target)
-    def self.nextNaturalStepStart(dxthread, target)
+    # DxThreads::nextNaturalStepWhenStopped(dxthread, target)
+    def self.nextNaturalStepWhenStopped(dxthread, target)
         uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
         return if Runner::isRunning?(uuid)
         puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
@@ -266,7 +266,7 @@ class DxThreads
         if Runner::isRunning?(uuid) then
             DxThreads::nextNaturalStepWhileRunning(dxthread, target)
         else
-            DxThreads::nextNaturalStepStart(dxthread, target)
+            DxThreads::nextNaturalStepWhenStopped(dxthread, target)
         end
     end
 

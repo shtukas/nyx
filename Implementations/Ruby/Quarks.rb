@@ -296,7 +296,7 @@ class Quarks
                     return if dxthreads.empty?
                     if dxthreads.size == 1 then
                         dxthread = dxthreads[0]
-                        DxThreads::nextNaturalStepStart(dxthread, quark)
+                        DxThreads::nextNaturalStepWhenStopped(dxthread, quark)
                         return
                     end
                     puts "I do not yet know how to start a quark which has more than one DxThread parent"
