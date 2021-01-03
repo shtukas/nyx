@@ -132,12 +132,16 @@ class Floats
                     else
                         operations = [
                             "start",
+                            "destroy",
                             "migrate to DxThread"
                         ]
                         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                         return if operation.nil?
                         if operation == "start" then
                             Runner::start(uuid)
+                        end
+                        if operation == "destroy" then
+                            NSCoreObjects::destroy(float)
                         end
                         if operation == "migrate to DxThread" then
                             dxthread = DxThreads::selectOneExistingDxThreadOrNull()
