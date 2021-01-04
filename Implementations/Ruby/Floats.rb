@@ -65,6 +65,7 @@ class Floats
                 "body"             => Floats::toString(float).yellow,
                 "metric"           => 0.2 + 0.7*EvaporatingWeights::getRatio(uuid),
                 "landing"          => lambda {
+                    puts Floats::toString(float)
                     uuid = float["uuid"]
                     operations = [
                         "start",
@@ -93,6 +94,7 @@ class Floats
                     end
                 },
                 "nextNaturalStep"  => lambda {
+                    puts Floats::toString(float)
                     uuid = float["uuid"]
                     if Runner::isRunning?(uuid) then
                         operations = [
