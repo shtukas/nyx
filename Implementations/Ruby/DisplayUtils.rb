@@ -2,22 +2,26 @@
 # encoding: UTF-8
 
 class DisplayUtils
-
-    # DisplayUtils::defaultCatalystObjectCommands()
-    def self.defaultCatalystObjectCommands()
-        ["expose"]
-    end
-
     # DisplayUtils::makeDisplayStringForCatalystListingCore(object)
     def self.makeDisplayStringForCatalystListingCore(object)
-        # Miscellaneous::screenWidth()
         body = object["body"]
         lines = body.lines.to_a
+        ordinalPrefix = 
+            if object["::ordinal"] then
+                "(ordinal: #{object["::ordinal"]})".green
+            else
+                ""
+            end
+        prefix = 
+            if ordinalPrefix.size > 0 then
+                "#{ordinalPrefix} "
+            else
+                "(#{"%5.3f" % object["metric"]}) "
+            end
         if lines.size == 1 then
-            "(#{"%5.3f" % object["metric"]}) #{lines.first}"
+            "#{prefix}#{lines.first}"
         else
-            first = lines.shift
-            "(#{"%5.3f" % object["metric"]}) #{first}" + lines.map{|line|  "             #{line}"}.join()
+            "#{prefix}#{lines.shift}" + lines.map{|line|  "             #{line}"}.join()
         end
     end
 

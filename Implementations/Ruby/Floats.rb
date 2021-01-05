@@ -27,9 +27,8 @@ class Floats
         "[float] #{float["line"]}"
     end
 
-    # Floats::issueFloatTextInteractivelyOrNull()
-    def self.issueFloatTextInteractivelyOrNull()
-        line = LucilleCore::askQuestionAnswerAsString("line: ")
+    # Floats::issueFloatText(line)
+    def self.issueFloatText(line)
         uuid = Miscellaneous::l22()
         object = {
           "uuid"     => uuid,
@@ -40,6 +39,12 @@ class Floats
         }
         NSCoreObjects::put(object)
         object
+    end
+
+    # Floats::issueFloatTextInteractivelyOrNull()
+    def self.issueFloatTextInteractivelyOrNull()
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        Floats::issueFloatText(line)
     end
 
     # Floats::moveFloatToDxThread(float, dxthread)

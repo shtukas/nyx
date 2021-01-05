@@ -2,15 +2,16 @@
 # ------------------------------------------------------------------
 CatalystObject
 {
-    "uuid"             : UUID
-    "body"             : String # Single or multiline
-    "metric"           : Float
+    "uuid"               : UUID
+    "body"               : String # Single or multiline
+    "metric"             : Float
+    "::ordinal"          : Float # experimental, drive the ordinal system
 
-    "landing"          : Lambda { code }
-    "nextNaturalStep"  : Lambda { code }
+    "landing"            : Lambda { code }
+    "nextNaturalStep"    : Lambda { code }
     
-    "isRunning"        : Boolean # Optional [2]
-    "isRunningForLong" : Boolean # Optional [3]
+    "isRunning"          : Boolean # Optional [2]
+    "isRunningForLong"   : Boolean # Optional [3]
 }
 
 [2] If present and true, displays in green

@@ -3,7 +3,35 @@
 
 # -- CatalystObjectsOperator ----------------------------------------------------------
 
+class Ordinals
+
+    # Ordinals::setOrdinal(uuid, ordinal)
+    def self.setOrdinal(uuid, ordinal)
+        KeyValueStore::set(nil, "830472db-49fc-4638-94eb-0c9412907162:#{Miscellaneous::today()}:#{uuid}", ordinal)
+    end
+
+    # Ordinals::unset(uuid)
+    def self.unset(uuid)
+        KeyValueStore::destroy(nil, "830472db-49fc-4638-94eb-0c9412907162:#{Miscellaneous::today()}:#{uuid}")
+    end
+
+    # Ordinals::getOrdinalOrNull(uuid)
+    def self.getOrdinalOrNull(uuid)
+       value = KeyValueStore::getOrNull(nil, "830472db-49fc-4638-94eb-0c9412907162:#{Miscellaneous::today()}:#{uuid}")
+       return nil if value.nil?
+       value.to_f
+    end
+end
+
 class CatalystObjectsOperator
+
+    # CatalystObjectsOperator::computeMetric(ordinal, metric)
+    def self.computeMetric(ordinal, metric)
+        if ordinal then
+            return 1 + Math.exp(-ordinal.to_f)
+        end
+        metric
+    end 
 
     # CatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
@@ -18,9 +46,17 @@ class CatalystObjectsOperator
         objects = objects
                     .select{|object| object['metric'] >= 0.2 }
 
+        objects = objects.map{|object|
+            uuid = object["uuid"]
+            ordinal = Ordinals::getOrdinalOrNull(uuid)
+            object["::ordinal"] = ordinal
+            object["metric"] = CatalystObjectsOperator::computeMetric(ordinal, object["metric"])
+            object
+        }
+
         objects = objects
                     .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .sort{|o1, o2| o1["metric"] <=> o2["metric"] }
                     .reverse
 
         objects
