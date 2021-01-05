@@ -70,6 +70,7 @@ class Floats
                     operations = [
                         "start",
                         "destroy",
+                        "update description",
                         "migrate to DxThread"
                     ]
                     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -79,6 +80,11 @@ class Floats
                     end
                     if operation == "destroy" then
                         NSCoreObjects::destroy(float)
+                    end
+                    if operation == "update description" then
+                        description = LucilleCore::askQuestionAnswerAsString("description: ")
+                        float["line"] = description
+                        NSCoreObjects::put(float)
                     end
                     if operation == "migrate to DxThread" then
                         dxthread = DxThreads::selectOneExistingDxThreadOrNull()
