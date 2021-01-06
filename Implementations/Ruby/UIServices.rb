@@ -240,15 +240,13 @@ class UIServices
         if command == "++" then
             object = locker.get(1)
             return if object.nil?
-
-            if object["x-isFloat"] then
-                # We will push by one hour but we also add weight 
-                object["x-float-add-weight"].call()
-            end
-
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
+
+            if object["x-isFloat"] and LucilleCore::askQuestionAnswerAsBoolean("This is a float, would you also like to add weight ? ", true) then
+                object["x-float-add-weight"].call()
+            end
             return
         end
 
