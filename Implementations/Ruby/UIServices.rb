@@ -244,7 +244,7 @@ class UIServices
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
 
-            if object["x-isFloat"] and LucilleCore::askQuestionAnswerAsBoolean("This is a float, would you also like to add weight ? ", true) then
+            if object["x-isFloat"] and object["::ordinal"].nil? then
                 object["x-float-add-weight"].call()
             end
             return
