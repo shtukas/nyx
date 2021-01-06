@@ -242,10 +242,8 @@ class UIServices
             return if object.nil?
 
             if object["x-isFloat"] then
-                # Floats have this thing by which they never actually disapear, not unless one uses a proper +timecode command
-                # Instead, we push them back, but that's managed by them.
+                # We will push by one hour but we also add weight 
                 object["x-float-add-weight"].call()
-                return
             end
 
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
