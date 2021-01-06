@@ -291,7 +291,7 @@ class UIServices
                 ordinal = command.to_f
                 rest = command[command.index(' '), command.size].strip
                 if rest.start_with?("line") then
-                    line = command[4, rest.size].strip
+                    line = rest[4, rest.size].strip
                     float = Floats::issueFloatText(line)
                     Ordinals::setOrdinal(float["uuid"], ordinal)
                 end
