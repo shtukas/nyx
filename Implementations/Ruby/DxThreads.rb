@@ -273,7 +273,14 @@ class DxThreads
     # DxThreads::dxThreadAndTargetToString(dxthread, target)
     def self.dxThreadAndTargetToString(dxthread, target)
         padding = KeyValueStore::getOrDefaultValue(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", "0").to_i
-        "#{DxThreads::toString(dxthread).ljust(padding)} #{Patricia::toString(target)}"
+        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        runningString = 
+            if Runner::isRunning?(uuid) then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        "#{DxThreads::toString(dxthread).ljust(padding)} #{Patricia::toString(target)}#{runningString}"
     end
 
     # DxThreads::dxThreadBaseMetric(dxthread)
