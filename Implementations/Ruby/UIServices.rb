@@ -289,7 +289,7 @@ class UIServices
             if command.start_with?("set") then
                 command = command[3, command.size].strip
                 ordinal = command.to_f
-                rest = command[command.index(" "), command.size].strip
+                rest = command[command.index(' '), command.size].strip
                 if rest.start_with?("line") then
                     line = command[4, rest.size].strip
                     float = Floats::issueFloatText(line)
