@@ -146,6 +146,7 @@ class Floats
                         operations = [
                             "start",
                             "destroy",
+                            "destroy with time added to DxThread",
                             "migrate to DxThread"
                         ]
                         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -154,6 +155,14 @@ class Floats
                             Runner::start(uuid)
                         end
                         if operation == "destroy" then
+                            NSCoreObjects::destroy(float)
+                        end
+                        if operation == "destroy with time added to DxThread" then
+                            dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                            return if dxthread.nil?
+                            timespanInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                            puts "sending #{timespanInHours} hours to '#{DxThreads::toString(dxthread)}'"
+                            Bank::put(dxthread["uuid"], timespanInHours*3600)
                             NSCoreObjects::destroy(float)
                         end
                         if operation == "migrate to DxThread" then
