@@ -68,7 +68,7 @@ class Floats
             {
                 "uuid"             => uuid,
                 "body"             => Floats::toString(float).yellow,
-                "metric"           => 0.2 + 0.7*EvaporatingWeights::getRatio(uuid),
+                "metric"           => 0.2 + 0.55*EvaporatingWeights::getRatio(uuid),
                 "landing"          => lambda {
                     puts Floats::toString(float)
                     uuid = float["uuid"]

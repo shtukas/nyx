@@ -1,6 +1,4 @@
 
-                       Floats
-
 🗓️
         0.93           Calendar
 
@@ -9,6 +7,8 @@
         0.82+          Waves every-this-day-of-the-month
         0.80+          Waves every-this-day-of-the-week
         0.78+          Waves every-n-hours / every-n-days
+
+        0.75 -> 0.20   Floats
 
 👩‍💻
         0.73           Backups Monitor
