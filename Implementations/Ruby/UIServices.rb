@@ -249,10 +249,6 @@ class UIServices
             unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
             puts "Pushing to #{Time.at(unixtime).to_s}"
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-
-            if object["x-isFloat"] and object["::ordinal"].nil? then
-                object["x-float-add-weight"].call()
-            end
             return
         end
 

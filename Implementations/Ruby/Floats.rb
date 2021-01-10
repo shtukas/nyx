@@ -1,20 +1,6 @@
 
 # encoding: UTF-8
 
-class EvaporatingWeights
-
-    # EvaporatingWeights::getRatio(uuid)
-    def self.getRatio(uuid)
-        lastResetTime = KeyValueStore::getOrDefaultValue(nil, "d3ee3724-a6d1-4d2d-8912-81b47264251b:#{uuid}", "0").to_f
-        1 - Math.exp( -(Time.new.to_i - lastResetTime).to_f/86400 )
-    end
-
-    # EvaporatingWeights::mark(uuid)
-    def self.mark(uuid)
-        KeyValueStore::set(nil, "d3ee3724-a6d1-4d2d-8912-81b47264251b:#{uuid}", Time.new.to_i)
-    end
-end
-
 class Floats
 
     # Floats::floats()
@@ -171,18 +157,19 @@ class Floats
     # Floats::catalystObjects()
     def self.catalystObjects()
         Floats::floats()
-        .map{|float|
+        .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
+        .map
+        .with_index{|float, indx|
             uuid = float["uuid"]
             {
                 "uuid"             => uuid,
                 "body"             => Floats::toString(float).yellow,
-                "metric"           => 0.2 + 0.55*EvaporatingWeights::getRatio(uuid),
+                "metric"           => 0.75 - indx.to_f/1000,
                 "landing"          => lambda { Floats::landing(float) },
                 "nextNaturalStep"  => lambda { Floats::nextNaturalStep(float) },
                 "isRunning"          => Runner::isRunning?(uuid),
                 "isRunningForLong"   => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600,
                 "x-isFloat"          => true,
-                "x-float-add-weight" => lambda { EvaporatingWeights::mark(uuid) }
             }
         }
     end
