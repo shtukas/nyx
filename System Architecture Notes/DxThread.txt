@@ -8,4 +8,5 @@ DxThread {
     "description"                 : String    
     "timeCommitmentPerDayInHours" : Float
     "depth"                       : Integer
+    "bankAccountNumber"           : String # This is reset if we update the "timeCommitmentPerDayInHours"
 }

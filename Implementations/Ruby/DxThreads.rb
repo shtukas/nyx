@@ -39,7 +39,8 @@ class DxThreads
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "timeCommitmentPerDayInHours" => timeCommitmentPerDayInHours,
-            "depth"       => 1 # The default depth is 1 we can change that later if we want
+            "depth"       => 1, # The default depth is 1 we can change that later if we want
+            "bankAccountNumber" => SecureRandom.hex # This is reset if we update the "timeCommitmentPerDayInHours"
         }
     end
 
@@ -68,7 +69,7 @@ class DxThreads
 
     # DxThreads::completionRatio(dxthread)
     def self.completionRatio(dxthread)
-        BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+        BankExtended::recoveredDailyTimeInHours(dxthread["bankAccountNumber"]).to_f/dxthread["timeCommitmentPerDayInHours"]
     end
 
     # DxThreads::selectOneExistingDxThreadOrNull()
@@ -106,6 +107,13 @@ class DxThreads
                 NSCoreObjects::put(dxthread)
             })
 
+            mx.item("update daily time commitment in hours".yellow, lambda { 
+                time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
+                dxthread["timeCommitmentPerDayInHours"] = time*3600
+                dxthread["bankAccountNumber"] = SecureRandom.hex # standard protocol when resetting the timeCommitmentPerDayInHours
+                NSCoreObjects::put(dxthread)
+            })
+
             mx.item("update depth".yellow, lambda { 
                 depth = LucilleCore::askQuestionAnswerAsString("depth: ").to_i
                 return if depth < 1
@@ -120,7 +128,7 @@ class DxThreads
             mx.item("add time".yellow, lambda { 
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ")
                 return if timeInHours == ""
-                Bank::put(dxthread["uuid"], timeInHours.to_f*3600)
+                Bank::put(dxthread["bankAccountNumber"], timeInHours.to_f*3600)
             })
 
             Patricia::mxTargetsManagement(dxthread, mx)
@@ -173,7 +181,7 @@ class DxThreads
         puts "sending #{timespanInSeconds} to thread item '#{Patricia::toString(target)}'"
         Bank::put(target["uuid"], timespanInSeconds)
         puts "sending #{timespanInSeconds} to DxThread'#{DxThreads::toString(dxthread)}'"
-        Bank::put(dxthread["uuid"], timespanInSeconds)
+        Bank::put(dxthread["bankAccountNumber"], timespanInSeconds)
     end
 
     # DxThreads::nextNaturalStepWhenStopped(dxthread, target)
@@ -308,7 +316,7 @@ class DxThreads
                 timespan = Runner::stop(uuid)
                 timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
                 puts "sending #{timespan} to DxThread'#{DxThreads::toString(dxthread)}'"
-                Bank::put(dxthread["uuid"], timespan)
+                Bank::put(dxthread["bankAccountNumber"], timespan)
             },
             "isRunning"        => Runner::isRunning?(uuid),
             "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
