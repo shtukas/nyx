@@ -15,8 +15,9 @@ class Locker
 end
 
 class UIServices
-    # UIServices::dataPortalFront()
-    def self.dataPortalFront()
+
+    # UIServices::servicesFront()
+    def self.servicesFront()
         loop {
             system("clear")
 
@@ -60,17 +61,7 @@ class UIServices
                 NSCoreObjects::destroy(object)
             })
 
-            status = ms.promptAndRunSandbox()
-            break if !status
-        }
-    end
-
-    # UIServices::systemFront()
-    def self.systemFront()
-        loop {
-            system("clear")
-
-            ms = LCoreMenuItemsNX1.new()
+            puts ""
 
             ms.item(
                 "NSGarbageCollection::run()",
@@ -316,6 +307,12 @@ class UIServices
                 end
             end
         end
+
+        if command == "/" then
+            UIServices::servicesFront()
+            return
+        end
+
     end
 
     # UIServices::standardTodoListingLoop()

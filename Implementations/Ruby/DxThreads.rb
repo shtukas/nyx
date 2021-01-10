@@ -109,7 +109,7 @@ class DxThreads
 
             mx.item("update daily time commitment in hours".yellow, lambda { 
                 time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
-                dxthread["timeCommitmentPerDayInHours"] = time*3600
+                dxthread["timeCommitmentPerDayInHours"] = time
                 dxthread["bankAccountNumber"] = SecureRandom.hex # standard protocol when resetting the timeCommitmentPerDayInHours
                 NSCoreObjects::put(dxthread)
             })
