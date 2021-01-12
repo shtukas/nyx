@@ -305,7 +305,7 @@ class DxThreads
         return nil if !Runner::isRunning?(uuid)
         {
             "uuid"             => uuid,
-            "body"             => DxThreads::toString(dxthread),
+            "body"             => DxThreads::toString(dxthread)+Runner::runTimeAsString(uuid, " "),
             "metric"           => 1,
             "landing"          => lambda {
                 DxThreads::landing(dxthread)
