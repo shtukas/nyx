@@ -284,26 +284,6 @@ class UIServices
             end
         end
 
-        # :o set <ordinal> <object-position> 
-        # :o set <ordinal> line <line> 
-        if command.start_with?(":o") then
-            command = command[2, command.size].strip
-            if command.start_with?("set") then
-                command = command[3, command.size].strip
-                ordinal = command.to_f
-                rest = command[command.index(' '), command.size].strip
-                if rest.start_with?("line") then
-                    line = rest[4, rest.size].strip
-                    float = Floats::issueFloatText(line)
-                    Ordinals::setOrdinal(float["uuid"], ordinal)
-                end
-                if !rest.start_with?("line") then
-                    object = locker.get(rest.to_i)
-                    Ordinals::setOrdinal(object["uuid"], ordinal)
-                end
-            end
-        end
-
         if command == "/" then
             UIServices::servicesFront()
             return
