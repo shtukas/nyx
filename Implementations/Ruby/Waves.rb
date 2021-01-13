@@ -68,16 +68,16 @@ class Waves
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
     end
 
-    # Waves::scheduleToDoNotShowUnixtime(uuid, schedule)
-    def self.scheduleToDoNotShowUnixtime(uuid, schedule)
+    # Waves::scheduleToDoNotShowUnixtime(schedule)
+    def self.scheduleToDoNotShowUnixtime(schedule)
         if schedule['@'] == 'sticky' then
             return Waves::unixtimeAtComingMidnight() + 6*3600
         end
         if schedule['@'] == 'every-n-hours' then
-            return Time.new.to_i+3600*schedule['repeat-value'].to_f
+            return Time.new.to_i+3600 * schedule['repeat-value'].to_f
         end
         if schedule['@'] == 'every-n-days' then
-            return Time.new.to_i+86400*schedule['repeat-value'].to_f
+            return Time.new.to_i+86400 * schedule['repeat-value'].to_f
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
@@ -87,9 +87,9 @@ class Waves
            return cursor
         end
         if schedule['@'] == 'every-this-day-of-the-week' then
-            mapping = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+            mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday]!=schedule['repeat-value'] do
+            while mapping[Time.at(cursor).wday] != schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
             return cursor
@@ -127,9 +127,9 @@ class Waves
         text.lines.first
     end
 
-    # Waves::announce(text, schedule)
-    def self.announce(text, schedule)
-        "[#{Waves::scheduleToAnnounce(schedule)}] #{Waves::extractFirstLineFromText(text)}"
+    # Waves::announce(wave, schedule)
+    def self.announce(wave, schedule)
+        "[#{Waves::scheduleToAnnounce(schedule)}] #{Waves::extractFirstLineFromText(wave["description"])}"
     end
 
     # Waves::scheduleToAnnounce(schedule)
@@ -160,7 +160,7 @@ class Waves
     def self.waveToCatalystObject(wave)
         uuid = wave["uuid"]
         schedule = wave["schedule"]
-        announce = Waves::announce(wave["description"], schedule)
+        announce = Waves::announce(wave, schedule)
         object = {}
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
@@ -174,7 +174,9 @@ class Waves
 
     # Waves::performDone(wave)
     def self.performDone(wave)
-        unixtime = Waves::scheduleToDoNotShowUnixtime(wave["uuid"], wave['schedule'])
+        wave["lastDoneDateTime"] = Time.now.utc.iso8601
+        Waves::commitToDisk(wave)
+        unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
@@ -268,6 +270,7 @@ class Waves
             return if NSCoreObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
+            puts "last done: #{wave["lastDoneDateTime"]}"
             if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
             else

@@ -2,11 +2,12 @@ Wave are the todo repeating items of Catalyst. They carry a description and a sc
 
 Waves
 {
-    "uuid"         : String
-    "nyxNxSet"     : "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
-    "unixtime"     : Float # Unixtime with decimals
-    "description"  : String
-    "schedule"     : Schedule
+    "uuid"             : String
+    "nyxNxSet"         : "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+    "unixtime"         : Float # Unixtime with decimals
+    "description"      : String
+    "schedule"         : Schedule
+    "lastDoneDateTime" : Datetime | null
 }
 
 Schedule
