@@ -164,7 +164,7 @@ class Floats
             {
                 "uuid"             => uuid,
                 "body"             => Floats::toString(float).yellow,
-                "metric"           => 0.75 - indx.to_f/1000,
+                "metric"           => 0.40 - indx.to_f/1000,
                 "landing"          => lambda { Floats::landing(float) },
                 "nextNaturalStep"  => lambda { Floats::nextNaturalStep(float) },
                 "isRunning"          => Runner::isRunning?(uuid),
