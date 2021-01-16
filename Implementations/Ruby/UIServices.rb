@@ -186,6 +186,7 @@ class UIServices
         .each{|float|
             puts "[#{locker.store(float).to_s.rjust(2)}] #{Floats::toString(float)}".yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
+            break if verticalSpaceLeft <= 0
         }
 
         puts ""
