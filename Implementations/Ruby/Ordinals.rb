@@ -51,6 +51,18 @@ class Ordinals
         nil
     end
 
+    # Ordinals::deleteRecord(uuid)
+    def self.deleteRecord(uuid)
+        db = SQLite3::Database.new(Ordinals::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _ordinals_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+        nil
+    end
+
     # -----------------------------------------------------------------------------
 
     # Ordinals::getNextLowOrdinal()

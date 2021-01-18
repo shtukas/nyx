@@ -48,7 +48,7 @@ class NSCoreObjects
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from table2 where _setuuid_=?" , [setid] ) do |row|
+        db.execute("select * from table2 where _setuuid_=?" , [setid]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         db.close
@@ -63,6 +63,7 @@ class NSCoreObjects
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
         $NSCoreObjectsCache76DBF964.delete(object["uuid"])
+        Ordinals::deleteRecord(object["uuid"])
     end
 end
 
