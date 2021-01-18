@@ -247,7 +247,6 @@ class UIServices
         
         if command == ":new" then
             operations = [
-                "float",
                 "wave",
                 "DxThread"
             ]
