@@ -146,6 +146,8 @@ require_relative "NSCoreObjects.rb"
 
 require_relative "Floats.rb"
 
+require_relative "Ordinals.rb"
+
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 
