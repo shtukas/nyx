@@ -357,12 +357,6 @@ class Quarks
                 LucilleCore::pressEnterToContinue()
             })
 
-            Patricia::mxParentsManagement(quark, mx)
-
-            Patricia::mxTargetsManagement(quark, mx)
-
-            Patricia::mxMoveToNewParent(quark, mx)
-
             mx.item(
                 "destroy".yellow,
                 lambda { 

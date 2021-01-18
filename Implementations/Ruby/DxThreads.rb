@@ -124,7 +124,18 @@ class DxThreads
                 Bank::put(dxthread["uuid"], timeInHours.to_f*3600)
             })
 
-            Patricia::mxTargetsManagement(dxthread, mx)
+            mx.item("add new target".yellow, lambda { 
+                o1 = Patricia::makeNewObjectOrNull()
+                return if o1.nil?
+                Arrows::issueOrException(dxthread, o1)
+            })
+
+            mx.item("remove target".yellow, lambda { 
+                targets = Arrows::getTargetsForSource(dxthread)
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
+                return if target.nil?
+                Arrows::unlink(dxthread, target)
+            })
 
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(dxthread)

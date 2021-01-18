@@ -137,52 +137,6 @@ class Patricia
             }
     end
 
-    # Patricia::mxParentsManagement(object, mx)
-    def self.mxParentsManagement(object, mx)
-        mx.item("add parent".yellow, lambda {
-            o1 = Patricia::makeNewObjectOrNull()
-            return if o1.nil?
-            Arrows::issueOrException(o1, object)
-        })
-
-        mx.item("remove parent".yellow, lambda {
-            parents = Arrows::getSourcesForTarget(object)
-            parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda { |parent| Patricia::toString(parent) })
-            return if parent.nil?
-            Arrows::unlink(parent, object)
-        })
-    end
-
-    # Patricia::mxTargetsManagement(object, mx)
-    def self.mxTargetsManagement(object, mx)
-
-        mx.item("add new target".yellow, lambda { 
-            o1 = Patricia::makeNewObjectOrNull()
-            return if o1.nil?
-            Arrows::issueOrException(object, o1)
-        })
-
-        mx.item("remove target".yellow, lambda { 
-            targets = Arrows::getTargetsForSource(object)
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
-            return if target.nil?
-            Arrows::unlink(object, target)
-        })
-    end
-
-    # Patricia::mxMoveToNewParent(object, mx)
-    def self.mxMoveToNewParent(object, mx)
-        mx.item("move to new parent".yellow, lambda {
-            sources = Arrows::getSourcesForTarget(object)
-            newparent = Patricia::makeNewObjectOrNull()
-            return if newparent.nil?
-            Arrows::issueOrException(newparent, object)
-            sources.each{|source|
-                Arrows::unlink(source, object)
-            }
-        })
-    end
-
     # --------------------------------------------------
     # Maker
 

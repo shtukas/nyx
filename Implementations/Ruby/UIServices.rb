@@ -104,28 +104,8 @@ class UIServices
 
         system("clear")
 
-        verticalSpaceLeft = Miscellaneous::screenHeight()-6
+        verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
-
-        puts ""
-
-        entries = []
-
-        # -----------------------------------------------------------
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        sum = 0
-        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _unixtime_ > ?" , [Time.new.to_i-86400] ) do |row|
-            sum = (row["_sum_"] || 0)
-        end
-        db.close
-        entries << "24 hours presence ratio: #{(100*sum.to_f/86400).round(2)} %".yellow
-        # -----------------------------------------------------------
-
-        puts entries.join(", ")
-        verticalSpaceLeft = verticalSpaceLeft - 1
 
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }

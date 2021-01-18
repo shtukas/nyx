@@ -50,12 +50,6 @@ class NSFsck
             return true
         end
 
-        if object["nyxNxSet"] == "c1d07170-ed5f-49fe-9997-5cd928ae1928" then
-            # Float
-            puts "fsck float: #{object["uuid"]}"
-            return true
-        end
-
         if object["nyxNxSet"] == "2ed4c63e-56df-4247-8f20-e8d220958226" then
             # DxThread
             puts "fsck DxThread: #{object["uuid"]}"
