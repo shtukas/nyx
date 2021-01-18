@@ -13,6 +13,5 @@
 
 👩‍💻
         0.60  -> 0.20  DxThreads (0.4 at daily completion)
-        0.40-          Floats
 
         0.20 ----------Water level ------------------------------
