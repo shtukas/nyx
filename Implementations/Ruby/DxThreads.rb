@@ -1,19 +1,5 @@
 # encoding: UTF-8
 
-$XE0A1F55_DxThreadUUIDToCatalystObjects = {}
-$XE0A1F55_DxThreadUUIDToLastUpdateTime = {}
-
-def updateCache5E0A1F55(dxthread)
-    $XE0A1F55_DxThreadUUIDToCatalystObjects[dxthread["uuid"]] = DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
-    $XE0A1F55_DxThreadUUIDToLastUpdateTime[dxthread["uuid"]] = Time.new.to_i
-end
-
-def getCachedCatalystObjects(dxthread)
-    lastUpdateTime = $XE0A1F55_DxThreadUUIDToLastUpdateTime[dxthread["uuid"]] || 0
-    return nil if (Time.new.to_i - lastUpdateTime) > 1200
-    $XE0A1F55_DxThreadUUIDToCatalystObjects[dxthread["uuid"]]
-end
-
 class DxThreads
 
     # DxThreads::dxthreads()
@@ -327,8 +313,8 @@ class DxThreads
         }
     end
 
-    # DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
-    def self.catalystObjectsForDxThreadUseTheForce(dxthread)
+    # DxThreads::dxThreadChildrenCatalystObjects(dxthread)
+    def self.dxThreadChildrenCatalystObjects(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
         Arrows::getTargetsForSource(dxthread)
             .reduce([]) {|targets, target|
@@ -355,14 +341,8 @@ class DxThreads
                     "uuid"             => uuid,
                     "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
                     "metric"           => metric,
-                    "landing"          => lambda { 
-                        Patricia::landing(target) 
-                        updateCache5E0A1F55(dxthread)
-                    },
-                    "nextNaturalStep"  => lambda { 
-                        DxThreads::nextNaturalStep(dxthread, target) 
-                        updateCache5E0A1F55(dxthread)
-                    },
+                    "landing"          => lambda { Patricia::landing(target) },
+                    "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
                     "isRunning"        => Runner::isRunning?(uuid),
                     "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
                 }
@@ -371,13 +351,7 @@ class DxThreads
 
     # DxThreads::catalystObjectsForDxThread(dxthread)
     def self.catalystObjectsForDxThread(dxthread)
-        catalystObjects = getCachedCatalystObjects(dxthread)
-        if catalystObjects then
-            (catalystObjects + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
-        else
-            updateCache5E0A1F55(dxthread)
-            (getCachedCatalystObjects(dxthread) + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
-        end
+        (DxThreads::dxThreadChildrenCatalystObjects(dxthread) + [DxThreads::dxThreadCatalystObjectOrNull(dxthread)]).compact
     end
 
     # DxThreads::catalystObjects()
@@ -385,12 +359,14 @@ class DxThreads
         # ------------------------------------------------------------
         padding = ([0] + DxThreads::dxthreads().map{|dx| DxThreads::toString(dx).size }).max
         KeyValueStore::set(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", padding)
+        # ------------------------------------------------------------
 
         topThread = DxThreads::dxthreads()
+            .select{|dx| DxThreads::completionRatio(dx) < 1 }
             .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
             .first
 
-        DxThreads::catalystObjectsForDxThread(topThread)
+        DxThreads::catalystObjectsForDxThread(topThread || DxThreads::getStream())
     end
 
     # --------------------------------------------------------------
@@ -401,11 +377,3 @@ class DxThreads
         "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
     end
 end
-
-Thread.new {
-    loop {
-        sleep 120
-        DxThreads::dxthreads()
-            .each{|dxthread| updateCache5E0A1F55(dxthread) }
-    }
-}
