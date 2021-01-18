@@ -270,7 +270,7 @@ class UIServices
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "float" then
-                object = Floats::issueFloatTextInteractivelyOrNull()
+                object = Floats::interactivelyIssueFloatOrNull()
                 puts JSON.pretty_generate(object)
                 return
             end

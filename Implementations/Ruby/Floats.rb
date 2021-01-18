@@ -10,11 +10,16 @@ class Floats
 
     # Floats::toString(float)
     def self.toString(float)
-        "[float] #{float["line"]}"
+        if float["type"] == "line" then
+            return "[float] line: #{float["line"]}"
+        end
+        if float["type"] == "text" then
+            return "[float] text: location: #{float["location"]}"
+        end
     end
 
-    # Floats::issueFloatText(line)
-    def self.issueFloatText(line)
+    # Floats::issueFloatLine(line)
+    def self.issueFloatLine(line)
         uuid = Miscellaneous::l22()
         object = {
             "uuid"     => uuid,
@@ -27,23 +32,54 @@ class Floats
         object
     end
 
-    # Floats::issueFloatTextInteractivelyOrNull()
-    def self.issueFloatTextInteractivelyOrNull()
-        line = LucilleCore::askQuestionAnswerAsString("line: ")
-        Floats::issueFloatText(line)
+    # Floats::issueFloatText(text)
+    def self.issueFloatText(text)
+        uuid = Miscellaneous::l22()
+        location = Miscellaneous::l22()
+        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Floats/kvstore", location, text)
+        object = {
+            "uuid"     => uuid,
+            "nyxNxSet" => "c1d07170-ed5f-49fe-9997-5cd928ae1928",
+            "unixtime" => Time.new.to_f,
+            "type"     => "text",
+            "location" => location
+        }
+        NSCoreObjects::put(object)
+        object
+    end
+
+    # Floats::interactivelyIssueFloatOrNull()
+    def self.interactivelyIssueFloatOrNull()
+        operations = ["line", "text"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return nil if operation.nil?
+        if operation == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            return Floats::issueFloatLine(line)
+        end
+        if operation == "text" then
+            text = Miscellaneous::editTextSynchronously("")
+            return Floats::issueFloatText(text)
+        end
     end
 
     # Floats::moveFloatToDxThread(float, dxthread)
     def self.moveFloatToDxThread(float, dxthread)
-        quark = {
-            "uuid"              => float["uuid"],
-            "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
-            "unixtime"          => Time.new.to_f,
-            "type"              => "line",
-            "line"              => float["line"]                              
-        }
-        NSCoreObjects::put(quark)
-        Arrows::issueOrException(dxthread, quark)
+        if float["type"] == "line" then
+            quark = {
+                "uuid"              => float["uuid"],
+                "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+                "unixtime"          => Time.new.to_f,
+                "type"              => "line",
+                "line"              => float["line"]                              
+            }
+            NSCoreObjects::put(quark)
+            Arrows::issueOrException(dxthread, quark)
+        end
+        if float["type"] == "text" then
+            puts "I do not know how to move floats of type text to DxThread"
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
     # Floats::landing(float)
