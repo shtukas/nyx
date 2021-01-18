@@ -144,8 +144,6 @@ require_relative "NSGarbageCollection.rb"
 require_relative "NSFsck.rb"
 require_relative "NSCoreObjects.rb"
 
-require_relative "Floats.rb"
-
 require_relative "Ordinals.rb"
 
 require_relative "Patricia.rb"

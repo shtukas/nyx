@@ -15,7 +15,7 @@ class Ordinals
         db.results_as_hash = true
         items = []
         db.execute( "select * from _ordinals_", [] ) do |row|
-            items = {
+            items << {
                 "uuid"    => row['_uuid_'],
                 "ordinal" => row['_ordinal_']
             }
@@ -51,11 +51,6 @@ class Ordinals
         nil
     end
 
-    # Ordinals::getHighOrdinals()
-    def self.getHighOrdinals()
-        ([1000] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
-    end
-
     # Ordinals::getLowOrdinal()
     def self.getLowOrdinal()
         ordinal = ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }.select{|ordinal| ordinal < 1000 }).max
@@ -65,4 +60,14 @@ class Ordinals
         (ordinal + 1000).to_f/2
     end
 
+    # Ordinals::getHighOrdinals()
+    def self.getHighOrdinals()
+        ([1000] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
+    end
+
+    # Ordinals::issueLowOrdinal(uuid)
+    def self.issueLowOrdinal(uuid)
+        ordinal = Ordinals::getLowOrdinal()
+        Ordinals::setOrdinalForUUID(uuid, ordinal)
+    end
 end

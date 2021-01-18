@@ -11,7 +11,6 @@ class CatalystObjectsOperator
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
             DxThreads::catalystObjects(),
-            Floats::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
         ].flatten.compact
@@ -40,10 +39,6 @@ class CatalystObjectsOperator
             {
                 "name" => "DxThreads",
                 "exec" => lambda { DxThreads::catalystObjects() }
-            },
-            {
-                "name" => "Floats",
-                "exec" => lambda { Floats::catalystObjects() }
             },
             {
                 "name" => "VideoStream",

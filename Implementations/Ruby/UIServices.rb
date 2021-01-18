@@ -176,22 +176,6 @@ class UIServices
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        Floats::floats()
-        .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
-        .map {|float|
-            float["landing"] = lambda { Floats::landing(float) }
-            float["nextNaturalStep"] = lambda { Floats::nextNaturalStep(float) }
-            float
-        }
-        .each{|float|
-            puts "[#{locker.store(float).to_s.rjust(2)}] #{Floats::toString(float)}".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            break if verticalSpaceLeft <= 0
-        }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         catalystObjects.drop(5)
             .each{|object|
                 str = DisplayUtils::makeDisplayStringForCatalystListing(object)
@@ -269,11 +253,6 @@ class UIServices
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
-            if operation == "float" then
-                object = Floats::interactivelyIssueFloatOrNull()
-                puts JSON.pretty_generate(object)
-                return
-            end
             if operation == "wave" then
                 object = Waves::issueNewWaveInteractivelyOrNull()
                 Patricia::landing(object)
