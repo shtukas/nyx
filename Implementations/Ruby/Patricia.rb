@@ -84,7 +84,7 @@ class Patricia
 
     # Patricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
     def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
+        targets = Arrows::getTargetsForSource(object)
         if targets.size == 0 then
             return nil
         end
@@ -99,12 +99,12 @@ class Patricia
 
     # Patricia::selectOneTargetOfThisObjectOrNull(object)
     def self.selectOneTargetOfThisObjectOrNull(object)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", Arrows::getTargetsForSource(object), lambda{|t| Patricia::toString(t) })
     end
 
     # Patricia::selectZeroOrMoreTargetsFromThisObject(object)
     def self.selectZeroOrMoreTargetsFromThisObject(object)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
+        selected, _ = LucilleCore::selectZeroOrMore("target", [], Arrows::getTargetsForSource(object), lambda{|t| Patricia::toString(t) })
         selected
     end
 
@@ -128,10 +128,10 @@ class Patricia
 
     # Patricia::mxTargetting(object, mx)
     def self.mxTargetting(object, mx)
-        targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
+        targets = Arrows::getTargetsForSource(object)
         targets
             .each{|target|
-                mx.item("target ( #{"%6.3f" % TargetOrdinals::getTargetOrdinal(object, target)} ) #{Patricia::toString(target)}", lambda { 
+                mx.item("target #{Patricia::toString(target)}", lambda { 
                     Patricia::landing(target) 
                 })
             }
@@ -156,26 +156,14 @@ class Patricia
     # Patricia::mxTargetsManagement(object, mx)
     def self.mxTargetsManagement(object, mx)
 
-        mx.item("add new target at ordinal".yellow, lambda { 
+        mx.item("add new target".yellow, lambda { 
             o1 = Patricia::makeNewObjectOrNull()
             return if o1.nil?
             Arrows::issueOrException(object, o1)
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            if ordinal == 0 then
-                ordinal = ([1] + TargetOrdinals::getTargetsForSourceInOrdinalOrder(object).map{|target| TargetOrdinals::getTargetOrdinal(object, target) }).max
-            end
-            TargetOrdinals::setTargetOrdinal(object, o1, ordinal)
-        })
-
-        mx.item("update target's ordinal".yellow, lambda { 
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TargetOrdinals::getTargetsForSourceInOrdinalOrder(object), lambda{|t| Patricia::toString(t) })
-            return if target.nil?
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            TargetOrdinals::setTargetOrdinal(object, target, ordinal)
         })
 
         mx.item("remove target".yellow, lambda { 
-            targets = TargetOrdinals::getTargetsForSourceInOrdinalOrder(object)
+            targets = Arrows::getTargetsForSource(object)
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
             return if target.nil?
             Arrows::unlink(object, target)

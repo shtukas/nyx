@@ -21,11 +21,6 @@ class DxThreads
         NSCoreObjects::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
-    # DxThreads::getInbox()
-    def self.getInbox()
-        NSCoreObjects::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
-    end
-
     # DxThreads::getStream()
     def self.getStream()
         NSCoreObjects::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
@@ -324,7 +319,7 @@ class DxThreads
     # DxThreads::catalystObjectsForDxThreadUseTheForce(dxthread)
     def self.catalystObjectsForDxThreadUseTheForce(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
-        TargetOrdinals::getTargetsForSourceInOrdinalOrder(dxthread)
+        Arrows::getTargetsForSource(dxthread)
             .reduce([]) {|targets, target|
                 uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
                 if Runner::isRunning?(uuid) then
@@ -379,11 +374,12 @@ class DxThreads
         # ------------------------------------------------------------
         padding = ([0] + DxThreads::dxthreads().map{|dx| DxThreads::toString(dx).size }).max
         KeyValueStore::set(nil, "7c3dfda3-a38b-4b95-817d-36099fb15d68", padding)
-        DxThreads::dxthreads()
-            .map{|dxthread|
-                DxThreads::catalystObjectsForDxThread(dxthread)
-            }
-            .flatten
+
+        topThread = DxThreads::dxthreads()
+            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+            .first
+
+        DxThreads::catalystObjectsForDxThread(topThread)
     end
 
     # --------------------------------------------------------------

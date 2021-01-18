@@ -45,6 +45,7 @@ loop {
     break if link.nil?
     puts "vienna: #{link}"
     quark = Quarks::issueUrl(link)
-    Arrows::issueOrException(DxThreads::getInbox(), quark)
+    Arrows::issueOrException(DxThreads::getStream(), quark)
+    Ordinals::ensureLowOrdinal(quark)
     viennaLinkFeeder.done(link)
 }

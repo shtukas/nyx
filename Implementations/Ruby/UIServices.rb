@@ -276,8 +276,8 @@ class UIServices
 
         Quarks::quarks().each{|quark|
             if !Arrows::getSourcesForTarget(quark).any?{|parent| Patricia::isDxThread(parent) } then
-                puts "Adding orphan quark to Inbox: #{Patricia::toString(quark)}"
-                dxthread = NSCoreObjects::getOrNull("f6d3e655c4b5c7ab77bb5642cd89a23b")
+                puts "Adding orphan quark to Stream: #{Patricia::toString(quark)}"
+                dxthread = NSCoreObjects::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
                 Arrows::issueOrException(dxthread, quark)
                 exit
             end

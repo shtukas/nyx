@@ -51,8 +51,10 @@ class Ordinals
         nil
     end
 
-    # Ordinals::getLowOrdinal()
-    def self.getLowOrdinal()
+    # -----------------------------------------------------------------------------
+
+    # Ordinals::getNextLowOrdinal()
+    def self.getNextLowOrdinal()
         ordinal = ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }.select{|ordinal| ordinal < 1000 }).max
         if ordinal < 500 then
             return ordinal + 1
@@ -60,14 +62,22 @@ class Ordinals
         (ordinal + 1000).to_f/2
     end
 
-    # Ordinals::getHighOrdinals()
-    def self.getHighOrdinals()
+    # Ordinals::getNextHighOrdinal()
+    def self.getNextHighOrdinal()
         ([1000] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
     end
 
-    # Ordinals::issueLowOrdinal(uuid)
-    def self.issueLowOrdinal(uuid)
-        ordinal = Ordinals::getLowOrdinal()
-        Ordinals::setOrdinalForUUID(uuid, ordinal)
+    # -----------------------------------------------------------------------------
+
+    # Ordinals::ensureLowOrdinal(object)
+    def self.ensureLowOrdinal(object)
+        return if Ordinals::getOrdinalForUUID(object["uuid"])
+        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextLowOrdinal())
     end
+
+    # Ordinals::ensureHighOrdinal(object)
+    def self.ensureHighOrdinal(object)
+        return if Ordinals::getOrdinalForUUID(object["uuid"])
+        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextHighOrdinal())
+    end    
 end
