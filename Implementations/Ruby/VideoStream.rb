@@ -31,7 +31,7 @@ class VideoStream
 
     # VideoStream::metric(rdtih, indx)
     def self.metric(rdtih, indx)
-        0.6 - 0.4*(1-Math.exp(-rdtih-indx.to_f/10))
+        0.6 - 0.4*(1-Math.exp(-2*rdtih-indx.to_f/10))
     end
 
     # VideoStream::videoIsRunning(filepath)
