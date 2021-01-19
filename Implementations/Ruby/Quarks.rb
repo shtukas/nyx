@@ -308,6 +308,7 @@ class Quarks
                 "transmute".yellow,
                 lambda { 
                     object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
+                    return if object.nil?
                     object["uuid"] = quark["uuid"] # transmutation
                     NSCoreObjects::put(object)
                 }
