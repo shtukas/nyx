@@ -99,7 +99,6 @@ class UIServices
     def self.standardDisplayWithPrompt()
 
         catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                            .select{|object| object['metric'] >= 0.210 } # As we collapse down to 0.2, we do this to be able to stop at some point
 
         locker = Locker.new()
 
