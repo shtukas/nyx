@@ -99,6 +99,7 @@ class UIServices
     def self.standardDisplayWithPrompt()
 
         catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                            .select{|object| object['metric'] >= 0.205 } # to make it stop
 
         locker = Locker.new()
 
