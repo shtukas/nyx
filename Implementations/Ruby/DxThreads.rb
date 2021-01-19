@@ -268,7 +268,7 @@ class DxThreads
             else
                 ""
             end
-        "#{DxThreads::toString(dxthread)} #{Patricia::toString(target)}#{runningString}"
+        "#{DxThreads::toString(dxthread)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(target["uuid"])}) #{Patricia::toString(target)}#{runningString}"
     end
 
     # DxThreads::dxThreadBaseMetric(dxthread)
@@ -309,6 +309,8 @@ class DxThreads
         (KeyValueStore::getOrNull(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}") || "")
             .split("|")
             .map{|uuid| NSCoreObjects::getOrNull(uuid) }
+            .compact
+            .sort{|t1, t2| BankExtended::recoveredDailyTimeInHours(t1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(t2["uuid"]) }
             .map{|target|
                 uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
                 metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
@@ -353,7 +355,7 @@ Thread.new {
         DxThreads::dxthreads()
             .each{|dxthread|
                 targets = Arrows::getTargetsForSource(dxthread)
-                    .sort{|t1,t2| Ordinals::getOrdinalForUUID(t1["uuid"]) <=> Ordinals::getOrdinalForUUID(t2["uuid"]) }
+                    .sort{|t1, t2| Ordinals::getOrdinalForUUID(t1["uuid"]) <=> Ordinals::getOrdinalForUUID(t2["uuid"]) }
                     .first(10)
                 KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", targets.map{|t| t["uuid"] }.join("|"))
             }
