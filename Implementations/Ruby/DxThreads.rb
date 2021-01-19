@@ -70,11 +70,24 @@ class DxThreads
 
             puts ""
 
-            Patricia::mxSourcing(dxthread, mx)
+            Arrows::getSourcesForTarget(dxthread).each{|source|
+                mx.item(
+                    "source: #{Patricia::toString(source)}",
+                    lambda { Patricia::landing(source) }
+                )
+            }
 
             puts ""
 
-            Patricia::mxTargetting(dxthread, mx)
+            def self.mxTargetting(dxthread, mx)
+                targets = Arrows::getTargetsForSource(object)
+                targets
+                    .each{|target|
+                        mx.item("target #{Patricia::toString(target)}", lambda { 
+                            Patricia::landing(target) 
+                        })
+                    }
+            end
 
             puts ""
 

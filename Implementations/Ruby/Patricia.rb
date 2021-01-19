@@ -114,30 +114,6 @@ class Patricia
     end
 
     # --------------------------------------------------
-    # User Interface (Part 2)
-
-    # Patricia::mxSourcing(object, mx)
-    def self.mxSourcing(object, mx)
-        Arrows::getSourcesForTarget(object).each{|source|
-            mx.item(
-                "source: #{Patricia::toString(source)}",
-                lambda { Patricia::landing(source) }
-            )
-        }
-    end
-
-    # Patricia::mxTargetting(object, mx)
-    def self.mxTargetting(object, mx)
-        targets = Arrows::getTargetsForSource(object)
-        targets
-            .each{|target|
-                mx.item("target #{Patricia::toString(target)}", lambda { 
-                    Patricia::landing(target) 
-                })
-            }
-    end
-
-    # --------------------------------------------------
     # Maker
 
     # Patricia::makeNewObjectOrNull()

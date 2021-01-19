@@ -282,11 +282,24 @@ class Quarks
 
             puts ""
 
-            Patricia::mxSourcing(quark, mx)
+            Arrows::getSourcesForTarget(quark).each{|source|
+                mx.item(
+                    "source: #{Patricia::toString(source)}",
+                    lambda { Patricia::landing(source) }
+                )
+            }
 
             puts ""
 
-            Patricia::mxTargetting(quark, mx)
+            def self.mxTargetting(quark, mx)
+                targets = Arrows::getTargetsForSource(object)
+                targets
+                    .each{|target|
+                        mx.item("target #{Patricia::toString(target)}", lambda { 
+                            Patricia::landing(target) 
+                        })
+                    }
+            end
 
             puts ""
 
