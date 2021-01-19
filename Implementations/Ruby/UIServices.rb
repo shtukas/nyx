@@ -111,7 +111,6 @@ class UIServices
         dates =  Calendar::dates()
                     .select {|date| date <= Time.new.to_s[0, 10] }
         if dates.size > 0 then
-            puts ""
             verticalSpaceLeft = verticalSpaceLeft - 1
             dates
                 .each{|date|
@@ -127,9 +126,6 @@ class UIServices
                     verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 }
         end
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
         
         catalystObjects.take(5)
             .each{|object|
@@ -139,10 +135,8 @@ class UIServices
                 puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
             }
 
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         DxThreads::dxthreads()
+        .select{|dx| DxThreads::completionRatio(dx) < 1 }
         .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
         .map {|dxthread|
             dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
@@ -153,9 +147,6 @@ class UIServices
             puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
         }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
 
         catalystObjects.drop(5)
             .each{|object|
