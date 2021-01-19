@@ -291,18 +291,6 @@ class Quarks
 
             puts ""
 
-            def self.mxTargetting(quark, mx)
-                targets = Arrows::getTargetsForSource(object)
-                targets
-                    .each{|target|
-                        mx.item("target #{Patricia::toString(target)}", lambda { 
-                            Patricia::landing(target) 
-                        })
-                    }
-            end
-
-            puts ""
-
             mx.item(
                 "access".yellow,
                 lambda { Quarks::open1(quark) }

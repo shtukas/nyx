@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$Ordinals27C16291 = {}
+
 class Ordinals
 
     # Ordinals::databaseFilepath()
@@ -24,8 +26,9 @@ class Ordinals
         items
     end
 
-    # Ordinals::getOrdinalForUUID(uuid)
-    def self.getOrdinalForUUID(uuid)
+    # Ordinals::getOrdinalForUUIDOrNull(uuid)
+    def self.getOrdinalForUUIDOrNull(uuid)
+        return $Ordinals27C16291[uuid] if $Ordinals27C16291[uuid]
         db = SQLite3::Database.new(Ordinals::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -35,7 +38,8 @@ class Ordinals
             answer = row['_ordinal_']
         end
         db.close
-        answer || 0
+        $Ordinals27C16291[uuid] = answer
+        answer
     end
 
     # Ordinals::setOrdinalForUUID(uuid, ordinal)
@@ -48,6 +52,7 @@ class Ordinals
         db.execute "insert into _ordinals_ (_uuid_, _ordinal_) values ( ?, ? )", [uuid, ordinal]
         db.commit 
         db.close
+        $Ordinals27C16291[uuid] = ordinal
         nil
     end
 
@@ -64,6 +69,14 @@ class Ordinals
     end
 
     # -----------------------------------------------------------------------------
+
+    # Ordinals::getOrdinal(object)
+    def self.getOrdinal(object)
+        ordinal = Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
+        return ordinal if ordinal
+        Ordinals::ensureLowOrdinal(object)
+        Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
+    end
 
     # Ordinals::getNextLowOrdinal()
     def self.getNextLowOrdinal()
@@ -83,13 +96,13 @@ class Ordinals
 
     # Ordinals::ensureLowOrdinal(object)
     def self.ensureLowOrdinal(object)
-        return if Ordinals::getOrdinalForUUID(object["uuid"])
+        return if Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
         Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextLowOrdinal())
     end
 
     # Ordinals::ensureHighOrdinal(object)
     def self.ensureHighOrdinal(object)
-        return if Ordinals::getOrdinalForUUID(object["uuid"])
+        return if Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
         Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextHighOrdinal())
     end    
 end

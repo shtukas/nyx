@@ -79,15 +79,14 @@ class DxThreads
 
             puts ""
 
-            def self.mxTargetting(dxthread, mx)
-                targets = Arrows::getTargetsForSource(object)
-                targets
-                    .each{|target|
-                        mx.item("target #{Patricia::toString(target)}", lambda { 
-                            Patricia::landing(target) 
-                        })
-                    }
-            end
+            Arrows::getTargetsForSource(dxthread)
+                .sort{|t1, t2| Ordinals::getOrdinal(t1) <=> Ordinals::getOrdinal(t2) }
+                .first(30) # item we are showing at the same time
+                .each{|target|
+                    mx.item("[target] [#{Ordinals::getOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
+                        Patricia::landing(target) 
+                    })
+                }
 
             puts ""
 
@@ -368,8 +367,8 @@ Thread.new {
         DxThreads::dxthreads()
             .each{|dxthread|
                 targets = Arrows::getTargetsForSource(dxthread)
-                    .sort{|t1, t2| Ordinals::getOrdinalForUUID(t1["uuid"]) <=> Ordinals::getOrdinalForUUID(t2["uuid"]) }
-                    .first(10)
+                    .sort{|t1, t2| Ordinals::getOrdinal(t1) <=> Ordinals::getOrdinal(t2) }
+                    .first(10) # number of items we are doing at the same time
                 KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", targets.map{|t| t["uuid"] }.join("|"))
             }
         sleep 1200
