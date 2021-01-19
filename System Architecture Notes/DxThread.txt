@@ -7,5 +7,4 @@ DxThread {
     "unixtime"                    : Float # Unixtime with decimals
     "description"                 : String    
     "timeCommitmentPerDayInHours" : Float
-    "depth"                       : Integer
 }

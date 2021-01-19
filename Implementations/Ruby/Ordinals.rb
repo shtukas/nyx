@@ -35,7 +35,7 @@ class Ordinals
             answer = row['_ordinal_']
         end
         db.close
-        answer
+        answer || 0
     end
 
     # Ordinals::setOrdinalForUUID(uuid, ordinal)
