@@ -43,15 +43,15 @@ class Quarks
         }
     end
 
-    # Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
-    def self.makeAionFileSystemLocation(aionFileSystemLocation)
+    # Quarks::makeAionFileSystemLocation(location)
+    def self.makeAionFileSystemLocation(location)
         operator = ElizabethX2.new()
         {
             "uuid"              => SecureRandom.uuid,
             "nyxNxSet"          => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
             "unixtime"          => Time.new.to_f,
             "type"              => "aion-location",
-            "roothash"          => AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
+            "roothash"          => AionCore::commitLocationReturnHash(operator, location)
         }
     end
 
@@ -71,9 +71,9 @@ class Quarks
         object
     end
 
-    # Quarks::issueAionFileSystemLocation(aionFileSystemLocation)
-    def self.issueAionFileSystemLocation(aionFileSystemLocation)
-        object = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+    # Quarks::issueAionFileSystemLocation(location)
+    def self.issueAionFileSystemLocation(location)
+        object = Quarks::makeAionFileSystemLocation(location)
         NSCoreObjects::put(object)
         object
     end
@@ -124,8 +124,8 @@ class Quarks
         end
         if type == "aion-point" then
             locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
-            aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-            quark = Quarks::makeAionFileSystemLocation(aionFileSystemLocation)
+            location = "/Users/pascal/Desktop/#{locationname}"
+            quark = Quarks::makeAionFileSystemLocation(location)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             NSCoreObjects::put(quark)
             return quark
@@ -135,7 +135,7 @@ class Quarks
 
     # Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
     def self.makeUnsavedQuarkForTransmutationInteractivelyOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "filesystem-unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "url", "filesystem-unique-string", "aion-point"])
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             quark = Quarks::makeLine(line)
@@ -152,6 +152,13 @@ class Quarks
             mark = Quarks::determineMarkOrNull()
             return nil if mark.nil?
             quark = Quarks::makeFileSystemUniqueString(mark)
+            quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
+            return quark
+        end
+        if type == "aion-point" then
+            locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
+            location = "/Users/pascal/Desktop/#{locationname}"
+            quark = Quarks::makeAionFileSystemLocation(location)
             quark["description"] = LucilleCore::askQuestionAnswerAsString("quark description: ")
             return quark
         end
@@ -245,8 +252,8 @@ class Quarks
             if option == "read ; edit ; update" then
                 # Same as b83fd7f7-b906-44dc-96a0-71b9f1684b3a
                 locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
-                aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-                quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
+                location = "/Users/pascal/Desktop/#{locationname}"
+                quark["roothash"] = AionCore::commitLocationReturnHash(operator, location)
                 NSCoreObjects::put(quark)
             end
             if option == "read ; transmute" then
@@ -344,8 +351,8 @@ class Quarks
                     LucilleCore::pressEnterToContinue()
                     # Same as b83fd7f7-b906-44dc-96a0-71b9f1684b3a
                     locationname = LucilleCore::askQuestionAnswerAsString("location name on Desktop: ")
-                    aionFileSystemLocation = "/Users/pascal/Desktop/#{locationname}"
-                    quark["roothash"] = AionCore::commitLocationReturnHash(operator, aionFileSystemLocation)
+                    location = "/Users/pascal/Desktop/#{locationname}"
+                    quark["roothash"] = AionCore::commitLocationReturnHash(operator, location)
                     NSCoreObjects::put(quark)
                     return
                 end
