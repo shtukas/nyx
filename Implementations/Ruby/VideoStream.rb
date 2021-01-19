@@ -29,9 +29,9 @@ class VideoStream
             .first
     end
 
-    # VideoStream::metric(indx)
-    def self.metric(indx)
-        0.6 - 0.4*( 1 - Math.exp(-BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")) ) - indx.to_f/1000
+    # VideoStream::metric(rdtih, indx)
+    def self.metric(rdtih, indx)
+        0.6 - 0.4*(1-Math.exp(-rdtih-indx.to_f/10))
     end
 
     # VideoStream::videoIsRunning(filepath)
@@ -45,37 +45,49 @@ class VideoStream
 
         raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
 
-        objects = []
+        recoveredDailyTimeInHours = BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")
 
-        VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
-            .reduce([]){|filepaths, filepath|
-                if filepaths.size >= 3 then
-                    filepaths
+        makeObject = lambda{|filepath, rdtih, indx|
+            isRunning = VideoStream::videoIsRunning(filepath)
+            uuid = VideoStream::filepathToVideoUUID(filepath)
+            metric = VideoStream::metric(rdtih, indx)
+            metric = 1 if isRunning
+            {
+                "uuid"        => uuid,
+                "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
+                "metric"      => metric,
+                "landing"         => lambda { VideoStream::execute(filepath) },
+                "nextNaturalStep" => lambda { VideoStream::execute(filepath) },
+                "isRunning"   => isRunning,
+                "x-video-stream" => true,
+                "x-filepath"  => filepath
+            }
+        }
+
+        objects = VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
+            .map
+            .with_index{|filepath, indx| 
+                {
+                    "filepath" => filepath,
+                    "index"    => indx
+                }
+            }
+            .reduce([]){|items, item|
+                if items.size >= 3 then
+                    items
                 else
-                    uuid = VideoStream::filepathToVideoUUID(filepath)
+                    uuid = VideoStream::filepathToVideoUUID(item["filepath"])
                     if DoNotShowUntil::isVisible(uuid) then
-                        filepaths + [filepath]
+                        items + [item]
                     else
-                        filepaths
+                        items
                     end
                 end
             }
-            .map
-            .with_index{|filepath, indx|
-                isRunning = VideoStream::videoIsRunning(filepath)
-                uuid = VideoStream::filepathToVideoUUID(filepath)
-                metric = VideoStream::metric(indx)
-                metric = 1 if isRunning
-                objects << {
-                    "uuid"        => uuid,
-                    "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
-                    "metric"      => metric,
-                    "landing"         => lambda { VideoStream::execute(filepath) },
-                    "nextNaturalStep" => lambda { VideoStream::execute(filepath) },
-                    "isRunning"   => isRunning,
-                    "x-video-stream" => true,
-                    "x-filepath"  => filepath
-                }
+            .map{|item| 
+                filepath = item["filepath"]
+                indx     = item["index"]
+                makeObject.call(filepath, recoveredDailyTimeInHours, indx) 
             }
 
         if objects.any?{|object| object["body"].include?("running") } then
