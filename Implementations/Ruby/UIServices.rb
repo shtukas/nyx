@@ -105,6 +105,8 @@ class UIServices
 
         system("clear")
 
+        puts ""
+
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
