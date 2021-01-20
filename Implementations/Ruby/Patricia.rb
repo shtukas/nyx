@@ -128,8 +128,10 @@ class Patricia
     def self.moveTargetToNewDxThread(quark, existingDxParent)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
+        ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dx2)
         Arrows::issueOrException(dx2, quark)
         Arrows::unlink(existingDxParent, quark)
+        Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
     end
 
     # Patricia::selectDxThreadIssueNewQuark()

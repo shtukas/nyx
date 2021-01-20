@@ -2,6 +2,16 @@
 
 class DxThreads
 
+    # DxThreads::doingDepth()
+    def self.doingDepth()
+        10
+    end
+
+    # DxThreads::visualisationDepth()
+    def self.visualisationDepth()
+        30
+    end
+
     # DxThreads::dxthreads()
     def self.dxthreads()
         NSCoreObjects::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
@@ -46,9 +56,40 @@ class DxThreads
         "[DxThread] #{object["description"]}"
     end
 
+    # DxThreads::dxThreadAndTargetToString(dxthread, target)
+    def self.dxThreadAndTargetToString(dxthread, target)
+        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        runningString = 
+            if Runner::isRunning?(uuid) then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        "#{DxThreads::toString(dxthread)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(target["uuid"])}) #{Patricia::toString(target)}#{runningString}"
+    end
+
+    # DxThreads::toStringWithAnalytics(dxthread)
+    def self.toStringWithAnalytics(dxthread)
+        ratio = DxThreads::completionRatio(dxthread)
+        "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
+    end
+
     # DxThreads::completionRatio(dxthread)
     def self.completionRatio(dxthread)
         BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+    end
+
+    # DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
+    def self.determinePlacingOrdinalForThreadOrNull(dxthread)
+        targets = Arrows::getTargetsForSource(dxthread)
+                    .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+                    .first(DxThreads::visualisationDepth())
+        targets.each{|target|
+            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}"
+        }
+        ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal (empty for abort): ")
+        return nil if ordinal == ""
+        ordinal.nil?
     end
 
     # DxThreads::selectOneExistingDxThreadOrNull()
@@ -72,7 +113,7 @@ class DxThreads
 
             Arrows::getTargetsForSource(dxthread)
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .first(30) # item we are showing at the same time
+                .first(DxThreads::visualisationDepth())
                 .each{|target|
                     mx.item("[target] [#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
                         Patricia::landing(target) 
@@ -113,7 +154,7 @@ class DxThreads
             mx.item("select and move target".yellow, lambda { 
                 targets = Arrows::getTargetsForSource(dxthread)
                             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                            .first(30)
+                            .first(DxThreads::visualisationDepth())
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
                 return if target.nil?
                 Patricia::moveTargetToNewDxThread(quark, dxthread)
@@ -263,18 +304,6 @@ class DxThreads
         end
     end
 
-    # DxThreads::dxThreadAndTargetToString(dxthread, target)
-    def self.dxThreadAndTargetToString(dxthread, target)
-        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
-        runningString = 
-            if Runner::isRunning?(uuid) then
-                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
-            else
-                ""
-            end
-        "#{DxThreads::toString(dxthread)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(target["uuid"])}) #{Patricia::toString(target)}#{runningString}"
-    end
-
     # DxThreads::dxThreadBaseMetric(dxthread)
     def self.dxThreadBaseMetric(dxthread)
         ratio = DxThreads::completionRatio(dxthread)
@@ -345,12 +374,6 @@ class DxThreads
 
         DxThreads::catalystObjectsForDxThread(topThread || DxThreads::getStream())
     end
-
-    # DxThreads::toStringWithAnalytics(dxthread)
-    def self.toStringWithAnalytics(dxthread)
-        ratio = DxThreads::completionRatio(dxthread)
-        "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
-    end
 end
 
 Thread.new {
@@ -360,7 +383,7 @@ Thread.new {
             .each{|dxthread|
                 targets = Arrows::getTargetsForSource(dxthread)
                     .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                    .first(10) # number of items we are doing at the same time
+                    .first(DxThreads::doingDepth())
                 KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", targets.map{|t| t["uuid"] }.join("|"))
             }
         sleep 1200

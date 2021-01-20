@@ -138,17 +138,17 @@ class UIServices
             }
 
         DxThreads::dxthreads()
-        .select{|dx| DxThreads::completionRatio(dx) < 1 }
-        .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-        .map {|dxthread|
-            dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
-            dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
-            dxthread
-        }
-        .each{|dxthread|
-            puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        }
+            .select{|dx| DxThreads::completionRatio(dx) < 1 }
+            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+            .map {|dxthread|
+                dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
+                dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
+                dxthread
+            }
+            .each{|dxthread|
+                puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
 
         catalystObjects.drop(5)
             .each{|object|
