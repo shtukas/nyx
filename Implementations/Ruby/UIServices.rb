@@ -250,6 +250,14 @@ class UIServices
             end
         }
 
+        Ordinals::getOrdinalItems().each{|item|
+            if NSCoreObjects::getOrNull(item["uuid"]).nil? then
+                puts "ordinals database garbage collection, unknown uuid: #{item["uuid"]}"
+                LucilleCore::pressEnterToContinue()
+                Ordinals::deleteRecord(item["uuid"])
+            end
+        }
+
         Thread.new {
             loop {
                 sleep 120

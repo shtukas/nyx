@@ -2,8 +2,8 @@
 
 class DxThreads
 
-    # DxThreads::doingDepth()
-    def self.doingDepth()
+    # DxThreads::focusDoingDepth()
+    def self.focusDoingDepth()
         10
     end
 
@@ -346,8 +346,7 @@ class DxThreads
     # DxThreads::dxThreadChildrenCatalystObjects(dxthread)
     def self.dxThreadChildrenCatalystObjects(dxthread)
         basemetric = DxThreads::dxThreadBaseMetric(dxthread)
-        (KeyValueStore::getOrNull(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}") || "")
-            .split("|")
+        DxThreads::getTheFocusDoingUUIDsForDxThread(dxthread)
             .map{|uuid| NSCoreObjects::getOrNull(uuid) }
             .compact
             .sort{|t1, t2| BankExtended::recoveredDailyTimeInHours(t1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(t2["uuid"]) }
@@ -381,6 +380,38 @@ class DxThreads
 
         DxThreads::catalystObjectsForDxThread(topThread || DxThreads::getStream())
     end
+
+    # --------------------------------------------------------------
+
+    # DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
+    def self.recomputeFocusUUIDsForDxThread(dxthread)
+        Arrows::getTargetsForSource(dxthread)
+            .select{|target| DoNotShowUntil::isVisible(target["uuid"]) }
+            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+            .first(DxThreads::focusDoingDepth())
+            .map{|t| t["uuid"] }
+    end
+
+    # DxThreads::getTheFocusDoingUUIDsForDxThread(dxthread)
+    def self.getTheFocusDoingUUIDsForDxThread(dxthread)
+        # Getting what is stored
+        uuids = (KeyValueStore::getOrNull(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}") || "").split("|")
+
+        # Selecting what is still alive                   
+        uuids = uuids.select{|uuid| NSCoreObjects::getOrNull(uuid) }
+
+        # Selecting what is visible
+        uuids = uuids.select{|uuid| DoNotShowUntil::isVisible(uuid) }
+
+        if uuids.size < DxThreads::focusDoingDepth().to_f/2 then
+            puts "recomputing TheFocusDoingUUIDs for DxThread: #{DxThreads::toString(dxthread)}"
+            # Recomputing uuids
+            uuids = DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
+            KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", uuids.join("|"))
+        end
+
+        uuids
+    end
 end
 
 Thread.new {
@@ -388,10 +419,8 @@ Thread.new {
     loop {
         DxThreads::dxthreads()
             .each{|dxthread|
-                targets = Arrows::getTargetsForSource(dxthread)
-                    .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                    .first(DxThreads::doingDepth())
-                KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", targets.map{|t| t["uuid"] }.join("|"))
+                uuids = DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
+                KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", uuids.join("|"))
             }
         sleep 1200
     }
