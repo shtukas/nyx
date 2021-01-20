@@ -80,7 +80,7 @@ class Ordinals
 
     # Ordinals::getNextOrdinal()
     def self.getNextOrdinal()
-        ([1000] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
+        ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
     end
 
     # -----------------------------------------------------------------------------
