@@ -206,7 +206,7 @@ class Miscellaneous
             quark = Quarks::issueAionFileSystemLocation(location)
             puts JSON.pretty_generate(quark)
             Arrows::issueOrException(DxThreads::getStream(), quark)
-            Ordinals::ensureOrdinal(quark)
+            Patricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

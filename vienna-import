@@ -46,6 +46,6 @@ loop {
     puts "vienna: #{link}"
     quark = Quarks::issueUrl(link)
     Arrows::issueOrException(DxThreads::getStream(), quark)
-    Ordinals::ensureLowOrdinal(quark)
+    Patricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
     viennaLinkFeeder.done(link)
 }

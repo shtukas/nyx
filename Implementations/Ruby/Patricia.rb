@@ -124,6 +124,25 @@ class Patricia
     # --------------------------------------------------
     # Architect
 
+    # Patricia::computeNew21stOrdinalForDxThread(dxthread)
+    def self.computeNew21stOrdinalForDxThread(dxthread)
+        ordinals = Arrows::getTargetsForSource(dxthread)
+                    .map{|t| Ordinals::getObjectOrdinal(t) }
+                    .sort
+        ordinals = ordinals.drop(19).take(2)
+        if ordinals.size < 2 then
+            return Ordinals::computeNextOrdinal()
+        end
+        (ordinals[0]+ordinals[1]).to_f/2
+    end
+
+    # Patricia::set21stOrdinalForObjectAtDxThread(dxthread, object)
+    # This is called when an object is created by Todo-Inbox or vienna-import
+    def self.set21stOrdinalForObjectAtDxThread(dxthread, object)
+        ordinal = Patricia::computeNew21stOrdinalForDxThread(dxthread)
+        Ordinals::setOrdinalForUUID(object["uuid"], ordinal)
+    end
+
     # Patricia::moveTargetToNewDxThread(quark, existingDxParent or null)
     def self.moveTargetToNewDxThread(quark, existingDxParent)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()

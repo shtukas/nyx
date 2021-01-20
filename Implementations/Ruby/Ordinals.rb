@@ -9,23 +9,6 @@ class Ordinals
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Ordinals.sqlite3"
     end
 
-    # Ordinals::getOrdinalItems()
-    def self.getOrdinalItems()
-        db = SQLite3::Database.new(Ordinals::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        items = []
-        db.execute( "select * from _ordinals_", [] ) do |row|
-            items << {
-                "uuid"    => row['_uuid_'],
-                "ordinal" => row['_ordinal_']
-            }
-        end
-        db.close
-        items
-    end
-
     # Ordinals::getOrdinalForUUIDOrNull(uuid)
     def self.getOrdinalForUUIDOrNull(uuid)
         return $Ordinals27C16291[uuid] if $Ordinals27C16291[uuid]
@@ -56,6 +39,23 @@ class Ordinals
         nil
     end
 
+    # Ordinals::getOrdinalItems()
+    def self.getOrdinalItems()
+        db = SQLite3::Database.new(Ordinals::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        items = []
+        db.execute( "select * from _ordinals_", [] ) do |row|
+            items << {
+                "uuid"    => row['_uuid_'],
+                "ordinal" => row['_ordinal_']
+            }
+        end
+        db.close
+        items
+    end
+
     # Ordinals::deleteRecord(uuid)
     def self.deleteRecord(uuid)
         db = SQLite3::Database.new(Ordinals::databaseFilepath())
@@ -70,24 +70,24 @@ class Ordinals
 
     # -----------------------------------------------------------------------------
 
-    # Ordinals::getObjectOrdinal(object)
-    def self.getObjectOrdinal(object)
-        ordinal = Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
-        return ordinal if ordinal
-        Ordinals::ensureOrdinal(object)
-        Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
-    end
-
-    # Ordinals::getNextOrdinal()
-    def self.getNextOrdinal()
+    # Ordinals::computeNextOrdinal()
+    def self.computeNextOrdinal()
         ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
     end
 
-    # -----------------------------------------------------------------------------
-
-    # Ordinals::ensureOrdinal(object)
-    def self.ensureOrdinal(object)
+    # Ordinals::ensureObjectOrdinal(object)
+    def self.ensureObjectOrdinal(object)
         return if Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
-        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextOrdinal())
-    end    
+        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::computeNextOrdinal())
+    end 
+
+    # Ordinals::getObjectOrdinal(object)
+    # If an object doesn't have an ordinal, then the next ordinal is given to it.
+    def self.getObjectOrdinal(object)
+        ordinal = Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
+        return ordinal if ordinal
+        ordinal = Ordinals::computeNextOrdinal()
+        Ordinals::setOrdinalForUUID(object["uuid"], ordinal)
+        ordinal
+    end 
 end
