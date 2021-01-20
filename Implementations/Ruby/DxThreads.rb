@@ -70,20 +70,11 @@ class DxThreads
 
             puts ""
 
-            Arrows::getSourcesForTarget(dxthread).each{|source|
-                mx.item(
-                    "source: #{Patricia::toString(source)}",
-                    lambda { Patricia::landing(source) }
-                )
-            }
-
-            puts ""
-
             Arrows::getTargetsForSource(dxthread)
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                 .first(30) # item we are showing at the same time
                 .each{|target|
-                    mx.item("[target] [#{Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
+                    mx.item("[target] [#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
                         Patricia::landing(target) 
                     })
                 }
@@ -119,10 +110,15 @@ class DxThreads
                 Arrows::issueOrException(dxthread, o1)
             })
 
-            mx.item("remove target".yellow, lambda { 
+            mx.item("move target".yellow, lambda { 
                 targets = Arrows::getTargetsForSource(dxthread)
+                            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+                            .first(30)
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
                 return if target.nil?
+                dx2 = DxThreads::selectOneExistingDxThreadOrNull()
+                return if dx2.nil?
+                Arrows::issueOrException(dx2, target)
                 Arrows::unlink(dxthread, target)
             })
 
@@ -150,6 +146,7 @@ class DxThreads
 
             ms.item("DxThreads dive", lambda { 
                 loop {
+                    system("clear")
                     object = DxThreads::selectOneExistingDxThreadOrNull()
                     return if object.nil?
                     DxThreads::landing(object)
