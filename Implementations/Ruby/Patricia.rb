@@ -129,6 +129,7 @@ class Patricia
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
         ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dx2)
+        return if ordinal.nil?
         Arrows::issueOrException(dx2, quark)
         Arrows::unlink(existingDxParent, quark)
         Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
