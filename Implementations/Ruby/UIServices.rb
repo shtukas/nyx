@@ -37,7 +37,7 @@ class UIServices
             puts ""
 
             ms.item("new DxThread element", lambda {
-                Patricia::issueDxThreadElement()
+                Patricia::selectDxThreadIssueNewQuark()
             })
 
             puts ""
@@ -230,7 +230,7 @@ class UIServices
                 return
             end
             if operation == "DxThread" then
-                Patricia::issueDxThreadElement()
+                Patricia::selectDxThreadIssueNewQuark()
                 return
             end
         end

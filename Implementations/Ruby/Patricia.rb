@@ -124,13 +124,16 @@ class Patricia
     # --------------------------------------------------
     # Architect
 
-    # Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
-    def self.makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
-        Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+    # Patricia::moveTargetToNewDxThread(quark, existingDxParent)
+    def self.moveTargetToNewDxThread(quark, existingDxParent)
+        dx2 = DxThreads::selectOneExistingDxThreadOrNull()
+        return if dx2.nil?
+        Arrows::issueOrException(dx2, quark)
+        Arrows::unlink(existingDxParent, quark)
     end
 
-    # Patricia::issueDxThreadElement()
-    def self.issueDxThreadElement()
+    # Patricia::selectDxThreadIssueNewQuark()
+    def self.selectDxThreadIssueNewQuark()
         dxthread = DxThreads::selectOneExistingDxThreadOrNull()
         return if dxthread.nil?
         datapoint = Patricia::makeNewObjectOrNull()

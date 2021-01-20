@@ -257,7 +257,7 @@ class Quarks
                 NSCoreObjects::put(quark)
             end
             if option == "read ; transmute" then
-                object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
+                object = Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
                 object["uuid"] = quark["uuid"] # transmutation
                 NSCoreObjects::put(object)
             end
@@ -315,7 +315,7 @@ class Quarks
             mx.item(
                 "transmute".yellow,
                 lambda { 
-                    object = Patricia::makeNewUnsavedDatapointForTransmutationInteractivelyOrNull()
+                    object = Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
                     return if object.nil?
                     object["uuid"] = quark["uuid"] # transmutation
                     NSCoreObjects::put(object)

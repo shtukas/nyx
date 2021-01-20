@@ -110,16 +110,13 @@ class DxThreads
                 Arrows::issueOrException(dxthread, o1)
             })
 
-            mx.item("move target".yellow, lambda { 
+            mx.item("select and move target".yellow, lambda { 
                 targets = Arrows::getTargetsForSource(dxthread)
                             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                             .first(30)
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
                 return if target.nil?
-                dx2 = DxThreads::selectOneExistingDxThreadOrNull()
-                return if dx2.nil?
-                Arrows::issueOrException(dx2, target)
-                Arrows::unlink(dxthread, target)
+                Patricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("json object".yellow, lambda { 
@@ -205,8 +202,7 @@ class DxThreads
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
             DxThreads::receiveTime(dxthread, target, timespan)
-            puts "The move per se (away from threading or to another DxThread is not yet implemented)"
-            LucilleCore::pressEnterToContinue()
+            Patricia::moveTargetToNewDxThread(target, dxthread)
         })
         menuitems.item("stop ; destroy target".yellow,lambda {
             timespan = Runner::stop(uuid)
@@ -245,8 +241,7 @@ class DxThreads
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
             DxThreads::receiveTime(dxthread, target, timespan)
-            puts "The move per se (away from threading or to another DxThread is not yet implemented)"
-            LucilleCore::pressEnterToContinue()
+            Patricia::moveTargetToNewDxThread(target, dxthread)
         })
         menuitems.item("stop ; destroy target".yellow, lambda {
             timespan = Runner::stop(uuid)
