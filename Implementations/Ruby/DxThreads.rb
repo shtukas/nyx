@@ -187,6 +187,13 @@ class DxThreads
     def self.main()
         loop {
             system("clear")
+
+            DxThreads::dxthreads().each{|dxthread|
+                puts DxThreads::toStringWithAnalytics(dxthread)
+            }
+
+            puts ""
+
             ms = LCoreMenuItemsNX1.new()
 
             ms.item("DxThreads dive", lambda { 

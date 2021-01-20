@@ -102,16 +102,8 @@ class UIServices
 
         system("clear")
 
-        puts ""
-
-        if (catalystObjects + dates + dxthreads).size == 0 then
-            (1..60).each{|i|
-                system("clear")
-                puts ""
-                puts "Piece and quiet @ #{Time.new.to_s} ; probe in #{60-i} seconds."
-                sleep 1
-            }
-            return
+        if (catalystObjects + dates + dxthreads).size > 0 then
+            puts ""
         end
 
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
