@@ -95,11 +95,8 @@ class UIServices
         }
     end
 
-    # UIServices::standardDisplayWithPrompt()
-    def self.standardDisplayWithPrompt()
-
-        catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                            .select{|object| object['metric'] >= 0.21 } # to make it stop
+    # UIServices::standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
+    def self.standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
 
         locker = Locker.new()
 
@@ -107,27 +104,31 @@ class UIServices
 
         puts ""
 
+        if (catalystObjects + dates + dxthreads).size == 0 then
+            (1..60).each{|i|
+                system("clear")
+                puts ""
+                puts "Piece and quiet @ #{Time.new.to_s} ; probe in #{60-i} seconds."
+                sleep 1
+            }
+            return
+        end
+
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
 
-        dates =  Calendar::dates()
-                    .select {|date| date <= Time.new.to_s[0, 10] }
-        if dates.size > 0 then
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            dates
-                .each{|date|
-                    next if date > Time.new.to_s[0, 10]
-                    puts "🗓️  "+date
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                    str = IO.read(Calendar::dateToFilepath(date))
+        dates
+            .each{|date|
+                puts "🗓️  "+date
+                verticalSpaceLeft = verticalSpaceLeft - 1
+                str = IO.read(Calendar::dateToFilepath(date))
                         .strip
                         .lines
                         .map{|line| "    #{line}" }
                         .join()
-                    puts str
-                    verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                }
-        end
+                puts str
+                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
+            }
         
         catalystObjects.take(5)
             .each{|object|
@@ -137,14 +138,7 @@ class UIServices
                 puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
             }
 
-        DxThreads::dxthreads()
-            .select{|dx| DxThreads::completionRatio(dx) < 1 }
-            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-            .map {|dxthread|
-                dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
-                dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
-                dxthread
-            }
+        dxthreads
             .each{|dxthread|
                 puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
                 verticalSpaceLeft = verticalSpaceLeft - 1
@@ -279,7 +273,23 @@ class UIServices
 
         loop {
             Miscellaneous::importFromLucilleInbox()
-            UIServices::standardDisplayWithPrompt()
+
+            catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                                .select{|object| object['metric'] >= 0.21 } # to make it stop
+
+            dates =  Calendar::dates()
+                        .select {|date| date <= Time.new.to_s[0, 10] }
+
+            dxthreads = DxThreads::dxthreads()
+                            .select{|dx| DxThreads::completionRatio(dx) < 1 }
+                            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+                            .map {|dxthread|
+                                dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
+                                dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
+                                dxthread
+                            }
+
+            UIServices::standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
         }
     end
 end
