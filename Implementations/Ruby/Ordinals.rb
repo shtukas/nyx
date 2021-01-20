@@ -70,39 +70,24 @@ class Ordinals
 
     # -----------------------------------------------------------------------------
 
-    # Ordinals::getOrdinal(object)
-    def self.getOrdinal(object)
+    # Ordinals::getObjectOrdinal(object)
+    def self.getObjectOrdinal(object)
         ordinal = Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
         return ordinal if ordinal
-        Ordinals::ensureLowOrdinal(object)
+        Ordinals::ensureOrdinal(object)
         Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
     end
 
-    # Ordinals::getNextLowOrdinal()
-    def self.getNextLowOrdinal()
-        ordinal = ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }.select{|ordinal| ordinal < 1000 }).max
-        if ordinal < 500 then
-            return ordinal + 1
-        end
-        (ordinal + 1000).to_f/2
-    end
-
-    # Ordinals::getNextHighOrdinal()
-    def self.getNextHighOrdinal()
+    # Ordinals::getNextOrdinal()
+    def self.getNextOrdinal()
         ([1000] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
     end
 
     # -----------------------------------------------------------------------------
 
-    # Ordinals::ensureLowOrdinal(object)
-    def self.ensureLowOrdinal(object)
+    # Ordinals::ensureOrdinal(object)
+    def self.ensureOrdinal(object)
         return if Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
-        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextLowOrdinal())
-    end
-
-    # Ordinals::ensureHighOrdinal(object)
-    def self.ensureHighOrdinal(object)
-        return if Ordinals::getOrdinalForUUIDOrNull(object["uuid"])
-        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextHighOrdinal())
+        Ordinals::setOrdinalForUUID(object["uuid"], Ordinals::getNextOrdinal())
     end    
 end

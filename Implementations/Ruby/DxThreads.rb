@@ -80,10 +80,10 @@ class DxThreads
             puts ""
 
             Arrows::getTargetsForSource(dxthread)
-                .sort{|t1, t2| Ordinals::getOrdinal(t1) <=> Ordinals::getOrdinal(t2) }
+                .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                 .first(30) # item we are showing at the same time
                 .each{|target|
-                    mx.item("[target] [#{Ordinals::getOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
+                    mx.item("[target] [#{Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
                         Patricia::landing(target) 
                     })
                 }
@@ -367,7 +367,7 @@ Thread.new {
         DxThreads::dxthreads()
             .each{|dxthread|
                 targets = Arrows::getTargetsForSource(dxthread)
-                    .sort{|t1, t2| Ordinals::getOrdinal(t1) <=> Ordinals::getOrdinal(t2) }
+                    .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                     .first(10) # number of items we are doing at the same time
                 KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", targets.map{|t| t["uuid"] }.join("|"))
             }
