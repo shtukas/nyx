@@ -124,14 +124,14 @@ class Patricia
     # --------------------------------------------------
     # Architect
 
-    # Patricia::moveTargetToNewDxThread(quark, existingDxParent)
+    # Patricia::moveTargetToNewDxThread(quark, existingDxParent or null)
     def self.moveTargetToNewDxThread(quark, existingDxParent)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
         ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dx2)
         return if ordinal.nil?
         Arrows::issueOrException(dx2, quark)
-        Arrows::unlink(existingDxParent, quark)
+        Arrows::unlink(existingDxParent, quark) if existingDxParent
         Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
     end
 

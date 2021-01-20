@@ -81,6 +81,7 @@ class DxThreads
 
     # DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
     def self.determinePlacingOrdinalForThreadOrNull(dxthread)
+        puts "Placement ordinal listing"
         targets = Arrows::getTargetsForSource(dxthread)
                     .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                     .first(DxThreads::visualisationDepth())
@@ -89,7 +90,7 @@ class DxThreads
         }
         ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal (empty for abort): ")
         return nil if ordinal == ""
-        ordinal.nil?
+        ordinal.to_f
     end
 
     # DxThreads::selectOneExistingDxThreadOrNull()
@@ -97,8 +98,8 @@ class DxThreads
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::dxthreads(), lambda{|o| DxThreads::toString(o) })
     end
 
-    # DxThreads::landing(dxthread)
-    def self.landing(dxthread)
+    # DxThreads::landing(dxthread, showAllTargets)
+    def self.landing(dxthread, showAllTargets = false)
         loop {
             system("clear")
 
@@ -111,9 +112,11 @@ class DxThreads
 
             puts ""
 
-            Arrows::getTargetsForSource(dxthread)
+            targets = Arrows::getTargetsForSource(dxthread)
+
+            targets
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .first(DxThreads::visualisationDepth())
+                .first(showAllTargets ? targets.size : DxThreads::visualisationDepth())
                 .each{|target|
                     mx.item("[target] [#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
                         Patricia::landing(target) 
@@ -121,6 +124,10 @@ class DxThreads
                 }
 
             puts ""
+
+            mx.item("relanding on all targets".yellow, lambda { 
+                DxThreads::landing(dxthread, true)
+            })
 
             mx.item("rename".yellow, lambda { 
                 name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip

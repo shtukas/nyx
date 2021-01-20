@@ -312,20 +312,25 @@ class Quarks
                 }
             )
 
-            mx.item(
-                "transmute".yellow,
-                lambda { 
-                    object = Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
-                    return if object.nil?
-                    object["uuid"] = quark["uuid"] # transmutation
-                    NSCoreObjects::put(object)
-                }
-            )
-
             mx.item("set/update description".yellow, lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
                 Quarks::setDescription(quark, description)
+            })
+
+            mx.item("move to another DxThread".yellow, lambda {
+                parents = Arrows::getSourcesForTarget(quark)
+                if parents.size == 0 then
+                    Patricia::moveTargetToNewDxThread(quark, nil)
+                    return
+                end
+                if parents.size == 1 then
+                    Patricia::moveTargetToNewDxThread(quark, parents[0])
+                    return
+                end
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
+                return if parent.nil?
+                Patricia::moveTargetToNewDxThread(quark, parent)
             })
 
             mx.item("edit".yellow, lambda {
@@ -360,6 +365,16 @@ class Quarks
                 puts quark
                 raise "error: 08bd13f4-dbb6-4823-aa7e-2e9960936eb6"
             })
+
+            mx.item(
+                "transmute".yellow,
+                lambda { 
+                    object = Quarks::makeUnsavedQuarkForTransmutationInteractivelyOrNull()
+                    return if object.nil?
+                    object["uuid"] = quark["uuid"] # transmutation
+                    NSCoreObjects::put(object)
+                }
+            )
 
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(quark)
