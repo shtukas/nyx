@@ -102,9 +102,7 @@ class UIServices
 
         system("clear")
 
-        if (catalystObjects + dates + dxthreads).size > 0 then
-            puts ""
-        end
+        puts ""
 
         verticalSpaceLeft = Miscellaneous::screenHeight()-4
         menuitems = LCoreMenuItemsNX1.new()
@@ -227,7 +225,6 @@ class UIServices
             UIServices::servicesFront()
             return
         end
-
     end
 
     # UIServices::standardTodoListingLoop()
