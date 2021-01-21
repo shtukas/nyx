@@ -84,8 +84,8 @@ class UIServices
         }
     end
 
-    # UIServices::standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
-    def self.standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
+    # UIServices::standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
+    def self.standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
 
         locker = Locker.new()
 
@@ -116,6 +116,11 @@ class UIServices
                 verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
                 puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
             }
+
+        calendarItems.each{|item|
+            puts "[#{locker.store(item).to_s.rjust(2)}] #{Calendar::toString(item)}".yellow
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        }
 
         dxthreads
             .each{|dxthread|
@@ -274,6 +279,13 @@ class UIServices
             dates =  Calendar::dates()
                         .select {|date| date <= Time.new.to_s[0, 10] }
 
+            calendarItems = Calendar::calendarItems()
+                                .map {|item|
+                                    item["landing"] = lambda { Calendar::landing(item) }
+                                    item["nextNaturalStep"] = lambda { Calendar::landing(item) }
+                                    item
+                                }
+
             dxthreads = DxThreads::dxthreads()
                             .select{|dx| DxThreads::completionRatio(dx) < 1 }
                             .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
@@ -283,7 +295,7 @@ class UIServices
                                 dxthread
                             }
 
-            UIServices::standardDisplayWithPrompt(catalystObjects, dates, dxthreads)
+            UIServices::standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
         }
     end
 end
