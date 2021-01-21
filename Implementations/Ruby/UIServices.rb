@@ -280,6 +280,7 @@ class UIServices
                         .select {|date| date <= Time.new.to_s[0, 10] }
 
             calendarItems = Calendar::calendarItems()
+                                .sort{|i1, i2| i1["date"]<=>i2["date"] }
                                 .map {|item|
                                     item["landing"] = lambda { Calendar::landing(item) }
                                     item["nextNaturalStep"] = lambda { Calendar::landing(item) }
