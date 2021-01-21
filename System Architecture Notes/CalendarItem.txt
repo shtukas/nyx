@@ -1,4 +1,4 @@
-CalendarItem are NSCoreObjects and the first data carriers ever to use the newly introduced StandardDataCarriers library. As such they are only a pointer to a SDC.
+CalendarItem are NSCoreObjects and the first data carriers ever to use the newly introduced Nereid library. As such they are only a pointer to a SDC.
 
 CalendarItem {
     "uuid"                    : String

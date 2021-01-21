@@ -82,8 +82,8 @@ class Calendar
 
     # Calendar::toString(item)
     def self.toString(item)
-        element = StandardDataCarriersInterface::getCarrierOrNull(item["StandardDataCarrierUUID"])
-        elementToString = element ? StandardDataCarriersInterface::toString(element) : "element not found"
+        element = NereidInterface::getElementOrNull(item["StandardDataCarrierUUID"])
+        elementToString = element ? NereidInterface::toString(element) : "element not found"
         "[calendar] #{item["date"]} #{elementToString}"
     end
 
@@ -93,10 +93,10 @@ class Calendar
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
-            mx.item("access data carrier".yellow, lambda { 
-                element = StandardDataCarriersInterface::getCarrierOrNull(item["StandardDataCarrierUUID"])
+            mx.item("data carrier landing".yellow, lambda { 
+                element = NereidInterface::getElementOrNull(item["StandardDataCarrierUUID"])
                 return if element.nil?
-                StandardDataCarriersInterface::landing(element)
+                NereidInterface::landing(element)
             })
             mx.item("update date".yellow, lambda { 
                 item["date"] = LucilleCore::askQuestionAnswerAsString("date: ")
@@ -127,7 +127,7 @@ class Calendar
 
     # Calendar::interactivelyIssueNewCalendarItemOrNull()
     def self.interactivelyIssueNewCalendarItemOrNull()
-        element = StandardDataCarriersInterface::interactivelyIssueNewDataCarrierOrNull()
+        element = NereidInterface::interactivelyIssueNewElementOrNull()
         return if element.nil?
         item = {
             "uuid"     => SecureRandom.hex,

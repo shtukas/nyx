@@ -114,15 +114,15 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/StandardDataCarriers.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
-    StandardDataCarriersInterface::getCarrierOrNull(uuid)
-    StandardDataCarriersInterface::toString(element)
-    StandardDataCarriersInterface::interactivelyIssueNewDataCarrierOrNull()
-    StandardDataCarriersInterface::access(element)
-    StandardDataCarriersInterface::insertElement(element)
-    StandardDataCarriersInterface::transmuteOrNull(element): # new element with same uuid, or null
-    StandardDataCarriersInterface::destroyCarrier(uuid)
+    NereidInterface::getElementOrNull(uuid)
+    NereidInterface::toString(element)
+    NereidInterface::interactivelyIssueNewElementOrNull()
+    NereidInterface::access(element)
+    NereidInterface::insertElement(element)
+    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
+    NereidInterface::destroyCarrier(uuid)
 =end
 
 # ------------------------------------------------------------
