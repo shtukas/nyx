@@ -1,7 +1,0 @@
-
-DataContainer {
-    "uuid"     : UUID
-    "nyxNxSet" : "9644bd94-a917-445a-90b3-5493f5f53ffb"
-    "unixtime" : Float # Unixtime with decimals
-    "name"     : String
-}

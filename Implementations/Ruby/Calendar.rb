@@ -73,6 +73,75 @@ class Calendar
         end
     end
 
+    # -----------------------------------------------------------------------
+
+    # Calendar::calendarItems()
+    def self.calendarItems()
+        NSCoreObjects::getSet("a2d0f91c-9cd5-4223-b633-21cd540aa5c9")
+    end
+
+    # Calendar::toString(item)
+    def self.toString(item)
+        element = StandardDataCarriersInterface::getCarrierOrNull(item["StandardDataCarrierUUID"])
+        elementToString = element ? StandardDataCarriersInterface::toString(element) : "element not found"
+        "[calendar] #{item["date"]} #{elementToString}"
+    end
+
+    # Calendar::landing(item)
+    def self.landing(item)
+        loop {
+            system("clear")
+            mx = LCoreMenuItemsNX1.new()
+            puts Calendar::toString(item).green
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }        
+    end
+
+    # Calendar::diveCalendarItems()
+    def self.diveCalendarItems()
+        loop {
+            system("clear")
+            mx = LCoreMenuItemsNX1.new()
+            Calendar::calendarItems().each{|item|
+                mx.item(Calendar::toString(item), lambda { 
+                    Calendar::landing(item)
+                })
+            }
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # Calendar::interactivelyIssueNewCalendarItemOrNull()
+    def self.interactivelyIssueNewCalendarItemOrNull()
+        element = StandardDataCarriersInterface::interactivelyIssueNewDataCarrierOrNull()
+        return if element.nil?
+        item = {
+            "uuid"     => SecureRandom.hex,
+            "nyxNxSet" => "a2d0f91c-9cd5-4223-b633-21cd540aa5c9",
+            "unixtime" => Time.new.to_i,
+            "date"     => LucilleCore::askQuestionAnswerAsString("date: "),
+            "StandardDataCarrierUUID" => element["uuid"]
+        }
+        NSCoreObjects::put(item)
+    end
+
+    # Calendar::main()
+    def self.main()
+        loop {
+            system("clear")
+            mx = LCoreMenuItemsNX1.new()
+            mx.item("dive into calendar".yellow, lambda { 
+                Calendar::diveCalendarItems()
+            })
+            mx.item("make new calendar item".yellow, lambda { 
+                Calendar::interactivelyIssueNewCalendarItemOrNull() 
+            })
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
+    end
 end
 
 

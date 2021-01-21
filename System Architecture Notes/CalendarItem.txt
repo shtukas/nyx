@@ -1,0 +1,9 @@
+CalendarItem are NSCoreObjects and the first data carriers ever to use the newly introduced StandardDataCarriers library. As such they are only a pointer to a SDC.
+
+CalendarItem {
+    "uuid"                    : String
+    "nyxNxSet"                : "a2d0f91c-9cd5-4223-b633-21cd540aa5c9"
+    "unixtime"                : Float # Unixtime with decimals
+    "date"                    : String # Ex: "2021-01-21"
+    "StandardDataCarrierUUID" : String # UUID 
+}

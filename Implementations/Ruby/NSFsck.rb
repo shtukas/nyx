@@ -44,12 +44,6 @@ class NSFsck
             return NSFsck::processQuark(object)
         end
 
-        if object["nyxNxSet"] == "9644bd94-a917-445a-90b3-5493f5f53ffb" then
-            # DataContainer
-            puts "fsck data container: #{object["uuid"]}"
-            return true
-        end
-
         if object["nyxNxSet"] == "2ed4c63e-56df-4247-8f20-e8d220958226" then
             # DxThread
             puts "fsck DxThread: #{object["uuid"]}"

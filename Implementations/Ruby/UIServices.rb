@@ -23,22 +23,11 @@ class UIServices
 
             ms = LCoreMenuItemsNX1.new()
 
+            ms.item("Calendar", lambda { Calendar::main() })
+
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("DxThreads", lambda { DxThreads::main() })
-
-            ms.item(
-                "Calendar",
-                lambda { 
-                    system("open '#{Calendar::pathToCalendarItems()}'") 
-                }
-            )
-
-            puts ""
-
-            ms.item("new DxThread element", lambda {
-                Patricia::selectDxThreadIssueNewQuark()
-            })
 
             puts ""
 
@@ -205,13 +194,21 @@ class UIServices
         
         if command == ":new" then
             operations = [
+                "Calendar item",
                 "wave",
                 "DxThread"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
+            if operation == "Calendar item" then
+                object = Calendar::interactivelyIssueNewCalendarItemOrNull()
+                return if object.nil?
+                Calendar::landing(object)
+                return
+            end
             if operation == "wave" then
                 object = Waves::issueNewWaveInteractivelyOrNull()
+                return if object.nil?
                 Patricia::landing(object)
                 return
             end

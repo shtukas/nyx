@@ -114,6 +114,17 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/StandardDataCarriers.rb"
+=begin
+    StandardDataCarriersInterface::getCarrierOrNull(uuid)
+    StandardDataCarriersInterface::toString(element)
+    StandardDataCarriersInterface::interactivelyIssueNewDataCarrierOrNull()
+    StandardDataCarriersInterface::access(element)
+    StandardDataCarriersInterface::insertElement(element)
+    StandardDataCarriersInterface::transmuteOrNull(element): # new element with same uuid, or null
+    StandardDataCarriersInterface::destroyCarrier(uuid)
+=end
+
 # ------------------------------------------------------------
 
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
