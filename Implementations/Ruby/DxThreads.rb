@@ -188,22 +188,13 @@ class DxThreads
         loop {
             system("clear")
 
-            DxThreads::dxthreads().each{|dxthread|
-                puts DxThreads::toStringWithAnalytics(dxthread)
-            }
-
-            puts ""
-
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("DxThreads dive", lambda { 
-                loop {
-                    system("clear")
-                    object = DxThreads::selectOneExistingDxThreadOrNull()
-                    return if object.nil?
-                    DxThreads::landing(object)
-                }
-            })
+            DxThreads::dxthreads().each{|dxthread|
+                ms.item(DxThreads::toStringWithAnalytics(dxthread), lambda { 
+                    DxThreads::landing(dxthread)
+                })
+            }
 
             ms.item("make new DxThread", lambda { 
                 object = DxThreads::issueDxThreadInteractivelyOrNull()

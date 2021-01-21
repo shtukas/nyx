@@ -91,6 +91,10 @@ class Calendar
     def self.landing(item)
         loop {
             system("clear")
+
+            return if NSCoreObjects::getOrNull(item["uuid"]).nil?
+            item = NSCoreObjects::getOrNull(item["uuid"]) # could have been transmuted in the previous loop
+
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
             mx.item("data carrier landing".yellow, lambda { 

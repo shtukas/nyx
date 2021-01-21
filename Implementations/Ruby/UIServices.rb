@@ -236,7 +236,7 @@ class UIServices
             if !Arrows::getSourcesForTarget(quark).any?{|parent| Patricia::isDxThread(parent) } then
                 puts "Adding orphan quark to DxThread: #{Patricia::toString(quark)}"
                 LucilleCore::pressEnterToContinue()
-                Patricia::moveTargetToNewDxThread(quark, null)
+                Patricia::moveTargetToNewDxThread(quark, nil)
                 exit
             end
         }
