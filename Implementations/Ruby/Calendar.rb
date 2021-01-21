@@ -93,6 +93,18 @@ class Calendar
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
+            mx.item("access data carrier".yellow, lambda { 
+                element = StandardDataCarriersInterface::getCarrierOrNull(item["StandardDataCarrierUUID"])
+                return if element.nil?
+                StandardDataCarriersInterface::landing(element)
+            })
+            mx.item("update date".yellow, lambda { 
+                item["date"] = LucilleCore::askQuestionAnswerAsString("date: ")
+                NSCoreObjects::put(item)
+            })
+            mx.item("destroy".yellow, lambda { 
+                NSCoreObjects::destroy(item)
+            })
             status = mx.promptAndRunSandbox()
             break if !status
         }        
