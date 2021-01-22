@@ -117,12 +117,13 @@ AionFsck::structureCheckAionHash(operator, nhash)
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::getElementOrNull(uuid)
-    NereidInterface::toString(element)
+    NereidInterface::toString(input) # input: uuid: String , element Element
+    NereidInterface::landing(element)
     NereidInterface::interactivelyIssueNewElementOrNull()
     NereidInterface::access(element)
     NereidInterface::insertElement(element)
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyCarrier(uuid)
+    NereidInterface::destroyElement(uuid)
 =end
 
 # ------------------------------------------------------------

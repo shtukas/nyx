@@ -13,11 +13,6 @@ class Waves
         0.001*Waves::traceToRealInUnitInterval(trace)
     end
 
-    # Waves::isLucille18()
-    def self.isLucille18()
-        ENV["COMPUTERLUCILLENAME"] == "Lucille18"
-    end
-
     # Waves::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
 
@@ -129,7 +124,7 @@ class Waves
 
     # Waves::announce(wave, schedule)
     def self.announce(wave, schedule)
-        "[#{Waves::scheduleToAnnounce(schedule)}] #{Waves::extractFirstLineFromText(wave["description"])}"
+        "[#{Waves::scheduleToAnnounce(schedule)}] #{NereidInterface::toString(wave["nereiduuid"])}"
     end
 
     # Waves::scheduleToAnnounce(schedule)
@@ -185,14 +180,14 @@ class Waves
         NSCoreObjects::put(wave)
     end
 
-    # Waves::issueWave(uuid, description, schedule)
-    def self.issueWave(uuid, description, schedule)
+    # Waves::issueWave(uuid, element, schedule)
+    def self.issueWave(uuid, element, schedule)
         wave = {
-            "uuid"             => uuid,
-            "nyxNxSet"         => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
-            "unixtime" => Time.new.to_f,
-            "description"      => description,
-            "schedule"         => schedule
+            "uuid"       => uuid,
+            "nyxNxSet"   => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
+            "unixtime"   => Time.new.to_f,
+            "nereiduuid" => element["uuid"],
+            "schedule"   => schedule
         }
         Waves::commitToDisk(wave)
         wave
@@ -200,10 +195,11 @@ class Waves
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
-        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        element = NereidInterface::interactivelyIssueNewElementOrNull()
+        return nil if element.nil?
         schedule = Waves::makeScheduleObjectInteractivelyOrNull()
         return nil if schedule.nil?
-        Waves::issueWave(LucilleCore::timeStringL22(), line, schedule)
+        Waves::issueWave(LucilleCore::timeStringL22(), element, schedule)
     end
 
     # Waves::getOrNull(uuid)
@@ -218,7 +214,7 @@ class Waves
 
     # Waves::toString(wave)
     def self.toString(wave)
-        "[wave] #{wave["description"]}"
+        "[wave] #{NereidInterface::toString(wave["nereiduuid"])}"
     end
 
     # Waves::catalystObjects()
@@ -227,29 +223,10 @@ class Waves
             .map{|obj| Waves::waveToCatalystObject(obj) }
     end
 
-    # Waves::openItem(wave)
-    def self.openItem(wave)
-        text = wave["description"]
-        puts text
-        if text.lines.to_a.size == 1 and text.start_with?("http") then
-            url = text
-            if Waves::isLucille18() then
-                system("open '#{url}'")
-            else
-                system("open -na 'Google Chrome' --args --new-window '#{url}'")
-            end
-            return
-        end
-        if text.lines.to_a.size > 1 then
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-    end
-
     # Waves::openAndRunProcedure(wave)
     def self.openAndRunProcedure(wave)
         startTime = Time.new.to_f
-        Waves::openItem(wave)
+        NereidInterface::landing(wave["nereiduuid"])
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
             timespan = [Time.new.to_f - startTime, 3600].min
@@ -284,7 +261,7 @@ class Waves
             menuitems.item(
                 "start",
                 lambda {
-                    Waves::openItem(wave)
+                    NereidInterface::landing(wave["nereiduuid"])
                     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
                         Waves::performDone(wave)
                     end
@@ -292,8 +269,8 @@ class Waves
             )
 
             menuitems.item(
-                "open",
-                lambda { Waves::openItem(wave) }
+                "content landing",
+                lambda { NereidInterface::landing(wave["nereiduuid"]) }
             )
 
             menuitems.item(
