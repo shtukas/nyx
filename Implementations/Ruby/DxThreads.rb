@@ -384,7 +384,7 @@ class DxThreads
     # DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
     def self.recomputeFocusUUIDsForDxThread(dxthread)
         Arrows::getTargetsForSource(dxthread)
-            .select{|target| DoNotShowUntil::isVisible(target["uuid"]) }
+            .select{|target| DoNotShowUntil::isVisible("#{dxthread["uuid"]}-#{target["uuid"]}") } # we need to use the uuid of the catalyst object
             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
             .first(DxThreads::focusDoingDepth())
             .map{|t| t["uuid"] }
@@ -399,7 +399,7 @@ class DxThreads
         uuids = uuids.select{|uuid| NSCoreObjects::getOrNull(uuid) }
 
         # Selecting what is visible
-        uuids = uuids.select{|uuid| DoNotShowUntil::isVisible(uuid) }
+        uuids = uuids.select{|uuid| DoNotShowUntil::isVisible("#{dxthread["uuid"]}-#{uuid}") } # we need to use the uuid of the catalyst object
 
         b1 = uuids.size < DxThreads::focusDoingDepth().to_f/2
         b2 = (uuids.size == 0) or (uuids.map{|uuid| BankExtended::recoveredDailyTimeInHours(uuid) }.inject(0, :+) >= 2)
