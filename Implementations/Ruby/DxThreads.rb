@@ -153,9 +153,11 @@ class DxThreads
             })
 
             mx.item("add new target".yellow, lambda { 
-                o1 = Patricia::makeNewObjectOrNull()
-                return if o1.nil?
-                Arrows::issueOrException(dxthread, o1)
+                datapoint = Patricia::makeNewObjectOrNull()
+                return if datapoint.nil?
+                Arrows::issueOrException(dxthread, datapoint)
+                ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
+                Ordinals::setOrdinalForUUID(datapoint["uuid"], ordinal)
             })
 
             mx.item("select and move target".yellow, lambda { 
@@ -170,6 +172,10 @@ class DxThreads
             mx.item("json object".yellow, lambda { 
                 puts JSON.pretty_generate(dxthread)
                 LucilleCore::pressEnterToContinue()
+            })
+
+            mx.item("flush focus uuids".yellow, lambda { 
+                KeyValueStore::destroy(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}")
             })
             
             mx.item("destroy".yellow, lambda { 

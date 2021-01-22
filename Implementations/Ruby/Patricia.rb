@@ -161,6 +161,8 @@ class Patricia
         datapoint = Patricia::makeNewObjectOrNull()
         return if datapoint.nil?
         Arrows::issueOrException(dxthread, datapoint)
+        ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
+        Ordinals::setOrdinalForUUID(datapoint["uuid"], ordinal)
         Patricia::landing(datapoint)
     end
 end

@@ -279,6 +279,7 @@ class Quarks
 
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
+            puts "ordinal: #{Ordinals::getObjectOrdinal(quark)}".yellow
 
             puts ""
 
@@ -316,6 +317,12 @@ class Quarks
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
                 Quarks::setDescription(quark, description)
+            })
+
+            mx.item("set/update ordinal".yellow, lambda {
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordnal: ")
+                return if ordinal == ""
+                Ordinals::setOrdinalForUUID(quark["uuid"], ordinal.to_f)
             })
 
             mx.item("move to another DxThread".yellow, lambda {

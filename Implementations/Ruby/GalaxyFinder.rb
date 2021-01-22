@@ -17,6 +17,13 @@ class GalaxyFinder
         ]
     end
 
+    # GalaxyFinder::forbiddenPaths()
+    def self.forbiddenPaths()
+        [
+            "/Users/pascal/Galaxy/Software"
+        ]
+    end
+
     # GalaxyFinder::locationIsTarget(location, uniquestring)
     def self.locationIsTarget(location, uniquestring)
         return false if GalaxyFinder::locationIsUnisonTmp(location)
@@ -30,6 +37,7 @@ class GalaxyFinder
                 if File.exists?(root) then
                     begin
                         Find.find(root) do |path|
+                            prune if GalaxyFinder::forbiddenPaths().include?(path)
                             filepaths << path
                         end
                     rescue
