@@ -59,10 +59,10 @@ class Patricia
         raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
     end
 
-    # Patricia::open1(object)
-    def self.open1(object)
+    # Patricia::access(object)
+    def self.access(object)
         if Patricia::isQuark(object) then
-            Quarks::open1(object)
+            Quarks::access(object)
             return
         end
         puts object
@@ -72,7 +72,7 @@ class Patricia
     # Patricia::destroy(object)
     def self.destroy(object)
         if Patricia::isQuark(object) then
-            Quarks::destroyQuark(object)
+            Quarks::destroyQuarkAndNereidContent(object)
             return
         end
         puts object

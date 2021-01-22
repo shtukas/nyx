@@ -4,40 +4,8 @@
 Quark
 
 {
-    "uuid"              : String
-    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    "unixtime"          : Float # Unixtime with decimals
-    "description"       : String
-    "type"              : "line"
-    "line"              : String
+    "uuid"       : String
+    "nyxNxSet"   : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    "unixtime"   : Float # Unixtime with decimals
+    "nereiduuid" : String
 }
-
-{
-    "uuid"              : String
-    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    "unixtime"          : Float # Unixtime with decimals
-    "description"       : String
-    "type"              : "url"
-    "url"               : String
-}
-
-{
-    "uuid"              : String
-    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    "unixtime"          : Float # Unixtime with decimals
-    "description"       : String
-    "type"              : "aion-location"
-    "roothash"          : String
-}
-
-{
-    "uuid"              : String
-    "nyxNxSet"          : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    "unixtime"          : Float # Unixtime with decimals
-    "description"       : String
-    "type"              : "filesystem-unique-string"
-    "mark"              : String
-}
-
-
-

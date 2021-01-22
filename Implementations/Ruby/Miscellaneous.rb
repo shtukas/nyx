@@ -203,7 +203,19 @@ class Miscellaneous
                 FileUtils.mv(location, location2)
                 next
             end
-            quark = Quarks::issueAionFileSystemLocation(location)
+
+            nereiduuid = SecureRandom.hex
+            payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
+            NereidDatabase::insertElementComponents(nereiduuid, Time.new.to_i, File.filename(location), "AionPoint", payload)
+
+            quark = {
+                "uuid"       => SecureRandom.hex,
+                "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+                "unixtime"   => Time.new.to_i,
+                "nereiduuid" => nereiduuid
+            }
+            NSCoreObjects::put(quark)
+
             puts JSON.pretty_generate(quark)
             Arrows::issueOrException(DxThreads::getStream(), quark)
             Patricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)

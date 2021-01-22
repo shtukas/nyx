@@ -58,23 +58,6 @@ class UIServices
             )
 
             ms.item(
-                "NSFsck::main(runhash)",
-                lambda {
-                    runhash = LucilleCore::askQuestionAnswerAsString("run hash (empty to generate a random one): ")
-                    if runhash == "" then
-                        runhash = SecureRandom.hex
-                    end
-                    status = NSFsck::main(runhash)
-                    if status then
-                        puts "All good".green
-                    else
-                        puts "Failed!".red
-                    end
-                    LucilleCore::pressEnterToContinue()
-                }
-            )
-
-            ms.item(
                 "Print Generation Speed Report", 
                 lambda { CatalystObjectsOperator::generationSpeedReport() }
             )

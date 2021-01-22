@@ -230,7 +230,7 @@ class DxThreads
         return if Runner::isRunning?(uuid)
         puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, quark)}"
         Runner::start(uuid)
-        Patricia::open1(quark)
+        Patricia::access(quark)
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item("keep running".yellow, lambda {})
         menuitems.item("stop".yellow, lambda { 
@@ -366,7 +366,8 @@ class DxThreads
                     "landing"          => lambda { Patricia::landing(quark) },
                     "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, quark) },
                     "isRunning"        => Runner::isRunning?(uuid),
-                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
+                    "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600,
+                    "quark"            => quark
                 }
             }
     end

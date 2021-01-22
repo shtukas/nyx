@@ -118,12 +118,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::landing(element)
+    NereidInterface::landing(input) # input: uuid: String , element Element
     NereidInterface::interactivelyIssueNewElementOrNull()
     NereidInterface::access(element)
     NereidInterface::insertElement(element)
+    NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyElement(uuid)
+    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful. 
 =end
 
 # ------------------------------------------------------------
@@ -131,7 +132,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
 
 require_relative "Arrows.rb"
-require_relative "GalaxyFinder.rb"
 
 require_relative "BackupsMonitor.rb"
 require_relative "Bank.rb"
@@ -150,10 +150,8 @@ require_relative "DoNotShowUntil.rb"
 require_relative "DxThreads.rb"
 
 require_relative "EstateServices.rb"
-require_relative "ElizabethX2.rb"
 
 require_relative "NSGarbageCollection.rb"
-require_relative "NSFsck.rb"
 require_relative "NSCoreObjects.rb"
 
 require_relative "Ordinals.rb"

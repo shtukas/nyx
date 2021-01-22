@@ -44,7 +44,19 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    quark = Quarks::issueUrl(link)
+
+    nereiduuid = SecureRandom.hex
+    NereidDatabase::insertElementComponents(nereiduuid, Time.new.to_i, link, "Url", link)
+
+    quark = {
+        "uuid"       => SecureRandom.hex,
+        "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+        "unixtime"   => Time.new.to_i,
+        "nereiduuid" => nereiduuid
+    }
+    NSCoreObjects::put(quark)
+
+
     Arrows::issueOrException(DxThreads::getStream(), quark)
     Patricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
     viennaLinkFeeder.done(link)
