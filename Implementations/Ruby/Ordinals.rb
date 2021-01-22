@@ -72,7 +72,7 @@ class Ordinals
 
     # Ordinals::computeNextOrdinal()
     def self.computeNextOrdinal()
-        ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] }).max + 1
+        ([0] + Ordinals::getOrdinalItems().map{|item| item["ordinal"] || 0 }).max + 1
     end
 
     # Ordinals::ensureObjectOrdinal(object)

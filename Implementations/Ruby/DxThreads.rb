@@ -56,16 +56,16 @@ class DxThreads
         "[DxThread] #{object["description"]}"
     end
 
-    # DxThreads::dxThreadAndTargetToString(dxthread, target)
-    def self.dxThreadAndTargetToString(dxthread, target)
-        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+    # DxThreads::dxThreadAndTargetToString(dxthread, quark)
+    def self.dxThreadAndTargetToString(dxthread, quark)
+        uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
         runningString = 
             if Runner::isRunning?(uuid) then
                 " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
             else
                 ""
             end
-        "#{DxThreads::toString(dxthread)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(target["uuid"])}) #{Patricia::toString(target)}#{runningString}"
+        "#{DxThreads::toString(dxthread)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Patricia::toString(quark)}#{runningString}"
     end
 
     # DxThreads::toStringWithAnalytics(dxthread)
@@ -79,17 +79,22 @@ class DxThreads
         BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
     end
 
-    # DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
-    def self.determinePlacingOrdinalForThreadOrNull(dxthread)
+    # DxThreads::determinePlacingOrdinalForThread(dxthread)
+    def self.determinePlacingOrdinalForThread(dxthread)
         puts "Placement ordinal listing"
-        targets = Arrows::getTargetsForSource(dxthread)
+        quarks = Arrows::getTargetsForSource(dxthread)
                     .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                     .first(DxThreads::visualisationDepth())
-        targets.each{|target|
-            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}"
+        quarks.each{|quark|
+            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{Patricia::toString(quark)}"
         }
-        ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal (empty for abort): ")
-        return nil if ordinal == ""
+        ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
+        if ordinal == "" then
+            return Ordinals::computeNextOrdinal()
+        end
+        if ordinal == "low" then
+            return Patricia::computeNew21stOrdinalForDxThread(dxthread)
+        end
         ordinal.to_f
     end
 
@@ -112,20 +117,20 @@ class DxThreads
 
             puts ""
 
-            targets = Arrows::getTargetsForSource(dxthread)
+            quarks = Arrows::getTargetsForSource(dxthread)
 
-            targets
+            quarks
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .first(showAllTargets ? targets.size : DxThreads::visualisationDepth())
-                .each{|target|
-                    mx.item("[target] [#{"%8.3f" % Ordinals::getObjectOrdinal(target)}] #{Patricia::toString(target)}", lambda { 
-                        Patricia::landing(target) 
+                .first(showAllTargets ? quarks.size : DxThreads::visualisationDepth())
+                .each{|quark|
+                    mx.item("[quark] [#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{Patricia::toString(quark)}", lambda { 
+                        Patricia::landing(quark) 
                     })
                 }
 
             puts ""
 
-            mx.item("relanding on all targets".yellow, lambda { 
+            mx.item("relanding on all quarks".yellow, lambda { 
                 DxThreads::landing(dxthread, true)
             })
 
@@ -152,20 +157,16 @@ class DxThreads
                 Bank::put(dxthread["uuid"], timeInHours.to_f*3600)
             })
 
-            mx.item("add new target".yellow, lambda { 
-                datapoint = Patricia::makeNewObjectOrNull()
-                return if datapoint.nil?
-                Arrows::issueOrException(dxthread, datapoint)
-                ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
-                Ordinals::setOrdinalForUUID(datapoint["uuid"], ordinal)
+            mx.item("add new quark".yellow, lambda {
+                Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, dxthread)
             })
 
-            mx.item("select and move target".yellow, lambda { 
-                targets = Arrows::getTargetsForSource(dxthread)
+            mx.item("select and move quark".yellow, lambda { 
+                quarks = Arrows::getTargetsForSource(dxthread)
                             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                             .first(DxThreads::visualisationDepth())
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
-                return if target.nil?
+                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| Patricia::toString(quark) })
+                return if quark.nil?
                 Patricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
@@ -215,103 +216,103 @@ class DxThreads
 
     # --------------------------------------------------------------
 
-    # DxThreads::receiveTime(dxthread, target, timespanInSeconds)
-    def self.receiveTime(dxthread, target, timespanInSeconds)
-        puts "sending #{timespanInSeconds} to thread item '#{Patricia::toString(target)}'"
-        Bank::put(target["uuid"], timespanInSeconds)
+    # DxThreads::receiveTime(dxthread, quark, timespanInSeconds)
+    def self.receiveTime(dxthread, quark, timespanInSeconds)
+        puts "sending #{timespanInSeconds} to thread item '#{Patricia::toString(quark)}'"
+        Bank::put(quark["uuid"], timespanInSeconds)
         puts "sending #{timespanInSeconds} to DxThread'#{DxThreads::toString(dxthread)}'"
         Bank::put(dxthread["uuid"], timespanInSeconds)
     end
 
-    # DxThreads::nextNaturalStepWhenStopped(dxthread, target)
-    def self.nextNaturalStepWhenStopped(dxthread, target)
-        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+    # DxThreads::nextNaturalStepWhenStopped(dxthread, quark)
+    def self.nextNaturalStepWhenStopped(dxthread, quark)
+        uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
         return if Runner::isRunning?(uuid)
-        puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, target)}"
+        puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, quark)}"
         Runner::start(uuid)
-        Patricia::open1(target)
+        Patricia::open1(quark)
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item("keep running".yellow, lambda {})
         menuitems.item("stop".yellow, lambda { 
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
+            DxThreads::receiveTime(dxthread, quark, timespan)
         })
         menuitems.item("stop ; hide for n days".yellow, lambda { 
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
+            DxThreads::receiveTime(dxthread, quark, timespan)
             n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
             DoNotShowUntil::setUnixtime(uuid, Time.new.to_i + n*86400)
         })
-        menuitems.item("target landing".yellow, lambda { 
-            Patricia::landing(target)
+        menuitems.item("quark landing".yellow, lambda { 
+            Patricia::landing(quark)
         })
-        menuitems.item("stop ; move target".yellow, lambda { 
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        menuitems.item("stop ; move quark".yellow, lambda { 
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
-            Patricia::moveTargetToNewDxThread(target, dxthread)
+            DxThreads::receiveTime(dxthread, quark, timespan)
+            Patricia::moveTargetToNewDxThread(quark, dxthread)
         })
-        menuitems.item("stop ; destroy target".yellow,lambda {
+        menuitems.item("stop ; destroy quark".yellow,lambda {
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
-            Patricia::destroy(target)
+            DxThreads::receiveTime(dxthread, quark, timespan)
+            Patricia::destroy(quark)
         })
         status = menuitems.promptAndRunSandbox()
     end
 
-    # DxThreads::nextNaturalStepWhileRunning(dxthread, target)
-    def self.nextNaturalStepWhileRunning(dxthread, target)
-        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+    # DxThreads::nextNaturalStepWhileRunning(dxthread, quark)
+    def self.nextNaturalStepWhileRunning(dxthread, quark)
+        uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
         return if !Runner::isRunning?(uuid)
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item("".yellow, lambda {})
         menuitems.item("stop".yellow, lambda {
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
+            DxThreads::receiveTime(dxthread, quark, timespan)
         })
         menuitems.item("stop ; hide for n days".yellow, lambda {
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
+            DxThreads::receiveTime(dxthread, quark, timespan)
             n = LucilleCore::askQuestionAnswerAsString("hide duration in days: ").to_f
             DoNotShowUntil::setUnixtime(uuid, Time.new.to_i + n*86400)
         })
-        menuitems.item("target landing".yellow, lambda { 
-            Patricia::landing(target)
+        menuitems.item("quark landing".yellow, lambda { 
+            Patricia::landing(quark)
         })
-        menuitems.item("stop ; move target".yellow, lambda {
-            uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        menuitems.item("stop ; move quark".yellow, lambda {
+            uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
-            Patricia::moveTargetToNewDxThread(target, dxthread)
+            DxThreads::receiveTime(dxthread, quark, timespan)
+            Patricia::moveTargetToNewDxThread(quark, dxthread)
         })
-        menuitems.item("stop ; destroy target".yellow, lambda {
+        menuitems.item("stop ; destroy quark".yellow, lambda {
             timespan = Runner::stop(uuid)
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            DxThreads::receiveTime(dxthread, target, timespan)
-            Patricia::destroy(target)
+            DxThreads::receiveTime(dxthread, quark, timespan)
+            Patricia::destroy(quark)
         })
         status = menuitems.promptAndRunSandbox()
     end
 
-    # DxThreads::nextNaturalStep(dxthread, target)
-    def self.nextNaturalStep(dxthread, target)
+    # DxThreads::nextNaturalStep(dxthread, quark)
+    def self.nextNaturalStep(dxthread, quark)
         # The thing to start is the combined uuid, but the time will be given separately to the thread and the item
-        uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
+        uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
         if Runner::isRunning?(uuid) then
-            DxThreads::nextNaturalStepWhileRunning(dxthread, target)
+            DxThreads::nextNaturalStepWhileRunning(dxthread, quark)
         else
-            DxThreads::nextNaturalStepWhenStopped(dxthread, target)
+            DxThreads::nextNaturalStepWhenStopped(dxthread, quark)
         end
     end
 
@@ -354,16 +355,16 @@ class DxThreads
             .map{|uuid| NSCoreObjects::getOrNull(uuid) }
             .compact
             .sort{|t1, t2| BankExtended::recoveredDailyTimeInHours(t1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(t2["uuid"]) }
-            .map{|target|
-                uuid = "#{dxthread["uuid"]}-#{target["uuid"]}"
-                metric = basemetric - BankExtended::recoveredDailyTimeInHours(target["uuid"]).to_f/1000
+            .map{|quark|
+                uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
+                metric = basemetric - BankExtended::recoveredDailyTimeInHours(quark["uuid"]).to_f/1000
                 metric = 1 if Runner::isRunning?(uuid)
                 {
                     "uuid"             => uuid,
-                    "body"             => DxThreads::dxThreadAndTargetToString(dxthread, target),
+                    "body"             => DxThreads::dxThreadAndTargetToString(dxthread, quark),
                     "metric"           => metric,
-                    "landing"          => lambda { Patricia::landing(target) },
-                    "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, target) },
+                    "landing"          => lambda { Patricia::landing(quark) },
+                    "nextNaturalStep"  => lambda { DxThreads::nextNaturalStep(dxthread, quark) },
                     "isRunning"        => Runner::isRunning?(uuid),
                     "isRunningForLong" => (Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600
                 }
@@ -390,7 +391,7 @@ class DxThreads
     # DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
     def self.recomputeFocusUUIDsForDxThread(dxthread)
         Arrows::getTargetsForSource(dxthread)
-            .select{|target| DoNotShowUntil::isVisible("#{dxthread["uuid"]}-#{target["uuid"]}") } # we need to use the uuid of the catalyst object
+            .select{|quark| DoNotShowUntil::isVisible("#{dxthread["uuid"]}-#{quark["uuid"]}") } # we need to use the uuid of the catalyst object
             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
             .first(DxThreads::focusDoingDepth())
             .map{|t| t["uuid"] }

@@ -114,14 +114,6 @@ class Patricia
     end
 
     # --------------------------------------------------
-    # Maker
-
-    # Patricia::makeNewObjectOrNull()
-    def self.makeNewObjectOrNull()
-        Quarks::issueNewQuarkInteractivelyOrNull()
-    end
-
-    # --------------------------------------------------
     # Architect
 
     # Patricia::computeNew21stOrdinalForDxThread(dxthread)
@@ -143,26 +135,25 @@ class Patricia
         Ordinals::setOrdinalForUUID(object["uuid"], ordinal)
     end
 
-    # Patricia::moveTargetToNewDxThread(quark, existingDxParent or null)
-    def self.moveTargetToNewDxThread(quark, existingDxParent)
+    # Patricia::moveTargetToNewDxThread(quark, dxParentOpt or null)
+    def self.moveTargetToNewDxThread(quark, dxParentOpt)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
-        ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dx2)
-        return if ordinal.nil?
         Arrows::issueOrException(dx2, quark)
-        Arrows::unlink(existingDxParent, quark) if existingDxParent
+        Arrows::unlink(dxParentOpt, quark) if dxParentOpt
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
         Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
     end
 
-    # Patricia::selectDxThreadIssueNewQuark()
-    def self.selectDxThreadIssueNewQuark()
-        dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+    # Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(quarkOpt, dxThreadOpt)
+    def self.possiblyNewQuarkToPossiblyUnspecifiedDxThread(quarkOpt, dxThreadOpt)
+        quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
+        return if quark.nil?
+        dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
         return if dxthread.nil?
-        datapoint = Patricia::makeNewObjectOrNull()
-        return if datapoint.nil?
-        Arrows::issueOrException(dxthread, datapoint)
-        ordinal = DxThreads::determinePlacingOrdinalForThreadOrNull(dxthread)
-        Ordinals::setOrdinalForUUID(datapoint["uuid"], ordinal)
-        Patricia::landing(datapoint)
+        Arrows::issueOrException(dxthread, quark)
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
+        Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
+        Patricia::landing(quark)
     end
 end

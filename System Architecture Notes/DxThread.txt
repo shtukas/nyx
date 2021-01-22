@@ -1,6 +1,4 @@
 
-A datapoint is a todo because it has an DxThread as parent
-
 DxThread {
     "uuid"                        : String
     "nyxNxSet"                    : "2ed4c63e-56df-4247-8f20-e8d220958226"

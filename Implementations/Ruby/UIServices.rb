@@ -218,7 +218,7 @@ class UIServices
                 return
             end
             if operation == "DxThread" then
-                Patricia::selectDxThreadIssueNewQuark()
+                Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, nil)
                 return
             end
         end
