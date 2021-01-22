@@ -401,7 +401,10 @@ class DxThreads
         # Selecting what is visible
         uuids = uuids.select{|uuid| DoNotShowUntil::isVisible(uuid) }
 
-        if uuids.size < DxThreads::focusDoingDepth().to_f/2 then
+        b1 = uuids.size < DxThreads::focusDoingDepth().to_f/2
+        b2 = (uuids.size == 0) or (uuids.map{|uuid| BankExtended::recoveredDailyTimeInHours(uuid) }.inject(0, :+) >= 2)
+
+        if b1 and b2 then
             puts "recomputing TheFocusDoingUUIDs for DxThread: #{DxThreads::toString(dxthread)}"
             # Recomputing uuids
             uuids = DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
@@ -411,16 +414,4 @@ class DxThreads
         uuids
     end
 end
-
-Thread.new {
-    sleep 120
-    loop {
-        DxThreads::dxthreads()
-            .each{|dxthread|
-                uuids = DxThreads::recomputeFocusUUIDsForDxThread(dxthread)
-                KeyValueStore::set(nil, "3199a49f-3d71-4a02-83b2-d01473664473:#{dxthread["uuid"]}", uuids.join("|"))
-            }
-        sleep 1200
-    }
-}
 
