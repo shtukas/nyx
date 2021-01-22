@@ -160,8 +160,8 @@ class Waves
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
         object["metric"] = Waves::scheduleToMetric(wave, schedule)
-        object["landing"] = lambda { Waves::waveDive(wave) }
-        object["nextNaturalStep"] = lambda { Waves::openAndRunProcedure(wave) }
+        object["landing"] = lambda { Waves::landing(wave) }
+        object["nextNaturalStep"] = lambda { Waves::access(wave) }
         object['schedule'] = schedule
         object["x-wave"] = wave
         object
@@ -223,10 +223,10 @@ class Waves
             .map{|obj| Waves::waveToCatalystObject(obj) }
     end
 
-    # Waves::openAndRunProcedure(wave)
-    def self.openAndRunProcedure(wave)
+    # Waves::access(wave)
+    def self.access(wave)
         startTime = Time.new.to_f
-        NereidInterface::landing(wave["nereiduuid"])
+        NereidInterface::access(wave["nereiduuid"])
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
             timespan = [Time.new.to_f - startTime, 3600].min
@@ -240,8 +240,8 @@ class Waves
         LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::toString(wave) })
     end
 
-    # Waves::waveDive(wave)
-    def self.waveDive(wave)
+    # Waves::landing(wave)
+    def self.landing(wave)
         loop {
             system("clear")
             return if NSCoreObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
@@ -269,7 +269,7 @@ class Waves
             )
 
             menuitems.item(
-                "content landing",
+                "nereid landing",
                 lambda { NereidInterface::landing(wave["nereiduuid"]) }
             )
 
@@ -316,10 +316,12 @@ class Waves
 
     # Waves::wavesDive()
     def self.wavesDive()
-        system("clear")
-        wave = Waves::selectWaveOrNull()
-        return if wave.nil?
-        Waves::waveDive(wave)
+        loop {
+            system("clear")
+            wave = Waves::selectWaveOrNull()
+            return if wave.nil?
+            Waves::landing(wave)
+        }
     end
 
     # Waves::main()

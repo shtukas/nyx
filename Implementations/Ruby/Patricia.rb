@@ -49,7 +49,7 @@ class Patricia
             return
         end
         if Patricia::isWave(object) then
-            Waves::waveDive(object)
+            Waves::landing(object)
             return 
         end
         if Patricia::isDxThread(object) then
@@ -57,16 +57,6 @@ class Patricia
         end
         puts object
         raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
-    end
-
-    # Patricia::access(object)
-    def self.access(object)
-        if Patricia::isQuark(object) then
-            Quarks::access(object)
-            return
-        end
-        puts object
-        raise "[error: 710c5e92-6436-4ec8-8d3d-302bdf361104]"
     end
 
     # Patricia::destroy(object)

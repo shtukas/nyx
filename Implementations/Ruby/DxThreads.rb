@@ -230,7 +230,7 @@ class DxThreads
         return if Runner::isRunning?(uuid)
         puts "starting DxThread item: #{DxThreads::dxThreadAndTargetToString(dxthread, quark)}"
         Runner::start(uuid)
-        Patricia::access(quark)
+        Quarks::access(quark)
         menuitems = LCoreMenuItemsNX1.new()
         menuitems.item("keep running".yellow, lambda {})
         menuitems.item("stop".yellow, lambda { 
