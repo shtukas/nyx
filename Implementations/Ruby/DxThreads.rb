@@ -205,12 +205,10 @@ class DxThreads
 
     # --------------------------------------------------------------
 
-    # DxThreads::getTopThread()
-    def self.getTopThread()
+    # DxThreads::getTopThreads()
+    def self.getTopThreads()
         DxThreads::dxthreads()
-            .select{|dx| DxThreads::completionRatio(dx) < 1 }
             .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-            .first
     end
 end
 
