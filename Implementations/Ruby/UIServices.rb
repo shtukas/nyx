@@ -195,7 +195,7 @@ class UIServices
 
         time1 = Time.new
 
-        shouldExit = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
+        shouldExitXStreamRun = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
 
         Calendar::calendarItems()
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
@@ -215,7 +215,7 @@ class UIServices
                 puts ""
                 puts UIServices::makeDisplayStringForCatalystListing(object)
                 object["access"].call()
-                return if shouldExit.call(time1)
+                return if shouldExitXStreamRun.call(time1)
             }
 
         puts ""
@@ -252,7 +252,7 @@ class UIServices
             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
             .each{|quark|
                 processQuark.call(dxthread, quark)
-                return if shouldExit.call(time1)
+                return if shouldExitXStreamRun.call(time1)
             }
     end
 
