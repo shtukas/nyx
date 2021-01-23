@@ -210,6 +210,26 @@ class UIServices
             UIServices::servicesFront()
             return
         end
+
+        if command == "/stream" then
+            dxthread = DxThreads::getStream()
+            Arrows::getTargetsForSource(dxthread)
+                .shuffle
+                .each{|quark|
+                    element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+                    next if element.nil?
+                    next if element["type"] != "Url"
+                    t1 = Time.new.to_f                    
+                    system("open -a Safari '#{element["payload"]}'")
+                    input = LucilleCore::askQuestionAnswerAsString("#{element["payload"]} : (done / empty for next) ")
+                    timespan = Time.new.to_f - t1
+                    Bank::put(quark["uuid"], timespan)
+                    Bank::put(dxthread["uuid"], timespan)
+                    if input == "done" then
+                        Quarks::destroyQuarkAndNereidContent(quark)
+                    end
+                }
+        end
     end
 
     # UIServices::standardTodoListingLoop()
