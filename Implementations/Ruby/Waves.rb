@@ -254,60 +254,39 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
             puts "schedule: #{wave["schedule"]}"
-            Miscellaneous::horizontalRule()
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            menuitems.item(
-                "start",
-                lambda {
-                    NereidInterface::landing(wave["nereiduuid"])
-                    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                        Waves::performDone(wave)
-                    end
-                }
-            )
+            menuitems.item("start", lambda {
+                NereidInterface::landing(wave["nereiduuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+                    Waves::performDone(wave)
+                end
+            })
 
-            menuitems.item(
-                "nereid landing",
-                lambda { NereidInterface::landing(wave["nereiduuid"]) }
-            )
+            menuitems.item("nereid landing",lambda { NereidInterface::landing(wave["nereiduuid"]) })
 
-            menuitems.item(
-                "done",
-                lambda { Waves::performDone(wave) }
-            )
+            menuitems.item("done",lambda { Waves::performDone(wave) })
 
-            menuitems.item(
-                "description",
-                lambda { 
-                    description = Miscellaneous::editTextSynchronously(wave["description"])
-                    return if description.nil?
-                    wave["description"] = description
-                    Waves::commitToDisk(wave)
-                }
-            )
+            menuitems.item("description", lambda { 
+                description = Miscellaneous::editTextSynchronously(wave["description"])
+                return if description.nil?
+                wave["description"] = description
+                Waves::commitToDisk(wave)
+            })
 
-            menuitems.item(
-                "recast",
-                lambda { 
-                    schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-                    return if schedule.nil?
-                    wave["schedule"] = schedule
-                    Waves::commitToDisk(wave)
-                }
-            )
+            menuitems.item("recast", lambda { 
+                schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+                return if schedule.nil?
+                wave["schedule"] = schedule
+                Waves::commitToDisk(wave)
+            })
 
-            menuitems.item(
-                "destroy",
-                lambda {
-                    if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                        NSCoreObjects::destroy(wave)
-                    end
-                }
-            )
-
-            Miscellaneous::horizontalRule()
+            menuitems.item("destroy", lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
+                    NSCoreObjects::destroy(wave)
+                end
+            })
 
             status = menuitems.promptAndRunSandbox()
             break if !status
