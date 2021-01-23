@@ -257,6 +257,11 @@ class Miscellaneous
         File.open(filepath, "w"){|f| f.puts(content) }
     end
 
+    # Miscellaneous::verticalSize(displayStr)
+    def self.verticalSize(displayStr)
+        displayStr.lines.map{|line| (((line.size+5).to_f)/Miscellaneous::screenWidth()).ceil }.inject(0, :+)
+    end
+
     # --------------------------------------------------------------------------------
 
     # Miscellaneous::pecoStyleSelectionOrNull(lines)

@@ -1,20 +1,137 @@
 # encoding: UTF-8
 
-class Locker
-    def initialize()
-        @items = [nil]
-    end
-    def store(object)
-        position = @items.size
-        @items << object
-        position
-    end
-    def get(position)
-        @items[position]
+class NereidInterface
+
+    # Duck Patching
+
+    # NereidInterface::accessSpecialXStream(messageDescription, messageCommands, input)
+    def self.accessSpecialXStream(messageDescription, messageCommands, input)
+
+        element = NereidInterface::inputToElementOrNull(input, "access")
+        return if element.nil?
+
+        if element["type"] == "Line" then
+            return LucilleCore::askQuestionAnswerAsString("#{messageDescription.green} ; #{messageCommands} : ")
+        end
+        if element["type"] == "Url" then
+            NereidUtils::openUrl(element["payload"])
+            return LucilleCore::askQuestionAnswerAsString("#{messageDescription.green} ; #{messageCommands} : ")
+        end
+        if element["type"] == "Text" then
+            puts messageDescription.green
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
+            return if type.nil?
+            if type == "read-only" then
+                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
+                filepath = "/Users/pascal/Desktop/#{element["uuid"]}.txt"
+                File.open(filepath, "w"){|f| f.write(text) }
+                puts "I have exported the file at '#{filepath}'"
+            end
+            if type == "read-write" then
+                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
+                text = NereidUtils::editTextSynchronously(text)
+                element["payload"] = NereidBinaryBlobsService::putBlob(text)
+                NereidDatabase::insertElement(element)
+            end
+            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
+        end
+        if element["type"] == "ClickableType" then
+            puts messageDescription.green
+            puts "opening file '#{element["payload"]}'"
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
+            if type == "read-only" then
+                blobuuid, extension = element["payload"].split("|")
+                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
+                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
+                File.open(filepath, "w"){|f| f.write(blob) }
+                puts "I have exported the file at '#{filepath}'"
+            end
+            if type == "read-write" then
+                blobuuid, extension = element["payload"].split("|")
+                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
+                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
+                File.open(filepath, "w"){|f| f.write(blob) }
+                puts "I have exported the file at '#{filepath}'"
+                puts "When done, you will enter the filename of the replacement"
+                LucilleCore::pressEnterToContinue()
+                filename = LucilleCore::askQuestionAnswerAsString("desktop filename (empty to abort): ")
+                return if filename == ""
+                filepath = "/Users/pascal/Desktop/#{filename}"
+                return nil if !File.exists?(filepath)
+
+                nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
+                dottedExtension = File.extname(filename)
+                payload = "#{nhash}|#{dottedExtension}"
+
+                element["payload"] = payload
+                NereidDatabase::insertElement(element)
+            end
+            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
+        end
+        if element["type"] == "AionPoint" then
+            puts messageDescription.green
+            puts "opening aion point '#{element["payload"]}'"
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
+            if type == "read-only" then
+                nhash = element["payload"]
+                targetReconstructionFolderpath = "/Users/pascal/Desktop"
+                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
+                puts "Export completed"
+            end
+            if type == "read-write" then
+                nhash = element["payload"]
+                targetReconstructionFolderpath = "/Users/pascal/Desktop"
+                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
+                puts "Export completed"
+                puts "When done, you will enter the location name of the replacement"
+                LucilleCore::pressEnterToContinue()
+                locationname = LucilleCore::askQuestionAnswerAsString("desktop location name: ")
+                location = "/Users/pascal/Desktop/#{locationname}"
+                return nil if !File.exists?(location)
+                payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
+                element["payload"] = payload
+                NereidDatabase::insertElement(element)
+            end
+            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
+        end
+        if element["type"] == "FSUniqueString" then
+            puts messageDescription.green
+            location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
+            if location.nil? then
+                puts "I could not determine location for file system unique string: #{element["payload"]}"
+                LucilleCore::pressEnterToContinue()
+            else
+                if File.file?(location) then
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open file", "open parent folder"])
+                    return if option.nil?
+                    if option == "open file" then
+                        system("open '#{location}'")
+                    end
+                    if option == "open parent folder" then
+                        system("open '#{File.dirname(location)}'")
+                    end
+                else
+                    system("open '#{location}'")
+                end
+            end
+            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
+        end
+        raise "[error: d21f87c1-94e0-47fd-a1dd-421812e3957a]"
     end
 end
 
 class UIServices
+
+    # UIServices::makeDisplayStringForCatalystListing(object)
+    def self.makeDisplayStringForCatalystListing(object)
+        body = object["body"]
+        lines = body.lines.to_a
+        if lines.size == 1 then
+            "#{lines.first}"
+        else
+            "#{lines.shift}" + lines.map{|line|  "             #{line}"}.join()
+        end
+    end
 
     # UIServices::servicesFront()
     def self.servicesFront()
@@ -28,6 +145,12 @@ class UIServices
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("DxThreads", lambda { DxThreads::main() })
+
+            puts ""
+
+            ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
+
+            ms.item("new quark", lambda { Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, nil) })    
 
             puts ""
 
@@ -67,169 +190,70 @@ class UIServices
         }
     end
 
-    # UIServices::standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
-    def self.standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
+    # UIServices::xStreamRun()
+    def self.xStreamRun()
 
-        locker = Locker.new()
+        time1 = Time.new
 
-        system("clear")
+        shouldExit = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
+
+        Calendar::calendarItems()
+            .sort{|i1, i2| i1["date"]<=>i2["date"] }
+            .each{|item|
+                Calendar::toString(item).yellow
+            }
+
+        DxThreads::dxthreads()
+            .select{|dx| DxThreads::completionRatio(dx) < 1 }
+            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+            .each{|dxthread|
+                puts DxThreads::toStringWithAnalytics(dxthread).yellow
+            }
+
+        CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            .each{|object|
+                puts ""
+                puts UIServices::makeDisplayStringForCatalystListing(object)
+                object["access"].call()
+                return if shouldExit.call(time1)
+            }
 
         puts ""
 
-        verticalSpaceLeft = Miscellaneous::screenHeight()-4
-        menuitems = LCoreMenuItemsNX1.new()
-
-        dates
-            .each{|date|
-                puts "🗓️  "+date
-                verticalSpaceLeft = verticalSpaceLeft - 1
-                str = IO.read(Calendar::dateToFilepath(date))
-                        .strip
-                        .lines
-                        .map{|line| "    #{line}" }
-                        .join()
-                puts str
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-            }
-        
-        catalystObjects.take(5)
-            .each{|object|
-                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
-            }
-
-        calendarItems.each{|item|
-            puts "[#{locker.store(item).to_s.rjust(2)}] #{Calendar::toString(item)}".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
+        processQuark = lambda {|dxthread, quark|
+            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+            return if element.nil?
+            t1 = Time.new.to_f                    
+            input = NereidInterface::accessSpecialXStream(DxThreads::dxThreadAndTargetToString(dxthread, quark).green, "( done ; pause ; landing ; empty for next ; / )", quark["nereiduuid"])
+            timespan = Time.new.to_f - t1
+            Bank::put(quark["uuid"], timespan)
+            Bank::put(dxthread["uuid"], timespan)
+            if input == "done" then
+                Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input == "pause" then
+                puts "paused"
+                LucilleCore::pressEnterToContinue()
+                processQuark.call(quark)
+                return
+            end
+            if input == "landing" then
+                NereidInterface::landing(quark["nereiduuid"])
+                return
+            end
+            if input == "/" then
+                UIServices::servicesFront()
+            end
         }
 
-        dxthreads
-            .each{|dxthread|
-                puts "[#{locker.store(dxthread).to_s.rjust(2)}] #{DxThreads::toStringWithAnalytics(dxthread)}".yellow
-                verticalSpaceLeft = verticalSpaceLeft - 1
+        dxthread = DxThreads::getTopThread()
+        Arrows::getTargetsForSource(dxthread)
+            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+            .each{|quark|
+                processQuark.call(dxthread, quark)
+                return if shouldExit.call(time1)
             }
-
-        catalystObjects.drop(5)
-            .each{|object|
-                str = DisplayUtils::makeDisplayStringForCatalystListing(object)
-                break if (verticalSpaceLeft - DisplayUtils::verticalSize(str) < 0)
-                verticalSpaceLeft = verticalSpaceLeft - DisplayUtils::verticalSize(str)
-                puts "[#{locker.store(object).to_s.rjust(2)}] #{str}"
-            }
-
-        # --------------------------------------------------------------------------
-        # Prompt
-
-        puts ""
-        print "--> "
-        command = STDIN.gets().strip
-
-        if command == "" then
-            return
-        end
-
-        if Miscellaneous::isInteger(command) then
-            position = command.to_i
-            object = locker.get(position)
-            return if object.nil?
-            object["landing"].call()
-            return
-        end
-
-        if command == 'expose' then
-            object = locker.get(1)
-            return if object.nil?
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == ".." then
-            object = locker.get(1)
-            return if object.nil?
-            object["nextNaturalStep"].call()
-            return
-        end
-
-        if command.size > 2 and command[-2, 2] == ".." then
-            fragment = command[0, command.size-2].strip
-            if Miscellaneous::isInteger(fragment) then
-                position = fragment.to_i
-                object = locker.get(position)
-                object["nextNaturalStep"].call()
-            end
-            return
-        end
-
-        if command == "++" then
-            object = locker.get(1)
-            return if object.nil?
-            unixtime = Miscellaneous::codeToUnixtimeOrNull("+1 hours")
-            puts "Pushing to #{Time.at(unixtime).to_s}"
-            DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-            return
-        end
-
-        if command.start_with?('+') and (unixtime = Miscellaneous::codeToUnixtimeOrNull(command)) then
-            object = locker.get(1)
-            return if object.nil?
-            puts "Pushing to #{Time.at(unixtime).to_s}"
-            DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
-            return
-        end
-        
-        if command == ":new" then
-            operations = [
-                "Calendar item",
-                "wave",
-                "DxThread"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return if operation.nil?
-            if operation == "Calendar item" then
-                object = Calendar::interactivelyIssueNewCalendarItemOrNull()
-                return if object.nil?
-                Calendar::landing(object)
-                return
-            end
-            if operation == "wave" then
-                object = Waves::issueNewWaveInteractivelyOrNull()
-                return if object.nil?
-                Patricia::landing(object)
-                return
-            end
-            if operation == "DxThread" then
-                Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, nil)
-                return
-            end
-        end
-
-        if command == "/" then
-            UIServices::servicesFront()
-            return
-        end
-
-        if command == "/stream" then
-            dxthread = DxThreads::getStream()
-            Arrows::getTargetsForSource(dxthread)
-                .shuffle
-                .each{|quark|
-                    element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-                    next if element.nil?
-                    next if element["type"] != "Url"
-                    t1 = Time.new.to_f                    
-                    system("open -a Safari '#{element["payload"]}'")
-                    input = LucilleCore::askQuestionAnswerAsString("#{element["payload"]} : (done / empty for next) ")
-                    timespan = Time.new.to_f - t1
-                    Bank::put(quark["uuid"], timespan)
-                    Bank::put(dxthread["uuid"], timespan)
-                    if input == "done" then
-                        Quarks::destroyQuarkAndNereidContent(quark)
-                    end
-                }
-        end
     end
 
     # UIServices::standardTodoListingLoop()
@@ -254,18 +278,6 @@ class UIServices
 
         Thread.new {
             loop {
-                sleep 120
-                CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                    .select{|object| object["isRunningForLong"] }
-                    .first(1)
-                    .each{|object|
-                        Miscellaneous::onScreenNotification("Catalyst Interface", "An object is running for long")
-                    }
-            }
-        }
-
-        Thread.new {
-            loop {
                 sleep 1800
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
                     system("#{File.dirname(__FILE__)}/../../vienna-import")
@@ -273,34 +285,7 @@ class UIServices
             }
         }
 
-        loop {
-            Miscellaneous::importFromLucilleInbox()
-
-            catalystObjects = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                                .select{|object| object['metric'] >= 0.21 } # to make it stop
-
-            dates =  Calendar::dates()
-                        .select {|date| date <= Time.new.to_s[0, 10] }
-
-            calendarItems = Calendar::calendarItems()
-                                .sort{|i1, i2| i1["date"]<=>i2["date"] }
-                                .map {|item|
-                                    item["landing"] = lambda { Calendar::landing(item) }
-                                    item["nextNaturalStep"] = lambda { Calendar::landing(item) }
-                                    item
-                                }
-
-            dxthreads = DxThreads::dxthreads()
-                            .select{|dx| DxThreads::completionRatio(dx) < 1 }
-                            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-                            .map {|dxthread|
-                                dxthread["landing"] = lambda { DxThreads::landing(dxthread) }
-                                dxthread["nextNaturalStep"] = lambda { DxThreads::landing(dxthread) }
-                                dxthread
-                            }
-
-            UIServices::standardDisplayWithPrompt(catalystObjects, dates, calendarItems, dxthreads)
-        }
+        UIServices::xStreamRun()
     end
 end
 

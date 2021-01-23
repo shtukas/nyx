@@ -10,19 +10,12 @@ class CatalystObjectsOperator
         objects = [
             BackupsMonitor::catalystObjects(),
             Calendar::catalystObjects(),
-            DxThreads::catalystObjects(),
             VideoStream::catalystObjects(),
             Waves::catalystObjects(),
-        ].flatten.compact
-        objects = objects
-                    .select{|object| object['metric'] >= 0.2 }
-
-        objects = objects
-                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-                    .sort{|o1, o2| o1["metric"] <=> o2["metric"] }
-                    .reverse
-
-        objects
+        ]
+        .flatten
+        .compact
+        .select{|object| DoNotShowUntil::isVisible(object["uuid"]) }
     end
 
     # CatalystObjectsOperator::generationSpeedReport()
@@ -35,10 +28,6 @@ class CatalystObjectsOperator
             {
                 "name" => "Calendar",
                 "exec" => lambda { Calendar::catalystObjects() }
-            },
-            {
-                "name" => "DxThreads",
-                "exec" => lambda { DxThreads::catalystObjects() }
             },
             {
                 "name" => "VideoStream",

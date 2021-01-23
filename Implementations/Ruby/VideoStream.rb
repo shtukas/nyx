@@ -28,12 +28,6 @@ class VideoStream
             .select{|filepath| VideoStream::filepathToVideoUUID(filepath) == uuid }
             .first
     end
-
-    # VideoStream::metric(rdtih, indx)
-    def self.metric(rdtih, indx)
-        0.6 - 0.4*(1-Math.exp(-2*rdtih-indx.to_f/10))
-    end
-
     # VideoStream::videoIsRunning(filepath)
     def self.videoIsRunning(filepath)
         uuid = "8410f77a-0624-442d-b413-f2be0fcce5ba:#{filepath}"
@@ -46,21 +40,18 @@ class VideoStream
         raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
 
         recoveredDailyTimeInHours = BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")
+        return [] if recoveredDailyTimeInHours > 1
 
-        makeObject = lambda{|filepath, rdtih, indx|
+        makeCatalystObject = lambda{|filepath, rdtih, indx|
             isRunning = VideoStream::videoIsRunning(filepath)
             uuid = VideoStream::filepathToVideoUUID(filepath)
-            metric = VideoStream::metric(rdtih, indx)
-            metric = 1 if isRunning
             {
-                "uuid"        => uuid,
-                "body"        => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
-                "metric"      => metric,
-                "landing"         => lambda { VideoStream::execute(filepath) },
-                "nextNaturalStep" => lambda { VideoStream::execute(filepath) },
-                "isRunning"   => isRunning,
-                "x-video-stream" => true,
-                "x-filepath"  => filepath
+                "uuid"            => uuid,
+                "body"            => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
+                "access"          => lambda { VideoStream::access(filepath) },
+                "landing"         => lambda { VideoStream::access(filepath) },
+                "x-video-stream"  => true,
+                "x-filepath"      => filepath
             }
         }
 
@@ -87,7 +78,7 @@ class VideoStream
             .map{|item| 
                 filepath = item["filepath"]
                 indx     = item["index"]
-                makeObject.call(filepath, recoveredDailyTimeInHours, indx) 
+                makeCatalystObject.call(filepath, recoveredDailyTimeInHours, indx) 
             }
 
         if objects.any?{|object| object["body"].include?("running") } then
@@ -97,8 +88,13 @@ class VideoStream
         objects
     end
 
-    # VideoStream::playStopComplete(filepath)
-    def self.playStopComplete(filepath)
+    # VideoStream::access(filepath)
+    def self.access(filepath)
+        if filepath.include?("'") then
+            filepath2 = filepath.gsub("'", ' ')
+            FileUtils.mv(filepath, filepath2)
+            filepath = filepath2
+        end
 
         stopAndRecordTime = lambda {|uuid|
             timespan = Runner::stop(uuid)
@@ -132,16 +128,7 @@ class VideoStream
                 FileUtils.rm(filepath)
             end
         end
-    end
 
-    # VideoStream::execute(filepath)
-    def self.execute(filepath)
-        if filepath.include?("'") then
-            filepath2 = filepath.gsub("'", ' ')
-            FileUtils.mv(filepath, filepath2)
-            filepath = filepath2
-        end
-        VideoStream::playStopComplete(filepath)
     end
 end
 

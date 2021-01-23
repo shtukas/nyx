@@ -116,12 +116,13 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::landing(input) # input: uuid: String , element Element
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::access(element)
     NereidInterface::insertElement(element)
+    NereidInterface::toString(input) # input: uuid: String , element Element
+    NereidInterface::getElementOrNull(uuid)
+    NereidInterface::getElements()
+    NereidInterface::landing(input) # input: uuid: String , element Element
+    NereidInterface::access(input)
     NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful. 
@@ -143,13 +144,10 @@ require_relative "Bank.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystObjectsOperator.rb"
 
-require_relative "DisplayUtils.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DxThreads.rb"
-
-require_relative "EstateServices.rb"
 
 require_relative "NSGarbageCollection.rb"
 require_relative "NSCoreObjects.rb"

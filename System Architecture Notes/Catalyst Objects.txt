@@ -1,32 +1,8 @@
 
-# ------------------------------------------------------------------
 CatalystObject
 {
     "uuid"               : UUID
     "body"               : String # Single or multiline
-    "metric"             : Float
-    "::ordinal"          : Float # experimental, drive the ordinal system
-
+    "access"             : Lambda { code }
     "landing"            : Lambda { code }
-    "nextNaturalStep"    : Lambda { code }
-    
-    "isRunning"          : Boolean # Optional [2]
-    "isRunningForLong"   : Boolean # Optional [3]
-}
-
-[2] If present and true, displays in green
-
-[3] If present cause an on-screen notification, those are checked on a thread.
-
-# ------------------------------------------------------------------
-
-ContentItem
-{
-    "type" : "line"
-    "line" : String # carries a single line.
-}
-
-{
-    "type" : "multiline"
-    "text" : String # Multiline
 }

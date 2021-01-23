@@ -91,31 +91,6 @@ class Waves
         end
     end
 
-    # Waves::scheduleToMetric(wave, schedule)
-    def self.scheduleToMetric(wave, schedule)
-        return 0 if !DoNotShowUntil::isVisible(wave["uuid"])
-        if schedule['@'] == 'sticky' then # shows up once a day
-            # Backward compatibility
-            if schedule['from-hour'].nil? then
-                schedule['from-hour'] = 6
-            end
-            return Time.new.hour >= schedule['from-hour'] ? ( 0.84 + Waves::traceToMetricShift(schedule["uuid"]) ) : 0
-        end
-        if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.82 + Waves::traceToMetricShift(schedule["uuid"])
-        end
-        if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.80 + Waves::traceToMetricShift(schedule["uuid"])
-        end
-        if schedule['@'] == 'every-n-hours' then
-            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
-        end
-        if schedule['@'] == 'every-n-days' then
-            return 0.78 + Waves::traceToMetricShift(schedule["uuid"])
-        end
-        1
-    end
-
     # Waves::extractFirstLineFromText(text)
     def self.extractFirstLineFromText(text)
         return "" if text.size==0
@@ -159,9 +134,8 @@ class Waves
         object = {}
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
-        object["metric"] = Waves::scheduleToMetric(wave, schedule)
+        object["access"] = lambda { Waves::access(wave) }
         object["landing"] = lambda { Waves::landing(wave) }
-        object["nextNaturalStep"] = lambda { Waves::access(wave) }
         object['schedule'] = schedule
         object["x-wave"] = wave
         object
