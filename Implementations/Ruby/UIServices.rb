@@ -193,6 +193,8 @@ class UIServices
     # UIServices::xStreamRun()
     def self.xStreamRun()
 
+        counter1 = 0
+
         time1 = Time.new
 
         shouldExitXStreamRun = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
@@ -250,8 +252,13 @@ class UIServices
         DxThreads::getTopThreads().each{|dxthread|
             Arrows::getTargetsForSource(dxthread)
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .each{|quark|
+                .each_with_index{|quark, indx|
+                    counter1 = counter1 + 1
                     processQuark.call(dxthread, quark)
+                    if (indx % 10 == 0) then
+                        puts "[#{counter1}] Interruption opportunity".red
+                        LucilleCore::pressEnterToContinue()
+                    end
                     return if shouldExitXStreamRun.call(time1)
                 }
         }
