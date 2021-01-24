@@ -117,7 +117,7 @@ class UIServices
             t1 = Time.new.to_f                    
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::access(quark["nereiduuid"])
-            puts "done ; pause ; landing ; / ; empty for next"
+            puts "done | pause | landing | / | empty for next"
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
