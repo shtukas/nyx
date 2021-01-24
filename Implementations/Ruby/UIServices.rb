@@ -113,6 +113,7 @@ class UIServices
             puts "done ; pause ; landing ; / ; empty for next"
             input = LucilleCore::askQuestionAnswerAsString("> ")
             timespan = Time.new.to_f - t1
+            timespan = [timespan, 3600*2].min
             Bank::put(quark["uuid"], timespan)
             Bank::put(dxthread["uuid"], timespan)
             if input == "done" then            
