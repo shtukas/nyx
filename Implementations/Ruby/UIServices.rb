@@ -239,7 +239,7 @@ class UIServices
             if input == "pause" then
                 puts "paused"
                 LucilleCore::pressEnterToContinue()
-                processQuark.call(quark)
+                processQuark.call(dxthread, quark)
                 return timespan
             end
             if input == "landing" then
