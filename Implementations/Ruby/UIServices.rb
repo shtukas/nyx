@@ -222,9 +222,11 @@ class UIServices
 
         puts ""
 
+
+        # processQuark: Float # returns the time spent in seconds
         processQuark = lambda {|dxthread, quark|
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            return if element.nil?
+            return 0 if element.nil?
             t1 = Time.new.to_f                    
             input = NereidInterface::accessSpecialXStream("running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}", "( done ; pause ; landing ; empty for next ; / )", quark["nereiduuid"])
             timespan = Time.new.to_f - t1
@@ -232,31 +234,33 @@ class UIServices
             Bank::put(dxthread["uuid"], timespan)
             if input == "done" then
                 Quarks::destroyQuarkAndNereidContent(quark)
-                return
+                return timespan
             end
             if input == "pause" then
                 puts "paused"
                 LucilleCore::pressEnterToContinue()
                 processQuark.call(quark)
-                return
+                return timespan
             end
             if input == "landing" then
                 NereidInterface::landing(quark["nereiduuid"])
-                return
+                return timespan
             end
             if input == "/" then
                 UIServices::servicesFront()
+                return timespan
             end
+            return timespan
         }
 
         runDxThread = lambda{|dxthread, depth|
             Arrows::getTargetsForSource(dxthread)
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                 .first(depth)
-                .each_with_index{|quark, indx|
+                .each{|quark|
                     counter1 = counter1 + 1
-                    processQuark.call(dxthread, quark)
-                    if (indx % 10 == 0) then
+                    timespan = processQuark.call(dxthread, quark)
+                    if (timespan >= 600) or (counter1 % 10 == 0) then
                         puts "[#{counter1}] Interruption opportunity".red
                         LucilleCore::pressEnterToContinue()
                     end
