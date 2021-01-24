@@ -117,7 +117,7 @@ class UIServices
             t1 = Time.new.to_f                    
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::access(quark["nereiduuid"])
-            puts "done | pause | landing | / | empty for next"
+            puts "done | landing | pause | next | / | empty for exit"
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -129,15 +129,18 @@ class UIServices
                 Quarks::destroyQuarkAndNereidContent(quark)
                 return
             end
+            if input == "landing" then
+                NereidInterface::landing(quark["nereiduuid"])
+                processQuark.call(dxthread, quark)
+                return
+            end
             if input == "pause" then
                 puts "paused".red
                 LucilleCore::pressEnterToContinue("Press enter to resume: ")
                 processQuark.call(dxthread, quark)
                 return
             end
-            if input == "landing" then
-                NereidInterface::landing(quark["nereiduuid"])
-                processQuark.call(dxthread, quark)
+            if input == "next" then
                 return
             end
             if input == "/" then
@@ -145,7 +148,7 @@ class UIServices
                 processQuark.call(dxthread, quark)
                 return
             end
-            return
+            exit
         }
 
         runDxThread = lambda{|dxthread, depth|
