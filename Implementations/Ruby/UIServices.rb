@@ -304,7 +304,7 @@ class UIServices
             }
         }
 
-        UIServices::xStreamRun()
+        loop { UIServices::xStreamRun() }
     end
 end
 
