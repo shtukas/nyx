@@ -249,9 +249,10 @@ class UIServices
             end
         }
 
-        DxThreads::getTopThreads().each{|dxthread|
+        runDxThread = lambda{|dxthread, depth|
             Arrows::getTargetsForSource(dxthread)
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+                .first(depth)
                 .each_with_index{|quark, indx|
                     counter1 = counter1 + 1
                     processQuark.call(dxthread, quark)
@@ -262,6 +263,12 @@ class UIServices
                     return if shouldExitXStreamRun.call(time1)
                 }
         }
+
+        DxThreads::getTopThreads()
+            .each{|dxthread| runDxThread.call(dxthread, 10) }
+
+        runDxThread.call(DxThreads::getStream(), 100)
+
     end
 
     # UIServices::standardTodoListingLoop()
