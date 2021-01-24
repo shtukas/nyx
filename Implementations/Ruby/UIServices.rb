@@ -226,7 +226,7 @@ class UIServices
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
             return if element.nil?
             t1 = Time.new.to_f                    
-            input = NereidInterface::accessSpecialXStream(DxThreads::dxThreadAndTargetToString(dxthread, quark).green, "( done ; pause ; landing ; empty for next ; / )", quark["nereiduuid"])
+            input = NereidInterface::accessSpecialXStream("running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}", "( done ; pause ; landing ; empty for next ; / )", quark["nereiduuid"])
             timespan = Time.new.to_f - t1
             Bank::put(quark["uuid"], timespan)
             Bank::put(dxthread["uuid"], timespan)
