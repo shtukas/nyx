@@ -1,124 +1,6 @@
 # encoding: UTF-8
 
-class NereidInterface
-
-    # Duck Patching
-
-    # NereidInterface::accessSpecialXStream(messageDescription, messageCommands, input)
-    def self.accessSpecialXStream(messageDescription, messageCommands, input)
-
-        element = NereidInterface::inputToElementOrNull(input, "access")
-        return if element.nil?
-
-        if element["type"] == "Line" then
-            return LucilleCore::askQuestionAnswerAsString("#{messageDescription} ; #{messageCommands} : ")
-        end
-        if element["type"] == "Url" then
-            NereidUtils::openUrl(element["payload"])
-            return LucilleCore::askQuestionAnswerAsString("#{messageDescription} ; #{messageCommands} : ")
-        end
-        if element["type"] == "Text" then
-            puts messageDescription
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            return if type.nil?
-            if type == "read-only" then
-                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}.txt"
-                File.open(filepath, "w"){|f| f.write(text) }
-                puts "I have exported the file at '#{filepath}'"
-            end
-            if type == "read-write" then
-                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-                text = NereidUtils::editTextSynchronously(text)
-                element["payload"] = NereidBinaryBlobsService::putBlob(text)
-                NereidDatabase::insertElement(element)
-            end
-            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
-        end
-        if element["type"] == "ClickableType" then
-            puts messageDescription
-            puts "opening file '#{element["payload"]}'"
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            if type == "read-only" then
-                blobuuid, extension = element["payload"].split("|")
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
-                File.open(filepath, "w"){|f| f.write(blob) }
-                puts "I have exported the file at '#{filepath}'"
-            end
-            if type == "read-write" then
-                blobuuid, extension = element["payload"].split("|")
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
-                File.open(filepath, "w"){|f| f.write(blob) }
-                puts "I have exported the file at '#{filepath}'"
-                puts "When done, you will enter the filename of the replacement"
-                LucilleCore::pressEnterToContinue()
-                filename = LucilleCore::askQuestionAnswerAsString("desktop filename (empty to abort): ")
-                return if filename == ""
-                filepath = "/Users/pascal/Desktop/#{filename}"
-                return nil if !File.exists?(filepath)
-
-                nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
-                dottedExtension = File.extname(filename)
-                payload = "#{nhash}|#{dottedExtension}"
-
-                element["payload"] = payload
-                NereidDatabase::insertElement(element)
-            end
-            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
-        end
-        if element["type"] == "AionPoint" then
-            puts messageDescription
-            puts "opening aion point '#{element["payload"]}'"
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            if type == "read-only" then
-                nhash = element["payload"]
-                targetReconstructionFolderpath = "/Users/pascal/Desktop"
-                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
-                puts "Export completed"
-            end
-            if type == "read-write" then
-                nhash = element["payload"]
-                targetReconstructionFolderpath = "/Users/pascal/Desktop"
-                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
-                puts "Export completed"
-                puts "When done, you will enter the location name of the replacement"
-                LucilleCore::pressEnterToContinue()
-                locationname = LucilleCore::askQuestionAnswerAsString("desktop location name: ")
-                location = "/Users/pascal/Desktop/#{locationname}"
-                return nil if !File.exists?(location)
-                payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-                element["payload"] = payload
-                NereidDatabase::insertElement(element)
-            end
-            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
-        end
-        if element["type"] == "FSUniqueString" then
-            puts messageDescription
-            location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
-            if location.nil? then
-                puts "I could not determine location for file system unique string: #{element["payload"]}"
-                LucilleCore::pressEnterToContinue()
-            else
-                if File.file?(location) then
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open file", "open parent folder"])
-                    return if option.nil?
-                    if option == "open file" then
-                        system("open '#{location}'")
-                    end
-                    if option == "open parent folder" then
-                        system("open '#{File.dirname(location)}'")
-                    end
-                else
-                    system("open '#{location}'")
-                end
-            end
-            return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
-        end
-        raise "[error: d21f87c1-94e0-47fd-a1dd-421812e3957a]"
-    end
-end
+$XStreamRunCounter = 0
 
 class UIServices
 
@@ -193,8 +75,6 @@ class UIServices
     # UIServices::xStreamRun()
     def self.xStreamRun()
 
-        counter1 = 0
-
         time1 = Time.new
 
         shouldExitXStreamRun = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
@@ -226,31 +106,36 @@ class UIServices
         # processQuark: Float # returns the time spent in seconds
         processQuark = lambda {|dxthread, quark|
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            return 0 if element.nil?
+            return if element.nil?
             t1 = Time.new.to_f                    
-            input = NereidInterface::accessSpecialXStream("running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}", "( done ; pause ; landing ; empty for next ; / )", quark["nereiduuid"])
+            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
+            NereidInterface::access(quark["nereiduuid"])
+            puts "done ; pause ; landing ; / ; empty for next"
+            input = LucilleCore::askQuestionAnswerAsString("> ")
             timespan = Time.new.to_f - t1
             Bank::put(quark["uuid"], timespan)
             Bank::put(dxthread["uuid"], timespan)
-            if input == "done" then
+            if input == "done" then            
                 Quarks::destroyQuarkAndNereidContent(quark)
-                return timespan
+                return
             end
             if input == "pause" then
-                puts "paused"
-                LucilleCore::pressEnterToContinue()
+                puts "paused".red
+                LucilleCore::pressEnterToContinue("Press enter to resume: ")
                 processQuark.call(dxthread, quark)
-                return timespan
+                return
             end
             if input == "landing" then
                 NereidInterface::landing(quark["nereiduuid"])
-                return timespan
+                processQuark.call(dxthread, quark)
+                return
             end
             if input == "/" then
                 UIServices::servicesFront()
-                return timespan
+                processQuark.call(dxthread, quark)
+                return
             end
-            return timespan
+            return
         }
 
         runDxThread = lambda{|dxthread, depth|
@@ -258,12 +143,8 @@ class UIServices
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                 .first(depth)
                 .each{|quark|
-                    counter1 = counter1 + 1
-                    timespan = processQuark.call(dxthread, quark)
-                    if (timespan >= 600) or (counter1 % 10 == 0) then
-                        puts "[#{counter1}] Interruption opportunity".red
-                        LucilleCore::pressEnterToContinue()
-                    end
+                    $XStreamRunCounter = $XStreamRunCounter + 1
+                    processQuark.call(dxthread, quark)
                     return if shouldExitXStreamRun.call(time1)
                 }
         }
