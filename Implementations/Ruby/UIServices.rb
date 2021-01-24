@@ -11,14 +11,14 @@ class NereidInterface
         return if element.nil?
 
         if element["type"] == "Line" then
-            return LucilleCore::askQuestionAnswerAsString("#{messageDescription.green} ; #{messageCommands} : ")
+            return LucilleCore::askQuestionAnswerAsString("#{messageDescription} ; #{messageCommands} : ")
         end
         if element["type"] == "Url" then
             NereidUtils::openUrl(element["payload"])
-            return LucilleCore::askQuestionAnswerAsString("#{messageDescription.green} ; #{messageCommands} : ")
+            return LucilleCore::askQuestionAnswerAsString("#{messageDescription} ; #{messageCommands} : ")
         end
         if element["type"] == "Text" then
-            puts messageDescription.green
+            puts messageDescription
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
             return if type.nil?
             if type == "read-only" then
@@ -36,7 +36,7 @@ class NereidInterface
             return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
         end
         if element["type"] == "ClickableType" then
-            puts messageDescription.green
+            puts messageDescription
             puts "opening file '#{element["payload"]}'"
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
             if type == "read-only" then
@@ -69,7 +69,7 @@ class NereidInterface
             return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
         end
         if element["type"] == "AionPoint" then
-            puts messageDescription.green
+            puts messageDescription
             puts "opening aion point '#{element["payload"]}'"
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
             if type == "read-only" then
@@ -95,7 +95,7 @@ class NereidInterface
             return LucilleCore::askQuestionAnswerAsString("#{messageCommands} : ")
         end
         if element["type"] == "FSUniqueString" then
-            puts messageDescription.green
+            puts messageDescription
             location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
             if location.nil? then
                 puts "I could not determine location for file system unique string: #{element["payload"]}"
