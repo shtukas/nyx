@@ -104,7 +104,14 @@ class UIServices
         runDxThreadQuarkPair = lambda {|dxthread, quark|
             loop {
                 element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-                return if element.nil?
+                if element.nil? then
+                    system("clear")
+                    puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
+                    if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
+                        Quarks::destroyQuarkAndNereidContent(quark)
+                    end
+                    return
+                end
                 thr = Thread.new {
                     sleep 3600
                     loop {
