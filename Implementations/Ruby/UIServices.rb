@@ -217,8 +217,7 @@ class UIServices
                 announce = UIServices::selectLineOrNull(items.map{|item| item["announce"] })
                 item = items.select{|item| item["announce"] == announce }.first
                 if item.nil? and items.size > 0 then
-                    items[0]["lambda"].call()
-                    next
+                    break
                 end
                 item["lambda"].call()
                 if item["announce"].include?("[nereid]") then
