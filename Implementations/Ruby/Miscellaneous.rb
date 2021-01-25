@@ -262,6 +262,11 @@ class Miscellaneous
         displayStr.lines.map{|line| (((line.size+5).to_f)/Miscellaneous::screenWidth()).ceil }.inject(0, :+)
     end
 
+    # Miscellaneous::openUrl(url)
+    def self.openUrl(url)
+        system("open -a Safari '#{url}'")
+    end
+
     # --------------------------------------------------------------------------------
 
     # Miscellaneous::pecoStyleSelectionOrNull(lines)

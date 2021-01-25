@@ -47,7 +47,7 @@ class VideoStream
             uuid = VideoStream::filepathToVideoUUID(filepath)
             {
                 "uuid"            => uuid,
-                "body"            => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " (running)" : ""}",
+                "body"            => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " #{"(running)".green}" : ""}",
                 "access"          => lambda { VideoStream::access(filepath) },
                 "landing"         => lambda { VideoStream::access(filepath) },
                 "x-video-stream"  => true,

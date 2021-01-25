@@ -1,8 +1,34 @@
 # encoding: UTF-8
 
-$XStreamRunCounter = 0
-
 class UIServices
+
+    # UIServices::selectLineOrNull(lines) : String
+    def self.selectLineOrNull(lines)
+
+        selectLines = lambda{|lines|
+            linesX = lines.map{|line|
+                {
+                    "line"     => line,
+                    "announce" => line.gsub("(", "").gsub(")", "").gsub("'", "").gsub('"', "") 
+                }
+            }
+            announces = linesX.map{|i| i["announce"] } 
+            selected = `echo '#{([""]+announces).join("\n")}' | /usr/local/bin/peco`.split("\n")
+            selected.map{|announce| 
+                linesX.select{|i| i["announce"] == announce }.map{|i| i["line"] }.first 
+            }
+            .compact
+        }
+
+        lines = selectLines.call(lines)
+        if lines.size == 0 then
+            return nil
+        end
+        if lines.size == 1 then
+            return lines[0]
+        end
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
+    end
 
     # UIServices::makeDisplayStringForCatalystListing(object)
     def self.makeDisplayStringForCatalystListing(object)
@@ -57,15 +83,13 @@ class UIServices
 
             puts ""
 
-            ms.item(
-                "NSGarbageCollection::run()",
-                lambda { NSGarbageCollection::run() }
-            )
+            ms.item("NSGarbageCollection::run()",lambda { 
+                NSGarbageCollection::run() 
+            })
 
-            ms.item(
-                "Print Generation Speed Report", 
-                lambda { CatalystObjectsOperator::generationSpeedReport() }
-            )
+            ms.item("Print Generation Speed Report", lambda { 
+                CatalystObjectsOperator::generationSpeedReport() 
+            })
 
             status = ms.promptAndRunSandbox()
             break if !status
@@ -75,97 +99,135 @@ class UIServices
     # UIServices::xStreamRun()
     def self.xStreamRun()
 
-        time1 = Time.new
+        KeyValueStore::set(nil, "46BEE72F-E9D2-48CC-99ED-C90E67B13DBC", DxThreads::dxthreads().map{|dxthread| DxThreads::toString(dxthread).size }.max)
 
-        shouldExitXStreamRun = lambda {|time1| Time.new.to_s[0, 13] != time1.to_s[0, 13] }
-
-        Calendar::calendarItems()
-            .sort{|i1, i2| i1["date"]<=>i2["date"] }
-            .each{|item|
-                Calendar::toString(item).yellow
-            }
-
-        DxThreads::dxthreads()
-            .select{|dx| DxThreads::completionRatio(dx) < 1 }
-            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-            .each{|dxthread|
-                puts DxThreads::toStringWithAnalytics(dxthread).yellow
-            }
-
-        CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            .each{|object|
-                puts ""
-                puts UIServices::makeDisplayStringForCatalystListing(object)
-                object["access"].call()
-                return if shouldExitXStreamRun.call(time1)
-            }
-
-        puts ""
-
-
-        # processQuark: Float # returns the time spent in seconds
-        processQuark = lambda {|dxthread, quark|
-            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            return if element.nil?
-            thr = Thread.new {
-                sleep 3600
-                loop {
-                    Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                    sleep 60
+        runDxThreadQuarkPair = lambda {|dxthread, quark|
+            loop {
+                element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+                return if element.nil?
+                thr = Thread.new {
+                    sleep 3600
+                    loop {
+                        Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                        sleep 60
+                    }
                 }
+                t1 = Time.new.to_f                    
+                puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
+                NereidInterface::access(quark["nereiduuid"])
+                puts "done | landing | pause | empty for exit quark"
+                input = LucilleCore::askQuestionAnswerAsString("> ")
+                thr.exit
+                timespan = Time.new.to_f - t1
+                timespan = [timespan, 3600*2].min
+                puts "putting #{timespan} seconds"
+                Bank::put(quark["uuid"], timespan)
+                Bank::put(dxthread["uuid"], timespan)
+                if input == "done" then            
+                    Quarks::destroyQuarkAndNereidContent(quark)
+                    return
+                end
+                if input == "landing" then
+                    NereidInterface::landing(quark["nereiduuid"])
+                    next
+                end
+                if input == "pause" then
+                    puts "paused".red
+                    LucilleCore::pressEnterToContinue("Press enter to resume: ")
+                    next
+                end
+                return
             }
-            t1 = Time.new.to_f                    
-            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
-            NereidInterface::access(quark["nereiduuid"])
-            puts "done | landing | pause | next | / | empty for exit"
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            thr.exit
-            timespan = Time.new.to_f - t1
-            timespan = [timespan, 3600*2].min
-            puts "putting #{timespan} seconds"
-            Bank::put(quark["uuid"], timespan)
-            Bank::put(dxthread["uuid"], timespan)
-            if input == "done" then            
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
-            if input == "landing" then
-                NereidInterface::landing(quark["nereiduuid"])
-                processQuark.call(dxthread, quark)
-                return
-            end
-            if input == "pause" then
-                puts "paused".red
-                LucilleCore::pressEnterToContinue("Press enter to resume: ")
-                processQuark.call(dxthread, quark)
-                return
-            end
-            if input == "next" then
-                return
-            end
-            if input == "/" then
-                UIServices::servicesFront()
-                processQuark.call(dxthread, quark)
-                return
-            end
-            exit
         }
 
-        runDxThread = lambda{|dxthread, depth|
-            Arrows::getTargetsForSource(dxthread)
-                .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .first(depth)
-                .each{|quark|
-                    $XStreamRunCounter = $XStreamRunCounter + 1
-                    processQuark.call(dxthread, quark)
-                    return if shouldExitXStreamRun.call(time1)
+        getDxThreadQuarkPairs = lambda {
+            DxThreads::getTopThreads()
+                .map{|dxthread| 
+                    Arrows::getTargetsForSource(dxthread)
+                        .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+                        .first(10)
+                        .map{|quark|
+                            {
+                                "dxthread" => dxthread, 
+                                "quark"    => quark
+                            }
+                        }
                 }
+                .flatten
         }
 
-        DxThreads::getTopThreads()
-            .each{|dxthread| runDxThread.call(dxthread, 10) }
+        getDisplayItems = lambda{
 
-        runDxThread.call(DxThreads::getStream(), 100)
+            pairs = getDxThreadQuarkPairs.call()
+
+            items1 = pairs.take(1).map{|item|
+                {
+                    "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                    "lambda"   => lambda{ runDxThreadQuarkPair.call(item["dxthread"], item["quark"]) }
+                }                
+            }
+
+            items2 = [
+                {
+                    "announce" => "/ General Menu",
+                    "lambda"   => lambda{ UIServices::servicesFront() }
+                }
+            ]
+
+            items3 = DxThreads::getTopThreads().map{|dxthread|
+                {
+                    "announce" => DxThreads::toStringWithAnalytics(dxthread),
+                    "lambda"   => lambda{ DxThreads::landing(dxthread, false) }
+                }                
+            }  
+
+            items4 = pairs.drop(1).map{|item|
+                {
+                    "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                    "lambda"   => lambda{ runDxThreadQuarkPair.call(item["dxthread"], item["quark"]) }
+                }                
+            }      
+
+            items1 + items2 + items3 + items4      
+        }
+
+        loop {
+
+            system("clear")
+
+            Calendar::calendarItems()
+                .sort{|i1, i2| i1["date"]<=>i2["date"] }
+                .each{|item|
+                    Calendar::toString(item).yellow
+                }
+
+            CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                .each{|object|
+                    puts ""
+                    puts UIServices::makeDisplayStringForCatalystListing(object)
+                    object["access"].call()
+                }
+
+            puts ""
+
+            itemsOrigin = getDisplayItems.call()
+            items = itemsOrigin.clone
+            time1 = Time.new
+            loop {
+                announce = UIServices::selectLineOrNull(items.map{|item| item["announce"] })
+                item = items.select{|item| item["announce"] == announce }.first
+                if item.nil? and items.size > 0 then
+                    items[0]["lambda"].call()
+                    next
+                end
+                item["lambda"].call()
+                if item["announce"].include?("[nereid]") then
+                    items = items.select{|i| i["announce"] != announce } 
+                end
+                break if items.size <= itemsOrigin.size/2          # We restart if we have done a bunch
+                break if Time.new.to_s[0, 13] != time1.to_s[0, 13] # We restart the outter loop at each hour
+            }
+        }
 
     end
 
@@ -198,7 +260,7 @@ class UIServices
             }
         }
 
-        loop { UIServices::xStreamRun() }
+        UIServices::xStreamRun()
     end
 end
 

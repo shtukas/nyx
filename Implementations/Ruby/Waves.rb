@@ -134,7 +134,7 @@ class Waves
         object = {}
         object['uuid'] = uuid
         object["body"] = "[wave] " + announce
-        object["access"] = lambda { Waves::access(wave) }
+        object["access"] = lambda { Waves::access2(wave) }
         object["landing"] = lambda { Waves::landing(wave) }
         object['schedule'] = schedule
         object["x-wave"] = wave
@@ -201,6 +201,26 @@ class Waves
     def self.access(wave)
         startTime = Time.new.to_f
         NereidInterface::access(wave["nereiduuid"])
+        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+            Waves::performDone(wave)
+            timespan = [Time.new.to_f - startTime, 3600].min
+            puts "Add #{timespan} seconds to DxThread Stream (for time management)"
+            Bank::put(DxThreads::getStream()["uuid"], timespan)
+        end
+    end
+
+    # Waves::access2(wave)
+    def self.access2(wave)
+        startTime = Time.new.to_f
+        element = NereidInterface::getElementOrNull(wave["nereiduuid"])
+        return if element.nil?
+        case element["type"]
+        when "Line"
+        when "Url"
+            Miscellaneous::openUrl(element["payload"])
+        else
+            NereidInterface::access(wave["nereiduuid"])
+        end
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
             timespan = [Time.new.to_f - startTime, 3600].min
