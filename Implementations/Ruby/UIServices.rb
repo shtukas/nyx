@@ -147,27 +147,21 @@ class UIServices
             }
         }
 
-        getDxThreadQuarkPairs = lambda {
-            DxThreads::getTopThreads()
-                .map{|dxthread| 
-                    Arrows::getTargetsForSource(dxthread)
-                        .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                        .first(10)
-                        .map{|quark|
-                            {
-                                "dxthread" => dxthread, 
-                                "quark"    => quark
-                            }
-                        }
-                }
-                .flatten
+        getDisplayItemsForDxThread = lambda{|dxthread|
+            Arrows::getTargetsForSource(dxthread)
+                .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+                .first(10)
+                .map{|quark|
+                    {
+                        "dxthread" => dxthread, 
+                        "quark"    => quark
+                    }
+                }            
         }
 
         getDisplayItems = lambda{
 
-            pairs = getDxThreadQuarkPairs.call()
-
-            items1 = pairs.take(1).map{|item|
+            items1 = getDisplayItemsForDxThread.call(DxThreads::getTopThreads()[0]).map{|item|
                 {
                     "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
                     "lambda"   => lambda{ runDxThreadQuarkPair.call(item["dxthread"], item["quark"]) }
@@ -188,12 +182,14 @@ class UIServices
                 }                
             }  
 
-            items4 = pairs.drop(1).map{|item|
-                {
-                    "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-                    "lambda"   => lambda{ runDxThreadQuarkPair.call(item["dxthread"], item["quark"]) }
-                }                
-            }      
+            items4 = DxThreads::getTopThreads().drop(1).map{|dxthread|
+                getDisplayItemsForDxThread.call(dxthread).map{|item|
+                    {
+                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                        "lambda"   => lambda{ runDxThreadQuarkPair.call(item["dxthread"], item["quark"]) }
+                    }                
+                }
+            }.flatten
 
             items1 + items2 + items3 + items4      
         }
