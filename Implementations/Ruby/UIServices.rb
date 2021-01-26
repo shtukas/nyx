@@ -193,8 +193,8 @@ class UIServices
         items0 + items4 + items5 
     end
 
-    # UIServices::xStreamRun()
-    def self.xStreamRun()
+    # UIServices::standardListingLoop()
+    def self.standardListingLoop()
 
         KeyValueStore::set(nil, "46BEE72F-E9D2-48CC-99ED-C90E67B13DBC", DxThreads::dxthreads().map{|dxthread| DxThreads::toString(dxthread).size }.max)
 
@@ -243,6 +243,10 @@ class UIServices
                     next
                 end
 
+                if input == "xstream" then
+                    UIServices::xstream()
+                end
+
                 item = items.shift
 
                 puts item["announce"]
@@ -254,8 +258,18 @@ class UIServices
         }
     end
 
-    # UIServices::standardTodoListingLoop()
-    def self.standardTodoListingLoop()
+    # UIServices::xstream()
+    def self.xstream()
+        dxthread = DxThreads::getStream()
+        Arrows::getTargetsForSource(dxthread)
+            .shuffle
+            .each{|quark|
+                UIServices::runDxThreadQuarkPair(dxthread, quark)
+            }
+    end
+
+    # UIServices::main()
+    def self.main()
 
         Quarks::quarks().each{|quark|
             if !Arrows::getSourcesForTarget(quark).any?{|parent| Patricia::isDxThread(parent) } then
@@ -283,7 +297,7 @@ class UIServices
             }
         }
 
-        UIServices::xStreamRun()
+        UIServices::standardListingLoop()
     end
 end
 
