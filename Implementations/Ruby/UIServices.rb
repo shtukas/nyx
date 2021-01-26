@@ -2,6 +2,24 @@
 
 class UIServices
 
+    # UIServices::getDxThreadStreamCardinal()
+    def self.getDxThreadStreamCardinal()
+        Arrows::getTargetsForSource(DxThreads::getStream()).size
+    end
+
+    # UIServices::getIdealDxThreadStreamCardinal()
+    def self.getIdealDxThreadStreamCardinal()
+        t1 = 1611701036 # 2021-01-26 22:43:56 +0000
+        y1 = 3710
+
+        t2 = 1624747436 # 2021-06-26 22:43:56
+        y2 = 100
+
+        slope = (y2-y1).to_f/(t2-t1)
+
+        return (Time.new.to_f - t1) * slope + y1
+    end
+
     # UIServices::selectLineOrNull(lines) : String
     def self.selectLineOrNull(lines)
 
@@ -188,9 +206,31 @@ class UIServices
                 "announce" => DxThreads::toStringWithAnalytics(dxthread).yellow,
                 "lambda"   => lambda{ DxThreads::landing(dxthread, false) }
             }                
-        }  
+        }
 
-        items0 + items4 + items5 
+        if (items0 + items4).size > 0 then
+            return items0 + items4 + items5
+        end
+
+        if UIServices::getIdealDxThreadStreamCardinal() < UIServices::getDxThreadStreamCardinal() then
+            dxthread = DxThreads::getStream()
+            return Arrows::getTargetsForSource(dxthread)
+                    .shuffle
+                    .first(20)
+                    .map{|quark|
+                        {
+                            "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                            "lambda"   => lambda{ runDxThreadQuarkPair(dxthread, quark) }
+                        }
+                    }
+        end
+
+        [
+            {
+                "announce" => "The last item: Technology Jedi",
+                "lambda"   => lambda{}
+            }
+        ] 
     end
 
     # UIServices::standardListingLoop()
@@ -243,10 +283,6 @@ class UIServices
                     next
                 end
 
-                if input == "xstream" then
-                    UIServices::xstream()
-                end
-
                 item = items.shift
 
                 puts item["announce"]
@@ -256,16 +292,6 @@ class UIServices
                 break if Time.new.to_s[0, 13] != time1.to_s[0, 13] # We restart the outter loop at each hour
             }
         }
-    end
-
-    # UIServices::xstream()
-    def self.xstream()
-        dxthread = DxThreads::getStream()
-        Arrows::getTargetsForSource(dxthread)
-            .shuffle
-            .each{|quark|
-                UIServices::runDxThreadQuarkPair(dxthread, quark)
-            }
     end
 
     # UIServices::main()
