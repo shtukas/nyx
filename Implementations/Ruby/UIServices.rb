@@ -218,6 +218,8 @@ class UIServices
 
                 system("clear")
 
+                puts ""
+
                 items.each{|item|
                     puts item["announce"]
                 }
