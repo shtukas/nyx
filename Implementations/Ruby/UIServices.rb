@@ -201,15 +201,8 @@ class UIServices
             }
             .flatten
 
-        items5 = DxThreads::getTopThreads().map{|dxthread|
-            {
-                "announce" => DxThreads::toStringWithAnalytics(dxthread).yellow,
-                "lambda"   => lambda{ DxThreads::landing(dxthread, false) }
-            }                
-        }
-
         if (items0 + items4).size > 0 then
-            return items0 + items4 + items5
+            return items0 + items4
         end
 
         if UIServices::getIdealDxThreadStreamCardinal() < UIServices::getDxThreadStreamCardinal() then
