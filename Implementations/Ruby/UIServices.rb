@@ -245,6 +245,8 @@ class UIServices
 
         loop {
 
+            Miscellaneous::importFromLucilleInbox()
+
             system("clear")
 
             Calendar::calendarItems()
