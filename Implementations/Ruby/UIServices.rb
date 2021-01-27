@@ -269,11 +269,11 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: next | select |  | .. (Tasks.txt) | /".red 
+                puts "commands: .. | select |  | next (Tasks.txt) | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
-                if input == "next" then
+                if input == ".." then
                     item = items.shift
                     puts item["announce"]
                     item["lambda"].call()
@@ -288,7 +288,7 @@ class UIServices
                     next
                 end
 
-                if input == ".." then
+                if input == "next" then
                     Miscellaneous::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
