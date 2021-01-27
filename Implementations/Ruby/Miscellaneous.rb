@@ -67,11 +67,6 @@ class Miscellaneous
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # Miscellaneous::screenWidth()
-    def self.screenWidth()
-        `/usr/bin/env tput cols`.to_i
-    end
-
     # Miscellaneous::horizontalRule()
     def self.horizontalRule()
       puts "-" * (Miscellaneous::screenWidth()-1)

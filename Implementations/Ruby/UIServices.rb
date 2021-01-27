@@ -76,7 +76,7 @@ class DxThreadsUIUtils
     def self.getDxThreadQuarkPairs(dxthread)
         Arrows::getTargetsForSource(dxthread)
             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-            .first(5)
+            .first(100)
             .map{|quark|
                 {
                     "dxthread" => dxthread, 
@@ -237,16 +237,6 @@ class UIServices
 
             Miscellaneous::importFromLucilleInbox()
 
-            system("clear")
-
-            Calendar::calendarItems()
-                .sort{|i1, i2| i1["date"]<=>i2["date"] }
-                .each{|item|
-                    Calendar::toString(item).yellow
-                }
-
-            puts ""
-
             items = getDisplayItems()
             originSize = items.size
             time1 = Time.new
@@ -255,28 +245,52 @@ class UIServices
 
                 system("clear")
 
+                vspaceleft = Miscellaneous::screenHeight()-6
+
+                Calendar::calendarItems()
+                    .sort{|i1, i2| i1["date"]<=>i2["date"] }
+                    .each{|item|
+                        puts Calendar::toString(item).yellow
+                        vspaceleft = vspaceleft-1
+                    }
+
                 tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
                 tasks = IO.read(tasksFilepath).strip
                 if tasks.size > 0 then
+                    text = tasks.lines.first(10).join.strip
                     puts ""
-                    puts tasks.lines.first(10).join.strip.yellow
+                    puts text.yellow
+                    vspaceleft = vspaceleft-(text.lines.to_a.size+1)
                 end
 
                 puts ""
 
                 items.each{|item|
+                    next if vspaceleft <= 0
                     puts item["announce"]
+                    vspaceleft = vspaceleft-1
                 }
 
                 puts ""
-                puts "commands: .. | select |  | next (Tasks.txt) | /".red 
+                puts "commands: done-task | .. (access quark) | next | select | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
+
+                if input == "done-task" then
+                    Miscellaneous::applyNextTransformationToFile(tasksFilepath)
+                    next
+                end
 
                 if input == ".." then
                     item = items.shift
                     puts item["announce"]
                     item["lambda"].call()
+                    next
+                end
+
+                if input == "next" then
+                    items.shift
+                    next
                 end
 
                 if input == "select" then
@@ -285,11 +299,6 @@ class UIServices
                     next if item.nil?
                     puts item["announce"]
                     item["lambda"].call()
-                    next
-                end
-
-                if input == "next" then
-                    Miscellaneous::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
 
