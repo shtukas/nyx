@@ -181,6 +181,8 @@ class UIServices
     # UIServices::getDisplayItems()
     def self.getDisplayItems()
 
+        # Phase 1
+
         items0 = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .map{|object|
                 {
@@ -196,7 +198,7 @@ class UIServices
                     {
                         "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
                         "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
-                    }                
+                    }
                 }
             }
             .flatten
@@ -204,6 +206,8 @@ class UIServices
         if (items0 + items4).size > 0 then
             return items0 + items4
         end
+
+        # Phase 2
 
         if UIServices::getIdealDxThreadStreamCardinal() < UIServices::getDxThreadStreamCardinal() then
             dxthread = DxThreads::getStream()
@@ -218,12 +222,19 @@ class UIServices
                     }
         end
 
-        [
-            {
-                "announce" => "The last item: Technology Jedi",
-                "lambda"   => lambda{}
+        # Phase 3
+
+        DxThreads::getTopThreads()
+            .reject{|dxthread| dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" } # Reject Pascal Guardian Work
+            .map{|dxthread|
+                getDisplayItemsForDxThread(dxthread).map{|item|
+                    {
+                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                        "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
+                    }
+                }
             }
-        ] 
+            .flatten
     end
 
     # UIServices::standardListingLoop()
