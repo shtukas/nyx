@@ -270,7 +270,7 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: / | select | (empty) to do to item".red 
+                puts "commands: / | select | ..".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
@@ -288,7 +288,7 @@ class UIServices
                     next
                 end
 
-                if input == "" then
+                if input == ".." then
                     item = items.shift
                     puts item["announce"]
                     item["lambda"].call()
