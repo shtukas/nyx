@@ -149,7 +149,7 @@ class UIServices
                 return
             end
             if input == "landing" then
-                NereidInterface::landing(quark["nereiduuid"])
+                Quarks::landing(quark)
                 next
             end
             if input == "pause" then
