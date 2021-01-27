@@ -265,6 +265,13 @@ class UIServices
 
                 system("clear")
 
+                tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
+                tasks = IO.read(tasksFilepath).strip
+                if tasks.size > 0 then
+                    puts ""
+                    puts tasks.yellow
+                end
+
                 puts ""
 
                 items.each{|item|
@@ -272,13 +279,14 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: / | select | ..".red 
+                puts "commands: next | select |  | .. (Tasks.txt) | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
-                if input == "/" then
-                    UIServices::servicesFront()
-                    next
+                if input == "next" then
+                    item = items.shift
+                    puts item["announce"]
+                    item["lambda"].call()
                 end
 
                 if input == "select" then
@@ -291,9 +299,13 @@ class UIServices
                 end
 
                 if input == ".." then
-                    item = items.shift
-                    puts item["announce"]
-                    item["lambda"].call()
+                    Miscellaneous::applyNextTransformationToFile(tasksFilepath)
+                    next
+                end
+
+                if input == "/" then
+                    UIServices::servicesFront()
+                    next
                 end
 
                 break if items.size <= originSize/2          # We restart if we have done a bunch
