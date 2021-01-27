@@ -259,7 +259,7 @@ class UIServices
                 tasks = IO.read(tasksFilepath).strip
                 if tasks.size > 0 then
                     puts ""
-                    puts tasks.lines.first(10).join.yellow
+                    puts tasks.lines.first(10).join.strip.yellow
                 end
 
                 puts ""
