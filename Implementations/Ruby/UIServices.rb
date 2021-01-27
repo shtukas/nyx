@@ -117,6 +117,7 @@ class UIServices
     # UIServices::runDxThreadQuarkPair(dxthread, quark)
     def self.runDxThreadQuarkPair(dxthread, quark)
         loop {
+            system("clear")
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
             if element.nil? then
                 system("clear")
