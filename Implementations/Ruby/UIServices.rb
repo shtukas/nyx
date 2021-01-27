@@ -1,13 +1,13 @@
 # encoding: UTF-8
 
-class UIServices
+class DxThreadsUIUtils
 
-    # UIServices::getDxThreadStreamCardinal()
+    # DxThreadsUIUtils::getDxThreadStreamCardinal()
     def self.getDxThreadStreamCardinal()
         Arrows::getTargetsForSource(DxThreads::getStream()).size
     end
 
-    # UIServices::getIdealDxThreadStreamCardinal()
+    # DxThreadsUIUtils::getIdealDxThreadStreamCardinal()
     def self.getIdealDxThreadStreamCardinal()
         t1 = 1611701036 # 2021-01-26 22:43:56 +0000
         y1 = 3710
@@ -19,6 +19,95 @@ class UIServices
 
         return (Time.new.to_f - t1) * slope + y1
     end
+
+    # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+    def self.runDxThreadQuarkPair(dxthread, quark)
+        loop {
+            system("clear")
+            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+            if element.nil? then
+                system("clear")
+                puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
+                if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
+                    Quarks::destroyQuarkAndNereidContent(quark)
+                end
+                return
+            end
+            thr = Thread.new {
+                sleep 3600
+                loop {
+                    Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                    sleep 60
+                }
+            }
+            t1 = Time.new.to_f
+            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
+            NereidInterface::access(quark["nereiduuid"])
+            puts "done | landing | pause | / | (empty) for exit quark"
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            thr.exit
+            timespan = Time.new.to_f - t1
+            timespan = [timespan, 3600*2].min
+            puts "putting #{timespan} seconds"
+            Bank::put(quark["uuid"], timespan)
+            Bank::put(dxthread["uuid"], timespan)
+            if input == "done" then
+                Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input == "landing" then
+                Quarks::landing(quark)
+                next
+            end
+            if input == "pause" then
+                puts "paused".red
+                LucilleCore::pressEnterToContinue("Press enter to resume: ")
+                next
+            end
+            if input == "/" then
+                UIServices::servicesFront()
+                next
+            end
+            return
+        }
+    end
+
+    # DxThreadsUIUtils::getDxThreadQuarkPairs(dxthread)
+    def self.getDxThreadQuarkPairs(dxthread)
+        Arrows::getTargetsForSource(dxthread)
+            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
+            .first(5)
+            .map{|quark|
+                {
+                    "dxthread" => dxthread, 
+                    "quark"    => quark
+                }
+            }  
+    end
+
+    # DxThreadsUIUtils::getDxThreadsUsingSelector(selector)
+    def self.getDxThreadsUsingSelector(selector)
+        DxThreads::getTopThreads()
+            .select{|dxthread| dxthread["noDisplayOnThisDay"] != Miscellaneous::today() }   
+            .select{|dxthread| selector.call(dxthread) }     
+    end
+
+    # DxThreadsUIUtils::dxThreadsToDisplayItems(dxthreads)
+    def self.dxThreadsToDisplayItems(dxthreads)
+        dxthreads
+            .map{|dxthread|
+                getDxThreadQuarkPairs(dxthread).map{|item|
+                    {
+                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                        "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
+                    }
+                }
+            }
+            .flatten
+    end
+end
+
+class UIServices
 
     # UIServices::selectLineOrNull(lines) : String
     def self.selectLineOrNull(lines)
@@ -114,77 +203,10 @@ class UIServices
         }
     end
 
-    # UIServices::runDxThreadQuarkPair(dxthread, quark)
-    def self.runDxThreadQuarkPair(dxthread, quark)
-        loop {
-            system("clear")
-            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            if element.nil? then
-                system("clear")
-                puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
-                if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
-                    Quarks::destroyQuarkAndNereidContent(quark)
-                end
-                return
-            end
-            thr = Thread.new {
-                sleep 3600
-                loop {
-                    Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                    sleep 60
-                }
-            }
-            t1 = Time.new.to_f                    
-            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
-            NereidInterface::access(quark["nereiduuid"])
-            puts "done | landing | pause | / | (empty) for exit quark"
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            thr.exit
-            timespan = Time.new.to_f - t1
-            timespan = [timespan, 3600*2].min
-            puts "putting #{timespan} seconds"
-            Bank::put(quark["uuid"], timespan)
-            Bank::put(dxthread["uuid"], timespan)
-            if input == "done" then            
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
-            if input == "landing" then
-                Quarks::landing(quark)
-                next
-            end
-            if input == "pause" then
-                puts "paused".red
-                LucilleCore::pressEnterToContinue("Press enter to resume: ")
-                next
-            end
-            if input == "/" then
-                UIServices::servicesFront()
-                next
-            end
-            return
-        }
-    end
-
-    # UIServices::getDisplayItemsForDxThread(dxthread)
-    def self.getDisplayItemsForDxThread(dxthread)
-        Arrows::getTargetsForSource(dxthread)
-            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-            .first(5)
-            .map{|quark|
-                {
-                    "dxthread" => dxthread, 
-                    "quark"    => quark
-                }
-            }  
-    end
-
-    # UIServices::getDisplayItems()
+    # DxThreadsUIUtils::getDisplayItems()
     def self.getDisplayItems()
 
-        # Phase 1
-
-        items0 = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        items = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .map{|object|
                 {
                     "announce" => UIServices::makeDisplayStringForCatalystListing(object),
@@ -192,50 +214,18 @@ class UIServices
                 }
             }
 
-        items4 = DxThreads::getTopThreads()
-            .select{|dxthread| DxThreads::completionRatio(dxthread) < 1 }
-            .map{|dxthread|
-                getDisplayItemsForDxThread(dxthread).map{|item|
-                    {
-                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-                        "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
-                    }
-                }
-            }
-            .flatten
+        return items if items.size > 0
 
-        if (items0 + items4).size > 0 then
-            return items0 + items4
+        items = DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )) # Streams Below Targets
+
+        return items if items.size > 0
+
+        if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
+            items = DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
+            return items if items.size > 0
         end
 
-        # Phase 2
-
-        if UIServices::getIdealDxThreadStreamCardinal() < UIServices::getDxThreadStreamCardinal() then
-            dxthread = DxThreads::getStream()
-            return Arrows::getTargetsForSource(dxthread)
-                    .shuffle
-                    .first(20)
-                    .map{|quark|
-                        {
-                            "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                            "lambda"   => lambda{ runDxThreadQuarkPair(dxthread, quark) }
-                        }
-                    }
-        end
-
-        # Phase 3
-
-        DxThreads::getTopThreads()
-            .reject{|dxthread| dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" } # Reject Pascal Guardian Work
-            .map{|dxthread|
-                getDisplayItemsForDxThread(dxthread).map{|item|
-                    {
-                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-                        "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
-                    }
-                }
-            }
-            .flatten
+        DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83" } )) # Reject Pascal Guardian Work
     end
 
     # UIServices::standardListingLoop()

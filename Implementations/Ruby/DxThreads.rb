@@ -102,6 +102,7 @@ class DxThreads
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
+            puts "no display on this day: #{dxthread["noDisplayOnThisDay"]}".yellow if dxthread["noDisplayOnThisDay"]
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -122,6 +123,11 @@ class DxThreads
 
             mx.item("relanding on all quarks".yellow, lambda { 
                 DxThreads::landing(dxthread, true)
+            })
+
+            mx.item("no display on this day".yellow, lambda { 
+                dxthread["noDisplayOnThisDay"] = Miscellaneous::today()
+                NSCoreObjects::put(dxthread)
             })
 
             mx.item("rename".yellow, lambda { 
