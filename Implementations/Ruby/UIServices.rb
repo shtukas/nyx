@@ -288,10 +288,11 @@ class UIServices
                     next
                 end
 
-                item = items.shift
-
-                puts item["announce"]
-                item["lambda"].call()
+                if input == "" then
+                    item = items.shift
+                    puts item["announce"]
+                    item["lambda"].call()
+                end
 
                 break if items.size <= originSize/2          # We restart if we have done a bunch
                 break if Time.new.to_s[0, 13] != time1.to_s[0, 13] # We restart the outter loop at each hour
