@@ -126,21 +126,6 @@ class Waves
         JSON.generate(schedule)
     end
 
-    # Waves::waveToCatalystObject(wave)
-    def self.waveToCatalystObject(wave)
-        uuid = wave["uuid"]
-        schedule = wave["schedule"]
-        announce = Waves::announce(wave, schedule)
-        object = {}
-        object['uuid'] = uuid
-        object["body"] = "[wave] " + announce
-        object["access"] = lambda { Waves::access2(wave) }
-        object["landing"] = lambda { Waves::landing(wave) }
-        object['schedule'] = schedule
-        object["x-wave"] = wave
-        object
-    end
-
     # Waves::performDone(wave)
     def self.performDone(wave)
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
@@ -191,10 +176,18 @@ class Waves
         "[wave] #{NereidInterface::toString(wave["nereiduuid"])}"
     end
 
-    # Waves::catalystObjects()
-    def self.catalystObjects()
+    # Waves::displayItemsNS16()
+    def self.displayItemsNS16()
         Waves::waves()
-            .map{|obj| Waves::waveToCatalystObject(obj) }
+            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+            .map{|wave|
+                schedule = wave["schedule"]
+                announce = Waves::announce(wave, schedule)
+                object = {}
+                object["announce"] = "[wave] " + announce
+                object["lambda"] = lambda { Waves::access2(wave) }
+                object
+            }
     end
 
     # Waves::access(wave)

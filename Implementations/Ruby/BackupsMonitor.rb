@@ -28,23 +28,17 @@ class BackupsMonitor
         Time.new.to_i > BackupsMonitor::scriptNameToNextOperationUnixtime(scriptname)
     end
 
-    def self.scriptNameToCatalystObjectOrNull(scriptname)
-        return nil if !BackupsMonitor::scriptNameToIsDueFlag(scriptname)
-        uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
-        {
-            "uuid"     => uuid,
-            "body"     => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
-            "access"          => lambda {},
-            "landing"         => lambda {}
-        }
-    end
-
-    # BackupsMonitor::catalystObjects()
-    def self.catalystObjects()
+    # BackupsMonitor::displayItemsNS16()
+    def self.displayItemsNS16()
         BackupsMonitor::scriptnames()
-            .map{|scriptname|
-                BackupsMonitor::scriptNameToCatalystObjectOrNull(scriptname)
+            .select{|scriptname|
+                BackupsMonitor::scriptNameToIsDueFlag(scriptname)
             }
-            .compact
+            .map{|scriptname|
+                {
+                    "announce"  => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
+                    "lambda"    => lambda {}
+                }
+            }
     end
 end

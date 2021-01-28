@@ -142,7 +142,6 @@ require_relative "Bank.rb"
 =end
 
 require_relative "Calendar.rb"
-require_relative "CatalystObjectsOperator.rb"
 
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)

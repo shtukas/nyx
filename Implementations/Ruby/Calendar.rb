@@ -24,29 +24,33 @@ class Calendar
         "#{Calendar::pathToCalendarItems()}/#{date}.txt"
     end
 
-    # Calendar::filePathToCatalystObject(date)
-    def self.filePathToCatalystObject(date)
-        filepath = Calendar::dateToFilepath(date)
-        content = IO.read(filepath).strip
-        uuid = "8413-9d175a593282-#{date}"
-        {
-            "uuid"     => uuid,
-            "body"     => "🗓️  " + date + "\n" + content,
-            "access"   => lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("mark as reviewed ? ") then
-                    KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
-                end
-            },
-            "landing"  => lambda {},
-            "x-calendar-date" => date
-        }
-    end
+    # Calendar::displayItemsNS16()
+    def self.displayItemsNS16()
+        [
+            Calendar::dates()
+                .select{|date| !KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") }
+                .map{|date| 
+                    filepath = Calendar::dateToFilepath(date)
+                    content = IO.read(filepath).strip
+                    {
+                        "announce" => "🗓️  " + date + "\n" + content,
+                        "lambda"   => lambda {
+                            if LucilleCore::askQuestionAnswerAsBoolean("mark as reviewed ? ") then
+                                KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
+                            end
+                        }
+                    }
+                },
 
-    # Calendar::catalystObjects()
-    def self.catalystObjects()
-        Calendar::dates()
-            .select{|date| !KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") }
-            .map{|date| Calendar::filePathToCatalystObject(date) }
+            Calendar::calendarItems()
+                .sort{|i1, i2| i1["date"]<=>i2["date"] }
+                .map{|item|
+                    {
+                        "announce" => Calendar::toString(item),
+                        "lambda"   => lambda{}
+                    }
+                }
+        ].flatten
     end
 
     # -----------------------------------------------------------------------

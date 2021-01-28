@@ -194,38 +194,36 @@ class UIServices
                 NSGarbageCollection::run() 
             })
 
-            ms.item("Print Generation Speed Report", lambda { 
-                CatalystObjectsOperator::generationSpeedReport() 
-            })
-
             status = ms.promptAndRunSandbox()
             break if !status
         }
     end
 
-    # DxThreadsUIUtils::getDisplayItems()
-    def self.getDisplayItems()
+    # DxThreadsUIUtils::getDisplayItemsNS16()
+    def self.getDisplayItemsNS16()
 
-        items = CatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            .map{|object|
-                {
-                    "announce" => UIServices::makeDisplayStringForCatalystListing(object),
-                    "lambda"   => lambda{ object["access"].call() }
-                }
-            }
+        [
+            Calendar::displayItemsNS16(),
 
-        return items if items.size > 0
+            Waves::displayItemsNS16(),
 
-        items = DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )) # Streams Below Targets
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )), # Streams Below Targets
 
-        return items if items.size > 0
+            BackupsMonitor::displayItemsNS16(),
 
-        if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
-            items = DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
-            return items if items.size > 0
-        end
+            (lambda{
+                if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
+                    DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
+                else
+                    []
+                end                
+            }).call(),
 
-        DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83" } )) # Reject Pascal Guardian Work
+            VideoStream::displayItemsNS16(),
+
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83" } )) # Reject Pascal Guardian Work
+        ]
+        .flatten
     end
 
     # UIServices::standardListingLoop()
@@ -237,7 +235,7 @@ class UIServices
 
             Miscellaneous::importFromLucilleInbox()
 
-            items = getDisplayItems()
+            items = getDisplayItemsNS16()
             originSize = items.size
             time1 = Time.new
 
@@ -245,14 +243,16 @@ class UIServices
 
                 system("clear")
 
-                vspaceleft = Miscellaneous::screenHeight()-6
+                vspaceleft = Miscellaneous::screenHeight()-5                
+                hspace = Miscellaneous::screenWidth()
 
-                Calendar::calendarItems()
-                    .sort{|i1, i2| i1["date"]<=>i2["date"] }
-                    .each{|item|
-                        puts Calendar::toString(item).yellow
-                        vspaceleft = vspaceleft-1
-                    }
+                puts ""
+
+                items.take(5).each{|item|
+                    next if vspaceleft <= 0
+                    puts item["announce"]
+                    vspaceleft = vspaceleft-((item["announce"].size/hspace)+1)
+                }
 
                 tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
                 tasks = IO.read(tasksFilepath).strip
@@ -260,15 +260,14 @@ class UIServices
                     text = tasks.lines.first(10).join.strip
                     puts ""
                     puts text.yellow
-                    vspaceleft = vspaceleft-(text.lines.to_a.size+1)
+                    puts ""
+                    vspaceleft = vspaceleft-(text.lines.to_a.size+2)
                 end
 
-                puts ""
-
-                items.each{|item|
+                items.drop(5).each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft-1
+                    vspaceleft = vspaceleft-((item["announce"].size/hspace)+1)
                 }
 
                 puts ""
@@ -295,7 +294,7 @@ class UIServices
 
                 if input == "select" then
                     system("clear")
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getDisplayItems(), lambda{|item| item["announce"] })
+                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getDisplayItemsNS16(), lambda{|item| item["announce"] })
                     next if item.nil?
                     puts item["announce"]
                     item["lambda"].call()

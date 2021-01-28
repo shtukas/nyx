@@ -34,58 +34,29 @@ class VideoStream
         Runner::isRunning?(uuid)
     end
 
-    # VideoStream::catalystObjects()
-    def self.catalystObjects()
-
+    # VideoStream::displayItemsNS16()
+    def self.displayItemsNS16()
         raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
-
-        recoveredDailyTimeInHours = BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02")
-        return [] if recoveredDailyTimeInHours > 1
-
-        makeCatalystObject = lambda{|filepath, rdtih, indx|
-            isRunning = VideoStream::videoIsRunning(filepath)
-            uuid = VideoStream::filepathToVideoUUID(filepath)
-            {
-                "uuid"            => uuid,
-                "body"            => "[VideoStream] #{File.basename(filepath)}#{isRunning ? " #{"(running)".green}" : ""}",
-                "access"          => lambda { VideoStream::access(filepath) },
-                "landing"         => lambda { VideoStream::access(filepath) },
-                "x-video-stream"  => true,
-                "x-filepath"      => filepath
-            }
-        }
-
-        objects = VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
-            .map
-            .with_index{|filepath, indx| 
-                {
-                    "filepath" => filepath,
-                    "index"    => indx
-                }
-            }
-            .reduce([]){|items, item|
-                if items.size >= 3 then
-                    items
+        return [] if BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02") > 1
+        VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
+            .reduce([]){|filepaths, filepath|
+                if filepaths.size >= 3 then
+                    filepaths
                 else
-                    uuid = VideoStream::filepathToVideoUUID(item["filepath"])
+                    uuid = VideoStream::filepathToVideoUUID(filepath)
                     if DoNotShowUntil::isVisible(uuid) then
-                        items + [item]
+                        filepaths + [filepath]
                     else
-                        items
+                        filepaths
                     end
                 end
             }
-            .map{|item| 
-                filepath = item["filepath"]
-                indx     = item["index"]
-                makeCatalystObject.call(filepath, recoveredDailyTimeInHours, indx) 
+            .map{|filepath| 
+                {
+                    "announce" => "[VideoStream] #{File.basename(filepath)}",
+                    "lambda"   => lambda { VideoStream::access(filepath) },
+                }
             }
-
-        if objects.any?{|object| object["body"].include?("running") } then
-            objects = objects.select{|object| object["body"].include?("running") }
-        end
-
-        objects
     end
 
     # VideoStream::access(filepath)
