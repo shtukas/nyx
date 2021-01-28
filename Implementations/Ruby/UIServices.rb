@@ -272,11 +272,11 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: done-task | .. (access quark) | next | +datecode | ++ | select | /".red 
+                puts "commands: done (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
-                if input == "done-task" then
+                if input == "done" then
                     Miscellaneous::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
@@ -288,7 +288,7 @@ class UIServices
                     next
                 end
 
-                if input == "next" then
+                if input == ">>" then
                     items.shift
                     next
                 end
