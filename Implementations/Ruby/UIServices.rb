@@ -236,6 +236,7 @@ class UIServices
             Miscellaneous::importFromLucilleInbox()
 
             items = getDisplayItemsNS16()
+                        .select{|item| DoNotShowUntil::isVisible(item["announce"]) }
             originSize = items.size
             time1 = Time.new
 
@@ -271,7 +272,7 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: done-task | .. (access quark) | next | select | /".red 
+                puts "commands: done-task | .. (access quark) | next | +datecode |select | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
@@ -292,6 +293,13 @@ class UIServices
                     next
                 end
 
+                if input.start_with?('+') then
+                    unixtime = Miscellaneous::codeToUnixtimeOrNull(input)
+                    return if unixtime.nil?
+                    DoNotShowUntil::setUnixtime(items[0]["announce"], unixtime)
+                    next
+                end
+
                 if input == "select" then
                     system("clear")
                     item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getDisplayItemsNS16(), lambda{|item| item["announce"] })
@@ -300,6 +308,8 @@ class UIServices
                     item["lambda"].call()
                     next
                 end
+
+
 
                 if input == "/" then
                     UIServices::servicesFront()
