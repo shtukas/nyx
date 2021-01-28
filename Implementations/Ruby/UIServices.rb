@@ -272,7 +272,7 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: done-task | .. (access quark) | next | +datecode |select | /".red 
+                puts "commands: done-task | .. (access quark) | next | +datecode | ++ | select | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
@@ -293,10 +293,17 @@ class UIServices
                     next
                 end
 
+                if input == '++' then
+                    DoNotShowUntil::setUnixtime(items[0]["announce"], Time.new.to_i+3600)
+                    items.shift
+                    next
+                end
+
                 if input.start_with?('+') then
                     unixtime = Miscellaneous::codeToUnixtimeOrNull(input)
-                    return if unixtime.nil?
+                    next if unixtime.nil?
                     DoNotShowUntil::setUnixtime(items[0]["announce"], unixtime)
+                    items.shift
                     next
                 end
 
@@ -308,8 +315,6 @@ class UIServices
                     item["lambda"].call()
                     next
                 end
-
-
 
                 if input == "/" then
                     UIServices::servicesFront()
