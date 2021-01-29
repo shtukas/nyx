@@ -203,11 +203,20 @@ class UIServices
     def self.getDisplayItemsNS16()
 
         [
-            Calendar::displayItemsNS16(),
+            Calendar::displayItemsNS16().map{|item|
+                item["beforeTasks"] = true
+                item
+            },
 
-            Waves::displayItemsNS16(),
+            Waves::displayItemsNS16().map{|item|
+                item["beforeTasks"] = true
+                item
+            },
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )), # Streams Below Targets
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )).map{|item|
+                item["beforeTasks"] = true
+                item
+            }, # Streams Below Targets
 
             BackupsMonitor::displayItemsNS16(),
 
@@ -244,15 +253,14 @@ class UIServices
 
                 system("clear")
 
-                vspaceleft = Miscellaneous::screenHeight()-5                
-                hspace = Miscellaneous::screenWidth()
+                vspaceleft = Miscellaneous::screenHeight()-7
 
                 puts ""
 
-                items.take(5).each{|item|
+                items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft-((item["announce"].size/hspace)+1)
+                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
                 }
 
                 tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
@@ -262,13 +270,19 @@ class UIServices
                     puts ""
                     puts text.yellow
                     puts ""
-                    vspaceleft = vspaceleft-(text.lines.to_a.size+2)
+                    vspaceleft = vspaceleft-(Miscellaneous::verticalSize(text)+2)
                 end
 
-                items.drop(5).each{|item|
+                items.take_while{|item| item["beforeTasks"]}.drop(5).each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft-((item["announce"].size/hspace)+1)
+                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
+                }
+
+                items.drop_while{|item| item["beforeTasks"]}.each{|item|
+                    next if vspaceleft <= 0
+                    puts item["announce"]
+                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
                 }
 
                 puts ""
