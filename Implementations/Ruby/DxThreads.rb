@@ -60,8 +60,7 @@ class DxThreads
     # DxThreads::dxThreadAndTargetToString(dxthread, quark)
     def self.dxThreadAndTargetToString(dxthread, quark)
         uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
-        padding = (KeyValueStore::getOrNull(nil, "46BEE72F-E9D2-48CC-99ED-C90E67B13DBC") || "0").to_f
-        "#{DxThreads::toString(dxthread).ljust(padding)} (#{"%6.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Patricia::toString(quark)}"
+        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}) #{Patricia::toString(quark)}"
     end
 
     # DxThreads::completionRatio(dxthread)

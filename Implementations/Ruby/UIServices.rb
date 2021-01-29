@@ -238,8 +238,6 @@ class UIServices
     # UIServices::standardListingLoop()
     def self.standardListingLoop()
 
-        KeyValueStore::set(nil, "46BEE72F-E9D2-48CC-99ED-C90E67B13DBC", DxThreads::dxthreads().map{|dxthread| DxThreads::toString(dxthread).size }.max)
-
         loop {
 
             Miscellaneous::importFromLucilleInbox()
