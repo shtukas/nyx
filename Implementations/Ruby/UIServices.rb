@@ -253,9 +253,12 @@ class UIServices
 
                 system("clear")
 
-                vspaceleft = Miscellaneous::screenHeight()-7
+                vspaceleft = Miscellaneous::screenHeight()-6
 
-                puts ""
+                if !items.take_while{|item| item["beforeTasks"]}.empty? then
+                    puts ""
+                    vspaceleft = vspaceleft - 1
+                end
 
                 items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
                     next if vspaceleft <= 0
