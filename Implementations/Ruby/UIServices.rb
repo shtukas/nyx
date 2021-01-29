@@ -289,11 +289,11 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: done (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | /".red 
+                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | /".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
-                if input == "done" then
+                if input == "[]" then
                     Miscellaneous::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
