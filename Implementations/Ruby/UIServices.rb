@@ -287,7 +287,7 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | /".red 
+                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | / | nyx".red 
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
@@ -333,7 +333,12 @@ class UIServices
 
                 if input == "/" then
                     UIServices::servicesFront()
-                    next
+                    break
+                end
+
+                if input == "nyx" then
+                    system("nyx")
+                    break
                 end
 
                 break if items.size <= originSize/2          # We restart if we have done a bunch
