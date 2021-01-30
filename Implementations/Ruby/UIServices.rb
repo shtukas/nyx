@@ -43,7 +43,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | done+transfert | landing | pause | / | (empty) for exit quark"
+            puts "done (destroy quark and nereid element) | >nyx | landing | pause | / | (empty) for exit quark".red
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -55,7 +55,7 @@ class DxThreadsUIUtils
                 Quarks::destroyQuarkAndNereidContent(quark)
                 return
             end
-            if input == "done+transfert" then
+            if input == ">nyx" then
                 system("nyx-landing '#{quark["nereiduuid"]}'")
                 NereidInterface::setOwnership(element["uuid"], "nyx")
                 NereidInterface::unsetOwnership(element["uuid"], "catalyst")
@@ -172,7 +172,7 @@ class UIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
 
-            ms.item("new quark", lambda { Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, nil) })    
+            ms.item("new quark", lambda { Patricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
 
             puts ""
 
@@ -263,10 +263,8 @@ class UIServices
 
                 vspaceleft = Miscellaneous::screenHeight()-6
 
-                if !items.take_while{|item| item["beforeTasks"]}.empty? then
-                    puts ""
-                    vspaceleft = vspaceleft - 1
-                end
+                puts ""
+                vspaceleft = vspaceleft - 1
 
                 items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
                     next if vspaceleft <= 0
@@ -274,14 +272,11 @@ class UIServices
                     vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
                 }
 
-                
                 tasks = tasksFileContents.strip
                 if tasks.size > 0 then
                     text = tasks.lines.first(10).join.strip
-                    puts ""
                     puts text.yellow
-                    puts ""
-                    vspaceleft = vspaceleft-(Miscellaneous::verticalSize(text)+2)
+                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(text)
                 end
 
                 items.take_while{|item| item["beforeTasks"]}.drop(5).each{|item|

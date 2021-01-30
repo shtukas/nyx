@@ -135,15 +135,16 @@ class Patricia
         Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
     end
 
-    # Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(quarkOpt, dxThreadOpt)
-    def self.possiblyNewQuarkToPossiblyUnspecifiedDxThread(quarkOpt, dxThreadOpt)
+    # Patricia::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
+    def self.getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
         quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
-        return if quark.nil?
+        return nil if quark.nil?
         dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
-        return if dxthread.nil?
+        return nil if dxthread.nil?
         Arrows::issueOrException(dxthread, quark)
         ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
         Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
         Patricia::landing(quark)
+        quark
     end
 end

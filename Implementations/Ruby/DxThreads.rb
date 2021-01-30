@@ -153,7 +153,7 @@ class DxThreads
             })
 
             mx.item("add new quark".yellow, lambda {
-                Patricia::possiblyNewQuarkToPossiblyUnspecifiedDxThread(nil, dxthread)
+                Patricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
             })
 
             mx.item("select and move quark".yellow, lambda { 
