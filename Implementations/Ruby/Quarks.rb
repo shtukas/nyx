@@ -114,6 +114,11 @@ class Quarks
         }
     end
 
+    # Quarks::destroyQuark(quark)
+    def self.destroyQuark(quark)
+        NSCoreObjects::destroy(quark)
+    end
+
     # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
         status = NereidInterface::destroyElement(quark["nereiduuid"])

@@ -42,8 +42,8 @@ class DxThreadsUIUtils
             }
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
-            NereidInterface::access(quark["nereiduuid"])
-            puts "done | landing | pause | / | (empty) for exit quark"
+            NereidInterface::accessCatalystEdition(quark["nereiduuid"])
+            puts "done (destroy quark and nereid element) | done+transfert | landing | pause | / | (empty) for exit quark"
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -53,6 +53,13 @@ class DxThreadsUIUtils
             Bank::put(dxthread["uuid"], timespan)
             if input == "done" then
                 Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input == "done+transfert" then
+                system("nyx-landing '#{quark["nereiduuid"]}'")
+                NereidInterface::setOwnership(element["uuid"], "nyx")
+                NereidInterface::unsetOwnership(element["uuid"], "catalyst")
+                Quarks::destroyQuark(quark)
                 return
             end
             if input == "landing" then
