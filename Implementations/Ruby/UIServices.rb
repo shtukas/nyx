@@ -251,6 +251,9 @@ class UIServices
 
                 system("clear")
 
+                tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
+                tasksFileContents = IO.read(tasksFilepath)
+
                 vspaceleft = Miscellaneous::screenHeight()-6
 
                 if !items.take_while{|item| item["beforeTasks"]}.empty? then
@@ -264,8 +267,8 @@ class UIServices
                     vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
                 }
 
-                tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
-                tasks = IO.read(tasksFilepath).strip
+                
+                tasks = tasksFileContents.strip
                 if tasks.size > 0 then
                     text = tasks.lines.first(10).join.strip
                     puts ""
@@ -292,6 +295,7 @@ class UIServices
                 input = LucilleCore::pressEnterToContinue("> ")
 
                 if input == "[]" then
+                    next if tasksFileContents != IO.read(tasksFilepath)
                     Miscellaneous::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
