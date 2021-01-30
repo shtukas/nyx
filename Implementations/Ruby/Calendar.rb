@@ -119,6 +119,7 @@ class Calendar
             "StandardDataCarrierUUID" => element["uuid"]
         }
         NSCoreObjects::put(item)
+        NereidInterface::setOwnership(element["uuid"], "catalyst")
     end
 
     # Calendar::main()

@@ -1,8 +1,0 @@
-
-CatalystObject
-{
-    "uuid"               : UUID
-    "body"               : String # Single or multiline
-    "access"             : Lambda { code }
-    "landing"            : Lambda { code }
-}

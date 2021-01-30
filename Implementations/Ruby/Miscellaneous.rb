@@ -201,7 +201,7 @@ class Miscellaneous
 
             nereiduuid = SecureRandom.hex
             payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-            NereidDatabase::insertElementComponents(nereiduuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
+            NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
 
             quark = {
                 "uuid"       => SecureRandom.hex,

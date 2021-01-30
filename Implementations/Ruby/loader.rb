@@ -117,6 +117,7 @@ AionFsck::structureCheckAionHash(operator, nhash)
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
+    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
     NereidInterface::insertElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
@@ -125,7 +126,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
     NereidInterface::access(input)
     NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful. 
+    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
+
+    NereidInterface::setOwnership(uuid, owner)
+    NereidInterface::unsetOwnership(uuid, owner)
+    NereidInterface::getOwnersForUUID(uuid)
 =end
 
 # ------------------------------------------------------------

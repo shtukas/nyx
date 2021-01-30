@@ -159,6 +159,7 @@ class Waves
         schedule = Waves::makeScheduleObjectInteractivelyOrNull()
         return nil if schedule.nil?
         Waves::issueWave(LucilleCore::timeStringL22(), element, schedule)
+        NereidInterface::setOwnership(element["uuid"], "catalyst")
     end
 
     # Waves::getOrNull(uuid)

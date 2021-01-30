@@ -11,6 +11,7 @@ class Quarks
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         element = NereidInterface::interactivelyIssueNewElementOrNull()
+        return nil if element.nil?
         quark = {
             "uuid"       => SecureRandom.hex,
             "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
@@ -18,6 +19,7 @@ class Quarks
             "nereiduuid" => element["uuid"]
         }
         NSCoreObjects::put(quark)
+        NereidInterface::setOwnership(element["uuid"], "catalyst")
     end
 
     # --------------------------------------------------
