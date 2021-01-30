@@ -120,6 +120,7 @@ class Calendar
         }
         NSCoreObjects::put(item)
         NereidInterface::setOwnership(element["uuid"], "catalyst")
+        item
     end
 
     # Calendar::main()

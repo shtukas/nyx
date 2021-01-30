@@ -20,6 +20,7 @@ class Quarks
         }
         NSCoreObjects::put(quark)
         NereidInterface::setOwnership(element["uuid"], "catalyst")
+        quark
     end
 
     # --------------------------------------------------
