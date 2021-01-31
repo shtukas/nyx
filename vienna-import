@@ -46,7 +46,7 @@ loop {
     puts "vienna: #{link}"
 
     nereiduuid = SecureRandom.hex
-    NereidDatabase::insertElementComponents(nereiduuid, Time.new.to_i, link, "Url", link)
+    NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, link, "Url", link)
 
     quark = {
         "uuid"       => SecureRandom.hex,
