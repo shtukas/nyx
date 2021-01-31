@@ -1,0 +1,12 @@
+DisplayItemsNS16 {
+    "announce" => String
+    "lambda"   => Lambda
+}
+
+DisplayItemsNS16 {
+    "announce"            => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+    "lambda"              => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) },
+    "isDxThreadQuarkPair" => true,
+    "dxthread"            => dxthread,
+    "quark"               => quark
+}

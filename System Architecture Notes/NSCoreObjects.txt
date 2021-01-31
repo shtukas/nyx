@@ -1,6 +1,0 @@
--------------------------------------------------------------------------
-All NSCoreObjects have the two following attributes
-
-    - uuid     : String
-    - nyxNxSet : String
-    - unixtime : Float

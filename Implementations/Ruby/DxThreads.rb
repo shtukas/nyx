@@ -101,7 +101,8 @@ class DxThreads
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
-            puts "no display on this day: #{dxthread["noDisplayOnThisDay"]}".yellow if dxthread["noDisplayOnThisDay"]
+            puts "time commitment per day in hours: #{dxthread["timeCommitmentPerDayInHours"]}".yellow
+            puts "no display on this day: #{dxthread["noDisplayOnThisDay"]}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 

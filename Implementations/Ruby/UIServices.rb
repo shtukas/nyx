@@ -9,8 +9,8 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getIdealDxThreadStreamCardinal()
     def self.getIdealDxThreadStreamCardinal()
-        t1 = 1611701036 # 2021-01-26 22:43:56 +0000
-        y1 = 3710
+        t1 = 1612052387 # 2021-01-26 22:43:56 +0000
+        y1 = 3728
 
         t2 = 1624747436 # 2021-06-26 22:43:56
         y2 = 100
@@ -43,7 +43,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | >nyx | landing | pause | / | (empty) for exit quark".red
+            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".red
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -60,6 +60,10 @@ class DxThreadsUIUtils
                 NereidInterface::setOwnership(element["uuid"], "nyx")
                 NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                 Quarks::destroyQuark(quark)
+                return
+            end
+            if input == ">dxthread" then
+                Patricia::moveTargetToNewDxThread(quark, dxthread)
                 return
             end
             if input == "landing" then
@@ -105,8 +109,11 @@ class DxThreadsUIUtils
             .map{|dxthread|
                 getDxThreadQuarkPairs(dxthread).map{|item|
                     {
-                        "announce" => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-                        "lambda"   => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) }
+                        "announce"            => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
+                        "lambda"              => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) },
+                        "isDxThreadQuarkPair" => true,
+                        "dxthread"            => dxthread,
+                        "quark"               => item["quark"]
                     }
                 }
             }
@@ -237,7 +244,7 @@ class UIServices
 
             VideoStream::displayItemsNS16(),
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83" } )) # Reject Pascal Guardian Work
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83") and (DxThreads::completionRatio(dxthread) < 2) } )) # Reject Pascal Guardian Work
         ]
         .flatten
     end
@@ -262,6 +269,10 @@ class UIServices
                 tasksFileContents = IO.read(tasksFilepath)
 
                 vspaceleft = Miscellaneous::screenHeight()-6
+
+                if items[0] and items[0]["isDxThreadQuarkPair"] then
+                    vspaceleft = vspaceleft - 1
+                end
 
                 puts ""
                 vspaceleft = vspaceleft - 1
@@ -292,7 +303,10 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | / | nyx".red 
+                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | / | nyx".red
+                if items[0] and items[0]["isDxThreadQuarkPair"] then
+                    puts "commands: done (destroy quark and nereid element) | >nyx | >dxthread | landing".red
+                end
 
                 input = LucilleCore::pressEnterToContinue("> ")
 
@@ -347,6 +361,36 @@ class UIServices
                     break
                 end
 
+                if input == "done" then
+                    Quarks::destroyQuarkAndNereidContent(items[0]["quark"])
+                    items.shift
+                    next
+                end
+                if input == ">nyx" then
+                    quark = items[0]["quark"]
+                    element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+                    next if element.nil?
+                    system("nyx-landing '#{quark["nereiduuid"]}'")
+                    NereidInterface::setOwnership(element["uuid"], "nyx")
+                    NereidInterface::unsetOwnership(element["uuid"], "catalyst")
+                    Quarks::destroyQuark(quark)
+                    items.shift
+                    next
+                end
+                if input == ">dxthread" then
+                    quark = items[0]["quark"]
+                    dxthread = items[0]["dxthread"]
+                    Patricia::moveTargetToNewDxThread(quark, dxthread)
+                    items.shift
+                    next
+                end
+                if input == "landing" then
+                    quark = items[0]["quark"]
+                    Quarks::landing(quark)
+                    items.shift
+                    next
+                end
+
                 break if items.size <= originSize/2          # We restart if we have done a bunch
                 break if Time.new.to_s[0, 13] != time1.to_s[0, 13] # We restart the outter loop at each hour
             }
@@ -361,7 +405,6 @@ class UIServices
                 puts "Adding orphan quark to DxThread: #{Patricia::toString(quark)}"
                 LucilleCore::pressEnterToContinue()
                 Patricia::moveTargetToNewDxThread(quark, nil)
-                exit
             end
         }
 
