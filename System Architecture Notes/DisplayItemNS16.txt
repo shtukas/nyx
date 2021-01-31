@@ -1,12 +1,13 @@
 DisplayItemsNS16 {
-    "announce" => String
-    "lambda"   => Lambda
+    "announce"    : String
+    "lambda"      : Lambda
+    "beforeTasks" : Boolean # Optional 
 }
 
 DisplayItemsNS16 {
-    "announce"            => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-    "lambda"              => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) },
-    "isDxThreadQuarkPair" => true,
-    "dxthread"            => dxthread,
-    "quark"               => quark
+    "announce"            : String
+    "lambda"              : Lambda
+    "isDxThreadQuarkPair" : true
+    "dxthread"            : dxthread
+    "quark"               : quark
 }

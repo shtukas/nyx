@@ -23,10 +23,8 @@ class DxThreadsUIUtils
     # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
     def self.runDxThreadQuarkPair(dxthread, quark)
         loop {
-            system("clear")
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
             if element.nil? then
-                system("clear")
                 puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
                 if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
                     Quarks::destroyQuarkAndNereidContent(quark)
@@ -43,7 +41,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".red
+            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -71,7 +69,7 @@ class DxThreadsUIUtils
                 next
             end
             if input == "pause" then
-                puts "paused".red
+                puts "paused...".green
                 LucilleCore::pressEnterToContinue("Press enter to resume: ")
                 next
             end
@@ -119,48 +117,18 @@ class DxThreadsUIUtils
             }
             .flatten
     end
+
+    # DxThreadsUIUtils::getLateStreamDisplayItemsNS16()
+    def self.getLateStreamDisplayItemsNS16()
+        if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
+        else
+            []
+        end  
+    end
 end
 
 class UIServices
-
-    # UIServices::selectLineOrNull(lines) : String
-    def self.selectLineOrNull(lines)
-
-        selectLines = lambda{|lines|
-            linesX = lines.map{|line|
-                {
-                    "line"     => line,
-                    "announce" => line.gsub("(", "").gsub(")", "").gsub("'", "").gsub('"', "") 
-                }
-            }
-            announces = linesX.map{|i| i["announce"] } 
-            selected = `echo '#{([""]+announces).join("\n")}' | /usr/local/bin/peco`.split("\n")
-            selected.map{|announce| 
-                linesX.select{|i| i["announce"] == announce }.map{|i| i["line"] }.first 
-            }
-            .compact
-        }
-
-        lines = selectLines.call(lines)
-        if lines.size == 0 then
-            return nil
-        end
-        if lines.size == 1 then
-            return lines[0]
-        end
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
-    end
-
-    # UIServices::makeDisplayStringForCatalystListing(object)
-    def self.makeDisplayStringForCatalystListing(object)
-        body = object["body"]
-        lines = body.lines.to_a
-        if lines.size == 1 then
-            "#{lines.first}"
-        else
-            "#{lines.shift}" + lines.map{|line|  "             #{line}"}.join()
-        end
-    end
 
     # UIServices::servicesFront()
     def self.servicesFront()
@@ -234,17 +202,13 @@ class UIServices
 
             BackupsMonitor::displayItemsNS16(),
 
-            (lambda{
-                if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
-                    DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
-                else
-                    []
-                end                
-            }).call(),
+            DxThreadsUIUtils::getLateStreamDisplayItemsNS16(),
 
             VideoStream::displayItemsNS16(),
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] != "d0c8857574a1e570a27f6f6b879acc83") and (DxThreads::completionRatio(dxthread) < 2) } )) # Reject Pascal Guardian Work
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2) } )), # Stream, ratio less than 2
+
+            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a"})) # Jedi
         ]
         .flatten
     end
@@ -303,9 +267,9 @@ class UIServices
                 }
 
                 puts ""
-                puts "commands: [] (Tasks.txt) | .. (access top quark) | >> (skip top quark) | ++ | +datecode | select | / | nyx".red
+                puts "commands: [] (Tasks.txt) | .. (access top item) #default | >> (skip top item) | ++ | +datecode | select | / | nyx".yellow
                 if items[0] and items[0]["isDxThreadQuarkPair"] then
-                    puts "commands: done (destroy quark and nereid element) | >nyx | >dxthread | landing".red
+                    puts "commands: done (destroy quark and nereid element) | >nyx | >dxthread | landing".yellow
                 end
 
                 input = LucilleCore::pressEnterToContinue("> ")
@@ -329,25 +293,26 @@ class UIServices
                 end
 
                 if input == '++' then
-                    DoNotShowUntil::setUnixtime(items[0]["announce"], Time.new.to_i+3600)
-                    items.shift
+                    item = items.shift
+                    DoNotShowUntil::setUnixtime(item["announce"], Time.new.to_i+3600)
                     next
                 end
 
                 if input.start_with?('+') then
+                    item = items.shift
                     unixtime = Miscellaneous::codeToUnixtimeOrNull(input)
                     next if unixtime.nil?
-                    DoNotShowUntil::setUnixtime(items[0]["announce"], unixtime)
-                    items.shift
+                    DoNotShowUntil::setUnixtime(item["announce"], unixtime)
                     next
                 end
 
                 if input == "select" then
                     system("clear")
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getDisplayItemsNS16(), lambda{|item| item["announce"] })
+                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| item["announce"] })
                     next if item.nil?
                     puts item["announce"]
                     item["lambda"].call()
+                    items = items.reject{|i| i["announce"] == item["announce"] }
                     next
                 end
 
@@ -362,31 +327,29 @@ class UIServices
                 end
 
                 if input == "done" then
-                    Quarks::destroyQuarkAndNereidContent(items[0]["quark"])
-                    items.shift
+                    item = items.shift
+                    Quarks::destroyQuarkAndNereidContent(item["quark"])
                     next
                 end
                 if input == ">nyx" then
-                    quark = items[0]["quark"]
+                    item = items.shift
+                    quark = item["quark"]
                     element = NereidInterface::getElementOrNull(quark["nereiduuid"])
                     next if element.nil?
                     system("nyx-landing '#{quark["nereiduuid"]}'")
                     NereidInterface::setOwnership(element["uuid"], "nyx")
                     NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                     Quarks::destroyQuark(quark)
-                    items.shift
                     next
                 end
                 if input == ">dxthread" then
-                    quark = items[0]["quark"]
-                    dxthread = items[0]["dxthread"]
-                    Patricia::moveTargetToNewDxThread(quark, dxthread)
-                    items.shift
+                    item = items.shift
+                    Patricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
                     next
                 end
                 if input == "landing" then
-                    quark = items[0]["quark"]
-                    Quarks::landing(quark)
+                    item = items.shift
+                    Quarks::landing(item["quark"])
                     items.shift
                     next
                 end

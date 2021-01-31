@@ -8,43 +8,26 @@ class VideoStream
         "/Users/pascal/x-space/VideoStream"
     end
 
-    # VideoStream::videoFolderpathsAtFolder(folderpath)
-    def self.videoFolderpathsAtFolder(folderpath)
-        return [] if !File.exists?(folderpath)
+    # VideoStream::videoFilepaths()
+    def self.videoFilepaths()
+        folderpath = VideoStream::spaceFolderpath()
+        raise "[error: efd09076-971c-46e7-95cd-4923a72c0f04]" if !File.exists?(folderpath)
         Dir.entries(folderpath)
             .select{|filename| filename[0,1] != "." }
             .map{|filename| "#{folderpath}/#{filename}" }
             .sort
     end
 
-    # VideoStream::filepathToVideoUUID(filepath)
-    def self.filepathToVideoUUID(filepath)
-        Digest::SHA1.hexdigest("cec985f2-3287-4d3a-b4f8-a05f30a6cc52:#{filepath}")
-    end
-
-    # VideoStream::getVideoFilepathByUUIDOrNull(uuid)
-    def self.getVideoFilepathByUUIDOrNull(uuid)
-        VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
-            .select{|filepath| VideoStream::filepathToVideoUUID(filepath) == uuid }
-            .first
-    end
-    # VideoStream::videoIsRunning(filepath)
-    def self.videoIsRunning(filepath)
-        uuid = "8410f77a-0624-442d-b413-f2be0fcce5ba:#{filepath}"
-        Runner::isRunning?(uuid)
-    end
-
     # VideoStream::displayItemsNS16()
     def self.displayItemsNS16()
         raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
         return [] if BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02") > 1
-        VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
+        VideoStream::videoFilepaths()
             .reduce([]){|filepaths, filepath|
                 if filepaths.size >= 3 then
                     filepaths
                 else
-                    uuid = VideoStream::filepathToVideoUUID(filepath)
-                    if DoNotShowUntil::isVisible(uuid) then
+                    if DoNotShowUntil::isVisible(filepath) then
                         filepaths + [filepath]
                     else
                         filepaths
@@ -62,7 +45,7 @@ class VideoStream
     # VideoStream::access(filepath)
     def self.access(filepath)
         if filepath.include?("'") then
-            filepath2 = filepath.gsub("'", ' ')
+            filepath2 = filepath.gsub("'", '-')
             FileUtils.mv(filepath, filepath2)
             filepath = filepath2
         end
@@ -77,29 +60,29 @@ class VideoStream
         }
 
         puts filepath
-        uuid = "8410f77a-0624-442d-b413-f2be0fcce5ba:#{filepath}"
-        isRunning = Runner::isRunning?(uuid)
-        if isRunning then
+
+        if Runner::isRunning?(filepath) then
             if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
                 FileUtils.rm(filepath)
+                stopAndRecordTime.call(filepath)
             end
-            stopAndRecordTime.call(uuid)
         else
-            options = ["play", "completed"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+            option = LucilleCore::askQuestionAnswerAsString("> play (default) ; completed : ".yellow)
+            if option == "" then
+                option = "play"
+            end
             if option == "play" then
-                Runner::start(uuid)
+                Runner::start(filepath)
                 system("open '#{filepath}'")
-                if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", false) then
+                if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", true) then
                     FileUtils.rm(filepath)
-                    stopAndRecordTime.call(uuid)
+                    stopAndRecordTime.call(filepath)
                 end
             end
             if option == "completed" then
                 FileUtils.rm(filepath)
             end
         end
-
     end
 end
 
