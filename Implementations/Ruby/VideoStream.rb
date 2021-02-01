@@ -67,7 +67,7 @@ class VideoStream
                 stopAndRecordTime.call(filepath)
             end
         else
-            option = LucilleCore::askQuestionAnswerAsString("> play (default) ; completed : ".yellow)
+            option = LucilleCore::askQuestionAnswerAsString("> play (default) ; completed : ")
             if option == "" then
                 option = "play"
             end
