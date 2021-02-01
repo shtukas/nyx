@@ -91,19 +91,8 @@ class Waves
         end
     end
 
-    # Waves::extractFirstLineFromText(text)
-    def self.extractFirstLineFromText(text)
-        return "" if text.size==0
-        text.lines.first
-    end
-
-    # Waves::announce(wave, schedule)
-    def self.announce(wave, schedule)
-        "[#{Waves::scheduleToAnnounce(schedule)}] #{NereidInterface::toString(wave["nereiduuid"])}"
-    end
-
-    # Waves::scheduleToAnnounce(schedule)
-    def self.scheduleToAnnounce(schedule)
+    # Waves::scheduleToString(schedule)
+    def self.scheduleToString(schedule)
         if schedule['@'] == 'sticky' then
             # Backward compatibility
             if schedule['from-hour'].nil? then
@@ -129,14 +118,9 @@ class Waves
     # Waves::performDone(wave)
     def self.performDone(wave)
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitToDisk(wave)
+        NSCoreObjects::put(wave)
         unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-    end
-
-    # Waves::commitToDisk(wave)
-    def self.commitToDisk(wave)
-        NSCoreObjects::put(wave)
     end
 
     # Waves::issueWave(uuid, element, schedule)
@@ -148,7 +132,7 @@ class Waves
             "nereiduuid" => element["uuid"],
             "schedule"   => schedule
         }
-        Waves::commitToDisk(wave)
+        NSCoreObjects::put(wave)
         wave
     end
 
@@ -175,7 +159,7 @@ class Waves
 
     # Waves::toString(wave)
     def self.toString(wave)
-        "[wave] #{NereidInterface::toString(wave["nereiduuid"])}"
+        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])}"
     end
 
     # Waves::displayItemsNS16()
@@ -183,32 +167,22 @@ class Waves
         Waves::waves()
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .map{|wave|
-                schedule = wave["schedule"]
-                announce = Waves::announce(wave, schedule)
-                object = {}
-                object["announce"] = "[wave] " + announce
-                object["lambda"] = lambda { Waves::access2(wave) }
-                object
+                {
+                    "announce" => Waves::toString(wave),
+                    "lambda"   => lambda { Waves::access(wave) }
+                }
             }
     end
 
     # Waves::access(wave)
     def self.access(wave)
-        startTime = Time.new.to_f
-        NereidInterface::access(wave["nereiduuid"])
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-            Waves::performDone(wave)
-            timespan = [Time.new.to_f - startTime, 3600].min
-            puts "Add #{timespan} seconds to DxThread Stream (for time management)"
-            Bank::put(DxThreads::getStream()["uuid"], timespan)
-        end
-    end
+        puts Waves::toString(wave)
 
-    # Waves::access2(wave)
-    def self.access2(wave)
-        startTime = Time.new.to_f
         element = NereidInterface::getElementOrNull(wave["nereiduuid"])
         return if element.nil?
+
+        startTime = Time.new.to_f
+        
         case element["type"]
         when "Line"
         when "Url"
@@ -216,6 +190,7 @@ class Waves
         else
             NereidInterface::access(wave["nereiduuid"])
         end
+
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
             timespan = [Time.new.to_f - startTime, 3600].min
@@ -261,14 +236,14 @@ class Waves
                 description = Miscellaneous::editTextSynchronously(wave["description"])
                 return if description.nil?
                 wave["description"] = description
-                Waves::commitToDisk(wave)
+                NSCoreObjects::put(wave)
             })
 
             menuitems.item("recast", lambda { 
                 schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                 return if schedule.nil?
                 wave["schedule"] = schedule
-                Waves::commitToDisk(wave)
+                NSCoreObjects::put(wave)
             })
 
             menuitems.item("destroy", lambda {

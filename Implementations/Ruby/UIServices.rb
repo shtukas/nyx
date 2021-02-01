@@ -232,6 +232,13 @@ class UIServices
                 tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
                 tasksFileContents = IO.read(tasksFilepath)
 
+
+                if items.size == 0 and tasksFileContents.strip == "" then
+                    puts "Nothing to do. Come back later (^.^)"
+                    LucilleCore::pressEnterToContinue()
+                    break
+                end
+
                 vspaceleft = Miscellaneous::screenHeight()-6
 
                 if items[0] and items[0]["isDxThreadQuarkPair"] then
@@ -282,7 +289,6 @@ class UIServices
 
                 if input == ".." then
                     item = items.shift
-                    puts item["announce"]
                     item["lambda"].call()
                     next
                 end
@@ -307,10 +313,8 @@ class UIServices
                 end
 
                 if input == "select" then
-                    system("clear")
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| item["announce"] })
+                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(Miscellaneous::screenHeight()-5), lambda{|item| item["announce"] })
                     next if item.nil?
-                    puts item["announce"]
                     item["lambda"].call()
                     items = items.reject{|i| i["announce"] == item["announce"] }
                     next
