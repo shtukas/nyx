@@ -33,6 +33,7 @@ class Calendar
                     filepath = Calendar::dateToFilepath(date)
                     content = IO.read(filepath).strip
                     {
+                        "uuid"     => "cba62d9e-cacc-4e95-a8f2-6cfb72efbf39:#{date}",
                         "announce" => "🗓️  " + date + "\n" + content,
                         "lambda"   => lambda {
                             if LucilleCore::askQuestionAnswerAsBoolean("mark as reviewed ? ") then
@@ -46,6 +47,7 @@ class Calendar
                 .sort{|i1, i2| i1["date"]<=>i2["date"] }
                 .map{|item|
                     {
+                        "uuid"     => item["uuid"],
                         "announce" => Calendar::toString(item),
                         "lambda"   => lambda{}
                     }

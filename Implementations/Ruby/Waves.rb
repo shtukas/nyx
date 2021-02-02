@@ -159,7 +159,13 @@ class Waves
 
     # Waves::toString(wave)
     def self.toString(wave)
-        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])}"
+        ago = 
+            if wave["lastDoneDateTime"] then
+                "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
+            else
+                ""
+            end
+        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
     end
 
     # Waves::displayItemsNS16()
@@ -168,6 +174,7 @@ class Waves
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .map{|wave|
                 {
+                    "uuid"     => wave["uuid"],
                     "announce" => Waves::toString(wave),
                     "lambda"   => lambda { Waves::access(wave) }
                 }

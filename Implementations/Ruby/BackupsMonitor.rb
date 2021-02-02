@@ -36,6 +36,7 @@ class BackupsMonitor
             }
             .map{|scriptname|
                 {
+                    "uuid"      => "78827442-f558-4bb4-9cb2-7b3c3803c188:#{scriptname}",
                     "announce"  => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
                     "lambda"    => lambda {}
                 }

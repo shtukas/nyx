@@ -36,6 +36,7 @@ class VideoStream
             }
             .map{|filepath| 
                 {
+                    "uuid"     => filepath,
                     "announce" => "[VideoStream] #{File.basename(filepath)}",
                     "lambda"   => lambda { VideoStream::access(filepath) },
                 }

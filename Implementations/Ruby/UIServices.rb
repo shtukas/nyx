@@ -20,6 +20,12 @@ class DxThreadsUIUtils
         return (Time.new.to_f - t1) * slope + y1
     end
 
+    # DxThreadsUIUtils::getStreamDoneRatio()
+    def self.getStreamDoneRatio()
+        done = 3728 - DxThreadsUIUtils::getDxThreadStreamCardinal()
+        done.to_f/(3728-100)
+    end
+
     # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
     def self.runDxThreadQuarkPair(dxthread, quark)
         loop {
@@ -101,12 +107,13 @@ class DxThreadsUIUtils
             .select{|dxthread| selector.call(dxthread) }     
     end
 
-    # DxThreadsUIUtils::dxThreadsToDisplayItems(dxthreads)
-    def self.dxThreadsToDisplayItems(dxthreads)
+    # DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(dxthreads)
+    def self.dxThreadsToDisplayItemsNS16(dxthreads)
         dxthreads
             .map{|dxthread|
                 getDxThreadQuarkPairs(dxthread).map{|item|
                     {
+                        "uuid"                => "#{dxthread["uuid"]}:#{item["quark"]["uuid"]}",
                         "announce"            => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
                         "lambda"              => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) },
                         "isDxThreadQuarkPair" => true,
@@ -121,7 +128,7 @@ class DxThreadsUIUtils
     # DxThreadsUIUtils::getLateStreamDisplayItemsNS16()
     def self.getLateStreamDisplayItemsNS16()
         if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
         else
             []
         end  
@@ -195,7 +202,7 @@ class UIServices
                 item
             },
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )).map{|item|
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )).map{|item|
                 item["beforeTasks"] = true
                 item
             }, # Streams Below Targets
@@ -206,9 +213,9 @@ class UIServices
 
             VideoStream::displayItemsNS16(),
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
 
-            DxThreadsUIUtils::dxThreadsToDisplayItems(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
         ]
         .flatten
     end
@@ -221,7 +228,7 @@ class UIServices
             Miscellaneous::importFromLucilleInbox()
 
             items = getDisplayItemsNS16()
-                        .select{|item| DoNotShowUntil::isVisible(item["announce"]) }
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             originSize = items.size
             time1 = Time.new
 
@@ -239,14 +246,19 @@ class UIServices
                     break
                 end
 
-                vspaceleft = Miscellaneous::screenHeight()-6
-
-                if items[0] and items[0]["isDxThreadQuarkPair"] then
-                    vspaceleft = vspaceleft - 1
-                end
+                vspaceleft = Miscellaneous::screenHeight()-4
 
                 puts ""
                 vspaceleft = vspaceleft - 1
+
+                puts "☀️  Stream done: #{(DxThreadsUIUtils::getStreamDoneRatio()*100).round(2)}%".yellow
+                vspaceleft = vspaceleft - 1
+
+                DxThreads::getTopThreads()
+                    .each{|dxthread|
+                        puts "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}"
+                        vspaceleft = vspaceleft - 1
+                    }
 
                 items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
                     next if vspaceleft <= 0
@@ -257,7 +269,7 @@ class UIServices
                 tasks = tasksFileContents.strip
                 if tasks.size > 0 then
                     text = tasks.lines.first(10).join.strip
-                    puts text.yellow
+                    puts text.green
                     vspaceleft = vspaceleft - Miscellaneous::verticalSize(text)
                 end
 
@@ -300,7 +312,7 @@ class UIServices
 
                 if input == '++' then
                     item = items.shift
-                    DoNotShowUntil::setUnixtime(item["announce"], Time.new.to_i+3600)
+                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
                     next
                 end
 
@@ -308,7 +320,7 @@ class UIServices
                     item = items.shift
                     unixtime = Miscellaneous::codeToUnixtimeOrNull(input)
                     next if unixtime.nil?
-                    DoNotShowUntil::setUnixtime(item["announce"], unixtime)
+                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                     next
                 end
 

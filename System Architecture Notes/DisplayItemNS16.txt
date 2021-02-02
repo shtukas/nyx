@@ -1,10 +1,12 @@
 DisplayItemsNS16 {
+    "uuid"        : String # used by DoNotShowUntil
     "announce"    : String
     "lambda"      : Lambda
     "beforeTasks" : Boolean # Optional 
 }
 
 DisplayItemsNS16 {
+    "uuid"                : String # used by DoNotShowUntil
     "announce"            : String
     "lambda"              : Lambda
     "isDxThreadQuarkPair" : true
