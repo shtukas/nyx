@@ -82,33 +82,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 # ---------------------------------------------------------------------------------------
 
-=begin
-
-sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text, _type_ text, _payload_ text);
-
-Element {
-    "uuid"           : String
-    "unixtime"       : Float
-    "description"    : String 
-    "type"           : String 
-    "payload"        : (value)
-}
-
-"type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint" | "FSUniqueString"
-
-[type]            -> [payload]
-
-"Line"            -> "" # empty string, the description is the payload
-"Url"             -> String
-"Text"            -> String # reference to a blob
-"ClickableType"   -> <nhash>|<dottedExtension>
-"AionPoint"       -> <nhash>
-"FSUniqueString"  -> String
-
-sqlite> create table _ownership_ (_uuid_ text, _owner_ text);
-
-=end
-
 class NereidUtils
 
     # NereidUtils::editTextSynchronously(text)

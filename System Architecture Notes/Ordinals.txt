@@ -1,7 +1,5 @@
 
-Ordinals: Array[Item]
-
-Item = {
+Ordinal Item = {
     "uuid"    => String 
     "ordinal" => Float
 }
