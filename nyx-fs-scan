@@ -1,0 +1,11 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Implementations/Ruby/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+starttime = Time.new.to_f
+NX141FSCacheElement::scan()
+NX141FSCacheElement::garbageCollection(starttime)

@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Implementations/Ruby/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+File.open("/Users/pascal/Galaxy/DataBank/Catalyst/nyx-fs-scan-daemon/nyx-fs-scan-daemon-start.txt", "w"){|f| f.puts("nyx-fs-scan-daemon deamon start at #{Time.new.to_s}") }
+loop {
+    if !LucilleCore::isOnPower() then
+        sleep 300
+        next
+    end
+
+    starttime = Time.new.to_f
+    NX141FSCacheElement::scan()
+    NX141FSCacheElement::garbageCollection(starttime)
+
+    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/nyx-fs-scan-daemon/nyx-fs-scan-daemon-last-run.txt", "w"){|f| f.puts("nyx-fs-scan-daemon deamon last run completed at #{Time.new.to_s}") }
+    sleep 3600
+}

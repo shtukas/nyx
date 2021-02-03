@@ -64,6 +64,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
+=end
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 =begin
 
@@ -114,25 +122,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
-=begin
-    NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
-    NereidInterface::insertElement(element)
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::getElements()
-    NereidInterface::landing(input) # input: uuid: String , element Element
-    NereidInterface::access(input)
-    NereidInterface::edit(input): # new element with same uuid, or null
-    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-
-    NereidInterface::setOwnership(uuid, owner)
-    NereidInterface::unsetOwnership(uuid, owner)
-    NereidInterface::getOwnersForUUID(uuid)
-=end
-
 # ------------------------------------------------------------
 
 require_relative "Miscellaneous.rb" # Should come first as containing core definitions
@@ -181,6 +170,36 @@ require_relative "Waves.rb"
 
 # ------------------------------------------------------------
 
+require_relative "Commons.rb"
+require_relative "Classifiers.rb"
+require_relative "Events.rb"
+require_relative "NereidProxyOperator.rb"
+require_relative "NX141FSCacheElement.rb"
+require_relative "NyxArrows.rb"
+require_relative "NyxBinaryBlobsService.rb"
+require_relative "NyxFilenameReaderWriter.rb"
+require_relative "NyxGalaxyFinder.rb"
+require_relative "NyxPatricia.rb"
+require_relative "NyxUserInterface.rb"
+require_relative "NyxUtils.rb"
 
+# ------------------------------------------------------------
 
+require_relative "Nereid.rb"
+=begin
+    NereidInterface::interactivelyIssueNewElementOrNull()
+    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
+    NereidInterface::insertElement(element)
+    NereidInterface::toString(input) # input: uuid: String , element Element
+    NereidInterface::getElementOrNull(uuid)
+    NereidInterface::getElements()
+    NereidInterface::landing(input) # input: uuid: String , element Element
+    NereidInterface::access(input)
+    NereidInterface::edit(input): # new element with same uuid, or null
+    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
+    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 
+    NereidInterface::setOwnership(uuid, owner)
+    NereidInterface::unsetOwnership(uuid, owner)
+    NereidInterface::getOwnersForUUID(uuid)
+=end

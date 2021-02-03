@@ -1,0 +1,9 @@
+
+pascal@Lucille20 Nyx % sqlite3 Nyx.sqlite3
+SQLite version 3.32.3 2020-06-18 14:16:19
+Enter ".help" for usage hints.
+
+sqlite> create table _arrows_ (_source_ text, _target_ text);
+sqlite> create table _NX141Cache_ (_unixtime_ real, _nx141_ text, _description_ text);
+sqlite> create table _events_ (_uuid_ text, _date_ text, _description_ text);
+sqlite> create table _classifiers_ (_uuid_ text, _description_ text);
