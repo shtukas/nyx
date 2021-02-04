@@ -94,7 +94,7 @@ class ArrowsDatabaseIO
 
     # ArrowsDatabaseIO::getTargetsForSource(source)
     def self.getTargetsForSource(source)
-        ArrowsDatabaseIO::getTargetUUIDsForSource(source).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
+        ArrowsDatabaseIO::getTargetUUIDsForSource(source).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 
     # ArrowsDatabaseIO::getSourcesForTarget(target)
@@ -108,7 +108,7 @@ class ArrowsDatabaseIO
             uuids << row["_sourceuuid_"]
         end
         db.close
-        uuids.uniq.map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
+        uuids.uniq.map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 end
 
@@ -184,7 +184,7 @@ class ArrowsInMemory
     end
 
     def getTargetsForSource(source)
-        getTargetUUIDsForSource(source).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
+        getTargetUUIDsForSource(source).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 
     def getSourceUUIDsForTarget(target)
@@ -192,50 +192,50 @@ class ArrowsInMemory
     end
 
     def getSourcesForTarget(target)
-        getSourceUUIDsForTarget(target).map{|uuid| NSCoreObjects::getOrNull(uuid) }.compact
+        getSourceUUIDsForTarget(target).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 end
 
 $ArrowsInMemory099be9e4 = ArrowsInMemory.new()
 
-class Arrows
+class TodoArrows
 
-    # Arrows::issueOrException(source, target)
+    # TodoArrows::issueOrException(source, target)
     def self.issueOrException(source, target)
         $ArrowsInMemory099be9e4.issueOrException(source, target)
     end
 
-    # Arrows::destroy(sourceuuid, targetuuid)
+    # TodoArrows::destroy(sourceuuid, targetuuid)
     def self.destroy(sourceuuid, targetuuid)
         $ArrowsInMemory099be9e4.destroy(sourceuuid, targetuuid)
     end
 
-    # Arrows::unlink(source, target)
+    # TodoArrows::unlink(source, target)
     def self.unlink(source, target)
         $ArrowsInMemory099be9e4.unlink(source, target)
     end
 
-    # Arrows::exists?(source, target)
+    # TodoArrows::exists?(source, target)
     def self.exists?(source, target)
         $ArrowsInMemory099be9e4.exists?(source, target)
     end
 
-    # Arrows::getTargetUUIDsForSource(source)
+    # TodoArrows::getTargetUUIDsForSource(source)
     def self.getTargetUUIDsForSource(source)
         $ArrowsInMemory099be9e4.getTargetUUIDsForSource(source)
     end
 
-    # Arrows::getSourceUUIDsForTarget(target)
+    # TodoArrows::getSourceUUIDsForTarget(target)
     def self.getSourceUUIDsForTarget(target)
         $ArrowsInMemory099be9e4.getSourceUUIDsForTarget(target)
     end
 
-    # Arrows::getTargetsForSource(source)
+    # TodoArrows::getTargetsForSource(source)
     def self.getTargetsForSource(source)
         $ArrowsInMemory099be9e4.getTargetsForSource(source)
     end
 
-    # Arrows::getSourcesForTarget(target)
+    # TodoArrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
         $ArrowsInMemory099be9e4.getSourcesForTarget(target)
     end

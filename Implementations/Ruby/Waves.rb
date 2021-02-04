@@ -118,7 +118,7 @@ class Waves
     # Waves::performDone(wave)
     def self.performDone(wave)
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        NSCoreObjects::put(wave)
+        TodoCoreData::put(wave)
         unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
@@ -132,7 +132,7 @@ class Waves
             "nereiduuid" => element["uuid"],
             "schedule"   => schedule
         }
-        NSCoreObjects::put(wave)
+        TodoCoreData::put(wave)
         wave
     end
 
@@ -149,12 +149,12 @@ class Waves
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NSCoreObjects::getOrNull(uuid)
+        TodoCoreData::getOrNull(uuid)
     end
 
     # Waves::waves()
     def self.waves()
-        NSCoreObjects::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        TodoCoreData::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::toString(wave)
@@ -215,7 +215,7 @@ class Waves
     def self.landing(wave)
         loop {
             system("clear")
-            return if NSCoreObjects::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+            return if TodoCoreData::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"
@@ -243,19 +243,19 @@ class Waves
                 description = Miscellaneous::editTextSynchronously(wave["description"])
                 return if description.nil?
                 wave["description"] = description
-                NSCoreObjects::put(wave)
+                TodoCoreData::put(wave)
             })
 
             menuitems.item("recast", lambda { 
                 schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                 return if schedule.nil?
                 wave["schedule"] = schedule
-                NSCoreObjects::put(wave)
+                TodoCoreData::put(wave)
             })
 
             menuitems.item("destroy", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    NSCoreObjects::destroy(wave)
+                    TodoCoreData::destroy(wave)
                 end
             })
 

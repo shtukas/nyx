@@ -5,7 +5,7 @@ class Quarks
 
     # Quarks::quarks()
     def self.quarks()
-        NSCoreObjects::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
+        TodoCoreData::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
     end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
@@ -18,7 +18,7 @@ class Quarks
             "unixtime"   => Time.new.to_i,
             "nereiduuid" => element["uuid"]
         }
-        NSCoreObjects::put(quark)
+        TodoCoreData::put(quark)
         NereidInterface::setOwnership(element["uuid"], "catalyst")
         quark
     end
@@ -41,8 +41,8 @@ class Quarks
     def self.landing(quark)
         loop {
 
-            return if NSCoreObjects::getOrNull(quark["uuid"]).nil?
-            quark = NSCoreObjects::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
+            return if TodoCoreData::getOrNull(quark["uuid"]).nil?
+            quark = TodoCoreData::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
 
             system("clear")
 
@@ -54,10 +54,10 @@ class Quarks
 
             puts ""
 
-            Arrows::getSourcesForTarget(quark).each{|source|
+            TodoArrows::getSourcesForTarget(quark).each{|source|
                 mx.item(
-                    "source: #{Patricia::toString(source)}",
-                    lambda { Patricia::landing(source) }
+                    "source: #{TodoPatricia::toString(source)}",
+                    lambda { TodoPatricia::landing(source) }
                 )
             }
 
@@ -75,18 +75,18 @@ class Quarks
             })
 
             mx.item("move to another DxThread".yellow, lambda {
-                parents = Arrows::getSourcesForTarget(quark)
+                parents = TodoArrows::getSourcesForTarget(quark)
                 if parents.size == 0 then
-                    Patricia::moveTargetToNewDxThread(quark, nil)
+                    TodoPatricia::moveTargetToNewDxThread(quark, nil)
                     return
                 end
                 if parents.size == 1 then
-                    Patricia::moveTargetToNewDxThread(quark, parents[0])
+                    TodoPatricia::moveTargetToNewDxThread(quark, parents[0])
                     return
                 end
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| Patricia::toString(target) })
+                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| TodoPatricia::toString(target) })
                 return if parent.nil?
-                Patricia::moveTargetToNewDxThread(quark, parent)
+                TodoPatricia::moveTargetToNewDxThread(quark, parent)
             })
 
             mx.item("edit".yellow, lambda {
@@ -117,13 +117,13 @@ class Quarks
 
     # Quarks::destroyQuark(quark)
     def self.destroyQuark(quark)
-        NSCoreObjects::destroy(quark)
+        TodoCoreData::destroy(quark)
     end
 
     # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
         status = NereidInterface::destroyElement(quark["nereiduuid"])
         return if !status
-        NSCoreObjects::destroy(quark)
+        TodoCoreData::destroy(quark)
     end
 end

@@ -9,12 +9,12 @@ class DxThreads
 
     # DxThreads::dxthreads()
     def self.dxthreads()
-        NSCoreObjects::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
+        TodoCoreData::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
     # DxThreads::getStream()
     def self.getStream()
-        NSCoreObjects::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
+        TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
     end
 
     # DxThreads::make(description, timeCommitmentPerDayInHours)
@@ -31,7 +31,7 @@ class DxThreads
     # DxThreads::issue(description, timeCommitmentPerDayInHours)
     def self.issue(description, timeCommitmentPerDayInHours)
         object = DxThreads::make(description, timeCommitmentPerDayInHours)
-        NSCoreObjects::put(object)
+        TodoCoreData::put(object)
         object
     end
 
@@ -60,7 +60,7 @@ class DxThreads
     # DxThreads::dxThreadAndTargetToString(dxthread, quark)
     def self.dxThreadAndTargetToString(dxthread, quark)
         uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
-        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}) #{Patricia::toString(quark)}"
+        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}) #{TodoPatricia::toString(quark)}"
     end
 
     # DxThreads::completionRatio(dxthread)
@@ -71,18 +71,18 @@ class DxThreads
     # DxThreads::determinePlacingOrdinalForThread(dxthread)
     def self.determinePlacingOrdinalForThread(dxthread)
         puts "Placement ordinal listing"
-        quarks = Arrows::getTargetsForSource(dxthread)
+        quarks = TodoArrows::getTargetsForSource(dxthread)
                     .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                     .first(DxThreads::visualisationDepth())
         quarks.each{|quark|
-            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{Patricia::toString(quark)}"
+            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{TodoPatricia::toString(quark)}"
         }
         ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
         if ordinal == "" then
             return Ordinals::computeNextOrdinal()
         end
         if ordinal == "low" then
-            return Patricia::computeNew21stOrdinalForDxThread(dxthread)
+            return TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
         end
         ordinal.to_f
     end
@@ -97,7 +97,7 @@ class DxThreads
         loop {
             system("clear")
 
-            return if NSCoreObjects::getOrNull(dxthread["uuid"]).nil?
+            return if TodoCoreData::getOrNull(dxthread["uuid"]).nil?
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
@@ -108,14 +108,14 @@ class DxThreads
 
             puts ""
 
-            quarks = Arrows::getTargetsForSource(dxthread)
+            quarks = TodoArrows::getTargetsForSource(dxthread)
 
             quarks
                 .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                 .first(showAllTargets ? quarks.size : DxThreads::visualisationDepth())
                 .each{|quark|
-                    mx.item("[quark] [#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{Patricia::toString(quark)}", lambda { 
-                        Patricia::landing(quark) 
+                    mx.item("[quark] [#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{TodoPatricia::toString(quark)}", lambda { 
+                        TodoPatricia::landing(quark) 
                     })
                 }
 
@@ -127,20 +127,20 @@ class DxThreads
 
             mx.item("no display on this day".yellow, lambda { 
                 dxthread["noDisplayOnThisDay"] = Miscellaneous::today()
-                NSCoreObjects::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("rename".yellow, lambda { 
                 name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
-                NSCoreObjects::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("update daily time commitment in hours".yellow, lambda { 
                 time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
                 dxthread["timeCommitmentPerDayInHours"] = time
-                NSCoreObjects::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("start thread".yellow, lambda { 
@@ -154,16 +154,16 @@ class DxThreads
             })
 
             mx.item("add new quark".yellow, lambda {
-                Patricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
+                TodoPatricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
             })
 
             mx.item("select and move quark".yellow, lambda { 
-                quarks = Arrows::getTargetsForSource(dxthread)
+                quarks = TodoArrows::getTargetsForSource(dxthread)
                             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
                             .first(DxThreads::visualisationDepth())
-                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| Patricia::toString(quark) })
+                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| TodoPatricia::toString(quark) })
                 return if quark.nil?
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                TodoPatricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("json object".yellow, lambda { 
@@ -177,7 +177,7 @@ class DxThreads
             
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(dxthread)}': ") then
-                    NSCoreObjects::destroy(dxthread)
+                    TodoCoreData::destroy(dxthread)
                 end
             })
             puts ""

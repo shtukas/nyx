@@ -4,7 +4,7 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getDxThreadStreamCardinal()
     def self.getDxThreadStreamCardinal()
-        Arrows::getTargetsForSource(DxThreads::getStream()).size
+        TodoArrows::getTargetsForSource(DxThreads::getStream()).size
     end
 
     # DxThreadsUIUtils::getIdealDxThreadStreamCardinal()
@@ -67,7 +67,7 @@ class DxThreadsUIUtils
                 return
             end
             if input == ">dxthread" then
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                TodoPatricia::moveTargetToNewDxThread(quark, dxthread)
                 return
             end
             if input == "landing" then
@@ -80,7 +80,7 @@ class DxThreadsUIUtils
                 next
             end
             if input == "/" then
-                UIServices::servicesFront()
+                TodoUIServices::servicesFront()
                 next
             end
             return
@@ -89,7 +89,7 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getDxThreadQuarkPairs(dxthread)
     def self.getDxThreadQuarkPairs(dxthread)
-        Arrows::getTargetsForSource(dxthread)
+        TodoArrows::getTargetsForSource(dxthread)
             .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
             .first(100)
             .map{|quark|
@@ -135,9 +135,9 @@ class DxThreadsUIUtils
     end
 end
 
-class UIServices
+class TodoUIServices
 
-    # UIServices::servicesFront()
+    # TodoUIServices::servicesFront()
     def self.servicesFront()
         loop {
             system("clear")
@@ -154,33 +154,33 @@ class UIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
 
-            ms.item("new quark", lambda { Patricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
+            ms.item("new quark", lambda { TodoPatricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
 
             puts ""
 
             ms.item("dangerously edit a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
-                object = NSCoreObjects::getOrNull(uuid)
+                object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
                 object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                NSCoreObjects::put(object)
+                TodoCoreData::put(object)
             })
 
             ms.item("dangerously delete a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = NSCoreObjects::getOrNull(uuid)
+                object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
                 puts JSON.pretty_generate(object)
                 return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
-                NSCoreObjects::destroy(object)
+                TodoCoreData::destroy(object)
             })
 
             puts ""
 
-            ms.item("NSGarbageCollection::run()",lambda { 
-                NSGarbageCollection::run() 
+            ms.item("TodoGarbageCollection::run()",lambda { 
+                TodoGarbageCollection::run() 
             })
 
             status = ms.promptAndRunSandbox()
@@ -220,7 +220,7 @@ class UIServices
         .flatten
     end
 
-    # UIServices::standardListingLoop()
+    # TodoUIServices::standardListingLoop()
     def self.standardListingLoop()
 
         loop {
@@ -333,7 +333,7 @@ class UIServices
                 end
 
                 if input == "/" then
-                    UIServices::servicesFront()
+                    TodoUIServices::servicesFront()
                     break
                 end
 
@@ -360,7 +360,7 @@ class UIServices
                 end
                 if input == ">dxthread" then
                     item = items.shift
-                    Patricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
+                    TodoPatricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
                     next
                 end
                 if input == "landing" then
@@ -376,19 +376,19 @@ class UIServices
         }
     end
 
-    # UIServices::main()
+    # TodoUIServices::main()
     def self.main()
 
         Quarks::quarks().each{|quark|
-            if !Arrows::getSourcesForTarget(quark).any?{|parent| Patricia::isDxThread(parent) } then
-                puts "Adding orphan quark to DxThread: #{Patricia::toString(quark)}"
+            if !TodoArrows::getSourcesForTarget(quark).any?{|parent| TodoPatricia::isDxThread(parent) } then
+                puts "Adding orphan quark to DxThread: #{TodoPatricia::toString(quark)}"
                 LucilleCore::pressEnterToContinue()
-                Patricia::moveTargetToNewDxThread(quark, nil)
+                TodoPatricia::moveTargetToNewDxThread(quark, nil)
             end
         }
 
         Ordinals::getOrdinalItems().each{|item|
-            if NSCoreObjects::getOrNull(item["uuid"]).nil? then
+            if TodoCoreData::getOrNull(item["uuid"]).nil? then
                 puts "ordinals database garbage collection, unknown uuid: #{item["uuid"]}"
                 LucilleCore::pressEnterToContinue()
                 Ordinals::deleteRecord(item["uuid"])
@@ -404,7 +404,7 @@ class UIServices
             }
         }
 
-        UIServices::standardListingLoop()
+        TodoUIServices::standardListingLoop()
     end
 end
 

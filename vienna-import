@@ -54,10 +54,10 @@ loop {
         "unixtime"   => Time.new.to_i,
         "nereiduuid" => nereiduuid
     }
-    NSCoreObjects::put(quark)
+    TodoCoreData::put(quark)
 
 
-    Arrows::issueOrException(DxThreads::getStream(), quark)
-    Patricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
+    TodoArrows::issueOrException(DxThreads::getStream(), quark)
+    TodoPatricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
     viennaLinkFeeder.done(link)
 }

@@ -1,6 +1,6 @@
 Arrows
 
-Arrows provide network topology between NSCoreObjects, but are now not NSCoreObjects themselves.
+Arrows provide network topology between TodoCoreData, but are now not TodoCoreData themselves.
 
 They are currently stored in a SQLite database: Arrows.sqlite3
 

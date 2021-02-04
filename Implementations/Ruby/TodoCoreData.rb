@@ -1,17 +1,17 @@
 
 
-$NSCoreObjectsCache76DBF964 = {}
+$TodoCoreDataCache76DBF964 = {}
 
-class NSCoreObjects
+class TodoCoreData
 
-    # NSCoreObjects::databaseFilepath()
+    # TodoCoreData::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/NS-Core-Objects.sqlite3"
     end
 
-    # NSCoreObjects::getAllObjects()
+    # TodoCoreData::getAllObjects()
     def self.getAllObjects()
-        db = SQLite3::Database.new(NSCoreObjects::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -23,9 +23,9 @@ class NSCoreObjects
         answer
     end
 
-    # NSCoreObjects::put(object)
+    # TodoCoreData::put(object)
     def self.put(object)
-        db = SQLite3::Database.new(NSCoreObjects::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -33,17 +33,17 @@ class NSCoreObjects
         db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
-        $NSCoreObjectsCache76DBF964[object["uuid"]] = object
+        $TodoCoreDataCache76DBF964[object["uuid"]] = object
     end
 
-    # NSCoreObjects::getOrNull(uuid)
+    # TodoCoreData::getOrNull(uuid)
     def self.getOrNull(uuid)
-        $NSCoreObjectsCache76DBF964[uuid]
+        $TodoCoreDataCache76DBF964[uuid]
     end
 
-    # NSCoreObjects::getSet(setid)
+    # TodoCoreData::getSet(setid)
     def self.getSet(setid)
-        db = SQLite3::Database.new(NSCoreObjects::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -55,18 +55,18 @@ class NSCoreObjects
         answer
     end
 
-    # NSCoreObjects::destroy(object)
+    # TodoCoreData::destroy(object)
     def self.destroy(object)
-        db = SQLite3::Database.new(NSCoreObjects::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
-        $NSCoreObjectsCache76DBF964.delete(object["uuid"])
+        $TodoCoreDataCache76DBF964.delete(object["uuid"])
         Ordinals::deleteRecord(object["uuid"])
     end
 end
 
-NSCoreObjects::getAllObjects().each{|object|
-    $NSCoreObjectsCache76DBF964[object["uuid"]] = object
+TodoCoreData::getAllObjects().each{|object|
+    $TodoCoreDataCache76DBF964[object["uuid"]] = object
 }

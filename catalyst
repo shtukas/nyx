@@ -6,6 +6,19 @@ require_relative "Implementations/Ruby/loader.rb"
 
 # -------------------------------------------------------------------------
 
-UIServices::main()
+system("clear")
+puts "Catalyst 🍨"
+options = [
+    "todo",
+    "nyx"
+]
+option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+exit if option.nil?
+if option == "todo" then
+    TodoUIServices::main()
+end
+if option == "nyx" then
+    NyxUserInterface::main()
+end
 
 # -------------------------------------------------------------------------

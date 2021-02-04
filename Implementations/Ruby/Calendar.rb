@@ -59,7 +59,7 @@ class Calendar
 
     # Calendar::calendarItems()
     def self.calendarItems()
-        NSCoreObjects::getSet("a2d0f91c-9cd5-4223-b633-21cd540aa5c9")
+        TodoCoreData::getSet("a2d0f91c-9cd5-4223-b633-21cd540aa5c9")
     end
 
     # Calendar::toString(item)
@@ -72,8 +72,8 @@ class Calendar
         loop {
             system("clear")
 
-            return if NSCoreObjects::getOrNull(item["uuid"]).nil?
-            item = NSCoreObjects::getOrNull(item["uuid"]) # could have been transmuted in the previous loop
+            return if TodoCoreData::getOrNull(item["uuid"]).nil?
+            item = TodoCoreData::getOrNull(item["uuid"]) # could have been transmuted in the previous loop
 
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
@@ -84,10 +84,10 @@ class Calendar
             })
             mx.item("update date".yellow, lambda { 
                 item["date"] = LucilleCore::askQuestionAnswerAsString("date: ")
-                NSCoreObjects::put(item)
+                TodoCoreData::put(item)
             })
             mx.item("destroy".yellow, lambda { 
-                NSCoreObjects::destroy(item)
+                TodoCoreData::destroy(item)
             })
             status = mx.promptAndRunSandbox()
             break if !status
@@ -120,7 +120,7 @@ class Calendar
             "date"     => LucilleCore::askQuestionAnswerAsString("date: "),
             "StandardDataCarrierUUID" => element["uuid"]
         }
-        NSCoreObjects::put(item)
+        TodoCoreData::put(item)
         NereidInterface::setOwnership(element["uuid"], "catalyst")
         item
     end

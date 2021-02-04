@@ -24,6 +24,7 @@ class NyxUserInterface
     def self.main()
         loop {
             system("clear")
+            puts "Nyx 🗺"
             ops = ["Search", "Issue New"]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
             break if operation.nil?
