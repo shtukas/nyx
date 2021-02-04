@@ -1,7 +1,21 @@
 
 class Calendar
 
-    # -----------------------------------------------------------------------
+    # Calendar::interactivelyIssueNewCalendarItemOrNull()
+    def self.interactivelyIssueNewCalendarItemOrNull()
+        element = NereidInterface::interactivelyIssueNewElementOrNull()
+        return if element.nil?
+        item = {
+            "uuid"     => SecureRandom.hex,
+            "nyxNxSet" => "a2d0f91c-9cd5-4223-b633-21cd540aa5c9",
+            "unixtime" => Time.new.to_i,
+            "date"     => LucilleCore::askQuestionAnswerAsString("date: "),
+            "StandardDataCarrierUUID" => element["uuid"]
+        }
+        TodoCoreData::put(item)
+        NereidInterface::setOwnership(element["uuid"], "catalyst")
+        item
+    end
 
     # Calendar::calendarItems()
     def self.calendarItems()
@@ -53,6 +67,25 @@ class Calendar
         }        
     end
 
+    # Calendar::dailyBreifing()
+    def self.dailyBreifing()
+        system("clear")
+        Calendar::calendarItems()
+            .sort{|i1, i2| i1["date"]<=>i2["date"] }
+            .each{|item|
+                puts Calendar::toString(item)
+            }
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Calendar::dailyBreifingIfNotDoneToday()
+    def self.dailyBreifingIfNotDoneToday()
+        # Every 20 hours
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("4624C5ED-7FC8-4D91-9B6A-13348FCE073B", 20*3600) then
+            Calendar::dailyBreifing()
+        end
+    end
+
     # Calendar::diveCalendarItems()
     def self.diveCalendarItems()
         loop {
@@ -66,22 +99,6 @@ class Calendar
             status = mx.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # Calendar::interactivelyIssueNewCalendarItemOrNull()
-    def self.interactivelyIssueNewCalendarItemOrNull()
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return if element.nil?
-        item = {
-            "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "a2d0f91c-9cd5-4223-b633-21cd540aa5c9",
-            "unixtime" => Time.new.to_i,
-            "date"     => LucilleCore::askQuestionAnswerAsString("date: "),
-            "StandardDataCarrierUUID" => element["uuid"]
-        }
-        TodoCoreData::put(item)
-        NereidInterface::setOwnership(element["uuid"], "catalyst")
-        item
     end
 
     # Calendar::main()
@@ -100,5 +117,3 @@ class Calendar
         }
     end
 end
-
-

@@ -212,6 +212,8 @@ class TodoUIServices
 
             Miscellaneous::importFromLucilleInbox()
 
+            Calendar::dailyBreifingIfNotDoneToday()
+
             items = getDisplayItemsNS16()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             originSize = items.size

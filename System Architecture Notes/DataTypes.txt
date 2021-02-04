@@ -12,8 +12,6 @@ NereidElement {
 
 Catalyst Todo Carrier Types: Waves, Quark, DxThread, CalendarItem, 
 
-Catalyst Todo secondary types: Ordinal Item, Arrows
-
 Catalyst Todo UI Types; DisplayItemsNS16
 
 ------------------------------------------------------------------------------
