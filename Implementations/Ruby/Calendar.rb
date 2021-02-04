@@ -1,60 +1,6 @@
 
 class Calendar
 
-    # Calendar::pathToCalendarItems()
-    def self.pathToCalendarItems()
-        "/Users/pascal/Galaxy/Calendar/Calendar"
-    end
-
-    # Calendar::today()
-    def self.today()
-        Time.new.to_s[0, 10]
-    end
-
-    # Calendar::dates()
-    def self.dates()
-        Dir.entries(Calendar::pathToCalendarItems())
-            .select{|filename| filename[-4, 4] == ".txt" }
-            .sort
-            .map{|filename| filename[0, 10] }
-    end
-
-    # Calendar::dateToFilepath(date)
-    def self.dateToFilepath(date)
-        "#{Calendar::pathToCalendarItems()}/#{date}.txt"
-    end
-
-    # Calendar::displayItemsNS16()
-    def self.displayItemsNS16()
-        [
-            Calendar::dates()
-                .select{|date| !KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") }
-                .map{|date| 
-                    filepath = Calendar::dateToFilepath(date)
-                    content = IO.read(filepath).strip
-                    {
-                        "uuid"     => "cba62d9e-cacc-4e95-a8f2-6cfb72efbf39:#{date}",
-                        "announce" => "🗓️  " + date + "\n" + content,
-                        "lambda"   => lambda {
-                            if LucilleCore::askQuestionAnswerAsBoolean("mark as reviewed ? ") then
-                                KeyValueStore::setFlagTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}")
-                            end
-                        }
-                    }
-                },
-
-            Calendar::calendarItems()
-                .sort{|i1, i2| i1["date"]<=>i2["date"] }
-                .map{|item|
-                    {
-                        "uuid"     => item["uuid"],
-                        "announce" => Calendar::toString(item),
-                        "lambda"   => lambda{}
-                    }
-                }
-        ].flatten
-    end
-
     # -----------------------------------------------------------------------
 
     # Calendar::calendarItems()
@@ -65,6 +11,19 @@ class Calendar
     # Calendar::toString(item)
     def self.toString(item)
         "[calendar] #{item["date"]} #{NereidInterface::toString(item["StandardDataCarrierUUID"])}"
+    end
+
+    # Calendar::displayItemsNS16()
+    def self.displayItemsNS16()
+        Calendar::calendarItems()
+            .sort{|i1, i2| i1["date"]<=>i2["date"] }
+            .map{|item|
+                {
+                    "uuid"     => item["uuid"],
+                    "announce" => Calendar::toString(item),
+                    "lambda"   => lambda{}
+                }
+            }
     end
 
     # Calendar::landing(item)
