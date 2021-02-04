@@ -4,7 +4,7 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getDxThreadStreamCardinal()
     def self.getDxThreadStreamCardinal()
-        TodoArrows::getTargetsForSource(DxThreads::getStream()).size
+        DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(DxThreads::getStream()).size
     end
 
     # DxThreadsUIUtils::getIdealDxThreadStreamCardinal()
@@ -60,7 +60,9 @@ class DxThreadsUIUtils
                 return
             end
             if input == ">nyx" then
-                system("nyx-landing '#{quark["nereiduuid"]}'")
+                item = NyxPatricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
+                return if item.nil?
+                NyxPatricia::dx7landing(item)
                 NereidInterface::setOwnership(element["uuid"], "nyx")
                 NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                 Quarks::destroyQuark(quark)
@@ -87,19 +89,6 @@ class DxThreadsUIUtils
         }
     end
 
-    # DxThreadsUIUtils::getDxThreadQuarkPairs(dxthread)
-    def self.getDxThreadQuarkPairs(dxthread)
-        TodoArrows::getTargetsForSource(dxthread)
-            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-            .first(100)
-            .map{|quark|
-                {
-                    "dxthread" => dxthread, 
-                    "quark"    => quark
-                }
-            }  
-    end
-
     # DxThreadsUIUtils::getDxThreadsUsingSelector(selector)
     def self.getDxThreadsUsingSelector(selector)
         DxThreads::getTopThreads()
@@ -111,14 +100,14 @@ class DxThreadsUIUtils
     def self.dxThreadsToDisplayItemsNS16(dxthreads)
         dxthreads
             .map{|dxthread|
-                getDxThreadQuarkPairs(dxthread).map{|item|
+                DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20).map{|quark|
                     {
-                        "uuid"                => "#{dxthread["uuid"]}:#{item["quark"]["uuid"]}",
-                        "announce"            => DxThreads::dxThreadAndTargetToString(item["dxthread"], item["quark"]),
-                        "lambda"              => lambda{ runDxThreadQuarkPair(item["dxthread"], item["quark"]) },
+                        "uuid"                => "#{dxthread["uuid"]}:#{quark["uuid"]}",
+                        "announce"            => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                        "lambda"              => lambda{ runDxThreadQuarkPair(dxthread, quark) },
                         "isDxThreadQuarkPair" => true,
                         "dxthread"            => dxthread,
-                        "quark"               => item["quark"]
+                        "quark"               => quark
                     }
                 }
             }
@@ -179,10 +168,6 @@ class TodoUIServices
 
             puts ""
 
-            ms.item("TodoGarbageCollection::run()",lambda { 
-                TodoGarbageCollection::run() 
-            })
-
             status = ms.promptAndRunSandbox()
             break if !status
         }
@@ -211,11 +196,11 @@ class TodoUIServices
 
             DxThreadsUIUtils::getLateStreamDisplayItemsNS16(),
 
-            VideoStream::displayItemsNS16(),
+            #VideoStream::displayItemsNS16(),
 
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
+            #DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
 
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
+            #DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
         ]
         .flatten
     end
@@ -352,7 +337,7 @@ class TodoUIServices
                     quark = item["quark"]
                     element = NereidInterface::getElementOrNull(quark["nereiduuid"])
                     next if element.nil?
-                    system("nyx-landing '#{quark["nereiduuid"]}'")
+                    NyxPatricia::dx7landing(element)
                     NereidInterface::setOwnership(element["uuid"], "nyx")
                     NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                     Quarks::destroyQuark(quark)
@@ -379,25 +364,9 @@ class TodoUIServices
     # TodoUIServices::main()
     def self.main()
 
-        Quarks::quarks().each{|quark|
-            if !TodoArrows::getSourcesForTarget(quark).any?{|parent| TodoPatricia::isDxThread(parent) } then
-                puts "Adding orphan quark to DxThread: #{TodoPatricia::toString(quark)}"
-                LucilleCore::pressEnterToContinue()
-                TodoPatricia::moveTargetToNewDxThread(quark, nil)
-            end
-        }
-
-        Ordinals::getOrdinalItems().each{|item|
-            if TodoCoreData::getOrNull(item["uuid"]).nil? then
-                puts "ordinals database garbage collection, unknown uuid: #{item["uuid"]}"
-                LucilleCore::pressEnterToContinue()
-                Ordinals::deleteRecord(item["uuid"])
-            end
-        }
-
         Thread.new {
             loop {
-                sleep 1800
+                sleep 120
                 if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
                     system("#{File.dirname(__FILE__)}/../../vienna-import")
                 end

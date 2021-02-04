@@ -60,7 +60,7 @@ class DxThreads
     # DxThreads::dxThreadAndTargetToString(dxthread, quark)
     def self.dxThreadAndTargetToString(dxthread, quark)
         uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
-        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}) #{TodoPatricia::toString(quark)}"
+        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{TodoPatricia::toString(quark)}"
     end
 
     # DxThreads::completionRatio(dxthread)
@@ -71,15 +71,13 @@ class DxThreads
     # DxThreads::determinePlacingOrdinalForThread(dxthread)
     def self.determinePlacingOrdinalForThread(dxthread)
         puts "Placement ordinal listing"
-        quarks = TodoArrows::getTargetsForSource(dxthread)
-                    .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                    .first(DxThreads::visualisationDepth())
+        quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
         quarks.each{|quark|
-            puts "[#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{TodoPatricia::toString(quark)}"
+            puts "[#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{TodoPatricia::toString(quark)}"
         }
         ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
         if ordinal == "" then
-            return Ordinals::computeNextOrdinal()
+            return DxThreadQuarkMapping::getNextOrdinal()
         end
         if ordinal == "low" then
             return TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
@@ -108,13 +106,9 @@ class DxThreads
 
             puts ""
 
-            quarks = TodoArrows::getTargetsForSource(dxthread)
-
-            quarks
-                .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                .first(showAllTargets ? quarks.size : DxThreads::visualisationDepth())
+            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, showAllTargets ? nil : DxThreads::visualisationDepth())
                 .each{|quark|
-                    mx.item("[quark] [#{"%8.3f" % Ordinals::getObjectOrdinal(quark)}] #{TodoPatricia::toString(quark)}", lambda { 
+                    mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{TodoPatricia::toString(quark)}", lambda { 
                         TodoPatricia::landing(quark) 
                     })
                 }
@@ -158,9 +152,7 @@ class DxThreads
             })
 
             mx.item("select and move quark".yellow, lambda { 
-                quarks = TodoArrows::getTargetsForSource(dxthread)
-                            .sort{|t1, t2| Ordinals::getObjectOrdinal(t1) <=> Ordinals::getObjectOrdinal(t2) }
-                            .first(DxThreads::visualisationDepth())
+                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
                 quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| TodoPatricia::toString(quark) })
                 return if quark.nil?
                 TodoPatricia::moveTargetToNewDxThread(quark, dxthread)

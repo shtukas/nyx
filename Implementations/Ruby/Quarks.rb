@@ -50,14 +50,14 @@ class Quarks
 
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
-            puts "ordinal: #{Ordinals::getObjectOrdinal(quark)}".yellow
+            puts "ordinal: #{DxThreadQuarkMapping::getQuarkOrdinal(quark)}".yellow
 
             puts ""
 
-            TodoArrows::getSourcesForTarget(quark).each{|source|
+            DxThreadQuarkMapping::getDxThreadsForQuark(quark).each{|dxthread|
                 mx.item(
-                    "source: #{TodoPatricia::toString(source)}",
-                    lambda { TodoPatricia::landing(source) }
+                    "source: #{DxThreads::toString(dxthread)}",
+                    lambda { DxThreads::landing(dxthread) }
                 )
             }
 
@@ -71,22 +71,22 @@ class Quarks
             mx.item("set/update ordinal".yellow, lambda {
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordnal: ")
                 return if ordinal == ""
-                Ordinals::setOrdinalForUUID(quark["uuid"], ordinal.to_f)
+                DxThreadQuarkMapping::setQuarkOrdinal(quark, ordinal.to_f)
             })
 
             mx.item("move to another DxThread".yellow, lambda {
-                parents = TodoArrows::getSourcesForTarget(quark)
-                if parents.size == 0 then
+                dxthreads = DxThreadQuarkMapping::getDxThreadsForQuark(quark)
+                if dxthreads.size == 0 then
                     TodoPatricia::moveTargetToNewDxThread(quark, nil)
                     return
                 end
-                if parents.size == 1 then
-                    TodoPatricia::moveTargetToNewDxThread(quark, parents[0])
+                if dxthreads.size == 1 then
+                    TodoPatricia::moveTargetToNewDxThread(quark, dxthreads[0])
                     return
                 end
-                parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda { |target| TodoPatricia::toString(target) })
-                return if parent.nil?
-                TodoPatricia::moveTargetToNewDxThread(quark, parent)
+                dxthread = LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
+                return if dxthread.nil?
+                TodoPatricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("edit".yellow, lambda {

@@ -212,8 +212,13 @@ class Miscellaneous
             TodoCoreData::put(quark)
 
             puts JSON.pretty_generate(quark)
-            TodoArrows::issueOrException(DxThreads::getStream(), quark)
-            TodoPatricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
+
+            dxthread = DxThreads::getStream()
+
+            ordinal = TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
+
+            DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+
             LucilleCore::removeFileSystemLocation(location)
         end
     end

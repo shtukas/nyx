@@ -56,8 +56,11 @@ loop {
     }
     TodoCoreData::put(quark)
 
+    dxthread = DxThreads::getStream()
 
-    TodoArrows::issueOrException(DxThreads::getStream(), quark)
-    TodoPatricia::set21stOrdinalForObjectAtDxThread(DxThreads::getStream(), quark)
+    ordinal = TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
+
+    DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+
     viennaLinkFeeder.done(link)
 }

@@ -136,7 +136,7 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DxThreads.rb"
-require_relative "Ordinals.rb"
+require_relative "DxThreadQuarkMapping.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "Quarks.rb"
 require_relative "Runner.rb"
@@ -147,9 +147,7 @@ require_relative "Runner.rb"
     Runner::stop(uuid) # null | Float
 =end
 require_relative "SectionsType0141.rb"
-require_relative "TodoArrows.rb"
 require_relative "TodoCoreData.rb"
-require_relative "TodoGarbageCollection.rb"
 require_relative "TodoPatricia.rb"
 require_relative "TodoUIServices.rb"
 require_relative "VideoStream.rb"

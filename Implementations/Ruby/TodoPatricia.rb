@@ -70,69 +70,26 @@ class TodoPatricia
     end
 
     # --------------------------------------------------
-    # User Interface (Part 1)
-
-    # TodoPatricia::selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-    def self.selectOneTargetOrNullDefaultToSingletonWithConfirmation(object)
-        targets = TodoArrows::getTargetsForSource(object)
-        if targets.size == 0 then
-            return nil
-        end
-        if targets.size == 1 then
-            if LucilleCore::askQuestionAnswerAsBoolean("selecting target: '#{TodoPatricia::toString(targets[0])}' confirm ? ", true) then
-                return targets[0]
-            end
-            return nil
-        end
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", targets, lambda{|target| TodoPatricia::toString(target) })
-    end
-
-    # TodoPatricia::selectOneTargetOfThisObjectOrNull(object)
-    def self.selectOneTargetOfThisObjectOrNull(object)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TodoArrows::getTargetsForSource(object), lambda{|t| TodoPatricia::toString(t) })
-    end
-
-    # TodoPatricia::selectZeroOrMoreTargetsFromThisObject(object)
-    def self.selectZeroOrMoreTargetsFromThisObject(object)
-        selected, _ = LucilleCore::selectZeroOrMore("target", [], TodoArrows::getTargetsForSource(object), lambda{|t| TodoPatricia::toString(t) })
-        selected
-    end
-
-    # TodoPatricia::selectOneParentOfThisObjectOrNull(object)
-    def self.selectOneParentOfThisObjectOrNull(object)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target", TodoArrows::getSourcesForTarget(object), lambda{|t| TodoPatricia::toString(t) })
-    end
-
-    # --------------------------------------------------
     # Architect
 
     # TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
     def self.computeNew21stOrdinalForDxThread(dxthread)
-        ordinals = TodoArrows::getTargetsForSource(dxthread)
-                    .map{|t| Ordinals::getObjectOrdinal(t) }
+        ordinals = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 22)
+                    .map{|quark| DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark) }
                     .sort
         ordinals = ordinals.drop(19).take(2)
         if ordinals.size < 2 then
-            return Ordinals::computeNextOrdinal()
+            return DxThreadQuarkMapping::getNextOrdinal()
         end
         (ordinals[0]+ordinals[1]).to_f/2
-    end
-
-    # TodoPatricia::set21stOrdinalForObjectAtDxThread(dxthread, object)
-    # This is called when an object is created by Todo-Inbox or vienna-import
-    def self.set21stOrdinalForObjectAtDxThread(dxthread, object)
-        ordinal = TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
-        Ordinals::setOrdinalForUUID(object["uuid"], ordinal)
     end
 
     # TodoPatricia::moveTargetToNewDxThread(quark, dxParentOpt or null)
     def self.moveTargetToNewDxThread(quark, dxParentOpt)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
-        TodoArrows::issueOrException(dx2, quark)
-        TodoArrows::unlink(dxParentOpt, quark) if dxParentOpt
         ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
-        Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
+        DxThreadQuarkMapping::insertRecord(dx2, quark, ordinal)
     end
 
     # TodoPatricia::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
@@ -140,10 +97,8 @@ class TodoPatricia
         quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
         dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
-        return nil if dxthread.nil?
-        TodoArrows::issueOrException(dxthread, quark)
         ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
-        Ordinals::setOrdinalForUUID(quark["uuid"], ordinal)
+        DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
         TodoPatricia::landing(quark)
         quark
     end

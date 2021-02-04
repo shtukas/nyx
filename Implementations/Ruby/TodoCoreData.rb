@@ -68,6 +68,5 @@ class TodoCoreData
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
-        Ordinals::deleteRecord(object["uuid"])
     end
 end
