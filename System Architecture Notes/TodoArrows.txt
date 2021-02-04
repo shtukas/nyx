@@ -1,6 +1,4 @@
-Arrows
-
-Arrows provide network topology between TodoCoreData, but are now not TodoCoreData themselves.
+TodoArrows
 
 They are currently stored in a SQLite database: Arrows.sqlite3
 

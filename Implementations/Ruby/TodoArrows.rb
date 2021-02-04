@@ -9,16 +9,16 @@ table: arrows
 
 =end
 
-class ArrowsDatabaseIO
+class TodoArrows
 
-    # ArrowsDatabaseIO::databaseFilepath()
+    # TodoArrows::databaseFilepath()
     def self.databaseFilepath()
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Arrows.sqlite3"
     end
 
-    # ArrowsDatabaseIO::arrows()
+    # TodoArrows::arrows()
     def self.arrows()
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -33,13 +33,10 @@ class ArrowsDatabaseIO
         answer
     end
 
-    # ------------------------------------------------
-    # Used by ArrowsInMemory
-
-    # ArrowsDatabaseIO::issueOrException(source, target)
+    # TodoArrows::issueOrException(source, target)
     def self.issueOrException(source, target)
         raise "[error: bc82b3b6]" if (source["uuid"] == target["uuid"])
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from arrows where _sourceuuid_=? and _targetuuid_=?", [source["uuid"], target["uuid"]]
@@ -47,26 +44,23 @@ class ArrowsDatabaseIO
         db.close
     end
 
-    # ArrowsDatabaseIO::destroy(sourceuuid, targetuuid)
+    # TodoArrows::destroy(sourceuuid, targetuuid)
     def self.destroy(sourceuuid, targetuuid)
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from arrows where _sourceuuid_=? and _targetuuid_=?", [sourceuuid, targetuuid]
         db.close
     end
 
-    # ArrowsDatabaseIO::unlink(source, target)
+    # TodoArrows::unlink(source, target)
     def self.unlink(source, target)
-        ArrowsDatabaseIO::destroy(source["uuid"], target["uuid"])
+        TodoArrows::destroy(source["uuid"], target["uuid"])
     end
 
-    # ------------------------------------------------
-    # Below no longer used due to ArrowsInMemory
-
-    # ArrowsDatabaseIO::exists?(source, target)
+    # TodoArrows::exists?(source, target)
     def self.exists?(source, target)
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -78,9 +72,9 @@ class ArrowsDatabaseIO
         answer
     end
 
-    # ArrowsDatabaseIO::getTargetUUIDsForSource(source)
+    # TodoArrows::getTargetUUIDsForSource(source)
     def self.getTargetUUIDsForSource(source)
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -92,14 +86,9 @@ class ArrowsDatabaseIO
         uuids.uniq
     end
 
-    # ArrowsDatabaseIO::getTargetsForSource(source)
-    def self.getTargetsForSource(source)
-        ArrowsDatabaseIO::getTargetUUIDsForSource(source).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
-    end
-
-    # ArrowsDatabaseIO::getSourcesForTarget(target)
-    def self.getSourcesForTarget(target)
-        db = SQLite3::Database.new(ArrowsDatabaseIO::databaseFilepath())
+    # TodoArrows::getSourceUUIDsForTarget(target)
+    def self.getSourceUUIDsForTarget(target)
+        db = SQLite3::Database.new(TodoArrows::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -108,135 +97,16 @@ class ArrowsDatabaseIO
             uuids << row["_sourceuuid_"]
         end
         db.close
-        uuids.uniq.map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
-    end
-end
-
-class ArrowsInMemory
-    def initialize()
-        @arrows = ArrowsDatabaseIO::arrows()
-        @objectToTargets = {}
-        @objectToSources = {}
-        @arrows.each{|arrow|
-            sourceuuid = arrow["sourceuuid"]
-            targetuuid = arrow["targetuuid"]
-            ensureTargetForSource(sourceuuid, targetuuid)
-            ensureSourceForTarget(sourceuuid, targetuuid)
-        }
-    end
-
-    def ensureTargetForSource(sourceuuid, targetuuid)
-        if @objectToTargets[sourceuuid].nil? then
-            @objectToTargets[sourceuuid] = [targetuuid]
-        else
-            @objectToTargets[sourceuuid] << targetuuid
-        end
-    end
-
-    def removeTargetForSource(sourceuuid, targetuuid)
-        retrn if @objectToTargets[sourceuuid].nil? 
-        @objectToTargets[sourceuuid].delete(targetuuid)
-    end
-
-    def ensureSourceForTarget(sourceuuid, targetuuid)
-        if @objectToSources[targetuuid].nil? then
-            @objectToSources[targetuuid] = [sourceuuid]
-        else
-            @objectToSources[targetuuid] << sourceuuid
-        end
-    end
-
-    def removeSourceForTarget(sourceuuid, targetuuid)
-        return if @objectToSources[targetuuid].nil? 
-        @objectToSources[targetuuid].delete(sourceuuid)
-    end
-
-    def issueOrException(source, target)
-        ArrowsDatabaseIO::issueOrException(source, target)
-        arrow = {
-            "sourceuuid" => source["uuid"],
-            "targetuuid" => target["uuid"]
-        }
-        @arrows << arrow
-        ensureTargetForSource(source["uuid"], target["uuid"])
-        ensureSourceForTarget(source["uuid"], target["uuid"])
-        arrow
-    end
-
-    def destroy(sourceuuid, targetuuid)
-        ArrowsDatabaseIO::destroy(sourceuuid, targetuuid)
-        @arrows = @arrows
-                    .reject{|arrow| (arrow["sourceuuid"] == sourceuuid) and (arrow["targetuuid"] == targetuuid) }
-        removeTargetForSource(sourceuuid, targetuuid)
-        removeSourceForTarget(sourceuuid, targetuuid)
-    end
-
-    def unlink(source, target)
-        destroy(source["uuid"], target["uuid"])
-    end
-
-    def exists?(source, target)
-        @arrows.any?{|arrow| (arrow["sourceuuid"] == source["uuid"]) and (arrow["targetuuid"] == target["uuid"]) }
-    end
-
-    def getTargetUUIDsForSource(source)
-        (@objectToTargets[source["uuid"]] || []).uniq
-    end
-
-    def getTargetsForSource(source)
-        getTargetUUIDsForSource(source).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
-    end
-
-    def getSourceUUIDsForTarget(target)
-        (@objectToSources[target["uuid"]] || []).uniq
-    end
-
-    def getSourcesForTarget(target)
-        getSourceUUIDsForTarget(target).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
-    end
-end
-
-$ArrowsInMemory099be9e4 = ArrowsInMemory.new()
-
-class TodoArrows
-
-    # TodoArrows::issueOrException(source, target)
-    def self.issueOrException(source, target)
-        $ArrowsInMemory099be9e4.issueOrException(source, target)
-    end
-
-    # TodoArrows::destroy(sourceuuid, targetuuid)
-    def self.destroy(sourceuuid, targetuuid)
-        $ArrowsInMemory099be9e4.destroy(sourceuuid, targetuuid)
-    end
-
-    # TodoArrows::unlink(source, target)
-    def self.unlink(source, target)
-        $ArrowsInMemory099be9e4.unlink(source, target)
-    end
-
-    # TodoArrows::exists?(source, target)
-    def self.exists?(source, target)
-        $ArrowsInMemory099be9e4.exists?(source, target)
-    end
-
-    # TodoArrows::getTargetUUIDsForSource(source)
-    def self.getTargetUUIDsForSource(source)
-        $ArrowsInMemory099be9e4.getTargetUUIDsForSource(source)
-    end
-
-    # TodoArrows::getSourceUUIDsForTarget(target)
-    def self.getSourceUUIDsForTarget(target)
-        $ArrowsInMemory099be9e4.getSourceUUIDsForTarget(target)
+        uuids.uniq
     end
 
     # TodoArrows::getTargetsForSource(source)
     def self.getTargetsForSource(source)
-        $ArrowsInMemory099be9e4.getTargetsForSource(source)
+        TodoArrows::getTargetUUIDsForSource(source).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 
     # TodoArrows::getSourcesForTarget(target)
     def self.getSourcesForTarget(target)
-        $ArrowsInMemory099be9e4.getSourcesForTarget(target)
+        TodoArrows::getSourceUUIDsForTarget(target).map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
     end
 end
