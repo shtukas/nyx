@@ -133,6 +133,8 @@ class TodoUIServices
 
             ms.item("Calendar", lambda { Calendar::main() })
 
+            ms.item("Anniversaries", lambda { Anniversaries::main() })
+
             ms.item("Waves", lambda { Waves::main() })
 
             ms.item("DxThreads", lambda { DxThreads::main() })
@@ -180,6 +182,11 @@ class TodoUIServices
                 item
             },
 
+            Anniversaries::displayItemsNS16().map{|item|
+                item["beforeTasks"] = true
+                item
+            },
+
             Waves::displayItemsNS16().map{|item|
                 item["beforeTasks"] = true
                 item
@@ -211,6 +218,8 @@ class TodoUIServices
             Miscellaneous::importFromLucilleInbox()
 
             Calendar::dailyBriefingIfNotDoneToday()
+
+            Anniversaries::dailyBriefingIfNotDoneToday()
 
             items = getDisplayItemsNS16()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

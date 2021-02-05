@@ -124,7 +124,7 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 # ------------------------------------------------------------
 
-require_relative "Miscellaneous.rb" # Should come first as containing core definitions
+require_relative "Anniversaries.rb"
 require_relative "BackupsMonitor.rb"
 require_relative "Bank.rb"
 =begin 
@@ -137,6 +137,7 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DxThreads.rb"
 require_relative "DxThreadQuarkMapping.rb"
+require_relative "Miscellaneous.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "Quarks.rb"
 require_relative "Runner.rb"

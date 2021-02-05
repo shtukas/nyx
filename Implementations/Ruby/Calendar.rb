@@ -19,8 +19,8 @@ class Calendar
         nil
     end
 
-    # Calendar::getItemsByUUID(uuid)
-    def self.getItemsByUUID(uuid)
+    # Calendar::getItemByUUID(uuid)
+    def self.getItemByUUID(uuid)
         db = SQLite3::Database.new(Calendar::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -107,8 +107,8 @@ class Calendar
         loop {
             system("clear")
 
-            return if Calendar::getItemsByUUID(item["uuid"]).nil?
-            item = Calendar::getItemsByUUID(item["uuid"]) # could have been transmuted in the previous loop
+            return if Calendar::getItemByUUID(item["uuid"]).nil?
+            item = Calendar::getItemByUUID(item["uuid"]) # could have been transmuted in the previous loop
 
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
