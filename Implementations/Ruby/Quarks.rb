@@ -19,7 +19,6 @@ class Quarks
             "nereiduuid" => element["uuid"]
         }
         TodoCoreData::put(quark)
-        NereidInterface::setOwnership(element["uuid"], "catalyst")
         quark
     end
 

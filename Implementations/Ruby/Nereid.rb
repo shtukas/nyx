@@ -11,10 +11,6 @@
     NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-
-    NereidInterface::setOwnership(uuid, owner)
-    NereidInterface::unsetOwnership(uuid, owner)
-    NereidInterface::getOwnersForUUID(uuid)
 =end
 
 # ---------------------------------------------------------------------------------------
@@ -330,57 +326,6 @@ class NereidDatabaseDataCarriers
     end
 end
 
-class NereidDatabaseOwnership
-
-    # NereidDatabaseOwnership::setOwnership(uuid, owner)
-    def self.setOwnership(uuid, owner)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _ownership_ where _uuid_=? and _owner_=?", [uuid, owner]
-        db.execute "insert into _ownership_ (_uuid_, _owner_) values (?, ?)", [uuid, owner]
-        db.commit 
-        db.close
-    end
-
-    # NereidDatabaseOwnership::unsetOwnership(uuid, owner)
-    def self.unsetOwnership(uuid, owner)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _ownership_ where _uuid_=? and _owner_=?", [uuid, owner]
-        db.commit 
-        db.close
-    end
-
-    # NereidDatabaseOwnership::getOwnersForUUID(uuid)
-    def self.getOwnersForUUID(uuid)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _ownership_ where _uuid_=?", [uuid]) do |row|
-            answer << row['_owner_']
-        end
-        db.close
-        answer
-    end
-
-    # NereidDatabaseOwnership::destroyRecordsForUUID(uuid)
-    def self.destroyRecordsForUUID(uuid)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _ownership_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
-    end
-end
-
 class NereidElizabeth
 
     def initialize()
@@ -593,7 +538,6 @@ class NereidInterface
 
             puts NereidInterface::toString(element)
             puts "uuid: #{element["uuid"]}".yellow
-            puts "owners: #{NereidInterface::getOwnersForUUID(element["uuid"]).join(", ")}".yellow
 
             puts ""
 
@@ -1077,23 +1021,7 @@ class NereidInterface
             end
         end
         NereidDatabaseDataCarriers::destroyElement(uuid)
-        NereidDatabaseOwnership::destroyRecordsForUUID(uuid)
         true
-    end
-
-    # NereidInterface::setOwnership(uuid, owner)
-    def self.setOwnership(uuid, owner)
-        NereidDatabaseOwnership::setOwnership(uuid, owner)
-    end
-
-    # NereidInterface::unsetOwnership(uuid, owner)
-    def self.unsetOwnership(uuid, owner)
-        NereidDatabaseOwnership::unsetOwnership(uuid, owner)
-    end
-
-    # NereidInterface::getOwnersForUUID(uuid)
-    def self.getOwnersForUUID(uuid)
-        NereidDatabaseOwnership::getOwnersForUUID(uuid)
     end
 end
 

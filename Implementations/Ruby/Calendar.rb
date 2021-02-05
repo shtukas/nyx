@@ -1,41 +1,103 @@
 
 class Calendar
 
+    # Calendar::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar-Items.sqlite3"
+    end
+
+    # Calendar::insertRecord(uuid, date, nereiduuid)
+    def self.insertRecord(uuid, date, nereiduuid)
+        db = SQLite3::Database.new(Calendar::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction
+        db.execute "delete from _calendaritems_ where _uuid_=?", [uuid]
+        db.execute "insert into _calendaritems_ (_uuid_, _date_, _nereiduuid_) values ( ?, ?, ? )", [uuid, date, nereiduuid]
+        db.commit
+        db.close
+        nil
+    end
+
+    # Calendar::getItemsByUUID(uuid)
+    def self.getItemsByUUID(uuid)
+        db = SQLite3::Database.new(Calendar::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _calendaritems_ where _uuid_=?", [uuid] ) do |row|
+            answer = {
+                "uuid"       => row['_uuid_'],
+                "date"       => row['_date_'],
+                "nereiduuid" => row['_nereiduuid_']
+            }
+        end
+        db.close
+        answer
+    end
+
+
+    # Calendar::getCalendarItems()
+    def self.getCalendarItems()
+        db = SQLite3::Database.new(Calendar::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _calendaritems_ order by _date_", [] ) do |row|
+            answer << {
+                "uuid"       => row['_uuid_'],
+                "date"       => row['_date_'],
+                "nereiduuid" => row['_nereiduuid_']
+            }
+        end
+        db.close
+        answer
+    end
+
+    # Calendar::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(Calendar::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction
+        db.execute "delete from _calendaritems_ where _uuid_=?", [uuid]
+        db.commit
+        db.close
+        nil
+    end
+
+    # -----------------------------------------------------------
+
     # Calendar::interactivelyIssueNewCalendarItemOrNull()
     def self.interactivelyIssueNewCalendarItemOrNull()
         element = NereidInterface::interactivelyIssueNewElementOrNull()
         return if element.nil?
-        item = {
-            "uuid"     => SecureRandom.hex,
-            "nyxNxSet" => "a2d0f91c-9cd5-4223-b633-21cd540aa5c9",
-            "unixtime" => Time.new.to_i,
-            "date"     => LucilleCore::askQuestionAnswerAsString("date: "),
-            "StandardDataCarrierUUID" => element["uuid"]
-        }
-        TodoCoreData::put(item)
-        NereidInterface::setOwnership(element["uuid"], "catalyst")
+        date = LucilleCore::askQuestionAnswerAsString("date: ")
+        Calendar::insertRecord(SecureRandom.hex, date, element["uuid"])
         item
-    end
-
-    # Calendar::calendarItems()
-    def self.calendarItems()
-        TodoCoreData::getSet("a2d0f91c-9cd5-4223-b633-21cd540aa5c9")
     end
 
     # Calendar::toString(item)
     def self.toString(item)
-        "[calendar] #{item["date"]} #{NereidInterface::toString(item["StandardDataCarrierUUID"])}"
+        "[calendar] #{item["date"]} #{NereidInterface::toString(item["nereiduuid"])}"
     end
 
     # Calendar::displayItemsNS16()
     def self.displayItemsNS16()
-        Calendar::calendarItems()
+        Calendar::getCalendarItems()
+            .select{|item| item["date"] <= Miscellaneous::today() }
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
             .map{|item|
                 {
                     "uuid"     => item["uuid"],
                     "announce" => Calendar::toString(item),
-                    "lambda"   => lambda{}
+                    "lambda"   => lambda{
+                        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                            Calendar::destroy(item["uuid"])
+                        end
+                    }
                 }
             }
     end
@@ -45,32 +107,31 @@ class Calendar
         loop {
             system("clear")
 
-            return if TodoCoreData::getOrNull(item["uuid"]).nil?
-            item = TodoCoreData::getOrNull(item["uuid"]) # could have been transmuted in the previous loop
+            return if Calendar::getItemsByUUID(item["uuid"]).nil?
+            item = Calendar::getItemsByUUID(item["uuid"]) # could have been transmuted in the previous loop
 
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
             mx.item("data carrier landing".yellow, lambda { 
-                element = NereidInterface::getElementOrNull(item["StandardDataCarrierUUID"])
-                return if element.nil?
-                NereidInterface::landing(element)
+                NereidInterface::landing(item["nereiduuid"])
             })
             mx.item("update date".yellow, lambda { 
-                item["date"] = LucilleCore::askQuestionAnswerAsString("date: ")
-                TodoCoreData::put(item)
+                date = LucilleCore::askQuestionAnswerAsString("date: ")
+                Calendar::insertRecord(item["uuid"], date, item["nereiduuid"])
             })
             mx.item("destroy".yellow, lambda { 
-                TodoCoreData::destroy(item)
+                Calendar::destroy(item["uuid"])
             })
             status = mx.promptAndRunSandbox()
             break if !status
         }        
     end
 
-    # Calendar::dailyBreifing()
-    def self.dailyBreifing()
+    # Calendar::dailyBriefing()
+    def self.dailyBriefing()
         system("clear")
-        Calendar::calendarItems()
+        puts "Calendar daily briefing"
+        Calendar::getCalendarItems()
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
             .each{|item|
                 puts Calendar::toString(item)
@@ -78,11 +139,11 @@ class Calendar
         LucilleCore::pressEnterToContinue()
     end
 
-    # Calendar::dailyBreifingIfNotDoneToday()
-    def self.dailyBreifingIfNotDoneToday()
-        # Every 20 hours
-        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("4624C5ED-7FC8-4D91-9B6A-13348FCE073B", 20*3600) then
-            Calendar::dailyBreifing()
+    # Calendar::dailyBriefingIfNotDoneToday()
+    def self.dailyBriefingIfNotDoneToday()
+        if !KeyValueStore::flagIsTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{Miscellaneous::today()}") then
+            Calendar::dailyBriefing()
+            KeyValueStore::setFlagTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{Miscellaneous::today()}")
         end
     end
 
@@ -91,11 +152,12 @@ class Calendar
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            Calendar::calendarItems().each{|item|
-                mx.item(Calendar::toString(item), lambda { 
-                    Calendar::landing(item)
-                })
-            }
+            Calendar::getCalendarItems()
+                .each{|item|
+                    mx.item(Calendar::toString(item), lambda {
+                        Calendar::landing(item)
+                    })
+                }
             status = mx.promptAndRunSandbox()
             break if !status
         }

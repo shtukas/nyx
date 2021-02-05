@@ -10,7 +10,6 @@ class NyxUserInterface
         if operation == "Nereid data carrier" then
             element = NereidInterface::interactivelyIssueNewElementOrNull()
             return if element.nil?
-            NereidInterface::setOwnership(element["uuid"], "nyx")
             NereidInterface::landing(element)
         end
         if operation == "Event" then

@@ -183,8 +183,4 @@ require_relative "Nereid.rb"
     NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-
-    NereidInterface::setOwnership(uuid, owner)
-    NereidInterface::unsetOwnership(uuid, owner)
-    NereidInterface::getOwnersForUUID(uuid)
 =end

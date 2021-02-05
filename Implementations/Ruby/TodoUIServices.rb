@@ -63,8 +63,6 @@ class DxThreadsUIUtils
                 item = NyxPatricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
                 return if item.nil?
                 NyxPatricia::dx7landing(item)
-                NereidInterface::setOwnership(element["uuid"], "nyx")
-                NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                 Quarks::destroyQuark(quark)
                 return
             end
@@ -212,7 +210,7 @@ class TodoUIServices
 
             Miscellaneous::importFromLucilleInbox()
 
-            Calendar::dailyBreifingIfNotDoneToday()
+            Calendar::dailyBriefingIfNotDoneToday()
 
             items = getDisplayItemsNS16()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -340,8 +338,6 @@ class TodoUIServices
                     element = NereidInterface::getElementOrNull(quark["nereiduuid"])
                     next if element.nil?
                     NyxPatricia::dx7landing(element)
-                    NereidInterface::setOwnership(element["uuid"], "nyx")
-                    NereidInterface::unsetOwnership(element["uuid"], "catalyst")
                     Quarks::destroyQuark(quark)
                     next
                 end

@@ -1,9 +1,10 @@
-CalendarItem are TodoCoreData and the first data carriers ever to use the newly introduced Nereid library. As such they are only a pointer to a SDC.
+
+Calendar-Items.sqlite3 
+
+> create table _calendaritems_ (_uuid_ text, _date_ text, _nereiduuid_ text);
 
 CalendarItem {
-    "uuid"                    : String
-    "nyxNxSet"                : "a2d0f91c-9cd5-4223-b633-21cd540aa5c9"
-    "unixtime"                : Float # Unixtime with decimals
-    "date"                    : String # Ex: "2021-01-21"
-    "StandardDataCarrierUUID" : String # UUID 
+    "uuid"       => String
+    "date"       => String
+    "nereiduuid" => String
 }
