@@ -178,6 +178,19 @@ class DxThreads
         }
     end
 
+    # DxThreads::getThreadsInCompletionRatioOrder()
+    def self.getThreadsInCompletionRatioOrder()
+        DxThreads::dxthreads()
+            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+    end
+
+    # DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
+    def self.getThreadsAvailableTodayInCompletionRatioOrder()
+        DxThreads::dxthreads()
+            .select{|dxthread| dxthread["noDisplayOnThisDay"] != Miscellaneous::today() } 
+            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+    end
+
     # DxThreads::main()
     def self.main()
         loop {
@@ -185,7 +198,7 @@ class DxThreads
 
             ms = LCoreMenuItemsNX1.new()
 
-            DxThreads::dxthreads().each{|dxthread|
+            DxThreads::getThreadsInCompletionRatioOrder().each{|dxthread|
                 ms.item(DxThreads::toStringWithAnalytics(dxthread), lambda { 
                     DxThreads::landing(dxthread)
                 })
@@ -200,14 +213,6 @@ class DxThreads
             status = ms.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # --------------------------------------------------------------
-
-    # DxThreads::getTopThreads()
-    def self.getTopThreads()
-        DxThreads::dxthreads()
-            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
     end
 end
 

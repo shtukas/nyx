@@ -89,8 +89,7 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getDxThreadsUsingSelector(selector)
     def self.getDxThreadsUsingSelector(selector)
-        DxThreads::getTopThreads()
-            .select{|dxthread| dxthread["noDisplayOnThisDay"] != Miscellaneous::today() }   
+        DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
             .select{|dxthread| selector.call(dxthread) }     
     end
 
@@ -98,7 +97,9 @@ class DxThreadsUIUtils
     def self.dxThreadsToDisplayItemsNS16(dxthreads)
         dxthreads
             .map{|dxthread|
-                DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20).map{|quark|
+                DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread)
+                .select{|quark| DoNotShowUntil::isVisible("#{dxthread["uuid"]}:#{quark["uuid"]}") }
+                .map{|quark|
                     {
                         "uuid"                => "#{dxthread["uuid"]}:#{quark["uuid"]}",
                         "announce"            => DxThreads::dxThreadAndTargetToString(dxthread, quark),
@@ -248,7 +249,7 @@ class TodoUIServices
                 puts "☀️  Stream done: #{(DxThreadsUIUtils::getStreamDoneRatio()*100).round(2)}%".yellow
                 vspaceleft = vspaceleft - 1
 
-                DxThreads::getTopThreads()
+                DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
                     .each{|dxthread|
                         puts "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}"
                         vspaceleft = vspaceleft - 1
@@ -301,6 +302,14 @@ class TodoUIServices
 
                 if input == ">>" then
                     items.shift
+                    next
+                end
+
+                if input.start_with?("++") and input.size > 2 then
+                    shiftInHours = input[2, input.size].to_f
+                    next if shiftInHours == 0
+                    item = items.shift
+                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
                     next
                 end
 
