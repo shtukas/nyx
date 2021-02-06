@@ -22,8 +22,7 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::getStreamDoneRatio()
     def self.getStreamDoneRatio()
-        done = 3728 - DxThreadsUIUtils::getDxThreadStreamCardinal()
-        done.to_f/(3728-100)
+        (3728 - DxThreadsUIUtils::getDxThreadStreamCardinal()).to_f/(3728-100)
     end
 
     # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
@@ -250,6 +249,7 @@ class TodoUIServices
                 vspaceleft = vspaceleft - 1
 
                 DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
+                    .select{|dxthread| DxThreads::completionRatio(dxthread) < 1 }
                     .each{|dxthread|
                         puts "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}"
                         vspaceleft = vspaceleft - 1

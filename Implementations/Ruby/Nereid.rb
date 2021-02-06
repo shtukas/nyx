@@ -728,6 +728,7 @@ class NereidInterface
             blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
             File.open(filepath, "w"){|f| f.write(blob) }
             puts "I have exported the file at '#{filepath}'"
+            system("open '#{filepath}'")
             puts "When done, you will enter the filename of the replacement"
             LucilleCore::pressEnterToContinue()
             filename = LucilleCore::askQuestionAnswerAsString("desktop filename (empty to abort): ")
