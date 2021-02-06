@@ -69,8 +69,7 @@ class Anniversaries
     # Anniversaries::databaseFilepath()
     def self.databaseFilepath()
         "#{Miscellaneous::catalystDataCenterFolderpath()}/Anniversaries.sqlite3"
-    end    
-
+    end
 
     # Anniversaries::insertRecord(uuid, startdate, repeatType, lastCelebrationDate, nereiduuid)
     def self.insertRecord(uuid, startdate, repeatType, lastCelebrationDate, nereiduuid)

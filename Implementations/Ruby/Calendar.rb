@@ -75,8 +75,9 @@ class Calendar
         element = NereidInterface::interactivelyIssueNewElementOrNull()
         return if element.nil?
         date = LucilleCore::askQuestionAnswerAsString("date: ")
-        Calendar::insertRecord(SecureRandom.hex, date, element["uuid"])
-        item
+        uuid = SecureRandom.hex
+        Calendar::insertRecord(uuid, date, element["uuid"])
+        Calendar::getItemByUUID(uuid)
     end
 
     # Calendar::toString(item)
