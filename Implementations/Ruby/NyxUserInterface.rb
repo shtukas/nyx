@@ -4,7 +4,7 @@
 class NyxUserInterface
     # NyxUserInterface::issueNew()
     def self.issueNew()
-        ops = ["Nereid Element", "Event", "Curated Listing"]
+        ops = ["Nereid Element", "TimelineItem", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
         if operation == "Nereid Element" then
@@ -12,15 +12,15 @@ class NyxUserInterface
             return if element.nil?
             NereidInterface::landing(element)
         end
-        if operation == "Event" then
-            event = Events::interactivelyIssueNewEventOrNull()
+        if operation == "TimelineItem" then
+            event = TimelineItems::interactivelyIssueNewTimelineItemOrNull()
             return if event.nil?
-            Events::landing(event)
+            TimelineItems::landing(event)
         end
         if operation == "Curated Listing" then
             listing = CuratedListings::interactivelyIssueNewCuratedListingOrNull()
             return if listing.nil?
-            Events::landing(listing)
+            TimelineItems::landing(listing)
         end
     end
 

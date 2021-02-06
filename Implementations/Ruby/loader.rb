@@ -159,7 +159,6 @@ require_relative "Waves.rb"
 
 require_relative "Commons.rb"
 require_relative "Classifiers.rb"
-require_relative "Events.rb"
 require_relative "NereidProxyOperator.rb"
 require_relative "NX141FSCacheElement.rb"
 require_relative "NyxArrows.rb"
@@ -169,6 +168,7 @@ require_relative "NyxGalaxyFinder.rb"
 require_relative "NyxPatricia.rb"
 require_relative "NyxUserInterface.rb"
 require_relative "NyxUtils.rb"
+require_relative "TimelineItems.rb"
 
 # ------------------------------------------------------------
 

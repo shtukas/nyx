@@ -13,8 +13,8 @@ class NyxPatricia
         element["nyxElementType"] == "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
     end
 
-    # NyxPatricia::isEvent(element)
-    def self.isEvent(element)
+    # NyxPatricia::isTimelineItem(element)
+    def self.isTimelineItem(element)
         element["nyxElementType"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
     end
 
@@ -38,7 +38,7 @@ class NyxPatricia
         item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
-        item = Events::getEventForUUIDOrNull(uuid)
+        item = TimelineItems::getTimelineItemForUUIDOrNull(uuid)
         return item if item
 
         item = Classifiers::getClassifierByUUIDOrNull(uuid)
@@ -58,8 +58,8 @@ class NyxPatricia
         if NyxPatricia::isNX141FSCacheElement(item) then
             return NX141FSCacheElement::toString(item)
         end
-        if NyxPatricia::isEvent(item) then
-            return Events::toString(item)
+        if NyxPatricia::isTimelineItem(item) then
+            return TimelineItems::toString(item)
         end
         if NyxPatricia::isClassifier(item) then
             return Classifiers::toString(item)
@@ -80,8 +80,8 @@ class NyxPatricia
             NX141FSCacheElement::access(item["nx141"])
             return
         end
-        if NyxPatricia::isEvent(item) then
-            Events::landing(item)
+        if NyxPatricia::isTimelineItem(item) then
+            TimelineItems::landing(item)
             return
         end
         if NyxPatricia::isClassifier(item) then
@@ -106,8 +106,8 @@ class NyxPatricia
             NX141FSCacheElement::landing(item)
             return
         end
-        if NyxPatricia::isEvent(item) then
-            Events::landing(item)
+        if NyxPatricia::isTimelineItem(item) then
+            TimelineItems::landing(item)
             return
         end
         if NyxPatricia::isClassifier(item) then
@@ -128,7 +128,7 @@ class NyxPatricia
     def self.architectDX7OrNull()
         dx7 = NyxPatricia::selectOneDX7OrNull()
         return dx7 if dx7
-        ops = ["Nereid Element", "Classifier", "Event", "Curated Listing"]
+        ops = ["Nereid Element", "Classifier", "TimelineItem", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
         if operation == "Nereid Element" then
@@ -137,8 +137,8 @@ class NyxPatricia
         if operation == "Classifier" then
             return Classifiers::interactivelyIssueNewClassifierOrNull()
         end
-        if operation == "Event" then
-            return Events::interactivelyIssueNewEventOrNull()
+        if operation == "TimelineItem" then
+            return TimelineItems::interactivelyIssueNewTimelineItemOrNull()
         end
         if operation == "Curated Listing" then
             return CuratedListings::interactivelyIssueNewCuratedListingOrNull()
@@ -188,7 +188,7 @@ class NyxPatricia
         searchItems = [
             NereidProxyOperator::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
-            Events::nyxSearchItems(),
+            TimelineItems::nyxSearchItems(),
             Classifiers::nyxSearchItems(),
             CuratedListings::nyxSearchItems()
         ]

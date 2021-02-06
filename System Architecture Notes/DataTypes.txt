@@ -28,7 +28,7 @@ Nyx Carrier Types
     }
 
 
-    Event {
+    TimelineItem {
         "uuid"           : String
         "nyxElementType" : "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
         "date"           : String
@@ -47,7 +47,7 @@ Nyx Carrier Types
         "description"    : String
     }
 
-DX7 = NereidElement | NX141FSCacheElement | Event | Classifier | CuratedListing
+DX7 = NereidElement | NX141FSCacheElement | TimelineItem | Classifier | CuratedListing
 
 DX7s can be parent and children of each other
 
@@ -70,7 +70,7 @@ NyxSearchItem
     {
         "announce"     : String
         "type"         : "event"
-        "payload"      : Event
+        "payload"      : TimelineItem
     }
 
     {

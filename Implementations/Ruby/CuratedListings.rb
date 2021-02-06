@@ -12,8 +12,8 @@ class CuratedListings
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _curatedlisting_ where _uuid_=?", [uuid]
-        db.execute "insert into _curatedlisting_ (_uuid_, _description_) values (?, ?)", [uuid, description]
+        db.execute "delete from _curatedlistings_ where _uuid_=?", [uuid]
+        db.execute "insert into _curatedlistings_ (_uuid_, _description_) values (?, ?)", [uuid, description]
         db.commit 
         db.close
     end
@@ -25,7 +25,7 @@ class CuratedListings
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _curatedlisting_", []) do |row|
+        db.execute("select * from _curatedlistings_", []) do |row|
             answer << {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "30991912-a9f2-426d-9b62-ec942c16c60a",
@@ -43,7 +43,7 @@ class CuratedListings
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute("select * from _curatedlisting_ where _uuid_=?", [uuid]) do |row|
+        db.execute("select * from _curatedlistings_ where _uuid_=?", [uuid]) do |row|
             answer = {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "30991912-a9f2-426d-9b62-ec942c16c60a",
@@ -60,7 +60,7 @@ class CuratedListings
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _curatedlisting_ where _uuid_=?", [curatedListing["uuid"]]
+        db.execute "delete from _curatedlistings_ where _uuid_=?", [curatedListing["uuid"]]
         db.commit 
         db.close
     end
