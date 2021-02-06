@@ -3,8 +3,6 @@
 
 class NyxPatricia
 
-    # -------------------------------------------------------
-
     # NyxPatricia::isNereidElement(element)
     def self.isNereidElement(element)
         !element["payload"].nil?
@@ -20,25 +18,35 @@ class NyxPatricia
         element["nyxElementType"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
     end
 
+    # NyxPatricia::isClassifier(item)
     def self.isClassifier(item)
         item["nyxElementType"] == "22f244eb-4925-49be-bce6-db58c2fb489a"
+    end
+
+    # NyxPatricia::isCuratedListing(item)
+    def self.isCuratedListing(item)
+        item["nyxElementType"] == "30991912-a9f2-426d-9b62-ec942c16c60a"
     end
 
     # -------------------------------------------------------
 
     # NyxPatricia::getDX7ByUUIDOrNull(uuid)
     def self.getDX7ByUUIDOrNull(uuid)
-        element = NereidInterface::getElementOrNull(uuid)
-        return element if element
+        item = NereidInterface::getElementOrNull(uuid)
+        return item if item
 
-        element = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
-        return element if element
+        item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
+        return item if item
 
-        element = Events::getEventForUUIDOrNull(uuid)
-        return element if element
+        item = Events::getEventForUUIDOrNull(uuid)
+        return item if item
 
-        element = Classifiers::getClassifierByUUIDOrNull(uuid)
-        return element if element
+        item = Classifiers::getClassifierByUUIDOrNull(uuid)
+        return item if item
+
+        item = CuratedListings::getCuratedListingByUUIDOrNull(uuid)
+        return item if item
+
         nil
     end
 
@@ -55,6 +63,9 @@ class NyxPatricia
         end
         if NyxPatricia::isClassifier(item) then
             return Classifiers::toString(item)
+        end
+        if NyxPatricia::isCuratedListing(item) then
+            return CuratedListings::toString(item)
         end
         raise "error: 4a902479-4a5e-4d05-9aa1-287f6a4f16d6"
     end
@@ -75,6 +86,10 @@ class NyxPatricia
         end
         if NyxPatricia::isClassifier(item) then
             Classifiers::landing(item)
+            return
+        end
+        if NyxPatricia::isCuratedListing(item) then
+            CuratedListings::landing(item)
             return
         end
         puts item
@@ -99,6 +114,10 @@ class NyxPatricia
             Classifiers::landing(item)
             return
         end
+        if NyxPatricia::isCuratedListing(item) then
+            CuratedListings::landing(item)
+            return
+        end
         puts item
         raise "[error: d7c85779-7085-4f04-aec8-ec019ccc1795]"
     end
@@ -109,18 +128,21 @@ class NyxPatricia
     def self.architectDX7OrNull()
         dx7 = NyxPatricia::selectOneDX7OrNull()
         return dx7 if dx7
-        ops = ["Classifier", "Event", "Nereid data carrier"]
+        ops = ["Nereid Element", "Classifier", "Event", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
-        if operation == "Nereid data carrier" then
+        if operation == "Nereid Element" then
             return NereidInterface::interactivelyIssueNewElementOrNull()
+        end
+        if operation == "Classifier" then
+            return Classifiers::interactivelyIssueNewClassifierOrNull()
         end
         if operation == "Event" then
             return Events::interactivelyIssueNewEventOrNull()
         end
-        if operation == "Classifier" then
-            return Classifiers::interactivelyIssueNewClassifierOrNull()
-        end        
+        if operation == "Curated Listing" then
+            return CuratedListings::interactivelyIssueNewCuratedListingOrNull()
+        end  
     end
 
     # NyxPatricia::architectAddParentForDX7(item)
@@ -164,10 +186,11 @@ class NyxPatricia
     # NyxPatricia::nyxSearchItemsAll()
     def self.nyxSearchItemsAll()
         searchItems = [
-            Classifiers::nyxSearchItems(),
             NereidProxyOperator::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
-            Events::nyxSearchItems()
+            Events::nyxSearchItems(),
+            Classifiers::nyxSearchItems(),
+            CuratedListings::nyxSearchItems()
         ]
         .flatten
     end

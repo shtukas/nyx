@@ -29,7 +29,6 @@ class Classifiers
             answer << {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
-                "itemuuid"       => row['_itemuuid_'],
                 "description"    => row['_description_']
             }
         end
@@ -48,26 +47,6 @@ class Classifiers
             answer = {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
-                "itemuuid"       => row['_itemuuid_'],
-                "description"    => row['_description_']
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Classifiers::getClassifiersForItem(itemuuid)
-    def self.getClassifiersForItem(itemuuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _classifiers_ where _itemuuid_=?", [itemuuid]) do |row|
-            answer << {
-                "uuid"           => row['_uuid_'],
-                "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
-                "itemuuid"       => row['_itemuuid_'],
                 "description"    => row['_description_']
             }
         end
@@ -86,7 +65,6 @@ class Classifiers
             answer << {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
-                "itemuuid"       => row['_itemuuid_'],
                 "description"    => row['_description_']
             }
         end

@@ -7,3 +7,4 @@ sqlite> create table _arrows_ (_source_ text, _target_ text);
 sqlite> create table _NX141Cache_ (_unixtime_ real, _nx141_ text, _description_ text);
 sqlite> create table _events_ (_uuid_ text, _date_ text, _description_ text);
 sqlite> create table _classifiers_ (_uuid_ text, _description_ text);
+sqlite> create table _curatedlisting_ (_uuid_ text, _description_ text);

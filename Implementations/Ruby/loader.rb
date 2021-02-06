@@ -132,6 +132,7 @@ require_relative "Bank.rb"
     Bank::value(uuid)
 =end
 require_relative "Calendar.rb"
+require_relative "CuratedListings.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)

@@ -10,7 +10,7 @@ NereidElement {
 
 ------------------------------------------------------------------------------
 
-Catalyst Todo Carrier Types: Waves, Quark, DxThread, CalendarItem, 
+Catalyst Todo Carrier Types: Waves, Quark, DxThread, CalendarItem, AnniversaryItem
 
 Catalyst Todo UI Types; DisplayItemsNS16
 
@@ -21,7 +21,7 @@ Nyx Carrier Types
     NereidElement
 
     NX141FSCacheElement {
-        "uuid"           : String 
+        "uuid"           : String
         "nyxElementType" : "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
         "nx141"          : String
         "description"    : String
@@ -29,24 +29,29 @@ Nyx Carrier Types
 
 
     Event {
-        "uuid"           : String 
+        "uuid"           : String
         "nyxElementType" : "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
         "date"           : String
-        "description"    : String   
+        "description"    : String
     }
 
     Classifier {
         "uuid"           : String
         "nyxElementType" : "22f244eb-4925-49be-bce6-db58c2fb489a"
-        "itemuuid"       : String # uuid of the target DX7
         "path"           : String
     }
 
-DX7 = NereidElement | NX141FSCacheElement | Event | Classifier
+    CuratedListing {
+        "uuid"           : String
+        "nyxElementType" : "30991912-a9f2-426d-9b62-ec942c16c60a"
+        "description"    : String
+    }
+
+DX7 = NereidElement | NX141FSCacheElement | Event | Classifier | CuratedListing
 
 DX7s can be parent and children of each other
 
-Nyx Secondary Types: NyxArrows
+Nyx Network Type: NyxArrows
 
 NyxSearchItem
 
@@ -72,4 +77,10 @@ NyxSearchItem
         "announce"     : String
         "type"         : "classifier"
         "payload"      : Classifier
+    }
+
+    {
+        "announce"     : String
+        "type"         : "curatedListing"
+        "payload"      : CuratedListing
     }

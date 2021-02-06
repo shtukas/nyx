@@ -4,10 +4,10 @@
 class NyxUserInterface
     # NyxUserInterface::issueNew()
     def self.issueNew()
-        ops = ["Nereid data carrier", "Event"]
+        ops = ["Nereid Element", "Event", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
-        if operation == "Nereid data carrier" then
+        if operation == "Nereid Element" then
             element = NereidInterface::interactivelyIssueNewElementOrNull()
             return if element.nil?
             NereidInterface::landing(element)
@@ -16,6 +16,11 @@ class NyxUserInterface
             event = Events::interactivelyIssueNewEventOrNull()
             return if event.nil?
             Events::landing(event)
+        end
+        if operation == "Curated Listing" then
+            listing = CuratedListings::interactivelyIssueNewCuratedListingOrNull()
+            return if listing.nil?
+            Events::landing(listing)
         end
     end
 
