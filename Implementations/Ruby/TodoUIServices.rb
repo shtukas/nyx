@@ -201,11 +201,11 @@ class TodoUIServices
 
             DxThreadsUIUtils::getLateStreamDisplayItemsNS16(),
 
-            #VideoStream::displayItemsNS16(),
+            VideoStream::displayItemsNS16(),
 
-            #DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
 
-            #DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
+            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
         ]
         .flatten
     end
