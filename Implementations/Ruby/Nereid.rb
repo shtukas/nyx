@@ -1025,4 +1025,51 @@ class NereidInterface
     end
 end
 
+class NereidFsck
 
+    # NereidFsck::check()
+    def self.check()
+        NereidInterface::getElements()
+            .each{|element|
+                if element["type"] == "Line" then
+                    puts "checking #{element["type"]}"
+                    next
+                end
+                if element["type"] == "Url" then
+                    puts "checking #{element["type"]}"
+                    next
+                end  
+                if element["type"] == "Text" then
+                    blob = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
+                    if blob.nil? then
+                        puts "Could not extract Text blob payload: #{element["payload"]}".red
+                        exit
+                    end
+                    next
+                end
+                if element["type"] == "ClickableType" then
+                    blob = NereidBinaryBlobsService::getBlobOrNull(element["payload"].split("|").first)
+                    if blob.nil? then
+                        puts "Could not extract ClickableType blob payload: #{element["payload"]}".red
+                        exit
+                    end
+                    next
+                end 
+                if element["type"] == "AionPoint" then
+                    puts "checking AionPoint: #{element["payload"]}"
+                    status = AionFsck::structureCheckAionHash(NereidElizabeth.new(), element["payload"])
+                    if !status then
+                        puts "Could not validate payload: #{element["payload"]}".red
+                        exit
+                    end
+                    next
+                end
+                if element["type"] == "FSUniqueString" then
+                    puts "checking #{element["type"]}"
+                    next
+                end  
+                puts element
+                raise "cfe763bb-013b-4ae6-a611-935dca16260b"
+            }
+    end
+end
