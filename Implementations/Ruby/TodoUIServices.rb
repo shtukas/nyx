@@ -281,7 +281,7 @@ class TodoUIServices
                 }
 
                 puts ""
-                puts "commands: [] (Tasks.txt) | .. (access top item) #default | >> (skip top item) | ++ | +datecode | select | / | nyx".yellow
+                puts "commands: [] (Tasks.txt) | .. (access top item) #default | >> (skip top item) | ++ | +datecode | select | start dx | / | nyx".yellow
                 if items[0] and items[0]["isDxThreadQuarkPair"] then
                     puts "commands: done (destroy quark and nereid element) | >nyx | >dxthread | landing".yellow
                 end
@@ -335,6 +335,19 @@ class TodoUIServices
                     next
                 end
 
+                if input == "start dx" then
+                    dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                    next if dxthread.nil?
+                    puts "running: #{DxThreads::toString(dxthread).green}"
+                    time1 = Time.new.to_f
+                    LucilleCore::pressEnterToContinue("Press enter to exit running thread: ")
+                    time2 = Time.new.to_f
+                    timespan = time2- time1
+                    puts "putting #{timespan} seconds"
+                    Bank::put(dxthread["uuid"], timespan)
+                    break
+                end
+
                 if input == "/" then
                     TodoUIServices::servicesFront()
                     break
@@ -344,6 +357,8 @@ class TodoUIServices
                     system("nyx")
                     break
                 end
+
+                # below, quark commands
 
                 if input == "done" then
                     item = items.shift
