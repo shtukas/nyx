@@ -3,7 +3,7 @@ class Calendar
 
     # Calendar::databaseFilepath()
     def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/Calendar-Items.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Calendar-Items.sqlite3"
     end
 
     # Calendar::insertRecord(uuid, date, nereiduuid)
@@ -88,7 +88,7 @@ class Calendar
     # Calendar::displayItemsNS16()
     def self.displayItemsNS16()
         Calendar::getCalendarItems()
-            .select{|item| item["date"] <= Miscellaneous::today() }
+            .select{|item| item["date"] <= CatalystUtils::today() }
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
             .map{|item|
                 {
@@ -142,9 +142,9 @@ class Calendar
 
     # Calendar::dailyBriefingIfNotDoneToday()
     def self.dailyBriefingIfNotDoneToday()
-        if !KeyValueStore::flagIsTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{Miscellaneous::today()}") then
+        if !KeyValueStore::flagIsTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{CatalystUtils::today()}") then
             Calendar::dailyBriefing()
-            KeyValueStore::setFlagTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{Miscellaneous::today()}")
+            KeyValueStore::setFlagTrue(nil, "ba0eb2ee-6003-457e-9379-4a7ad2af7fc3:#{CatalystUtils::today()}")
         end
     end
 

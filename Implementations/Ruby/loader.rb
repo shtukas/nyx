@@ -38,7 +38,7 @@ require 'colorize'
 
 # -----------------------------------------------------------------------
 # require 'curses' # I commented that out, thereby disabling 
-# Miscellaneous::ncurseSelection1410(lambda1, lambda2) ,
+# CatalystUtils::ncurseSelection1410(lambda1, lambda2) ,
 # when I introduced pepin 
 
 require 'pepin'
@@ -145,7 +145,6 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DxThreads.rb"
 require_relative "DxThreadQuarkMapping.rb"
-require_relative "Miscellaneous.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "Quarks.rb"
 require_relative "Runner.rb"
@@ -173,7 +172,7 @@ require_relative "NyxFilenameReaderWriter.rb"
 require_relative "NyxGalaxyFinder.rb"
 require_relative "Patricia.rb"
 require_relative "NyxUserInterface.rb"
-require_relative "NyxUtils.rb"
+require_relative "CatalystUtils.rb"
 require_relative "TimelineItems.rb"
 
 # ------------------------------------------------------------

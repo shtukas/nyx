@@ -8,7 +8,7 @@ class Classifiers
 
     # Classifiers::issueNewClassifier(uuid, description)
     def self.issueNewClassifier(uuid, description)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -20,7 +20,7 @@ class Classifiers
 
     # Classifiers::getClassifiers()
     def self.getClassifiers()
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -38,7 +38,7 @@ class Classifiers
 
     # Classifiers::getClassifierByUUIDOrNull(uuid)
     def self.getClassifierByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -56,7 +56,7 @@ class Classifiers
 
     # Classifiers::getClassifiersForDescription(description)
     def self.getClassifiersForDescription(description)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -74,7 +74,7 @@ class Classifiers
 
     # Classifiers::destroy(classifier)
     def self.destroy(classifier)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -117,7 +117,7 @@ class Classifiers
 
     # Classifiers::selectClassifierOrNull()
     def self.selectClassifierOrNull()
-        NyxUtils::selectOneOrNull(Classifiers::getClassifiers(), lambda{|classifier| Classifiers::toString(classifier)})
+        CatalystUtils::selectOneOrNull(Classifiers::getClassifiers(), lambda{|classifier| Classifiers::toString(classifier)})
     end
 
     # Classifiers::architectOrNull()

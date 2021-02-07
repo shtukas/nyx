@@ -274,7 +274,7 @@ class Patricia
 
     # Patricia::selectOneDX7OrNull()
     def self.selectOneDX7OrNull()
-        searchItem = NyxUtils::selectOneOrNull(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
+        searchItem = CatalystUtils::selectOneOrNull(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
         return nil if searchItem.nil?
         searchItem["payload"]
     end

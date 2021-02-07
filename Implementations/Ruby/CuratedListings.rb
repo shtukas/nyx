@@ -8,7 +8,7 @@ class CuratedListings
 
     # CuratedListings::issueNewCuratedListing(uuid, description)
     def self.issueNewCuratedListing(uuid, description)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -20,7 +20,7 @@ class CuratedListings
 
     # CuratedListings::getCuratedListings()
     def self.getCuratedListings()
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -38,7 +38,7 @@ class CuratedListings
 
     # CuratedListings::getCuratedListingByUUIDOrNull(uuid)
     def self.getCuratedListingByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -56,7 +56,7 @@ class CuratedListings
 
     # CuratedListings::destroy(curatedListing)
     def self.destroy(curatedListing)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -99,7 +99,7 @@ class CuratedListings
 
     # CuratedListings::selectCuratedListingOrNull()
     def self.selectCuratedListingOrNull()
-        NyxUtils::selectOneOrNull(CuratedListings::getCuratedListings(), lambda{|curatedListing| CuratedListings::toString(curatedListing)})
+        CatalystUtils::selectOneOrNull(CuratedListings::getCuratedListings(), lambda{|curatedListing| CuratedListings::toString(curatedListing)})
     end
 
     # CuratedListings::architectOrNull()

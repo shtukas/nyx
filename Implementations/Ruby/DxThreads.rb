@@ -120,12 +120,12 @@ class DxThreads
             })
 
             mx.item("no display on this day".yellow, lambda { 
-                dxthread["noDisplayOnThisDay"] = Miscellaneous::today()
+                dxthread["noDisplayOnThisDay"] = CatalystUtils::today()
                 TodoCoreData::put(dxthread)
             })
 
             mx.item("rename".yellow, lambda { 
-                name1 = Miscellaneous::editTextSynchronously(dxthread["name"]).strip
+                name1 = CatalystUtils::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
                 TodoCoreData::put(dxthread)
@@ -187,7 +187,7 @@ class DxThreads
     # DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
     def self.getThreadsAvailableTodayInCompletionRatioOrder()
         DxThreads::dxthreads()
-            .select{|dxthread| dxthread["noDisplayOnThisDay"] != Miscellaneous::today() } 
+            .select{|dxthread| dxthread["noDisplayOnThisDay"] != CatalystUtils::today() } 
             .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
     end
 

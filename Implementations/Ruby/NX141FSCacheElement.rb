@@ -8,7 +8,7 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::setDescription(nx141, description)
     def self.setDescription(nx141, description)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -20,7 +20,7 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::getStoredDescriptionOrNull(nx141)
     def self.getStoredDescriptionOrNull(nx141)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -34,7 +34,7 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::garbageCollection(horizon)
     def self.garbageCollection(horizon)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _NX141Cache_ where _unixtime_<?", [horizon]
@@ -43,7 +43,7 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::getCacheItems()
     def self.getCacheItems()
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -72,7 +72,7 @@ class NX141FSCacheElement
     # NX141FSCacheElement::destroy(element)
     def self.destroy(element)
         uuid = element["uuid"]
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 

@@ -39,7 +39,7 @@ class DxThreadsUIUtils
             thr = Thread.new {
                 sleep 3600
                 loop {
-                    Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                    CatalystUtils::onScreenNotification("Catalyst", "Item running for more than an hour")
                     sleep 60
                 }
             }
@@ -151,7 +151,7 @@ class TodoUIServices
                 return if uuid == ""
                 object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
-                object = Miscellaneous::editTextSynchronously(JSON.pretty_generate(object))
+                object = CatalystUtils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
                 TodoCoreData::put(object)
             })
@@ -214,7 +214,7 @@ class TodoUIServices
 
         loop {
 
-            Miscellaneous::importFromLucilleInbox()
+            CatalystUtils::importFromLucilleInbox()
 
             Calendar::dailyBriefingIfNotDoneToday()
 
@@ -239,7 +239,7 @@ class TodoUIServices
                     break
                 end
 
-                vspaceleft = Miscellaneous::screenHeight()-4
+                vspaceleft = CatalystUtils::screenHeight()-4
 
                 puts ""
                 vspaceleft = vspaceleft - 1
@@ -257,26 +257,26 @@ class TodoUIServices
                 items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
+                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
                 }
 
                 tasks = tasksFileContents.strip
                 if tasks.size > 0 then
                     text = tasks.lines.first(10).join.strip
                     puts text.green
-                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(text)
+                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(text)
                 end
 
                 items.take_while{|item| item["beforeTasks"]}.drop(5).each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
+                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
                 }
 
                 items.drop_while{|item| item["beforeTasks"]}.each{|item|
                     next if vspaceleft <= 0
                     puts item["announce"]
-                    vspaceleft = vspaceleft - Miscellaneous::verticalSize(item["announce"])
+                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
                 }
 
                 puts ""
@@ -289,7 +289,7 @@ class TodoUIServices
 
                 if input == "[]" then
                     next if tasksFileContents != IO.read(tasksFilepath)
-                    Miscellaneous::applyNextTransformationToFile(tasksFilepath)
+                    CatalystUtils::applyNextTransformationToFile(tasksFilepath)
                     next
                 end
 
@@ -320,14 +320,14 @@ class TodoUIServices
 
                 if input.start_with?('+') then
                     item = items.shift
-                    unixtime = Miscellaneous::codeToUnixtimeOrNull(input)
+                    unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
                     next if unixtime.nil?
                     DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                     next
                 end
 
                 if input == "select" then
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(Miscellaneous::screenHeight()-5), lambda{|item| item["announce"] })
+                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
                     next if item.nil?
                     item["lambda"].call()
                     items = items.reject{|i| i["announce"] == item["announce"] }

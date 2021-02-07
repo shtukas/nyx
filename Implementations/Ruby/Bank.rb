@@ -7,21 +7,21 @@ class Bank
 
     # Bank::databaseFilepath()
     def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
     end
 
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
         operationuuid = SecureRandom.hex
         unixtime = Time.new.to_i
-        date = Miscellaneous::today()
+        date = CatalystUtils::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
 
-        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{Miscellaneous::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Miscellaneous::today())
+        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{CatalystUtils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, CatalystUtils::today())
 
         nil
     end
@@ -113,7 +113,7 @@ class BankExtended
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))
-                    .map{|i| Miscellaneous::nDaysInTheFuture(-i) }
+                    .map{|i| CatalystUtils::nDaysInTheFuture(-i) }
                     .map{|date| Bank::valueAtDate(setuuid, date) }
                     .inject(0, :+)
         value.to_f/(daysCount*86400)

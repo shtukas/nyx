@@ -243,7 +243,7 @@ class NereidDatabaseDataCarriers
     # NereidDatabaseDataCarriers::destroy(element)
     def self.destroy(element)
         uuid = element["uuid"]
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -443,7 +443,7 @@ class NereidInterface
         if type == "Text" then
             uuid = SecureRandom.uuid
             unixtime = Time.new.to_i
-            text = NyxUtils::editTextSynchronously("")
+            text = CatalystUtils::editTextSynchronously("")
             payload = NereidBinaryBlobsService::putBlob(text)
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
@@ -839,7 +839,7 @@ class NereidInterface
         end
         if element["type"] == "Text" then
             text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-            text = NyxUtils::editTextSynchronously(text)
+            text = CatalystUtils::editTextSynchronously(text)
             element["payload"] = NereidBinaryBlobsService::putBlob(text)
 
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
@@ -935,7 +935,7 @@ class NereidInterface
         end
         if type == "Text" then
             element["type"] = "Text"
-            text = NyxUtils::editTextSynchronously("")
+            text = CatalystUtils::editTextSynchronously("")
             element["payload"] = NereidBinaryBlobsService::putBlob(text)
 
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")

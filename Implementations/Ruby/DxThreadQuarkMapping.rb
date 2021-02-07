@@ -4,7 +4,7 @@ class DxThreadQuarkMapping
 
     # DxThreadQuarkMapping::databaseFilepath()
     def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/DxThreadQuarkMapping.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/DxThreadQuarkMapping.sqlite3"
     end
 
     # DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)

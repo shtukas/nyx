@@ -18,7 +18,7 @@ class NereidProxyOperator
 
     # NereidProxyOperator::selectElementOrNull()
     def self.selectElementOrNull()
-        NyxUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
+        CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
     # NereidProxyOperator::architectOrNull()

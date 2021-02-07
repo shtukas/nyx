@@ -192,7 +192,7 @@ class Waves
         case element["type"]
         when "Line"
         when "Url"
-            Miscellaneous::openUrl(element["payload"])
+            CatalystUtils::openUrl(element["payload"])
         else
             NereidInterface::access(wave["nereiduuid"])
         end
@@ -239,7 +239,7 @@ class Waves
             menuitems.item("done",lambda { Waves::performDone(wave) })
 
             menuitems.item("description", lambda { 
-                description = Miscellaneous::editTextSynchronously(wave["description"])
+                description = CatalystUtils::editTextSynchronously(wave["description"])
                 return if description.nil?
                 wave["description"] = description
                 TodoCoreData::put(wave)

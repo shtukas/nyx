@@ -68,7 +68,7 @@ class Anniversaries
 
     # Anniversaries::databaseFilepath()
     def self.databaseFilepath()
-        "#{Miscellaneous::catalystDataCenterFolderpath()}/Anniversaries.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Anniversaries.sqlite3"
     end
 
     # Anniversaries::insertRecord(uuid, startdate, repeatType, lastCelebrationDate, nereiduuid)
@@ -157,7 +157,7 @@ class Anniversaries
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
-            lastCelebrationDate = Miscellaneous::today()
+            lastCelebrationDate = CatalystUtils::today()
         end
 
         item = {
@@ -186,7 +186,7 @@ class Anniversaries
     # Anniversaries::displayItemsNS16()
     def self.displayItemsNS16()
         Anniversaries::getItems()
-            .select{|item| Anniversaries::itemNextDateOrdinal(item)[0] <= Miscellaneous::today() }
+            .select{|item| Anniversaries::itemNextDateOrdinal(item)[0] <= CatalystUtils::today() }
             .map{|item|
                 {
                     "uuid"     => item["uuid"],
@@ -213,9 +213,9 @@ class Anniversaries
 
     # Anniversaries::dailyBriefingIfNotDoneToday()
     def self.dailyBriefingIfNotDoneToday()
-        if !KeyValueStore::flagIsTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{Miscellaneous::today()}") then
+        if !KeyValueStore::flagIsTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{CatalystUtils::today()}") then
             Anniversaries::dailyBriefing()
-            KeyValueStore::setFlagTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{Miscellaneous::today()}")
+            KeyValueStore::setFlagTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{CatalystUtils::today()}")
         end
     end
 

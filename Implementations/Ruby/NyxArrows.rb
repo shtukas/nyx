@@ -5,7 +5,7 @@ class NyxArrows
 
     # NyxArrows::issueArrow(sourceuuid, targetuuid)
     def self.issueArrow(sourceuuid, targetuuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -17,7 +17,7 @@ class NyxArrows
 
     # NyxArrows::deleteArrow(sourceuuid, targetuuid)
     def self.deleteArrow(sourceuuid, targetuuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _arrows_ where _source_=? and _target_=?", [sourceuuid, targetuuid]
@@ -26,7 +26,7 @@ class NyxArrows
 
     # NyxArrows::getChildrenUUIDs(uuid)
     def self.getChildrenUUIDs(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -40,7 +40,7 @@ class NyxArrows
 
     # NyxArrows::getParentsUUIDs(uuid)
     def self.getParentsUUIDs(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -54,7 +54,7 @@ class NyxArrows
 
     # NyxArrows::removeElementOccurences(uuid)
     def self.removeElementOccurences(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _arrows_ where _source_=?", [uuid]

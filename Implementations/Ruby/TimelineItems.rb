@@ -19,7 +19,7 @@ class TimelineItems
 
     # TimelineItems::issueTimelineItem(uuid, date, description)
     def self.issueTimelineItem(uuid, date, description)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -31,7 +31,7 @@ class TimelineItems
 
     # TimelineItems::getTimelineItems()
     def self.getTimelineItems()
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -50,7 +50,7 @@ class TimelineItems
 
     # TimelineItems::getTimelineItemForUUIDOrNull(uuid)
     def self.getTimelineItemForUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -85,7 +85,7 @@ class TimelineItems
 
     # TimelineItems::destroy(uuid)
     def self.destroy(uuid)
-        db = SQLite3::Database.new(Commons::databaseFilepath())
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -114,7 +114,7 @@ class TimelineItems
 
     # TimelineItems::selectExistingTimelineItemOrNull()
     def self.selectExistingTimelineItemOrNull()
-        NyxUtils::selectOneOrNull(TimelineItems::getTimelineItems().sort{|e1,v2| e1["date"] <=> e2["date"] }, lambda{|event| TimelineItems::toString(event) })
+        CatalystUtils::selectOneOrNull(TimelineItems::getTimelineItems().sort{|e1,v2| e1["date"] <=> e2["date"] }, lambda{|event| TimelineItems::toString(event) })
     end
 
     # TimelineItems::landing(event)

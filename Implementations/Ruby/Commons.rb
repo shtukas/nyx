@@ -1,8 +1,7 @@
 
 class Commons
-
-    # Commons::databaseFilepath()
-    def self.databaseFilepath()
+    # Commons::nyxDatabaseFilepath()
+    def self.nyxDatabaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx.sqlite3"
     end
 end
