@@ -132,37 +132,37 @@ class TimelineItems
             puts ""
 
             NyxArrows::getParentsUUIDs(event["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             NyxArrows::getChildrenUUIDs(event["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             puts ""
 
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                NyxPatricia::architectAddParentForDX7(event)
+                Patricia::architectAddParentForDX7(event)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                NyxPatricia::architectAddChildForDX7(event)
+                Patricia::architectAddChildForDX7(event)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneParentFromDX7(event)
+                Patricia::selectAndRemoveOneParentFromDX7(event)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneChildFromDX7(event)
+                Patricia::selectAndRemoveOneChildFromDX7(event)
             })
 
             mx.item("destroy".yellow, lambda { 

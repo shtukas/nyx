@@ -33,7 +33,7 @@ class NyxUserInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
             break if operation.nil?
             if operation == "Search" then
-                NyxPatricia::generalSearchLoop()
+                Patricia::generalSearchLoop()
             end
             if operation == "Issue New" then
                 NyxUserInterface::issueNew()

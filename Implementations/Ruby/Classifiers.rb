@@ -144,37 +144,37 @@ class Classifiers
             puts ""
 
             NyxArrows::getParentsUUIDs(classifier["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             NyxArrows::getChildrenUUIDs(classifier["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             puts ""
 
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                NyxPatricia::architectAddParentForDX7(classifier)
+                Patricia::architectAddParentForDX7(classifier)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                NyxPatricia::architectAddChildForDX7(classifier)
+                Patricia::architectAddChildForDX7(classifier)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneParentFromDX7(classifier)
+                Patricia::selectAndRemoveOneParentFromDX7(classifier)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneChildFromDX7(classifier)
+                Patricia::selectAndRemoveOneChildFromDX7(classifier)
             })
 
             mx.item("destroy".yellow, lambda { 

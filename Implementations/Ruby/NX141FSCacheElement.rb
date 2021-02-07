@@ -174,7 +174,7 @@ class NX141FSCacheElement
 
             puts ""
 
-            if NyxPatricia::isNX141FSCacheElement(element) then
+            if Patricia::isNX141FSCacheElement(element) then
                 puts "location: #{NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])}".yellow
             end
 
@@ -197,46 +197,46 @@ class NX141FSCacheElement
             end
 
             NyxArrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             NyxArrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
-                e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
+                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
-                    NyxPatricia::landing(e1)
+                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
+                    Patricia::landing(e1)
                 })
             }
 
             puts ""
 
             mx.item("access".yellow, lambda { 
-                NyxPatricia::dx7access(element)
+                Patricia::dx7access(element)
             })
 
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                NyxPatricia::architectAddParentForDX7(element)
+                Patricia::architectAddParentForDX7(element)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                NyxPatricia::architectAddChildForDX7(element)
+                Patricia::architectAddChildForDX7(element)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneParentFromDX7(element)
+                Patricia::selectAndRemoveOneParentFromDX7(element)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                NyxPatricia::selectAndRemoveOneChildFromDX7(element)
+                Patricia::selectAndRemoveOneChildFromDX7(element)
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    if NyxPatricia::isNX141FSCacheElement(element) then
+                    if Patricia::isNX141FSCacheElement(element) then
                         location = NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
                         puts "This is a NX141FSCacheElement. You need to delete the file on disk (#{location})"
                         LucilleCore::pressEnterToContinue()

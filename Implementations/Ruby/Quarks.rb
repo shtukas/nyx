@@ -76,16 +76,16 @@ class Quarks
             mx.item("move to another DxThread".yellow, lambda {
                 dxthreads = DxThreadQuarkMapping::getDxThreadsForQuark(quark)
                 if dxthreads.size == 0 then
-                    NyxPatricia::moveTargetToNewDxThread(quark, nil)
+                    Patricia::moveTargetToNewDxThread(quark, nil)
                     return
                 end
                 if dxthreads.size == 1 then
-                    NyxPatricia::moveTargetToNewDxThread(quark, dxthreads[0])
+                    Patricia::moveTargetToNewDxThread(quark, dxthreads[0])
                     return
                 end
                 dxthread = LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
                 return if dxthread.nil?
-                NyxPatricia::moveTargetToNewDxThread(quark, dxthread)
+                Patricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("edit".yellow, lambda {

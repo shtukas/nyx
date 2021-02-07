@@ -215,7 +215,7 @@ class Miscellaneous
 
             dxthread = DxThreads::getStream()
 
-            ordinal = NyxPatricia::computeNew21stOrdinalForDxThread(dxthread)
+            ordinal = Patricia::computeNew21stOrdinalForDxThread(dxthread)
 
             DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
 
