@@ -18,8 +18,8 @@ class Patricia
         element["nyxElementType"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
     end
 
-    # Patricia::isClassifier(item)
-    def self.isClassifier(item)
+    # Patricia::isTag(item)
+    def self.isTag(item)
         item["nyxElementType"] == "22f244eb-4925-49be-bce6-db58c2fb489a"
     end
 
@@ -56,7 +56,7 @@ class Patricia
         item = TimelineItems::getTimelineItemForUUIDOrNull(uuid)
         return item if item
 
-        item = Classifiers::getClassifierByUUIDOrNull(uuid)
+        item = Tags::getTagByUUIDOrNull(uuid)
         return item if item
 
         item = CuratedListings::getCuratedListingByUUIDOrNull(uuid)
@@ -76,8 +76,8 @@ class Patricia
         if Patricia::isTimelineItem(item) then
             return TimelineItems::toString(item)
         end
-        if Patricia::isClassifier(item) then
-            return Classifiers::toString(item)
+        if Patricia::isTag(item) then
+            return Tags::toString(item)
         end
         if Patricia::isCuratedListing(item) then
             return CuratedListings::toString(item)
@@ -109,8 +109,8 @@ class Patricia
             TimelineItems::landing(item)
             return
         end
-        if Patricia::isClassifier(item) then
-            Classifiers::landing(item)
+        if Patricia::isTag(item) then
+            Tags::landing(item)
             return
         end
         if Patricia::isCuratedListing(item) then
@@ -135,8 +135,8 @@ class Patricia
             TimelineItems::landing(item)
             return
         end
-        if Patricia::isClassifier(item) then
-            Classifiers::landing(item)
+        if Patricia::isTag(item) then
+            Tags::landing(item)
             return
         end
         if Patricia::isCuratedListing(item) then
@@ -174,14 +174,14 @@ class Patricia
     def self.architectDX7OrNull()
         dx7 = Patricia::selectOneDX7OrNull()
         return dx7 if dx7
-        ops = ["Nereid Element", "Classifier", "TimelineItem", "Curated Listing"]
+        ops = ["Nereid Element", "Tag", "TimelineItem", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
         if operation == "Nereid Element" then
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
-        if operation == "Classifier" then
-            return Classifiers::interactivelyIssueNewClassifierOrNull()
+        if operation == "Tag" then
+            return Tags::interactivelyIssueNewTagOrNull()
         end
         if operation == "TimelineItem" then
             return TimelineItems::interactivelyIssueNewTimelineItemOrNull()
@@ -266,7 +266,7 @@ class Patricia
             M92::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
             TimelineItems::nyxSearchItems(),
-            Classifiers::nyxSearchItems(),
+            Tags::nyxSearchItems(),
             CuratedListings::nyxSearchItems()
         ]
         .flatten

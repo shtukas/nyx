@@ -10,13 +10,13 @@ NereidElement {
 
 ------------------------------------------------------------------------------
 
-Catalyst Todo Carrier Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
+Todo Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
 
-Catalyst Todo UI Types; DisplayItemsNS16
+Todo UI Types; DisplayItemsNS16
 
 ------------------------------------------------------------------------------
 
-Nyx Carrier Types
+Nyx Carriers
 
     M92
 
@@ -35,10 +35,10 @@ Nyx Carrier Types
         "description"    : String
     }
 
-    Classifier {
+    Tag {
         "uuid"           : String
         "nyxElementType" : "22f244eb-4925-49be-bce6-db58c2fb489a"
-        "path"           : String
+        "description"    : String
     }
 
     CuratedListing {
@@ -47,11 +47,9 @@ Nyx Carrier Types
         "description"    : String
     }
 
-DX7 = M92 | NX141FSCacheElement | TimelineItem | Classifier | CuratedListing
+DX7 = M92 | NX141FSCacheElement | TimelineItem | Tag | CuratedListing # (DX7s can be parent and children of each other)
 
-DX7s can be parent and children of each other
-
-Nyx Network Type: Arrows
+Network: Arrows
 
 NyxSearchItem
 
@@ -75,8 +73,8 @@ NyxSearchItem
 
     {
         "announce"     : String
-        "type"         : "classifier"
-        "payload"      : Classifier
+        "type"         : "tag"
+        "payload"      : Tag
     }
 
     {

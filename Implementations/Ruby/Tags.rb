@@ -1,31 +1,31 @@
 
 # encoding: UTF-8
 
-class Classifiers
+class Tags
 
     # ------------------------------------------------
     # Database
 
-    # Classifiers::issueNewClassifier(uuid, description)
-    def self.issueNewClassifier(uuid, description)
+    # Tags::issueNewTag(uuid, description)
+    def self.issueNewTag(uuid, description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _classifiers_ where _uuid_=?", [uuid]
-        db.execute "insert into _classifiers_ (_uuid_, _description_) values (?,?)", [uuid, description]
+        db.execute "delete from _tags_ where _uuid_=?", [uuid]
+        db.execute "insert into _tags_ (_uuid_, _description_) values (?,?)", [uuid, description]
         db.commit 
         db.close
     end
 
-    # Classifiers::getClassifiers()
-    def self.getClassifiers()
+    # Tags::getTags()
+    def self.getTags()
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _classifiers_", []) do |row|
+        db.execute("select * from _tags_", []) do |row|
             answer << {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
@@ -36,14 +36,14 @@ class Classifiers
         answer
     end
 
-    # Classifiers::getClassifierByUUIDOrNull(uuid)
-    def self.getClassifierByUUIDOrNull(uuid)
+    # Tags::getTagByUUIDOrNull(uuid)
+    def self.getTagByUUIDOrNull(uuid)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute("select * from _classifiers_ where _uuid_=?", [uuid]) do |row|
+        db.execute("select * from _tags_ where _uuid_=?", [uuid]) do |row|
             answer = {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
@@ -54,14 +54,14 @@ class Classifiers
         answer
     end
 
-    # Classifiers::getClassifiersForDescription(description)
-    def self.getClassifiersForDescription(description)
+    # Tags::getTagsForDescription(description)
+    def self.getTagsForDescription(description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _classifiers_ where _description_=?", [description]) do |row|
+        db.execute("select * from _tags_ where _description_=?", [description]) do |row|
             answer << {
                 "uuid"           => row['_uuid_'],
                 "nyxElementType" => "22f244eb-4925-49be-bce6-db58c2fb489a",
@@ -72,42 +72,42 @@ class Classifiers
         answer
     end
 
-    # Classifiers::destroy(classifier)
-    def self.destroy(classifier)
+    # Tags::destroy(tags)
+    def self.destroy(tags)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _classifiers_ where _uuid_=?", [classifier["uuid"]]
+        db.execute "delete from _tags_ where _uuid_=?", [tags["uuid"]]
         db.commit 
         db.close
     end
     
     # ------------------------------------------------
 
-    # Classifiers::interactivelyIssueNewClassifierOrNull()
-    def self.interactivelyIssueNewClassifierOrNull()
+    # Tags::interactivelyIssueNewTagOrNull()
+    def self.interactivelyIssueNewTagOrNull()
         uuid = SecureRandom.hex
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
-        Classifiers::issueNewClassifier(uuid, description)
-        Classifiers::getClassifierByUUIDOrNull(uuid)
+        Tags::issueNewTag(uuid, description)
+        Tags::getTagByUUIDOrNull(uuid)
     end
 
-    # Classifiers::toString(classifier)
-    def self.toString(classifier)
-        "[classifier] #{classifier["description"]}"
+    # Tags::toString(tags)
+    def self.toString(tags)
+        "[tags] #{tags["description"]}"
     end
 
-    # Classifiers::nyxSearchItems()
+    # Tags::nyxSearchItems()
     def self.nyxSearchItems()
-        Classifiers::getClassifiers()
-            .map{|classifier|
+        Tags::getTags()
+            .map{|tag|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce"     => "#{volatileuuid} #{Classifiers::toString(classifier)}",
-                    "type"         => "classifier",
-                    "payload"      => classifier
+                    "announce"     => "#{volatileuuid} #{Tags::toString(tag)}",
+                    "type"         => "tag",
+                    "payload"      => tag
                 }
             }
     end
@@ -115,20 +115,20 @@ class Classifiers
     # ------------------------------------------------
     # Interface
 
-    # Classifiers::selectClassifierOrNull()
-    def self.selectClassifierOrNull()
-        CatalystUtils::selectOneOrNull(Classifiers::getClassifiers(), lambda{|classifier| Classifiers::toString(classifier)})
+    # Tags::selectTagOrNull()
+    def self.selectTagOrNull()
+        CatalystUtils::selectOneOrNull(Tags::getTags(), lambda{|tags| Tags::toString(tags)})
     end
 
-    # Classifiers::architectOrNull()
+    # Tags::architectOrNull()
     def self.architectOrNull()
-        classifier = Classifiers::selectClassifierOrNull()
-        return classifier if classifier
-        Classifiers::interactivelyIssueNewClassifierOrNull()
+        tags = Tags::selectTagOrNull()
+        return tags if tags
+        Tags::interactivelyIssueNewTagOrNull()
     end
 
-    # Classifiers::landing(classifier)
-    def self.landing(classifier)
+    # Tags::landing(tags)
+    def self.landing(tags)
 
         locpaddingsize = 11
 
@@ -136,14 +136,14 @@ class Classifiers
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            return if Classifiers::getClassifierByUUIDOrNull(classifier["uuid"]).nil? # could have been destroyed at the previous run
+            return if Tags::getTagByUUIDOrNull(tags["uuid"]).nil? # could have been destroyed at the previous run
 
-            puts Classifiers::toString(classifier).green
-            puts "uuid: #{classifier["uuid"]}".yellow
+            puts Tags::toString(tags).green
+            puts "uuid: #{tags["uuid"]}".yellow
 
             puts ""
 
-            Arrows::getParentsUUIDs(classifier["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(tags["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -151,7 +151,7 @@ class Classifiers
                 })
             }
 
-            Arrows::getChildrenUUIDs(classifier["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(tags["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -162,24 +162,24 @@ class Classifiers
             puts ""
 
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(classifier)
+                Patricia::architectAddParentForDX7(tags)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(classifier)
+                Patricia::architectAddChildForDX7(tags)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(classifier)
+                Patricia::selectAndRemoveOneParentFromDX7(tags)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(classifier)
+                Patricia::selectAndRemoveOneChildFromDX7(tags)
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    Classifiers::destroy(classifier)
+                    Tags::destroy(tags)
                 end
             })
 
