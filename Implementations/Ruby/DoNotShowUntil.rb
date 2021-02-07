@@ -14,10 +14,13 @@ class DoNotShowUntil
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from table1 where _key_=?", [uid]
-        db.execute "insert into table1 (_key_, _value_) values ( ?, ? )", [uid, unixtime]
+        db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
         db.commit 
         db.close
         nil
+
+        message = {"uid" => uid, "unixtime" => unixtime}
+        Mercury::postValue("e6409074-8123-4914-91ba-da345069609f", message)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)

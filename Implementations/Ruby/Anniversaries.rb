@@ -78,7 +78,7 @@ class Anniversaries
         db.busy_handler { |count| true }
         db.transaction
         db.execute "delete from _anniversaries_ where _uuid_=?", [uuid]
-        db.execute "insert into _anniversaries_ (_uuid_, _startdate_, _repeatType_, _lastCelebrationDate_, _nereiduuid_) values ( ?, ?, ?, ?, ? )", [uuid, startdate, repeatType, lastCelebrationDate, nereiduuid]
+        db.execute "insert into _anniversaries_ (_uuid_, _startdate_, _repeatType_, _lastCelebrationDate_, _nereiduuid_) values (?,?,?,?,?)", [uuid, startdate, repeatType, lastCelebrationDate, nereiduuid]
         db.commit
         db.close
         nil

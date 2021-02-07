@@ -13,7 +13,7 @@ class Calendar
         db.busy_handler { |count| true }
         db.transaction
         db.execute "delete from _calendaritems_ where _uuid_=?", [uuid]
-        db.execute "insert into _calendaritems_ (_uuid_, _date_, _nereiduuid_) values ( ?, ?, ? )", [uuid, date, nereiduuid]
+        db.execute "insert into _calendaritems_ (_uuid_, _date_, _nereiduuid_) values (?,?,?)", [uuid, date, nereiduuid]
         db.commit
         db.close
         nil

@@ -10,7 +10,7 @@ class NyxArrows
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _arrows_ where _source_=? and _target_=?", [sourceuuid, targetuuid]
-        db.execute "insert into _arrows_ (_source_, _target_) values (?, ?)", [sourceuuid, targetuuid]
+        db.execute "insert into _arrows_ (_source_, _target_) values (?,?)", [sourceuuid, targetuuid]
         db.commit 
         db.close
     end

@@ -18,7 +18,7 @@ class Bank
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
-        db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [setuuid, operationuuid, unixtime, date, weight]
+        db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
 
         $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{Miscellaneous::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Miscellaneous::today())

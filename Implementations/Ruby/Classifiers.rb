@@ -13,7 +13,7 @@ class Classifiers
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _classifiers_ where _uuid_=?", [uuid]
-        db.execute "insert into _classifiers_ (_uuid_, _description_) values (?, ?)", [uuid, description]
+        db.execute "insert into _classifiers_ (_uuid_, _description_) values (?,?)", [uuid, description]
         db.commit 
         db.close
     end

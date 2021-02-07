@@ -259,7 +259,7 @@ class NereidDatabaseDataCarriers
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_, _type_, _payload_) values (?, ?, ?, ?, ?)", [uuid, unixtime, description, type, payload]
+        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_, _type_, _payload_) values (?,?,?,?,?)", [uuid, unixtime, description, type, payload]
         db.commit 
         db.close
     end

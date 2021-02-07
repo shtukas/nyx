@@ -13,7 +13,7 @@ class CuratedListings
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _curatedlistings_ where _uuid_=?", [uuid]
-        db.execute "insert into _curatedlistings_ (_uuid_, _description_) values (?, ?)", [uuid, description]
+        db.execute "insert into _curatedlistings_ (_uuid_, _description_) values (?,?)", [uuid, description]
         db.commit 
         db.close
     end

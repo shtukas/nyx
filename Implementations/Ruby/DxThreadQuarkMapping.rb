@@ -10,11 +10,23 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
     def self.insertRecord(dxthread, quark, ordinal)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _mapping_ where _dxthreaduuid_=? and _quarkuuid_=?", [dxthread["uuid"], quark["uuid"]]
-        db.execute "insert into _mapping_ (_dxthreaduuid_, _quarkuuid_, _ordinal_) values ( ?, ?, ? )", [dxthread["uuid"], quark["uuid"], ordinal]
+        db.execute "insert into _mapping_ (_dxthreaduuid_, _quarkuuid_, _ordinal_, _doNotShowUntilUnixtime_) values (?,?,?,?)", [dxthread["uuid"], quark["uuid"], ordinal, 0]
+        db.commit 
+        db.close
+        nil
+    end
+
+    # DxThreadQuarkMapping::deleteRecordsByQuarkUUID(uuid)
+    def self.deleteRecordsByQuarkUUID(uuid)
+        db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _mapping_ where _quarkuuid_=?", [uuid]
         db.commit 
         db.close
         nil
@@ -23,7 +35,7 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(dxthread)
     def self.getQuarkUUIDsForDxThreadInOrder(dxthread)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
@@ -34,10 +46,24 @@ class DxThreadQuarkMapping
         answer
     end
 
+    # DxThreadQuarkMapping::getVisibleQuarkUUIDsForDxThreadInOrder(dxthread)
+    def self.getVisibleQuarkUUIDsForDxThreadInOrder(dxthread)
+        db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _mapping_ where _dxthreaduuid_=? and _doNotShowUntilUnixtime_<? order by _ordinal_", [dxthread["uuid"], Time.new.to_i] ) do |row|
+            answer << row['_quarkuuid_']
+        end
+        db.close
+        answer
+    end
+
     # DxThreadQuarkMapping::getDxThreadsForQuark(quark)
     def self.getDxThreadsForQuark(quark)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         dxthreaduuids = []
@@ -53,7 +79,7 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)
     def self.getDxThreadQuarkOrdinal(dxthread, quark)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = 0
@@ -67,7 +93,7 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::setQuarkOrdinal(quark, ordinal)
     def self.setQuarkOrdinal(quark, ordinal)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute( "update _mapping_ set _ordinal_=? where _quarkuuid_=?", [ordinal, quark["uuid"]] )
@@ -78,7 +104,7 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::getQuarkOrdinal(quark)
     def self.getQuarkOrdinal(quark)
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = 0
@@ -92,15 +118,26 @@ class DxThreadQuarkMapping
     # DxThreadQuarkMapping::getNextOrdinal()
     def self.getNextOrdinal()
         db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = [0]
-        db.execute( "select * from _mapping_", [] ) do |row|
+        db.execute("select * from _mapping_", []) do |row|
             answer << row['_ordinal_']
         end
         db.close
         answer.max + 1
+    end
+
+    # DxThreadQuarkMapping::setQuarkDoNotShowUntil(quark, unixtime)
+    def self.setQuarkDoNotShowUntil(quark, unixtime)
+        db = SQLite3::Database.new(DxThreadQuarkMapping::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute( "update _mapping_ set _doNotShowUntilUnixtime_=? where _quarkuuid_=?", [unixtime, quark["uuid"]] )
+        db.close
+        nil
     end
 
     # -----------------------------------------------------------------------------
@@ -112,6 +149,25 @@ class DxThreadQuarkMapping
             quarkuuids = quarkuuids.first(cardinal)
         end
         quarkuuids
+            .map{|uuid| TodoCoreData::getOrNull(uuid) }
+            .compact
+    end
+
+    # DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
+    def self.dxThreadToQuarksInOrderForUIListing(dxthread)
+
+        while (message = Mercury::dequeueFirstValueOrNullForClient("e6409074-8123-4914-91ba-da345069609f", "9298bfca")) do
+            quark = TodoCoreData::getOrNull(message["uid"])
+            next if quark.nil?
+            DxThreadQuarkMapping::setQuarkDoNotShowUntil(quark, message["unixtime"])
+        end
+
+        while (uuid = Mercury::dequeueFirstValueOrNullForClient("0437d73d-9cde-4b96-99c5-5bd44671d267", "9298bfca")) do
+            DxThreadQuarkMapping::deleteRecordsByQuarkUUID(uuid)
+        end
+
+        DxThreadQuarkMapping::getVisibleQuarkUUIDsForDxThreadInOrder(dxthread)
+            .first(20)
             .map{|uuid| TodoCoreData::getOrNull(uuid) }
             .compact
     end

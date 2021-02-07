@@ -96,18 +96,17 @@ class DxThreadsUIUtils
     def self.dxThreadsToDisplayItemsNS16(dxthreads)
         dxthreads
             .map{|dxthread|
-                DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread)
-                .select{|quark| DoNotShowUntil::isVisible("#{dxthread["uuid"]}:#{quark["uuid"]}") }
-                .map{|quark|
-                    {
-                        "uuid"                => "#{dxthread["uuid"]}:#{quark["uuid"]}",
-                        "announce"            => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                        "lambda"              => lambda{ runDxThreadQuarkPair(dxthread, quark) },
-                        "isDxThreadQuarkPair" => true,
-                        "dxthread"            => dxthread,
-                        "quark"               => quark
+                DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
+                    .map{|quark|
+                        {
+                            "uuid"                => quark["uuid"],
+                            "announce"            => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                            "lambda"              => lambda{ runDxThreadQuarkPair(dxthread, quark) },
+                            "isDxThreadQuarkPair" => true,
+                            "dxthread"            => dxthread,
+                            "quark"               => quark
+                        }
                     }
-                }
             }
             .flatten
     end

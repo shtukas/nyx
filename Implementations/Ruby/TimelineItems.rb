@@ -24,7 +24,7 @@ class TimelineItems
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _timeline_ where _uuid_=?", [uuid]
-        db.execute "insert into _timeline_ (_uuid_, _date_, _description_) values (?, ?, ?)", [uuid, date, description]
+        db.execute "insert into _timeline_ (_uuid_, _date_, _description_) values (?,?,?)", [uuid, date, description]
         db.commit 
         db.close
     end

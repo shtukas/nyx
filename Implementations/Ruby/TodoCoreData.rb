@@ -28,7 +28,7 @@ class TodoCoreData
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values ( ?, ?, ? )", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
+        db.execute "insert into table2 (_setuuid_, _objectuuid_, _object_) values (?,?,?)", [object["nyxNxSet"], object["uuid"], JSON.generate(object)]
         db.commit 
         db.close
     end
@@ -68,5 +68,8 @@ class TodoCoreData
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]
         db.close
+
+        message = object["uuid"]
+        Mercury::postValue("0437d73d-9cde-4b96-99c5-5bd44671d267", message)
     end
 end

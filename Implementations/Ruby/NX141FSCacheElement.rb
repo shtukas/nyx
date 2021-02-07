@@ -13,7 +13,7 @@ class NX141FSCacheElement
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _NX141Cache_ where _nx141_=?", [nx141]
-        db.execute "insert into _NX141Cache_ (_unixtime_, _nx141_, _description_) values (?, ?, ?)", [Time.new.to_f, nx141, description]
+        db.execute "insert into _NX141Cache_ (_unixtime_, _nx141_, _description_) values (?,?,?)", [Time.new.to_f, nx141, description]
         db.commit 
         db.close
     end

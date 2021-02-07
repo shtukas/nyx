@@ -122,6 +122,13 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::dequeueFirstValueOrNull(channel)
+    Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
+=end
+
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
