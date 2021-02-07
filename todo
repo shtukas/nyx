@@ -6,6 +6,6 @@ require_relative "Implementations/Ruby/loader.rb"
 
 # -------------------------------------------------------------------------
 
-TodoUIServices::main()
+UIServices::todoListingMain()
 
 # -------------------------------------------------------------------------

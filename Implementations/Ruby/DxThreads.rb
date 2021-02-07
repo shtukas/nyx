@@ -9,12 +9,12 @@ class DxThreads
 
     # DxThreads::dxthreads()
     def self.dxthreads()
-        TodoCoreData::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
+        M54::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
     # DxThreads::getStream()
     def self.getStream()
-        TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
+        M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
     end
 
     # DxThreads::make(description, timeCommitmentPerDayInHours)
@@ -31,7 +31,7 @@ class DxThreads
     # DxThreads::issue(description, timeCommitmentPerDayInHours)
     def self.issue(description, timeCommitmentPerDayInHours)
         object = DxThreads::make(description, timeCommitmentPerDayInHours)
-        TodoCoreData::put(object)
+        M54::put(object)
         object
     end
 
@@ -95,7 +95,7 @@ class DxThreads
         loop {
             system("clear")
 
-            return if TodoCoreData::getOrNull(dxthread["uuid"]).nil?
+            return if M54::getOrNull(dxthread["uuid"]).nil?
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
@@ -121,20 +121,20 @@ class DxThreads
 
             mx.item("no display on this day".yellow, lambda { 
                 dxthread["noDisplayOnThisDay"] = CatalystUtils::today()
-                TodoCoreData::put(dxthread)
+                M54::put(dxthread)
             })
 
             mx.item("rename".yellow, lambda { 
                 name1 = CatalystUtils::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
-                TodoCoreData::put(dxthread)
+                M54::put(dxthread)
             })
 
             mx.item("update daily time commitment in hours".yellow, lambda { 
                 time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
                 dxthread["timeCommitmentPerDayInHours"] = time
-                TodoCoreData::put(dxthread)
+                M54::put(dxthread)
             })
 
             mx.item("start thread".yellow, lambda { 
@@ -169,7 +169,7 @@ class DxThreads
             
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(dxthread)}': ") then
-                    TodoCoreData::destroy(dxthread)
+                    M54::destroy(dxthread)
                 end
             })
             puts ""

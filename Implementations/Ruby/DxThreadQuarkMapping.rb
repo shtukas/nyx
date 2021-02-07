@@ -71,7 +71,7 @@ class DxThreadQuarkMapping
             dxthreaduuids << row['_dxthreaduuid_']
         end
         db.close
-        dxthreaduuids.map{|uuid| TodoCoreData::getOrNull(uuid) }.compact
+        dxthreaduuids.map{|uuid| M54::getOrNull(uuid) }.compact
     end
 
     # Ordinals
@@ -149,7 +149,7 @@ class DxThreadQuarkMapping
             quarkuuids = quarkuuids.first(cardinal)
         end
         quarkuuids
-            .map{|uuid| TodoCoreData::getOrNull(uuid) }
+            .map{|uuid| M54::getOrNull(uuid) }
             .compact
     end
 
@@ -157,7 +157,7 @@ class DxThreadQuarkMapping
     def self.dxThreadToQuarksInOrderForUIListing(dxthread)
 
         while (message = Mercury::dequeueFirstValueOrNullForClient("e6409074-8123-4914-91ba-da345069609f", "9298bfca")) do
-            quark = TodoCoreData::getOrNull(message["uid"])
+            quark = M54::getOrNull(message["uid"])
             next if quark.nil?
             DxThreadQuarkMapping::setQuarkDoNotShowUntil(quark, message["unixtime"])
         end
@@ -168,7 +168,7 @@ class DxThreadQuarkMapping
 
         DxThreadQuarkMapping::getVisibleQuarkUUIDsForDxThreadInOrder(dxthread)
             .first(20)
-            .map{|uuid| TodoCoreData::getOrNull(uuid) }
+            .map{|uuid| M54::getOrNull(uuid) }
             .compact
     end
 end

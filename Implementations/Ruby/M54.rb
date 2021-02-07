@@ -1,15 +1,15 @@
 
 
-class TodoCoreData
+class M54
 
-    # TodoCoreData::databaseFilepath()
+    # M54::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/NS-Core-Objects.sqlite3"
     end
 
-    # TodoCoreData::getAllObjects()
+    # M54::getAllObjects()
     def self.getAllObjects()
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
+        db = SQLite3::Database.new(M54::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -21,9 +21,9 @@ class TodoCoreData
         answer
     end
 
-    # TodoCoreData::put(object)
+    # M54::put(object)
     def self.put(object)
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
+        db = SQLite3::Database.new(M54::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
@@ -33,9 +33,9 @@ class TodoCoreData
         db.close
     end
 
-    # TodoCoreData::getOrNull(uuid)
+    # M54::getOrNull(uuid)
     def self.getOrNull(uuid)
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
+        db = SQLite3::Database.new(M54::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -47,9 +47,9 @@ class TodoCoreData
         answer
     end
 
-    # TodoCoreData::getSet(setid)
+    # M54::getSet(setid)
     def self.getSet(setid)
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
+        db = SQLite3::Database.new(M54::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -61,9 +61,9 @@ class TodoCoreData
         answer
     end
 
-    # TodoCoreData::destroy(object)
+    # M54::destroy(object)
     def self.destroy(object)
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
+        db = SQLite3::Database.new(M54::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]

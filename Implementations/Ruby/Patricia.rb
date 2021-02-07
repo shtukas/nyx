@@ -124,7 +124,7 @@ class Patricia
     # Patricia::landing(item)
     def self.landing(item)
         if Patricia::isNereidElement(item) then
-            NyxNereidElements::landing(item)
+            M92::landing(item)
             return
         end
         if Patricia::isNX141FSCacheElement(item) then
@@ -195,36 +195,36 @@ class Patricia
     def self.architectAddParentForDX7(item)
         e1 = Patricia::architectDX7OrNull()
         return if e1.nil?
-        NyxArrows::issueArrow(e1["uuid"], item["uuid"])
+        Arrows::issueArrow(e1["uuid"], item["uuid"])
     end
 
     # Patricia::architectAddChildForDX7(item)
     def self.architectAddChildForDX7(item)
         e1 = Patricia::architectDX7OrNull()
         return if e1.nil?
-        NyxArrows::issueArrow(item["uuid"], e1["uuid"])
+        Arrows::issueArrow(item["uuid"], e1["uuid"])
     end
 
     # Patricia::selectAndRemoveOneParentFromDX7(item)
     def self.selectAndRemoveOneParentFromDX7(item)
-        parents = NyxArrows::getParentsUUIDs(item["uuid"])
+        parents = Arrows::getParentsUUIDs(item["uuid"])
                     .map{|uuid| Patricia::getDX7ByUUIDOrNull(uuid) }
                     .compact
         return if parents.empty?
         parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda{|parent| Patricia::toString(parent) })
         return if parent.nil?
-        NyxArrows::deleteArrow(parent["uuid"], item["uuid"])
+        Arrows::deleteArrow(parent["uuid"], item["uuid"])
     end
 
     # Patricia::selectAndRemoveOneChildFromDX7(item)
     def self.selectAndRemoveOneChildFromDX7(item)
-        children = NyxArrows::getChildrenUUIDs(item["uuid"])
+        children = Arrows::getChildrenUUIDs(item["uuid"])
                     .map{|uuid| Patricia::getDX7ByUUIDOrNull(uuid) }
                     .compact
         return if children.empty?
         child = LucilleCore::selectEntityFromListOfEntitiesOrNull("child", children, lambda{|child| Patricia::toString(child) })
         return if child.nil?
-        NyxArrows::deleteArrow(item["uuid", child["uuid"]])
+        Arrows::deleteArrow(item["uuid", child["uuid"]])
     end
 
     # Patricia::computeNew21stOrdinalForDxThread(dxthread)
@@ -263,7 +263,7 @@ class Patricia
     # Patricia::nyxSearchItemsAll()
     def self.nyxSearchItemsAll()
         searchItems = [
-            NyxNereidElements::nyxSearchItems(),
+            M92::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
             TimelineItems::nyxSearchItems(),
             Classifiers::nyxSearchItems(),

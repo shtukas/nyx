@@ -143,7 +143,7 @@ class Classifiers
 
             puts ""
 
-            NyxArrows::getParentsUUIDs(classifier["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(classifier["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -151,7 +151,7 @@ class Classifiers
                 })
             }
 
-            NyxArrows::getChildrenUUIDs(classifier["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(classifier["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 

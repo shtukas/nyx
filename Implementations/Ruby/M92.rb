@@ -1,37 +1,37 @@
 
 # encoding: UTF-8
 
-class NyxNereidElements
+class M92
 
     # -------------------------------------------------------
 
-    # NyxNereidElements::elementMatchesIdentifier(element, identifier)
+    # M92::elementMatchesIdentifier(element, identifier)
     def self.elementMatchesIdentifier(element, identifier)
         return true if element["description"] == identifier
     end
 
-    # NyxNereidElements::getElementsByIdentifier(identifier)
+    # M92::getElementsByIdentifier(identifier)
     def self.getElementsByIdentifier(identifier)
         NereidInterface::getElements()
-            .select{|element| NyxNereidElements::elementMatchesIdentifier(element, identifier) }
+            .select{|element| M92::elementMatchesIdentifier(element, identifier) }
     end
 
-    # NyxNereidElements::selectElementOrNull()
+    # M92::selectElementOrNull()
     def self.selectElementOrNull()
         CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
-    # NyxNereidElements::architectOrNull()
+    # M92::architectOrNull()
     def self.architectOrNull()
         system("clear")
-        puts "NyxNereidElements::architectOrNull()"
+        puts "M92::architectOrNull()"
         LucilleCore::pressEnterToContinue()
-        element = NyxNereidElements::selectElementOrNull()
+        element = M92::selectElementOrNull()
         return element if element
         NereidInterface::interactivelyIssueNewElementOrNull()
     end
 
-    # NyxNereidElements::nyxSearchItems()
+    # M92::nyxSearchItems()
     def self.nyxSearchItems()
         NereidInterface::getElements()
             .map{|element|
@@ -44,7 +44,7 @@ class NyxNereidElements
             }
     end
 
-    # NyxNereidElements::landing(element)
+    # M92::landing(element)
     def self.landing(element)
 
         locpaddingsize = 11
@@ -63,7 +63,7 @@ class NyxNereidElements
 
             mx = LCoreMenuItemsNX1.new()
 
-            NyxArrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -71,7 +71,7 @@ class NyxNereidElements
                 })
             }
 
-            NyxArrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 

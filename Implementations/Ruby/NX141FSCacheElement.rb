@@ -60,11 +60,11 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::scan()
     def self.scan()
-        NyxGalaxyFinder::locationEnumerator(NyxGalaxyFinder::rootScans()).each{|location|
-            nx141 = NyxFilenameReaderWriter::extractNX141MarkerFromLocationOrNull(location)
+        GalaxyFinder::locationEnumerator(GalaxyFinder::rootScans()).each{|location|
+            nx141 = NX141FilenameReaderWriter::extractNX141MarkerFromLocationOrNull(location)
             next if nx141.nil?
             puts location
-            description = NyxFilenameReaderWriter::extractDescriptionFromLocation(location)
+            description = NX141FilenameReaderWriter::extractDescriptionFromLocation(location)
             NX141FSCacheElement::setDescription(nx141, description)
         }
     end
@@ -133,7 +133,7 @@ class NX141FSCacheElement
 
     # NX141FSCacheElement::access(nx141)
     def self.access(nx141)
-        location = NyxGalaxyFinder::uniqueStringToLocationOrNull(nx141)
+        location = GalaxyFinder::uniqueStringToLocationOrNull(nx141)
         if location.nil? then
             puts "-> I could not find the location for NX141 mark: #{nx141}"
             LucilleCore::pressEnterToContinue()
@@ -175,18 +175,18 @@ class NX141FSCacheElement
             puts ""
 
             if Patricia::isNX141FSCacheElement(element) then
-                puts "location: #{NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])}".yellow
+                puts "location: #{GalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])}".yellow
             end
 
             mx = LCoreMenuItemsNX1.new()
 
-            location = NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
+            location = GalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
             mx.item("#{"real parent".ljust(locpaddingsize)}: #{File.dirname(location)}", lambda { 
                 NX141FSCacheElement::landingOnFileSystemLocation(File.dirname(location))
             })
 
             if File.directory?(location) then
-                location = NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
+                location = GalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
                 LucilleCore::locationsAtFolder(location)
                 .select{|l| !File.basename(l).start_with?(".") }
                 .each{|loc1|
@@ -196,7 +196,7 @@ class NX141FSCacheElement
                 }
             end
 
-            NyxArrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -204,7 +204,7 @@ class NX141FSCacheElement
                 })
             }
 
-            NyxArrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -237,7 +237,7 @@ class NX141FSCacheElement
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
                     if Patricia::isNX141FSCacheElement(element) then
-                        location = NyxGalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
+                        location = GalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
                         puts "This is a NX141FSCacheElement. You need to delete the file on disk (#{location})"
                         LucilleCore::pressEnterToContinue()
                         return if File.exists?(location)
@@ -256,7 +256,7 @@ class NX141FSCacheElement
     # NX141FSCacheElement::landingOnFileSystemLocation(location)
     def self.landingOnFileSystemLocation(location)
         # We first need to know if we have a NX141 location or nor
-        marker = NyxFilenameReaderWriter::extractNX141MarkerFromLocationOrNull(location)
+        marker = NX141FilenameReaderWriter::extractNX141MarkerFromLocationOrNull(location)
         if marker then
             uuid = marker
             element = NX141FSCacheElement::getElementByUUIDOrNull(uuid)

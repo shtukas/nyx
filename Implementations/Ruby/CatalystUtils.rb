@@ -112,7 +112,7 @@ class CatalystUtils
                 "unixtime"   => Time.new.to_i,
                 "nereiduuid" => nereiduuid
             }
-            TodoCoreData::put(quark)
+            M54::put(quark)
 
             puts JSON.pretty_generate(quark)
 

@@ -131,7 +131,7 @@ class TimelineItems
 
             puts ""
 
-            NyxArrows::getParentsUUIDs(event["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(event["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -139,7 +139,7 @@ class TimelineItems
                 })
             }
 
-            NyxArrows::getChildrenUUIDs(event["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(event["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 

@@ -10,7 +10,7 @@ NereidElement {
 
 ------------------------------------------------------------------------------
 
-Catalyst Todo Carrier Types: Waves, Quark, DxThread, CalendarItem, AnniversaryItem
+Catalyst Todo Carrier Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
 
 Catalyst Todo UI Types; DisplayItemsNS16
 
@@ -18,7 +18,7 @@ Catalyst Todo UI Types; DisplayItemsNS16
 
 Nyx Carrier Types
 
-    NereidElement
+    M92
 
     NX141FSCacheElement {
         "uuid"           : String
@@ -47,11 +47,11 @@ Nyx Carrier Types
         "description"    : String
     }
 
-DX7 = NereidElement | NX141FSCacheElement | TimelineItem | Classifier | CuratedListing
+DX7 = M92 | NX141FSCacheElement | TimelineItem | Classifier | CuratedListing
 
 DX7s can be parent and children of each other
 
-Nyx Network Type: NyxArrows
+Nyx Network Type: Arrows
 
 NyxSearchItem
 

@@ -79,7 +79,7 @@ class DxThreadsUIUtils
                 next
             end
             if input == "/" then
-                TodoUIServices::servicesFront()
+                UIServices::servicesFront()
                 next
             end
             return
@@ -121,9 +121,9 @@ class DxThreadsUIUtils
     end
 end
 
-class TodoUIServices
+class UIServices
 
-    # TodoUIServices::servicesFront()
+    # UIServices::servicesFront()
     def self.servicesFront()
         loop {
             system("clear")
@@ -149,20 +149,20 @@ class TodoUIServices
             ms.item("dangerously edit a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
-                object = TodoCoreData::getOrNull(uuid)
+                object = M54::getOrNull(uuid)
                 return if object.nil?
                 object = CatalystUtils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                TodoCoreData::put(object)
+                M54::put(object)
             })
 
             ms.item("dangerously delete a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = TodoCoreData::getOrNull(uuid)
+                object = M54::getOrNull(uuid)
                 return if object.nil?
                 puts JSON.pretty_generate(object)
                 return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
-                TodoCoreData::destroy(object)
+                M54::destroy(object)
             })
 
             puts ""
@@ -209,7 +209,7 @@ class TodoUIServices
         .flatten
     end
 
-    # TodoUIServices::standardListingLoop()
+    # UIServices::standardListingLoop()
     def self.standardListingLoop()
 
         loop {
@@ -348,7 +348,7 @@ class TodoUIServices
                 end
 
                 if input == "/" then
-                    TodoUIServices::servicesFront()
+                    UIServices::servicesFront()
                     break
                 end
 
@@ -391,8 +391,8 @@ class TodoUIServices
         }
     end
 
-    # TodoUIServices::main()
-    def self.main()
+    # UIServices::todoListingMain()
+    def self.todoListingMain()
 
         Thread.new {
             loop {
@@ -403,7 +403,46 @@ class TodoUIServices
             }
         }
 
-        TodoUIServices::standardListingLoop()
+        UIServices::standardListingLoop()
+    end
+
+    # NyxUserInterface::issueNewNyxElement()
+    def self.issueNewNyxElement()
+        ops = ["Nereid Element", "TimelineItem", "Curated Listing"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
+        return if operation.nil?
+        if operation == "Nereid Element" then
+            element = NereidInterface::interactivelyIssueNewElementOrNull()
+            return if element.nil?
+            NereidInterface::landing(element)
+        end
+        if operation == "TimelineItem" then
+            event = TimelineItems::interactivelyIssueNewTimelineItemOrNull()
+            return if event.nil?
+            TimelineItems::landing(event)
+        end
+        if operation == "Curated Listing" then
+            listing = CuratedListings::interactivelyIssueNewCuratedListingOrNull()
+            return if listing.nil?
+            TimelineItems::landing(listing)
+        end
+    end
+
+    # NyxUserInterface::nyxMain()
+    def self.nyxMain()
+        loop {
+            system("clear")
+            puts "Nyx 🗺"
+            ops = ["Search", "Issue New"]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+            break if operation.nil?
+            if operation == "Search" then
+                Patricia::generalSearchLoop()
+            end
+            if operation == "Issue New" then
+                NyxUserInterface::issueNewNyxElement()
+            end
+        }
     end
 end
 

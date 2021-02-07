@@ -125,7 +125,7 @@ class CuratedListings
 
             puts ""
 
-            NyxArrows::getParentsUUIDs(curatedListing["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(curatedListing["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -133,7 +133,7 @@ class CuratedListings
                 })
             }
 
-            NyxArrows::getChildrenUUIDs(curatedListing["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(curatedListing["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
