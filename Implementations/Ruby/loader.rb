@@ -164,7 +164,7 @@ require_relative "Waves.rb"
 
 require_relative "Commons.rb"
 require_relative "Classifiers.rb"
-require_relative "NereidProxyOperator.rb"
+require_relative "NyxNereidElements.rb"
 require_relative "NX141FSCacheElement.rb"
 require_relative "NyxArrows.rb"
 require_relative "NyxBinaryBlobsService.rb"

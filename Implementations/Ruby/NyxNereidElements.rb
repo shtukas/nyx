@@ -1,37 +1,37 @@
 
 # encoding: UTF-8
 
-class NereidProxyOperator
+class NyxNereidElements
 
     # -------------------------------------------------------
 
-    # NereidProxyOperator::elementMatchesIdentifier(element, identifier)
+    # NyxNereidElements::elementMatchesIdentifier(element, identifier)
     def self.elementMatchesIdentifier(element, identifier)
         return true if element["description"] == identifier
     end
 
-    # NereidProxyOperator::getElementsByIdentifier(identifier)
+    # NyxNereidElements::getElementsByIdentifier(identifier)
     def self.getElementsByIdentifier(identifier)
         NereidInterface::getElements()
-            .select{|element| NereidProxyOperator::elementMatchesIdentifier(element, identifier) }
+            .select{|element| NyxNereidElements::elementMatchesIdentifier(element, identifier) }
     end
 
-    # NereidProxyOperator::selectElementOrNull()
+    # NyxNereidElements::selectElementOrNull()
     def self.selectElementOrNull()
         CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
-    # NereidProxyOperator::architectOrNull()
+    # NyxNereidElements::architectOrNull()
     def self.architectOrNull()
         system("clear")
-        puts "NereidProxyOperator::architectOrNull()"
+        puts "NyxNereidElements::architectOrNull()"
         LucilleCore::pressEnterToContinue()
-        element = NereidProxyOperator::selectElementOrNull()
+        element = NyxNereidElements::selectElementOrNull()
         return element if element
         NereidInterface::interactivelyIssueNewElementOrNull()
     end
 
-    # NereidProxyOperator::nyxSearchItems()
+    # NyxNereidElements::nyxSearchItems()
     def self.nyxSearchItems()
         NereidInterface::getElements()
             .map{|element|
@@ -44,7 +44,7 @@ class NereidProxyOperator
             }
     end
 
-    # NereidProxyOperator::landing(element)
+    # NyxNereidElements::landing(element)
     def self.landing(element)
 
         locpaddingsize = 11
