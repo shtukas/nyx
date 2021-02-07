@@ -1,7 +1,0 @@
-
-Ordinal Item = {
-    "uuid"    => String 
-    "ordinal" => Float
-}
-
-create table _ordinals_ (_uuid_ text, _ordinal_ real);
