@@ -61,12 +61,12 @@ class DxThreadsUIUtils
             if input == ">nyx" then
                 item = NyxPatricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
                 return if item.nil?
-                NyxPatricia::dx7landing(item)
+                NyxPatricia::landing(item)
                 Quarks::destroyQuark(quark)
                 return
             end
             if input == ">dxthread" then
-                TodoPatricia::moveTargetToNewDxThread(quark, dxthread)
+                NyxPatricia::moveTargetToNewDxThread(quark, dxthread)
                 return
             end
             if input == "landing" then
@@ -142,7 +142,7 @@ class TodoUIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
 
-            ms.item("new quark", lambda { TodoPatricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
+            ms.item("new quark", lambda { NyxPatricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
 
             puts ""
 
@@ -369,13 +369,13 @@ class TodoUIServices
                     quark = item["quark"]
                     element = NereidInterface::getElementOrNull(quark["nereiduuid"])
                     next if element.nil?
-                    NyxPatricia::dx7landing(element)
+                    NyxPatricia::landing(element)
                     Quarks::destroyQuark(quark)
                     next
                 end
                 if input == ">dxthread" then
                     item = items.shift
-                    TodoPatricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
+                    NyxPatricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
                     next
                 end
                 if input == "landing" then

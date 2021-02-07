@@ -60,7 +60,7 @@ class DxThreads
     # DxThreads::dxThreadAndTargetToString(dxthread, quark)
     def self.dxThreadAndTargetToString(dxthread, quark)
         uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
-        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{TodoPatricia::toString(quark)}"
+        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{NyxPatricia::toString(quark)}"
     end
 
     # DxThreads::completionRatio(dxthread)
@@ -73,14 +73,14 @@ class DxThreads
         puts "Placement ordinal listing"
         quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
         quarks.each{|quark|
-            puts "[#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{TodoPatricia::toString(quark)}"
+            puts "[#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{NyxPatricia::toString(quark)}"
         }
         ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
         if ordinal == "" then
             return DxThreadQuarkMapping::getNextOrdinal()
         end
         if ordinal == "low" then
-            return TodoPatricia::computeNew21stOrdinalForDxThread(dxthread)
+            return NyxPatricia::computeNew21stOrdinalForDxThread(dxthread)
         end
         ordinal.to_f
     end
@@ -108,8 +108,8 @@ class DxThreads
 
             DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, showAllTargets ? nil : DxThreads::visualisationDepth())
                 .each{|quark|
-                    mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{TodoPatricia::toString(quark)}", lambda { 
-                        TodoPatricia::landing(quark) 
+                    mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{NyxPatricia::toString(quark)}", lambda { 
+                        NyxPatricia::landing(quark) 
                     })
                 }
 
@@ -148,14 +148,14 @@ class DxThreads
             })
 
             mx.item("add new quark".yellow, lambda {
-                TodoPatricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
+                NyxPatricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
             })
 
             mx.item("select and move quark".yellow, lambda { 
                 quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
-                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| TodoPatricia::toString(quark) })
+                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| NyxPatricia::toString(quark) })
                 return if quark.nil?
-                TodoPatricia::moveTargetToNewDxThread(quark, dxthread)
+                NyxPatricia::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("json object".yellow, lambda { 

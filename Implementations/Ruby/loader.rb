@@ -157,7 +157,6 @@ require_relative "Runner.rb"
 =end
 require_relative "SectionsType0141.rb"
 require_relative "TodoCoreData.rb"
-require_relative "TodoPatricia.rb"
 require_relative "TodoUIServices.rb"
 require_relative "VideoStream.rb"
 require_relative "Waves.rb"

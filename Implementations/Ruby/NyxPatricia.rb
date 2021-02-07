@@ -28,6 +28,21 @@ class NyxPatricia
         item["nyxElementType"] == "30991912-a9f2-426d-9b62-ec942c16c60a"
     end
 
+    # NyxPatricia::isQuark(object)
+    def self.isQuark(object)
+        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    end
+
+    # NyxPatricia::isWave(object)
+    def self.isWave(object)
+        object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
+    end
+
+    # NyxPatricia::isDxThread(object)
+    def self.isDxThread(object)
+        object["nyxNxSet"] == "2ed4c63e-56df-4247-8f20-e8d220958226"
+    end
+
     # -------------------------------------------------------
 
     # NyxPatricia::getDX7ByUUIDOrNull(uuid)
@@ -50,8 +65,8 @@ class NyxPatricia
         nil
     end
 
-    # NyxPatricia::dx7toString(item)
-    def self.dx7toString(item)
+    # NyxPatricia::toString(item)
+    def self.toString(item)
         if NyxPatricia::isNereidElement(item) then
             return NereidInterface::toString(item)
         end
@@ -67,7 +82,17 @@ class NyxPatricia
         if NyxPatricia::isCuratedListing(item) then
             return CuratedListings::toString(item)
         end
-        raise "error: 4a902479-4a5e-4d05-9aa1-287f6a4f16d6"
+        if NyxPatricia::isQuark(item) then
+            return Quarks::toString(item)
+        end
+        if NyxPatricia::isWave(item) then
+            return Waves::toString(item)
+        end
+        if NyxPatricia::isDxThread(item) then
+            return DxThreads::toString(item)
+        end
+        puts item
+        raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
     end
 
     # NyxPatricia::dx7access(item)
@@ -96,8 +121,8 @@ class NyxPatricia
         raise "error: 22830b8a-f43d-4f0e-b419-21f809d99404"
     end
 
-    # NyxPatricia::dx7landing(item)
-    def self.dx7landing(item)
+    # NyxPatricia::landing(item)
+    def self.landing(item)
         if NyxPatricia::isNereidElement(item) then
             NereidProxyOperator::landing(item)
             return
@@ -118,8 +143,29 @@ class NyxPatricia
             CuratedListings::landing(item)
             return
         end
+        if NyxPatricia::isQuark(item) then
+            Quarks::landing(item)
+            return
+        end
+        if NyxPatricia::isWave(item) then
+            Waves::landing(item)
+            return 
+        end
+        if NyxPatricia::isDxThread(item) then
+            return DxThreads::landing(item)
+        end
         puts item
-        raise "[error: d7c85779-7085-4f04-aec8-ec019ccc1795]"
+        raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
+    end
+
+    # NyxPatricia::destroy(object)
+    def self.destroy(object)
+        if NyxPatricia::isQuark(object) then
+            Quarks::destroyQuarkAndNereidContent(object)
+            return
+        end
+        puts object
+        raise "[error: 09e17b29-8620-4345-b358-89c58c248d6f]"
     end
 
     # -------------------------------------------------------
@@ -165,7 +211,7 @@ class NyxPatricia
                     .map{|uuid| NyxPatricia::getDX7ByUUIDOrNull(uuid) }
                     .compact
         return if parents.empty?
-        parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda{|parent| NyxPatricia::dx7toString(parent) })
+        parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda{|parent| NyxPatricia::toString(parent) })
         return if parent.nil?
         NyxArrows::deleteArrow(parent["uuid"], item["uuid"])
     end
@@ -176,9 +222,40 @@ class NyxPatricia
                     .map{|uuid| NyxPatricia::getDX7ByUUIDOrNull(uuid) }
                     .compact
         return if children.empty?
-        child = LucilleCore::selectEntityFromListOfEntitiesOrNull("child", children, lambda{|child| NyxPatricia::dx7toString(child) })
+        child = LucilleCore::selectEntityFromListOfEntitiesOrNull("child", children, lambda{|child| NyxPatricia::toString(child) })
         return if child.nil?
         NyxArrows::deleteArrow(item["uuid", child["uuid"]])
+    end
+
+    # NyxPatricia::computeNew21stOrdinalForDxThread(dxthread)
+    def self.computeNew21stOrdinalForDxThread(dxthread)
+        ordinals = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 22)
+                    .map{|quark| DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark) }
+                    .sort
+        ordinals = ordinals.drop(19).take(2)
+        if ordinals.size < 2 then
+            return DxThreadQuarkMapping::getNextOrdinal()
+        end
+        (ordinals[0]+ordinals[1]).to_f/2
+    end
+
+    # NyxPatricia::moveTargetToNewDxThread(quark, dxParentOpt or null)
+    def self.moveTargetToNewDxThread(quark, dxParentOpt)
+        dx2 = DxThreads::selectOneExistingDxThreadOrNull()
+        return if dx2.nil?
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
+        DxThreadQuarkMapping::insertRecord(dx2, quark, ordinal)
+    end
+
+    # NyxPatricia::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
+    def self.getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
+        quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
+        return nil if quark.nil?
+        dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
+        DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+        NyxPatricia::landing(quark)
+        quark
     end
 
     # -------------------------------------------------------
@@ -207,7 +284,7 @@ class NyxPatricia
         loop {
             dx7 = NyxPatricia::selectOneDX7OrNull()
             break if dx7.nil? 
-            NyxPatricia::dx7landing(dx7)
+            NyxPatricia::landing(dx7)
         }
     end
 end

@@ -66,16 +66,16 @@ class NereidProxyOperator
             NyxArrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
                 e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{NyxPatricia::dx7toString(e1)}", lambda { 
-                    NyxPatricia::dx7landing(e1)
+                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
+                    NyxPatricia::landing(e1)
                 })
             }
 
             NyxArrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
                 e1 = NyxPatricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{NyxPatricia::dx7toString(e1)}", lambda { 
-                    NyxPatricia::dx7landing(e1)
+                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{NyxPatricia::toString(e1)}", lambda { 
+                    NyxPatricia::landing(e1)
                 })
             }
 
