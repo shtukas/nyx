@@ -5,10 +5,17 @@ DisplayItemsNS16 {
     "lambda"      : Lambda
 }
 
-{
+DisplayGroup {
     "uuid"             => uuid,
     "completionRatio"  => Float,
     "description"      => nil or String,
     "block"            => nil,
     "DisplayItemsNS16" => Array[DisplayItemsNS16]
+}
+
+RunningItem {
+    "uuid"         :
+    "announce"     : String
+    "start"        : Number
+    "bankAccounts" : Array[String]
 }

@@ -29,6 +29,18 @@ class Quarks
         "[quark] #{NereidInterface::toString(quark["nereiduuid"])}"
     end
 
+    # Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
+    def self.getOrSelectQuarkDxThreadOneParentOrNull(quark)
+        dxthreads = DxThreadQuarkMapping::getDxThreadsForQuark(quark)
+        if dxthreads.size == 0 then
+            return nil
+        end
+        if dxthreads.size == 1 then
+            return dxthreads[0]
+        end
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
+    end
+
     # --------------------------------------------------
 
     # Quarks::access(quark)
@@ -67,6 +79,11 @@ class Quarks
                 lambda { Quarks::access(quark) }
             )
 
+            mx.item("start".yellow, lambda { 
+                dxthread = Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
+                DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+            })
+
             mx.item("set/update ordinal".yellow, lambda {
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ")
                 return if ordinal == ""
@@ -74,17 +91,7 @@ class Quarks
             })
 
             mx.item("move to another DxThread".yellow, lambda {
-                dxthreads = DxThreadQuarkMapping::getDxThreadsForQuark(quark)
-                if dxthreads.size == 0 then
-                    Patricia::moveTargetToNewDxThread(quark, nil)
-                    return
-                end
-                if dxthreads.size == 1 then
-                    Patricia::moveTargetToNewDxThread(quark, dxthreads[0])
-                    return
-                end
-                dxthread = LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
-                return if dxthread.nil?
+                dxthread = Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
                 Patricia::moveTargetToNewDxThread(quark, dxthread)
             })
 

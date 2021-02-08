@@ -60,39 +60,24 @@ class VideoStream
             filepath = filepath2
         end
 
-        stopAndRecordTime = lambda {|uuid|
-            timespan = Runner::stop(uuid)
-            puts "Watched for #{timespan} seconds"
-            timespan = [timespan, 3600*2].min
-            timespan = [timespan, 300].max
-            puts "Adding #{timespan} seconds to bank"
-            Bank::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02", timespan)
-        }
-
         puts filepath
 
-        if Runner::isRunning?(filepath) then
-            if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
+        option = LucilleCore::askQuestionAnswerAsString("> play (default) ; completed : ")
+        if option == "" then
+            option = "play"
+        end
+        if option == "play" then
+            item = RunningItems::start(File.basename(filepath), [filepath, "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02"])
+            system("open '#{filepath}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", true) then
                 FileUtils.rm(filepath)
-                stopAndRecordTime.call(filepath)
-            end
-        else
-            option = LucilleCore::askQuestionAnswerAsString("> play (default) ; completed : ")
-            if option == "" then
-                option = "play"
-            end
-            if option == "play" then
-                Runner::start(filepath)
-                system("open '#{filepath}'")
-                if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", true) then
-                    FileUtils.rm(filepath)
-                    stopAndRecordTime.call(filepath)
-                end
-            end
-            if option == "completed" then
-                FileUtils.rm(filepath)
+                RunningItems::stopItem(item)
             end
         end
+        if option == "completed" then
+            FileUtils.rm(filepath)
+        end
+
     end
 end
 

@@ -1,5 +1,56 @@
 # encoding: UTF-8
 
+class RunningItems
+
+    # RunningItems::items()
+    def self.items()
+        BTreeSets::values(nil, "88357686-97eb-4cf4-bdeb-7ede68281aaf")
+    end
+
+    # RunningItems::start(announce, bankAccounts)
+    def self.start(announce, bankAccounts)
+        item = {
+            "uuid"         => SecureRandom.hex,
+            "announce"     => announce,
+            "start"        => Time.new.to_f,
+            "bankAccounts" => bankAccounts,
+        }
+        BTreeSets::set(nil, "88357686-97eb-4cf4-bdeb-7ede68281aaf", item["uuid"], item)
+        item
+    end
+
+    # RunningItems::displayLines()
+    def self.displayLines()
+        items = BTreeSets::values(nil, "88357686-97eb-4cf4-bdeb-7ede68281aaf")
+        items.map{|item|
+            "running: #{item["announce"]}".green
+        }
+    end
+
+    # RunningItems::destroy(item)
+    def self.destroy(item)
+        BTreeSets::destroy(nil, "88357686-97eb-4cf4-bdeb-7ede68281aaf", item["uuid"])
+    end
+
+    # RunningItems::stopItem(item)
+    def self.stopItem(item)
+        timespan = Time.new.to_f - item["start"]
+        timespan = [timespan, 3600*2].min
+        item["bankAccounts"].each{|account|
+            puts "putting #{timespan} seconds to account: #{account}"
+            Bank::put(account, timespan)                
+        }
+        RunningItems::destroy(item)
+    end
+
+    # RunningItems::stop()
+    def self.stop()
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
+        return if item.nil?
+        RunningItems::stopItem(item)
+    end
+end
+
 class UIServices
 
     # UIServices::servicesFront()
@@ -192,107 +243,127 @@ class UIServices
         output.strip
     end
 
-    # UIServices::todoListingLoop()
-    def self.todoListingLoop()
+    # UIServices::todoListingOnce()
+    def self.todoListingOnce()
 
-        loop {
+        CatalystUtils::importFromLucilleInbox()
 
-            CatalystUtils::importFromLucilleInbox()
+        Calendar::dailyBriefingIfNotDoneToday()
 
-            Calendar::dailyBriefingIfNotDoneToday()
+        Anniversaries::dailyBriefingIfNotDoneToday()
 
-            Anniversaries::dailyBriefingIfNotDoneToday()
+        displayGroups = UIServices::getDisplayGroupsInOrder()
 
-            displayGroups = UIServices::getDisplayGroupsInOrder()
+        system("clear")
 
-            system("clear")
+        vspaceleft = CatalystUtils::screenHeight()-5
 
-            vspaceleft = CatalystUtils::screenHeight()-5
-
-            displayGroups.each{|dg|
-                output = UIServices::DG2String(dg, vspaceleft)
-                next if output.nil?
-                next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
-                puts ""
-                vspaceleft = vspaceleft - 1
-                puts output
-                vspaceleft = vspaceleft - CatalystUtils::verticalSize(output)
-            }
-
-            items = displayGroups
-                        .map{|dg| dg["DisplayItemsNS16"] }
-                        .flatten
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-
+        lines = RunningItems::displayLines()
+        if !lines.empty? then
             puts ""
-            puts "commands: [] (Tasks.txt) | .. (access top item) #default | ++ | +datecode | select | dxthread | / | nyx".yellow
-            if items[0] and items[0]["commands"] then
-                puts "commands: #{items[0]["commands"]}".yellow
-            end
+            puts lines.join("\n")
+        end 
 
-            input = LucilleCore::pressEnterToContinue("> ")
-
-            if input == ".." then
-                items[0]["lambda"].call()
-                next
-            end
-
-            if input == "[]" then
-                CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
-                next
-            end
-
-            if input.start_with?("++") and input.size > 2 then
-                shiftInHours = input[2, input.size].to_f
-                next if shiftInHours == 0
-                item = items[0]
-                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
-                next
-            end
-
-            if input == '++' then
-                item = items[0]
-                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
-                next
-            end
-
-            if input.start_with?('+') then
-                item = items[0]
-                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                next
-            end
-
-            if input == "select" then
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
-                next if item.nil?
-                item["lambda"].call()
-                items = items.reject{|i| i["announce"] == item["announce"] }
-                next
-            end
-
-            if input == "dxthread" then
-                dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-                next if dxthread.nil?
-                if Runner::isRunning?(dxthread["uuid"]) then
-                    puts "'#{DxThreads::toString(dxthread)}' is already running"
-                    next                    
-                end
-                Runner::start(dxthread["uuid"])
-                next
-            end
-
-            if input == "/" then
-                UIServices::servicesFront()
-                next
-            end
-
-            if input == "nyx" then
-                UIServices::nyxMain()
-                next
-            end
+        displayGroups.each{|dg|
+            output = UIServices::DG2String(dg, vspaceleft)
+            next if output.nil?
+            next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
+            puts ""
+            vspaceleft = vspaceleft - 1
+            puts output
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(output)
         }
+
+        items = displayGroups
+                    .map{|dg| dg["DisplayItemsNS16"] }
+                    .flatten
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+        puts ""
+        puts "commands: .. (access top item) #default | [] (Tasks.txt) | ++ | +datecode | start | stop | / | nyx".yellow
+        if items[0] and items[0]["commands"] then
+            puts "commands: #{items[0]["commands"]}".yellow
+        end
+
+        input = LucilleCore::pressEnterToContinue("> ")
+
+        if input == ".." then
+            items[0]["lambda"].call()
+            return
+        end
+
+        if input == "[]" then
+            CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
+            return
+        end
+
+        if input.start_with?("++") and input.size > 2 then
+            shiftInHours = input[2, input.size].to_f
+            return if shiftInHours == 0
+            item = items[0]
+            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
+            return
+        end
+
+        if input == '++' then
+            item = items[0]
+            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
+            return
+        end
+
+        if input.start_with?('+') then
+            item = items[0]
+            unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+            return if unixtime.nil?
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
+        if input == "select" then
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
+            return if item.nil?
+            item["lambda"].call()
+            items = items.reject{|i| i["announce"] == item["announce"] }
+            return
+        end
+
+        if input == "start" then
+            dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+            return if dxthread.nil?
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["start DxThread", "Start Quark"])
+            return if op.nil?
+            if op == "Start DxThread" then
+                RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
+                return
+            end
+            if op == "Start quark" then
+                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
+                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
+                return if quark.nil?
+                DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+            end
+        end
+
+        if input == "stop" then
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
+            return if item.nil?
+            timespan = Time.new.to_f - item["start"]
+            item["bankAccounts"].each{|account|
+                puts "putting #{timespan} seconds to account: #{account}"
+                Bank::put(account, timespan)                
+            }
+            RunningItems::destroy(item)
+        end
+
+        if input == "/" then
+            UIServices::servicesFront()
+            return
+        end
+
+        if input == "nyx" then
+            UIServices::nyxMain()
+            return
+        end
     end
 
     # UIServices::todoListingMain()
@@ -305,7 +376,9 @@ class UIServices
                 end
             }
         }
-        UIServices::todoListingLoop()
+        loop {
+            UIServices::todoListingOnce()
+        }
     end
 
     # UIServices::issueNewNyxElement()

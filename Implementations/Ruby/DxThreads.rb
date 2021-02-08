@@ -43,7 +43,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".yellow
+            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | / | pause | exit-running  | exit(-stopped) (default)".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -75,6 +75,13 @@ class DxThreadsUIUtils
                 puts "paused...".green
                 LucilleCore::pressEnterToContinue("Press enter to resume: ")
                 next
+            end
+            if input == "exit-running" then
+                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
+                return
+            end
+            if input == "exit" then
+                return
             end
             if input == "/" then
                 UIServices::servicesFront()
@@ -244,14 +251,16 @@ class DxThreads
                 M54::put(dxthread)
             })
 
-            mx.item("update daily time commitment in hours".yellow, lambda { 
+            mx.item("update daily time commitment".yellow, lambda { 
                 time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
                 dxthread["timeCommitmentPerDayInHours"] = time
                 M54::put(dxthread)
             })
 
             mx.item("start thread".yellow, lambda { 
-                Runner::start(dxthread["uuid"])
+                RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
+                puts "Started"
+                LucilleCore::pressEnterToContinue()
             })
 
             mx.item("add time".yellow, lambda { 
