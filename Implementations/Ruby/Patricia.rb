@@ -174,7 +174,7 @@ class Patricia
     def self.architectDX7OrNull()
         dx7 = Patricia::selectOneDX7OrNull()
         return dx7 if dx7
-        ops = ["Nereid Element", "Tag", "TimelineItem", "Curated Listing"]
+        ops = ["Nereid Element", "Tag", "Timeline Item", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
         if operation == "Nereid Element" then
@@ -183,7 +183,7 @@ class Patricia
         if operation == "Tag" then
             return Tags::interactivelyIssueNewTagOrNull()
         end
-        if operation == "TimelineItem" then
+        if operation == "Timeline Item" then
             return TimelineItems::interactivelyIssueNewTimelineItemOrNull()
         end
         if operation == "Curated Listing" then
