@@ -175,13 +175,16 @@ class Waves
                     "uuid"     => wave["uuid"],
                     "announce" => Waves::toString(wave),
                     "lambda"   => lambda { 
-                        time1 = Time.new.to_f
-                        Waves::access(wave) 
-                        time2 = Time.new.to_f
-                        timespan = time2 - time1
-                        timespan = [timespan, 3600*2].min
-                        puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
-                        Bank::put(displayGroupBankUUID, timespan)                        
+                        runningitem = RunningItems::start(Waves::toString(wave), [displayGroupBankUUID])
+                        Waves::access(wave)
+                        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "keep alive"])
+                        if op.nil? or op == "done (default)" then
+                            Waves::performDone(wave)
+                            RunningItems::stopItem(runningitem)
+                        end
+                        if op == "keep alive" then
+                            Waves::performDone(wave) # We done it but the runningItem is still alive.
+                        end
                     }
                 }
             }
@@ -201,10 +204,6 @@ class Waves
             CatalystUtils::openUrl(element["payload"])
         else
             NereidInterface::access(wave["nereiduuid"])
-        end
-
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-            Waves::performDone(wave)
         end
     end
 

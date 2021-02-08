@@ -77,7 +77,6 @@ class VideoStream
         if option == "completed" then
             FileUtils.rm(filepath)
         end
-
     end
 end
 

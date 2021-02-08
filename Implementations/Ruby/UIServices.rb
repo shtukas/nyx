@@ -261,8 +261,12 @@ class UIServices
         lines = RunningItems::displayLines()
         if !lines.empty? then
             puts ""
-            puts lines.join("\n")
-        end 
+            vspaceleft = vspaceleft - 1
+            lines.each{|line|
+                puts line
+                vspaceleft = vspaceleft - 1
+            }
+        end
 
         displayGroups.each{|dg|
             output = UIServices::DG2String(dg, vspaceleft)
