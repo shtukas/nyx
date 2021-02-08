@@ -102,9 +102,10 @@ class UIServices
         }
     end
 
-    # UIServices::tasksDisplayGroup(displayGroupBankUUID)
-    def self.tasksDisplayGroup(displayGroupBankUUID)
+    # UIServices::tasksDisplayGroupOrNull(displayGroupBankUUID)
+    def self.tasksDisplayGroupOrNull(displayGroupBankUUID)
         text = IO.read("/Users/pascal/Desktop/Tasks.txt").strip
+        return nil if text.start_with?("@8BFF9C08-06F6-48E0-AE8B-CD5EF6657FE4")
         if text.size > 0 then
             text = text.lines.first(5).join().strip
         end
@@ -152,7 +153,7 @@ class UIServices
             "DisplayItemsNS16" => displayItems
         }
 
-        dg2 = UIServices::tasksDisplayGroup("3e69fecb-0a1e-450c-8b96-a16110de5a58")
+        dg2 = UIServices::tasksDisplayGroupOrNull("3e69fecb-0a1e-450c-8b96-a16110de5a58")
 
         dg31s = DxThreads::dxthreads()
                 .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
