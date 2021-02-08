@@ -6,4 +6,4 @@ require_relative "Implementations/Ruby/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-NyxUserInterface::nyxMain()
+UIServices::nyxMain()

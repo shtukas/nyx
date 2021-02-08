@@ -251,7 +251,7 @@ class UIServices
             end
 
             if input == "nyx" then
-                NyxUserInterface::nyxMain()
+                UIServices::nyxMain()
                 next
             end
         }
@@ -270,7 +270,7 @@ class UIServices
         UIServices::todoListingLoop()
     end
 
-    # NyxUserInterface::issueNewNyxElement()
+    # UIServices::issueNewNyxElement()
     def self.issueNewNyxElement()
         ops = ["Nereid Element", "TimelineItem", "Curated Listing"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
@@ -292,7 +292,7 @@ class UIServices
         end
     end
 
-    # NyxUserInterface::nyxMain()
+    # UIServices::nyxMain()
     def self.nyxMain()
         loop {
             system("clear")
@@ -304,7 +304,7 @@ class UIServices
                 Patricia::generalSearchLoop()
             end
             if operation == "Issue New" then
-                NyxUserInterface::issueNewNyxElement()
+                UIServices::issueNewNyxElement()
             end
         }
     end
