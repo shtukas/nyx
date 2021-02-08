@@ -43,7 +43,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | / | pause | exit-running  | exit(-stopped) (default)".yellow
+            puts " >nyx | >dxthread | landing | / | pause | exit-running  | exit(-stopped) (default) | done (destroy quark and nereid element) | done-running".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -52,10 +52,6 @@ class DxThreadsUIUtils
             Bank::put(quark["uuid"], timespan)
             puts "putting #{timespan} seconds to dxthread: #{DxThreads::toString(dxthread)}"
             Bank::put(dxthread["uuid"], timespan)
-            if input == "done" then
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
             if input == ">nyx" then
                 item = Patricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
                 return if item.nil?
@@ -81,6 +77,15 @@ class DxThreadsUIUtils
                 return
             end
             if input == "exit" then
+                return
+            end
+            if input == "done" then
+                Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input == "done-running" then
+                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
+                Quarks::destroyQuarkAndNereidContent(quark)
                 return
             end
             if input == "/" then

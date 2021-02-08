@@ -112,7 +112,7 @@ class UIServices
             "uuid"             => displayGroupBankUUID,
             "completionRatio"  => BankExtended::recoveredDailyTimeInHours(displayGroupBankUUID).to_f,
             "description"      => "Tasks.txt",
-            "block"            => text.size > 0 ? text.green : nil,
+            "block"            => text.size > 0 ? text : nil,
             "DisplayItemsNS16" => [
                 {
                     "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
