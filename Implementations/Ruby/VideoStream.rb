@@ -43,6 +43,7 @@ class VideoStream
                         VideoStream::access(filepath) 
                         time2 = Time.new.to_f
                         timespan = time2 - time1
+                        timespan = [timespan, 3600*2].min
                         puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
                         Bank::put(displayGroupBankUUID, timespan)  
                     },

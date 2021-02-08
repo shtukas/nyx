@@ -179,6 +179,7 @@ class Waves
                         Waves::access(wave) 
                         time2 = Time.new.to_f
                         timespan = time2 - time1
+                        timespan = [timespan, 3600*2].min
                         puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
                         Bank::put(displayGroupBankUUID, timespan)                        
                     }
@@ -194,8 +195,6 @@ class Waves
         element = NereidInterface::getElementOrNull(wave["nereiduuid"])
         return if element.nil?
 
-        startTime = Time.new.to_f
-        
         case element["type"]
         when "Line"
         when "Url"
@@ -206,9 +205,6 @@ class Waves
 
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
             Waves::performDone(wave)
-            timespan = [Time.new.to_f - startTime, 3600].min
-            puts "Add #{timespan} seconds to DxThread Stream (for time management)"
-            Bank::put(DxThreads::getStream()["uuid"], timespan)
         end
     end
 

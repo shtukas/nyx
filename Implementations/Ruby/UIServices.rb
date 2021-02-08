@@ -68,12 +68,21 @@ class UIServices
                     "announce"    => "",
                     "commands"    => nil,
                     "lambda"      => lambda{
+                        thr = Thread.new {
+                            sleep 3600
+                            loop {
+                                Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                                sleep 60
+                            }
+                        }
                         time1 = Time.new.to_f
                         LucilleCore::pressEnterToContinue("Press [enter] to stop Tasks.txt ")
                         time2 = Time.new.to_f
                         timespan = time2 - time1
+                        timespan = [timespan, 3600*2].min
                         puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
-                        Bank::put(displayGroupBankUUID, timespan) 
+                        Bank::put(displayGroupBankUUID, timespan)
+                        thr.exit
                     }
                 }
             ]
@@ -94,16 +103,51 @@ class UIServices
 
         dg2 = UIServices::tasksDisplayGroup("3e69fecb-0a1e-450c-8b96-a16110de5a58")
 
-        dg3s = DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
-            .map{|dxthread|
-                {
-                    "uuid"             => dxthread["uuid"],
-                    "completionRatio"  => DxThreads::completionRatio(dxthread),
-                    "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
-                    "block"            => nil,
-                    "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
-                } 
-            }
+        dg31s = DxThreads::dxthreads()
+                .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
+                .map{|dxthread|
+                    thread = {
+                        "uuid"        => dxthread["uuid"],
+                        "announce"    => "running: #{DxThreads::toStringWithAnalytics(dxthread)}".green,
+                        "commands"    => nil,
+                        "lambda"      => lambda {
+                            thr = Thread.new {
+                                sleep 3600
+                                loop {
+                                    Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                                    sleep 60
+                                }
+                            }
+                            if LucilleCore::askQuestionAnswerAsBoolean("We are running. Stop ? : ", true) then
+                                timespan = Runner::stop(dxthread["uuid"])
+                                timespan = [timespan, 3600*2].min
+                                puts "Adding #{timespan} seconds to #{DxThreads::toStringWithAnalytics(dxthread)}"
+                                Bank::put(dxthread["uuid"], timespan)                                
+                            end
+                            thr.exit
+                        }
+                    }
+                    {
+                        "uuid"             => dxthread["uuid"],
+                        "completionRatio"  => 0,
+                        "description"      => nil,
+                        "block"            => nil,
+                        "DisplayItemsNS16" => [thread]
+                    } 
+                }
+
+        dg32s = DxThreads::dxthreads()
+                .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
+                .select{|dxthread| dxthread["noDisplayOnThisDay"] != CatalystUtils::today() }
+                .map{|dxthread|
+                    {
+                        "uuid"             => dxthread["uuid"],
+                        "completionRatio"  => DxThreads::completionRatio(dxthread),
+                        "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
+                        "block"            => nil,
+                        "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
+                    } 
+                }
 
         uuid = "e42a45ea-d3f1-4f96-9982-096d803e2b72"
         dg4 = {
@@ -114,20 +158,25 @@ class UIServices
             "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
         }
 
-        ([dg1]+ [dg2] + dg3s + [dg4] + [DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()])
+        ([dg1]+ [dg2] + dg31s + dg32s + [dg4] + [DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()])
             .flatten
             .compact
             .select{|dg| dg["block"] or dg["DisplayItemsNS16"].size>0 }
             .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
     end
 
-    # UIServices::DG2Block(dg, vspaceleft)
-    def self.DG2Block(dg, vspaceleft)
+    # UIServices::DG2String(dg, vspaceleft)
+    def self.DG2String(dg, vspaceleft)
         return nil if vspaceleft <= 0
         output = ""
+        rationstring = "[#{"%6.3f" % dg["completionRatio"]}]"
         if dg["description"] then
-            output = output + dg["description"] + "\n"
-            vspaceleft = vspaceleft - CatalystUtils::verticalSize(dg["description"])
+            text = "#{rationstring} #{dg["description"]}".yellow
+            output = output + text + "\n"
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(text)
+        else
+            output = output + rationstring.yellow + "\n"
+            vspaceleft = vspaceleft - 1            
         end
         if dg["block"] then
             output = output + dg["block"] + "\n"
@@ -140,15 +189,7 @@ class UIServices
                 output = output + item["announce"] + "\n"
                 vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
             }
-        output.strip.lines.map.with_index{|line, indx|
-            if indx == 0 then
-                "[#{"%6.3f" % dg["completionRatio"]}] " + line
-            else
-                "         " + line
-            end
-            
-        }
-        .join
+        output.strip
     end
 
     # UIServices::todoListingLoop()
@@ -169,7 +210,7 @@ class UIServices
             vspaceleft = CatalystUtils::screenHeight()-5
 
             displayGroups.each{|dg|
-                output = UIServices::DG2Block(dg, vspaceleft)
+                output = UIServices::DG2String(dg, vspaceleft)
                 next if output.nil?
                 next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
                 puts ""
@@ -184,7 +225,7 @@ class UIServices
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
             puts ""
-            puts "commands: [] (Tasks.txt) | .. (access top item) #default | ++ | +datecode | select | start dx | / | nyx".yellow
+            puts "commands: [] (Tasks.txt) | .. (access top item) #default | ++ | +datecode | select | dxthread | / | nyx".yellow
             if items[0] and items[0]["commands"] then
                 puts "commands: #{items[0]["commands"]}".yellow
             end
@@ -231,16 +272,14 @@ class UIServices
                 next
             end
 
-            if input == "start dx" then
+            if input == "dxthread" then
                 dxthread = DxThreads::selectOneExistingDxThreadOrNull()
                 next if dxthread.nil?
-                puts "running: #{DxThreads::toString(dxthread).green}"
-                time1 = Time.new.to_f
-                LucilleCore::pressEnterToContinue("Press enter to exit running thread: ")
-                time2 = Time.new.to_f
-                timespan = time2-time1
-                puts "putting #{timespan} seconds"
-                Bank::put(dxthread["uuid"], timespan)
+                if Runner::isRunning?(dxthread["uuid"]) then
+                    puts "'#{DxThreads::toString(dxthread)}' is already running"
+                    next                    
+                end
+                Runner::start(dxthread["uuid"])
                 next
             end
 

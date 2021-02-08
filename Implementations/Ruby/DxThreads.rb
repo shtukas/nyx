@@ -291,12 +291,6 @@ class DxThreads
         }
     end
 
-    # DxThreads::getThreadsInCompletionRatioOrder()
-    def self.getThreadsInCompletionRatioOrder()
-        DxThreads::dxthreads()
-            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-    end
-
     # DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
     def self.getThreadsAvailableTodayInCompletionRatioOrder()
         DxThreads::dxthreads()
@@ -311,11 +305,13 @@ class DxThreads
 
             ms = LCoreMenuItemsNX1.new()
 
-            DxThreads::getThreadsInCompletionRatioOrder().each{|dxthread|
-                ms.item(DxThreads::toStringWithAnalytics(dxthread), lambda { 
-                    DxThreads::landing(dxthread)
-                })
-            }
+            DxThreads::dxthreads()
+                .sort{|dx1, dx2| dx1["description"] <=> dx2["description"] }
+                .each{|dxthread|
+                    ms.item(DxThreads::toStringWithAnalytics(dxthread), lambda { 
+                        DxThreads::landing(dxthread)
+                    })
+                }
 
             ms.item("make new DxThread", lambda { 
                 object = DxThreads::issueDxThreadInteractivelyOrNull()
