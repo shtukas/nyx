@@ -18,8 +18,8 @@ class VideoStream
             .sort
     end
 
-    # VideoStream::displayItemsNS16()
-    def self.displayItemsNS16()
+    # VideoStream::displayItemsNS16(displayGroupBankUUID)
+    def self.displayItemsNS16(displayGroupBankUUID)
         raise "[error: 61cb51f1-ad91-4a94-974b-c6c0bdb4d41f]" if !File.exists?(VideoStream::spaceFolderpath())
         return [] if BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02") > 1
         VideoStream::videoFilepaths()
@@ -38,9 +38,17 @@ class VideoStream
                 {
                     "uuid"     => filepath,
                     "announce" => "[VideoStream] #{File.basename(filepath)}",
-                    "lambda"   => lambda { VideoStream::access(filepath) },
+                    "lambda"   => lambda {
+                        time1 = Time.new.to_f
+                        VideoStream::access(filepath) 
+                        time2 = Time.new.to_f
+                        timespan = time2 - time1
+                        puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
+                        Bank::put(displayGroupBankUUID, timespan)  
+                    },
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # VideoStream::access(filepath)

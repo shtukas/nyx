@@ -12,7 +12,13 @@ NereidElement {
 
 Todo Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
 
-Todo UI Types; DisplayItemsNS16
+Todo UI Types; 
+    DisplayItemsNS16 (See file) 
+    DisplayGroup {
+        "metric"           => Number # Between 0 and 1,
+        "display"          => nil or string
+        "DisplayItemsNS16" => Array[DisplayItemsNS16]
+    }
 
 ------------------------------------------------------------------------------
 

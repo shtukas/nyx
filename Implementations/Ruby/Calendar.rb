@@ -101,6 +101,7 @@ class Calendar
                     }
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Calendar::landing(item)

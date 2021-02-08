@@ -41,5 +41,6 @@ class BackupsMonitor
                     "lambda"    => lambda {}
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 end

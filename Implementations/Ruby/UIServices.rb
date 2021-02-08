@@ -1,126 +1,5 @@
 # encoding: UTF-8
 
-class DxThreadsUIUtils
-
-    # DxThreadsUIUtils::getDxThreadStreamCardinal()
-    def self.getDxThreadStreamCardinal()
-        DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(DxThreads::getStream()).size
-    end
-
-    # DxThreadsUIUtils::getIdealDxThreadStreamCardinal()
-    def self.getIdealDxThreadStreamCardinal()
-        t1 = 1612052387 # 2021-01-26 22:43:56 +0000
-        y1 = 3728
-
-        t2 = 1624747436 # 2021-06-26 22:43:56
-        y2 = 100
-
-        slope = (y2-y1).to_f/(t2-t1)
-
-        return (Time.new.to_f - t1) * slope + y1
-    end
-
-    # DxThreadsUIUtils::getStreamDoneRatio()
-    def self.getStreamDoneRatio()
-        (3728 - DxThreadsUIUtils::getDxThreadStreamCardinal()).to_f/(3728-100)
-    end
-
-    # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-    def self.runDxThreadQuarkPair(dxthread, quark)
-        loop {
-            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            if element.nil? then
-                puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
-                if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
-                    Quarks::destroyQuarkAndNereidContent(quark)
-                end
-                return
-            end
-            thr = Thread.new {
-                sleep 3600
-                loop {
-                    CatalystUtils::onScreenNotification("Catalyst", "Item running for more than an hour")
-                    sleep 60
-                }
-            }
-            t1 = Time.new.to_f
-            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
-            NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".yellow
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            thr.exit
-            timespan = Time.new.to_f - t1
-            timespan = [timespan, 3600*2].min
-            puts "putting #{timespan} seconds"
-            Bank::put(quark["uuid"], timespan)
-            Bank::put(dxthread["uuid"], timespan)
-            if input == "done" then
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
-            if input == ">nyx" then
-                item = Patricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
-                return if item.nil?
-                Patricia::landing(item)
-                Quarks::destroyQuark(quark)
-                return
-            end
-            if input == ">dxthread" then
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
-                return
-            end
-            if input == "landing" then
-                Quarks::landing(quark)
-                next
-            end
-            if input == "pause" then
-                puts "paused...".green
-                LucilleCore::pressEnterToContinue("Press enter to resume: ")
-                next
-            end
-            if input == "/" then
-                UIServices::servicesFront()
-                next
-            end
-            return
-        }
-    end
-
-    # DxThreadsUIUtils::getDxThreadsUsingSelector(selector)
-    def self.getDxThreadsUsingSelector(selector)
-        DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
-            .select{|dxthread| selector.call(dxthread) }     
-    end
-
-    # DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(dxthreads)
-    def self.dxThreadsToDisplayItemsNS16(dxthreads)
-        dxthreads
-            .map{|dxthread|
-                DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
-                    .map{|quark|
-                        {
-                            "uuid"                => quark["uuid"],
-                            "announce"            => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                            "lambda"              => lambda{ runDxThreadQuarkPair(dxthread, quark) },
-                            "isDxThreadQuarkPair" => true,
-                            "dxthread"            => dxthread,
-                            "quark"               => quark
-                        }
-                    }
-            }
-            .flatten
-    end
-
-    # DxThreadsUIUtils::getLateStreamDisplayItemsNS16()
-    def self.getLateStreamDisplayItemsNS16()
-        if DxThreadsUIUtils::getIdealDxThreadStreamCardinal() < DxThreadsUIUtils::getDxThreadStreamCardinal() then
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" } )) # Only Stream
-        else
-            []
-        end  
-    end
-end
-
 class UIServices
 
     # UIServices::servicesFront()
@@ -172,45 +51,108 @@ class UIServices
         }
     end
 
-    # DxThreadsUIUtils::getDisplayItemsNS16()
-    def self.getDisplayItemsNS16()
-
-        [
-            Calendar::displayItemsNS16().map{|item|
-                item["beforeTasks"] = true
-                item
-            },
-
-            Anniversaries::displayItemsNS16().map{|item|
-                item["beforeTasks"] = true
-                item
-            },
-
-            Waves::displayItemsNS16().map{|item|
-                item["beforeTasks"] = true
-                item
-            },
-
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| DxThreads::completionRatio(dxthread) < 1 } )).map{|item|
-                item["beforeTasks"] = true
-                item
-            }, # Streams Below Targets
-
-            BackupsMonitor::displayItemsNS16(),
-
-            DxThreadsUIUtils::getLateStreamDisplayItemsNS16(),
-
-            VideoStream::displayItemsNS16(),
-
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4") and (DxThreads::completionRatio(dxthread) < 2)})), # Stream, ratio less than 2
-
-            DxThreadsUIUtils::dxThreadsToDisplayItemsNS16(DxThreadsUIUtils::getDxThreadsUsingSelector( lambda { |dxthread| (dxthread["uuid"] == "9db94deaddb8576ebda1f1fa7e6b800a") and (DxThreads::completionRatio(dxthread) < 2)})) # Jedi, ratio less than 2
-        ]
-        .flatten
+    # UIServices::tasksDisplayGroup(displayGroupBankUUID)
+    def self.tasksDisplayGroup(displayGroupBankUUID)
+        text = IO.read("/Users/pascal/Desktop/Tasks.txt").strip
+        if text.size > 0 then
+            text = text.lines.first(5).join().strip
+        end
+        dg2 = {
+            "uuid"             => displayGroupBankUUID,
+            "completionRatio"  => BankExtended::recoveredDailyTimeInHours(displayGroupBankUUID).to_f,
+            "description"      => "Tasks.txt",
+            "block"            => text.size > 0 ? text : nil,
+            "DisplayItemsNS16" => [
+                {
+                    "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
+                    "announce"    => "",
+                    "commands"    => nil,
+                    "lambda"      => lambda{
+                        time1 = Time.new.to_f
+                        LucilleCore::pressEnterToContinue("Press [enter] to stop Tasks.txt ")
+                        time2 = Time.new.to_f
+                        timespan = time2 - time1
+                        puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
+                        Bank::put(displayGroupBankUUID, timespan) 
+                    }
+                }
+            ]
+        }
     end
 
-    # UIServices::standardListingLoop()
-    def self.standardListingLoop()
+    # UIServices::getDisplayGroupsInOrder()
+    def self.getDisplayGroupsInOrder()
+        uuid = "7945614c-954a-4c7d-9847-4b67e9b28d56"
+        displayItems = Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid) + BackupsMonitor::displayItemsNS16()
+        dg1 = {
+            "uuid"             => uuid,
+            "completionRatio"  => 0, # this always has priority
+            "description"      => nil,
+            "block"            => nil,
+            "DisplayItemsNS16" => displayItems
+        }
+
+        dg2 = UIServices::tasksDisplayGroup("3e69fecb-0a1e-450c-8b96-a16110de5a58")
+
+        dg3s = DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
+            .map{|dxthread|
+                {
+                    "uuid"             => dxthread["uuid"],
+                    "completionRatio"  => DxThreads::completionRatio(dxthread),
+                    "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
+                    "block"            => nil,
+                    "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
+                } 
+            }
+
+        uuid = "e42a45ea-d3f1-4f96-9982-096d803e2b72"
+        dg4 = {
+            "uuid"             => uuid,
+            "completionRatio"  => BankExtended::recoveredDailyTimeInHours(uuid).to_f,
+            "description"      => nil,
+            "block"            => nil,
+            "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
+        }
+
+        ([dg1]+ [dg2] + dg3s + [dg4] + [DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()])
+            .flatten
+            .compact
+            .select{|dg| dg["block"] or dg["DisplayItemsNS16"].size>0 }
+            .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
+    end
+
+    # UIServices::DG2Block(dg, vspaceleft)
+    def self.DG2Block(dg, vspaceleft)
+        return nil if vspaceleft <= 0
+        output = ""
+        if dg["description"] then
+            output = output + dg["description"] + "\n"
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(dg["description"])
+        end
+        if dg["block"] then
+            output = output + dg["block"] + "\n"
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(dg["block"])
+        end
+        dg["DisplayItemsNS16"]
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .each{|item|
+                next if vspaceleft <= 0
+                output = output + item["announce"] + "\n"
+                vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
+            }
+        output.strip.lines.map.with_index{|line, indx|
+            if indx == 0 then
+                "[#{"%6.3f" % dg["completionRatio"]}] " + line
+            else
+                "         " + line
+            end
+            
+        }
+        .join
+    end
+
+    # UIServices::todoListingLoop()
+    def self.todoListingLoop()
 
         loop {
 
@@ -220,180 +162,103 @@ class UIServices
 
             Anniversaries::dailyBriefingIfNotDoneToday()
 
-            items = getDisplayItemsNS16()
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            originSize = items.size
-            time1 = Time.new
+            displayGroups = UIServices::getDisplayGroupsInOrder()
 
-            loop {
+            system("clear")
 
-                system("clear")
+            vspaceleft = CatalystUtils::screenHeight()-5
 
-                tasksFilepath = "/Users/pascal/Desktop/Tasks.txt"
-                tasksFileContents = IO.read(tasksFilepath)
-
-
-                if items.size == 0 and tasksFileContents.strip == "" then
-                    puts "Nothing to do. Come back later (^.^)"
-                    LucilleCore::pressEnterToContinue()
-                    break
-                end
-
-                vspaceleft = CatalystUtils::screenHeight()-4
-
+            displayGroups.each{|dg|
+                output = UIServices::DG2Block(dg, vspaceleft)
+                next if output.nil?
+                next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
                 puts ""
                 vspaceleft = vspaceleft - 1
-
-                puts "☀️  Stream done: #{(DxThreadsUIUtils::getStreamDoneRatio()*100).round(2)}%".yellow
-                vspaceleft = vspaceleft - 1
-
-                DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
-                    .select{|dxthread| DxThreads::completionRatio(dxthread) < 1 }
-                    .each{|dxthread|
-                        puts "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}"
-                        vspaceleft = vspaceleft - 1
-                    }
-
-                items.take_while{|item| item["beforeTasks"]}.take(5).each{|item|
-                    next if vspaceleft <= 0
-                    puts item["announce"]
-                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
-                }
-
-                tasks = tasksFileContents.strip
-                if tasks.size > 0 then
-                    text = tasks.lines.first(10).join.strip
-                    puts text.green
-                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(text)
-                end
-
-                items.take_while{|item| item["beforeTasks"]}.drop(5).each{|item|
-                    next if vspaceleft <= 0
-                    puts item["announce"]
-                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
-                }
-
-                items.drop_while{|item| item["beforeTasks"]}.each{|item|
-                    next if vspaceleft <= 0
-                    puts item["announce"]
-                    vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
-                }
-
-                puts ""
-                puts "commands: [] (Tasks.txt) | .. (access top item) #default | >> (skip top item) | ++ | +datecode | select | start dx | / | nyx".yellow
-                if items[0] and items[0]["isDxThreadQuarkPair"] then
-                    puts "commands: done (destroy quark and nereid element) | >nyx | >dxthread | landing".yellow
-                end
-
-                input = LucilleCore::pressEnterToContinue("> ")
-
-                if input == "[]" then
-                    next if tasksFileContents != IO.read(tasksFilepath)
-                    CatalystUtils::applyNextTransformationToFile(tasksFilepath)
-                    next
-                end
-
-                if input == ".." then
-                    item = items.shift
-                    item["lambda"].call()
-                    next
-                end
-
-                if input == ">>" then
-                    items.shift
-                    next
-                end
-
-                if input.start_with?("++") and input.size > 2 then
-                    shiftInHours = input[2, input.size].to_f
-                    next if shiftInHours == 0
-                    item = items.shift
-                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
-                    next
-                end
-
-                if input == '++' then
-                    item = items.shift
-                    DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
-                    next
-                end
-
-                if input.start_with?('+') then
-                    item = items.shift
-                    unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                    next if unixtime.nil?
-                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                    next
-                end
-
-                if input == "select" then
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
-                    next if item.nil?
-                    item["lambda"].call()
-                    items = items.reject{|i| i["announce"] == item["announce"] }
-                    next
-                end
-
-                if input == "start dx" then
-                    dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-                    next if dxthread.nil?
-                    puts "running: #{DxThreads::toString(dxthread).green}"
-                    time1 = Time.new.to_f
-                    LucilleCore::pressEnterToContinue("Press enter to exit running thread: ")
-                    time2 = Time.new.to_f
-                    timespan = time2- time1
-                    puts "putting #{timespan} seconds"
-                    Bank::put(dxthread["uuid"], timespan)
-                    break
-                end
-
-                if input == "/" then
-                    UIServices::servicesFront()
-                    break
-                end
-
-                if input == "nyx" then
-                    system("nyx")
-                    break
-                end
-
-                # below, quark commands
-
-                if input == "done" then
-                    item = items.shift
-                    Quarks::destroyQuarkAndNereidContent(item["quark"])
-                    next
-                end
-                if input == ">nyx" then
-                    item = items.shift
-                    quark = item["quark"]
-                    element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-                    next if element.nil?
-                    Patricia::landing(element)
-                    Quarks::destroyQuark(quark)
-                    next
-                end
-                if input == ">dxthread" then
-                    item = items.shift
-                    Patricia::moveTargetToNewDxThread(item["quark"], item["dxthread"])
-                    next
-                end
-                if input == "landing" then
-                    item = items.shift
-                    Quarks::landing(item["quark"])
-                    items.shift
-                    next
-                end
-
-                break if items.size <= originSize/2          # We restart if we have done a bunch
-                break if Time.new.to_s[0, 13] != time1.to_s[0, 13] # We restart the outter loop at each hour
+                puts output
+                vspaceleft = vspaceleft - CatalystUtils::verticalSize(output)
             }
+
+            items = displayGroups
+                        .map{|dg| dg["DisplayItemsNS16"] }
+                        .flatten
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+            puts ""
+            puts "commands: [] (Tasks.txt) | .. (access top item) #default | ++ | +datecode | select | start dx | / | nyx".yellow
+            if items[0] and items[0]["commands"] then
+                puts "commands: #{items[0]["commands"]}".yellow
+            end
+
+            input = LucilleCore::pressEnterToContinue("> ")
+
+            if input == ".." then
+                items[0]["lambda"].call()
+                next
+            end
+
+            if input == "[]" then
+                next if tasksFileContents != IO.read(tasksFilepath)
+                CatalystUtils::applyNextTransformationToFile(tasksFilepath)
+                next
+            end
+
+            if input.start_with?("++") and input.size > 2 then
+                shiftInHours = input[2, input.size].to_f
+                next if shiftInHours == 0
+                item = items[0]
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
+                next
+            end
+
+            if input == '++' then
+                item = items[0]
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
+                next
+            end
+
+            if input.start_with?('+') then
+                item = items[0]
+                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                next if unixtime.nil?
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                next
+            end
+
+            if input == "select" then
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
+                next if item.nil?
+                item["lambda"].call()
+                items = items.reject{|i| i["announce"] == item["announce"] }
+                next
+            end
+
+            if input == "start dx" then
+                dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                next if dxthread.nil?
+                puts "running: #{DxThreads::toString(dxthread).green}"
+                time1 = Time.new.to_f
+                LucilleCore::pressEnterToContinue("Press enter to exit running thread: ")
+                time2 = Time.new.to_f
+                timespan = time2-time1
+                puts "putting #{timespan} seconds"
+                Bank::put(dxthread["uuid"], timespan)
+                next
+            end
+
+            if input == "/" then
+                UIServices::servicesFront()
+                next
+            end
+
+            if input == "nyx" then
+                NyxUserInterface::nyxMain()
+                next
+            end
         }
     end
 
     # UIServices::todoListingMain()
     def self.todoListingMain()
-
         Thread.new {
             loop {
                 sleep 120
@@ -402,8 +267,7 @@ class UIServices
                 end
             }
         }
-
-        UIServices::standardListingLoop()
+        UIServices::todoListingLoop()
     end
 
     # NyxUserInterface::issueNewNyxElement()

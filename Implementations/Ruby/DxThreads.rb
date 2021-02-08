@@ -1,5 +1,118 @@
 # encoding: UTF-8
 
+class DxThreadsTarget
+    # DxThreadsTarget::getDxThreadStreamCardinal()
+    def self.getDxThreadStreamCardinal()
+        DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(DxThreads::getStream()).size
+    end
+
+    # DxThreadsTarget::getIdealDxThreadStreamCardinal()
+    def self.getIdealDxThreadStreamCardinal()
+        t1 = 1612052387 # 2021-01-26 22:43:56 +0000
+        y1 = 3728
+
+        t2 = 1624747436 # 2021-06-26 22:43:56
+        y2 = 100
+
+        slope = (y2-y1).to_f/(t2-t1)
+
+        return (Time.new.to_f - t1) * slope + y1
+    end
+end
+
+class DxThreadsUIUtils
+
+    # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+    def self.runDxThreadQuarkPair(dxthread, quark)
+        loop {
+            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
+            if element.nil? then
+                puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
+                if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
+                    Quarks::destroyQuarkAndNereidContent(quark)
+                end
+                return
+            end
+            thr = Thread.new {
+                sleep 3600
+                loop {
+                    CatalystUtils::onScreenNotification("Catalyst", "Item running for more than an hour")
+                    sleep 60
+                }
+            }
+            t1 = Time.new.to_f
+            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
+            NereidInterface::accessCatalystEdition(quark["nereiduuid"])
+            puts "done (destroy quark and nereid element) | >nyx | >dxthread | landing | pause | / | (empty) for exit quark".yellow
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            thr.exit
+            timespan = Time.new.to_f - t1
+            timespan = [timespan, 3600*2].min
+            puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
+            Bank::put(quark["uuid"], timespan)
+            puts "putting #{timespan} seconds to dxthread: #{DxThreads::toString(dxthread)}"
+            Bank::put(dxthread["uuid"], timespan)
+            if input == "done" then
+                Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input == ">nyx" then
+                item = Patricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
+                return if item.nil?
+                Patricia::landing(item)
+                Quarks::destroyQuark(quark)
+                return
+            end
+            if input == ">dxthread" then
+                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                return
+            end
+            if input == "landing" then
+                Quarks::landing(quark)
+                next
+            end
+            if input == "pause" then
+                puts "paused...".green
+                LucilleCore::pressEnterToContinue("Press enter to resume: ")
+                next
+            end
+            if input == "/" then
+                UIServices::servicesFront()
+                next
+            end
+            return
+        }
+    end
+
+    # DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
+    def self.dxThreadToDisplayItemsNS16(dxthread)
+        DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
+            .map{|quark|
+                {
+                    "uuid"     => quark["uuid"],
+                    "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
+                    "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                    "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
+                    "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
+                }
+            }
+    end
+
+    # DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()
+    def self.streamLateChargesDisplayItemsNS16OrNull()
+        return nil if DxThreadsTarget::getDxThreadStreamCardinal() < DxThreadsTarget::getIdealDxThreadStreamCardinal()
+        dxthread = DxThreads::getStream()
+        {
+            "uuid"             => "368e9e69-b69e-42fb-8207-f85203582552",
+            "completionRatio"  => 0.25,
+            "description"      => "Stream late charges".yellow,
+            "block"            => nil,
+            "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
+        }
+    end
+
+end
+
 class DxThreads
 
     # DxThreads::visualisationDepth()

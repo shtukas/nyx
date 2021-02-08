@@ -197,6 +197,7 @@ class Anniversaries
                 }
             }
             .sort{|i1, i2| i1["announce"]<=>i2["announce"] }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Anniversaries::dailyBriefing()

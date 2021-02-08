@@ -167,17 +167,24 @@ class Waves
         "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
     end
 
-    # Waves::displayItemsNS16()
-    def self.displayItemsNS16()
+    # Waves::displayItemsNS16(displayGroupBankUUID)
+    def self.displayItemsNS16(displayGroupBankUUID)
         Waves::waves()
-            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
                     "announce" => Waves::toString(wave),
-                    "lambda"   => lambda { Waves::access(wave) }
+                    "lambda"   => lambda { 
+                        time1 = Time.new.to_f
+                        Waves::access(wave) 
+                        time2 = Time.new.to_f
+                        timespan = time2 - time1
+                        puts "putting #{timespan} seconds to display group: #{displayGroupBankUUID}"
+                        Bank::put(displayGroupBankUUID, timespan)                        
+                    }
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Waves::access(wave)
