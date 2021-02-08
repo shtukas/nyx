@@ -38,7 +38,6 @@ class M92
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce"     => "#{volatileuuid} #{NereidInterface::toString(element)}",
-                    "type"         => "nereid",
                     "payload"      => element
                 }
             }

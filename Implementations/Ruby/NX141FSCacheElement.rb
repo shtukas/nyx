@@ -119,7 +119,6 @@ class NX141FSCacheElement
                 element = NX141FSCacheElement::getElementByUUIDOrNull(item["nx141"])
                 {
                     "announce"     => "#{volatileuuid} [NX141] #{item["description"]} | #{item["nx141"]}",
-                    "type"         => "NX141",
                     "payload"      => element
                 }
             }

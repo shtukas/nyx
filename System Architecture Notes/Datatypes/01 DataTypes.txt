@@ -57,34 +57,7 @@ DX7 = M92 | NX141FSCacheElement | TimelineItem | Tag | CuratedListing # (DX7s ca
 
 Network: Arrows
 
-NyxSearchItem
-
-    {
-        "announce"     : String
-        "type"         : "nereid"
-        "payload"      : NereidElement
-    }
-
-    {
-        "announce"     : String
-        "type"         : "NX141"
-        "payload"      : NX141FSCacheElement
-    }
-
-    {
-        "announce"     : String
-        "type"         : "event"
-        "payload"      : TimelineItem
-    }
-
-    {
-        "announce"     : String
-        "type"         : "tag"
-        "payload"      : Tag
-    }
-
-    {
-        "announce"     : String
-        "type"         : "curatedListing"
-        "payload"      : CuratedListing
-    }
+NyxSearchItem {
+    "announce"     : String
+    "payload"      : Object
+}

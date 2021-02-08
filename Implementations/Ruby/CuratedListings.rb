@@ -88,7 +88,6 @@ class CuratedListings
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce"     => "#{volatileuuid} #{CuratedListings::toString(curatedListing)}",
-                    "type"         => "curatedListing",
                     "payload"      => curatedListing
                 }
             }

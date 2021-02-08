@@ -68,7 +68,7 @@ class Quarks
             )
 
             mx.item("set/update ordinal".yellow, lambda {
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordnal: ")
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ")
                 return if ordinal == ""
                 DxThreadQuarkMapping::setQuarkOrdinal(quark, ordinal.to_f)
             })

@@ -18,6 +18,15 @@ class Tags
         db.close
     end
 
+    # Tags::updateTagDescription(uuid, description)
+    def self.updateTimelineDescription(uuid, description)
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "update _tags_ set _description_=? where _uuid_=?", [description, uuid]
+        db.close
+    end
+
     # Tags::getTags()
     def self.getTags()
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
@@ -72,13 +81,13 @@ class Tags
         answer
     end
 
-    # Tags::destroy(tags)
-    def self.destroy(tags)
+    # Tags::destroy(tag)
+    def self.destroy(tag)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _tags_ where _uuid_=?", [tags["uuid"]]
+        db.execute "delete from _tags_ where _uuid_=?", [tag["uuid"]]
         db.commit 
         db.close
     end
@@ -94,9 +103,9 @@ class Tags
         Tags::getTagByUUIDOrNull(uuid)
     end
 
-    # Tags::toString(tags)
-    def self.toString(tags)
-        "[tags] #{tags["description"]}"
+    # Tags::toString(tag)
+    def self.toString(tag)
+        "[tag] #{tag["description"]}"
     end
 
     # Tags::nyxSearchItems()
@@ -106,7 +115,6 @@ class Tags
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce"     => "#{volatileuuid} #{Tags::toString(tag)}",
-                    "type"         => "tag",
                     "payload"      => tag
                 }
             }
@@ -117,33 +125,36 @@ class Tags
 
     # Tags::selectTagOrNull()
     def self.selectTagOrNull()
-        CatalystUtils::selectOneOrNull(Tags::getTags(), lambda{|tags| Tags::toString(tags)})
+        CatalystUtils::selectOneOrNull(Tags::getTags(), lambda{|tag| Tags::toString(tag)})
     end
 
     # Tags::architectOrNull()
     def self.architectOrNull()
-        tags = Tags::selectTagOrNull()
-        return tags if tags
+        tag = Tags::selectTagOrNull()
+        return tag if tag
         Tags::interactivelyIssueNewTagOrNull()
     end
 
-    # Tags::landing(tags)
-    def self.landing(tags)
+    # Tags::landing(tag)
+    def self.landing(tag)
 
         locpaddingsize = 11
 
         loop {
+
+            return if Tags::getTagByUUIDOrNull(tag["uuid"]).nil? # could have been destroyed at the previous run
+
+            tag = Tags::getTagByUUIDOrNull(tag["uuid"])
+
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            return if Tags::getTagByUUIDOrNull(tags["uuid"]).nil? # could have been destroyed at the previous run
-
-            puts Tags::toString(tags).green
-            puts "uuid: #{tags["uuid"]}".yellow
+            puts Tags::toString(tag).green
+            puts "uuid: #{tag["uuid"]}".yellow
 
             puts ""
 
-            Arrows::getParentsUUIDs(tags["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(tag["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -151,7 +162,7 @@ class Tags
                 })
             }
 
-            Arrows::getChildrenUUIDs(tags["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(tag["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -161,25 +172,37 @@ class Tags
 
             puts ""
 
+            mx.item("update description".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                Tags::updateTagDescription(tag["uuid"], description)
+            })
+
+            mx.item("update description".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                TimelineItems::updateTimelineDescription(item["uuid"], description)
+            })
+
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(tags)
+                Patricia::architectAddParentForDX7(tag)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(tags)
+                Patricia::architectAddChildForDX7(tag)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(tags)
+                Patricia::selectAndRemoveOneParentFromDX7(tag)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(tags)
+                Patricia::selectAndRemoveOneChildFromDX7(tag)
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    Tags::destroy(tags)
+                    Tags::destroy(tag)
                 end
             })
 

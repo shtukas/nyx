@@ -17,8 +17,8 @@ class TimelineItems
     # ------------------------------------------------
     # Database
 
-    # TimelineItems::issueTimelineItem(uuid, date, description)
-    def self.issueTimelineItem(uuid, date, description)
+    # TimelineItems::commitTimelineItem(uuid, date, description)
+    def self.commitTimelineItem(uuid, date, description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -26,6 +26,15 @@ class TimelineItems
         db.execute "delete from _timeline_ where _uuid_=?", [uuid]
         db.execute "insert into _timeline_ (_uuid_, _date_, _description_) values (?,?,?)", [uuid, date, description]
         db.commit 
+        db.close
+    end
+
+    # TimelineItems::updateTimelineDescription(uuid, description)
+    def self.updateTimelineDescription(uuid, description)
+        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "update _timeline_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
@@ -67,9 +76,9 @@ class TimelineItems
         answer
     end
 
-    # TimelineItems::toString(event)
-    def self.toString(event)
-        "[event] #{event["date"]} ; #{event["description"]}"
+    # TimelineItems::toString(item)
+    def self.toString(item)
+        "[timeline item] #{item["date"]} ; #{item["description"]}"
     end
 
     # TimelineItems::interactivelyIssueNewTimelineItemOrNull()
@@ -79,7 +88,7 @@ class TimelineItems
         return nil if description == ""
         date = LucilleCore::askQuestionAnswerAsString("date (YYYY-MM-DD): ")
         return nil if date == ""
-        TimelineItems::issueTimelineItem(uuid, date, description)
+        TimelineItems::commitTimelineItem(uuid, date, description)
         TimelineItems::getTimelineItemForUUIDOrNull(uuid)
     end
 
@@ -99,12 +108,11 @@ class TimelineItems
     # TimelineItems::nyxSearchItems()
     def self.nyxSearchItems()
         TimelineItems::getTimelineItems()
-            .map{|event|
+            .map{|item|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce"     => "#{volatileuuid} #{TimelineItems::toString(event)}",
-                    "type"         => "event",
-                    "payload"      => event
+                    "announce"     => "#{volatileuuid} #{TimelineItems::toString(item)}",
+                    "payload"      => item
                 }
             }
     end
@@ -114,24 +122,29 @@ class TimelineItems
 
     # TimelineItems::selectExistingTimelineItemOrNull()
     def self.selectExistingTimelineItemOrNull()
-        CatalystUtils::selectOneOrNull(TimelineItems::getTimelineItems().sort{|e1,v2| e1["date"] <=> e2["date"] }, lambda{|event| TimelineItems::toString(event) })
+        CatalystUtils::selectOneOrNull(TimelineItems::getTimelineItems().sort{|e1,v2| e1["date"] <=> e2["date"] }, lambda{|item| TimelineItems::toString(item) })
     end
 
-    # TimelineItems::landing(event)
-    def self.landing(event)
+    # TimelineItems::landing(item)
+    def self.landing(item)
 
         locpaddingsize = 11
 
         loop {
+
+            return if TimelineItems::getTimelineItemForUUIDOrNull(item["uuid"]).nil? # could have been destroyed at the previous run
+
+            item = TimelineItems::getTimelineItemForUUIDOrNull(item["uuid"])
+
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            puts TimelineItems::toString(event).green
-            puts "uuid: #{event["uuid"]}".yellow
+            puts TimelineItems::toString(item).green
+            puts "uuid: #{item["uuid"]}".yellow
 
             puts ""
 
-            Arrows::getParentsUUIDs(event["uuid"]).each{|uuid1|
+            Arrows::getParentsUUIDs(item["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -139,7 +152,7 @@ class TimelineItems
                 })
             }
 
-            Arrows::getChildrenUUIDs(event["uuid"]).each{|uuid1|
+            Arrows::getChildrenUUIDs(item["uuid"]).each{|uuid1|
                 e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
                 next if e1.nil?
                 mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
@@ -149,25 +162,31 @@ class TimelineItems
 
             puts ""
 
+            mx.item("update description".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                TimelineItems::updateTimelineDescription(item["uuid"], description)
+            })
+
             mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(event)
+                Patricia::architectAddParentForDX7(item)
             })
 
             mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(event)
+                Patricia::architectAddChildForDX7(item)
             })
 
             mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(event)
+                Patricia::selectAndRemoveOneParentFromDX7(item)
             })
 
             mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(event)
+                Patricia::selectAndRemoveOneChildFromDX7(item)
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    TimelineItems::destroy(event["uuid"])
+                    TimelineItems::destroy(item["uuid"])
                 end
             })
 
