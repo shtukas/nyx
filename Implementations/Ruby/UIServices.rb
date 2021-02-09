@@ -143,6 +143,10 @@ class UIServices
 
     # UIServices::getDisplayGroupsInOrder()
     def self.getDisplayGroupsInOrder()
+
+        # ------------------------------------------
+        # Important stuff
+
         uuid = "7945614c-954a-4c7d-9847-4b67e9b28d56"
         displayItems = Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid) + BackupsMonitor::displayItemsNS16()
         dg1 = {
@@ -153,7 +157,13 @@ class UIServices
             "DisplayItemsNS16" => displayItems
         }
 
+        # ------------------------------------------
+        # Tasks.txt
+
         dg2 = UIServices::tasksDisplayGroupOrNull("3e69fecb-0a1e-450c-8b96-a16110de5a58")
+
+        # ------------------------------------------
+        # Running DxThreads
 
         dg31s = DxThreads::dxthreads()
                 .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
@@ -188,7 +198,11 @@ class UIServices
                     } 
                 }
 
+        # ------------------------------------------
+        # DxThreads below target
+
         dg32s = DxThreads::dxthreads()
+                .select{|dxthread| DxThreads::completionRatio(dxthread) < 1 }
                 .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
                 .select{|dxthread| dxthread["noDisplayOnThisDay"] != CatalystUtils::today() }
                 .map{|dxthread|
@@ -200,6 +214,9 @@ class UIServices
                         "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
                     } 
                 }
+
+        # ------------------------------------------
+        # VideoStream
 
         uuid = "e42a45ea-d3f1-4f96-9982-096d803e2b72"
         dg4 = {
@@ -213,7 +230,7 @@ class UIServices
         ([dg1]+ [dg2] + dg31s + dg32s + [dg4] + [DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()])
             .flatten
             .compact
-            .select{|dg| dg["block"] or dg["DisplayItemsNS16"].size>0 }
+            .select{|dg| dg["block"] or (dg["DisplayItemsNS16"].size > 0) }
             .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
     end
 
