@@ -113,7 +113,7 @@ class UIServices
             "uuid"             => displayGroupBankUUID,
             "completionRatio"  => BankExtended::recoveredDailyTimeInHours(displayGroupBankUUID).to_f,
             "description"      => "Tasks.txt",
-            "block"            => text.size > 0 ? text : nil,
+            "block"            => text.size > 0 ? text.red : nil,
             "DisplayItemsNS16" => [
                 {
                     "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
@@ -335,13 +335,13 @@ class UIServices
         if input == "start" then
             dxthread = DxThreads::selectOneExistingDxThreadOrNull()
             return if dxthread.nil?
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["start DxThread", "Start Quark"])
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
             return if op.nil?
             if op == "Start DxThread" then
                 RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
                 return
             end
-            if op == "Start quark" then
+            if op == "Start Quark" then
                 quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
                 quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
                 return if quark.nil?
