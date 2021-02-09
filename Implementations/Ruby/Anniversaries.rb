@@ -192,7 +192,10 @@ class Anniversaries
                     "uuid"     => item["uuid"],
                     "announce" => Anniversaries::toString(item),
                     "lambda"   => lambda{
-
+                        if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+                            item["lastCelebrationDate"] = Time.new.to_s[0, 10]
+                            Anniversaries::insertItem(item)
+                        end
                     }
                 }
             }
