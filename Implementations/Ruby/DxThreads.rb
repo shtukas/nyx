@@ -8,10 +8,10 @@ class DxThreadsTarget
 
     # DxThreadsTarget::getIdealDxThreadStreamCardinal()
     def self.getIdealDxThreadStreamCardinal()
-        t1 = 1612052387 # 2021-01-26 22:43:56 +0000
+        t1 = DateTime.parse("2021-01-26 22:43:56").to_time.to_i
         y1 = 3728
 
-        t2 = 1624747436 # 2021-06-26 22:43:56
+        t2 = DateTime.parse("2021-07-01 00:00:00").to_time.to_i
         y2 = 100
 
         slope = (y2-y1).to_f/(t2-t1)
@@ -110,20 +110,6 @@ class DxThreadsUIUtils
                 }
             }
     end
-
-    # DxThreadsUIUtils::streamLateChargesDisplayItemsNS16OrNull()
-    def self.streamLateChargesDisplayItemsNS16OrNull()
-        return nil if DxThreadsTarget::getDxThreadStreamCardinal() < DxThreadsTarget::getIdealDxThreadStreamCardinal()
-        dxthread = DxThreads::getStream()
-        {
-            "uuid"             => "368e9e69-b69e-42fb-8207-f85203582552",
-            "completionRatio"  => 0.25,
-            "description"      => "Stream late charges".yellow,
-            "block"            => nil,
-            "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
-        }
-    end
-
 end
 
 class DxThreads
