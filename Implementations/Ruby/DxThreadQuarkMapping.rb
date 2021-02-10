@@ -153,8 +153,8 @@ class DxThreadQuarkMapping
             .compact
     end
 
-    # DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarks(dxthread, resultSize)
-    def self.dxThreadToFirstNVisibleQuarks(dxthread, resultSize)
+    # DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, resultSize)
+    def self.dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, resultSize)
 
         while (message = Mercury::dequeueFirstValueOrNullForClient("e6409074-8123-4914-91ba-da345069609f", "9298bfca")) do
             quark = M54::getOrNull(message["uid"])

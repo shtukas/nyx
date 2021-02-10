@@ -24,7 +24,7 @@ class VideoStream
         return [] if BankExtended::recoveredDailyTimeInHours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02") > 1
         VideoStream::videoFilepaths()
             .reduce([]){|filepaths, filepath|
-                if filepaths.size >= 3 then
+                if !filepaths.empty? then
                     filepaths
                 else
                     if DoNotShowUntil::isVisible(filepath) then

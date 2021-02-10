@@ -98,7 +98,36 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
     def self.dxThreadToDisplayItemsNS16(dxthread)
-        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarks(dxthread, 3)
+
+        if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
+            return DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
+                .map{|quark|
+                    {
+                        "uuid"     => quark["uuid"],
+                        "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
+                        "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                        "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
+                        "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
+                    }
+                }
+        end
+
+        if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
+            return DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
+                .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
+                .map{|quark|
+                    {
+                        "uuid"     => quark["uuid"],
+                        "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
+                        "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                        "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
+                        "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
+                    }
+                }
+        end
+
+        # Tech Jedi
+        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
             .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
             .map{|quark|
                 {
