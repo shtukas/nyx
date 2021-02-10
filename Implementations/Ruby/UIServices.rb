@@ -40,18 +40,6 @@ class DisplayGroups
         }
     end
 
-    # DisplayGroups::streamLate()
-    def self.streamLate()
-        return nil if DxThreadsTarget::getDxThreadStreamCardinal() < DxThreadsTarget::getIdealDxThreadStreamCardinal()
-        dxthread = DxThreads::getStream()
-        {
-            "uuid"             => "368e9e69-b69e-42fb-8207-f85203582552",
-            "completionRatio"  => 1,
-            "description"      => "Stream Late".yellow,
-            "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
-        }
-    end
-
     # DisplayGroups::groupsInOrder()
     def self.groupsInOrder()
 
@@ -111,17 +99,21 @@ class DisplayGroups
         # DxThreads below target
 
         dg32s = DxThreads::dxthreads()
-                .select{|dxthread| DxThreads::completionRatio(dxthread) < 1 }
-                .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
-                .select{|dxthread| dxthread["noDisplayOnThisDay"] != CatalystUtils::today() }
                 .map{|dxthread|
-                    {
-                        "uuid"             => dxthread["uuid"],
-                        "completionRatio"  => DxThreads::completionRatio(dxthread),
-                        "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
-                        "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
-                    } 
+                    elements = DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)
+                    if elements then
+                        completionRatio, ns16 = elements
+                        {
+                            "uuid"             => dxthread["uuid"],
+                            "completionRatio"  => completionRatio,
+                            "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
+                            "DisplayItemsNS16" => ns16
+                        } 
+                    else
+                        nil
+                    end
                 }
+                .compact
 
         # ------------------------------------------
         # VideoStream
@@ -134,7 +126,7 @@ class DisplayGroups
             "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
         }
 
-        ([dg1]+ [dg2] + dg31s + dg32s + [dg4] + [DisplayGroups::streamLate()])
+        ([dg1]+ [dg2] + dg31s + dg32s + [dg4])
             .flatten
             .compact
             .select{|dg| dg["DisplayItemsNS16"].size > 0 }

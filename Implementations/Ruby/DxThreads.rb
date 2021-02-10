@@ -96,24 +96,32 @@ class DxThreadsUIUtils
         }
     end
 
-    # DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
-    def self.dxThreadToDisplayItemsNS16(dxthread)
+    # DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)
+    def self.dxThreadToDisplayGroupElementsOrNull(dxthread)
+        return nil if dxthread["noDisplayOnThisDay"] == CatalystUtils::today()
 
         if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-            return DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
-                .map{|quark|
-                    {
-                        "uuid"     => quark["uuid"],
-                        "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
-                        "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                        "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
-                        "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
+            return nil if (DxThreads::completionRatio(dxthread) >= 1)
+            completionRatio = DxThreads::completionRatio(dxthread)
+            ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
+                    .map{|quark|
+                        {
+                            "uuid"     => quark["uuid"],
+                            "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
+                            "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                            "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
+                            "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
+                        }
                     }
-                }
+            return [completionRatio, ns16s]
         end
 
         if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
-            return DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
+            completionRatio = DxThreads::completionRatio(dxthread)
+            if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
+                completionRatio = [completionRatio, 1].min
+            end
+            ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
                 .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
                 .map{|quark|
                     {
@@ -124,10 +132,13 @@ class DxThreadsUIUtils
                         "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                     }
                 }
+            return [completionRatio, ns16s]
         end
 
-        # Tech Jedi
-        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
+        # Tech Jedi, Default
+        return nil if (DxThreads::completionRatio(dxthread) >= 1)
+        completionRatio = DxThreads::completionRatio(dxthread)
+        ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
             .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
             .map{|quark|
                 {
@@ -138,6 +149,7 @@ class DxThreadsUIUtils
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
             }
+        [completionRatio, ns16s]
     end
 end
 
