@@ -14,11 +14,10 @@ class DisplayGroups
             "uuid"             => displayGroupUUID,
             "completionRatio"  => BankExtended::recoveredDailyTimeInHours(displayGroupUUID).to_f,
             "description"      => "Tasks.txt",
-            "block"            => text.size > 0 ? text.red : nil,
             "DisplayItemsNS16" => [
                 {
                     "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
-                    "announce"    => "",
+                    "announce"    => text.size > 0 ? text.red : "",
                     "lambda"      => lambda{
                         thr = Thread.new {
                             sleep 3600
@@ -47,9 +46,8 @@ class DisplayGroups
         dxthread = DxThreads::getStream()
         {
             "uuid"             => "368e9e69-b69e-42fb-8207-f85203582552",
-            "completionRatio"  => 0.25,
-            "description"      => "Stream late charges".yellow,
-            "block"            => nil,
+            "completionRatio"  => 1,
+            "description"      => "Stream Late".yellow,
             "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
         }
     end
@@ -66,7 +64,6 @@ class DisplayGroups
             "uuid"             => uuid,
             "completionRatio"  => 0, # this always has priority
             "description"      => nil,
-            "block"            => nil,
             "DisplayItemsNS16" => displayItems
         }
 
@@ -85,7 +82,6 @@ class DisplayGroups
                         "uuid"             => dxthread["uuid"],
                         "completionRatio"  => 0,
                         "description"      => nil,
-                        "block"            => nil,
                         "DisplayItemsNS16" => [
                             {
                                 "uuid"        => dxthread["uuid"],
@@ -123,7 +119,6 @@ class DisplayGroups
                         "uuid"             => dxthread["uuid"],
                         "completionRatio"  => DxThreads::completionRatio(dxthread),
                         "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
-                        "block"            => nil,
                         "DisplayItemsNS16" => DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
                     } 
                 }
@@ -136,42 +131,24 @@ class DisplayGroups
             "uuid"             => uuid,
             "completionRatio"  => BankExtended::recoveredDailyTimeInHours(uuid).to_f,
             "description"      => nil,
-            "block"            => nil,
             "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
         }
 
         ([dg1]+ [dg2] + dg31s + dg32s + [dg4] + [DisplayGroups::streamLate()])
             .flatten
             .compact
-            .select{|dg| dg["block"] or (dg["DisplayItemsNS16"].size > 0) }
+            .select{|dg| dg["DisplayItemsNS16"].size > 0 }
             .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
     end
 
     # DisplayGroups::toString(dg, vspaceleft)
     def self.toString(dg, vspaceleft)
         return nil if vspaceleft <= 0
-        output = ""
-        rationstring = "[#{"%6.3f" % dg["completionRatio"]}]"
-        if dg["description"] then
-            text = "#{rationstring} #{dg["description"]}".yellow
-            output = output + text + "\n"
-            vspaceleft = vspaceleft - CatalystUtils::verticalSize(text)
-        else
-            output = output + rationstring.yellow + "\n"
-            vspaceleft = vspaceleft - 1            
-        end
-        if dg["block"] then
-            output = output + dg["block"] + "\n"
-            vspaceleft = vspaceleft - CatalystUtils::verticalSize(dg["block"])
-        end
+        str1 = "[#{"%6.3f" % dg["completionRatio"]}]"
         dg["DisplayItemsNS16"]
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .each{|item|
-                next if vspaceleft <= 0
-                output = output + item["announce"] + "\n"
-                vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
-            }
-        output.strip
+            .map{|item| "#{str1} #{item["announce"]}" }
+            .join("\n")
     end
 end
 
@@ -251,12 +228,12 @@ class UIServices
             }
         end
 
+        puts ""
+
         displayGroups.each{|dg|
             output = DisplayGroups::toString(dg, vspaceleft)
             next if output.nil?
             next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
-            puts ""
-            vspaceleft = vspaceleft - 1
             puts output
             vspaceleft = vspaceleft - CatalystUtils::verticalSize(output)
         }
