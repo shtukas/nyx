@@ -98,7 +98,8 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::dxThreadToDisplayItemsNS16(dxthread)
     def self.dxThreadToDisplayItemsNS16(dxthread)
-        DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
+        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarks(dxthread, 3)
+            .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
@@ -129,7 +130,7 @@ class DxThreads
 
     # DxThreads::visualisationDepth()
     def self.visualisationDepth()
-        30
+        CatalystUtils::screenHeight()-25
     end
 
     # DxThreads::dxthreads()
@@ -215,8 +216,8 @@ class DxThreads
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", DxThreads::dxthreads(), lambda{|o| DxThreads::toString(o) })
     end
 
-    # DxThreads::landing(dxthread, showAllTargets)
-    def self.landing(dxthread, showAllTargets = false)
+    # DxThreads::landing(dxthread)
+    def self.landing(dxthread)
         loop {
             system("clear")
 
@@ -231,7 +232,7 @@ class DxThreads
 
             puts ""
 
-            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, showAllTargets ? nil : DxThreads::visualisationDepth())
+            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
                 .each{|quark|
                     mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{Patricia::toString(quark)}", lambda { 
                         Patricia::landing(quark) 
@@ -239,10 +240,6 @@ class DxThreads
                 }
 
             puts ""
-
-            mx.item("relanding on all quarks".yellow, lambda { 
-                DxThreads::landing(dxthread, true)
-            })
 
             mx.item("no display on this day".yellow, lambda { 
                 dxthread["noDisplayOnThisDay"] = CatalystUtils::today()

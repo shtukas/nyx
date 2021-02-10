@@ -153,8 +153,8 @@ class DxThreadQuarkMapping
             .compact
     end
 
-    # DxThreadQuarkMapping::dxThreadToQuarksInOrderForUIListing(dxthread)
-    def self.dxThreadToQuarksInOrderForUIListing(dxthread)
+    # DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarks(dxthread, resultSize)
+    def self.dxThreadToFirstNVisibleQuarks(dxthread, resultSize)
 
         while (message = Mercury::dequeueFirstValueOrNullForClient("e6409074-8123-4914-91ba-da345069609f", "9298bfca")) do
             quark = M54::getOrNull(message["uid"])
@@ -166,9 +166,17 @@ class DxThreadQuarkMapping
             DxThreadQuarkMapping::deleteRecordsByQuarkUUID(uuid)
         end
 
-        DxThreadQuarkMapping::getVisibleQuarkUUIDsForDxThreadInOrder(dxthread)
-            .first(20)
-            .map{|uuid| M54::getOrNull(uuid) }
-            .compact
+        DxThreadQuarkMapping::getVisibleQuarkUUIDsForDxThreadInOrder(dxthread).reduce([]) {|quarks, uuid|
+            if quarks.size >= resultSize then
+                quarks
+            else
+                quark = M54::getOrNull(uuid)
+                if quark then
+                    quarks + [quark]
+                else
+                    quarks
+                end 
+            end
+        }
     end
 end
