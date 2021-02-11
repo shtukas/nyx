@@ -62,7 +62,10 @@ class Quarks
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
             puts "ordinal: #{DxThreadQuarkMapping::getQuarkOrdinal(quark)}".yellow
-            puts "DoNotDisplayUntil: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])).to_s}".yellow
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
+            if unixtime then
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
+            end
 
             puts ""
 
