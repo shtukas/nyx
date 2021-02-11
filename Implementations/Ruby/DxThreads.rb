@@ -103,6 +103,7 @@ class DxThreadsUIUtils
         if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
             return nil if (DxThreads::completionRatio(dxthread) >= 1)
             completionRatio = DxThreads::completionRatio(dxthread)
+            completionRatio = completionRatio*completionRatio # courtesy of analysis
             ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
                     .map{|quark|
                         {
