@@ -17,7 +17,7 @@ class DisplayGroups
             "DisplayItemsNS16" => [
                 {
                     "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
-                    "announce"    => text.size > 0 ? text.red : "",
+                    "announce"    => text.size > 0 ? "Tasks.txt\n" + text.red.lines.map{|line| "         "+line }.join() : "",
                     "lambda"      => lambda{
                         thr = Thread.new {
                             sleep 3600
