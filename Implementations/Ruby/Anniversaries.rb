@@ -64,6 +64,21 @@ class Anniversaries
         end
     end
 
+    # Anniversaries::runTests()
+    def self.runTests()
+        raise "72118532-21b3-4897-a6d1-7c21458b4624" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-11-25", 1) != "2020-12-25"
+        raise "279b1ee3-728e-4883-9a4d-abf3b9a494d7" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-12-25", 1) != "2021-01-25"
+        raise "5507b102-2651-4b57-ba7b-7e6c217bddba" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-01", 1) != "2021-02-01"
+        raise "38e0536a-7943-4649-a002-6f65e9d88c0a" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 1) != "2021-02-28"
+        raise "cd8feeec-54bd-4a63-be2c-e279c77390ba" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 2) != "2021-03-31"
+        raise "d82394e7-708d-49a8-9d65-792a77093ce5" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 3) != "2021-04-30"
+        raise "8bb58535-b435-4bbe-9ded-76cf5d1ce6ad" if Anniversaries::datePlusNMonthAnniversaryStyle("2024-01-31", 1) != "2024-02-29"
+        raise "53ac9950-7df9-481d-a3cf-2ec07f566f89" if Anniversaries::datePlusNMonthAnniversaryStyle("2024-01-31", 2) != "2024-03-31"
+
+        raise "ff1f70da-1342-4a20-91cb-f5a86f66a44c" if Anniversaries::computeNextCelebrationDateOrdinal("2021-02-28", "yearly", "2022-01-01").join(", ") != "2022-02-28, 1"
+        raise "ff1f70da-1342-4a20-91cb-f5a86f66a44c" if Anniversaries::computeNextCelebrationDateOrdinal("2024-02-29", "yearly", "2025-01-01").join(", ") != "2025-02-28, 1"
+    end
+
     # -----------------------------------------------------------
 
     # Anniversaries::databaseFilepath()
@@ -223,18 +238,42 @@ class Anniversaries
         end
     end
 
+    # Anniversaries::landing(item)
+    def self.landing(item)
+        loop {
+            system("clear")
+            item = Anniversaries::getItemByUUID(item["uuid"]) # to get the current version
+            puts Anniversaries::toString(item).green
+            mx = LCoreMenuItemsNX1.new()
+            mx.item("update start date".yellow, lambda { 
+                startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
+                return if startdate == ""
+                item["startdate"] = startdate
+                Anniversaries::insertItem(item)
+            })
+            status = mx.promptAndRunSandbox()
+            break if !status            
+        }
+    end
+
+    # Anniversaries::anniversariesDive()
+    def self.anniversariesDive()
+        loop {
+            items = Anniversaries::getItems()
+                        .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", Anniversaries::getItems(), lambda{|item| Anniversaries::toString(item) })
+            return if item.nil?
+            Anniversaries::landing(item)
+        }
+    end
+
     # Anniversaries::main()
     def self.main()
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             mx.item("dive into anniversary items".yellow, lambda { 
-                Anniversaries::getItems()
-                    .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
-                    .each{|item|
-                        puts Anniversaries::toString(item)
-                    }
-                LucilleCore::pressEnterToContinue()
+                Anniversaries::anniversariesDive()
             })
             mx.item("make new anniversary item".yellow, lambda { 
                 Anniversaries::interactivelyIssueNewItemOrNull()
@@ -243,17 +282,4 @@ class Anniversaries
             break if !status
         }
     end
-
 end
-
-raise "72118532-21b3-4897-a6d1-7c21458b4624" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-11-25", 1) != "2020-12-25"
-raise "279b1ee3-728e-4883-9a4d-abf3b9a494d7" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-12-25", 1) != "2021-01-25"
-raise "5507b102-2651-4b57-ba7b-7e6c217bddba" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-01", 1) != "2021-02-01"
-raise "38e0536a-7943-4649-a002-6f65e9d88c0a" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 1) != "2021-02-28"
-raise "cd8feeec-54bd-4a63-be2c-e279c77390ba" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 2) != "2021-03-31"
-raise "d82394e7-708d-49a8-9d65-792a77093ce5" if Anniversaries::datePlusNMonthAnniversaryStyle("2021-01-31", 3) != "2021-04-30"
-raise "8bb58535-b435-4bbe-9ded-76cf5d1ce6ad" if Anniversaries::datePlusNMonthAnniversaryStyle("2024-01-31", 1) != "2024-02-29"
-raise "53ac9950-7df9-481d-a3cf-2ec07f566f89" if Anniversaries::datePlusNMonthAnniversaryStyle("2024-01-31", 2) != "2024-03-31"
-
-raise "ff1f70da-1342-4a20-91cb-f5a86f66a44c" if Anniversaries::computeNextCelebrationDateOrdinal("2021-02-28", "yearly", "2022-01-01").join(", ") != "2022-02-28, 1"
-raise "ff1f70da-1342-4a20-91cb-f5a86f66a44c" if Anniversaries::computeNextCelebrationDateOrdinal("2024-02-29", "yearly", "2025-01-01").join(", ") != "2025-02-28, 1"
