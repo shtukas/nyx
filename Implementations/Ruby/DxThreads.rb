@@ -27,7 +27,7 @@ class DxThreadsUIUtils
         loop {
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
             if element.nil? then
-                puts DxThreads::dxThreadAndTargetToString(dxthread, quark).green
+                puts DxThreads::dxThreadAndQuarkToString(dxthread, quark).green
                 if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
                     Quarks::destroyQuarkAndNereidContent(quark)
                 end
@@ -41,7 +41,7 @@ class DxThreadsUIUtils
                 }
             }
             t1 = Time.new.to_f
-            puts "running: #{DxThreads::dxThreadAndTargetToString(dxthread, quark).green}"
+            puts "running: #{DxThreads::dxThreadAndQuarkToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
             puts " >nyx | >dxthread | landing | / | pause | exit-running  | exit(-stopped) (default) | done (destroy quark and nereid element) | done-running".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -137,6 +137,11 @@ class DxThreadsUIUtils
             # the new stuff (which from that moment takes a non zero rt)
         }
 
+        toString = lambda {|dxthread, quark|
+            rt = recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(quark["uuid"]))
+            "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}, #{"%5.2f" % rt}) #{Patricia::toString(quark)}"
+        }
+
         return nil if shouldReturnNull.call(dxthread)
         ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, sizeOfManagedPool.call(dxthread))
             .sort{|q1, q2| recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q1["uuid"])) <=> recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q2["uuid"])) }
@@ -144,7 +149,7 @@ class DxThreadsUIUtils
                 {
                     "uuid"     => quark["uuid"],
                     "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
-                    "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
+                    "announce" => toString.call(dxthread, quark),
                     "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
@@ -210,9 +215,8 @@ class DxThreads
         "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
     end
 
-    # DxThreads::dxThreadAndTargetToString(dxthread, quark)
-    def self.dxThreadAndTargetToString(dxthread, quark)
-        uuid = "#{dxthread["uuid"]}-#{quark["uuid"]}"
+    # DxThreads::dxThreadAndQuarkToString(dxthread, quark)
+    def self.dxThreadAndQuarkToString(dxthread, quark)
         "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{Patricia::toString(quark)}"
     end
 
