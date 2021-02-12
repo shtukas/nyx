@@ -167,8 +167,8 @@ class Anniversaries
         startdate = LucilleCore::askQuestionAnswerAsString("startdate: ")
         return nil if startdate == ""
 
-        repeatType = LucilleCore::askQuestionAnswerAsString("repeatType: ")
-        return nil if repeatType == ""
+        repeatType = LucilleCore::selectEntityFromListOfEntitiesOrNull("repeat type", ["weekly", "monthly", "yearly"])
+        return nil if repeatType.nil?
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
@@ -261,7 +261,7 @@ class Anniversaries
         loop {
             items = Anniversaries::getItems()
                         .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", Anniversaries::getItems(), lambda{|item| Anniversaries::toString(item) })
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Anniversaries::toString(item) })
             return if item.nil?
             Anniversaries::landing(item)
         }
