@@ -130,7 +130,7 @@ class DxThreadsUIUtils
         }
 
         recoveredTimeX = lambda{|rt|
-            rt == 0 ? 0.4 : rt
+            (rt == 0) ? 0.4 : rt
             # The logic here is that is an element has never been touched, we put it at 0.4
             # So that it doesn't take priority on stuff that we have in progresss
             # If all the stuff that we have in progress have a high enough recovery time, then we work on 

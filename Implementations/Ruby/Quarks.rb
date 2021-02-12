@@ -66,6 +66,7 @@ class Quarks
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
+            puts "recoveredDailyTimeInHours: #{BankExtended::recoveredDailyTimeInHours(quark["uuid"])}".yellow
 
             puts ""
 
