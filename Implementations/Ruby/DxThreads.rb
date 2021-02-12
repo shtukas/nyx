@@ -100,47 +100,46 @@ class DxThreadsUIUtils
     def self.dxThreadToDisplayGroupElementsOrNull(dxthread)
         return nil if dxthread["noDisplayOnThisDay"] == CatalystUtils::today()
 
-        if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-            return nil if (DxThreads::completionRatio(dxthread) >= 1)
+        completionRatioX = lambda{|dxthread|
             completionRatio = DxThreads::completionRatio(dxthread)
-            completionRatio = completionRatio*completionRatio # courtesy of analysis
-            ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
-                    .map{|quark|
-                        {
-                            "uuid"     => quark["uuid"],
-                            "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
-                            "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                            "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
-                            "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
-                        }
-                    }
-            return [completionRatio, ns16s]
-        end
-
-        if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
-            completionRatio = DxThreads::completionRatio(dxthread)
-            if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
-                completionRatio = [completionRatio, 1].min
+            if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
+                if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
+                    completionRatio = [completionRatio, 1].min
+                end
             end
-            ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 1)
-                .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
-                .map{|quark|
-                    {
-                        "uuid"     => quark["uuid"],
-                        "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
-                        "announce" => DxThreads::dxThreadAndTargetToString(dxthread, quark),
-                        "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
-                        "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
-                    }
-                }
-            return [completionRatio, ns16s]
-        end
+            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
+                if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
+                    completionRatio = completionRatio*completionRatio
+                end
+            end
+            completionRatio
+        }
 
-        # Tech Jedi, Default
-        return nil if (DxThreads::completionRatio(dxthread) >= 1)
-        completionRatio = DxThreads::completionRatio(dxthread)
-        ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
-            .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"]) }
+        shouldReturnNull = lambda{|dxthread|
+            completionRatioX.call(dxthread) > 1
+        }
+
+        sizeOfManagedPool = lambda{|dxthread|
+            if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
+                return 5
+            end
+            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
+                return 1
+            end
+            return 3
+        }
+
+        recoveredTimeX = lambda{|rt|
+            rt == 0 ? 0.4 : rt
+            # The logic here is that is an element has never been touched, we put it at 0.4
+            # So that it doesn't take priority on stuff that we have in progresss
+            # If all the stuff that we have in progress have a high enough recovery time, then we work on 
+            # the new stuff (which from that moment takes a non zero rt)
+        }
+
+        return nil if shouldReturnNull.call(dxthread)
+        ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, sizeOfManagedPool.call(dxthread))
+            .sort{|q1, q2| recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q1["uuid"])) <=> recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q2["uuid"])) }
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
@@ -150,7 +149,7 @@ class DxThreadsUIUtils
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
             }
-        [completionRatio, ns16s]
+        [completionRatioX.call(dxthread), ns16s]
     end
 end
 
