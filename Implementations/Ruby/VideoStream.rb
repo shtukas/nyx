@@ -69,7 +69,7 @@ class VideoStream
         if option == "play" then
             item = RunningItems::start(File.basename(filepath), [filepath, "VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c02"])
             system("open '#{filepath}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("completed ? ", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("completed ? ") then
                 FileUtils.rm(filepath)
                 RunningItems::stopItem(item)
             end

@@ -209,7 +209,7 @@ class Waves
 
     # Waves::selectWaveOrNull()
     def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves(), lambda {|wave| Waves::toString(wave) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves().sort{|w1, w2| Waves::toString(w1) <=> Waves::toString(w2) }, lambda {|wave| Waves::toString(wave) })
     end
 
     # Waves::landing(wave)

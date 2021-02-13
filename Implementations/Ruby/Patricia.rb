@@ -243,6 +243,7 @@ class Patricia
     def self.moveTargetToNewDxThread(quark, dxParentOpt)
         dx2 = DxThreads::selectOneExistingDxThreadOrNull()
         return if dx2.nil?
+        DxThreadQuarkMapping::deleteRecordsByQuarkUUID(quark["uuid"])
         ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
         DxThreadQuarkMapping::insertRecord(dx2, quark, ordinal)
     end

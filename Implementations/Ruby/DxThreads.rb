@@ -25,6 +25,7 @@ class DxThreadsUIUtils
     # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
     def self.runDxThreadQuarkPair(dxthread, quark)
         loop {
+            system("clear")
             element = NereidInterface::getElementOrNull(quark["nereiduuid"])
             if element.nil? then
                 puts DxThreads::dxThreadAndQuarkToString(dxthread, quark).green
@@ -43,7 +44,7 @@ class DxThreadsUIUtils
             t1 = Time.new.to_f
             puts "running: #{DxThreads::dxThreadAndQuarkToString(dxthread, quark).green}"
             NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts " >nyx | >dxthread | landing | / | pause | exit-running  | exit(-stopped) (default) | done (destroy quark and nereid element) | done-running".yellow
+            puts ">nyx | >dxthread | landing | pause | exit-running  | exit(-stopped) (default) | ++ | ++<hours> | +datecode | done-running | done (destroy quark and nereid element) | /".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
             thr.exit
             timespan = Time.new.to_f - t1
@@ -86,6 +87,22 @@ class DxThreadsUIUtils
             if input == "done-running" then
                 RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
                 Quarks::destroyQuarkAndNereidContent(quark)
+                return
+            end
+            if input.start_with?("++") and input.size > 2 then
+                shiftInHours = input[2, input.size].to_f
+                return if shiftInHours == 0
+                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600*shiftInHours)
+                return
+            end
+            if input == '++' then
+                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
+                return
+            end
+            if input.start_with?('+') then
+                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
                 return
             end
             if input == "/" then
