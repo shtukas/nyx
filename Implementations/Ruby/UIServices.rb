@@ -236,7 +236,7 @@ class UIServices
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
         puts ""
-        puts "commands: .. (access top item) (default) | select | second | ++ | ++<hours> | +datecode | start | stop | [] (Tasks.txt) | / | nyx".yellow
+        puts "commands: .. (access top item) (default) | select <n> | second | ++ | ++<hours> | +datecode | start | stop | [] (Tasks.txt) | / | nyx".yellow
 
         input = LucilleCore::pressEnterToContinue("> ")
 
@@ -272,8 +272,10 @@ class UIServices
             return
         end
 
-        if input == "select" then
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(CatalystUtils::screenHeight()-5), lambda{|item| item["announce"] })
+        if input.start_with?("select") then
+            ordinal = input[7, 99].strip.to_i - 1
+            return if ordinal < 0
+            item = items[ordinal]
             return if item.nil?
             item["lambda"].call()
             return
