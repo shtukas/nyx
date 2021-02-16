@@ -140,9 +140,6 @@ class DxThreadsUIUtils
             if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
                 return 5
             end
-            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-                return 1
-            end
             return 3
         }
 
