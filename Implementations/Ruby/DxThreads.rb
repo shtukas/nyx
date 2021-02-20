@@ -22,95 +22,124 @@ end
 
 class DxThreadsUIUtils
 
+    # DxThreadsUIUtils::incomingTime(dxthread, quark, timespan)
+    def self.incomingTime(dxthread, quark, timespan)
+        timespan = [timespan, 3600*2].min
+        puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
+        Bank::put(quark["uuid"], timespan)
+        puts "putting #{timespan} seconds to dxthread: #{DxThreads::toString(dxthread)}"
+        Bank::put(dxthread["uuid"], timespan)
+    end
+
     # DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
     def self.runDxThreadQuarkPair(dxthread, quark)
+
+        startUnixtime = Time.new.to_f
+        pausedTimespanCumulated = 0
+
+        thr = Thread.new {
+            sleep 3600
+            loop {
+                CatalystUtils::onScreenNotification("Catalyst", "Item running for more than an hour")
+                sleep 60
+            }
+        }
+
+        system("clear")
+
         loop {
-            system("clear")
-            element = NereidInterface::getElementOrNull(quark["nereiduuid"])
-            if element.nil? then
+
+            if NereidInterface::getElementOrNull(quark["nereiduuid"]).nil? then
+                # The quark is obviously alive but the corresponding nereid item is dead
                 puts DxThreads::dxThreadAndQuarkToString(dxthread, quark).green
                 if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
                     Quarks::destroyQuarkAndNereidContent(quark)
                 end
-                return
+                break
             end
-            thr = Thread.new {
-                sleep 3600
-                loop {
-                    CatalystUtils::onScreenNotification("Catalyst", "Item running for more than an hour")
-                    sleep 60
-                }
-            }
-            t1 = Time.new.to_f
+
             puts "running: #{DxThreads::dxThreadAndQuarkToString(dxthread, quark).green}"
-            NereidInterface::accessCatalystEdition(quark["nereiduuid"])
-            puts ">nyx | >dxthread | landing | pause | exit-running  | exit(-stopped) (default) | ++ | ++<hours> | +datecode | done-running | done (destroy quark and nereid element) | /".yellow
+            NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
+            puts ">nyx | >dxthread | / | landing | ++ | ++<hours> | +datecode | destroy | pause | keep alive | stop & exit (default)".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
-            thr.exit
-            timespan = Time.new.to_f - t1
-            timespan = [timespan, 3600*2].min
-            puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
-            Bank::put(quark["uuid"], timespan)
-            puts "putting #{timespan} seconds to dxthread: #{DxThreads::toString(dxthread)}"
-            Bank::put(dxthread["uuid"], timespan)
+
             if input == ">nyx" then
                 item = Patricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
-                return if item.nil?
+                next if item.nil?
                 Patricia::landing(item)
                 Quarks::destroyQuark(quark)
-                return
+                break
             end
+
             if input == ">dxthread" then
                 Patricia::moveTargetToNewDxThread(quark, dxthread)
-                return
+                break
             end
-            if input == "landing" then
-                Quarks::landing(quark)
-                next
-            end
-            if input == "pause" then
-                puts "paused...".green
-                LucilleCore::pressEnterToContinue("Press enter to resume: ")
-                next
-            end
-            if input == "exit-running" then
-                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
-                return
-            end
-            if input == "exit" then
-                return
-            end
-            if input == "done" then
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
-            if input == "done-running" then
-                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
-                Quarks::destroyQuarkAndNereidContent(quark)
-                return
-            end
-            if input.start_with?("++") and input.size > 2 then
-                shiftInHours = input[2, input.size].to_f
-                return if shiftInHours == 0
-                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600*shiftInHours)
-                return
-            end
-            if input == '++' then
-                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-                return
-            end
-            if input.start_with?('+') then
-                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                return
-            end
+
             if input == "/" then
                 UIServices::servicesFront()
                 next
             end
-            return
+
+            if input == "landing" then
+                Quarks::landing(quark)
+                next
+            end
+
+            if input.start_with?("++") and input.size > 2 then
+                shiftInHours = input[2, input.size].to_f
+                break if shiftInHours == 0
+                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600*shiftInHours)
+                break
+            end
+
+            if input == '++' then
+                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
+                break
+            end
+
+            if input.start_with?('+') then
+                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                break if unixtime.nil?
+                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+                break
+            end
+
+            if input == "destroy" then
+                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                Quarks::destroyQuarkAndNereidContent(quark)
+                break
+            end
+
+            if input == "pause" then
+                t1 = Time.new.to_f
+                puts "paused...".green
+                LucilleCore::pressEnterToContinue("Press enter to resume: ")
+                t2 = Time.new.to_f
+                pausedTimespanCumulated = pausedTimespanCumulated + (t2-t1)
+                next
+            end
+
+            if input == "keep alive" then
+                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
+                break
+            end
+
+            if input == "stop & exit" then
+                break
+            end
+
+            break
+
         }
+
+        thr.exit
+
+        puts "Time since start: #{Time.new.to_f - startUnixtime}"
+        puts "Cumulated pause time: #{pausedTimespanCumulated}"
+        DxThreadsUIUtils::incomingTime(dxthread, quark, (Time.new.to_f - startUnixtime) - pausedTimespanCumulated)
+
+        NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 
     # DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)

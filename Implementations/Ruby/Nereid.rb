@@ -511,6 +511,7 @@ class NereidInterface
         if input.class.to_s == "String" then
             element = NereidInterface::getElementOrNull(input)
             if element.nil? then
+                return nil if operationName == "postAccessCleanUpTodoListingEdition"
                 puts "I could not find an element for input '#{input}'. #{operationName} aborted."
                 LucilleCore::pressEnterToContinue()
                 return nil
@@ -698,8 +699,8 @@ class NereidInterface
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
-    # NereidInterface::accessCatalystEdition(input)
-    def self.accessCatalystEdition(input)
+    # NereidInterface::accessTodoListingEdition(input)
+    def self.accessTodoListingEdition(input)
 
         element = NereidInterface::inputToElementOrNull(input, "access")
         return if element.nil?
@@ -729,26 +730,6 @@ class NereidInterface
             File.open(filepath, "w"){|f| f.write(blob) }
             puts "I have exported the file at '#{filepath}'"
             system("open '#{filepath}'")
-            puts "When done, you will enter the filename of the replacement"
-            LucilleCore::pressEnterToContinue()
-            filename = LucilleCore::askQuestionAnswerAsString("desktop filename (empty to abort): ")
-
-            if filename == "" then
-                if File.exists?(filepath) then
-                    FileUtils.rm(filepath)
-                end
-                return
-            end
-
-            filepath = "/Users/pascal/Desktop/#{filename}"
-            return nil if !File.exists?(filepath)
-
-            nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
-            dottedExtension = File.extname(filename)
-            payload = "#{nhash}|#{dottedExtension}"
-
-            element["payload"] = payload
-            NereidDatabaseDataCarriers::insertElement(element)
             return
         end
         if element["type"] == "AionPoint" then
@@ -764,25 +745,9 @@ class NereidInterface
             if location[-7, 7] == ".webloc" then
                 system("open '#{location}'")
             end
-
-            puts "When done, you will enter the location name of the replacement"
-            LucilleCore::pressEnterToContinue()
-            locationname = LucilleCore::askQuestionAnswerAsString("desktop location name (empty to abort): ")
-
-            if locationname == "" then
-                aionObject = AionCore::getAionObjectByHash(NereidElizabeth.new(), nhash)
-                location = "/Users/pascal/Desktop/#{aionObject["name"]}"
-                if File.exists?(location) then
-                    LucilleCore::removeFileSystemLocation(location)
-                end
-                return 
+            if location[-4, 4] == ".png" then
+                system("open '#{location}'")
             end
-
-            location = "/Users/pascal/Desktop/#{locationname}"
-            return nil if !File.exists?(location)
-            payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-            element["payload"] = payload
-            NereidDatabaseDataCarriers::insertElement(element)
             return
         end
         if element["type"] == "FSUniqueString" then
@@ -804,6 +769,44 @@ class NereidInterface
                     system("open '#{location}'")
                 end
             end
+            return
+        end
+        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
+    end
+
+    # NereidInterface::postAccessCleanUpTodoListingEdition(input)
+    def self.postAccessCleanUpTodoListingEdition(input)
+
+        element = NereidInterface::inputToElementOrNull(input, "postAccessCleanUpTodoListingEdition")
+        return if element.nil?
+
+        if element["type"] == "Line" then
+            return
+        end
+        if element["type"] == "Url" then
+            return
+        end
+        if element["type"] == "Text" then
+            return
+        end
+        if element["type"] == "ClickableType" then
+            puts "cleaning file '#{element["payload"]}'"
+            blobuuid, extension = element["payload"].split("|")
+            filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
+            return if !File.exists?(filepath)
+            LucilleCore::removeFileSystemLocation(filepath)
+            return
+        end
+        if element["type"] == "AionPoint" then
+            puts "cleaning aion point '#{element["payload"]}'"
+            nhash = element["payload"]
+            aionObject = AionCore::getAionObjectByHash(NereidElizabeth.new(), nhash)
+            location = "/Users/pascal/Desktop/#{aionObject["name"]}"
+            return if !File.exists?(location)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+        if element["type"] == "FSUniqueString" then
             return
         end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
