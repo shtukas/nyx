@@ -1,38 +1,48 @@
 
 NereidElement (Managed by Nereid: "Line", "Url", "Text", "ClickableType", "AionPoint", "FSUniqueString" )
 NereidElement {
-    "uuid"           : String
-    "unixtime"       : Float
-    "description"    : String 
-    "type"           : String 
-    "payload"        : (value)
+    "uuid"          : String
+    "unixtime"      : Float
+    "description"   : String 
+    "type"          : String 
+    "payload"       : (value)
 }
 
 ------------------------------------------------------------------------------
 
 Todo Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
 
-Todo UI Types; 
-    DisplayItemsNS16 (See file) 
-    DisplayGroup {
-        "metric"           => Number # Between 0 and 1,
-        "display"          => nil or string
-        "DisplayItemsNS16" => Array[DisplayItemsNS16]
-    }
+------------------------------------------------------------------------------
+
+NX141FSCacheElement {
+    "uuid"           : String
+    "nyxElementType" : "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
+    "nx141"          : String
+    "description"    : String
+}
+
+------------------------------------------------------------------------------
+
+NyxClassifierDeclaration {
+    "uuid"         : String
+    "mark1"        : "103df1ac-2e73-4bf1-a786-afd4092161d4"
+    "setType"      : String # Indicates the type of the set.
+    "description"  : String
+    "payload1"     :
+}
+
+setType: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Timeline Item
+         -> payload 1 : String, Date: YYYY-MM-DD
+
+setType: "22f244eb-4925-49be-bce6-db58c2fb489a" # Tag
+
+setType: "30991912-a9f2-426d-9b62-ec942c16c60a" # CuratedListing
 
 ------------------------------------------------------------------------------
 
 Nyx Carriers
 
     M92
-
-    NX141FSCacheElement {
-        "uuid"           : String
-        "nyxElementType" : "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
-        "nx141"          : String
-        "description"    : String
-    }
-
 
     TimelineItem {
         "uuid"           : String
@@ -55,7 +65,11 @@ Nyx Carriers
 
 DX7 = M92 | NX141FSCacheElement | TimelineItem | Tag | CuratedListing # (DX7s can be parent and children of each other)
 
+------------------------------------------------------------------------------
+
 Network: Arrows
+
+------------------------------------------------------------------------------
 
 NyxSearchItem {
     "announce"     : String
