@@ -1,12 +1,6 @@
-sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text, _type_ text, _payload_ text);
+Filename: Nereid/database.sqlite3
 
-Element {
-    "uuid"           : String
-    "unixtime"       : Float
-    "description"    : String 
-    "type"           : String 
-    "payload"        : (value)
-}
+sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text, _type_ text, _payload_ text);
 
 "type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint" | "FSUniqueString"
 

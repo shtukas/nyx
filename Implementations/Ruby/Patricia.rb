@@ -8,31 +8,6 @@ class Patricia
         !element["payload"].nil?
     end
 
-    # Patricia::isNX141FSCacheElement(element)
-    def self.isNX141FSCacheElement(element)
-        element["nyxElementType"] == "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
-    end
-
-    # Patricia::isTimelineItem(element)
-    def self.isTimelineItem(element)
-        element["nyxElementType"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
-    end
-
-    # Patricia::isTag(item)
-    def self.isTag(item)
-        item["nyxElementType"] == "22f244eb-4925-49be-bce6-db58c2fb489a"
-    end
-
-    # Patricia::isCuratedListing(item)
-    def self.isCuratedListing(item)
-        item["nyxElementType"] == "30991912-a9f2-426d-9b62-ec942c16c60a"
-    end
-
-    # Patricia::isQuark(object)
-    def self.isQuark(object)
-        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    end
-
     # Patricia::isWave(object)
     def self.isWave(object)
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
@@ -41,6 +16,21 @@ class Patricia
     # Patricia::isDxThread(object)
     def self.isDxThread(object)
         object["nyxNxSet"] == "2ed4c63e-56df-4247-8f20-e8d220958226"
+    end
+
+    # Patricia::isQuark(object)
+    def self.isQuark(object)
+        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    end
+
+    # Patricia::isNX141FSCacheElement(element)
+    def self.isNX141FSCacheElement(element)
+        element["nyxElementType"] == "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
+    end
+
+    # Patricia::isNyxClassifier(item)
+    def self.isNyxClassifier(item)
+        item["identifier1"] == "103df1ac-2e73-4bf1-a786-afd4092161d4"
     end
 
     # -------------------------------------------------------
@@ -53,13 +43,7 @@ class Patricia
         item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
-        item = TimelineItems::getTimelineItemForUUIDOrNull(uuid)
-        return item if item
-
-        item = Tags::getTagByUUIDOrNull(uuid)
-        return item if item
-
-        item = CuratedListings::getCuratedListingByUUIDOrNull(uuid)
+        item = NyxClassifierDeclarations::getClassifierByUUIDOrNull(uuid)
         return item if item
 
         nil
@@ -73,14 +57,8 @@ class Patricia
         if Patricia::isNX141FSCacheElement(item) then
             return NX141FSCacheElement::toString(item)
         end
-        if Patricia::isTimelineItem(item) then
-            return TimelineItems::toString(item)
-        end
-        if Patricia::isTag(item) then
-            return Tags::toString(item)
-        end
-        if Patricia::isCuratedListing(item) then
-            return CuratedListings::toString(item)
+        if Patricia::isNyxClassifier(item) then
+            return NyxClassifierDeclarations::toString(item)
         end
         if Patricia::isQuark(item) then
             return Quarks::toString(item)
@@ -105,16 +83,8 @@ class Patricia
             NX141FSCacheElement::access(item["nx141"])
             return
         end
-        if Patricia::isTimelineItem(item) then
-            TimelineItems::landing(item)
-            return
-        end
-        if Patricia::isTag(item) then
-            Tags::landing(item)
-            return
-        end
-        if Patricia::isCuratedListing(item) then
-            CuratedListings::landing(item)
+        if Patricia::isNyxClassifier(item) then
+            NyxClassifierDeclarations::landing(item)
             return
         end
         puts item
@@ -131,16 +101,8 @@ class Patricia
             NX141FSCacheElement::landing(item)
             return
         end
-        if Patricia::isTimelineItem(item) then
-            TimelineItems::landing(item)
-            return
-        end
-        if Patricia::isTag(item) then
-            Tags::landing(item)
-            return
-        end
-        if Patricia::isCuratedListing(item) then
-            CuratedListings::landing(item)
+        if Patricia::isNyxClassifier(item) then
+            NyxClassifierDeclarations::landing(item)
             return
         end
         if Patricia::isQuark(item) then
@@ -174,21 +136,15 @@ class Patricia
     def self.architectDX7OrNull()
         dx7 = Patricia::selectOneDX7OrNull()
         return dx7 if dx7
-        ops = ["Nereid Element", "Tag", "Timeline Item", "Curated Listing"]
+        ops = ["Nereid Element", "Classifier Item"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
         return if operation.nil?
         if operation == "Nereid Element" then
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
-        if operation == "Tag" then
-            return Tags::interactivelyIssueNewTagOrNull()
+        if operation == "Classifier Item" then
+            return NyxClassifierDeclarations::interactivelyIssueNewClassiferOrNull()
         end
-        if operation == "Timeline Item" then
-            return TimelineItems::interactivelyIssueNewTimelineItemOrNull()
-        end
-        if operation == "Curated Listing" then
-            return CuratedListings::interactivelyIssueNewCuratedListingOrNull()
-        end  
     end
 
     # Patricia::architectAddParentForDX7(item)
@@ -266,9 +222,7 @@ class Patricia
         searchItems = [
             M92::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
-            TimelineItems::nyxSearchItems(),
-            Tags::nyxSearchItems(),
-            CuratedListings::nyxSearchItems()
+            NyxClassifierDeclarations::nyxSearchItems()
         ]
         .flatten
     end

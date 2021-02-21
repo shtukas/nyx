@@ -145,7 +145,6 @@ require_relative "BinaryBlobsService.rb"
 require_relative "Calendar.rb"
 require_relative "CatalystUtils.rb"
 require_relative "Commons.rb"
-require_relative "CuratedListings.rb"
 
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -175,6 +174,7 @@ require_relative "Nereid.rb"
 
 require_relative "NX141FSCacheElement.rb"
 require_relative "NX141FilenameReaderWriter.rb"
+require_relative "NyxClassifierDeclarations.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -191,9 +191,6 @@ require_relative "Runner.rb"
 require_relative "RunningItems.rb"
 
 require_relative "SectionsType0141.rb"
-
-require_relative "Tags.rb"
-require_relative "TimelineItems.rb"
 
 require_relative "UIServices.rb"
 

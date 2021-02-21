@@ -25,45 +25,23 @@ NX141FSCacheElement {
 
 NyxClassifierDeclaration {
     "uuid"         : String
-    "mark1"        : "103df1ac-2e73-4bf1-a786-afd4092161d4"
-    "setType"      : String # Indicates the type of the set.
+    "unixtime"     : Float
+    "identifier1"  : "103df1ac-2e73-4bf1-a786-afd4092161d4" # Indicates a classifier declaration
+    "type"         : String # Indicates the type of the set.
     "description"  : String
     "payload1"     :
 }
 
-setType: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Timeline Item
-         -> payload 1 : String, Date: YYYY-MM-DD
+type: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Timeline Item
+      -> payload 1 : String, Date: YYYY-MM-DD
 
-setType: "22f244eb-4925-49be-bce6-db58c2fb489a" # Tag
+type: "22f244eb-4925-49be-bce6-db58c2fb489a" # Tag
 
-setType: "30991912-a9f2-426d-9b62-ec942c16c60a" # CuratedListing
+type: "30991912-a9f2-426d-9b62-ec942c16c60a" # CuratedListing
 
 ------------------------------------------------------------------------------
 
-Nyx Carriers
-
-    M92
-
-    TimelineItem {
-        "uuid"           : String
-        "nyxElementType" : "ea9f4f69-1c8c-49c9-b644-8854c1be75d8"
-        "date"           : String
-        "description"    : String
-    }
-
-    Tag {
-        "uuid"           : String
-        "nyxElementType" : "22f244eb-4925-49be-bce6-db58c2fb489a"
-        "description"    : String
-    }
-
-    CuratedListing {
-        "uuid"           : String
-        "nyxElementType" : "30991912-a9f2-426d-9b62-ec942c16c60a"
-        "description"    : String
-    }
-
-DX7 = M92 | NX141FSCacheElement | TimelineItem | Tag | CuratedListing # (DX7s can be parent and children of each other)
+DX7 = NereidElement | NX141FSCacheElement | NyxClassifierDeclaration # (DX7s can be parent and children of each other)
 
 ------------------------------------------------------------------------------
 

@@ -368,16 +368,6 @@ class UIServices
             return if element.nil?
             NereidInterface::landing(element)
         end
-        if operation == "TimelineItem" then
-            event = TimelineItems::interactivelyIssueNewTimelineItemOrNull()
-            return if event.nil?
-            TimelineItems::landing(event)
-        end
-        if operation == "Curated Listing" then
-            listing = CuratedListings::interactivelyIssueNewCuratedListingOrNull()
-            return if listing.nil?
-            TimelineItems::landing(listing)
-        end
     end
 
     # UIServices::nyxMain()

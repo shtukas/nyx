@@ -3,6 +3,8 @@
 
 class M92
 
+    # This class exists to allow Nereid Elements to be landed on as elements on the Nyx ecosystem, and not as native Nereid elements
+
     # -------------------------------------------------------
 
     # M92::elementMatchesIdentifier(element, identifier)
