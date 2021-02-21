@@ -35,8 +35,8 @@ class Patricia
 
     # -------------------------------------------------------
 
-    # Patricia::getDX7ByUUIDOrNull(uuid)
-    def self.getDX7ByUUIDOrNull(uuid)
+    # Patricia::getNyxNetworkNodeByUUIDOrNull(uuid)
+    def self.getNyxNetworkNodeByUUIDOrNull(uuid)
         item = NereidInterface::getElementOrNull(uuid)
         return item if item
 
@@ -132,9 +132,9 @@ class Patricia
 
     # -------------------------------------------------------
 
-    # Patricia::architectDX7OrNull()
-    def self.architectDX7OrNull()
-        dx7 = Patricia::selectOneDX7OrNull()
+    # Patricia::architectNyxNetworkNodeOrNull()
+    def self.architectNyxNetworkNodeOrNull()
+        dx7 = Patricia::selectOneNyxNetworkNodeOrNull()
         return dx7 if dx7
         ops = ["Nereid Element", "Classifier Item"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
@@ -147,40 +147,20 @@ class Patricia
         end
     end
 
-    # Patricia::architectAddParentForDX7(item)
-    def self.architectAddParentForDX7(item)
-        e1 = Patricia::architectDX7OrNull()
+    # Patricia::linkToArchitectedNetworkNode(item)
+    def self.linkToArchitectedNetworkNode(item)
+        e1 = Patricia::architectNyxNetworkNodeOrNull()
         return if e1.nil?
-        Arrows::issueArrow(e1["uuid"], item["uuid"])
+        Network::link(item, e1)
     end
 
-    # Patricia::architectAddChildForDX7(item)
-    def self.architectAddChildForDX7(item)
-        e1 = Patricia::architectDX7OrNull()
-        return if e1.nil?
-        Arrows::issueArrow(item["uuid"], e1["uuid"])
-    end
-
-    # Patricia::selectAndRemoveOneParentFromDX7(item)
-    def self.selectAndRemoveOneParentFromDX7(item)
-        parents = Arrows::getParentsUUIDs(item["uuid"])
-                    .map{|uuid| Patricia::getDX7ByUUIDOrNull(uuid) }
-                    .compact
-        return if parents.empty?
-        parent = LucilleCore::selectEntityFromListOfEntitiesOrNull("parent", parents, lambda{|parent| Patricia::toString(parent) })
-        return if parent.nil?
-        Arrows::deleteArrow(parent["uuid"], item["uuid"])
-    end
-
-    # Patricia::selectAndRemoveOneChildFromDX7(item)
-    def self.selectAndRemoveOneChildFromDX7(item)
-        children = Arrows::getChildrenUUIDs(item["uuid"])
-                    .map{|uuid| Patricia::getDX7ByUUIDOrNull(uuid) }
-                    .compact
-        return if children.empty?
-        child = LucilleCore::selectEntityFromListOfEntitiesOrNull("child", children, lambda{|child| Patricia::toString(child) })
-        return if child.nil?
-        Arrows::deleteArrow(item["uuid", child["uuid"]])
+    # Patricia::selectAndRemoveLinkedNetworkNode(item)
+    def self.selectAndRemoveLinkedNetworkNode(item)
+        related = Network::getLinkedObjects(item)
+        return if related.empty?
+        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
+        return if node.nil?
+        Network::unlink(item, node)
     end
 
     # Patricia::computeNew21stOrdinalForDxThread(dxthread)
@@ -227,8 +207,8 @@ class Patricia
         .flatten
     end
 
-    # Patricia::selectOneDX7OrNull()
-    def self.selectOneDX7OrNull()
+    # Patricia::selectOneNyxNetworkNodeOrNull()
+    def self.selectOneNyxNetworkNodeOrNull()
         searchItem = CatalystUtils::selectOneOrNull(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
         return nil if searchItem.nil?
         searchItem["payload"]
@@ -237,7 +217,7 @@ class Patricia
     # Patricia::generalSearchLoop()
     def self.generalSearchLoop()
         loop {
-            dx7 = Patricia::selectOneDX7OrNull()
+            dx7 = Patricia::selectOneNyxNetworkNodeOrNull()
             break if dx7.nil? 
             Patricia::landing(dx7)
         }

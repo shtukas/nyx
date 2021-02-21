@@ -37,15 +37,11 @@ type: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Timeline Item
 
 type: "22f244eb-4925-49be-bce6-db58c2fb489a" # Tag
 
-type: "30991912-a9f2-426d-9b62-ec942c16c60a" # CuratedListing
+type: "30991912-a9f2-426d-9b62-ec942c16c60a" # Curated Listing
 
 ------------------------------------------------------------------------------
 
-DX7 = NereidElement | NX141FSCacheElement | NyxClassifierDeclaration # (DX7s can be parent and children of each other)
-
-------------------------------------------------------------------------------
-
-Network: Arrows
+NyxNetworkNode = NereidElement | NX141FSCacheElement | NyxClassifierDeclaration # (NyxNetworkNodes can be parent and children of each other)
 
 ------------------------------------------------------------------------------
 

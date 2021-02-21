@@ -48,8 +48,6 @@ class M92
     # M92::landing(element)
     def self.landing(element)
 
-        locpaddingsize = 11
-
         loop {
             system("clear")
             element = NereidInterface::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
@@ -64,19 +62,9 @@ class M92
 
             mx = LCoreMenuItemsNX1.new()
 
-            Arrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
-                })
-            }
-
-            Arrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
+            Network::getLinkedObjects(element).each{|node|
+                mx.item("related: #{Patricia::toString(node)}", lambda { 
+                    Patricia::landing(node)
                 })
             }
 
@@ -93,20 +81,12 @@ class M92
                 NereidInterface::insertElement(element)
             })
 
-            mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(element)
+            mx.item("link to network architected".yellow, lambda { 
+                Patricia::linkToArchitectedNetworkNode(element)
             })
 
-            mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(element)
-            })
-
-            mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(element)
-            })
-
-            mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(element)
+            mx.item("select and remove related".yellow, lambda {
+                Patricia::selectAndRemoveLinkedNetworkNode(element)
             })
 
             mx.item("transmute".yellow, lambda { 

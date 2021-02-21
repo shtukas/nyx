@@ -161,8 +161,6 @@ class NX141FSCacheElement
     # NX141FSCacheElement::landing(element)
     def self.landing(element)
 
-        locpaddingsize = 11
-
         loop {
             system("clear")
             element = NX141FSCacheElement::getElementByUUIDOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
@@ -180,7 +178,7 @@ class NX141FSCacheElement
             mx = LCoreMenuItemsNX1.new()
 
             location = GalaxyFinder::uniqueStringToLocationOrNull(element["nx141"])
-            mx.item("#{"real parent".ljust(locpaddingsize)}: #{File.dirname(location)}", lambda { 
+            mx.item("real parent: #{File.dirname(location)}", lambda { 
                 NX141FSCacheElement::landingOnFileSystemLocation(File.dirname(location))
             })
 
@@ -189,25 +187,15 @@ class NX141FSCacheElement
                 LucilleCore::locationsAtFolder(location)
                 .select{|l| !File.basename(l).start_with?(".") }
                 .each{|loc1|
-                    mx.item("#{"fs child".ljust(locpaddingsize)}: #{File.basename(loc1)}", lambda { 
+                    mx.item("fs child: #{File.basename(loc1)}", lambda { 
                         NX141FSCacheElement::landingOnFileSystemLocation(loc1)
                     })
                 }
             end
 
-            Arrows::getParentsUUIDs(element["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
-                })
-            }
-
-            Arrows::getChildrenUUIDs(element["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
+            Network::getLinkedObjects(element).each{|node|
+                mx.item("related: #{Patricia::toString(node)}", lambda { 
+                    Patricia::landing(node)
                 })
             }
 
@@ -217,20 +205,12 @@ class NX141FSCacheElement
                 Patricia::dx7access(element)
             })
 
-            mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(element)
+            mx.item("link to network architected".yellow, lambda { 
+                Patricia::linkToArchitectedNetworkNode(element)
             })
 
-            mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(element)
-            })
-
-            mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(element)
-            })
-
-            mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(element)
+            mx.item("select and remove related".yellow, lambda {
+                Patricia::selectAndRemoveLinkedNetworkNode(element)
             })
 
             mx.item("destroy".yellow, lambda { 

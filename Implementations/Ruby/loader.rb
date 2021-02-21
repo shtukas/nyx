@@ -132,7 +132,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
-require_relative "Arrows.rb"
 
 require_relative "BackupsMonitor.rb"
 require_relative "Bank.rb"
@@ -171,6 +170,8 @@ require_relative "Nereid.rb"
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
+
+require_relative "Network.rb"
 
 require_relative "NX141FSCacheElement.rb"
 require_relative "NX141FilenameReaderWriter.rb"

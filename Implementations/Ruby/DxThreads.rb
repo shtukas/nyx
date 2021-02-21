@@ -44,7 +44,7 @@ class DxThreadsUIUtils
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
             if input == ">nyx" then
-                item = Patricia::getDX7ByUUIDOrNull(quark["nereiduuid"]) 
+                item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
                 next if item.nil?
                 Patricia::landing(item)
                 Quarks::destroyQuark(quark)

@@ -102,7 +102,7 @@ class NyxClassifierDeclarations
 
     # NyxClassifierDeclarations::interactivelySelectClassifierTypeXOrNull()
     def self.interactivelySelectClassifierTypeXOrNull()
-        LucilleCore::selectEntityFromListOfEntities("classifier type: ", NyxClassifierDeclarations::typeXs(), lambda{|item| item["name"] })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier type: ", NyxClassifierDeclarations::typeXs(), lambda{|item| item["name"] })
     end
 
     # NyxClassifierDeclarations::interactivelyIssueNewClassiferOrNull()
@@ -156,8 +156,6 @@ class NyxClassifierDeclarations
     # NyxClassifierDeclarations::landing(classifier)
     def self.landing(classifier)
 
-        locpaddingsize = 11
-
         loop {
 
             return if NyxClassifierDeclarations::getClassifierByUUIDOrNull(classifier["uuid"]).nil? # could have been destroyed at the previous run
@@ -172,19 +170,9 @@ class NyxClassifierDeclarations
 
             puts ""
 
-            Arrows::getParentsUUIDs(classifier["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx parent".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
-                })
-            }
-
-            Arrows::getChildrenUUIDs(classifier["uuid"]).each{|uuid1|
-                e1 = Patricia::getDX7ByUUIDOrNull(uuid1)
-                next if e1.nil?
-                mx.item("#{"nyx child".ljust(locpaddingsize)}: #{Patricia::toString(e1)}", lambda { 
-                    Patricia::landing(e1)
+            Network::getLinkedObjects(classifier).each{|node|
+                mx.item("related: #{Patricia::toString(node)}", lambda { 
+                    Patricia::landing(node)
                 })
             }
 
@@ -196,20 +184,12 @@ class NyxClassifierDeclarations
                 NyxClassifierDeclarations::updateClassifierDescription(classifier["uuid"], description)
             })
 
-            mx.item("patricia architect ; insert as parent".yellow, lambda { 
-                Patricia::architectAddParentForDX7(classifier)
+            mx.item("link to network architected".yellow, lambda { 
+                Patricia::linkToArchitectedNetworkNode(classifier)
             })
 
-            mx.item("patricia architect ; insert as child".yellow, lambda { 
-                Patricia::architectAddChildForDX7(classifier)
-            })
-
-            mx.item("select and remove parent".yellow, lambda {
-                Patricia::selectAndRemoveOneParentFromDX7(classifier)
-            })
-
-            mx.item("select and remove child".yellow, lambda {
-                Patricia::selectAndRemoveOneChildFromDX7(classifier)
+            mx.item("select and remove related".yellow, lambda {
+                Patricia::selectAndRemoveLinkedNetworkNode(classifier)
             })
 
             mx.item("destroy".yellow, lambda { 
