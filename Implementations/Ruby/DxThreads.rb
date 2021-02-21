@@ -1,25 +1,5 @@
 # encoding: UTF-8
 
-class DxThreadsTarget
-    # DxThreadsTarget::getDxThreadStreamCardinal()
-    def self.getDxThreadStreamCardinal()
-        DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(DxThreads::getStream()).size
-    end
-
-    # DxThreadsTarget::getIdealDxThreadStreamCardinal()
-    def self.getIdealDxThreadStreamCardinal()
-        t1 = DateTime.parse("2021-01-26 22:43:56").to_time.to_i
-        y1 = 3728
-
-        t2 = DateTime.parse("2021-07-01 00:00:00").to_time.to_i
-        y2 = 100
-
-        slope = (y2-y1).to_f/(t2-t1)
-
-        return (Time.new.to_f - t1) * slope + y1
-    end
-end
-
 class DxThreadsUIUtils
 
     # DxThreadsUIUtils::incomingTime(dxthread, quark, timespan)
@@ -60,7 +40,7 @@ class DxThreadsUIUtils
 
             puts "running: #{DxThreads::dxThreadAndQuarkToString(dxthread, quark).green}"
             NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
-            puts ">nyx | >dxthread | / | landing | ++ | ++<hours> | +datecode | destroy | pause | keep alive | stop & exit (default)".yellow
+            puts ">nyx | >dxthread | / | landing | ++ | ++<hours> | +datecode | destroy # ;; | pause | keep alive | stop & exit (default)".yellow
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
             if input == ">nyx" then
@@ -105,7 +85,7 @@ class DxThreadsUIUtils
                 break
             end
 
-            if input == "destroy" then
+            if (input == "destroy") or (input == ";;") then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
                 break
@@ -148,15 +128,8 @@ class DxThreadsUIUtils
 
         completionRatioX = lambda{|dxthread|
             completionRatio = DxThreads::completionRatio(dxthread)
-            if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
-                if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
-                    completionRatio = [completionRatio, 1].min
-                end
-            end
             if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-                if DxThreadsTarget::getDxThreadStreamCardinal() > DxThreadsTarget::getIdealDxThreadStreamCardinal() then
-                    completionRatio = completionRatio*completionRatio
-                end
+                completionRatio = completionRatio*completionRatio
             end
             completionRatio
         }
