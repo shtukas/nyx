@@ -116,7 +116,7 @@ class CatalystUtils
 
             puts JSON.pretty_generate(quark)
 
-            dxthread = DxThreads::getStream()
+            dxthread = M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
 
             ordinal = Patricia::computeNew21stOrdinalForDxThread(dxthread)
 

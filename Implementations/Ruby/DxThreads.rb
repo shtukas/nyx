@@ -186,11 +186,6 @@ class DxThreads
         M54::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
-    # DxThreads::getStream()
-    def self.getStream()
-        M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")
-    end
-
     # DxThreads::make(description, timeCommitmentPerDayInHours)
     def self.make(description, timeCommitmentPerDayInHours)
         {
