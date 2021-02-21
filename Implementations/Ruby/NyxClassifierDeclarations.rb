@@ -102,7 +102,7 @@ class NyxClassifierDeclarations
 
     # NyxClassifierDeclarations::interactivelySelectClassifierTypeXOrNull()
     def self.interactivelySelectClassifierTypeXOrNull()
-        LucilleCore::selectEntityFromListOfEntities_EnsureChoice("classifier type: ", NyxClassifierDeclarations::typeXs(), lambda{|item| item["name"] })
+        LucilleCore::selectEntityFromListOfEntities("classifier type: ", NyxClassifierDeclarations::typeXs(), lambda{|item| item["name"] })
     end
 
     # NyxClassifierDeclarations::interactivelyIssueNewClassiferOrNull()

@@ -375,11 +375,14 @@ class UIServices
         loop {
             system("clear")
             puts "Nyx 🗺"
-            ops = ["Search", "Issue New"]
+            ops = ["Search", "Explore", "Issue New"]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
             break if operation.nil?
             if operation == "Search" then
                 Patricia::generalSearchLoop()
+            end
+            if operation == "Explore" then
+                Patricia::explore()
             end
             if operation == "Issue New" then
                 UIServices::issueNewNyxElement()
