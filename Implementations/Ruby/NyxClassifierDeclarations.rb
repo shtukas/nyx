@@ -146,8 +146,8 @@ class NyxClassifierDeclarations
         CatalystUtils::selectOneOrNull(NyxClassifierDeclarations::getClassifierDeclarations(), lambda{|classifier| NyxClassifierDeclarations::toString(classifier)})
     end
 
-    # NyxClassifierDeclarations::architectOrNull()
-    def self.architectOrNull()
+    # NyxClassifierDeclarations::architectNodeOrNull()
+    def self.architectNodeOrNull()
         classifier = NyxClassifierDeclarations::selectClassifierOrNull()
         return classifier if classifier
         NyxClassifierDeclarations::interactivelyIssueNewClassiferOrNull()
@@ -185,11 +185,11 @@ class NyxClassifierDeclarations
             })
 
             mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNetworkNode(classifier)
+                Patricia::linkToArchitectedNode(classifier)
             })
 
             mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNetworkNode(classifier)
+                Patricia::selectAndRemoveLinkedNode(classifier)
             })
 
             mx.item("destroy".yellow, lambda { 

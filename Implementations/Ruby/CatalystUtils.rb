@@ -118,7 +118,7 @@ class CatalystUtils
 
             dxthread = M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
 
-            ordinal = Patricia::computeNew21stOrdinalForDxThread(dxthread)
+            ordinal = DxThreads::computeNew21stOrdinalForDxThread(dxthread)
 
             DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
 

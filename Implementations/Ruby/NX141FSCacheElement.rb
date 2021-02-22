@@ -202,15 +202,15 @@ class NX141FSCacheElement
             puts ""
 
             mx.item("access".yellow, lambda { 
-                Patricia::dx7access(element)
+                NX141FSCacheElement::access(element["nx141"])
             })
 
             mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNetworkNode(element)
+                Patricia::linkToArchitectedNode(element)
             })
 
             mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNetworkNode(element)
+                Patricia::selectAndRemoveLinkedNode(element)
             })
 
             mx.item("destroy".yellow, lambda { 

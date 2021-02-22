@@ -101,10 +101,10 @@ class Waves
             return "sticky, from: #{schedule['from-hour']}"
         end
         if schedule['@'] == 'every-n-hours' then
-            return "every-n-hours  #{"%6.1f" % schedule['repeat-value']}"
+            return "every-n-hours #{schedule['repeat-value']}"
         end
         if schedule['@'] == 'every-n-days' then
-            return "every-n-days   #{"%6.1f" % schedule['repeat-value']}"
+            return "every-n-days #{schedule['repeat-value']}"
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
             return "every-this-day-of-the-month: #{schedule['repeat-value']}"

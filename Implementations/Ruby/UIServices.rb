@@ -146,6 +146,24 @@ end
 
 class UIServices
 
+    # UIServices::explore()
+    def self.explore()
+        loop {
+            system("clear")
+            typex = NyxClassifierDeclarations::interactivelySelectClassifierTypeXOrNull()
+            break if typex.nil?
+            loop {
+                system("clear")
+                classifiers = NyxClassifierDeclarations::getClassifierDeclarations()
+                                .select{|classifier| classifier["type"] == typex["type"] }
+                                .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
+                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxClassifierDeclarations::toString(classifier) })
+                break if classifier.nil?
+                NyxClassifierDeclarations::landing(classifier)
+            }
+        }
+    end
+
     # UIServices::servicesFront()
     def self.servicesFront()
         loop {
@@ -165,7 +183,7 @@ class UIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
 
-            ms.item("new quark", lambda { Patricia::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
+            ms.item("new quark", lambda { Quarks::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
 
             puts ""
 
@@ -361,7 +379,7 @@ class UIServices
                 Patricia::generalSearchLoop()
             end
             if operation == "Explore" then
-                Patricia::explore()
+                UIServices::explore()
             end
             if operation == "Issue New" then
                 UIServices::issueNewNyxElement()

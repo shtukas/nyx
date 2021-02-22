@@ -41,6 +41,17 @@ class Quarks
         LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
     end
 
+    # Quarks::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
+    def self.getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
+        quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
+        return nil if quark.nil?
+        dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
+        DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+        Patricia::landing(quark)
+        quark
+    end
+
     # --------------------------------------------------
 
     # Quarks::access(quark)
@@ -97,7 +108,7 @@ class Quarks
 
             mx.item("move to another DxThread".yellow, lambda {
                 dxthread = Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                DxThreads::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("edit".yellow, lambda {

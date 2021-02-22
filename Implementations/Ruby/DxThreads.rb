@@ -52,7 +52,7 @@ class DxThreadsUIUtils
             end
 
             if input == ">dxthread" then
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                DxThreads::moveTargetToNewDxThread(quark, dxthread)
                 break
             end
 
@@ -274,9 +274,30 @@ class DxThreads
             return DxThreadQuarkMapping::getNextOrdinal()
         end
         if ordinal == "low" then
-            return Patricia::computeNew21stOrdinalForDxThread(dxthread)
+            return DxThreads::computeNew21stOrdinalForDxThread(dxthread)
         end
         ordinal.to_f
+    end
+
+    # DxThreads::computeNew21stOrdinalForDxThread(dxthread)
+    def self.computeNew21stOrdinalForDxThread(dxthread)
+        ordinals = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 22)
+                    .map{|quark| DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark) }
+                    .sort
+        ordinals = ordinals.drop(19).take(2)
+        if ordinals.size < 2 then
+            return DxThreadQuarkMapping::getNextOrdinal()
+        end
+        (ordinals[0]+ordinals[1]).to_f/2
+    end
+
+    # DxThreads::moveTargetToNewDxThread(quark, dxParentOpt or null)
+    def self.moveTargetToNewDxThread(quark, dxParentOpt)
+        dx2 = DxThreads::selectOneExistingDxThreadOrNull()
+        return if dx2.nil?
+        DxThreadQuarkMapping::deleteRecordsByQuarkUUID(quark["uuid"])
+        ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
+        DxThreadQuarkMapping::insertRecord(dx2, quark, ordinal)
     end
 
     # DxThreads::selectOneExistingDxThreadOrNull()
@@ -340,14 +361,14 @@ class DxThreads
             })
 
             mx.item("add new quark".yellow, lambda {
-                Patricia::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
+                Quarks::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
             })
 
             mx.item("select and move quark".yellow, lambda { 
                 quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
                 quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| Patricia::toString(quark) })
                 return if quark.nil?
-                Patricia::moveTargetToNewDxThread(quark, dxthread)
+                DxThreads::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("json object".yellow, lambda { 

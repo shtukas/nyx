@@ -23,10 +23,10 @@ class M92
         CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
-    # M92::architectOrNull()
-    def self.architectOrNull()
+    # M92::architectNodeOrNull()
+    def self.architectNodeOrNull()
         system("clear")
-        puts "M92::architectOrNull()"
+        puts "M92::architectNodeOrNull()"
         LucilleCore::pressEnterToContinue()
         element = M92::selectElementOrNull()
         return element if element
@@ -71,7 +71,7 @@ class M92
             puts ""
 
             mx.item("access".yellow, lambda { 
-                Patricia::dx7access(element)
+                NereidInterface::access(element)
             })
 
             mx.item("update/set description".yellow, lambda {
@@ -82,11 +82,11 @@ class M92
             })
 
             mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNetworkNode(element)
+                Patricia::linkToArchitectedNode(element)
             })
 
             mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNetworkNode(element)
+                Patricia::selectAndRemoveLinkedNode(element)
             })
 
             mx.item("transmute".yellow, lambda { 
