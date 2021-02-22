@@ -173,7 +173,7 @@ class DxThreadsUIUtils
         [completionRatioX.call(dxthread), ns16s]
     end
 
-    # DxThreadsUIUtils::neodiff()
+    # DxThreadsUIUtils::neodiff() # positive = good
     def self.neodiff()
         cardinal1 = 3765
         cardinal2 = 100
@@ -192,6 +192,7 @@ class DxThreadsUIUtils
             .shuffle
             .each{|quark|
                 DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+                break if DxThreadsUIUtils::neodiff() >= 0
                 break if (Time.new.to_i - t1) > 1200
             }
         true
