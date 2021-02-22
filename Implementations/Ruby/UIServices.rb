@@ -230,10 +230,9 @@ class UIServices
                     .flatten
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
-        if !items.empty? then
-            puts "commands: .. (access top item) (default) | select <n> | ++ | ++<hours> | +datecode | start | stop | [] (Tasks.txt) | / | nyx".yellow
-        else
-            puts "commands: neo | / | nyx".yellow
+        puts "commands: .. (access top item) (default) | select <n> | ++ | ++<hours> | +datecode | start | stop | [] (Tasks.txt) | / | nyx".yellow
+        if (diff = DxThreadsUIUtils::neodiff()) < 0 then 
+            puts "commands: neo (#{diff})".yellow
         end
 
         input = LucilleCore::pressEnterToContinue("> ")
@@ -307,31 +306,6 @@ class UIServices
             RunningItems::destroy(item)
         end
 
-        if input == "neo" then
-            t1 = Time.new.to_f
-            c1 = 0
-            loop {
-                break if ((Time.new.to_f - t1) >= 1800) # 30 mins
-                break if c1 >= 10
-                [
-                    M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4"), # Stream
-                    M54::getOrNull("9db94deaddb8576ebda1f1fa7e6b800a"), # Jedi
-                ]
-                .sort{|d1, d2| DxThreads::completionRatio(d1) <=> DxThreads::completionRatio(d2) }
-                .first(1)
-                .each{|dxthread|
-                    DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 100)
-                    .shuffle
-                    .first(1)
-                    .each{|quark|
-                        DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-                        c1 = c1 + 1
-                    }
-                }
-            }
-            return
-        end
-
         if input == "/" then
             UIServices::servicesFront()
             return
@@ -339,6 +313,11 @@ class UIServices
 
         if input == "nyx" then
             UIServices::nyxMain()
+            return
+        end
+
+        if input == "neo" then
+            DxThreadsUIUtils::neo()
             return
         end
     end
