@@ -89,6 +89,21 @@ class NereidNyxExt
                 Patricia::selectAndRemoveLinkedNode(element)
             })
 
+            mx.item("reshape (select connected, move to architectured)".yellow, lambda {
+
+                LucilleCore::pressEnterToContinue("select nodes")
+                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjects(element), lambda{ |n| Patricia::toString(n) })
+                return if nodes.empty?
+
+                LucilleCore::pressEnterToContinue("select node #2")
+                node2 = Patricia::architectNodeOrNull()
+                return if node2.nil?
+
+                return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
+
+                Network::reshape(element, nodes, node2)
+            })
+
             mx.item("transmute".yellow, lambda { 
                 NereidInterface::transmuteOrNull(element)
             })
