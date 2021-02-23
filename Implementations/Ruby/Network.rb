@@ -5,7 +5,7 @@ class Network
 
     # Network::issueLink(node1uuid, node2uuid)
     def self.issueLink(node1uuid, node2uuid)
-        raise "ae64e5be-1901-4ce7-ae9f-30d27aa4dd3a" if node1uuid == node2uuid
+        return if node1uuid == node2uuid
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -69,5 +69,17 @@ class Network
         db.execute "delete from _network_ where _node1_=?", [uuid]
         db.execute "delete from _network_ where _node2_=?", [uuid]
         db.close
+    end
+
+    # --------------------------------------------------
+
+    # Network::reshape(node1, nodes, node2)
+    def self.reshape(node1, nodes, node2)
+        # This function takes a node1 and some nodes and a node2 and detach all the nodes from 
+        # node1 and attach them to node2
+        nodes.each{|n|
+            Network::link(node2, n)
+            Network::unlink(node1, n)
+        }
     end
 end
