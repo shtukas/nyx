@@ -112,11 +112,11 @@ class CatalystUtils
                 "unixtime"   => Time.new.to_i,
                 "nereiduuid" => nereiduuid
             }
-            M54::put(quark)
+            TodoCoreData::put(quark)
 
             puts JSON.pretty_generate(quark)
 
-            dxthread = M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
+            dxthread = TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
 
             ordinal = DxThreads::computeNew21stOrdinalForDxThread(dxthread)
 

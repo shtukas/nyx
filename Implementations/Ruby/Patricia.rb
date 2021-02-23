@@ -76,7 +76,7 @@ class Patricia
     # Patricia::landing(item)
     def self.landing(item)
         if Patricia::isNereidElement(item) then
-            M92::landing(item)
+            NereidNyxExt::landing(item)
             return
         end
         if Patricia::isNX141FSCacheElement(item) then
@@ -147,7 +147,7 @@ class Patricia
     # Patricia::nyxSearchItemsAll()
     def self.nyxSearchItemsAll()
         searchItems = [
-            M92::nyxSearchItems(),
+            NereidNyxExt::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
             NyxClassifierDeclarations::nyxSearchItems()
         ]

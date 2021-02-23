@@ -10,7 +10,7 @@ NereidElement {
 
 ------------------------------------------------------------------------------
 
-Todo Types: Waves (M54), Quark (M54), DxThread (M54), CalendarItem, AnniversaryItem
+Todo Types: Waves (TodoCoreData), Quark (TodoCoreData), DxThread (TodoCoreData), CalendarItem, AnniversaryItem
 
 ------------------------------------------------------------------------------
 

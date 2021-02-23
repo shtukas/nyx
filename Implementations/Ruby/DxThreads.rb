@@ -181,12 +181,12 @@ class DxThreadsUIUtils
         t2 = DateTime.parse("2021-08-22T00:20:48Z").to_time.to_i
         slope = (cardinal2-cardinal1).to_f/(t2-t1)
         ideal = (Time.new.to_i-t1) * slope + cardinal1
-        ideal - DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")).size
+        ideal - DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")).size
     end
 
     # DxThreadsUIUtils::neo()
     def self.neo()
-        dxthread = M54::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
+        dxthread = TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
         t1 = Time.new.to_f
         DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 100)
             .shuffle
@@ -209,7 +209,7 @@ class DxThreads
 
     # DxThreads::dxthreads()
     def self.dxthreads()
-        M54::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
+        TodoCoreData::getSet("2ed4c63e-56df-4247-8f20-e8d220958226")
     end
 
     # DxThreads::make(description, timeCommitmentPerDayInHours)
@@ -226,7 +226,7 @@ class DxThreads
     # DxThreads::issue(description, timeCommitmentPerDayInHours)
     def self.issue(description, timeCommitmentPerDayInHours)
         object = DxThreads::make(description, timeCommitmentPerDayInHours)
-        M54::put(object)
+        TodoCoreData::put(object)
         object
     end
 
@@ -310,7 +310,7 @@ class DxThreads
         loop {
             system("clear")
 
-            return if M54::getOrNull(dxthread["uuid"]).nil?
+            return if TodoCoreData::getOrNull(dxthread["uuid"]).nil?
 
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
@@ -332,20 +332,20 @@ class DxThreads
 
             mx.item("no display on this day".yellow, lambda { 
                 dxthread["noDisplayOnThisDay"] = CatalystUtils::today()
-                M54::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("rename".yellow, lambda { 
                 name1 = CatalystUtils::editTextSynchronously(dxthread["name"]).strip
                 return if name1 == ""
                 dxthread["name"] = name1
-                M54::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("update daily time commitment".yellow, lambda { 
                 time = LucilleCore::askQuestionAnswerAsString("daily time commitment in hour: ").to_f
                 dxthread["timeCommitmentPerDayInHours"] = time
-                M54::put(dxthread)
+                TodoCoreData::put(dxthread)
             })
 
             mx.item("start thread".yellow, lambda { 
@@ -382,7 +382,7 @@ class DxThreads
             
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("DxThread: '#{DxThreads::toString(dxthread)}': ") then
-                    M54::destroy(dxthread)
+                    TodoCoreData::destroy(dxthread)
                 end
             })
             puts ""

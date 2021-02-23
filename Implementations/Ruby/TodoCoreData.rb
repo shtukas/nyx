@@ -1,15 +1,15 @@
 
 
-class M54
+class TodoCoreData
 
-    # M54::databaseFilepath()
+    # TodoCoreData::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/NS-Core-Objects.sqlite3"
     end
 
-    # M54::getAllObjects()
+    # TodoCoreData::getAllObjects()
     def self.getAllObjects()
-        db = SQLite3::Database.new(M54::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -21,9 +21,9 @@ class M54
         answer
     end
 
-    # M54::put(object)
+    # TodoCoreData::put(object)
     def self.put(object)
-        db = SQLite3::Database.new(M54::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
@@ -33,9 +33,9 @@ class M54
         db.close
     end
 
-    # M54::getOrNull(uuid)
+    # TodoCoreData::getOrNull(uuid)
     def self.getOrNull(uuid)
-        db = SQLite3::Database.new(M54::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -47,9 +47,9 @@ class M54
         answer
     end
 
-    # M54::getSet(setid)
+    # TodoCoreData::getSet(setid)
     def self.getSet(setid)
-        db = SQLite3::Database.new(M54::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -61,9 +61,9 @@ class M54
         answer
     end
 
-    # M54::destroy(object)
+    # TodoCoreData::destroy(object)
     def self.destroy(object)
-        db = SQLite3::Database.new(M54::databaseFilepath())
+        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from table2 where _objectuuid_=?", [object["uuid"]]

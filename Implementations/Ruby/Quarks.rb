@@ -5,7 +5,7 @@ class Quarks
 
     # Quarks::quarks()
     def self.quarks()
-        M54::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
+        TodoCoreData::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
     end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
@@ -18,7 +18,7 @@ class Quarks
             "unixtime"   => Time.new.to_i,
             "nereiduuid" => element["uuid"]
         }
-        M54::put(quark)
+        TodoCoreData::put(quark)
         quark
     end
 
@@ -63,8 +63,8 @@ class Quarks
     def self.landing(quark)
         loop {
 
-            return if M54::getOrNull(quark["uuid"]).nil?
-            quark = M54::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
+            return if TodoCoreData::getOrNull(quark["uuid"]).nil?
+            quark = TodoCoreData::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
 
             system("clear")
 
@@ -139,13 +139,13 @@ class Quarks
 
     # Quarks::destroyQuark(quark)
     def self.destroyQuark(quark)
-        M54::destroy(quark)
+        TodoCoreData::destroy(quark)
     end
 
     # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
         status = NereidInterface::destroyElement(quark["nereiduuid"])
         return if !status
-        M54::destroy(quark)
+        TodoCoreData::destroy(quark)
     end
 end

@@ -118,7 +118,7 @@ class Waves
     # Waves::performDone(wave)
     def self.performDone(wave)
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        M54::put(wave)
+        TodoCoreData::put(wave)
         unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
@@ -132,7 +132,7 @@ class Waves
             "nereiduuid" => element["uuid"],
             "schedule"   => schedule
         }
-        M54::put(wave)
+        TodoCoreData::put(wave)
         wave
     end
 
@@ -148,12 +148,12 @@ class Waves
 
     # Waves::getOrNull(uuid)
     def self.getOrNull(uuid)
-        M54::getOrNull(uuid)
+        TodoCoreData::getOrNull(uuid)
     end
 
     # Waves::waves()
     def self.waves()
-        M54::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        TodoCoreData::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
     end
 
     # Waves::toString(wave)
@@ -216,7 +216,7 @@ class Waves
     def self.landing(wave)
         loop {
             system("clear")
-            return if M54::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+            return if TodoCoreData::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"
@@ -244,19 +244,19 @@ class Waves
                 description = CatalystUtils::editTextSynchronously(wave["description"])
                 return if description.nil?
                 wave["description"] = description
-                M54::put(wave)
+                TodoCoreData::put(wave)
             })
 
             menuitems.item("recast", lambda { 
                 schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                 return if schedule.nil?
                 wave["schedule"] = schedule
-                M54::put(wave)
+                TodoCoreData::put(wave)
             })
 
             menuitems.item("destroy", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    M54::destroy(wave)
+                    TodoCoreData::destroy(wave)
                 end
             })
 

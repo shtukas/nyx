@@ -1,39 +1,39 @@
 
 # encoding: UTF-8
 
-class M92
+class NereidNyxExt
 
     # This class exists to allow Nereid Elements to be landed on as elements on the Nyx ecosystem, and not as native Nereid elements
 
     # -------------------------------------------------------
 
-    # M92::elementMatchesIdentifier(element, identifier)
+    # NereidNyxExt::elementMatchesIdentifier(element, identifier)
     def self.elementMatchesIdentifier(element, identifier)
         return true if element["description"] == identifier
     end
 
-    # M92::getElementsByIdentifier(identifier)
+    # NereidNyxExt::getElementsByIdentifier(identifier)
     def self.getElementsByIdentifier(identifier)
         NereidInterface::getElements()
-            .select{|element| M92::elementMatchesIdentifier(element, identifier) }
+            .select{|element| NereidNyxExt::elementMatchesIdentifier(element, identifier) }
     end
 
-    # M92::selectElementOrNull()
+    # NereidNyxExt::selectElementOrNull()
     def self.selectElementOrNull()
         CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
-    # M92::architectNodeOrNull()
+    # NereidNyxExt::architectNodeOrNull()
     def self.architectNodeOrNull()
         system("clear")
-        puts "M92::architectNodeOrNull()"
+        puts "NereidNyxExt::architectNodeOrNull()"
         LucilleCore::pressEnterToContinue()
-        element = M92::selectElementOrNull()
+        element = NereidNyxExt::selectElementOrNull()
         return element if element
         NereidInterface::interactivelyIssueNewElementOrNull()
     end
 
-    # M92::nyxSearchItems()
+    # NereidNyxExt::nyxSearchItems()
     def self.nyxSearchItems()
         NereidInterface::getElements()
             .map{|element|
@@ -45,7 +45,7 @@ class M92
             }
     end
 
-    # M92::landing(element)
+    # NereidNyxExt::landing(element)
     def self.landing(element)
 
         loop {

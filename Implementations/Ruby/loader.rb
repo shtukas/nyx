@@ -153,8 +153,8 @@ require_relative "DxThreadQuarkMapping.rb"
 
 require_relative "GalaxyFinder.rb"
 
-require_relative "M54.rb"
-require_relative "M92.rb"
+require_relative "TodoCoreData.rb"
+require_relative "NereidNyxExt.rb"
 
 require_relative "Nereid.rb"
 =begin

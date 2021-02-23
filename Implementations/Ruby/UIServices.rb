@@ -190,20 +190,20 @@ class UIServices
             ms.item("dangerously edit a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
-                object = M54::getOrNull(uuid)
+                object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
                 object = CatalystUtils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                M54::put(object)
+                TodoCoreData::put(object)
             })
 
             ms.item("dangerously delete a NSCoreObject by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = M54::getOrNull(uuid)
+                object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
                 puts JSON.pretty_generate(object)
                 return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
-                M54::destroy(object)
+                TodoCoreData::destroy(object)
             })
 
             puts ""
