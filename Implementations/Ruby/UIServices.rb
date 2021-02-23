@@ -6,7 +6,7 @@ class DisplayGroups
     def self.tasks()
         displayGroupUUID = "3e69fecb-0a1e-450c-8b96-a16110de5a58"
         text = IO.read("/Users/pascal/Desktop/Tasks.txt").strip
-        return nil if text.start_with?("@8BFF9C08-06F6-48E0-AE8B-CD5EF6657FE4")
+        return nil if text == ""
         if text.size > 0 then
             text = text.lines.first(5).join().strip
         end
