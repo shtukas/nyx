@@ -124,18 +124,15 @@ class DxThreadsUIUtils
 
     # DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)
     def self.dxThreadToDisplayGroupElementsOrNull(dxthread)
-        return nil if dxthread["noDisplayOnThisDay"] == CatalystUtils::today()
+        return nil if (Time.new.hour >= 22)
+        return nil if DxThreads::completionRatioOrNull(dxthread).nil?
 
-        completionRatioX = lambda{|dxthread|
-            completionRatio = DxThreads::completionRatio(dxthread)
+        dxThreadCompletionRatioX = lambda{|dxthread|
+            completionRatio = (DxThreads::completionRatioOrNull(dxthread) || 0)
             if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
                 completionRatio = completionRatio*completionRatio
             end
             completionRatio
-        }
-
-        shouldReturnNull = lambda{|dxthread|
-            completionRatioX.call(dxthread) > 1
         }
 
         sizeOfManagedPool = lambda{|dxthread|
@@ -145,7 +142,8 @@ class DxThreadsUIUtils
             return 3
         }
 
-        recoveredTimeX = lambda{|rt|
+        quarkRecoveredTimeX = lambda{|quark|
+            rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
             (rt == 0) ? 0.4 : rt
             # The logic here is that is an element has never been touched, we put it at 0.4
             # So that it doesn't take priority on stuff that we have in progresss
@@ -154,13 +152,11 @@ class DxThreadsUIUtils
         }
 
         toString = lambda {|dxthread, quark|
-            rt = recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(quark["uuid"]))
-            "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}, #{"%5.2f" % rt}) #{Patricia::toString(quark)}"
+            "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}, #{"%5.2f" % quarkRecoveredTimeX.call(quark)}) #{Patricia::toString(quark)}"
         }
 
-        return nil if shouldReturnNull.call(dxthread)
         ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, sizeOfManagedPool.call(dxthread))
-            .sort{|q1, q2| recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q1["uuid"])) <=> recoveredTimeX.call(BankExtended::recoveredDailyTimeInHours(q2["uuid"])) }
+            .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
@@ -170,7 +166,7 @@ class DxThreadsUIUtils
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
             }
-        [completionRatioX.call(dxthread), ns16s]
+        [dxThreadCompletionRatioX.call(dxthread), ns16s]
     end
 
     # DxThreadsUIUtils::neodiff() # positive = good
@@ -248,7 +244,7 @@ class DxThreads
 
     # DxThreads::toStringWithAnalytics(dxthread)
     def self.toStringWithAnalytics(dxthread)
-        ratio = DxThreads::completionRatio(dxthread)
+        ratio = (DxThreads::completionRatioOrNull(dxthread) || 0)
         "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
     end
 
@@ -257,9 +253,38 @@ class DxThreads
         "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{Patricia::toString(quark)}"
     end
 
-    # DxThreads::completionRatio(dxthread)
-    def self.completionRatio(dxthread)
-        BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/dxthread["timeCommitmentPerDayInHours"]
+    # DxThreads::completionRatioBreakdownOrNull(dxthread)
+    def self.completionRatioBreakdownOrNull(dxthread)
+
+        activeDaysOverThePastWeek = lambda{|dxthread|
+            week = (-6..0).map{|i| CatalystUtils::nDaysInTheFuture(i)} 
+            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
+                week = week.reject{|day| CatalystUtils::dateIsWeekEnd(day) }
+            end
+
+            week - (dxthread["noTimeCountOnTheseDays"] || [])
+        }
+
+        activeDays = activeDaysOverThePastWeek.call(dxthread)
+        return nil if activeDays.empty?
+        correctionFactor = activeDays.size.to_f/7
+        timeCommitmentPerDayInHoursCorrected = dxthread["timeCommitmentPerDayInHours"] * correctionFactor
+        completionRatio = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/timeCommitmentPerDayInHoursCorrected
+        
+        {
+            "timeCommitmentPerDayInHours"          => dxthread["timeCommitmentPerDayInHours"],
+            "activeDaysOverThePastWeek"            => activeDays,
+            "correctionFactor"                     => correctionFactor,
+            "timeCommitmentPerDayInHoursCorrected" => timeCommitmentPerDayInHoursCorrected,
+            "completionRatio"                      => completionRatio
+        }
+    end
+
+        # DxThreads::completionRatioOrNull(dxthread)
+    def self.completionRatioOrNull(dxthread)
+        completionRatio = DxThreads::completionRatioBreakdownOrNull(dxthread)
+        return nil if completionRatio.nil?
+        completionRatio["completionRatio"]
     end
 
     # DxThreads::determinePlacingOrdinalForThread(dxthread)
@@ -315,7 +340,8 @@ class DxThreads
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
             puts "time commitment per day in hours: #{dxthread["timeCommitmentPerDayInHours"]}".yellow
-            puts "no display on this day: #{dxthread["noDisplayOnThisDay"]}".yellow
+            puts "no display on these days: #{(dxthread["noTimeCountOnTheseDays"] || []).sort.join(", ")}".yellow
+            puts "completion ratio breakdown: #{DxThreads::completionRatioBreakdownOrNull(dxthread)}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 
@@ -331,7 +357,7 @@ class DxThreads
             puts ""
 
             mx.item("no display on this day".yellow, lambda { 
-                dxthread["noDisplayOnThisDay"] = CatalystUtils::today()
+                dxthread["noTimeCountOnTheseDays"] = ((dxthread["noTimeCountOnTheseDays"] || []) + [CatalystUtils::today()]).uniq.sort
                 TodoCoreData::put(dxthread)
             })
 
@@ -389,13 +415,6 @@ class DxThreads
             status = mx.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # DxThreads::getThreadsAvailableTodayInCompletionRatioOrder()
-    def self.getThreadsAvailableTodayInCompletionRatioOrder()
-        DxThreads::dxthreads()
-            .select{|dxthread| dxthread["noDisplayOnThisDay"] != CatalystUtils::today() } 
-            .sort{|dx1, dx2| DxThreads::completionRatio(dx1) <=> DxThreads::completionRatio(dx2) }
     end
 
     # DxThreads::main()

@@ -988,7 +988,7 @@ class NereidInterface
             return element
         end
         if type == "FSUniqueString" then
-            element["type"] = "AionPoint"
+            element["type"] = "FSUniqueString"
 
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
             payload = uniquestring

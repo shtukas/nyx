@@ -108,6 +108,11 @@ class NereidNyxExt
                 NereidInterface::transmuteOrNull(element)
             })
 
+            mx.item("json object".yellow, lambda { 
+                puts JSON.pretty_generate(element)
+                LucilleCore::pressEnterToContinue()
+            })
+
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
                     NereidInterface::destroyElement(element["uuid"])

@@ -5,5 +5,5 @@ DxThread {
     "unixtime"                    : Float # Unixtime with decimals
     "description"                 : String    
     "timeCommitmentPerDayInHours" : Float
-    "noDisplayOnThisDay"          : null or date
+    "noTimeCountOnTheseDays"      : nil or Array[String]  
 }

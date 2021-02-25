@@ -8,7 +8,6 @@ DisplayItemsNS16 {
 DisplayGroup {
     "uuid"             => uuid,
     "completionRatio"  => Float,
-    "description"      => nil or String,
     "DisplayItemsNS16" => Array[DisplayItemsNS16]
 }
 

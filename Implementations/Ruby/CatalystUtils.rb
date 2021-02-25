@@ -156,6 +156,11 @@ class CatalystUtils
         (Time.now+86400*n).utc.iso8601[0,10]
     end
 
+    # CatalystUtils::dateIsWeekEnd(date)
+    def self.dateIsWeekEnd(date)
+        [6, 0].include?(Date.parse(date).to_time.wday)
+    end
+
     # CatalystUtils::nyxStringDistance(str1, str2)
     def self.nyxStringDistance(str1, str2)
         # This metric takes values between 0 and 1

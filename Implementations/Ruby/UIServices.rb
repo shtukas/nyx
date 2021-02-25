@@ -51,7 +51,6 @@ class DisplayGroups
         dg1 = {
             "uuid"             => uuid,
             "completionRatio"  => 0, # this always has priority
-            "description"      => nil,
             "DisplayItemsNS16" => displayItems
         }
 
@@ -69,7 +68,6 @@ class DisplayGroups
                     {
                         "uuid"             => dxthread["uuid"],
                         "completionRatio"  => 0,
-                        "description"      => nil,
                         "DisplayItemsNS16" => [
                             {
                                 "uuid"        => dxthread["uuid"],
@@ -106,7 +104,6 @@ class DisplayGroups
                         {
                             "uuid"             => dxthread["uuid"],
                             "completionRatio"  => completionRatio,
-                            "description"      => DxThreads::toStringWithAnalytics(dxthread).yellow,
                             "DisplayItemsNS16" => ns16
                         } 
                     else
@@ -122,7 +119,6 @@ class DisplayGroups
         dg4 = {
             "uuid"             => uuid,
             "completionRatio"  => BankExtended::recoveredDailyTimeInHours(uuid).to_f,
-            "description"      => nil,
             "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
         }
 
@@ -187,7 +183,7 @@ class UIServices
 
             puts ""
 
-            ms.item("dangerously edit a NSCoreObject by uuid", lambda { 
+            ms.item("dangerously edit a TodoCoreData object by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 return if uuid == ""
                 object = TodoCoreData::getOrNull(uuid)
@@ -197,7 +193,7 @@ class UIServices
                 TodoCoreData::put(object)
             })
 
-            ms.item("dangerously delete a NSCoreObject by uuid", lambda { 
+            ms.item("dangerously delete a TodoCoreData object by uuid", lambda { 
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 object = TodoCoreData::getOrNull(uuid)
                 return if object.nil?
