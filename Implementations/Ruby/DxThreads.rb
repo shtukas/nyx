@@ -126,6 +126,7 @@ class DxThreadsUIUtils
     def self.dxThreadToDisplayGroupElementsOrNull(dxthread)
         return nil if (Time.new.hour >= 22)
         return nil if DxThreads::completionRatioOrNull(dxthread).nil?
+        return nil if DxThreads::completionRatioBreakdownOrNull(dxthread)["completionRatio"] >= 1.5
 
         dxThreadCompletionRatioX = lambda{|dxthread|
             completionRatio = (DxThreads::completionRatioOrNull(dxthread) || 0)
@@ -256,6 +257,8 @@ class DxThreads
     # DxThreads::completionRatioBreakdownOrNull(dxthread)
     def self.completionRatioBreakdownOrNull(dxthread)
 
+        recoveredDailyTimeInHours = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"])
+
         activeDaysOverThePastWeek = lambda{|dxthread|
             week = (-6..0).map{|i| CatalystUtils::nDaysInTheFuture(i)} 
             if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
@@ -269,9 +272,10 @@ class DxThreads
         return nil if activeDays.empty?
         correctionFactor = activeDays.size.to_f/7
         timeCommitmentPerDayInHoursCorrected = dxthread["timeCommitmentPerDayInHours"] * correctionFactor
-        completionRatio = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"]).to_f/timeCommitmentPerDayInHoursCorrected
+        completionRatio = recoveredDailyTimeInHours.to_f/timeCommitmentPerDayInHoursCorrected
         
         {
+            "recoveredDailyTimeInHours"            => recoveredDailyTimeInHours,
             "timeCommitmentPerDayInHours"          => dxthread["timeCommitmentPerDayInHours"],
             "activeDaysOverThePastWeek"            => activeDays,
             "correctionFactor"                     => correctionFactor,
@@ -280,7 +284,7 @@ class DxThreads
         }
     end
 
-        # DxThreads::completionRatioOrNull(dxthread)
+    # DxThreads::completionRatioOrNull(dxthread)
     def self.completionRatioOrNull(dxthread)
         completionRatio = DxThreads::completionRatioBreakdownOrNull(dxthread)
         return nil if completionRatio.nil?
