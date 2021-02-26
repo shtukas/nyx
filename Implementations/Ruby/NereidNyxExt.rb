@@ -23,10 +23,10 @@ class NereidNyxExt
         CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
-    # NereidNyxExt::architectNodeOrNull()
-    def self.architectNodeOrNull()
+    # NereidNyxExt::selectExistingOrMakeNewElementOrNull()
+    def self.selectExistingOrMakeNewElementOrNull()
         system("clear")
-        puts "NereidNyxExt::architectNodeOrNull()"
+        puts "NereidNyxExt::selectExistingOrMakeNewElementOrNull()"
         LucilleCore::pressEnterToContinue()
         element = NereidNyxExt::selectElementOrNull()
         return element if element
@@ -96,7 +96,7 @@ class NereidNyxExt
                 return if nodes.empty?
 
                 LucilleCore::pressEnterToContinue("select node #2")
-                node2 = Patricia::architectNodeOrNull()
+                node2 = Patricia::selectExistingOrMakeNewNodeOrNull()
                 return if node2.nil?
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }

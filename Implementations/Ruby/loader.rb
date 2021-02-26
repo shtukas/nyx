@@ -175,7 +175,7 @@ require_relative "Network.rb"
 
 require_relative "NX141FSCacheElement.rb"
 require_relative "NX141FilenameReaderWriter.rb"
-require_relative "NyxClassifierDeclarations.rb"
+require_relative "NyxClassifiers.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"

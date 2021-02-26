@@ -146,16 +146,16 @@ class UIServices
     def self.explore()
         loop {
             system("clear")
-            typex = NyxClassifierDeclarations::interactivelySelectClassifierTypeXOrNull()
+            typex = NyxClassifiers::interactivelySelectClassifierTypeXOrNull()
             break if typex.nil?
             loop {
                 system("clear")
-                classifiers = NyxClassifierDeclarations::getClassifierDeclarations()
+                classifiers = NyxClassifiers::getClassifierDeclarations()
                                 .select{|classifier| classifier["type"] == typex["type"] }
                                 .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxClassifierDeclarations::toString(classifier) })
+                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxClassifiers::toString(classifier) })
                 break if classifier.nil?
-                NyxClassifierDeclarations::landing(classifier)
+                NyxClassifiers::landing(classifier)
             }
         }
     end
@@ -351,18 +351,6 @@ class UIServices
         }
     end
 
-    # UIServices::issueNewNyxElement()
-    def self.issueNewNyxElement()
-        ops = ["Nereid Element", "TimelineItem", "Curated Listing"]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
-        return if operation.nil?
-        if operation == "Nereid Element" then
-            element = NereidInterface::interactivelyIssueNewElementOrNull()
-            return if element.nil?
-            NereidInterface::landing(element)
-        end
-    end
-
     # UIServices::nyxMain()
     def self.nyxMain()
         loop {
@@ -378,7 +366,9 @@ class UIServices
                 UIServices::explore()
             end
             if operation == "Issue New" then
-                UIServices::issueNewNyxElement()
+                node = Patricia::makeNewNodeOrNull()
+                next if node.nil?
+                Patricia::landing(node)
             end
         }
     end

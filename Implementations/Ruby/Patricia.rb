@@ -43,7 +43,7 @@ class Patricia
         item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
-        item = NyxClassifierDeclarations::getClassifierByUUIDOrNull(uuid)
+        item = NyxClassifiers::getClassifierByUUIDOrNull(uuid)
         return item if item
 
         nil
@@ -58,7 +58,7 @@ class Patricia
             return NX141FSCacheElement::toString(item)
         end
         if Patricia::isNyxClassifier(item) then
-            return NyxClassifierDeclarations::toString(item)
+            return NyxClassifiers::toString(item)
         end
         if Patricia::isQuark(item) then
             return Quarks::toString(item)
@@ -84,7 +84,7 @@ class Patricia
             return
         end
         if Patricia::isNyxClassifier(item) then
-            NyxClassifierDeclarations::landing(item)
+            NyxClassifiers::landing(item)
             return
         end
         if Patricia::isQuark(item) then
@@ -111,24 +111,29 @@ class Patricia
         searchItem["payload"]
     end
 
-    # Patricia::architectNodeOrNull()
-    def self.architectNodeOrNull()
-        dx7 = Patricia::selectOneNodeOrNull()
-        return dx7 if dx7
+    # Patricia::makeNewNodeOrNull()
+    def self.makeNewNodeOrNull()
         ops = ["Nereid Element", "Classifier Item"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
-        return if operation.nil?
+        return nil if operation.nil?
         if operation == "Nereid Element" then
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
         if operation == "Classifier Item" then
-            return NyxClassifierDeclarations::interactivelyIssueNewClassiferOrNull()
+            return NyxClassifiers::interactivelyIssueNewClassiferOrNull()
         end
+    end
+
+    # Patricia::selectExistingOrMakeNewNodeOrNull()
+    def self.selectExistingOrMakeNewNodeOrNull()
+        node = Patricia::selectOneNodeOrNull()
+        return node if node
+        Patricia::makeNewNodeOrNull()
     end
 
     # Patricia::linkToArchitectedNode(item)
     def self.linkToArchitectedNode(item)
-        e1 = Patricia::architectNodeOrNull()
+        e1 = Patricia::selectExistingOrMakeNewNodeOrNull()
         return if e1.nil?
         Network::link(item, e1)
     end
@@ -149,7 +154,7 @@ class Patricia
         searchItems = [
             NereidNyxExt::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
-            NyxClassifierDeclarations::nyxSearchItems()
+            NyxClassifiers::nyxSearchItems()
         ]
         .flatten
     end
