@@ -302,7 +302,7 @@ class UIServices
                 return
             end
             if op == "Start Quark" then
-                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, DxThreads::visualisationDepth())
+                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
                 quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
                 return if quark.nil?
                 DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)

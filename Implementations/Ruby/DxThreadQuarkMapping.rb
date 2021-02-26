@@ -2,6 +2,8 @@
 
 class DxThreadQuarkMapping
 
+    # Basic Record Management
+
     # DxThreadQuarkMapping::databaseFilepath()
     def self.databaseFilepath()
         "#{CatalystUtils::catalystDataCenterFolderpath()}/DxThreadQuarkMapping.sqlite3"
@@ -146,7 +148,21 @@ class DxThreadQuarkMapping
     def self.dxThreadToQuarksInOrder(dxthread, cardinal = nil)
         quarkuuids = DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(dxthread)
         if cardinal then
-            quarkuuids = quarkuuids.first(cardinal)
+            quarks = quarkuuids
+                        .reduce([]){|quarks, uuid|
+                            if quarks.size >= cardinal then
+                                quarks
+                            else
+                                quark = TodoCoreData::getOrNull(uuid)
+                                if quark then
+                                    quarks << quark
+                                    quarks
+                                else
+                                    quarks
+                                end
+                            end
+                        }
+            return quarks
         end
         quarkuuids
             .map{|uuid| TodoCoreData::getOrNull(uuid) }
