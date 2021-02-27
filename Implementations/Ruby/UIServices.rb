@@ -248,35 +248,35 @@ class UIServices
         actions = [
             ["..", ".. (access top item)", lambda{|context, command|
                 context["items"][0]["lambda"].call()
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["[]", "[] # Tasks.txt next transform", lambda{|context, command|
                 CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["++", "++ # Postpone top item by an hour", lambda{|context, command|
                 DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["+ *", "+ <datetime code> # Postpone top item", lambda{|context, command|
                 _, input = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                return true if unixtime.nil?
+                return "2:exit-interpreter-reloop-display" if unixtime.nil?
                 item = context["items"][0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["select *", "select <n>", lambda{|context, command|
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
                 item = context["items"][ordinal]
-                return true if item.nil?
+                return "2:exit-interpreter-reloop-display" if item.nil?
                 item["lambda"].call()
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["start", "start", lambda{|context, command|
                 dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-                return true if dxthread.nil?
+                return "2:exit-interpreter-reloop-display" if dxthread.nil?
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
                 return if op.nil?
                 if op == "Start DxThread" then
@@ -288,7 +288,7 @@ class UIServices
                     return if quark.nil?
                     DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
                 end
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["stop", "stop", lambda{|context, command|
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
@@ -299,21 +299,23 @@ class UIServices
                     Bank::put(account, timespan)
                 }
                 RunningItems::destroy(item)
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["/", "/", lambda{|context, command|
                 UIServices::servicesFront()
-                true
+                "2:exit-interpreter-reloop-display"
             }],
             ["nyx", "nyx", lambda{|context, command|
                 UIServices::nyxMain()
-                true
+                "2:exit-interpreter-reloop-display"
             }]
         ]
-        Interpreting::interface(context, actions, {
+        existcode = Interpreting::interface(context, actions, {
             "exitAfterHelp" => true,
             "displayHelpInLineAtIntialization" => true
         })
+
+        # With the above actions we only have "2:exit-interpreter-reloop-display"
     end
 
     # UIServices::todoListingMain()

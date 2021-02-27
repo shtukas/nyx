@@ -40,77 +40,71 @@ class DxThreadsUIUtils
 
             puts "running: #{DxThreads::dxThreadAndQuarkToString(dxthread, quark).green}"
             NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
-            puts ">nyx | >dxthread | / | landing | ++ | ++<hours> | +datecode | destroy # ;; | pause | keep alive | stop & exit (default)".yellow
-            input = LucilleCore::askQuestionAnswerAsString("> ")
 
-            if input == ">nyx" then
-                item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
-                next if item.nil?
-                Patricia::landing(item)
-                Quarks::destroyQuark(quark)
+            context = {"dxthread" => dxthread, "quark" => quark}
+            actions = [
+                [">nyx", ">nyx", lambda{|context, command|
+                    quark = context["quark"]
+                    item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
+                    return true if item.nil?
+                    Patricia::landing(item)
+                    Quarks::destroyQuark(quark)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                [">dxthread", ">dxthread", lambda{|context, command|
+                    quark = context["quark"]
+                    dxthread = context["dxthread"]
+                    DxThreads::moveTargetToNewDxThread(quark, dxthread)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                ["/", "/", lambda{|context, command|
+                    UIServices::servicesFront()
+                    "2:exit-interpreter-reloop-display"
+                }],
+                ["landing", "landing", lambda{|context, command|
+                    quark = context["quark"]
+                    Quarks::landing(quark)
+                    "2:exit-interpreter-reloop-display"
+                }],
+                ["++", "++ # Postpone quark by an hour", lambda{|context, command|
+                    quark = context["quark"]
+                    DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                ["+ *", "+ <datetime code> # Postpone quark", lambda{|context, command|
+                    _, input = Interpreting::tokenizer(command)
+                    unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                    return true if unixtime.nil?
+                    quark = context["quark"]
+                    DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                ["destroy", "destroy", lambda{|context, command|
+                    quark = context["quark"]
+                    NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                    Quarks::destroyQuarkAndNereidContent(quark)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                [";;", ";; # destroy", lambda{|context, command|
+                    quark = context["quark"]
+                    NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                    Quarks::destroyQuarkAndNereidContent(quark)
+                    "3:exit-interpreter-exit-domain-focus"
+                }],
+                ["keep alive", "keep alive # destroy", lambda{|context, command|
+                    quark = context["quark"]
+                    dxthread = context["dxthread"]
+                    RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
+                    "3:exit-interpreter-exit-domain-focus"
+                }]
+            ]
+            existcode = Interpreting::interface(context, actions, {
+                "displayHelpInLineAtIntialization" => true
+            })
+
+            if exitcode == "3:exit-interpreter-exit-domain-focus" then
                 break
             end
-
-            if input == ">dxthread" then
-                DxThreads::moveTargetToNewDxThread(quark, dxthread)
-                break
-            end
-
-            if input == "/" then
-                UIServices::servicesFront()
-                next
-            end
-
-            if input == "landing" then
-                Quarks::landing(quark)
-                next
-            end
-
-            if input.start_with?("++") and input.size > 2 then
-                shiftInHours = input[2, input.size].to_f
-                break if shiftInHours == 0
-                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600*shiftInHours)
-                break
-            end
-
-            if input == '++' then
-                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-                break
-            end
-
-            if input.start_with?('+') then
-                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                break if unixtime.nil?
-                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                break
-            end
-
-            if (input == "destroy") or (input == ";;") then
-                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                Quarks::destroyQuarkAndNereidContent(quark)
-                break
-            end
-
-            if input == "pause" then
-                t1 = Time.new.to_f
-                puts "paused...".green
-                LucilleCore::pressEnterToContinue("Press enter to resume: ")
-                t2 = Time.new.to_f
-                pausedTimespanCumulated = pausedTimespanCumulated + (t2-t1)
-                next
-            end
-
-            if input == "keep alive" then
-                RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
-                break
-            end
-
-            if input == "stop & exit" then
-                break
-            end
-
-            break
-
         }
 
         thr.exit

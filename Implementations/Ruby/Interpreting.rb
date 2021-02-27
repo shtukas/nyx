@@ -6,9 +6,10 @@ Interpreting::tokenizer
     Takes a string and decompose it in tokens. 
     Tokens are separated by spaces unless within a double quoted string.
 
-action: (commandPattern: String, usage: String, lambda(context:Object, command: String): Boolean{should exit})
-
+action: (commandPattern: String, usage: String, lambda(context:Object, command: String): ActionStatus)
 actions: Array[action]
+
+ActionStatus: "1:re-prompt", "2:exit-interpreter-reloop-display", "3:exit-interpreter-exit-domain-focus"
 
 =end
 
