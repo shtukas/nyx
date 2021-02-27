@@ -244,96 +244,76 @@ class UIServices
                     .flatten
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
-        puts "commands: .. (access top item) (default) | select <n> | ++ | ++<hours> | +datecode | start | stop | [] (Tasks.txt) | / | nyx".yellow
-        if (diff = DxThreadsUIUtils::neodiff()) < 0 then 
-            puts "commands: neo (#{diff})".yellow
-        end
-
-        input = LucilleCore::pressEnterToContinue("> ")
-
-        if input == ".." then
-            items[0]["lambda"].call()
-            return
-        end
-
-        if input == "[]" then
-            CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
-            return
-        end
-
-        if input.start_with?("++") and input.size > 2 then
-            shiftInHours = input[2, input.size].to_f
-            return if shiftInHours == 0
-            item = items[0]
-            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600*shiftInHours)
-            return
-        end
-
-        if input == '++' then
-            item = items[0]
-            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
-            return
-        end
-
-        if input.start_with?('+') then
-            item = items[0]
-            unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-            return if unixtime.nil?
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            return
-        end
-
-        if input.start_with?("select") then
-            ordinal = input[7, 99].strip.to_i - 1
-            return if ordinal < 0
-            item = items[ordinal]
-            return if item.nil?
-            item["lambda"].call()
-            return
-        end
-
-        if input == "start" then
-            dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-            return if dxthread.nil?
-            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
-            return if op.nil?
-            if op == "Start DxThread" then
-                RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
-                return
-            end
-            if op == "Start Quark" then
-                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
-                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
-                return if quark.nil?
-                DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-            end
-        end
-
-        if input == "stop" then
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
-            return if item.nil?
-            timespan = Time.new.to_f - item["start"]
-            item["bankAccounts"].each{|account|
-                puts "putting #{timespan} seconds to account: #{account}"
-                Bank::put(account, timespan)                
-            }
-            RunningItems::destroy(item)
-        end
-
-        if input == "/" then
-            UIServices::servicesFront()
-            return
-        end
-
-        if input == "nyx" then
-            UIServices::nyxMain()
-            return
-        end
-
-        if input == "neo" then
-            DxThreadsUIUtils::neo()
-            return
-        end
+        context = {"items" => items}
+        actions = [
+            ["..", ".. (access top item)", lambda{|context, command|
+                context["items"][0]["lambda"].call()
+                true
+            }],
+            ["[]", "[] # Tasks.txt next transform", lambda{|context, command|
+                CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
+                true
+            }],
+            ["++", "++ # Postpone top item by an hour", lambda{|context, command|
+                DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
+                true
+            }],
+            ["+ *", "+ <datetime code> # Postpone top item", lambda{|context, command|
+                _, input = Interpreting::tokenizer(command)
+                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                return true if unixtime.nil?
+                item = context["items"][0]
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                true
+            }],
+            ["select *", "select <n>", lambda{|context, command|
+                _, ordinal = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                item = context["items"][ordinal]
+                return true if item.nil?
+                item["lambda"].call()
+                true
+            }],
+            ["start", "start", lambda{|context, command|
+                dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                return true if dxthread.nil?
+                op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
+                return if op.nil?
+                if op == "Start DxThread" then
+                    RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
+                end
+                if op == "Start Quark" then
+                    quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
+                    quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
+                    return if quark.nil?
+                    DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+                end
+                true
+            }],
+            ["stop", "stop", lambda{|context, command|
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
+                return true if item.nil?
+                timespan = Time.new.to_f - item["start"]
+                item["bankAccounts"].each{|account|
+                    puts "putting #{timespan} seconds to account: #{account}"
+                    Bank::put(account, timespan)
+                }
+                RunningItems::destroy(item)
+                true
+            }],
+            ["/", "/", lambda{|context, command|
+                UIServices::servicesFront()
+                true
+            }],
+            ["nyx", "nyx", lambda{|context, command|
+                UIServices::nyxMain()
+                true
+            }]
+        ]
+        Interpreting::interface(context, actions, {
+            "exitAfterHelp" => true,
+            "displayHelpInLineAtIntialization" => true
+        })
     end
 
     # UIServices::todoListingMain()

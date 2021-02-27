@@ -346,7 +346,7 @@ class DxThreads
 
             puts ""
 
-            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
+            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, CatalystUtils::screenHeight()-25)
                 .each{|quark|
                     mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{Patricia::toString(quark)}", lambda { 
                         Patricia::landing(quark) 

@@ -151,6 +151,8 @@ require_relative "DoNotShowUntil.rb"
 require_relative "DxThreads.rb"
 require_relative "DxThreadQuarkMapping.rb"
 
+require_relative "Interpreting.rb"
+
 require_relative "GalaxyFinder.rb"
 
 require_relative "TodoCoreData.rb"
