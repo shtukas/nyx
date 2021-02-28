@@ -195,6 +195,8 @@ require_relative "RunningItems.rb"
 
 require_relative "SectionsType0141.rb"
 
+require_relative "Tasks.rb"
+
 require_relative "UIServices.rb"
 
 require_relative "VideoStream.rb"

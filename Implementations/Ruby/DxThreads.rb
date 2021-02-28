@@ -116,8 +116,8 @@ class DxThreadsUIUtils
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 
-    # DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)
-    def self.dxThreadToDisplayGroupElementsOrNull(dxthread)
+    # DxThreadsUIUtils::dxThreadToDisplayGroupComponentsOrNull(dxthread)
+    def self.dxThreadToDisplayGroupComponentsOrNull(dxthread)
         return nil if (Time.new.hour >= 22)
         return nil if DxThreads::completionRatioOrNull(dxthread).nil?
         return nil if DxThreads::completionRatioBreakdownOrNull(dxthread)["completionRatio"] >= 1.5
@@ -162,6 +162,59 @@ class DxThreadsUIUtils
                 }
             }
         [dxThreadCompletionRatioX.call(dxthread), ns16s]
+    end
+
+    # DxThreadsUIUtils::displayGroups()
+    def self.displayGroups()
+
+        dg31s = DxThreads::dxthreads()
+                .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
+                .map{|dxthread|
+                    {
+                        "uuid"             => dxthread["uuid"],
+                        "completionRatio"  => 0,
+                        "DisplayItemsNS16" => [
+                            {
+                                "uuid"        => dxthread["uuid"],
+                                "announce"    => "running: #{DxThreads::toStringWithAnalytics(dxthread)}".green,
+                                "lambda"      => lambda {
+                                    thr = Thread.new {
+                                        sleep 3600
+                                        loop {
+                                            Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                                            sleep 60
+                                        }
+                                    }
+                                    if LucilleCore::askQuestionAnswerAsBoolean("We are running. Stop ? : ", true) then
+                                        timespan = Runner::stop(dxthread["uuid"])
+                                        timespan = [timespan, 3600*2].min
+                                        puts "Adding #{timespan} seconds to #{DxThreads::toStringWithAnalytics(dxthread)}"
+                                        Bank::put(dxthread["uuid"], timespan)
+                                    end
+                                    thr.exit
+                                }
+                            }
+                        ]
+                    } 
+                }
+
+        dg32s = DxThreads::dxthreads()
+                .map{|dxthread|
+                    elements = DxThreadsUIUtils::dxThreadToDisplayGroupComponentsOrNull(dxthread)
+                    if elements then
+                        completionRatio, ns16 = elements
+                        {
+                            "uuid"             => dxthread["uuid"],
+                            "completionRatio"  => completionRatio,
+                            "DisplayItemsNS16" => ns16
+                        } 
+                    else
+                        nil
+                    end
+                }
+                .compact
+
+        dg31s + dg32s
     end
 
     # DxThreadsUIUtils::neodiff() # positive = good

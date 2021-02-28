@@ -52,6 +52,16 @@ class VideoStream
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
+    # VideoStream::displayGroup()
+    def self.displayGroup()
+        uuid = "e42a45ea-d3f1-4f96-9982-096d803e2b72"
+        dg4 = {
+            "uuid"             => uuid,
+            "completionRatio"  => BankExtended::recoveredDailyTimeInHours(uuid).to_f,
+            "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
+        }
+    end
+
     # VideoStream::access(filepath)
     def self.access(filepath)
         if filepath.include?("'") then

@@ -2,130 +2,19 @@
 
 class DisplayGroups
 
-    # DisplayGroups::tasks()
-    def self.tasks()
-        displayGroupUUID = "3e69fecb-0a1e-450c-8b96-a16110de5a58"
-        text = IO.read("/Users/pascal/Desktop/Tasks.txt").strip
-        return nil if text == ""
-        if text.size > 0 then
-            text = text.lines.first(5).join().strip
-        end
-        dg2 = {
-            "uuid"             => displayGroupUUID,
-            "completionRatio"  => BankExtended::recoveredDailyTimeInHours(displayGroupUUID).to_f,
-            "description"      => "Tasks.txt",
-            "DisplayItemsNS16" => [
-                {
-                    "uuid"        => "5e398b6b-fa65-4295-9893-ca5887e10d99",
-                    "announce"    => text.size > 0 ? "Tasks.txt\n" + text.red.lines.map{|line| "         "+line }.join() : "",
-                    "lambda"      => lambda{
-                        thr = Thread.new {
-                            sleep 3600
-                            loop {
-                                Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                                sleep 60
-                            }
-                        }
-                        time1 = Time.new.to_f
-                        LucilleCore::pressEnterToContinue("Press [enter] to stop Tasks.txt ")
-                        time2 = Time.new.to_f
-                        timespan = time2 - time1
-                        timespan = [timespan, 3600*2].min
-                        puts "putting #{timespan} seconds to display group: #{displayGroupUUID}"
-                        Bank::put(displayGroupUUID, timespan)
-                        thr.exit
-                    }
-                }
-            ]
+    # DisplayGroups::fundamentalGroup()
+    def self.fundamentalGroup()
+        uuid = "7945614c-954a-4c7d-9847-4b67e9b28d56"
+        {
+            "uuid"             => uuid,
+            "completionRatio"  => 0, # this always has priority
+            "DisplayItemsNS16" => Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid) + BackupsMonitor::displayItemsNS16()
         }
     end
 
     # DisplayGroups::groupsInOrder()
     def self.groupsInOrder()
-
-        # ------------------------------------------
-        # Important stuff
-
-        uuid = "7945614c-954a-4c7d-9847-4b67e9b28d56"
-        displayItems = Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid) + BackupsMonitor::displayItemsNS16()
-        dg1 = {
-            "uuid"             => uuid,
-            "completionRatio"  => 0, # this always has priority
-            "DisplayItemsNS16" => displayItems
-        }
-
-        # ------------------------------------------
-        # Tasks.txt
-
-        dg2 = DisplayGroups::tasks()
-
-        # ------------------------------------------
-        # Running DxThreads
-
-        dg31s = DxThreads::dxthreads()
-                .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
-                .map{|dxthread|
-                    {
-                        "uuid"             => dxthread["uuid"],
-                        "completionRatio"  => 0,
-                        "DisplayItemsNS16" => [
-                            {
-                                "uuid"        => dxthread["uuid"],
-                                "announce"    => "running: #{DxThreads::toStringWithAnalytics(dxthread)}".green,
-                                "lambda"      => lambda {
-                                    thr = Thread.new {
-                                        sleep 3600
-                                        loop {
-                                            Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                                            sleep 60
-                                        }
-                                    }
-                                    if LucilleCore::askQuestionAnswerAsBoolean("We are running. Stop ? : ", true) then
-                                        timespan = Runner::stop(dxthread["uuid"])
-                                        timespan = [timespan, 3600*2].min
-                                        puts "Adding #{timespan} seconds to #{DxThreads::toStringWithAnalytics(dxthread)}"
-                                        Bank::put(dxthread["uuid"], timespan)                                
-                                    end
-                                    thr.exit
-                                }
-                            }
-                        ]
-                    } 
-                }
-
-        # ------------------------------------------
-        # DxThreads below target
-
-        dg32s = DxThreads::dxthreads()
-                .map{|dxthread|
-                    elements = DxThreadsUIUtils::dxThreadToDisplayGroupElementsOrNull(dxthread)
-                    if elements then
-                        completionRatio, ns16 = elements
-                        {
-                            "uuid"             => dxthread["uuid"],
-                            "completionRatio"  => completionRatio,
-                            "DisplayItemsNS16" => ns16
-                        } 
-                    else
-                        nil
-                    end
-                }
-                .compact
-
-        # ------------------------------------------
-        # VideoStream
-
-        uuid = "e42a45ea-d3f1-4f96-9982-096d803e2b72"
-        dg4 = {
-            "uuid"             => uuid,
-            "completionRatio"  => BankExtended::recoveredDailyTimeInHours(uuid).to_f,
-            "DisplayItemsNS16" => VideoStream::displayItemsNS16(uuid)
-        }
-
-        ([dg1]+ [dg2] + dg31s + dg32s + [dg4])
-            .flatten
-            .compact
-            .select{|dg| dg["DisplayItemsNS16"].size > 0 }
+        ([DisplayGroups::fundamentalGroup()] + [Tasks::displayGroup()] + DxThreadsUIUtils::displayGroups() + [VideoStream::displayGroup()])
             .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
     end
 
@@ -248,10 +137,6 @@ class UIServices
         actions = [
             ["..", ".. (access top item)", lambda{|context, command|
                 context["items"][0]["lambda"].call()
-                "2:exit-interpreter-reloop-display"
-            }],
-            ["[]", "[] # Tasks.txt next transform", lambda{|context, command|
-                CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Tasks.txt")
                 "2:exit-interpreter-reloop-display"
             }],
             ["++", "++ # Postpone top item by an hour", lambda{|context, command|
