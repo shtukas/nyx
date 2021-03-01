@@ -137,31 +137,31 @@ class UIServices
         actions = [
             ["..", ".. (access top item)", lambda{|context, command|
                 context["items"][0]["lambda"].call()
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["++", "++ # Postpone top item by an hour", lambda{|context, command|
                 DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["+ *", "+ <datetime code> # Postpone top item", lambda{|context, command|
                 _, input = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                return "2:exit-interpreter-reloop-display" if unixtime.nil?
+                return "2:565a0e56-reloop-domain" if unixtime.nil?
                 item = context["items"][0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["select *", "select <n>", lambda{|context, command|
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
                 item = context["items"][ordinal]
-                return "2:exit-interpreter-reloop-display" if item.nil?
+                return "2:565a0e56-reloop-domain" if item.nil?
                 item["lambda"].call()
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["start", "start", lambda{|context, command|
                 dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-                return "2:exit-interpreter-reloop-display" if dxthread.nil?
+                return "2:565a0e56-reloop-domain" if dxthread.nil?
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
                 return if op.nil?
                 if op == "Start DxThread" then
@@ -173,7 +173,7 @@ class UIServices
                     return if quark.nil?
                     DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
                 end
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["stop", "stop", lambda{|context, command|
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
@@ -184,23 +184,25 @@ class UIServices
                     Bank::put(account, timespan)
                 }
                 RunningItems::destroy(item)
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["/", "/", lambda{|context, command|
                 UIServices::servicesFront()
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }],
             ["nyx", "nyx", lambda{|context, command|
                 UIServices::nyxMain()
-                "2:exit-interpreter-reloop-display"
+                "2:565a0e56-reloop-domain"
             }]
         ]
-        existcode = Interpreting::interface(context, actions, {
-            "exitAfterHelp" => true,
+        existcode = Interpreting::interpreter(context, actions, {
             "displayHelpInLineAtIntialization" => true
         })
 
-        # With the above actions we only have "2:exit-interpreter-reloop-display"
+        # With the above actions we only have "2:565a0e56-reloop-domain"
+        # if exitcode == "3:d9e2b6d5-exit-domain" then
+
+        # end
     end
 
     # UIServices::todoListingMain()

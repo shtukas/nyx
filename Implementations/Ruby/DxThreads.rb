@@ -49,27 +49,27 @@ class DxThreadsUIUtils
                     return true if item.nil?
                     Patricia::landing(item)
                     Quarks::destroyQuark(quark)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
                 [">dxthread", ">dxthread", lambda{|context, command|
                     quark = context["quark"]
                     dxthread = context["dxthread"]
                     DxThreads::moveTargetToNewDxThread(quark, dxthread)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
-                    "2:exit-interpreter-reloop-display"
+                    "2:565a0e56-reloop-domain"
                 }],
                 ["landing", "landing", lambda{|context, command|
                     quark = context["quark"]
                     Quarks::landing(quark)
-                    "2:exit-interpreter-reloop-display"
+                    "2:565a0e56-reloop-domain"
                 }],
                 ["++", "++ # Postpone quark by an hour", lambda{|context, command|
                     quark = context["quark"]
                     DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
                 ["+ *", "+ <datetime code> # Postpone quark", lambda{|context, command|
                     _, input = Interpreting::tokenizer(command)
@@ -77,32 +77,38 @@ class DxThreadsUIUtils
                     return true if unixtime.nil?
                     quark = context["quark"]
                     DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
                 ["destroy", "destroy", lambda{|context, command|
                     quark = context["quark"]
                     NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                     Quarks::destroyQuarkAndNereidContent(quark)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
                 [";;", ";; # destroy", lambda{|context, command|
                     quark = context["quark"]
                     NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                     Quarks::destroyQuarkAndNereidContent(quark)
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
                 }],
-                ["keep alive", "keep alive # destroy", lambda{|context, command|
+                ["keep alive", "keep alive", lambda{|context, command|
                     quark = context["quark"]
                     dxthread = context["dxthread"]
                     RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
-                    "3:exit-interpreter-exit-domain-focus"
+                    "3:d9e2b6d5-exit-domain"
+                }],
+                ["", "(empty) # default # exit", lambda{|context, command|
+                    quark = context["quark"]
+                    dxthread = context["dxthread"]
+                    RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
+                    "3:d9e2b6d5-exit-domain"
                 }]
             ]
-            existcode = Interpreting::interface(context, actions, {
+            exitcode = Interpreting::interpreter(context, actions, {
                 "displayHelpInLineAtIntialization" => true
             })
 
-            if exitcode == "3:exit-interpreter-exit-domain-focus" then
+            if exitcode == "3:d9e2b6d5-exit-domain" then
                 break
             end
         }

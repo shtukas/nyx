@@ -9,7 +9,7 @@ Interpreting::tokenizer
 action: (commandPattern: String, usage: String, lambda(context:Object, command: String): ActionStatus)
 actions: Array[action]
 
-ActionStatus: "1:re-prompt", "2:exit-interpreter-reloop-display", "3:exit-interpreter-exit-domain-focus"
+ActionStatus: "1:re-prompt", "2:565a0e56-reloop-domain", "3:d9e2b6d5-exit-domain"
 
 =end
 
@@ -59,6 +59,7 @@ class Interpreting
 
     # Interpreting::tokenizer(str: String) # Array[String]
     def self.tokenizer(str)
+        return [] if str.strip == ""
         Interpreting::tokenizerCore([], str)
     end
 
@@ -77,11 +78,9 @@ class Interpreting
         end
     end
 
-    # Interpreting::interface(context, actions, config)
-    def self.interface(context, actions, config)
+    # Interpreting::interpreter(context, actions, config)
+    def self.interpreter(context, actions, config)
         defaultConfig = {}
-        defaultConfig["loopUntilExit"] = false
-        defaultConfig["exitAfterHelp"] = false
         defaultConfig["displayHelpInLineAtIntialization"] = false
         config = defaultConfig.merge(config)
 
@@ -94,18 +93,6 @@ class Interpreting
             if command == "help" then
                 puts actions.map{|action| action[1]}.join("\n")
                 LucilleCore::pressEnterToContinue()
-                if config["exitAfterHelp"] then
-                    break
-                end
-                next
-            end
-            if command == "exit" then
-                break
-            end
-            if command == "" and !config["loopUntilExit"] then
-                break
-            end
-            if command == "" and config["loopUntilExit"] then
                 next
             end
             action = actions
@@ -115,7 +102,10 @@ class Interpreting
                     .first
             next if action.nil?
             status = action[2].call(context, command)
-            break if status
+            if status == "1:re-prompt" then
+                next
+            end
+            return status   
         }
     end
 end
