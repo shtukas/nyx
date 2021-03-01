@@ -85,6 +85,7 @@ class VideoStream
             end
         end
         if option == "completed" then
+            File.open("/Users/pascal/Galaxy/DataBank/Catalyst/video-stream-log.txt", "a"){|f| f.puts(filepath) }
             FileUtils.rm(filepath)
         end
     end
