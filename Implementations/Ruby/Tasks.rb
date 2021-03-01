@@ -17,8 +17,8 @@ class Tasks
         "/Users/pascal/Desktop/Tasks.txt"
     end
 
-    # Tasks::loadDataFromDisk()
-    def self.loadDataFromDisk()
+    # Tasks::loadTasksFromDisk()
+    def self.loadTasksFromDisk()
         default = {
             "uuid" => "@item:#{SecureRandom.hex}",
             "text" => ""
@@ -48,8 +48,8 @@ class Tasks
             .reject{|task| task["text"].size == 0 }
     end
 
-    # Tasks::writeDataToDisk(tasks)
-    def self.writeDataToDisk(tasks)
+    # Tasks::writeTasksToDisk(tasks)
+    def self.writeTasksToDisk(tasks)
         filecontents = tasks.map{|task|
             "#{task["uuid"]}\n#{task["text"]}"
         }
@@ -62,58 +62,76 @@ class Tasks
         CatalystUtils::applyNextTransformationToFile(Tasks::pathToFile())
     end
 
+    # Tasks::rewriteFileWithoutThisTask(uuid)
+    def self.rewriteFileWithoutThisTask(uuid)
+        tasks = Tasks::loadTasksFromDisk()
+        tasks = tasks.reject{|task| task["uuid"] == uuid }
+        Tasks::writeTasksToDisk(tasks)
+    end
+
+    # Tasks::rewriteFileWithThisUpdatedTask(task)
+    def self.rewriteFileWithThisUpdatedTask(task)
+        tasks = Tasks::loadTasksFromDisk()
+        tasks = tasks.reject{|t| t["uuid"] == task["uuid"] }
+        tasks = tasks + [task]
+        Tasks::writeTasksToDisk(tasks)        
+    end
+
     # Tasks::displayGroup()
     def self.displayGroup()
 
-        displayItemsNS16 = Tasks::loadDataFromDisk()
+        displayItemsNS16 = Tasks::loadTasksFromDisk()
             .sort{|t1, t2| BankExtended::recoveredDailyTimeInHours(t1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(t2["uuid"])}
             .first(5)
             .map
             .with_index{|task, indx|
-            {
-                "uuid"        => task["uuid"],
-                "announce"    => (indx == 0) ? ("Task:\n" + task["text"].lines.first(6).map{|line| "         "+line }.join().strip + "\n") : "Task: #{task["text"].lines.first.strip}",
-                "lambda"      => lambda{
-                    thr = Thread.new {
-                        sleep 3600
-                        loop {
-                            Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                            sleep 60
+                x1 = BankExtended::recoveredDailyTimeInHours(task["uuid"])
+                x2 = (indx == 0) ? ("Task:\n" + task["text"].lines.first(6).map{|line| "         "+line }.join().strip + "\n") : "Task: #{task["text"].lines.first.strip}"
+                announce = "(#{"%6.3f" % x1}) #{x2}"
+                {
+                    "uuid"        => task["uuid"],
+                    "announce"    => announce,
+                    "lambda"      => lambda{
+                        thr = Thread.new {
+                            sleep 3600
+                            loop {
+                                Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
+                                sleep 60
+                            }
                         }
+                        time1 = Time.new.to_f
+                        loop {
+                            system("clear")
+                            puts ""
+                            puts task["text"]
+                            puts ""
+                            puts "[] | edit | exit | destroy".yellow
+                            input = LucilleCore::askQuestionAnswerAsString("> ")
+                            if input == "[]" then
+                                puts "Not implemented yet"
+                                LucilleCore::pressEnterToContinue()
+                            end
+                            if input == "edit" then
+                                task["text"] = CatalystUtils::editTextSynchronously(task["text"])
+                                Tasks::rewriteFileWithThisUpdatedTask(task)
+                            end
+                            if input == "exit" then
+                                break
+                            end
+                            if input == "destroy" then
+                                Tasks::rewriteFileWithoutThisTask(task["uuid"])
+                                break
+                            end
+                        }
+                        time2 = Time.new.to_f
+                        timespan = time2 - time1
+                        timespan = [timespan, 3600*2].min
+                        puts "putting #{timespan} seconds to task: #{task["uuid"]}"
+                        Bank::put(task["uuid"], timespan)
+                        thr.exit
                     }
-                    time1 = Time.new.to_f
-                    loop {
-                        system("clear")
-                        puts ""
-                        puts task["text"]
-                        puts ""
-                        puts "[] | edit | exit | destroy".yellow
-                        input = LucilleCore::askQuestionAnswerAsString("> ")
-                        if input == "[]" then
-                            puts "Not implemented yet"
-                            LucilleCore::pressEnterToContinue()
-                        end
-                        if input == "edit" then
-                            puts "Not implemented yet"
-                            LucilleCore::pressEnterToContinue()
-                        end
-                        if input == "exit" then
-                            break
-                        end
-                        if input == "destroy" then
-                            puts "Not implemented yet"
-                            LucilleCore::pressEnterToContinue()
-                        end
-                    }
-                    time2 = Time.new.to_f
-                    timespan = time2 - time1
-                    timespan = [timespan, 3600*2].min
-                    puts "putting #{timespan} seconds to task: #{task["uuid"]}"
-                    Bank::put(task["uuid"], timespan)
-                    thr.exit
                 }
             }
-        }
 
         {
             "uuid"             => "3e69fecb-0a1e-450c-8b96-a16110de5a58",
