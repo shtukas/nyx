@@ -103,10 +103,11 @@ class Tasks
                         loop {
                             system("clear")
                             puts ""
-                            puts task["text"]
+                            puts task["text"].green
                             puts ""
-                            puts "[] | edit | exit | destroy".yellow
+                            puts "[] | edit | exit | destroy | ;;".yellow
                             input = LucilleCore::askQuestionAnswerAsString("> ")
+                            break if input == ""
                             if input == "[]" then
                                 puts "Not implemented yet"
                                 LucilleCore::pressEnterToContinue()
@@ -119,6 +120,10 @@ class Tasks
                                 break
                             end
                             if input == "destroy" then
+                                Tasks::rewriteFileWithoutThisTask(task["uuid"])
+                                break
+                            end
+                            if input == ";;" then
                                 Tasks::rewriteFileWithoutThisTask(task["uuid"])
                                 break
                             end
