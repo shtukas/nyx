@@ -20,7 +20,7 @@ class Tasks
     # Tasks::loadTasksFromDisk()
     def self.loadTasksFromDisk()
         default = {
-            "uuid" => "@item:#{SecureRandom.hex}",
+            "uuid" => SecureRandom.hex,
             "text" => ""
         }
         IO.read(Tasks::pathToFile())
@@ -31,7 +31,7 @@ class Tasks
                 end 
                 if line.start_with?("@item:") then
                     task = {
-                        "uuid" => line.strip,
+                        "uuid" => line.strip[6, 999],
                         "text" => ""
                     }
                     tasks + [task]
@@ -51,7 +51,7 @@ class Tasks
     # Tasks::writeTasksToDisk(tasks)
     def self.writeTasksToDisk(tasks)
         filecontents = tasks.map{|task|
-            "#{task["uuid"]}\n#{task["text"]}"
+            "@item:#{task["uuid"]}\n#{task["text"]}"
         }
         .join("\n\n")
         File.open(Tasks::pathToFile(), "w"){|f| f.puts(filecontents) }
