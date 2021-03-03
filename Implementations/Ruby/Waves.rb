@@ -177,8 +177,11 @@ class Waves
                     "lambda"   => lambda { 
                         runningitem = RunningItems::start(Waves::toString(wave), [displayGroupBankUUID])
                         Waves::access(wave)
-                        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "keep alive"])
-                        if op.nil? or op == "done (default)" then
+                        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done", "keep alive"])
+                        if op.nil? then
+                            RunningItems::stopItem(runningitem)
+                        end
+                        if op == "done" then
                             Waves::performDone(wave)
                             RunningItems::stopItem(runningitem)
                         end
