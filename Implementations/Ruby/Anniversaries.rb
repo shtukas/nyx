@@ -243,6 +243,7 @@ class Anniversaries
         loop {
             system("clear")
             item = Anniversaries::getItemByUUID(item["uuid"]) # to get the current version
+            return if item.nil?
             puts Anniversaries::toString(item).green
             mx = LCoreMenuItemsNX1.new()
             mx.item("update start date".yellow, lambda { 
@@ -250,6 +251,9 @@ class Anniversaries
                 return if startdate == ""
                 item["startdate"] = startdate
                 Anniversaries::insertItem(item)
+            })
+            mx.item("destroy".yellow, lambda { 
+                Anniversaries::destroy(item["uuid"])
             })
             status = mx.promptAndRunSandbox()
             break if !status            
