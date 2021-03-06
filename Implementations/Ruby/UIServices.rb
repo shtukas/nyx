@@ -8,7 +8,7 @@ class DisplayGroups
         {
             "uuid"             => uuid,
             "completionRatio"  => 0, # this always has priority
-            "DisplayItemsNS16" => Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid) + BackupsMonitor::displayItemsNS16()
+            "DisplayItemsNS16" => Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid)
         }
     end
 
@@ -192,6 +192,10 @@ class UIServices
             }],
             ["nyx", "nyx", lambda{|context, command|
                 UIServices::nyxMain()
+                "2:565a0e56-reloop-domain"
+            }],
+            ["video-stream-pause", "video-stream-pause", lambda{|context, command|
+                VideoStream::issueHidePing()
                 "2:565a0e56-reloop-domain"
             }]
         ]
