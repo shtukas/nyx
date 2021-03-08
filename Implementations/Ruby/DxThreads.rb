@@ -133,7 +133,7 @@ class DxThreadsUIUtils
             if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
                 completionRatio = completionRatio*completionRatio
             end
-            completionRatio
+            completionRatio * SpeedOfLight::getSpeedRatio()
         }
 
         sizeOfManagedPool = lambda{|dxthread|
@@ -222,32 +222,6 @@ class DxThreadsUIUtils
 
         dg31s + dg32s
     end
-
-    # DxThreadsUIUtils::neodiff() # positive = good
-    def self.neodiff()
-        cardinal1 = 3765
-        cardinal2 = 100
-        t1 = DateTime.parse("2021-02-22T00:20:48Z").to_time.to_i
-        t2 = DateTime.parse("2021-08-22T00:20:48Z").to_time.to_i
-        slope = (cardinal2-cardinal1).to_f/(t2-t1)
-        ideal = (Time.new.to_i-t1) * slope + cardinal1
-        ideal - DxThreadQuarkMapping::getQuarkUUIDsForDxThreadInOrder(TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4")).size
-    end
-
-    # DxThreadsUIUtils::neo()
-    def self.neo()
-        dxthread = TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
-        t1 = Time.new.to_f
-        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 100)
-            .shuffle
-            .each{|quark|
-                DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-                break if DxThreadsUIUtils::neodiff() >= 0
-                break if (Time.new.to_i - t1) > 1200
-            }
-        true
-    end
-
 end
 
 class DxThreads

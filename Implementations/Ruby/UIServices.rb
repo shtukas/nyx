@@ -17,16 +17,6 @@ class DisplayGroups
         ([DisplayGroups::fundamentalGroup()] + [Tasks::displayGroup()] + DxThreadsUIUtils::displayGroups() + [VideoStream::displayGroup()])
             .sort{|d1, d2| d1["completionRatio"] <=> d2["completionRatio"]}
     end
-
-    # DisplayGroups::toString(dg, vspaceleft)
-    def self.toString(dg, vspaceleft)
-        return nil if vspaceleft <= 0
-        str1 = "[#{"%6.3f" % dg["completionRatio"]}]"
-        dg["DisplayItemsNS16"]
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|item| "#{str1} #{item["announce"]}" }
-            .join("\n")
-    end
 end
 
 class UIServices
@@ -119,19 +109,22 @@ class UIServices
             vspaceleft = vspaceleft - 1
         }
 
-        displayGroups.each{|dg|
-            output = DisplayGroups::toString(dg, vspaceleft)
-            next if output.nil?
-            next if output.strip == ""
-            next if (vspaceleft - CatalystUtils::verticalSize(output) < 0)
-            puts output
-            vspaceleft = vspaceleft - CatalystUtils::verticalSize(output)
-        }
-
         items = displayGroups
-                    .map{|dg| dg["DisplayItemsNS16"] }
+                    .map{|dg| 
+                        dg["DisplayItemsNS16"].map{|item|
+                            item["x-completion-ratio"] = dg["completionRatio"]
+                            item
+                        }
+                    }
                     .flatten
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+        items.each_with_index{|item, indx|
+            announce = "#{"%3d" % indx} [#{"%6.3f" % item["x-completion-ratio"]}] #{item["announce"]}"
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
+            next if vspaceleft < 0
+            puts announce
+        }
 
         context = {"items" => items}
         actions = [

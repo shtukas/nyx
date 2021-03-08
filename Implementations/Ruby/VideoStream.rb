@@ -20,7 +20,7 @@ class VideoStream
 
     # VideoStream::dailyTargetInHours()
     def self.dailyTargetInHours()
-        0.75
+        0.75 * SpeedOfLight::getSpeedRatio()
     end
 
     # VideoStream::displayItemsNS16(displayGroupBankUUID)
