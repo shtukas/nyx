@@ -136,9 +136,9 @@ class UIServices
                 DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
                 "2:565a0e56-reloop-domain"
             }],
-            ["+ *", "+ <datetime code> # Postpone top item", lambda{|context, command|
-                _, input = Interpreting::tokenizer(command)
-                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+            ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
+                _, amount, unit = Interpreting::tokenizer(command)
+                unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return "2:565a0e56-reloop-domain" if unixtime.nil?
                 item = context["items"][0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
