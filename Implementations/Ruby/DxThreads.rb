@@ -100,7 +100,6 @@ class DxThreadsUIUtils
                 ["", "(empty) # default # exit", lambda{|context, command|
                     quark = context["quark"]
                     dxthread = context["dxthread"]
-                    RunningItems::start(Quarks::toString(quark), [quark["uuid"], dxthread["uuid"]])
                     "3:d9e2b6d5-exit-domain"
                 }]
             ]
@@ -133,7 +132,7 @@ class DxThreadsUIUtils
             if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
                 completionRatio = completionRatio*completionRatio
             end
-            completionRatio * SpeedOfLight::getSpeedRatio()
+            completionRatio
         }
 
         sizeOfManagedPool = lambda{|dxthread|
@@ -268,7 +267,7 @@ class DxThreads
     # DxThreads::toStringWithAnalytics(dxthread)
     def self.toStringWithAnalytics(dxthread)
         ratio = (DxThreads::completionRatioOrNull(dxthread) || 0)
-        "[DxThread] [#{"%4.2f" % dxthread["timeCommitmentPerDayInHours"]} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
+        "[DxThread] [#{"%4.2f" % (dxthread["timeCommitmentPerDayInHours"]*SpeedOfLight::getSpeedRatio())} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
     end
 
     # DxThreads::dxThreadAndQuarkToString(dxthread, quark)
@@ -293,12 +292,13 @@ class DxThreads
         activeDays = activeDaysOverThePastWeek.call(dxthread)
         return nil if activeDays.empty?
         correctionFactor = activeDays.size.to_f/7
-        timeCommitmentPerDayInHoursCorrected = dxthread["timeCommitmentPerDayInHours"] * correctionFactor
+        timeCommitmentPerDayInHoursCorrected = dxthread["timeCommitmentPerDayInHours"] * SpeedOfLight::getSpeedRatio() * correctionFactor
         completionRatio = recoveredDailyTimeInHours.to_f/timeCommitmentPerDayInHoursCorrected
         
         {
             "recoveredDailyTimeInHours"            => recoveredDailyTimeInHours,
             "timeCommitmentPerDayInHours"          => dxthread["timeCommitmentPerDayInHours"],
+            "timeCommitmentPerDayInHours*SpeedOfLight" => dxthread["timeCommitmentPerDayInHours"] * SpeedOfLight::getSpeedRatio(),
             "activeDaysOverThePastWeek"            => activeDays,
             "correctionFactor"                     => correctionFactor,
             "timeCommitmentPerDayInHoursCorrected" => timeCommitmentPerDayInHoursCorrected,
@@ -366,6 +366,7 @@ class DxThreads
             puts DxThreads::toString(dxthread).green
             puts "uuid: #{dxthread["uuid"]}".yellow
             puts "time commitment per day in hours: #{dxthread["timeCommitmentPerDayInHours"]}".yellow
+            puts "time commitment per day in hours @ speed of light #{(dxthread["timeCommitmentPerDayInHours"]*SpeedOfLight::getSpeedRatio())}".yellow
             puts "no display on these days: #{(dxthread["noTimeCountOnTheseDays"] || []).sort.join(", ")}".yellow
             puts "completion ratio breakdown: #{DxThreads::completionRatioBreakdownOrNull(dxthread)}".yellow
 
