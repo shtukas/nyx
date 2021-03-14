@@ -1,10 +1,10 @@
 name:                catalyst-haskell
 version:             0.1.0.0
-github:              "githubuser/catalyst-haskell"
+github:              "shtukas/catalyst"
 license:             BSD3
-author:              "Author name here"
+author:              "shtukas"
 maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+copyright:           "2021 shtukas"
 
 extra-source-files:
 - README.md
@@ -26,7 +26,7 @@ library:
   source-dirs: src
 
 executables:
-  catalyst-haskell-exe:
+  todo-haskell:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
