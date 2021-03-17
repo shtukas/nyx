@@ -26,7 +26,7 @@ library:
   source-dirs: src
 
 executables:
-  todo-haskell:
+  catalyst-haskell:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

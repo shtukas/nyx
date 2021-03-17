@@ -100,9 +100,13 @@ class UIServices
         displayGroups = DisplayGroups::groupsInOrder()
 
         system("clear")
+        vspaceleft = CatalystUtils::screenHeight()-6
+
         puts ""
 
-        vspaceleft = CatalystUtils::screenHeight()-6
+        puts JSON.generate(JSON.parse(`#{CatalystHaskell::execPath()}`))
+        puts ""
+        vspaceleft = vspaceleft - 2
 
         RunningItems::displayLines().each{|line|
             puts line
