@@ -105,12 +105,12 @@ class Tasks
                             puts ""
                             puts task["text"].green
                             puts ""
-                            puts "[] | edit | exit | destroy | ;;".yellow
+                            puts "[] | edit | exit | destroy | ;; # destroy".yellow
                             input = LucilleCore::askQuestionAnswerAsString("> ")
                             break if input == ""
                             if input == "[]" then
-                                puts "Not implemented yet"
-                                LucilleCore::pressEnterToContinue()
+                                task["text"] = SectionsType0141::applyNextTransformationToText(task["text"])
+                                Tasks::rewriteFileWithThisUpdatedTask(task)
                             end
                             if input == "edit" then
                                 task["text"] = CatalystUtils::editTextSynchronously(task["text"])
@@ -124,6 +124,11 @@ class Tasks
                                 break
                             end
                             if input == ";;" then
+                                if task["text"].strip.start_with?("[]") then
+                                    puts ";; is not available for []'ed tasks"
+                                    LucilleCore::pressEnterToContinue()
+                                    next
+                                end
                                 Tasks::rewriteFileWithoutThisTask(task["uuid"])
                                 break
                             end

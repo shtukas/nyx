@@ -1,6 +1,6 @@
 
 # SectionsType0141::contentToSections(text)
-# SectionsType0141::applyNextTransformationToContent(content)
+# SectionsType0141::applyNextTransformationToText(content)
 
 class SectionsType0141
 
@@ -25,16 +25,16 @@ class SectionsType0141
         SectionsType0141::linesToSections(reminaingLines, sections)
     end
 
-    # SectionsType0141::applyNextTransformationToContent(content)
-    def self.applyNextTransformationToContent(content)
+    # SectionsType0141::applyNextTransformationToText(text)
+    def self.applyNextTransformationToText(text)
 
         positionOfFirstNonSpaceCharacter = lambda{|line, size|
             return (size-1) if !line.start_with?(" " * size)
             positionOfFirstNonSpaceCharacter.call(line, size+1)
         }
 
-        lines = content.strip.lines.to_a
-        return content if lines.empty?
+        lines = text.strip.lines.to_a
+        return text if lines.empty?
         slineWithIndex = lines
             .reject{|line| line.strip == "" }
             .each_with_index

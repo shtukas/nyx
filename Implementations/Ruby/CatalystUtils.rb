@@ -7,9 +7,9 @@ class CatalystUtils
 
     # CatalystUtils::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
-        content = IO.read(filepath).strip
-        content = SectionsType0141::applyNextTransformationToContent(content)
-        File.open(filepath, "w"){|f| f.puts(content) }
+        text = IO.read(filepath).strip
+        text = SectionsType0141::applyNextTransformationToText(text)
+        File.open(filepath, "w"){|f| f.puts(text) }
     end
 
     # CatalystUtils::catalystDataCenterFolderpath()
