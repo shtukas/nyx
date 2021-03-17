@@ -124,6 +124,7 @@ class DxThreadsUIUtils
     # DxThreadsUIUtils::dxThreadToDisplayGroupComponentsOrNull(dxthread)
     def self.dxThreadToDisplayGroupComponentsOrNull(dxthread)
         return nil if (Time.new.hour >= 22)
+        return nil if (dxthread["noTimeCountOnTheseDays"] || []).include?(CatalystUtils::today())
         return nil if DxThreads::completionRatioOrNull(dxthread).nil?
         return nil if DxThreads::completionRatioBreakdownOrNull(dxthread)["completionRatio"] >= 1.5
 
