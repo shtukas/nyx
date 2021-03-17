@@ -135,11 +135,11 @@ class UIServices
             ["..", ".. (access top item)", lambda{|context, command|
                 context["items"][0]["lambda"].call()
                 "2:565a0e56-reloop-domain"
-            }],
+            }, !context["items"].empty?],
             ["++", "++ # Postpone top item by an hour", lambda{|context, command|
                 DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
                 "2:565a0e56-reloop-domain"
-            }],
+            }, !context["items"].empty?],
             ["+ *", "+ <weekdayname> # Postpone top item", lambda{|context, command|
                 _, weekdayname = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
@@ -147,7 +147,7 @@ class UIServices
                 item = context["items"][0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 "2:565a0e56-reloop-domain"
-            }],
+            }, !context["items"].empty?],
             ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
                 _, amount, unit = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
@@ -155,7 +155,7 @@ class UIServices
                 item = context["items"][0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 "2:565a0e56-reloop-domain"
-            }],
+            }, !context["items"].empty?],
             ["select *", "select <n>", lambda{|context, command|
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
@@ -163,7 +163,7 @@ class UIServices
                 return "2:565a0e56-reloop-domain" if item.nil?
                 item["lambda"].call()
                 "2:565a0e56-reloop-domain"
-            }],
+            }, !context["items"].empty?],
             ["start", "start", lambda{|context, command|
                 dxthread = DxThreads::selectOneExistingDxThreadOrNull()
                 return "2:565a0e56-reloop-domain" if dxthread.nil?
@@ -179,7 +179,7 @@ class UIServices
                     DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
                 end
                 "2:565a0e56-reloop-domain"
-            }],
+            }, true],
             ["stop", "stop", lambda{|context, command|
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
                 return true if item.nil?
@@ -190,20 +190,22 @@ class UIServices
                 }
                 RunningItems::destroy(item)
                 "2:565a0e56-reloop-domain"
-            }],
+            }, true],
             ["/", "/", lambda{|context, command|
                 UIServices::servicesFront()
                 "2:565a0e56-reloop-domain"
-            }],
+            }, true],
             ["nyx", "nyx", lambda{|context, command|
                 UIServices::nyxMain()
                 "2:565a0e56-reloop-domain"
-            }],
+            }, true],
             ["video-stream-pause", "video-stream-pause", lambda{|context, command|
                 VideoStream::issueHidePing()
                 "2:565a0e56-reloop-domain"
-            }]
+            }, !context["items"].empty?]
         ]
+        .select{|item| item[3] }
+
         existcode = Interpreting::interpreter(context, actions, {
             "displayHelpInLineAtIntialization" => true
         })
