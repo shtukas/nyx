@@ -1,10 +1,9 @@
 
-NereidElement (Managed by Nereid: "Line", "Url", "Text", "ClickableType", "AionPoint", "FSUniqueString" )
 NereidElement {
     "uuid"          : String
     "unixtime"      : Float
     "description"   : String 
-    "type"          : String 
+    "type"          : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint" | "FSUniqueString"
     "payload"       : (value)
 }
 
@@ -23,7 +22,7 @@ NX141FSCacheElement {
 
 ------------------------------------------------------------------------------
 
-NyxClassifierDeclaration {
+NyxClassifier {
     "uuid"         : String
     "unixtime"     : Float
     "identifier1"  : "103df1ac-2e73-4bf1-a786-afd4092161d4" # Indicates a classifier declaration
@@ -41,7 +40,9 @@ type: "30991912-a9f2-426d-9b62-ec942c16c60a" # Curated Listing
 
 ------------------------------------------------------------------------------
 
-NyxNetworkNode = NereidElement | NX141FSCacheElement | NyxClassifierDeclaration # (NyxNetworkNodes can be parent and children of each other)
+NyxNetworkNode = NereidElement | NX141FSCacheElement | NyxClassifier 
+
+# NyxNetworkNodes can be parent and children of each other
 
 ------------------------------------------------------------------------------
 
