@@ -130,8 +130,33 @@ class UIServices
             puts announce
         }
 
+        if items.empty? then
+            puts "Monitoring..."
+            # we are going to start a monitor that check for new values and let us know
+            thread_2131 = Thread.new {
+                loop {
+                    sleep 120
+                    displayGroups = DisplayGroups::groupsInOrder()
+                    items = displayGroups
+                                .map{|dg| 
+                                    dg["DisplayItemsNS16"].map{|item|
+                                        item["x-completion-ratio"] = dg["completionRatio"]
+                                        item
+                                    }
+                                }
+                                .flatten
+                                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    next if items.empty?
+                    CatalystUtils::onScreenNotification("Catalyst", "Item(s) showed up")
+                }
+            }
+        end
+
         context = {"items" => items}
         actions = [
+            [".", ". (reload)", lambda{|context, command|
+                "2:565a0e56-reloop-domain"
+            }, true],
             ["..", ".. (access top item)", lambda{|context, command|
                 context["items"][0]["lambda"].call()
                 "2:565a0e56-reloop-domain"
@@ -212,6 +237,10 @@ class UIServices
 
         # With the above actions we only have "2:565a0e56-reloop-domain"
         # if exitcode == "3:d9e2b6d5-exit-domain" then
+
+        if thread_2131 then
+            thread_2131.exit
+        end
 
         # end
     end
