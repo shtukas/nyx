@@ -125,7 +125,7 @@ class UIServices
 
         items.each_with_index{|item, indx|
             announce = "#{"%3d" % indx} [#{"%6.3f" % item["x-completion-ratio"]}] #{item["announce"]}"
-            vspaceleft = vspaceleft - CatalystUtils::verticalSize(item["announce"])
+            vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
             next if vspaceleft < 0
             puts announce
         }
