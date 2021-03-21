@@ -121,27 +121,8 @@ class DxThreadsUIUtils
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 
-    # DxThreadsUIUtils::dxThreadToDisplayGroupComponentsOrNull(dxthread)
-    def self.dxThreadToDisplayGroupComponentsOrNull(dxthread)
-        return nil if (Time.new.hour >= 22)
-        return nil if (dxthread["noTimeCountOnTheseDays"] || []).include?(CatalystUtils::today())
-        return nil if DxThreads::completionRatioOrNull(dxthread).nil?
-        return nil if DxThreads::completionRatioBreakdownOrNull(dxthread)["completionRatio"] >= 1.5
-
-        dxThreadCompletionRatioX = lambda{|dxthread|
-            completionRatio = (DxThreads::completionRatioOrNull(dxthread) || 0)
-            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-                completionRatio = completionRatio*completionRatio
-            end
-            completionRatio
-        }
-
-        sizeOfManagedPool = lambda{|dxthread|
-            if dxthread["uuid"] == "791884c9cf34fcec8c2755e6cc30dac4" then # Stream
-                return 5
-            end
-            return 3
-        }
+    # DxThreadsUIUtils::dxThreadToNX16s(dxthread)
+    def self.dxThreadToNX16s(dxthread)
 
         quarkRecoveredTimeX = lambda{|quark|
             rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
@@ -156,71 +137,23 @@ class DxThreadsUIUtils
             "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}, #{"%5.2f" % quarkRecoveredTimeX.call(quark)}) #{Patricia::toString(quark)}"
         }
 
-        ns16s = DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, sizeOfManagedPool.call(dxthread))
+        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
             .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "display"  => "⛵️ #{DxThreads::toStringWithAnalytics(dxthread).yellow}".yellow,
                     "announce" => toString.call(dxthread, quark),
                     "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
             }
-        [dxThreadCompletionRatioX.call(dxthread), ns16s]
     end
 
-    # DxThreadsUIUtils::displayGroups()
-    def self.displayGroups()
-
-        dg31s = DxThreads::dxthreads()
-                .select{|dxthread| Runner::isRunning?(dxthread["uuid"])}
-                .map{|dxthread|
-                    {
-                        "uuid"             => dxthread["uuid"],
-                        "completionRatio"  => 0,
-                        "DisplayItemsNS16" => [
-                            {
-                                "uuid"        => dxthread["uuid"],
-                                "announce"    => "running: #{DxThreads::toStringWithAnalytics(dxthread)}".green,
-                                "lambda"      => lambda {
-                                    thr = Thread.new {
-                                        sleep 3600
-                                        loop {
-                                            Miscellaneous::onScreenNotification("Catalyst", "Item running for more than an hour")
-                                            sleep 60
-                                        }
-                                    }
-                                    if LucilleCore::askQuestionAnswerAsBoolean("We are running. Stop ? : ", true) then
-                                        timespan = Runner::stop(dxthread["uuid"])
-                                        timespan = [timespan, 3600*2].min
-                                        puts "Adding #{timespan} seconds to #{DxThreads::toStringWithAnalytics(dxthread)}"
-                                        Bank::put(dxthread["uuid"], timespan)
-                                    end
-                                    thr.exit
-                                }
-                            }
-                        ]
-                    } 
-                }
-
-        dg32s = DxThreads::dxthreads()
-                .map{|dxthread|
-                    elements = DxThreadsUIUtils::dxThreadToDisplayGroupComponentsOrNull(dxthread)
-                    if elements then
-                        completionRatio, ns16 = elements
-                        {
-                            "uuid"             => dxthread["uuid"],
-                            "completionRatio"  => completionRatio,
-                            "DisplayItemsNS16" => ns16
-                        } 
-                    else
-                        nil
-                    end
-                }
-                .compact
-
-        dg31s + dg32s
+    # DxThreadsUIUtils::nx16s()
+    def self.nx16s()
+        DxThreads::dxthreads()
+            .map{|dxthread| DxThreadsUIUtils::dxThreadToNX16s(dxthread) }
+            .flatten
     end
 end
 
@@ -265,53 +198,9 @@ class DxThreads
         "[DxThread] #{object["description"]}"
     end
 
-    # DxThreads::toStringWithAnalytics(dxthread)
-    def self.toStringWithAnalytics(dxthread)
-        ratio = (DxThreads::completionRatioOrNull(dxthread) || 0)
-        "[DxThread] [#{"%4.2f" % (dxthread["timeCommitmentPerDayInHours"]*SpeedOfLight::getSpeedRatio())} hours, #{"%6.2f" % (100*ratio)} % completed] #{dxthread["description"]}"
-    end
-
     # DxThreads::dxThreadAndQuarkToString(dxthread, quark)
     def self.dxThreadAndQuarkToString(dxthread, quark)
         "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{Patricia::toString(quark)}"
-    end
-
-    # DxThreads::completionRatioBreakdownOrNull(dxthread)
-    def self.completionRatioBreakdownOrNull(dxthread)
-
-        recoveredDailyTimeInHours = BankExtended::recoveredDailyTimeInHours(dxthread["uuid"])
-
-        activeDaysOverThePastWeek = lambda{|dxthread|
-            week = (-6..0).map{|i| CatalystUtils::nDaysInTheFuture(i)} 
-            if dxthread["uuid"] == "d0c8857574a1e570a27f6f6b879acc83" then # Guardian Work
-                week = week.reject{|day| CatalystUtils::dateIsWeekEnd(day) }
-            end
-
-            week - (dxthread["noTimeCountOnTheseDays"] || [])
-        }
-
-        activeDays = activeDaysOverThePastWeek.call(dxthread)
-        return nil if activeDays.empty?
-        correctionFactor = activeDays.size.to_f/7
-        timeCommitmentPerDayInHoursCorrected = dxthread["timeCommitmentPerDayInHours"] * SpeedOfLight::getSpeedRatio() * correctionFactor
-        completionRatio = recoveredDailyTimeInHours.to_f/timeCommitmentPerDayInHoursCorrected
-        
-        {
-            "recoveredDailyTimeInHours"            => recoveredDailyTimeInHours,
-            "timeCommitmentPerDayInHours"          => dxthread["timeCommitmentPerDayInHours"],
-            "timeCommitmentPerDayInHours*SpeedOfLight" => dxthread["timeCommitmentPerDayInHours"] * SpeedOfLight::getSpeedRatio(),
-            "activeDaysOverThePastWeek"            => activeDays,
-            "correctionFactor"                     => correctionFactor,
-            "timeCommitmentPerDayInHoursCorrected" => timeCommitmentPerDayInHoursCorrected,
-            "completionRatio"                      => completionRatio
-        }
-    end
-
-    # DxThreads::completionRatioOrNull(dxthread)
-    def self.completionRatioOrNull(dxthread)
-        completionRatio = DxThreads::completionRatioBreakdownOrNull(dxthread)
-        return nil if completionRatio.nil?
-        completionRatio["completionRatio"]
     end
 
     # DxThreads::determinePlacingOrdinalForThread(dxthread)
@@ -451,14 +340,6 @@ class DxThreads
             system("clear")
 
             ms = LCoreMenuItemsNX1.new()
-
-            DxThreads::dxthreads()
-                .sort{|dx1, dx2| dx1["description"] <=> dx2["description"] }
-                .each{|dxthread|
-                    ms.item(DxThreads::toStringWithAnalytics(dxthread), lambda { 
-                        DxThreads::landing(dxthread)
-                    })
-                }
 
             ms.item("make new DxThread", lambda { 
                 object = DxThreads::issueDxThreadInteractivelyOrNull()

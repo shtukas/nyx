@@ -4,50 +4,28 @@
 
 require_relative "Implementations/Ruby/loader.rb"
 
-# ----------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
-=begin
-DisplayItemsNS16 {
-    "uuid"        : String # used by DoNotShowUntil
-    "announce"    : String
-    "commands"    : nil or String
-    "lambda"      : Lambda
-}
-=end
+class Stream
 
-class Waves
-
-    # Waves::mainDisplay()
+    # Stream::mainDisplay()
     def self.mainDisplay()
-        Thread.new {
-            loop {
-                sleep 120
-                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
-                    system("#{File.dirname(__FILE__)}/../../vienna-import")
-                end
-            }
-        }
         loop {
-            CatalystUtils::importFromLucilleInbox()
-            Calendar::dailyBriefingIfNotDoneToday()
-            Anniversaries::dailyBriefingIfNotDoneToday()
+
             system("clear")
 
-            vspaceleft = CatalystUtils::screenHeight()-8
+            vspaceleft = CatalystUtils::screenHeight()-6
 
             puts ""
-            puts JSON.generate(JSON.parse(`#{CatalystHaskell::execPath()}`))
 
-            puts ""
-            uuid = "7945614c-954a-4c7d-9847-4b67e9b28d56"
+            items = DxThreadsUIUtils::nx16s()
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
-            items = Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16(uuid)
-            items = items.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             items.each_with_index{|item, indx|
                 announce = "#{"%3d" % indx} #{item["announce"]}"
-                puts announce
                 vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
-                break if vspaceleft < 0
+                next if vspaceleft < 0
+                puts announce
             }
 
             context = {"items" => items}
@@ -87,6 +65,33 @@ class Waves
                     item["lambda"].call()
                     "2:565a0e56-reloop-domain"
                 }, !context["items"].empty?],
+                ["start", "start", lambda{|context, command|
+                    dxthread = DxThreads::selectOneExistingDxThreadOrNull()
+                    return "2:565a0e56-reloop-domain" if dxthread.nil?
+                    op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
+                    return if op.nil?
+                    if op == "Start DxThread" then
+                        RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
+                    end
+                    if op == "Start Quark" then
+                        quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
+                        quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
+                        return if quark.nil?
+                        DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
+                    end
+                    "2:565a0e56-reloop-domain"
+                }, true],
+                ["stop", "stop", lambda{|context, command|
+                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
+                    return true if item.nil?
+                    timespan = Time.new.to_f - item["start"]
+                    item["bankAccounts"].each{|account|
+                        puts "putting #{timespan} seconds to account: #{account}"
+                        Bank::put(account, timespan)
+                    }
+                    RunningItems::destroy(item)
+                    "2:565a0e56-reloop-domain"
+                }, true],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
                     "2:565a0e56-reloop-domain"
@@ -95,14 +100,21 @@ class Waves
                     UIServices::nyxMain()
                     "2:565a0e56-reloop-domain"
                 }, true],
+                ["video-stream-pause", "video-stream-pause", lambda{|context, command|
+                    VideoStream::issueHidePing()
+                    "2:565a0e56-reloop-domain"
+                }, !context["items"].empty?]
             ]
             .select{|item| item[3] }
 
             existcode = Interpreting::interpreter(context, actions, {
                 "displayHelpInLineAtIntialization" => true
             })
+
         }
     end
 end
 
-Waves::mainDisplay()
+Stream::mainDisplay()
+
+# -------------------------------------------------------------------------
