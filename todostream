@@ -18,7 +18,7 @@ class Stream
 
             puts ""
 
-            items = DxThreadsUIUtils::nx16s()
+            items = Quarks::nx16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
             items.each_with_index{|item, indx|

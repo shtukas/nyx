@@ -33,8 +33,6 @@ class UIServices
 
             ms.item("Waves", lambda { Waves::main() })
 
-            ms.item("DxThreads", lambda { DxThreads::main() })
-
             puts ""
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            

@@ -13,11 +13,6 @@ class Patricia
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
     end
 
-    # Patricia::isDxThread(object)
-    def self.isDxThread(object)
-        object["nyxNxSet"] == "2ed4c63e-56df-4247-8f20-e8d220958226"
-    end
-
     # Patricia::isQuark(object)
     def self.isQuark(object)
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
@@ -66,9 +61,6 @@ class Patricia
         if Patricia::isWave(item) then
             return Waves::toString(item)
         end
-        if Patricia::isDxThread(item) then
-            return DxThreads::toString(item)
-        end
         puts item
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
     end
@@ -94,9 +86,6 @@ class Patricia
         if Patricia::isWave(item) then
             Waves::landing(item)
             return 
-        end
-        if Patricia::isDxThread(item) then
-            return DxThreads::landing(item)
         end
         puts item
         raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"
