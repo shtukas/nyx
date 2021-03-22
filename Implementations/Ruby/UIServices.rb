@@ -104,6 +104,9 @@ class UIServices
             "commands" => "done (destroy quark and nereid element) | >nyx | landing",
             "lambda"   => lambda{ 
 
+                system("clear")
+                puts announce
+
                 context = {}
                 actions = [
                     [".", ". (reload)", lambda{|context, command|
@@ -132,7 +135,7 @@ class UIServices
 
     # UIServices::waveLikeNS16()
     def self.waveLikeNS16()
-        Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16("7945614c-954a-4c7d-9847-4b67e9b28d56")
+        Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16()
     end
 
     # UIServices::CatalystUINS16s()

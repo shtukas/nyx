@@ -44,7 +44,6 @@ loop {
         }],
         ["..", ".. (access top)", lambda{|context, command|
             system("clear")
-            puts items[0]["announce"].green
             items[0]["lambda"].call()
         }],
         ["++", "++ # Postpone top item by an hour", lambda{|context, command|

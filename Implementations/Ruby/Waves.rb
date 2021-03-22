@@ -167,15 +167,14 @@ class Waves
         "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
     end
 
-    # Waves::displayItemsNS16(displayGroupBankUUID)
-    def self.displayItemsNS16(displayGroupBankUUID)
+    # Waves::displayItemsNS16()
+    def self.displayItemsNS16()
         Waves::waves()
             .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
                     "announce" => Waves::toString(wave),
                     "lambda"   => lambda { 
-                        runningitem = RunningItems::start(Waves::toString(wave), [displayGroupBankUUID])
                         Waves::access(wave)
                         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done", "keep alive"])
                         if op.nil? then
@@ -183,7 +182,6 @@ class Waves
                         end
                         if op == "done" then
                             Waves::performDone(wave)
-                            RunningItems::stopItem(runningitem)
                         end
                         if op == "keep alive" then
                             Waves::performDone(wave) # We done it but the runningItem is still alive.
