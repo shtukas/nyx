@@ -6,46 +6,50 @@ require_relative "Implementations/Ruby/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-=begin
-DisplayItemsNS16 {
-    "uuid"        : String # used by DoNotShowUntil
-    "announce"    : String
-    "commands"    : nil or String
-    "lambda"      : Lambda
+Thread.new {
+    loop {
+        sleep 120
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
+            system("#{File.dirname(__FILE__)}/../../vienna-import")
+        end
+    }
 }
-=end
 
 loop {
 
+    CatalystUtils::importFromLucilleInbox()
+    Calendar::dailyBriefingIfNotDoneToday()
+    Anniversaries::dailyBriefingIfNotDoneToday()
+
     system("clear")
 
-    vspaceleft = CatalystUtils::screenHeight()-8
-
-    puts ""
-    puts JSON.generate(JSON.parse(`#{CatalystHaskell::execPath()}`))
+    vspaceleft = CatalystUtils::screenHeight()-6
 
     puts ""
 
-    items = UIServices::waveLikeNS16()
+    items = UIServices::CatalystUINS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
     items.each_with_index{|item, indx|
         announce = "#{"%3d" % indx} #{item["announce"]}"
-        puts announce
         vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
-        break if vspaceleft < 0
+        next if vspaceleft < 0
+        puts announce
     }
 
     context = {"items" => items}
     actions = [
         [".", ". (reload)", lambda{|context, command|
-
+    
         }],
-        ["..", ".. (access top item)", lambda{|context, command|
-            context["items"][0]["lambda"].call()
+        ["..", ".. (access top)", lambda{|context, command|
+            system("clear")
+            puts items[0]["announce"].green
+            items[0]["lambda"].call()
         }],
         ["++", "++ # Postpone top item by an hour", lambda{|context, command|
             DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-        }],
+        }, !context["items"].empty?],
         ["+ *", "+ <weekdayname> # Postpone top item", lambda{|context, command|
             _, weekdayname = Interpreting::tokenizer(command)
             unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
@@ -66,10 +70,18 @@ loop {
             item = context["items"][ordinal]
             return if item.nil?
             item["lambda"].call()
+        }],
+        ["/", "/", lambda{|context, command|
+            UIServices::servicesFront()
+        }],
+        ["nyx", "nyx", lambda{|context, command|
+            UIServices::nyxMain()
         }]
     ]
 
     returnvalue = Interpreting::interpreter(context, actions, {
         "displayHelpInLineAtIntialization" => true
     })
+
 }
+

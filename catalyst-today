@@ -16,23 +16,9 @@ loop {
                 .first
     puts content.lines.first(CatalystUtils::screenHeight()-4).join()
 
-    context = {}
-    actions = [
-        [".", ". (reload)", lambda{|context, command|
-    
-        }],
-        ["[]", "[] Next transformation", lambda{|context, command|
-            CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Today.txt")
-        }],
-        ["edit", "edit", lambda{|context, command|
-            system("open '/Users/pascal/Desktop/Today.txt'")
-        }],
-    ]
+    ns16 = UIServices::todayNS16s().first
 
-    returnvalue = Interpreting::interpreter(context, actions, {
-        "displayHelpInLineAtIntialization" => true
-    })
-
+    ns16["lambda"].call()
 }
 
 

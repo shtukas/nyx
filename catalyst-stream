@@ -4,35 +4,24 @@
 
 require_relative "Implementations/Ruby/loader.rb"
 
-# ----------------------------------------------------------------------------
-
-=begin
-DisplayItemsNS16 {
-    "uuid"        : String # used by DoNotShowUntil
-    "announce"    : String
-    "commands"    : nil or String
-    "lambda"      : Lambda
-}
-=end
+# -------------------------------------------------------------------------
 
 loop {
 
     system("clear")
 
-    vspaceleft = CatalystUtils::screenHeight()-8
-
-    puts ""
-    puts JSON.generate(JSON.parse(`#{CatalystHaskell::execPath()}`))
+    vspaceleft = CatalystUtils::screenHeight()-6
 
     puts ""
 
-    items = UIServices::waveLikeNS16()
+    items = Quarks::nx16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
     items.each_with_index{|item, indx|
         announce = "#{"%3d" % indx} #{item["announce"]}"
-        puts announce
         vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
-        break if vspaceleft < 0
+        next if vspaceleft < 0
+        puts announce
     }
 
     context = {"items" => items}
@@ -45,7 +34,7 @@ loop {
         }],
         ["++", "++ # Postpone top item by an hour", lambda{|context, command|
             DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-        }],
+        }, !context["items"].empty?],
         ["+ *", "+ <weekdayname> # Postpone top item", lambda{|context, command|
             _, weekdayname = Interpreting::tokenizer(command)
             unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
@@ -66,10 +55,14 @@ loop {
             item = context["items"][ordinal]
             return if item.nil?
             item["lambda"].call()
-        }]
+        }],
+
     ]
 
     returnvalue = Interpreting::interpreter(context, actions, {
         "displayHelpInLineAtIntialization" => true
     })
+
 }
+
+# -------------------------------------------------------------------------

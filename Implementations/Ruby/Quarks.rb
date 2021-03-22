@@ -208,12 +208,10 @@ class Quarks
                 }],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
-                    "2:565a0e56-reloop-domain"
                 }],
                 ["landing", "landing", lambda{|context, command|
                     quark = context["quark"]
                     Quarks::landing(quark)
-                    "2:565a0e56-reloop-domain"
                 }],
                 ["++", "++ # Postpone quark by an hour", lambda{|context, command|
                     quark = context["quark"]

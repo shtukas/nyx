@@ -84,6 +84,7 @@ class Interpreting
 
         if config["displayHelpInLineAtIntialization"] then
             puts actions.map{|action| action[1]}.join(" | ").yellow
+            puts ""
         end
 
         command = LucilleCore::askQuestionAnswerAsString("> ")
