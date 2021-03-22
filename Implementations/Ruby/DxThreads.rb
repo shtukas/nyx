@@ -51,12 +51,6 @@ class DxThreadsUIUtils
                     Quarks::destroyQuark(quark)
                     "3:d9e2b6d5-exit-domain"
                 }],
-                [">dxthread", ">dxthread", lambda{|context, command|
-                    quark = context["quark"]
-                    dxthread = context["dxthread"]
-                    DxThreads::moveTargetToNewDxThread(quark, dxthread)
-                    "3:d9e2b6d5-exit-domain"
-                }],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
                     "2:565a0e56-reloop-domain"
@@ -121,9 +115,8 @@ class DxThreadsUIUtils
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 
-    # DxThreadsUIUtils::dxThreadToNX16s(dxthread)
-    def self.dxThreadToNX16s(dxthread)
-
+    # DxThreadsUIUtils::nx16s()
+    def self.nx16s()
         quarkRecoveredTimeX = lambda{|quark|
             rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
             (rt == 0) ? 0.4 : rt
@@ -133,27 +126,20 @@ class DxThreadsUIUtils
             # the new stuff (which from that moment takes a non zero rt)
         }
 
-        toString = lambda {|dxthread, quark|
-            "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}, #{"%5.2f" % quarkRecoveredTimeX.call(quark)}) #{Patricia::toString(quark)}"
+        toString = lambda {|quark|
+            "[#{QuarksOrdinals::getQuarkOrdinalOrZero(quark)}] (#{"%5.2f" % quarkRecoveredTimeX.call(quark)}) #{Patricia::toString(quark)}"
         }
 
-        DxThreadQuarkMapping::dxThreadToFirstNVisibleQuarksInOrdinalOrder(dxthread, 3)
+        QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(3)
             .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => toString.call(dxthread, quark),
+                    "announce" => toString.call(quark),
                     "commands" => "done (destroy quark and nereid element) | >nyx | >dxthread | landing",
                     "lambda"   => lambda{ DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark) }
                 }
             }
-    end
-
-    # DxThreadsUIUtils::nx16s()
-    def self.nx16s()
-        DxThreads::dxthreads()
-            .map{|dxthread| DxThreadsUIUtils::dxThreadToNX16s(dxthread) }
-            .flatten
     end
 end
 
@@ -200,45 +186,28 @@ class DxThreads
 
     # DxThreads::dxThreadAndQuarkToString(dxthread, quark)
     def self.dxThreadAndQuarkToString(dxthread, quark)
-        "#{DxThreads::toString(dxthread)} (#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}) #{Patricia::toString(quark)}"
+        "#{DxThreads::toString(dxthread)} #{Patricia::toString(quark)}"
     end
 
-    # DxThreads::determinePlacingOrdinalForThread(dxthread)
-    def self.determinePlacingOrdinalForThread(dxthread)
+    # DxThreads::determineQuarkPlacingOrdinal()
+    def self.determineQuarkPlacingOrdinal()
         puts "Placement ordinal listing"
-        quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 30)
-        quarks.each{|quark|
-            puts "[#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{Patricia::toString(quark)}"
-        }
-        ordinal = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
-        if ordinal == "" then
-            return DxThreadQuarkMapping::getNextOrdinal()
+        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
+        if command == "low" then
+            return DxThreads::computeNew21stQuarkOrdinal()
         end
-        if ordinal == "low" then
-            return DxThreads::computeNew21stOrdinalForDxThread(dxthread)
-        end
-        ordinal.to_f
+        QuarksOrdinals::getNextOrdinal()
     end
 
-    # DxThreads::computeNew21stOrdinalForDxThread(dxthread)
-    def self.computeNew21stOrdinalForDxThread(dxthread)
-        ordinals = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 22)
-                    .map{|quark| DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark) }
+    # DxThreads::computeNew21stQuarkOrdinal()
+    def self.computeNew21stQuarkOrdinal()
+        ordinals = QuarksOrdinals::getOrdinals()
                     .sort
         ordinals = ordinals.drop(19).take(2)
         if ordinals.size < 2 then
-            return DxThreadQuarkMapping::getNextOrdinal()
+            return QuarksOrdinals::getNextOrdinal()
         end
         (ordinals[0]+ordinals[1]).to_f/2
-    end
-
-    # DxThreads::moveTargetToNewDxThread(quark, dxParentOpt or null)
-    def self.moveTargetToNewDxThread(quark, dxParentOpt)
-        dx2 = DxThreads::selectOneExistingDxThreadOrNull()
-        return if dx2.nil?
-        DxThreadQuarkMapping::deleteRecordsByQuarkUUID(quark["uuid"])
-        ordinal = DxThreads::determinePlacingOrdinalForThread(dx2)
-        DxThreadQuarkMapping::insertRecord(dx2, quark, ordinal)
     end
 
     # DxThreads::selectOneExistingDxThreadOrNull()
@@ -261,15 +230,6 @@ class DxThreads
             puts "completion ratio breakdown: #{DxThreads::completionRatioBreakdownOrNull(dxthread)}".yellow
 
             mx = LCoreMenuItemsNX1.new()
-
-            puts ""
-
-            DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, CatalystUtils::screenHeight()-25)
-                .each{|quark|
-                    mx.item("[quark] [#{"%8.3f" % DxThreadQuarkMapping::getDxThreadQuarkOrdinal(dxthread, quark)}] #{Patricia::toString(quark)}", lambda { 
-                        Patricia::landing(quark) 
-                    })
-                }
 
             puts ""
 
@@ -305,13 +265,6 @@ class DxThreads
 
             mx.item("add new quark".yellow, lambda {
                 Quarks::getQuarkPossiblyArchitectedOrNull(nil, dxthread)
-            })
-
-            mx.item("select and move quark".yellow, lambda { 
-                quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
-                quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda { |quark| Patricia::toString(quark) })
-                return if quark.nil?
-                DxThreads::moveTargetToNewDxThread(quark, dxthread)
             })
 
             mx.item("json object".yellow, lambda { 

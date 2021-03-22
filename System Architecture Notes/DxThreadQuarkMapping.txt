@@ -1,5 +1,5 @@
 
-DxThreadQuarkMapping.sqlite3
+quarks-ordinals.sqlite3
 
-create table _mapping_ (_dxthreaduuid_ text, _quarkuuid_ text, _ordinal_ real, _doNotShowUntilUnixtime_ integer);
+create table _mapping_ (_quarkuuid_ text, _ordinal_ real);
 

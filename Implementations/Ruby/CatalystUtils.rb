@@ -116,11 +116,9 @@ class CatalystUtils
 
             puts JSON.pretty_generate(quark)
 
-            dxthread = TodoCoreData::getOrNull("791884c9cf34fcec8c2755e6cc30dac4") # Stream
+            ordinal = DxThreads::computeNew21stQuarkOrdinal()
 
-            ordinal = DxThreads::computeNew21stOrdinalForDxThread(dxthread)
-
-            DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+            QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
 
             LucilleCore::removeFileSystemLocation(location)
         end

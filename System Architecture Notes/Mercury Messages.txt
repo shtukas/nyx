@@ -1,12 +1,4 @@
 
-# Update of DoNotShowUntil
-channel: "e6409074-8123-4914-91ba-da345069609f"
-message: {
-    "uid" => uid, 
-    "unixtime" => unixtime
-}
-
-
 # Object has been deleted
 channel: "0437d73d-9cde-4b96-99c5-5bd44671d267"
 message: String # UUID

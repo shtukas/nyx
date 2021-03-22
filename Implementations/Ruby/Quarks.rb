@@ -29,25 +29,13 @@ class Quarks
         "[quark] #{NereidInterface::toString(quark["nereiduuid"])}"
     end
 
-    # Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
-    def self.getOrSelectQuarkDxThreadOneParentOrNull(quark)
-        dxthreads = DxThreadQuarkMapping::getDxThreadsForQuark(quark)
-        if dxthreads.size == 0 then
-            return nil
-        end
-        if dxthreads.size == 1 then
-            return dxthreads[0]
-        end
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("DxThread", dxthreads, lambda { |dxthread| DxThreads::toString(dxthread) })
-    end
 
     # Quarks::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
     def self.getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
         quark = quarkOpt ? quarkOpt : Quarks::issueNewQuarkInteractivelyOrNull()
         return nil if quark.nil?
-        dxthread = dxThreadOpt ? dxThreadOpt : DxThreads::selectOneExistingDxThreadOrNull()
-        ordinal = DxThreads::determinePlacingOrdinalForThread(dxthread)
-        DxThreadQuarkMapping::insertRecord(dxthread, quark, ordinal)
+        ordinal = DxThreads::determineQuarkPlacingOrdinal()
+        QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
         Patricia::landing(quark)
         quark
     end
@@ -72,7 +60,7 @@ class Quarks
 
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
-            puts "ordinal: #{DxThreadQuarkMapping::getQuarkOrdinal(quark)}".yellow
+            puts "ordinal: #{QuarksOrdinals::getQuarkOrdinalOrZero(quark)}".yellow
             unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
@@ -81,34 +69,15 @@ class Quarks
 
             puts ""
 
-            DxThreadQuarkMapping::getDxThreadsForQuark(quark).each{|dxthread|
-                mx.item(
-                    "source: #{DxThreads::toString(dxthread)}",
-                    lambda { DxThreads::landing(dxthread) }
-                )
-            }
-
-            puts ""
-
             mx.item(
                 "access".yellow,
                 lambda { Quarks::access(quark) }
             )
 
-            mx.item("start".yellow, lambda { 
-                dxthread = Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
-                DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-            })
-
             mx.item("set/update ordinal".yellow, lambda {
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ")
                 return if ordinal == ""
-                DxThreadQuarkMapping::setQuarkOrdinal(quark, ordinal.to_f)
-            })
-
-            mx.item("move to another DxThread".yellow, lambda {
-                dxthread = Quarks::getOrSelectQuarkDxThreadOneParentOrNull(quark)
-                DxThreads::moveTargetToNewDxThread(quark, dxthread)
+                QuarksOrdinals::setQuarkOrdinal(quark, ordinal.to_f)
             })
 
             mx.item("edit".yellow, lambda {

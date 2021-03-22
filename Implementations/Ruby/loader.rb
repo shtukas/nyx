@@ -149,7 +149,7 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DxThreads.rb"
-require_relative "DxThreadQuarkMapping.rb"
+require_relative "QuarksOrdinals.rb"
 
 require_relative "Interpreting.rb"
 

@@ -65,33 +65,6 @@ class Stream
                     item["lambda"].call()
                     "2:565a0e56-reloop-domain"
                 }, !context["items"].empty?],
-                ["start", "start", lambda{|context, command|
-                    dxthread = DxThreads::selectOneExistingDxThreadOrNull()
-                    return "2:565a0e56-reloop-domain" if dxthread.nil?
-                    op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Start DxThread", "Start Quark"])
-                    return if op.nil?
-                    if op == "Start DxThread" then
-                        RunningItems::start(DxThreads::toString(dxthread), [dxthread["uuid"]])
-                    end
-                    if op == "Start Quark" then
-                        quarks = DxThreadQuarkMapping::dxThreadToQuarksInOrder(dxthread, 20)
-                        quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", quarks, lambda{|quark| Quarks::toString(quark) })
-                        return if quark.nil?
-                        DxThreadsUIUtils::runDxThreadQuarkPair(dxthread, quark)
-                    end
-                    "2:565a0e56-reloop-domain"
-                }, true],
-                ["stop", "stop", lambda{|context, command|
-                    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", RunningItems::items(), lambda{|item| item["announce"] })
-                    return true if item.nil?
-                    timespan = Time.new.to_f - item["start"]
-                    item["bankAccounts"].each{|account|
-                        puts "putting #{timespan} seconds to account: #{account}"
-                        Bank::put(account, timespan)
-                    }
-                    RunningItems::destroy(item)
-                    "2:565a0e56-reloop-domain"
-                }, true],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
                     "2:565a0e56-reloop-domain"

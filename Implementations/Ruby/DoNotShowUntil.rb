@@ -18,9 +18,6 @@ class DoNotShowUntil
         db.commit 
         db.close
         nil
-
-        message = {"uid" => uid, "unixtime" => unixtime}
-        Mercury::postValue("e6409074-8123-4914-91ba-da345069609f", message)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
