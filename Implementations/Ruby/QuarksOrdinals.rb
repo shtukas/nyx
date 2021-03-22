@@ -16,7 +16,7 @@ class QuarksOrdinals
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _mapping_ where _quarkuuid_=?", [quark["uuid"]]
-        db.execute "insert into _mapping_ (_quarkuuid_, _ordinal_) values (?,?,?)", [quark["uuid"], ordinal]
+        db.execute "insert into _mapping_ (_quarkuuid_, _ordinal_) values (?,?)", [quark["uuid"], ordinal]
         db.commit 
         db.close
         nil

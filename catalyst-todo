@@ -65,9 +65,6 @@ class Stream
                 }],
                 ["nyx", "nyx", lambda{|context, command|
                     UIServices::nyxMain()
-                }],
-                ["video-stream-pause", "video-stream-pause", lambda{|context, command|
-                    VideoStream::issueHidePing()
                 }]
             ]
 

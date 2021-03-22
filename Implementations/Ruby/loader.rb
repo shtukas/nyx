@@ -198,8 +198,6 @@ require_relative "SpeedOfLight.rb"
 
 require_relative "UIServices.rb"
 
-require_relative "VideoStream.rb"
-
 require_relative "Waves.rb"
 
 # ------------------------------------------------------------

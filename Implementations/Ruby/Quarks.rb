@@ -161,12 +161,12 @@ class Quarks
                     "uuid"     => quark["uuid"],
                     "announce" => toString.call(quark),
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
-                    "lambda"   => lambda{ DxThreadsUIUtils::runQuark(quark) }
+                    "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
             }
     end
 
-    # DxThreadsUIUtils::runQuark(quark)
+    # Quarks::runQuark(quark)
     def self.runQuark(quark)
 
         startUnixtime = Time.new.to_f
