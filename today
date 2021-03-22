@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Implementations/Ruby/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+loop {
+    system("clear")
+
+    puts ""
+
+    content = IO.read("/Users/pascal/Desktop/Today.txt")
+    puts content.lines.first(CatalystUtils::screenHeight()-4).join()
+
+    context = {}
+    actions = [
+        [".", ". (reload)", lambda{|context, command|
+    
+        }],
+        ["[]", "[] Next transformation", lambda{|context, command|
+            CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Today.txt")
+        }],
+        ["edit", "edit", lambda{|context, command|
+            system("open '/Users/pascal/Desktop/Today.txt'")
+        }],
+    ]
+
+    returnvalue = Interpreting::interpreter(context, actions, {
+        "displayHelpInLineAtIntialization" => true
+    })
+
+}
+
+
+

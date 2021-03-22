@@ -53,52 +53,44 @@ class Waves
             context = {"items" => items}
             actions = [
                 [".", ". (reload)", lambda{|context, command|
-                    "2:565a0e56-reloop-domain"
-                }, true],
+
+                }],
                 ["..", ".. (access top item)", lambda{|context, command|
                     context["items"][0]["lambda"].call()
-                    "2:565a0e56-reloop-domain"
-                }, !context["items"].empty?],
+                }],
                 ["++", "++ # Postpone top item by an hour", lambda{|context, command|
                     DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-                    "2:565a0e56-reloop-domain"
-                }, !context["items"].empty?],
+                }],
                 ["+ *", "+ <weekdayname> # Postpone top item", lambda{|context, command|
                     _, weekdayname = Interpreting::tokenizer(command)
                     unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
                     return "2:565a0e56-reloop-domain" if unixtime.nil?
                     item = context["items"][0]
                     DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                    "2:565a0e56-reloop-domain"
-                }, !context["items"].empty?],
+                }],
                 ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
                     _, amount, unit = Interpreting::tokenizer(command)
                     unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                     return "2:565a0e56-reloop-domain" if unixtime.nil?
                     item = context["items"][0]
                     DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                    "2:565a0e56-reloop-domain"
-                }, !context["items"].empty?],
+                }],
                 ["select *", "select <n>", lambda{|context, command|
                     _, ordinal = Interpreting::tokenizer(command)
                     ordinal = ordinal.to_i
                     item = context["items"][ordinal]
                     return "2:565a0e56-reloop-domain" if item.nil?
                     item["lambda"].call()
-                    "2:565a0e56-reloop-domain"
-                }, !context["items"].empty?],
+                }],
                 ["/", "/", lambda{|context, command|
                     UIServices::servicesFront()
-                    "2:565a0e56-reloop-domain"
-                }, true],
+                }],
                 ["nyx", "nyx", lambda{|context, command|
                     UIServices::nyxMain()
-                    "2:565a0e56-reloop-domain"
-                }, true],
+                }],
             ]
-            .select{|item| item[3] }
 
-            existcode = Interpreting::interpreter(context, actions, {
+            returnvalue = Interpreting::interpreter(context, actions, {
                 "displayHelpInLineAtIntialization" => true
             })
         }

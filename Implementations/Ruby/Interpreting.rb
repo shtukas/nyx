@@ -9,8 +9,6 @@ Interpreting::tokenizer
 action: (commandPattern: String, usage: String, lambda(context:Object, command: String): ActionStatus)
 actions: Array[action]
 
-ActionStatus: "1:re-prompt", "2:565a0e56-reloop-domain", "3:d9e2b6d5-exit-domain"
-
 =end
 
 class Interpreting
@@ -88,25 +86,19 @@ class Interpreting
             puts actions.map{|action| action[1]}.join(" | ").yellow
         end
 
-        loop {
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            if command == "help" then
-                puts actions.map{|action| action[1]}.join("\n")
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            action = actions
-                    .select{|action|
-                        Interpreting::tokensMatch(Interpreting::tokenizer(action[0]), Interpreting::tokenizer(command))   
-                    }
-                    .first
-            next if action.nil?
-            status = action[2].call(context, command)
-            if status == "1:re-prompt" then
-                next
-            end
-            return status   
-        }
+        command = LucilleCore::askQuestionAnswerAsString("> ")
+        if command == "help" then
+            puts actions.map{|action| action[1]}.join("\n")
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        action = actions
+                .select{|action|
+                    Interpreting::tokensMatch(Interpreting::tokenizer(action[0]), Interpreting::tokenizer(command))   
+                }
+                .first
+        return if action.nil?
+        action[2].call(context, command) 
     end
 end
 
