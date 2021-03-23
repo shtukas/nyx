@@ -97,6 +97,8 @@ class UIServices
                         .lines
                         .first(6)
                         .join()
+                        .strip
+        return [] if announce == ""
 
         todoNS16 = {
             "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280",
