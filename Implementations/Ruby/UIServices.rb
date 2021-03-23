@@ -102,7 +102,7 @@ class UIServices
 
         todoNS16 = {
             "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280",
-            "announce" => announce,
+            "announce" => "Today\n" + announce.lines.map{|line|  "      #{line}"}.join(),
             "commands" => "done (destroy quark and nereid element) | >nyx | landing",
             "lambda"   => lambda{ 
 
