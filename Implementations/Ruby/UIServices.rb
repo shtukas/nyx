@@ -111,9 +111,6 @@ class UIServices
 
                 context = {}
                 actions = [
-                    [".", ". (reload)", lambda{|context, command|
-                
-                    }],
                     ["[]", "[] Next transformation", lambda{|context, command|
                         CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Today.txt")
                     }],

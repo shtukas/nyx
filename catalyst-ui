@@ -39,9 +39,6 @@ loop {
 
     context = {"items" => items}
     actions = [
-        [".", ". (reload)", lambda{|context, command|
-    
-        }],
         ["..", ".. (access top)", lambda{|context, command|
             system("clear")
             items[0]["lambda"].call()
