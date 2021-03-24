@@ -176,15 +176,8 @@ class Waves
                     "announce" => Waves::toString(wave),
                     "lambda"   => lambda { 
                         Waves::access(wave)
-                        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done", "keep alive"])
-                        if op.nil? then
-                            RunningItems::stopItem(runningitem)
-                        end
-                        if op == "done" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
                             Waves::performDone(wave)
-                        end
-                        if op == "keep alive" then
-                            Waves::performDone(wave) # We done it but the runningItem is still alive.
                         end
                     }
                 }
