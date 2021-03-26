@@ -75,7 +75,7 @@ class QuarksOrdinals
             answer << row['_ordinal_']
         end
         db.close
-        answer.max + 1
+        (answer.max + 1).floor
     end
 
     # QuarksOrdinals::getOrdinals()
