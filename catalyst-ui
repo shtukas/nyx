@@ -36,6 +36,8 @@ loop {
         next if vspaceleft < 0
         puts announce
     }
+    puts "Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}"
+
 
     context = {"items" => items}
     actions = [

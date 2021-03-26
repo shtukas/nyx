@@ -151,7 +151,7 @@ class Quarks
         }
 
         toString = lambda {|quark|
-            "[#{QuarksOrdinals::getQuarkOrdinalOrZero(quark)}] (#{"%5.2f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Patricia::toString(quark)}"
+            "(#{QuarksOrdinals::getQuarkOrdinalOrZero(quark)}) [#{"%5.2f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}] #{Patricia::toString(quark)}"
         }
 
         QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(3)
