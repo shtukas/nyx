@@ -255,5 +255,7 @@ class Quarks
         timespan = [timespan, 3600*2].min
         puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
         Bank::put(quark["uuid"], timespan)
+        puts "putting #{timespan} seconds to Quarks"
+        Bank::put("d5082005-ff26-4f0d-8180-5ea4bdfeb37e", timespan)
     end
 end

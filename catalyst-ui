@@ -36,7 +36,7 @@ loop {
         next if vspaceleft < 0
         puts announce
     }
-    puts "Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}"
+    puts "Rolling completion: #{(100*BankExtended::recoveredDailyTimeInHours("d5082005-ff26-4f0d-8180-5ea4bdfeb37e").to_f/3).round(2)} % ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}"
 
 
     context = {"items" => items}
