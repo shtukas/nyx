@@ -151,7 +151,7 @@ class Quarks
         }
 
         toString = lambda {|quark|
-            "(#{QuarksOrdinals::getQuarkOrdinalOrZero(quark)}) [#{"%5.2f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}] #{Patricia::toString(quark)}"
+            "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
         QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(3)
@@ -170,7 +170,6 @@ class Quarks
     def self.runQuark(quark)
 
         startUnixtime = Time.new.to_f
-        pausedTimespanCumulated = 0
 
         thr = Thread.new {
             sleep 3600
@@ -182,82 +181,73 @@ class Quarks
 
         system("clear")
 
-        loop {
-
-            if NereidInterface::getElementOrNull(quark["nereiduuid"]).nil? then
-                # The quark is obviously alive but the corresponding nereid item is dead
-                puts Quarks::toString(quark).green
-                if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
-                    Quarks::destroyQuarkAndNereidContent(quark)
-                end
-                break
+        if NereidInterface::getElementOrNull(quark["nereiduuid"]).nil? then
+            # The quark is obviously alive but the corresponding nereid item is dead
+            puts Quarks::toString(quark).green
+            if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
+                Quarks::destroyQuarkAndNereidContent(quark)
             end
+            return
+        end
 
-            puts "running: #{Quarks::toString(quark).green}"
-            NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
+        puts "running: #{Quarks::toString(quark).green}"
+        NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
 
-            context = {"quark" => quark}
-            actions = [
-                [">nyx", ">nyx", lambda{|context, command|
-                    quark = context["quark"]
-                    item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
-                    return true if item.nil?
-                    Patricia::landing(item)
-                    Quarks::destroyQuark(quark)
-                    "3:d9e2b6d5-exit-domain"
-                }],
-                ["/", "/", lambda{|context, command|
-                    UIServices::servicesFront()
-                }],
-                ["landing", "landing", lambda{|context, command|
-                    quark = context["quark"]
-                    Quarks::landing(quark)
-                }],
-                ["++", "++ # Postpone quark by an hour", lambda{|context, command|
-                    quark = context["quark"]
-                    DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-                    "3:d9e2b6d5-exit-domain"
-                }],
-                ["+ *", "+ <datetime code> # Postpone quark", lambda{|context, command|
-                    _, input = Interpreting::tokenizer(command)
-                    unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
-                    return true if unixtime.nil?
-                    quark = context["quark"]
-                    DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                    "3:d9e2b6d5-exit-domain"
-                }],
-                ["destroy", "destroy", lambda{|context, command|
-                    quark = context["quark"]
-                    NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                    Quarks::destroyQuarkAndNereidContent(quark)
-                    "3:d9e2b6d5-exit-domain"
-                }],
-                [";;", ";; # destroy", lambda{|context, command|
-                    quark = context["quark"]
-                    NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                    Quarks::destroyQuarkAndNereidContent(quark)
-                    "3:d9e2b6d5-exit-domain"
-                }],
-                ["", "(empty) # default # exit", lambda{|context, command|
-                    "3:d9e2b6d5-exit-domain"
-                }]
-            ]
-            exitcode = Interpreting::interpreter(context, actions, {
-                "displayHelpInLineAtIntialization" => true
-            })
+        context = {"quark" => quark}
+        actions = [
+            [">nyx", ">nyx", lambda{|context, command|
+                quark = context["quark"]
+                item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
+                return true if item.nil?
+                Patricia::landing(item)
+                Quarks::destroyQuark(quark)
+            }],
+            ["/", "/", lambda{|context, command|
+                UIServices::servicesFront()
+            }],
+            ["landing", "landing", lambda{|context, command|
+                quark = context["quark"]
+                Quarks::landing(quark)
+            }],
+            ["++", "++ # Postpone quark by an hour", lambda{|context, command|
+                quark = context["quark"]
+                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
+            }],
+            ["+ *", "+ <datetime code> # Postpone quark", lambda{|context, command|
+                _, input = Interpreting::tokenizer(command)
+                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                return true if unixtime.nil?
+                quark = context["quark"]
+                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+            }],
+            ["destroy", "destroy", lambda{|context, command|
+                quark = context["quark"]
+                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                Quarks::destroyQuarkAndNereidContent(quark)
+                QuarksHorizon::makeNewDataPoint()
+            }],
+            [";;", ";; # destroy", lambda{|context, command|
+                quark = context["quark"]
+                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                Quarks::destroyQuarkAndNereidContent(quark)
+                QuarksHorizon::makeNewDataPoint()
+            }],
+            ["", "(empty) # default # exit", lambda{|context, command|
 
-            if exitcode == "3:d9e2b6d5-exit-domain" then
-                break
-            end
-        }
+            }]
+        ]
+
+        Interpreting::interpreter(context, actions, {
+            "displayHelpInLineAtIntialization" => true
+        })
 
         thr.exit
 
         puts "Time since start: #{Time.new.to_f - startUnixtime}"
-        puts "Cumulated pause time: #{pausedTimespanCumulated}"
-        Quarks::incomingTime(quark, (Time.new.to_f - startUnixtime) - pausedTimespanCumulated)
+        Quarks::incomingTime(quark, Time.new.to_f - startUnixtime)
 
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
+
     end
 
     # Quarks::incomingTime(quark, timespan)
