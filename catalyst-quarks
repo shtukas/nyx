@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Implementations/Ruby/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(256)
+    .map{|quark|
+        announce = "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
+        puts announce[0, CatalystUtils::screenWidth()-2]
+    }

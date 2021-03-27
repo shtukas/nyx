@@ -247,7 +247,6 @@ class Quarks
         Quarks::incomingTime(quark, Time.new.to_f - startUnixtime)
 
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
-
     end
 
     # Quarks::incomingTime(quark, timespan)
