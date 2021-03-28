@@ -144,3 +144,15 @@ class QuarksOrdinals
         }
     end
 end
+
+Thread.new {
+    loop {
+        sleep 10
+        next if !ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2e293e5c-79d2-4238-abee-a825c488eee7", 86400)
+        QuarksOrdinals::getQuarkUUIDsInOrdinalOrder().each{|uuid|
+            next if TodoCoreData::getOrNull(uuid)
+            QuarksOrdinals::deleteRecordsByQuarkUUID(uuid)
+        }
+    }
+}
+
