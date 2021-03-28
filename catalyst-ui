@@ -31,13 +31,13 @@ loop {
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
     items.each_with_index{|item, indx|
-        announce = "#{"%3d" % indx} #{item["announce"]}"
+        announce = "(#{"%3d" % indx}) #{item["announce"]}"
         vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
         next if vspaceleft < 0
         puts announce
     }
-    puts "Rolling completion: #{(100*BankExtended::recoveredDailyTimeInHours("d5082005-ff26-4f0d-8180-5ea4bdfeb37e").to_f/3).round(2)} % ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}"
 
+    puts "Rolling completion: #{Quarks::dailyRecoveryRatio().round(2)} % ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".red
 
     context = {"items" => items}
     actions = [
