@@ -6,8 +6,12 @@ require_relative "Implementations/Ruby/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(256)
+QuarksOrdinals::firstNQuarksInOrdinalOrder(CatalystUtils::screenHeight()-2)
     .map{|quark|
         announce = "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
-        puts announce[0, CatalystUtils::screenWidth()-2]
+        if DoNotShowUntil::isVisible(quark["uuid"]) then
+            puts announce[0, CatalystUtils::screenWidth()-2]
+        else
+            puts announce[0, CatalystUtils::screenWidth()-5].yellow
+        end
     }

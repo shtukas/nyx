@@ -154,7 +154,7 @@ class Quarks
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
-        QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(3)
+        QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(3)
             .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
             .map{|quark|
                 {

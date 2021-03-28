@@ -95,8 +95,30 @@ class QuarksOrdinals
     # -----------------------------------------------------------------------------
 
 
-    # QuarksOrdinals::dxThreadToFirstNVisibleQuarksInOrdinalOrder(resultSize)
-    def self.dxThreadToFirstNVisibleQuarksInOrdinalOrder(resultSize)
+    # QuarksOrdinals::firstNQuarksInOrdinalOrder(resultSize)
+    def self.firstNQuarksInOrdinalOrder(resultSize)
+
+        getMaybeQuark = lambda {|uuid|
+            quark = TodoCoreData::getOrNull(uuid) 
+            return nil if quark.nil?
+            quark
+        }
+
+        QuarksOrdinals::getQuarkUUIDsInOrdinalOrder().reduce([]) {|quarks, uuid|
+            if quarks.size >= resultSize then
+                quarks
+            else
+                if (quark = getMaybeQuark.call(uuid)) then
+                    quarks + [quark]
+                else
+                    quarks
+                end 
+            end
+        }
+    end
+
+    # QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(resultSize)
+    def self.firstNVisibleQuarksInOrdinalOrder(resultSize)
 
         while (uuid = Mercury::dequeueFirstValueOrNullForClient("0437d73d-9cde-4b96-99c5-5bd44671d267", "9298bfca")) do
             QuarksOrdinals::deleteRecordsByQuarkUUID(uuid)
