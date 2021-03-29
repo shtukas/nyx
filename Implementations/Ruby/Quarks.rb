@@ -141,7 +141,7 @@ class Quarks
 
     # Quarks::dailyRecoveryRatio()
     def self.dailyRecoveryRatio()
-        100*BankExtended::recoveredDailyTimeInHours("d5082005-ff26-4f0d-8180-5ea4bdfeb37e").to_f/3
+        BankExtended::recoveredDailyTimeInHours("d5082005-ff26-4f0d-8180-5ea4bdfeb37e").to_f/3
     end
 
     # Quarks::nx16s()

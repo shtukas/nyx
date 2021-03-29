@@ -37,7 +37,7 @@ loop {
         puts announce
     }
 
-    puts "Rolling completion: #{Quarks::dailyRecoveryRatio().round(2)} % ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
+    puts "Quarks daily recovery ratio: #{(100*Quarks::dailyRecoveryRatio()).round(2)} % ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
     context = {"items" => items}
     actions = [
