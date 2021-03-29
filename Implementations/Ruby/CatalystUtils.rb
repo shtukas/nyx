@@ -397,6 +397,11 @@ class CatalystUtils
 
     # CatalystUtils::selectLineOrNull(lines) : String
     def self.selectLineOrNull(lines)
+
+        # Temporary measure to remove stress on CatalystUtils::selectLines / peco after 
+        # we added the videos from video stream
+        lines = lines.reject{|line| line.include?('.mkv') }
+        
         lines = CatalystUtils::selectLines(lines)
         if lines.size == 0 then
             return nil
