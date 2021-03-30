@@ -89,21 +89,19 @@ class UIServices
         }
     end
 
-    # UIServices::todayNS16s()
-    def self.todayNS16s()
-        announce = IO.read("/Users/pascal/Desktop/Today.txt")
-                        .split('@separation-efd2f62e-5ffe-4658-a3e6-c38bdea08136')
-                        .first
+    # UIServices::desktopFileNameToNS16(filename)
+    def self.desktopFileNameToNS16(filename)
+        announce = IO.read("/Users/pascal/Desktop/#{filename}")
                         .lines
                         .first(6)
                         .join()
                         .strip
         return [] if announce == ""
 
-        todoNS16 = {
-            "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280",
-            "announce" => "Today\n" + announce.lines.map{|line|  "      #{line}"}.join(),
-            "commands" => "done (destroy quark and nereid element) | >nyx | landing",
+        ns16 = {
+            "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280:#{filename}",
+            "announce" => "#{filename}\n" + announce.lines.map{|line|  "      #{line}"}.join(),
+            "commands" => nil,
             "lambda"   => lambda{ 
 
                 system("clear")
@@ -112,10 +110,10 @@ class UIServices
                 context = {}
                 actions = [
                     ["[]", "[] Next transformation", lambda{|context, command|
-                        CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Today.txt")
+                        CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/#{filename}")
                     }],
                     ["edit", "edit", lambda{|context, command|
-                        system("open '/Users/pascal/Desktop/Today.txt'")
+                        system("open '/Users/pascal/Desktop/#{filename}'")
                     }],
                     ["++", "++ (postpone today by one hour)", lambda{|context, command|
                         DoNotShowUntil::setUnixtime("e9e42746-0da1-4b81-b0f9-8ca0b159e280", Time.new.to_i+3600)
@@ -129,7 +127,7 @@ class UIServices
             }
         }
 
-        [todoNS16]
+        [ns16]
     end
 
     # UIServices::waveLikeNS16()
@@ -140,24 +138,16 @@ class UIServices
     # UIServices::CatalystUINS16s()
     def self.CatalystUINS16s()
 
-        todayItems = UIServices::todayNS16s()
-        waveLikeItems = UIServices::waveLikeNS16()
-        streamItems = Quarks::nx16s()
-
-        if Time.new.hour < 9 and !waveLikeItems.empty? then
-            return waveLikeItems
-        end
-
-        if Time.new.hour < 9 and waveLikeItems.empty? then
-            return streamItems
+        if Time.new.hour < 9 then
+            return UIServices::waveLikeNS16() + UIServices::desktopFileNameToNS16("Todo.txt") + Quarks::nx16s()
         end
 
         if Time.new.hour >= 9 and Time.new.hour < 17 then
-            return todayItems + waveLikeItems + streamItems
+            return UIServices::desktopFileNameToNS16("Work.txt") + UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt")
         end
 
         if Time.new.hour >= 17 then
-            return waveLikeItems + streamItems
+            return UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt") + UIServices::desktopFileNameToNS16("Project X.txt")
         end
 
     end

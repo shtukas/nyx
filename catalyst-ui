@@ -45,6 +45,12 @@ loop {
             system("clear")
             items[0]["lambda"].call()
         }],
+        ["[]", "[] (next if today.txt is top)", lambda{|context, command|
+            item = items.first
+            return if item.nil?
+            return if item["uuid"] != "e9e42746-0da1-4b81-b0f9-8ca0b159e280"
+            CatalystUtils::applyNextTransformationToFile("/Users/pascal/Desktop/Todo.txt")
+        }],
         ["++", "++ # Postpone top item by an hour", lambda{|context, command|
             DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
         }, !context["items"].empty?],

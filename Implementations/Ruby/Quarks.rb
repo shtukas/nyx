@@ -151,7 +151,7 @@ class Quarks
                 {
                     "uuid"     => "2cfbe9d2-86d0-45f8-ad33-65bb36bedc6f",
                     "announce" => "Project X",
-                    "commands" => "",
+                    "commands" => nil,
                     "lambda"   => lambda{}
                 }
             ]

@@ -37,7 +37,6 @@ class Calendar
         answer
     end
 
-
     # Calendar::getCalendarItems()
     def self.getCalendarItems()
         db = SQLite3::Database.new(Calendar::databaseFilepath())
