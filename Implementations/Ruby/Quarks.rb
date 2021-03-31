@@ -147,14 +147,7 @@ class Quarks
     # Quarks::nx16s()
     def self.nx16s()
         if Quarks::dailyRecoveryRatio() > 1 then
-            return [
-                {
-                    "uuid"     => "2cfbe9d2-86d0-45f8-ad33-65bb36bedc6f",
-                    "announce" => "Project X",
-                    "commands" => nil,
-                    "lambda"   => lambda{}
-                }
-            ]
+            return []
         end
 
         quarkRecoveredTimeX = lambda{|quark|

@@ -147,7 +147,7 @@ class UIServices
         end
 
         if Time.new.hour >= 17 then
-            return UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt") + UIServices::desktopFileNameToNS16("Project X.txt")
+            return UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt")
         end
 
     end
