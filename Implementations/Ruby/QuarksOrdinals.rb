@@ -92,6 +92,20 @@ class QuarksOrdinals
         answer
     end
 
+    # QuarksOrdinals::count()
+    def self.count()
+        db = SQLite3::Database.new(QuarksOrdinals::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select count(*) as _count_ from _mapping_", []) do |row|
+            answer = row['_count_']
+        end
+        db.close
+        answer
+    end
+
     # -----------------------------------------------------------------------------
 
 
