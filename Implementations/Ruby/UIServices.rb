@@ -100,7 +100,7 @@ class UIServices
 
         ns16 = {
             "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280:#{filename}",
-            "announce" => "#{filename}\n" + announce.lines.map{|line|  "      #{line}"}.join(),
+            "announce" => "~/Desktop/#{filename}",
             "commands" => nil,
             "lambda"   => lambda{ 
 
