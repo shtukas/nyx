@@ -141,16 +141,8 @@ class Quarks
         QuarksOrdinals::getNextOrdinal()
     end
 
-    # Quarks::dailyRecoveryRatio()
-    def self.dailyRecoveryRatio()
-        BankExtended::recoveredDailyTimeInHours("d5082005-ff26-4f0d-8180-5ea4bdfeb37e").to_f/3
-    end
-
     # Quarks::nx16s()
     def self.nx16s()
-        if Quarks::dailyRecoveryRatio() > 1 then
-            return []
-        end
 
         quarkRecoveredTimeX = lambda{|quark|
             rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])

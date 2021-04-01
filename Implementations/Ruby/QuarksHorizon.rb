@@ -70,7 +70,7 @@ end
 Thread.new {
     loop {
         sleep 60
-        next if !ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("66c4556d-dfdb-4dec-b771-bea1482cfc6c", 3600*2)
+        next if !ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("66c4556d-dfdb-4dec-b771-bea1482cfc6c", 86400)
         QuarksHorizon::makeNewDataPoint()
     }
 }
