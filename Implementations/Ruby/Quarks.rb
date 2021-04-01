@@ -183,7 +183,7 @@ class Quarks
         quarks.map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "[cursor: #{cursor}] #{toString.call(quark)}",
+                    "announce" => Patricia::toString(quark),
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
