@@ -118,15 +118,17 @@ class Quarks
         TodoCoreData::destroy(quark)
     end
 
-    # Quarks::computeNew21stQuarkOrdinal()
-    def self.computeNew21stQuarkOrdinal()
+    # Quarks::computeLowOrdinal()
+    def self.computeLowOrdinal()
         ordinals = QuarksOrdinals::getOrdinals()
                     .sort
-        ordinals = ordinals.drop(19).take(2)
-        if ordinals.size < 2 then
-            return QuarksOrdinals::getNextOrdinal()
+        if ordinals.empty? then
+            return 1
         end
-        (ordinals[0]+ordinals[1]).to_f/2
+        ordinals = ordinals.take(20)
+        t0 = DateTime.parse("2021-04-01T00:00:00").to_time.to_i
+        shift = (Time.new.to_f - t0).to_f/(86400*365)
+        ordinals.last + shift
     end
 
     # Quarks::determineQuarkPlacingOrdinal()
@@ -134,7 +136,7 @@ class Quarks
         puts "Placement ordinal listing"
         command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
         if command == "low" then
-            return Quarks::computeNew21stQuarkOrdinal()
+            return Quarks::computeLowOrdinal()
         end
         QuarksOrdinals::getNextOrdinal()
     end
@@ -163,7 +165,7 @@ class Quarks
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
-        QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(3)
+        QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(CatalystUtils::screenHeight())
             .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
             .map{|quark|
                 {

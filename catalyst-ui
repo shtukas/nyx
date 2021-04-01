@@ -27,6 +27,11 @@ loop {
 
     puts ""
 
+    if Time.new.hour >= 9 and Time.new.hour < 17 then
+        puts "current: work".green
+        vspaceleft = vspaceleft - 1
+    end
+
     items = UIServices::CatalystUINS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 

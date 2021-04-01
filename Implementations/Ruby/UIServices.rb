@@ -137,19 +137,7 @@ class UIServices
 
     # UIServices::CatalystUINS16s()
     def self.CatalystUINS16s()
-
-        if Time.new.hour < 9 then
-            return UIServices::waveLikeNS16() + UIServices::desktopFileNameToNS16("Todo.txt") + Quarks::nx16s()
-        end
-
-        if Time.new.hour >= 9 and Time.new.hour < 17 then
-            return UIServices::desktopFileNameToNS16("Work.txt") + UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt")
-        end
-
-        if Time.new.hour >= 17 then
-            return UIServices::waveLikeNS16() + Quarks::nx16s() + UIServices::desktopFileNameToNS16("Todo.txt")
-        end
-
+        UIServices::waveLikeNS16() + UIServices::desktopFileNameToNS16("Todo.txt") + Quarks::nx16s()
     end
 end
 

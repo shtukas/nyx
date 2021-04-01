@@ -116,7 +116,7 @@ class CatalystUtils
 
             puts JSON.pretty_generate(quark)
 
-            ordinal = Quarks::computeNew21stQuarkOrdinal()
+            ordinal = Quarks::computeLowOrdinal()
 
             QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
 
