@@ -134,8 +134,8 @@ class Quarks
     # Quarks::determineQuarkPlacingOrdinal()
     def self.determineQuarkPlacingOrdinal()
         puts "Placement ordinal listing"
-        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' for 21st, empty for last): ")
-        if command == "low" then
+        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' #default, 'last'): ")
+        if command == "low" or command == "" then
             return Quarks::computeLowOrdinal()
         end
         QuarksOrdinals::getNextOrdinal()
