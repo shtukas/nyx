@@ -165,12 +165,25 @@ class Quarks
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
-        QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(CatalystUtils::screenHeight())
-            .sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }
-            .map{|quark|
+        getQuarksInDisplayOrderWithCursor = lambda{
+            cursor = 0
+            loop {
+                quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(3*(cursor+1) ).drop(3*cursor)
+                return [[], cursor] if quarks.empty?
+                if quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) }.inject(0, :+) > 2 then
+                    cursor = cursor + 1
+                    next
+                end
+                return [quarks.sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }, cursor]
+            }
+        }
+
+        quarks, cursor = getQuarksInDisplayOrderWithCursor.call()
+
+        quarks.map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => toString.call(quark),
+                    "announce" => "[cursor: #{cursor}] #{toString.call(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
@@ -228,6 +241,13 @@ class Quarks
                 _, input = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
                 return true if unixtime.nil?
+                quark = context["quark"]
+                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+            }],
+            ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
+                _, amount, unit = Interpreting::tokenizer(command)
+                unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+                return if unixtime.nil?
                 quark = context["quark"]
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
             }],
