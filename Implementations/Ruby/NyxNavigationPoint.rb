@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-class NyxClassifiers
+class NyxNavigationPoints
 
     # ------------------------------------------------
     # Database
 
-    # NyxClassifiers::issueNewDeclaration(uuid, type, description, payload1)
+    # NyxNavigationPoints::issueNewDeclaration(uuid, type, description, payload1)
     def self.issueNewDeclaration(uuid, type, description, payload1)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
@@ -18,7 +18,7 @@ class NyxClassifiers
         db.close
     end
 
-    # NyxClassifiers::updateClassifierDescription(uuid, description)
+    # NyxNavigationPoints::updateClassifierDescription(uuid, description)
     def self.updateClassifierDescription(uuid, description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
@@ -27,7 +27,7 @@ class NyxClassifiers
         db.close
     end
 
-    # NyxClassifiers::getClassifierDeclarations()
+    # NyxNavigationPoints::getClassifierDeclarations()
     def self.getClassifierDeclarations()
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
@@ -48,7 +48,7 @@ class NyxClassifiers
         answer
     end
 
-    # NyxClassifiers::getClassifierByUUIDOrNull(uuid)
+    # NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
     def self.getClassifierByUUIDOrNull(uuid)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
@@ -69,7 +69,7 @@ class NyxClassifiers
         answer
     end
 
-    # NyxClassifiers::destroy(classifier)
+    # NyxNavigationPoints::destroy(classifier)
     def self.destroy(classifier)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
@@ -82,16 +82,16 @@ class NyxClassifiers
     
     # ------------------------------------------------
 
-    # NyxClassifiers::typeXs()
+    # NyxNavigationPoints::typeXs()
     def self.typeXs()
         [
             {
                 "type" => "ea9f4f69-1c8c-49c9-b644-8854c1be75d8",
-                "name" => "Timeline Item"
+                "name" => "Timeline Point"
             },
             {
                 "type" => "22f244eb-4925-49be-bce6-db58c2fb489a",
-                "name" => "Navigation Point"
+                "name" => "Label"
             },
             {
                 "type" => "30991912-a9f2-426d-9b62-ec942c16c60a",
@@ -100,14 +100,14 @@ class NyxClassifiers
         ]
     end
 
-    # NyxClassifiers::interactivelySelectClassifierTypeXOrNull()
+    # NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
     def self.interactivelySelectClassifierTypeXOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier type: ", NyxClassifiers::typeXs(), lambda{|item| item["name"] })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier type: ", NyxNavigationPoints::typeXs(), lambda{|item| item["name"] })
     end
 
-    # NyxClassifiers::interactivelyIssueNewClassiferOrNull()
+    # NyxNavigationPoints::interactivelyIssueNewClassiferOrNull()
     def self.interactivelyIssueNewClassiferOrNull()
-        typeX = NyxClassifiers::interactivelySelectClassifierTypeXOrNull()
+        typeX = NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
         return nil if typeX.nil?
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
@@ -116,25 +116,25 @@ class NyxClassifiers
            payload1 = LucilleCore::askQuestionAnswerAsString("date: ") 
         end
         uuid = SecureRandom.uuid
-        NyxClassifiers::issueNewDeclaration(uuid, typeX["uuid"], description, payload1)
-        NyxClassifiers::getClassifierByUUIDOrNull(uuid)
+        NyxNavigationPoints::issueNewDeclaration(uuid, typeX["uuid"], description, payload1)
+        NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
     end
 
-    # NyxClassifiers::toString(classifier)
+    # NyxNavigationPoints::toString(classifier)
     def self.toString(classifier)
-        typename = NyxClassifiers::typeXs().select{|typex| typex["type"] == classifier["type"] }.map{|typex| typex["name"] }.first
+        typename = NyxNavigationPoints::typeXs().select{|typex| typex["type"] == classifier["type"] }.map{|typex| typex["name"] }.first
         raise "b373b8d6-454e-4710-85e4-41160372395a" if classifier.nil?
         date = (classifier["type"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8") ? " #{classifier["payload1"]}" : nil
         "[classifier / #{typename}]#{date ? " (date: #{date})" : ""} #{classifier["description"]}"
     end
 
-    # NyxClassifiers::nyxSearchItems()
+    # NyxNavigationPoints::nyxSearchItems()
     def self.nyxSearchItems()
-        NyxClassifiers::getClassifierDeclarations()
+        NyxNavigationPoints::getClassifierDeclarations()
             .map{|classifier|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NyxClassifiers::toString(classifier)}",
+                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(classifier)}",
                     "payload"  => classifier
                 }
             }
@@ -143,24 +143,24 @@ class NyxClassifiers
     # ------------------------------------------------
     # Interface
 
-    # NyxClassifiers::selectClassifierOrNull()
+    # NyxNavigationPoints::selectClassifierOrNull()
     def self.selectClassifierOrNull()
-        CatalystUtils::selectOneOrNull(NyxClassifiers::getClassifierDeclarations(), lambda{|classifier| NyxClassifiers::toString(classifier)})
+        CatalystUtils::selectOneOrNull(NyxNavigationPoints::getClassifierDeclarations(), lambda{|classifier| NyxNavigationPoints::toString(classifier)})
     end
 
-    # NyxClassifiers::landing(classifier)
+    # NyxNavigationPoints::landing(classifier)
     def self.landing(classifier)
 
         loop {
 
-            return if NyxClassifiers::getClassifierByUUIDOrNull(classifier["uuid"]).nil? # could have been destroyed at the previous run
+            return if NyxNavigationPoints::getClassifierByUUIDOrNull(classifier["uuid"]).nil? # could have been destroyed at the previous run
 
-            classifier = NyxClassifiers::getClassifierByUUIDOrNull(classifier["uuid"])
+            classifier = NyxNavigationPoints::getClassifierByUUIDOrNull(classifier["uuid"])
 
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            puts NyxClassifiers::toString(classifier).green
+            puts NyxNavigationPoints::toString(classifier).green
             puts "uuid: #{classifier["uuid"]}".yellow
 
             puts ""
@@ -176,7 +176,7 @@ class NyxClassifiers
             mx.item("update description".yellow, lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
-                NyxClassifiers::updateClassifierDescription(classifier["uuid"], description)
+                NyxNavigationPoints::updateClassifierDescription(classifier["uuid"], description)
             })
 
             mx.item("link to network architected".yellow, lambda { 
@@ -189,7 +189,7 @@ class NyxClassifiers
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NyxClassifiers::destroy(classifier)
+                    NyxNavigationPoints::destroy(classifier)
                 end
             })
 

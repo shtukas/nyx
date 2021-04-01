@@ -6,16 +6,16 @@ class UIServices
     def self.explore()
         loop {
             system("clear")
-            typex = NyxClassifiers::interactivelySelectClassifierTypeXOrNull()
+            typex = NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
             break if typex.nil?
             loop {
                 system("clear")
-                classifiers = NyxClassifiers::getClassifierDeclarations()
+                classifiers = NyxNavigationPoints::getClassifierDeclarations()
                                 .select{|classifier| classifier["type"] == typex["type"] }
                                 .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxClassifiers::toString(classifier) })
+                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxNavigationPoints::toString(classifier) })
                 break if classifier.nil?
-                NyxClassifiers::landing(classifier)
+                NyxNavigationPoints::landing(classifier)
             }
         }
     end

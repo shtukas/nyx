@@ -23,8 +23,8 @@ class Patricia
         element["nyxElementType"] == "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
     end
 
-    # Patricia::isNyxClassifier(item)
-    def self.isNyxClassifier(item)
+    # Patricia::isNyxNavigationPoint(item)
+    def self.isNyxNavigationPoint(item)
         item["identifier1"] == "103df1ac-2e73-4bf1-a786-afd4092161d4"
     end
 
@@ -38,7 +38,7 @@ class Patricia
         item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
-        item = NyxClassifiers::getClassifierByUUIDOrNull(uuid)
+        item = NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
         return item if item
 
         nil
@@ -52,8 +52,8 @@ class Patricia
         if Patricia::isNX141FSCacheElement(item) then
             return NX141FSCacheElement::toString(item)
         end
-        if Patricia::isNyxClassifier(item) then
-            return NyxClassifiers::toString(item)
+        if Patricia::isNyxNavigationPoint(item) then
+            return NyxNavigationPoints::toString(item)
         end
         if Patricia::isQuark(item) then
             return Quarks::toString(item)
@@ -75,8 +75,8 @@ class Patricia
             NX141FSCacheElement::landing(item)
             return
         end
-        if Patricia::isNyxClassifier(item) then
-            NyxClassifiers::landing(item)
+        if Patricia::isNyxNavigationPoint(item) then
+            NyxNavigationPoints::landing(item)
             return
         end
         if Patricia::isQuark(item) then
@@ -109,7 +109,7 @@ class Patricia
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
         if operation == "Classifier Item" then
-            return NyxClassifiers::interactivelyIssueNewClassiferOrNull()
+            return NyxNavigationPoints::interactivelyIssueNewClassiferOrNull()
         end
     end
 
@@ -143,7 +143,7 @@ class Patricia
         searchItems = [
             NereidNyxExt::nyxSearchItems(),
             NX141FSCacheElement::nyxSearchItems(),
-            NyxClassifiers::nyxSearchItems()
+            NyxNavigationPoints::nyxSearchItems()
         ]
         .flatten
     end
