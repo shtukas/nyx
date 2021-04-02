@@ -745,7 +745,7 @@ class NereidInterface
             if location[-7, 7] == ".webloc" then
                 system("open '#{location}'")
             end
-            if location[-4, 4] == ".png" then
+            if [".png", ".pdf"].include?(location[-4, 4]) then
                 system("open '#{location}'")
             end
             return
