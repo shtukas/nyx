@@ -157,35 +157,61 @@ class Quarks
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
-        nextExtractionParameters = lambda {|primaryExpectation, cursor|
-            if (cursor == 2) then
-                primaryExpectation = primaryExpectation * 1.25
-            end
-            cursor = (cursor+1)%3
-            [primaryExpectation, cursor]
+        # Pool: Array[(quarkuuid, ratio)]
+
+        makeNewPool = lambda {
+            QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(10)
+                .map
+                .with_index {|quark, i| [quark["uuid"], (1.to_f/2) ** i] }
         }
 
-        getQuarksInDisplayOrderWithCursor = lambda{|primaryExpectation, cursor|
-
-            quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(3*cursor+3).drop(3*cursor)
-            return [[], primaryExpectation, cursor] if quarks.empty?
-
-            recoveryX    = quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) }.inject(0, :+)
-            expectationX = primaryExpectation*(2 ** -cursor).to_f
-
-            if recoveryX > expectationX then
-                primaryExpectation, cursor = nextExtractionParameters.call(primaryExpectation, cursor)
-                return getQuarksInDisplayOrderWithCursor.call(primaryExpectation, cursor)
-            end
-            [quarks.sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }, primaryExpectation, cursor]
+        getStoredPoolOrNull = lambda {
+            pool = KeyValueStore::getOrNull(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d4")
+            return nil if pool.nil?
+            JSON.parse(pool)
         }
 
-        quarks, primaryExpectation, cursor = getQuarksInDisplayOrderWithCursor.call(1, 0)
+        sendPoolToDisk = lambda{|pool|
+            KeyValueStore::set(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d4", JSON.generate(pool))
+        }
+
+        liftPoolAtExpectation = lambda {|pool, expectation|
+            pool
+                .select{|pair| 
+                    quarkuuid = pair[0]
+                    TodoCoreData::getOrNull(quarkuuid)
+                }
+                .select{|pair| 
+                    quarkuuid = pair[0]
+                    ratio = pair[1]
+                    BankExtended::recoveredDailyTimeInHours(quarkuuid) < (expectation * ratio)
+                }
+        }
+
+        getPool = lambda {|expectation, counter|
+            pool = getStoredPoolOrNull.call()
+            if pool.nil? or pool.empty? then
+                pool = makeNewPool.call()
+                sendPoolToDisk.call(pool)
+            end
+
+            pool = liftPoolAtExpectation.call(pool, expectation)
+
+            if !pool.empty? then
+                [pool, counter]
+            else
+                [getPool.call(expectation + 0.5), counter]
+            end
+        }
+
+        pool, counter = getPool.call(1, 0)
             
-        quarks.map{|quark|
+        pool
+            .map{|pair| TodoCoreData::getOrNull(pair[0]) }
+            .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{primaryExpectation}, #{cursor}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{counter}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
