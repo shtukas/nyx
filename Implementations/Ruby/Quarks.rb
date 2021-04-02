@@ -183,6 +183,10 @@ class Quarks
                 }
                 .select{|pair| 
                     quarkuuid = pair[0]
+                    DoNotShowUntil::isVisible(quarkuuid)
+                }
+                .select{|pair| 
+                    quarkuuid = pair[0]
                     ratio = pair[1]
                     BankExtended::recoveredDailyTimeInHours(quarkuuid) < (expectation * ratio)
                 }
@@ -200,7 +204,7 @@ class Quarks
             if !pool.empty? then
                 [pool, counter]
             else
-                [getPool.call(expectation + 0.5), counter]
+                getPool.call(expectation + 0.5, counter+1)
             end
         }
 
