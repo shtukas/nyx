@@ -211,7 +211,7 @@ class Quarks
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{counter}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{counter}) #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
@@ -265,14 +265,14 @@ class Quarks
                 quark = context["quark"]
                 DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
             }],
-            ["+ *", "+ <datetime code> # Postpone quark", lambda{|context, command|
+            ["+ *", "+ <weekday> # Postpone quark", lambda{|context, command|
                 _, input = Interpreting::tokenizer(command)
-                unixtime = CatalystUtils::codeToUnixtimeOrNull(input)
+                unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{input}")
                 return true if unixtime.nil?
                 quark = context["quark"]
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
             }],
-            ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
+            ["+ * *", "+ <float> <datecode unit> # Postpone quark", lambda{|context, command|
                 _, amount, unit = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?

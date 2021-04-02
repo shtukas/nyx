@@ -53,7 +53,7 @@ loop {
         ["++", "++ # Postpone top item by an hour", lambda{|context, command|
             DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
         }, !context["items"].empty?],
-        ["+ *", "+ <weekdayname> # Postpone top item", lambda{|context, command|
+        ["+ *", "+ <weekday> # Postpone top item", lambda{|context, command|
             _, weekdayname = Interpreting::tokenizer(command)
             unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
             return if unixtime.nil?
