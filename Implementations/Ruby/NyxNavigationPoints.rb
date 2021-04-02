@@ -86,16 +86,20 @@ class NyxNavigationPoints
     def self.typeXs()
         [
             {
-                "type" => "ea9f4f69-1c8c-49c9-b644-8854c1be75d8",
-                "name" => "Timeline Point"
-            },
-            {
                 "type" => "22f244eb-4925-49be-bce6-db58c2fb489a",
                 "name" => "Label"
             },
             {
                 "type" => "30991912-a9f2-426d-9b62-ec942c16c60a",
                 "name" => "Curated Listing"
+            },
+            {
+                "type" => "ea9f4f69-1c8c-49c9-b644-8854c1be75d8",
+                "name" => "Date"
+            },
+            {
+                "type" => "95c02a05-f289-4bf7-ac3a-4c76c2434f11",
+                "name" => "Location"
             }
         ]
     end

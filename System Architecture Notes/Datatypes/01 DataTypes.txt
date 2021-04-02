@@ -31,12 +31,14 @@ NyxNavigationPoint {
     "payload1"     :
 }
 
-type: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Timeline Point
-      -> payload 1 : String, Date: YYYY-MM-DD
-
 type: "22f244eb-4925-49be-bce6-db58c2fb489a" # Label
 
 type: "30991912-a9f2-426d-9b62-ec942c16c60a" # Curated Listing
+
+type: "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" # Date
+      -> payload 1 : String, Date: YYYY-MM-DD
+
+type: "95c02a05-f289-4bf7-ac3a-4c76c2434f11" # Location
 
 ------------------------------------------------------------------------------
 
