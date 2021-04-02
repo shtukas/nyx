@@ -157,31 +157,35 @@ class Quarks
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
 
-        getQuarksInDisplayOrderWithCursor = lambda{|primaryExpectation, cursor|
-
-            extractionBase = 3*(cursor%3)
-
-            quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(extractionBase+3).drop(extractionBase)
-            return [[], cursor, 0, 0] if quarks.empty?
-
-            recoveryX = quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) }.inject(0, :+)
-            expectationX = primaryExpectation*(2 ** -(cursor%3))
-
-            if recoveryX > expectationX then
-                if (cursor > 1) and (cursor % 3 == 0) then
-                    primaryExpectation = primaryExpectation * 2
-                end
-                return getQuarksInDisplayOrderWithCursor.call(primaryExpectation, cursor+1)
+        nextExtractionParameters = lambda {|primaryExpectation, cursor|
+            if (cursor == 2) then
+                primaryExpectation = primaryExpectation * 1.25
             end
-            [quarks.sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }, cursor, recoveryX, expectationX]
+            cursor = (cursor+1)%3
+            [primaryExpectation, cursor]
         }
 
-        quarks, cursor, recoveryX, expectationX = getQuarksInDisplayOrderWithCursor.call(1, 0)
+        getQuarksInDisplayOrderWithCursor = lambda{|primaryExpectation, cursor|
 
+            quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(3*cursor+3).drop(3*cursor)
+            return [[], primaryExpectation, cursor] if quarks.empty?
+
+            recoveryX    = quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) }.inject(0, :+)
+            expectationX = primaryExpectation*(2 ** -cursor).to_f
+
+            if recoveryX > expectationX then
+                primaryExpectation, cursor = nextExtractionParameters.call(primaryExpectation, cursor)
+                return getQuarksInDisplayOrderWithCursor.call(primaryExpectation, cursor)
+            end
+            [quarks.sort{|q1, q2| quarkRecoveredTimeX.call(q1) <=> quarkRecoveredTimeX.call(q2) }, primaryExpectation, cursor]
+        }
+
+        quarks, primaryExpectation, cursor = getQuarksInDisplayOrderWithCursor.call(1, 0)
+            
         quarks.map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{cursor}, #{recoveryX}, #{expectationX}) " + Quarks::toString(quark),
+                    "announce" => "(#{primaryExpectation}, #{cursor}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
