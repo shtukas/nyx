@@ -191,7 +191,6 @@ require_relative "Runner.rb"
     Runner::start(uuid)
     Runner::stop(uuid) # null | Float
 =end
-require_relative "RunningItems.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "UIServices.rb"
