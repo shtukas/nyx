@@ -165,7 +165,7 @@ class Quarks
             true
         }
 
-        QuarksOrdinals::firstNClearedQuarksInOrdinalOrder(3, clearance)
+        QuarksOrdinals::firstNClearedQuarksInOrdinalOrder(CatalystUtils::screenHeight(), clearance)
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
