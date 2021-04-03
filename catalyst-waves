@@ -26,7 +26,7 @@ loop {
 
     puts ""
 
-    items = UIServices::waveLikeNS16()
+    items = UIServices::waveLikeNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     items.each_with_index{|item, indx|
         announce = "#{"%3d" % indx} #{item["announce"]}"

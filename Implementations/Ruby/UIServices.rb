@@ -101,7 +101,6 @@ class UIServices
         ns16 = {
             "uuid"     => "e9e42746-0da1-4b81-b0f9-8ca0b159e280:#{filename}",
             "announce" => "~/Desktop/#{filename}",
-            "commands" => nil,
             "lambda"   => lambda{ 
 
                 system("clear")
@@ -130,14 +129,14 @@ class UIServices
         [ns16]
     end
 
-    # UIServices::waveLikeNS16()
-    def self.waveLikeNS16()
-        Calendar::displayItemsNS16() + Anniversaries::displayItemsNS16() + Waves::displayItemsNS16()
+    # UIServices::waveLikeNS16s()
+    def self.waveLikeNS16s()
+        Calendar::ns16s() + Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::CatalystUINS16s()
-    def self.CatalystUINS16s()
-        UIServices::waveLikeNS16() + UIServices::desktopFileNameToNS16("Todo.txt") + Quarks::nx16s()
+    # UIServices::catalystNS16s()
+    def self.catalystNS16s()
+        UIServices::waveLikeNS16s() + UIServices::desktopFileNameToNS16("Todo.txt") + Quarks::ns16s()
     end
 end
 

@@ -32,7 +32,7 @@ loop {
         vspaceleft = vspaceleft - 1
     end
 
-    items = UIServices::CatalystUINS16s()
+    items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
     items.each_with_index{|item, indx|

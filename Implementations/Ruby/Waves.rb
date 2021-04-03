@@ -167,8 +167,8 @@ class Waves
         "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
     end
 
-    # Waves::displayItemsNS16()
-    def self.displayItemsNS16()
+    # Waves::ns16s()
+    def self.ns16s()
         Waves::waves()
             .map{|wave|
                 {

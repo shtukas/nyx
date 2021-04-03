@@ -141,8 +141,8 @@ class Quarks
         QuarksOrdinals::getNextOrdinal()
     end
 
-    # Quarks::nx16s()
-    def self.nx16s()
+    # Quarks::ns16s()
+    def self.ns16s()
 
         quarkRecoveredTimeX = lambda{|quark|
             rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
@@ -196,7 +196,6 @@ class Quarks
                 {
                     "uuid"     => quark["uuid"],
                     "announce" => "(#{"%5.3f" % averageRT}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Quarks::toString(quark)}",
-                    "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
             }

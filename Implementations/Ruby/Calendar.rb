@@ -84,8 +84,8 @@ class Calendar
         "[calendar] #{item["date"]} #{NereidInterface::toString(item["nereiduuid"])}"
     end
 
-    # Calendar::displayItemsNS16()
-    def self.displayItemsNS16()
+    # Calendar::ns16s()
+    def self.ns16s()
         Calendar::getCalendarItems()
             .select{|item| item["date"] <= CatalystUtils::today() }
             .sort{|i1, i2| i1["date"]<=>i2["date"] }

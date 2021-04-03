@@ -198,8 +198,8 @@ class Anniversaries
         "[anniversary] [#{Anniversaries::itemNextDateOrdinal(item).join(", ")}] #{NereidInterface::toString(item["nereiduuid"])} (#{item["repeatType"]} since #{item["startdate"]})"
     end
 
-    # Anniversaries::displayItemsNS16()
-    def self.displayItemsNS16()
+    # Anniversaries::ns16s()
+    def self.ns16s()
         Anniversaries::getItems()
             .select{|item| Anniversaries::itemNextDateOrdinal(item)[0] <= CatalystUtils::today() }
             .map{|item|
