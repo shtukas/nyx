@@ -156,66 +156,20 @@ class Quarks
         toString = lambda {|quark|
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
-
-        # Pool: Array[(quarkuuid, ratio)]
-
-        makeNewPool = lambda {
-            QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(10)
-                .map
-                .with_index {|quark, i| [quark["uuid"], (1.to_f/2) ** i] }
-        }
-
-        getStoredPoolOrNull = lambda {
-            pool = KeyValueStore::getOrNull(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d4")
-            return nil if pool.nil?
-            JSON.parse(pool)
-        }
-
-        sendPoolToDisk = lambda{|pool|
-            KeyValueStore::set(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d4", JSON.generate(pool))
-        }
-
-        liftPoolAtExpectation = lambda {|pool, expectation|
-            pool
-                .select{|pair| 
-                    quarkuuid = pair[0]
-                    TodoCoreData::getOrNull(quarkuuid)
-                }
-                .select{|pair| 
-                    quarkuuid = pair[0]
-                    DoNotShowUntil::isVisible(quarkuuid)
-                }
-                .select{|pair| 
-                    quarkuuid = pair[0]
-                    ratio = pair[1]
-                    BankExtended::recoveredDailyTimeInHours(quarkuuid) < (expectation * ratio)
-                }
-        }
-
-        getPool = lambda {|expectation, counter|
-            pool = getStoredPoolOrNull.call()
-            if pool.nil? or pool.empty? then
-                pool = makeNewPool.call()
-                sendPoolToDisk.call(pool)
-            end
-
-            pool = liftPoolAtExpectation.call(pool, expectation)
-
-            if !pool.empty? then
-                [pool, counter]
-            else
-                getPool.call(expectation + 0.5, counter+1)
-            end
-        }
-
-        pool, counter = getPool.call(1, 0)
             
-        pool
-            .map{|pair| TodoCoreData::getOrNull(pair[0]) }
+        clearance = lambda {|quark|
+            return false if !DoNotShowUntil::isVisible(quark["uuid"])
+            return false if BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > 3
+            lastSeenUnixtime = KeyValueStore::getOrDefaultValue(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d5:#{quark["uuid"]}", "0").to_i
+            return false if (Time.new.to_i - lastSeenUnixtime.to_i) < 3600*2
+            true
+        }
+
+        QuarksOrdinals::firstNClearedQuarksInOrdinalOrder(3, clearance)
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{counter}) (#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
@@ -308,6 +262,8 @@ class Quarks
 
         puts "Time since start: #{Time.new.to_f - startUnixtime}"
         Quarks::incomingTime(quark, Time.new.to_f - startUnixtime)
+
+        KeyValueStore::set(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d5:#{quark["uuid"]}", Time.new.to_i)
 
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
