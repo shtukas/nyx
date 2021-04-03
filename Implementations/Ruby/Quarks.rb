@@ -215,7 +215,7 @@ class Quarks
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{counter}) #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{counter}) (#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
