@@ -3,7 +3,7 @@ version:             0.1.0.0
 github:              "shtukas/catalyst"
 license:             BSD3
 author:              "shtukas"
-maintainer:          "example@example.com"
+maintainer:          "pascal@alseyn.net"
 copyright:           "2021 shtukas"
 
 extra-source-files:
@@ -17,10 +17,11 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/catalyst-haskell#readme>
+description:         Haskell implementation of Catalyst
 
 dependencies:
 - base >= 4.7 && < 5
+- aeson
 
 library:
   source-dirs: src

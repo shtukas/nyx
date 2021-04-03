@@ -4,15 +4,15 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5238ea8f816f5aca6d90b96b1e15927b50793b131ec508ccbae519202aaa4ef5
+-- hash: 4ee99a8a085f333dea583e920c68348d8202038ef615ab84d50fc0a7876b3d25
 
 name:           catalyst-haskell
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/catalyst-haskell#readme>
+description:    Haskell implementation of Catalyst
 homepage:       https://github.com/shtukas/catalyst#readme
 bug-reports:    https://github.com/shtukas/catalyst/issues
 author:         shtukas
-maintainer:     example@example.com
+maintainer:     pascal@alseyn.net
 copyright:      2021 shtukas
 license:        BSD3
 license-file:   LICENSE
@@ -34,7 +34,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
   default-language: Haskell2010
 
 executable catalyst-haskell
@@ -45,7 +46,8 @@ executable catalyst-haskell
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , catalyst-haskell
   default-language: Haskell2010
 
@@ -58,6 +60,7 @@ test-suite catalyst-haskell-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , catalyst-haskell
   default-language: Haskell2010
