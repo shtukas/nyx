@@ -146,7 +146,7 @@ class Quarks
 
         quarkRecoveredTimeX = lambda{|quark|
             rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
-            (rt == 0) ? 0.4 : rt
+            (rt == 0) ? 1 : rt
             # The logic here is that is an element has never been touched, we put it at 0.4
             # So that it doesn't take priority on stuff that we have in progresss
             # If all the stuff that we have in progress have a high enough recovery time, then we work on 
@@ -156,20 +156,46 @@ class Quarks
         toString = lambda {|quark|
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
         }
-            
-        clearance = lambda {|quark|
-            return false if !DoNotShowUntil::isVisible(quark["uuid"])
-            return false if BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > 3
-            lastSeenUnixtime = KeyValueStore::getOrDefaultValue(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d5:#{quark["uuid"]}", "0").to_i
-            return false if (Time.new.to_i - lastSeenUnixtime.to_i) < 3600*2
-            true
-        }
 
-        QuarksOrdinals::firstNClearedQuarksInOrdinalOrder(CatalystUtils::screenHeight(), clearance)
+        streamDepth = 10
+
+        # We fix the uuids that we are going to work with for a duration of two hours
+
+        thisSlotUUIDs = (lambda {
+            storageKey = CatalystUtils::getNewValueEveryNSeconds("5c47e435-899c-4ab7-96c6-0b941cf2dd8f", 2*3600)
+            uuids = KeyValueStore::getOrNull(nil, storageKey)
+            if uuids then
+                return JSON.parse(uuids)
+            end
+            uuids = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(streamDepth).map{|quark| quark["uuid"]}
+            KeyValueStore::set(nil, storageKey, JSON.generate(uuids))
+            uuids
+        }).call()
+
+        # We intersect the quarks for the database with the uuids of the current slot
+
+        quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(streamDepth).select{|quark| thisSlotUUIDs.include?(quark["uuid"])}
+
+        return [] if quarks.empty?
+
+        averageRT = quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"])}.inject(0, :+).to_f/6
+
+        # We put first the highest below average
+        
+        quarks1 = quarks
+                    .reject{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > averageRT }
+                    .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"])}
+                    .reverse
+        
+        quarks2 = quarks
+                    .select{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > averageRT }
+                    .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"])}
+        
+        (quarks1 + quarks2)
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{"%5.3f" % averageRT}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Quarks::toString(quark)}",
                     "commands" => "done (destroy quark and nereid element) | >nyx | landing",
                     "lambda"   => lambda{ Quarks::runQuark(quark) }
                 }
@@ -262,8 +288,6 @@ class Quarks
 
         puts "Time since start: #{Time.new.to_f - startUnixtime}"
         Quarks::incomingTime(quark, Time.new.to_f - startUnixtime)
-
-        KeyValueStore::set(nil, "d4fcf9c2-515d-4d59-8168-44f1a489d5d5:#{quark["uuid"]}", Time.new.to_i)
 
         NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end

@@ -157,35 +157,6 @@ class QuarksOrdinals
             end
         }
     end
-
-    # QuarksOrdinals::firstNClearedQuarksInOrdinalOrder(resultSize, clearance)
-    def self.firstNClearedQuarksInOrdinalOrder(resultSize, clearance)
-
-        # clearance: Quark -> Boolean
-
-        while (uuid = Mercury::dequeueFirstValueOrNullForClient("0437d73d-9cde-4b96-99c5-5bd44671d267", "9298bfca")) do
-            QuarksOrdinals::deleteRecordsByQuarkUUID(uuid)
-        end
-
-        getQuarkOrNull = lambda {|uuid, clearance|
-            quark = TodoCoreData::getOrNull(uuid) 
-            return nil if quark.nil?
-            return nil if !clearance.call(quark)
-            quark
-        }
-
-        QuarksOrdinals::getQuarkUUIDsInOrdinalOrder().reduce([]) {|quarks, uuid|
-            if quarks.size >= resultSize then
-                quarks
-            else
-                if (quark = getQuarkOrNull.call(uuid, clearance)) then
-                    quarks + [quark]
-                else
-                    quarks
-                end 
-            end
-        }
-    end
 end
 
 Thread.new {
