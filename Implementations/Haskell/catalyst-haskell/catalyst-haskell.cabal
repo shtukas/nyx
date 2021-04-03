@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7a63a96cbb9977ef139bea54a4e50c8904e9aadad35ce308d56b2615bfb1730d
+-- hash: 5238ea8f816f5aca6d90b96b1e15927b50793b131ec508ccbae519202aaa4ef5
 
 name:           catalyst-haskell
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      UserInterface.Types
   other-modules:
       Paths_catalyst_haskell
   hs-source-dirs:
