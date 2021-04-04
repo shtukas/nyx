@@ -424,7 +424,7 @@ class NereidInterface
 
     # NereidInterface::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint", "FSUniqueString"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
         return nil if type.nil?
         if type == "Line" then
             uuid = SecureRandom.uuid
@@ -494,21 +494,6 @@ class NereidInterface
             end
 
             NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "AionPoint", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        if type == "FSUniqueString" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
-            payload = uniquestring
-
-            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
-            if description == "" then
-                description = payload
-            end
-
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "FSUniqueString", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         nil
@@ -683,27 +668,6 @@ class NereidInterface
             end
             return
         end
-        if element["type"] == "FSUniqueString" then
-            location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
-            if location.nil? then
-                puts "I could not determine location for file system unique string: #{element["payload"]}"
-                LucilleCore::pressEnterToContinue()
-            else
-                if File.file?(location) then
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open file", "open parent folder"])
-                    return if option.nil?
-                    if option == "open file" then
-                        system("open '#{location}'")
-                    end
-                    if option == "open parent folder" then
-                        system("open '#{File.dirname(location)}'")
-                    end
-                else
-                    system("open '#{location}'")
-                end
-            end
-            return
-        end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
@@ -758,27 +722,6 @@ class NereidInterface
             end
             return
         end
-        if element["type"] == "FSUniqueString" then
-            location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
-            if location.nil? then
-                puts "I could not determine location for file system unique string: #{element["payload"]}"
-                LucilleCore::pressEnterToContinue()
-            else
-                if File.file?(location) then
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["open file", "open parent folder"])
-                    return if option.nil?
-                    if option == "open file" then
-                        system("open '#{location}'")
-                    end
-                    if option == "open parent folder" then
-                        system("open '#{File.dirname(location)}'")
-                    end
-                else
-                    system("open '#{location}'")
-                end
-            end
-            return
-        end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
@@ -812,9 +755,6 @@ class NereidInterface
             location = "/Users/pascal/Desktop/#{aionObject["name"]}"
             return if !File.exists?(location)
             LucilleCore::removeFileSystemLocation(location)
-            return
-        end
-        if element["type"] == "FSUniqueString" then
             return
         end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
@@ -895,20 +835,6 @@ class NereidInterface
             NereidDatabaseDataCarriers::insertElement(element)
             return element
         end
-        if element["type"] == "FSUniqueString" then
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty for not changing): ")
-            if uniquestring != "" then
-                element["payload"] = uniquestring
-            end
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end
-
-            NereidDatabaseDataCarriers::insertElement(element)
-            return element
-        end
         raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
     end
 
@@ -918,7 +844,7 @@ class NereidInterface
         element = NereidInterface::inputToElementOrNull(input, "transmutation")
         return if element.nil?
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint", "FSUniqueString"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
         return nil if type.nil?
         if type == "Line" then
             element["type"] = "Line"
@@ -995,43 +921,10 @@ class NereidInterface
             NereidDatabaseDataCarriers::insertElement(element)
             return element
         end
-        if type == "FSUniqueString" then
-            element["type"] = "FSUniqueString"
-
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string: ")
-            payload = uniquestring
-            element["payload"] = payload
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end 
-
-            NereidDatabaseDataCarriers::insertElement(element)
-            return element
-        end
     end
 
-    # NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful. 
+    # NereidInterface::destroyElement(uuid)
     def self.destroyElement(uuid)
-        element = NereidInterface::getElementOrNull(uuid)
-        if element then
-            if element["type"] == "FSUniqueString" then
-                puts "deleting FSUniqueString element: #{element["payload"]}"
-                location = NereidGalaxyFinder::uniqueStringToLocationOrNull(element["payload"])
-                if location then
-                    puts "Target file '#{location}'"
-                    puts "Delete as appropriate"
-                    system("open '#{File.dirname(location)}'")
-                    LucilleCore::pressEnterToContinue()
-                else
-                    puts "I could not determine the location of #{quark["mark"]}"
-                    if !LucilleCore::askQuestionAnswerAsBoolean("Continue with element deletion ? ") then
-                        return false
-                    end
-                end
-            end
-        end
         NereidDatabaseDataCarriers::destroyElement(uuid)
         true
     end
@@ -1076,10 +969,6 @@ class NereidFsck
                     end
                     next
                 end
-                if element["type"] == "FSUniqueString" then
-                    puts "checking #{element["type"]}"
-                    next
-                end  
                 puts element
                 raise "cfe763bb-013b-4ae6-a611-935dca16260b"
             }

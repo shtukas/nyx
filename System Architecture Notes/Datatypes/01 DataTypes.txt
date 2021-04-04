@@ -3,7 +3,7 @@ NereidElement {
     "uuid"          : String
     "unixtime"      : Float
     "description"   : String 
-    "type"          : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint" | "FSUniqueString"
+    "type"          : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
     "payload"       : (value)
 }
 

@@ -113,8 +113,7 @@ class Quarks
 
     # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
-        status = NereidInterface::destroyElement(quark["nereiduuid"])
-        return if !status
+        NereidInterface::destroyElement(quark["nereiduuid"])
         TodoCoreData::destroy(quark)
     end
 
