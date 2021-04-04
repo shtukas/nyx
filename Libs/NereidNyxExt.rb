@@ -81,22 +81,26 @@ class NereidNyxExt
                 NereidInterface::insertElement(element)
             })
 
-            mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNode(element)
+            mx.item("link to architectured node".yellow, lambda { 
+                node = Patricia::achitectureNodeOrNull()
+                return if node.nil?
+                Network::link(element, node)
             })
 
-            mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNode(element)
+            mx.item("unlink".yellow, lambda {
+                node = Patricia::selectOneOfTheLinkedNodeOrNull(element)
+                return if node.nil?
+                Network::unlink(element, node)
             })
 
-            mx.item("reshape (select connected, move to architectured)".yellow, lambda {
+            mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
 
-                LucilleCore::pressEnterToContinue("select nodes")
+                LucilleCore::pressEnterToContinue("select elements")
                 nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjects(element), lambda{ |n| Patricia::toString(n) })
                 return if nodes.empty?
 
-                LucilleCore::pressEnterToContinue("select node #2")
-                node2 = Patricia::selectExistingOrMakeNewNodeOrNull()
+                LucilleCore::pressEnterToContinue("select target naigation node")
+                node2 = NyxNavigationPoints::architectureNavigationPointOrNull()
                 return if node2.nil?
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }

@@ -18,13 +18,8 @@ class Patricia
         object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     end
 
-    # Patricia::isNX141FSCacheElement(element)
-    def self.isNX141FSCacheElement(element)
-        element["nyxElementType"] == "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
-    end
-
-    # Patricia::isNyxNavigationPoint(item)
-    def self.isNyxNavigationPoint(item)
+    # Patricia::isNavigationPoint(item)
+    def self.isNavigationPoint(item)
         item["identifier1"] == "103df1ac-2e73-4bf1-a786-afd4092161d4"
     end
 
@@ -33,9 +28,6 @@ class Patricia
     # Patricia::getNyxNetworkNodeByUUIDOrNull(uuid)
     def self.getNyxNetworkNodeByUUIDOrNull(uuid)
         item = NereidInterface::getElementOrNull(uuid)
-        return item if item
-
-        item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
         item = NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
@@ -49,10 +41,7 @@ class Patricia
         if Patricia::isNereidElement(item) then
             return NereidInterface::toString(item)
         end
-        if Patricia::isNX141FSCacheElement(item) then
-            return NX141FSCacheElement::toString(item)
-        end
-        if Patricia::isNyxNavigationPoint(item) then
+        if Patricia::isNavigationPoint(item) then
             return NyxNavigationPoints::toString(item)
         end
         if Patricia::isQuark(item) then
@@ -71,11 +60,7 @@ class Patricia
             NereidNyxExt::landing(item)
             return
         end
-        if Patricia::isNX141FSCacheElement(item) then
-            NX141FSCacheElement::landing(item)
-            return
-        end
-        if Patricia::isNyxNavigationPoint(item) then
+        if Patricia::isNavigationPoint(item) then
             NyxNavigationPoints::landing(item)
             return
         end
@@ -99,28 +84,26 @@ class Patricia
         return nil if searchItem.nil?
         searchItem["payload"]
     end
-    
-    # Patricia::selectExistingOrMakeNewNodeOrNull()
-    def self.selectExistingOrMakeNewNodeOrNull()
+
+    # Patricia::achitectureNodeOrNull()
+    def self.achitectureNodeOrNull()
         node = Patricia::selectOneNodeOrNull()
         return node if node
-        Patricia::makeNewNodeOrNull()
+        choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["nereid element", "navigation point"])
+        return nil if choice.nil?
+        if choice == "nereid element" then
+            return NereidInterface::interactivelyIssueNewElementOrNull()
+        end
+        if choice == "navigation point" then
+            return NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
+        end
     end
 
-    # Patricia::linkToArchitectedNode(item)
-    def self.linkToArchitectedNode(item)
-        e1 = Patricia::selectExistingOrMakeNewNodeOrNull()
-        return if e1.nil?
-        Network::link(item, e1)
-    end
-
-    # Patricia::selectAndRemoveLinkedNode(item)
-    def self.selectAndRemoveLinkedNode(item)
-        related = Network::getLinkedObjects(item)
+    # Patricia::selectOneOfTheLinkedNodeOrNull(node)
+    def self.selectOneOfTheLinkedNodeOrNull(node)
+        related = Network::getLinkedObjects(node)
         return if related.empty?
-        node = LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
-        return if node.nil?
-        Network::unlink(item, node)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
     end
 
     # -------------------------------------------------------
@@ -129,7 +112,6 @@ class Patricia
     def self.nyxSearchItemsAll()
         searchItems = [
             NereidNyxExt::nyxSearchItems(),
-            NX141FSCacheElement::nyxSearchItems(),
             NyxNavigationPoints::nyxSearchItems()
         ]
         .flatten

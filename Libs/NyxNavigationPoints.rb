@@ -144,8 +144,8 @@ class NyxNavigationPoints
             .sort{|np1, np2| np1["description"] <=> np2["description"] }
     end
 
-    # NyxNavigationPoints::interactivelyIssueNewOrFindExistingNavigationPointOrNull()
-    def self.interactivelyIssueNewOrFindExistingNavigationPointOrNull()
+    # NyxNavigationPoints::architectureNavigationPointOrNull()
+    def self.architectureNavigationPointOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
 
@@ -199,12 +199,31 @@ class NyxNavigationPoints
                 NyxNavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
             })
 
-            mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNode(navpoint)
+            mx.item("link to architectured node".yellow, lambda {
+                node = Patricia::achitectureNodeOrNull()
+                return if node.nil?
+                Network::link(navpoint, node)
             })
 
-            mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNode(navpoint)
+            mx.item("unlink".yellow, lambda {
+                node = Patricia::selectOneOfTheLinkedNodeOrNull(navpoint)
+                return if node.nil?
+                Network::unlink(navpoint, node)
+            })
+
+            mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
+
+                LucilleCore::pressEnterToContinue("select elements")
+                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjects(navpoint), lambda{ |n| Patricia::toString(n) })
+                return if nodes.empty?
+
+                LucilleCore::pressEnterToContinue("select target naigation node")
+                node2 = NyxNavigationPoints::architectureNavigationPointOrNull()
+                return if node2.nil?
+
+                return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
+
+                Network::reshape(navpoint, nodes, node2)
             })
 
             mx.item("view json object".yellow, lambda { 

@@ -41,7 +41,7 @@ loop {
         NereidNyxExt::landing(node)
     end
     if operation == "Architect Navigation Point" then
-        navpoint = NyxNavigationPoints::interactivelyIssueNewOrFindExistingNavigationPointOrNull() 
+        navpoint = NyxNavigationPoints::architectureNavigationPointOrNull() 
         next if navpoint.nil?
         NyxNavigationPoints::landing(navpoint)
     end

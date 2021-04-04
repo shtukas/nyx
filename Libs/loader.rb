@@ -171,7 +171,6 @@ require_relative "Nereid.rb"
 require_relative "NereidNyxExt.rb"
 require_relative "Network.rb"
 
-require_relative "NX141FSCacheElement.rb"
 require_relative "NX141FilenameReaderWriter.rb"
 require_relative "NyxNavigationPoints.rb"
 

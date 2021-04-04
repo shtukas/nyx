@@ -13,15 +13,6 @@ Todo Types: CalendarItem, AnniversaryItem, Waves (TodoCoreData), Quark (TodoCore
 
 ------------------------------------------------------------------------------
 
-NX141FSCacheElement {
-    "uuid"           : String
-    "nyxElementType" : "736ec8c8-daa6-48cf-8d28-84cfca79bedc"
-    "nx141"          : String
-    "description"    : String
-}
-
-------------------------------------------------------------------------------
-
 NyxNavigationPoint {
     "uuid"         : String
     "unixtime"     : Float
@@ -37,7 +28,7 @@ type: "95c02a05-f289-4bf7-ac3a-4c76c2434f11" # Location
 
 ------------------------------------------------------------------------------
 
-NyxNetworkNodes: NereidNyxExt | NX141FSCacheElement | NyxNavigationPoint 
+NyxNetworkNodes: NereidNyxExt | NyxNavigationPoint 
 
 ------------------------------------------------------------------------------
 
