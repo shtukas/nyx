@@ -7,20 +7,6 @@ class TodoCoreData
         "/Users/pascal/Galaxy/DataBank/Catalyst/NS-Core-Objects.sqlite3"
     end
 
-    # TodoCoreData::getAllObjects()
-    def self.getAllObjects()
-        db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from table2" , [] ) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
     # TodoCoreData::put(object)
     def self.put(object)
         db = SQLite3::Database.new(TodoCoreData::databaseFilepath())
