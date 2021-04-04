@@ -185,7 +185,7 @@ class NyxNavigationPoints
 
             puts ""
 
-            Network::getLinkedObjects(navpoint).each{|node|
+            Network::getLinkedObjectsInTimeOrder(navpoint).each{|node|
                 mx.item("related: #{Patricia::toString(node)}", lambda { 
                     Patricia::landing(node)
                 })
@@ -213,12 +213,10 @@ class NyxNavigationPoints
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
 
-                LucilleCore::pressEnterToContinue("select elements")
-                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjects(navpoint), lambda{ |n| Patricia::toString(n) })
+                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjectsInTimeOrder(navpoint), lambda{ |n| Patricia::toString(n) })
                 return if nodes.empty?
 
-                LucilleCore::pressEnterToContinue("select target naigation node")
-                node2 = NyxNavigationPoints::architectureNavigationPointOrNull()
+                node2 = Patricia::achitectureNodeOrNull()
                 return if node2.nil?
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }

@@ -61,6 +61,11 @@ class Network
         Network::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNyxNetworkNodeByUUIDOrNull(uuid) }.compact
     end
 
+    # Network::getLinkedObjectsInTimeOrder(object)
+    def self.getLinkedObjectsInTimeOrder(object)
+        Network::getLinkedObjects(object).sort{|o1, o2| o1["unixtime"]<=>o2["unixtime"] }
+    end
+
     # Network::removeElementOccurences(uuid)
     def self.removeElementOccurences(uuid)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())

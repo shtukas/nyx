@@ -101,7 +101,7 @@ class Patricia
 
     # Patricia::selectOneOfTheLinkedNodeOrNull(node)
     def self.selectOneOfTheLinkedNodeOrNull(node)
-        related = Network::getLinkedObjects(node)
+        related = Network::getLinkedObjectsInTimeOrder(node)
         return if related.empty?
         LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
     end
