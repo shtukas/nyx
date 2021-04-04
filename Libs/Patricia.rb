@@ -99,20 +99,7 @@ class Patricia
         return nil if searchItem.nil?
         searchItem["payload"]
     end
-
-    # Patricia::makeNewNodeOrNull()
-    def self.makeNewNodeOrNull()
-        ops = ["Nereid Element", "Classifier Item"]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ops)
-        return nil if operation.nil?
-        if operation == "Nereid Element" then
-            return NereidInterface::interactivelyIssueNewElementOrNull()
-        end
-        if operation == "Classifier Item" then
-            return NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
-        end
-    end
-
+    
     # Patricia::selectExistingOrMakeNewNodeOrNull()
     def self.selectExistingOrMakeNewNodeOrNull()
         node = Patricia::selectOneNodeOrNull()

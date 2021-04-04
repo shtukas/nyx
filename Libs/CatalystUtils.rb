@@ -159,8 +159,8 @@ class CatalystUtils
         [6, 0].include?(Date.parse(date).to_time.wday)
     end
 
-    # CatalystUtils::nyxStringDistance(str1, str2)
-    def self.nyxStringDistance(str1, str2)
+    # CatalystUtils::stringDistance1(str1, str2)
+    def self.stringDistance1(str1, str2)
         # This metric takes values between 0 and 1
         return 1 if str1.size == 0
         return 1 if str2.size == 0
@@ -368,12 +368,22 @@ class CatalystUtils
       d[m][n]
     end
 
-    # CatalystUtils::nyxStringDistance(str1, str2)
-    def self.nyxStringDistance(str1, str2)
+    # CatalystUtils::stringDistance1(str1, str2)
+    def self.stringDistance1(str1, str2)
         # This metric takes values between 0 and 1
         return 1 if str1.size == 0
         return 1 if str2.size == 0
         CatalystUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+    end
+
+    # CatalystUtils::stringDistance2(str1, str2)
+    def self.stringDistance2(str1, str2)
+        # We need the smallest string to come first
+        if str1.size > str2.size then
+            str1, str2 = str2, str1
+        end
+        diff = str2.size - str1.size
+        (0..diff).map{|i| CatalystUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
     end
 
     # ----------------------------------------------------

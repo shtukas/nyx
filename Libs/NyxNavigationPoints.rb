@@ -107,16 +107,7 @@ class NyxNavigationPoints
         LucilleCore::selectEntityFromListOfEntitiesOrNull("navigation point type: ", NyxNavigationPoints::typeXs(), lambda{|item| item["name"] })
     end
 
-    # NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
-    def self.interactivelyIssueNewNavigationPointOrNull()
-        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
-        return nil if typeX.nil?
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        return nil if description == ""
-        uuid = SecureRandom.uuid
-        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["uuid"], description)
-        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
-    end
+    # ------------------------------------------------
 
     # NyxNavigationPoints::toString(navpoint)
     def self.toString(navpoint)
@@ -125,20 +116,52 @@ class NyxNavigationPoints
         "[navpoint: #{typename}] #{navpoint["description"]}"
     end
 
-    # NyxNavigationPoints::nyxSearchItems()
-    def self.nyxSearchItems()
-        NyxNavigationPoints::getNavigationPoints()
-            .map{|navpoint|
-                volatileuuid = SecureRandom.hex[0, 8]
-                {
-                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(navpoint)}",
-                    "payload"  => navpoint
-                }
-            }
+    # NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
+    def self.interactivelyIssueNewNavigationPointOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return nil if description == ""
+
+        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        return nil if typeX.nil?
+
+        uuid = SecureRandom.uuid
+        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
+        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
-    # ------------------------------------------------
-    # Interface
+    # NyxNavigationPoints::selectNavigationPointsByCloseDescription(description)
+    def self.selectNavigationPointsByCloseDescription(description)
+        NyxNavigationPoints::getNavigationPoints()
+            .map{|navpoint| 
+                {
+                    "navpoint" => navpoint,
+                    "distance" => CatalystUtils::stringDistance2(navpoint["description"].downcase, description.downcase)
+                }
+            }
+            .sort{|i1, i2| i1["distance"] <=> i2["distance"] }
+            .first(5)
+            .map{|item| item["navpoint"] }
+            .sort{|np1, np2| np1["description"] <=> np2["description"] }
+    end
+
+    # NyxNavigationPoints::interactivelyIssueNewOrFindExistingNavigationPointOrNull()
+    def self.interactivelyIssueNewOrFindExistingNavigationPointOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return nil if description == ""
+
+        navpoints = NyxNavigationPoints::selectNavigationPointsByCloseDescription(description)
+        if navpoints.size > 0 then
+            navpoint = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(navpoints, lambda{|navpoint| NyxNavigationPoints::toString(navpoint) })
+            return navpoint if navpoint
+        end
+
+        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        return nil if typeX.nil?
+
+        uuid = SecureRandom.uuid
+        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
+        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+    end
 
     # NyxNavigationPoints::selectNavigationPointOrNull()
     def self.selectNavigationPointOrNull()
@@ -171,7 +194,7 @@ class NyxNavigationPoints
             puts ""
 
             mx.item("update description".yellow, lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                description = CatalystUtils::editTextSynchronously(navpoint["description"])
                 return if description == ""
                 NyxNavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
             })
@@ -184,6 +207,11 @@ class NyxNavigationPoints
                 Patricia::selectAndRemoveLinkedNode(navpoint)
             })
 
+            mx.item("view json object".yellow, lambda { 
+                puts JSON.pretty_generate(navpoint)
+                LucilleCore::pressEnterToContinue()
+            })
+
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
                     NyxNavigationPoints::destroy(navpoint)
@@ -193,5 +221,17 @@ class NyxNavigationPoints
             status = mx.promptAndRunSandbox()
             break if !status
         }
+    end
+
+    # NyxNavigationPoints::nyxSearchItems()
+    def self.nyxSearchItems()
+        NyxNavigationPoints::getNavigationPoints()
+            .map{|navpoint|
+                volatileuuid = SecureRandom.hex[0, 8]
+                {
+                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(navpoint)}",
+                    "payload"  => navpoint
+                }
+            }
     end
 end

@@ -555,7 +555,7 @@ class NereidInterface
             })
 
             mx.item("set/update description".yellow, lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                description = NereidUtils::editTextSynchronously(element["description"])
                 return if description == ""
                 element["description"] = description
                 NereidDatabaseDataCarriers::insertElement(element)

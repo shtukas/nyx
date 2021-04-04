@@ -26,18 +26,24 @@ end
 loop {
     system("clear")
     puts "Nyx 🗺"
-    ops = ["Search", "Issue New", "Dive Navigation Points"]
+    ops = ["Search", "Dive Navigation Points", "Issue New Data Carrier", "Architect Navigation Point"]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
     if operation == "Search" then
         Patricia::generalSearchLoop()
     end
-    if operation == "Issue New" then
-        node = Patricia::makeNewNodeOrNull()
-        next if node.nil?
-        Patricia::landing(node)
-    end
     if operation == "Dive Navigation Points" then
         diveNavigationPoints()
     end
+    if operation == "Issue New Data Carrier" then
+        node = NereidInterface::interactivelyIssueNewElementOrNull()
+        next if node.nil?
+        NereidNyxExt::landing(node)
+    end
+    if operation == "Architect Navigation Point" then
+        navpoint = NyxNavigationPoints::interactivelyIssueNewOrFindExistingNavigationPointOrNull() 
+        next if navpoint.nil?
+        NyxNavigationPoints::landing(navpoint)
+    end
+
 }
