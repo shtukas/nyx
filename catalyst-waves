@@ -22,9 +22,6 @@ loop {
     vspaceleft = CatalystUtils::screenHeight()-8
 
     puts ""
-    puts JSON.generate(JSON.parse(`#{CatalystHaskell::execPath()}`))
-
-    puts ""
 
     items = UIServices::waveLikeNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

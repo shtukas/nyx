@@ -156,7 +156,6 @@ require_relative "Bank.rb"
 require_relative "BinaryBlobsService.rb"
 
 require_relative "Calendar.rb"
-require_relative "CatalystHaskell.rb"
 require_relative "CatalystUtils.rb"
 require_relative "Commons.rb"
 
