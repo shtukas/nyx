@@ -37,8 +37,8 @@ class Calendar
         answer
     end
 
-    # Calendar::getCalendarItems()
-    def self.getCalendarItems()
+    # Calendar::getItems()
+    def self.getItems()
         db = SQLite3::Database.new(Calendar::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -86,7 +86,7 @@ class Calendar
 
     # Calendar::ns16s()
     def self.ns16s()
-        Calendar::getCalendarItems()
+        Calendar::getItems()
             .select{|item| item["date"] <= CatalystUtils::today() }
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
             .map{|item|
@@ -133,7 +133,7 @@ class Calendar
     def self.dailyBriefing()
         system("clear")
         puts "Calendar daily briefing"
-        Calendar::getCalendarItems()
+        Calendar::getItems()
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
             .each{|item|
                 puts Calendar::toString(item)
@@ -154,7 +154,7 @@ class Calendar
         loop {
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            Calendar::getCalendarItems()
+            Calendar::getItems()
                 .each{|item|
                     mx.item(Calendar::toString(item), lambda {
                         Calendar::landing(item)

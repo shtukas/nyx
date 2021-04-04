@@ -1,0 +1,27 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# Anniversaries::getItems()
+# Calendar::getItems()
+# Waves::waves()
+# Quarks::quarks()
+
+(Anniversaries::getItems() + Calendar::getItems() + Waves::waves() + Quarks::quarks()).each{|item|
+    uuid = item["nereiduuid"]
+    puts uuid
+    element =  NereidInterface::getElementOrNull(uuid)
+    if element.nil? then
+        puts "could not find nereid element for uuid: #{uuid}".red
+        puts JSON.pretty_generate(item).red
+        puts Quarks::toString(item).green
+        exit
+        #Quarks::destroyQuarkAndNereidContent(item)
+        next
+    end
+    NereidFsck::checkElement(element)
+}
+
+exit
