@@ -1,5 +1,5 @@
 
-Calendar-Items.sqlite3 
+Calendar.sqlite3 
 
 > create table _calendaritems_ (_uuid_ text, _date_ text, _nereiduuid_ text);
 

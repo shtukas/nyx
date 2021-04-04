@@ -3,7 +3,7 @@ class Calendar
 
     # Calendar::databaseFilepath()
     def self.databaseFilepath()
-        "#{CatalystUtils::catalystDataCenterFolderpath()}/Calendar-Items.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Calendar.sqlite3"
     end
 
     # Calendar::insertRecord(uuid, date, nereiduuid)

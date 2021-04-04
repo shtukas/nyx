@@ -7,7 +7,7 @@ class Bank
 
     # Bank::databaseFilepath()
     def self.databaseFilepath()
-        "#{CatalystUtils::catalystDataCenterFolderpath()}/Bank-Accounts.sqlite3"
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Bank.sqlite3"
     end
 
     # Bank::put(setuuid, weight: Float)
