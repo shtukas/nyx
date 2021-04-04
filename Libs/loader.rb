@@ -169,8 +169,6 @@ require_relative "Nereid.rb"
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
-require_relative "NX141FilenameReaderWriter.rb"
-
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Quarks.rb"
