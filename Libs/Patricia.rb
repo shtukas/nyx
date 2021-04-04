@@ -38,7 +38,7 @@ class Patricia
         item = NX141FSCacheElement::getElementByUUIDOrNull(uuid)
         return item if item
 
-        item = NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
+        item = NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
         return item if item
 
         nil
@@ -95,7 +95,7 @@ class Patricia
 
     # Patricia::selectOneNodeOrNull()
     def self.selectOneNodeOrNull()
-        searchItem = CatalystUtils::selectOneOrNull(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
+        searchItem = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
         return nil if searchItem.nil?
         searchItem["payload"]
     end
@@ -109,7 +109,7 @@ class Patricia
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
         if operation == "Classifier Item" then
-            return NyxNavigationPoints::interactivelyIssueNewClassiferOrNull()
+            return NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
         end
     end
 

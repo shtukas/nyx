@@ -2,24 +2,6 @@
 
 class UIServices
 
-    # UIServices::explore()
-    def self.explore()
-        loop {
-            system("clear")
-            typex = NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
-            break if typex.nil?
-            loop {
-                system("clear")
-                classifiers = NyxNavigationPoints::getClassifierDeclarations()
-                                .select{|classifier| classifier["type"] == typex["type"] }
-                                .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-                classifier = CatalystUtils::selectOneOrNull(classifiers, lambda{|classifier| NyxNavigationPoints::toString(classifier) })
-                break if classifier.nil?
-                NyxNavigationPoints::landing(classifier)
-            }
-        }
-    end
-
     # UIServices::servicesFront()
     def self.servicesFront()
         loop {
@@ -64,28 +46,6 @@ class UIServices
 
             status = ms.promptAndRunSandbox()
             break if !status
-        }
-    end
-
-    # UIServices::nyxMain()
-    def self.nyxMain()
-        loop {
-            system("clear")
-            puts "Nyx 🗺"
-            ops = ["Search", "Explore", "Issue New"]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
-            break if operation.nil?
-            if operation == "Search" then
-                Patricia::generalSearchLoop()
-            end
-            if operation == "Explore" then
-                UIServices::explore()
-            end
-            if operation == "Issue New" then
-                node = Patricia::makeNewNodeOrNull()
-                next if node.nil?
-                Patricia::landing(node)
-            end
         }
     end
 

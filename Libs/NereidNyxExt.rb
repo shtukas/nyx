@@ -20,7 +20,7 @@ class NereidNyxExt
 
     # NereidNyxExt::selectElementOrNull()
     def self.selectElementOrNull()
-        CatalystUtils::selectOneOrNull(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
+        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
     end
 
     # NereidNyxExt::selectExistingOrMakeNewElementOrNull()

@@ -6,76 +6,74 @@ class NyxNavigationPoints
     # ------------------------------------------------
     # Database
 
-    # NyxNavigationPoints::issueNewDeclaration(uuid, type, description, payload1)
-    def self.issueNewDeclaration(uuid, type, description, payload1)
+    # NyxNavigationPoints::issueNewNavigationPoint(uuid, type, description)
+    def self.issueNewNavigationPoint(uuid, type, description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _classifiers_ where _uuid_=?", [uuid]
-        db.execute "insert into _classifiers_ (_uuid_, _unixtime_, _type_, _description_, _payload1_) values (?,?,?,?,?)", [uuid, Time.new.to_i, type, description, payload1]
+        db.execute "delete from _navigationpoints_ where _uuid_=?", [uuid]
+        db.execute "insert into _navigationpoints_ (_uuid_, _unixtime_, _type_, _description_) values (?,?,?,?)", [uuid, Time.new.to_i, type, description]
         db.commit 
         db.close
     end
 
-    # NyxNavigationPoints::updateClassifierDescription(uuid, description)
-    def self.updateClassifierDescription(uuid, description)
+    # NyxNavigationPoints::updateNavigationPointDescription(uuid, description)
+    def self.updateNavigationPointDescription(uuid, description)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
-        db.execute "update _classifiers_ set _description_=? where _uuid_=?", [description, uuid]
+        db.execute "update _navigationpoints_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
-    # NyxNavigationPoints::getClassifierDeclarations()
-    def self.getClassifierDeclarations()
+    # NyxNavigationPoints::getNavigationPoints()
+    def self.getNavigationPoints()
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _classifiers_", []) do |row|
+        db.execute("select * from _navigationpoints_", []) do |row|
             answer << {
                 "uuid"           => row['_uuid_'],
                 "unixtime"       => row['_unixtime_'],
                 "identifier1"    => "103df1ac-2e73-4bf1-a786-afd4092161d4", # Indicates a classifier declaration
                 "type"           => row['_type_'],
-                "description"    => row['_description_'],
-                "payload1"       => row['_payload1_'],
+                "description"    => row['_description_']
             }
         end
         db.close
         answer
     end
 
-    # NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
-    def self.getClassifierByUUIDOrNull(uuid)
+    # NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+    def self.getNavigationPointByUUIDOrNull(uuid)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute("select * from _classifiers_ where _uuid_=?", [uuid]) do |row|
+        db.execute("select * from _navigationpoints_ where _uuid_=?", [uuid]) do |row|
             answer = {
                 "uuid"           => row['_uuid_'],
                 "unixtime"       => row['_unixtime_'],
                 "identifier1"    => "103df1ac-2e73-4bf1-a786-afd4092161d4", # Indicates a classifier declaration
                 "type"           => row['_type_'],
-                "description"    => row['_description_'],
-                "payload1"       => row['_payload1_'],
+                "description"    => row['_description_']
             }
         end
         db.close
         answer
     end
 
-    # NyxNavigationPoints::destroy(classifier)
-    def self.destroy(classifier)
+    # NyxNavigationPoints::destroy(navpoint)
+    def self.destroy(navpoint)
         db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "delete from _classifiers_ where _uuid_=?", [classifier["uuid"]]
+        db.execute "delete from _navigationpoints_ where _uuid_=?", [navpoint["uuid"]]
         db.commit 
         db.close
     end
@@ -104,42 +102,37 @@ class NyxNavigationPoints
         ]
     end
 
-    # NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
-    def self.interactivelySelectClassifierTypeXOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier type: ", NyxNavigationPoints::typeXs(), lambda{|item| item["name"] })
+    # NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+    def self.interactivelySelectNavigationPointTypeXOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("navigation point type: ", NyxNavigationPoints::typeXs(), lambda{|item| item["name"] })
     end
 
-    # NyxNavigationPoints::interactivelyIssueNewClassiferOrNull()
-    def self.interactivelyIssueNewClassiferOrNull()
-        typeX = NyxNavigationPoints::interactivelySelectClassifierTypeXOrNull()
+    # NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
+    def self.interactivelyIssueNewNavigationPointOrNull()
+        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         return nil if typeX.nil?
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
-        payload1 = nil
-        if typeX["type"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8" then
-           payload1 = LucilleCore::askQuestionAnswerAsString("date: ") 
-        end
         uuid = SecureRandom.uuid
-        NyxNavigationPoints::issueNewDeclaration(uuid, typeX["uuid"], description, payload1)
-        NyxNavigationPoints::getClassifierByUUIDOrNull(uuid)
+        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["uuid"], description)
+        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
-    # NyxNavigationPoints::toString(classifier)
-    def self.toString(classifier)
-        typename = NyxNavigationPoints::typeXs().select{|typex| typex["type"] == classifier["type"] }.map{|typex| typex["name"] }.first
-        raise "b373b8d6-454e-4710-85e4-41160372395a" if classifier.nil?
-        date = (classifier["type"] == "ea9f4f69-1c8c-49c9-b644-8854c1be75d8") ? " #{classifier["payload1"]}" : nil
-        "[classifier / #{typename}]#{date ? " (date: #{date})" : ""} #{classifier["description"]}"
+    # NyxNavigationPoints::toString(navpoint)
+    def self.toString(navpoint)
+        typename = NyxNavigationPoints::typeXs().select{|typex| typex["type"] == navpoint["type"] }.map{|typex| typex["name"] }.first
+        raise "b373b8d6-454e-4710-85e4-41160372395a" if typename.nil?
+        "[navpoint: #{typename}] #{navpoint["description"]}"
     end
 
     # NyxNavigationPoints::nyxSearchItems()
     def self.nyxSearchItems()
-        NyxNavigationPoints::getClassifierDeclarations()
-            .map{|classifier|
+        NyxNavigationPoints::getNavigationPoints()
+            .map{|navpoint|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(classifier)}",
-                    "payload"  => classifier
+                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(navpoint)}",
+                    "payload"  => navpoint
                 }
             }
     end
@@ -147,29 +140,29 @@ class NyxNavigationPoints
     # ------------------------------------------------
     # Interface
 
-    # NyxNavigationPoints::selectClassifierOrNull()
-    def self.selectClassifierOrNull()
-        CatalystUtils::selectOneOrNull(NyxNavigationPoints::getClassifierDeclarations(), lambda{|classifier| NyxNavigationPoints::toString(classifier)})
+    # NyxNavigationPoints::selectNavigationPointOrNull()
+    def self.selectNavigationPointOrNull()
+        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NyxNavigationPoints::getNavigationPoints(), lambda{|navpoint| NyxNavigationPoints::toString(navpoint)})
     end
 
-    # NyxNavigationPoints::landing(classifier)
-    def self.landing(classifier)
+    # NyxNavigationPoints::landing(navpoint)
+    def self.landing(navpoint)
 
         loop {
 
-            return if NyxNavigationPoints::getClassifierByUUIDOrNull(classifier["uuid"]).nil? # could have been destroyed at the previous run
+            return if NyxNavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"]).nil? # could have been destroyed at the previous run
 
-            classifier = NyxNavigationPoints::getClassifierByUUIDOrNull(classifier["uuid"])
+            navpoint = NyxNavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"])
 
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            puts NyxNavigationPoints::toString(classifier).green
-            puts "uuid: #{classifier["uuid"]}".yellow
+            puts NyxNavigationPoints::toString(navpoint).green
+            puts "uuid: #{navpoint["uuid"]}".yellow
 
             puts ""
 
-            Network::getLinkedObjects(classifier).each{|node|
+            Network::getLinkedObjects(navpoint).each{|node|
                 mx.item("related: #{Patricia::toString(node)}", lambda { 
                     Patricia::landing(node)
                 })
@@ -180,20 +173,20 @@ class NyxNavigationPoints
             mx.item("update description".yellow, lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
-                NyxNavigationPoints::updateClassifierDescription(classifier["uuid"], description)
+                NyxNavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
             })
 
             mx.item("link to network architected".yellow, lambda { 
-                Patricia::linkToArchitectedNode(classifier)
+                Patricia::linkToArchitectedNode(navpoint)
             })
 
             mx.item("select and remove related".yellow, lambda {
-                Patricia::selectAndRemoveLinkedNode(classifier)
+                Patricia::selectAndRemoveLinkedNode(navpoint)
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NyxNavigationPoints::destroy(classifier)
+                    NyxNavigationPoints::destroy(navpoint)
                 end
             })
 

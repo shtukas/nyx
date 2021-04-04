@@ -76,9 +76,6 @@ loop {
         }],
         ["/", "/", lambda{|context, command|
             UIServices::servicesFront()
-        }],
-        ["nyx", "nyx", lambda{|context, command|
-            UIServices::nyxMain()
         }]
     ]
 

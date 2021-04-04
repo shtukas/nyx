@@ -378,8 +378,8 @@ class CatalystUtils
 
     # ----------------------------------------------------
 
-    # CatalystUtils::selectLines(lines) : Array[String]
-    def self.selectLines(lines)
+    # CatalystUtils::selectLinesUsingInteractiveInterface(lines) : Array[String]
+    def self.selectLinesUsingInteractiveInterface(lines)
         # Some lines break peco, so we need to be a bit clever here...
         linesX = lines.map{|line|
             {
@@ -395,14 +395,14 @@ class CatalystUtils
         .compact
     end
 
-    # CatalystUtils::selectLineOrNull(lines) : String
-    def self.selectLineOrNull(lines)
+    # CatalystUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
+    def self.selectLineOrNullUsingInteractiveInterface(lines)
 
-        # Temporary measure to remove stress on CatalystUtils::selectLines / peco after 
+        # Temporary measure to remove stress on CatalystUtils::selectLinesUsingInteractiveInterface / peco after 
         # we added the videos from video stream
         lines = lines.reject{|line| line.include?('.mkv') }
         
-        lines = CatalystUtils::selectLines(lines)
+        lines = CatalystUtils::selectLinesUsingInteractiveInterface(lines)
         if lines.size == 0 then
             return nil
         end
@@ -412,10 +412,10 @@ class CatalystUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
     end
 
-    # CatalystUtils::selectOneOrNull(items, toString = lambda{|item| item })
-    def self.selectOneOrNull(items, toString = lambda{|item| item })
+    # CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
+    def self.selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
         lines = items.map{|item| toString.call(item) }
-        line = CatalystUtils::selectLineOrNull(lines)
+        line = CatalystUtils::selectLineOrNullUsingInteractiveInterface(lines)
         return nil if line.nil?
         items
             .select{|item| toString.call(item) == line }
