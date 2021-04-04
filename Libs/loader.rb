@@ -168,13 +168,9 @@ require_relative "Nereid.rb"
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
-require_relative "NereidNyxExt.rb"
-require_relative "Network.rb"
 
 require_relative "NX141FilenameReaderWriter.rb"
-require_relative "NyxNavigationPoints.rb"
 
-require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Quarks.rb"

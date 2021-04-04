@@ -36,7 +36,7 @@ class Quarks
         return nil if quark.nil?
         ordinal = Quarks::determineQuarkPlacingOrdinal()
         QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
-        Patricia::landing(quark)
+        Quarks::landing(quark)
         quark
     end
 
@@ -153,7 +153,7 @@ class Quarks
         }
 
         toString = lambda {|quark|
-            "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Patricia::toString(quark)}"
+            "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}"
         }
 
         streamDepth = 10
@@ -229,13 +229,6 @@ class Quarks
 
         context = {"quark" => quark}
         actions = [
-            [">nyx", ">nyx", lambda{|context, command|
-                quark = context["quark"]
-                item = Patricia::getNyxNetworkNodeByUUIDOrNull(quark["nereiduuid"]) 
-                return true if item.nil?
-                Patricia::landing(item)
-                Quarks::destroyQuark(quark)
-            }],
             ["/", "/", lambda{|context, command|
                 UIServices::servicesFront()
             }],
