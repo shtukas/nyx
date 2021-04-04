@@ -122,6 +122,21 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
+require_relative "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
+=begin
+    NereidInterface::interactivelyIssueNewElementOrNull()
+    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
+    NereidInterface::insertElement(element)
+    NereidInterface::toString(input) # input: uuid: String , element Element
+    NereidInterface::getElementOrNull(uuid)
+    NereidInterface::getElements()
+    NereidInterface::landing(input) # input: uuid: String , element Element
+    NereidInterface::access(input)
+    NereidInterface::edit(input): # new element with same uuid, or null
+    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
+    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
+=end
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
@@ -155,21 +170,6 @@ require_relative "GalaxyFinder.rb"
 
 require_relative "TodoCoreData.rb"
 require_relative "NereidNyxExt.rb"
-
-require_relative "Nereid.rb"
-=begin
-    NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
-    NereidInterface::insertElement(element)
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::getElements()
-    NereidInterface::landing(input) # input: uuid: String , element Element
-    NereidInterface::access(input)
-    NereidInterface::edit(input): # new element with same uuid, or null
-    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-=end
 
 require_relative "Network.rb"
 
