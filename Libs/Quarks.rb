@@ -16,10 +16,7 @@ class Quarks
         db.busy_handler { |count| true }
         db.execute "insert into _quarks_ (_uuid_, _nereiduuid_) values (?,?)", [uuid, nereiduuid]
         db.close
-        {
-            "uuid"       => uuid,
-            "nereiduuid" => nereiduuid
-        }
+        Quarks::getQuarkByUUIDOrNull(uuid)
     end
 
     # Quarks::getQuarkByUUIDOrNull(uuid)
@@ -69,6 +66,11 @@ class Quarks
 
     # --------------------------------------------------
 
+    # Quarks::toString(quark)
+    def self.toString(quark)
+        "[quark] #{NereidInterface::toString(quark["nereiduuid"])}"
+    end
+
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         element = NereidInterface::interactivelyIssueNewElementOrNull()
@@ -76,11 +78,12 @@ class Quarks
         Quarks::issueQuark(element["uuid"])
     end
 
-    # Quarks::toString(quark)
-    def self.toString(quark)
-        "[quark] #{NereidInterface::toString(quark["nereiduuid"])}"
+    # Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(nereiduuid)
+    def self.issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(nereiduuid)
+        quark = Quarks::issueQuark(nereiduuid)
+        ordinal = Quarks::computeLowOrdinal()
+        QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
     end
-
 
     # Quarks::getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)
     def self.getQuarkPossiblyArchitectedOrNull(quarkOpt, dxThreadOpt)

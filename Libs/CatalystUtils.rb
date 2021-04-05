@@ -101,13 +101,8 @@ class CatalystUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            nereiduuid = SecureRandom.hex
-            payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-            NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
-            quark = Quarks::issueQuark(nereiduuid)
-            puts JSON.pretty_generate(quark)
-            ordinal = Quarks::computeLowOrdinal()
-            QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
+            element = NereidInterface::issueAionPointElement(location)
+            Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
             LucilleCore::removeFileSystemLocation(location)
         end
     end

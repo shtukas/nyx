@@ -396,6 +396,29 @@ class NereidInterface
         NereidDatabaseDataCarriers::insertElement(element)
     end
 
+    # NereidInterface::issueNewURLElement(url)
+    def self.issueNewURLElement(url)
+        uuid = SecureRandom.hex
+        NereidInterface::insertElementComponents(uuid, Time.new.to_i, link, "Url", link)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
+    # NereidInterface::issueAionPointElement(location)
+    def self.issueAionPointElement(location)
+        uuid = SecureRandom.hex
+        payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
+        NereidInterface::insertElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
+    # NereidInterface::issueTextElement(description, text)
+    def self.issueTextElement(description, text)
+        uuid = SecureRandom.hex
+        payload = NereidBinaryBlobsService::putBlob(text)
+        NereidInterface::insertElementComponents(uuid, Time.new.to_i, description, "Text", payload)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
     # NereidInterface::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])

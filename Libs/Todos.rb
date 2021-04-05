@@ -52,6 +52,12 @@ class Todos
         Todos::sendStructureToDisk(structure)
     end
 
+    # Todos::delete(uuid)
+    def self.delete(uuid)
+        structure = Todos::getStructure().select{|text| Digest::SHA1.hexdigest(text) != uuid }
+        Todos::sendStructureToDisk(structure)
+    end
+
     # Todos::ns16s()
     def self.ns16s()
         Todos::getStructure()
@@ -64,11 +70,21 @@ class Todos
                     "announce" => announce,
                     "lambda"   => lambda{ 
 
+                        startUnixtime = Time.new.to_f
+
+                        thr = Thread.new {
+                            sleep 3600
+                            loop {
+                                CatalystUtils::onScreenNotification("Catalyst", "Todo running for more than an hour")
+                                sleep 60
+                            }
+                        }
+
                         system("clear")
                         puts text.green
 
                         loop {
-                            puts "[] (next transformation) | edit | ++ (postpone today by one hour)".yellow
+                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | >quarks".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -88,7 +104,26 @@ class Todos
                                 DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
                                 break
                             end
+
+                            if Interpreting::match(">quarks", command) then
+                                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                                element = NereidInterface::issueTextElement(description, text)
+                                Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
+                                Todos::delete(uuid)
+                                break
+                            end
                         }
+
+                        thr.exit
+
+                        timespan = Time.new.to_f - startUnixtime
+
+                        puts "Time since start: #{Time.new.to_f - startUnixtime}"
+
+                        timespan = [timespan, 3600*2].min
+                        puts "putting #{timespan} seconds to [todo]"
+                        Bank::put("da2a8102-633b-4b1b-bf98-8eef3a5d8a8e", timespan)
+
                     },
                     "isTodo"   => true,
                 }
