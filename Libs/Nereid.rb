@@ -419,6 +419,13 @@ class NereidInterface
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
+    # NereidInterface::issueLineElement(line)
+    def self.issueLineElement(line)
+        uuid = SecureRandom.hex
+        NereidInterface::insertElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
     # NereidInterface::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])

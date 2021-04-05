@@ -8,8 +8,8 @@ class Quarks
         "#{CatalystUtils::catalystDataCenterFolderpath()}/Quarks.sqlite3"
     end
 
-    # Quarks::issueQuark(nereiduuid)
-    def self.issueQuark(nereiduuid)
+    # Quarks::issueQuarkUsingNereiduuid(nereiduuid)
+    def self.issueQuarkUsingNereiduuid(nereiduuid)
         uuid = LucilleCore::timeStringL22()
         db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
@@ -75,12 +75,12 @@ class Quarks
     def self.issueNewQuarkInteractivelyOrNull()
         element = NereidInterface::interactivelyIssueNewElementOrNull()
         return nil if element.nil?
-        Quarks::issueQuark(element["uuid"])
+        Quarks::issueQuarkUsingNereiduuid(element["uuid"])
     end
 
     # Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(nereiduuid)
     def self.issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(nereiduuid)
-        quark = Quarks::issueQuark(nereiduuid)
+        quark = Quarks::issueQuarkUsingNereiduuid(nereiduuid)
         ordinal = Quarks::computeLowOrdinal()
         QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
     end
