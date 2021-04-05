@@ -76,30 +76,11 @@ class Interpreting
         end
     end
 
-    # Interpreting::interpreter(context, actions, config)
-    def self.interpreter(context, actions, config)
-        defaultConfig = {}
-        defaultConfig["displayHelpInLineAtIntialization"] = false
-        config = defaultConfig.merge(config)
-
-        if config["displayHelpInLineAtIntialization"] then
-            puts actions.map{|action| action[1]}.join(" | ").yellow
-            puts ""
-        end
-
-        command = LucilleCore::askQuestionAnswerAsString("> ")
-        if command == "help" then
-            puts actions.map{|action| action[1]}.join("\n")
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        action = actions
-                .select{|action|
-                    Interpreting::tokensMatch(Interpreting::tokenizer(action[0]), Interpreting::tokenizer(command))   
-                }
-                .first
-        return if action.nil?
-        action[2].call(context, command) 
+    # Interpreting::match(pattern, command)
+    # Example: Interpreting::match("set * *", "set key value")
+    def self.match(pattern, command)
+        matchers = Interpreting::tokenizer(pattern)
+        tokens = Interpreting::tokenizer(command)
+        Interpreting::tokensMatch(matchers, tokens)
     end
 end
-

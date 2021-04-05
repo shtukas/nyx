@@ -44,44 +44,47 @@ loop {
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
-    context = {"items" => items}
-    actions = [
-        ["..", ".. (access top)", lambda{|context, command|
-            system("clear")
-            items[0]["lambda"].call()
-        }],
-        ["++", "++ # Postpone top item by an hour", lambda{|context, command|
-            DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
-        }, !context["items"].empty?],
-        ["+ *", "+ <weekday> # Postpone top item", lambda{|context, command|
-            _, weekdayname = Interpreting::tokenizer(command)
-            unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
-            return if unixtime.nil?
-            item = context["items"][0]
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-        }],
-        ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
-            _, amount, unit = Interpreting::tokenizer(command)
-            unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
-            return if unixtime.nil?
-            item = context["items"][0]
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-        }],
-        ["select *", "select <n>", lambda{|context, command|
-            _, ordinal = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            item = context["items"][ordinal]
-            return if item.nil?
-            item["lambda"].call()
-        }],
-        ["/", "/", lambda{|context, command|
-            UIServices::servicesFront()
-        }]
-    ]
+    puts ".. (access top) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
 
-    returnvalue = Interpreting::interpreter(context, actions, {
-        "displayHelpInLineAtIntialization" => true
-    })
+    command = LucilleCore::askQuestionAnswerAsString("> ")
 
+    break if command == ""
+
+    if Interpreting::match("..", command) then
+        system("clear")
+        items[0]["lambda"].call()
+    end
+
+    if Interpreting::match("++", command) then
+        DoNotShowUntil::setUnixtime(items[0]["uuid"], Time.new.to_i+3600)
+    end
+
+    if Interpreting::match("+ *", command) then
+        _, weekdayname = Interpreting::tokenizer(command)
+        unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
+        next if unixtime.nil?
+        item = items[0]
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+    end
+
+    if Interpreting::match("+ * *", command) then
+        _, amount, unit = Interpreting::tokenizer(command)
+        unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+        next if unixtime.nil?
+        item = items[0]
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+    end
+
+    if Interpreting::match("select *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["lambda"].call()
+    end
+
+    if Interpreting::match("/", command) then
+        UIServices::servicesFront()
+    end
 }
 

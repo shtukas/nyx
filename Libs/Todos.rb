@@ -67,25 +67,28 @@ class Todos
                         system("clear")
                         puts text.green
 
-                        context = {"uuid" => uuid}
-                        actions = [
-                            ["[]", "[] Next transformation", lambda{|context, command|
-                                uuid = context["uuid"]
-                                Todos::applyNextTransformation(uuid)
-                            }],
-                            ["edit", "edit", lambda{|context, command|
-                                uuid = context["uuid"]
-                                Todos::edit(uuid)
-                            }],
-                            ["++", "++ (postpone today by one hour)", lambda{|context, command|
-                                uuid = context["uuid"]
-                                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                            }],
-                        ]
+                        loop {
+                            puts "[] (next transformation) | edit | ++ (postpone today by one hour)".yellow
 
-                        returnvalue = Interpreting::interpreter(context, actions, {
-                            "displayHelpInLineAtIntialization" => true
-                        })
+                            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+                            break if command == ""
+
+                            if Interpreting::match("[]", command) then
+                                Todos::applyNextTransformation(uuid)
+                                break
+                            end
+
+                            if Interpreting::match("edit", command) then
+                                Todos::edit(uuid)
+                                break
+                            end
+
+                            if Interpreting::match("++", command) then
+                                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                                break
+                            end
+                        }
                     }
                 }
             }

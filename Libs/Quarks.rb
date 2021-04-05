@@ -274,53 +274,56 @@ class Quarks
         puts "running: #{Quarks::toString(quark).green}"
         NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
 
-        context = {"quark" => quark}
-        actions = [
-            ["/", "/", lambda{|context, command|
+        puts "/ | landing | ++ # Postpone quark by an hour | + <weekday> # Postpone quark | + <float> <datecode unit> # Postpone quark | destroy | ;; # destroy | (empty) # default # exit".yellow
+
+        loop {
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            return if command == ""
+
+            if Interpreting::match("/", command) then
                 UIServices::servicesFront()
-            }],
-            ["landing", "landing", lambda{|context, command|
-                quark = context["quark"]
+            end
+
+            if Interpreting::match("landing", command) then
                 Quarks::landing(quark)
-            }],
-            ["++", "++ # Postpone quark by an hour", lambda{|context, command|
-                quark = context["quark"]
+            end
+
+            if Interpreting::match("++", command) then
                 DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-            }],
-            ["+ *", "+ <weekday> # Postpone quark", lambda{|context, command|
+            end
+
+            if Interpreting::match("+ *", command) then
                 _, input = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{input}")
-                return true if unixtime.nil?
-                quark = context["quark"]
+                next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-            }],
-            ["+ * *", "+ <float> <datecode unit> # Postpone quark", lambda{|context, command|
+            end
+
+            if Interpreting::match("+ * *", command) then
                 _, amount, unit = Interpreting::tokenizer(command)
                 unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
-                quark = context["quark"]
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-            }],
-            ["destroy", "destroy", lambda{|context, command|
-                quark = context["quark"]
+            end
+
+            if Interpreting::match("destroy", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
-            }],
-            [";;", ";; # destroy", lambda{|context, command|
-                quark = context["quark"]
+            end
+
+            if Interpreting::match(";;", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
-            }],
-            ["", "(empty) # default # exit", lambda{|context, command|
+            end
 
-            }]
-        ]
-
-        Interpreting::interpreter(context, actions, {
-            "displayHelpInLineAtIntialization" => true
-        })
+            if Interpreting::match("", command) then
+                break
+            end
+        }
 
         thr.exit
 
