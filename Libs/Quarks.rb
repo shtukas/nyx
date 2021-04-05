@@ -5,7 +5,7 @@ class Quarks
 
     # Quarks::databaseFilepath()
     def self.databaseFilepath()
-        "#{CatalystUtils::catalystDataCenterFolderpath()}/Quarks.sqlite3"
+        "#{Utils::catalystDataCenterFolderpath()}/Quarks.sqlite3"
     end
 
     # Quarks::issueQuarkUsingNereiduuid(nereiduuid)
@@ -211,7 +211,7 @@ class Quarks
         # We fix the uuids that we are going to work with for a duration of two hours
 
         thisSlotUUIDs = (lambda {
-            storageKey = CatalystUtils::getNewValueEveryNSeconds("5c47e435-899c-4ab7-96c6-0b941cf2dd8f", 2*3600)
+            storageKey = Utils::getNewValueEveryNSeconds("5c47e435-899c-4ab7-96c6-0b941cf2dd8f", 2*3600)
             uuids = KeyValueStore::getOrNull(nil, storageKey)
             if uuids then
                 return JSON.parse(uuids)
@@ -258,7 +258,7 @@ class Quarks
         thr = Thread.new {
             sleep 3600
             loop {
-                CatalystUtils::onScreenNotification("Catalyst", "Quark running for more than an hour")
+                Utils::onScreenNotification("Catalyst", "Quark running for more than an hour")
                 sleep 60
             }
         }
@@ -299,14 +299,14 @@ class Quarks
 
             if Interpreting::match("+ *", command) then
                 _, input = Interpreting::tokenizer(command)
-                unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{input}")
+                unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
             end
 
             if Interpreting::match("+ * *", command) then
                 _, amount, unit = Interpreting::tokenizer(command)
-                unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+                unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
             end

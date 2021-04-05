@@ -45,7 +45,7 @@ class Todos
     def self.edit(uuid)
         structure = Todos::getStructure().map{|text|
             if Digest::SHA1.hexdigest(text) == uuid then
-                text = CatalystUtils::editTextSynchronously(text)
+                text = Utils::editTextSynchronously(text)
             end
             text
         }
@@ -75,7 +75,7 @@ class Todos
                         thr = Thread.new {
                             sleep 3600
                             loop {
-                                CatalystUtils::onScreenNotification("Catalyst", "Todo running for more than an hour")
+                                Utils::onScreenNotification("Catalyst", "Todo running for more than an hour")
                                 sleep 60
                             }
                         }

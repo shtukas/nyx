@@ -5,7 +5,7 @@ class Waves
 
     # Waves::databaseFilepath()
     def self.databaseFilepath()
-        "#{CatalystUtils::catalystDataCenterFolderpath()}/Waves.sqlite3"
+        "#{Utils::catalystDataCenterFolderpath()}/Waves.sqlite3"
     end
 
     # Waves::issueWave(nereidelement, schedule)
@@ -251,7 +251,7 @@ class Waves
         case element["type"]
         when "Line"
         when "Url"
-            CatalystUtils::openUrl(element["payload"])
+            Utils::openUrl(element["payload"])
         else
             NereidInterface::access(wave["nereiduuid"])
         end

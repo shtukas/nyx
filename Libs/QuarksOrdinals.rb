@@ -6,7 +6,7 @@ class QuarksOrdinals
 
     # QuarksOrdinals::databaseFilepath()
     def self.databaseFilepath()
-        "#{CatalystUtils::catalystDataCenterFolderpath()}/quarks-ordinals.sqlite3"
+        "#{Utils::catalystDataCenterFolderpath()}/quarks-ordinals.sqlite3"
     end
 
     # QuarksOrdinals::setQuarkOrdinal(quark, ordinal)

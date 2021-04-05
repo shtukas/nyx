@@ -20,7 +20,7 @@ if ARGV.empty? then
 end
 
 if ARGV[0] == "no-work-today" then
-    KeyValueStore::setFlagTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{CatalystUtils::today()}")
+    KeyValueStore::setFlagTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}")
     exit
 end
 

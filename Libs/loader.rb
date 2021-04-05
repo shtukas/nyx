@@ -38,7 +38,7 @@ require 'colorize'
 
 # -----------------------------------------------------------------------
 # require 'curses' # I commented that out, thereby disabling 
-# CatalystUtils::ncurseSelection1410(lambda1, lambda2) ,
+# Utils::ncurseSelection1410(lambda1, lambda2) ,
 # when I introduced pepin 
 
 require 'pepin'
@@ -141,7 +141,7 @@ require_relative "Bank.rb"
 require_relative "BinaryBlobsService.rb"
 
 require_relative "Calendar.rb"
-require_relative "CatalystUtils.rb"
+require_relative "Utils.rb"
 
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
