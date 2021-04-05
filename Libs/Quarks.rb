@@ -150,7 +150,7 @@ class Quarks
 
             mx.item("destroy quark and content".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this quark and its content? ") then
-                    Quarks::destroyAndNereidContent(quark)
+                    Quarks::destroyQuarkAndNereidContent(quark)
                 end
             })
 
@@ -161,7 +161,7 @@ class Quarks
         }
     end
 
-    # Quarks::destroyAndNereidContent(quark)
+    # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
         NereidInterface::destroyElement(quark["nereiduuid"])
         Quarks::destroy(quark["uuid"])
@@ -269,7 +269,7 @@ class Quarks
             # The quark is obviously alive but the corresponding nereid item is dead
             puts Quarks::toString(quark).green
             if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
-                Quarks::destroyAndNereidContent(quark)
+                Quarks::destroyQuarkAndNereidContent(quark)
             end
             return
         end
@@ -309,13 +309,13 @@ class Quarks
 
             if Interpreting::match("destroy", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                Quarks::destroyAndNereidContent(quark)
+                Quarks::destroyQuarkAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
             end
 
             if Interpreting::match(";;", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                Quarks::destroyAndNereidContent(quark)
+                Quarks::destroyQuarkAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
             end
 
