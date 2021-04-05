@@ -64,7 +64,7 @@ class Todos
             .map
             .with_index{|text, i|
                 uuid = Digest::SHA1.hexdigest(text)
-                announce = i == 0 ? "todo:\n#{text.lines.first(3).map{|line| "            #{line}"}.join() + "\n\n"}" : "todo: #{uuid}"
+                announce = "todo:\n#{text.lines.first(3).map{|line| "            #{line}"}.join() + "\n\n"}".strip
                 {
                     "uuid"     => uuid,
                     "announce" => announce,
@@ -111,7 +111,14 @@ class Todos
                             end
 
                             if Interpreting::match(">quarks", command) then
-                                description = LucilleCore::askQuestionAnswerAsString("description: ")
+
+                                description = (lambda{
+                                    if text.lines.size == 1 then
+                                        text.strip
+                                    else
+                                        LucilleCore::askQuestionAnswerAsString("description: ")
+                                    end
+                                }).call()
                                 element = NereidInterface::issueTextElement(description, text)
                                 Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
                                 Todos::delete(uuid)
