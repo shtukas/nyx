@@ -513,7 +513,7 @@ class NereidInterface
         end
     end
 
-    # NereidInterface::landing(input) # input: uuid: String , element Element
+    # NereidInterface::landing(input) # input: uuid: String | element Element
     def self.landing(input)
 
         element = NereidInterface::inputToElementOrNull(input, "landing")
@@ -568,7 +568,7 @@ class NereidInterface
         }
     end
 
-    # NereidInterface::access(input)
+    # NereidInterface::access(input) # input: uuid: String | element Element
     def self.access(input)
 
         element = NereidInterface::inputToElementOrNull(input, "access")
@@ -669,7 +669,7 @@ class NereidInterface
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
-    # NereidInterface::accessTodoListingEdition(input)
+    # NereidInterface::accessTodoListingEdition(input) # input: uuid: String | element Element
     def self.accessTodoListingEdition(input)
 
         element = NereidInterface::inputToElementOrNull(input, "access")
@@ -723,7 +723,7 @@ class NereidInterface
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
-    # NereidInterface::postAccessCleanUpTodoListingEdition(input)
+    # NereidInterface::postAccessCleanUpTodoListingEdition(input) # input: uuid: String | element Element
     def self.postAccessCleanUpTodoListingEdition(input)
 
         element = NereidInterface::inputToElementOrNull(input, "postAccessCleanUpTodoListingEdition")
@@ -758,7 +758,7 @@ class NereidInterface
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
-    # NereidInterface::edit(input): # new element with same uuid, or null
+    # NereidInterface::edit(input): # input: uuid: String | element Element -> new element with same uuid, or null
     def self.edit(input)
 
         element = NereidInterface::inputToElementOrNull(input, "transmutation")
@@ -836,7 +836,7 @@ class NereidInterface
         raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
     end
 
-    # NereidInterface::transmuteOrNull(input): # new element with same uuid, or null
+    # NereidInterface::transmuteOrNull(input): # input: uuid: String | element Element -> new element with same uuid, or null
     def self.transmuteOrNull(input)
 
         element = NereidInterface::inputToElementOrNull(input, "transmutation")
