@@ -3,15 +3,95 @@
 
 class Waves
 
-    # Waves::traceToRealInUnitInterval(trace)
-    def self.traceToRealInUnitInterval(trace)
-        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
+    # Waves::databaseFilepath()
+    def self.databaseFilepath()
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Waves.sqlite3"
     end
 
-    # Waves::traceToMetricShift(trace)
-    def self.traceToMetricShift(trace)
-        0.001*Waves::traceToRealInUnitInterval(trace)
+    # Waves::issueWave(nereidelement, schedule)
+    def self.issueWave(nereidelement, schedule)
+
+        uuid = LucilleCore::timeStringL22()
+        lastDoneDateTime = "2021-04-05T01:15:59Z"
+
+        db = SQLite3::Database.new(Waves::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [uuid, nereidelement["uuid"], JSON.generate(schedule), lastDoneDateTime]
+        db.close
+
+        {
+            "uuid"             => uuid,
+            "nereiduuid"       => nereidelement["uuid"],
+            "schedule"         => schedule,
+            "lastDoneDateTime" => lastDoneDateTime
+        }
     end
+
+    # Waves::commitWave(wave)
+    def self.commitWave(wave)
+
+        uuid = LucilleCore::timeStringL22()
+        lastDoneDateTime = "2021-04-05T01:15:59Z"
+
+        db = SQLite3::Database.new(Waves::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "delete from _waves_ where _uuid_=?", [wave["uuid"]]
+        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [wave["uuid"], wave["nereiduuid"], JSON.generate(wave["schedule"]), wave["lastDoneDateTime"]]
+        db.close
+    end
+
+    # Waves::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        db = SQLite3::Database.new(Waves::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _waves_ where _uuid_=?" , [uuid]) do |row|
+            answer = {
+                "uuid"             => row["_uuid_"],
+                "nereiduuid"       => row["_nereiduuid_"],
+                "schedule"         => JSON.parse(row["_schedule_"]),
+                "lastDoneDateTime" => row["_lastDoneDateTime_"],
+            }
+        end
+        db.close
+        answer
+    end
+
+    # Waves::waves()
+    def self.waves()
+        db = SQLite3::Database.new(Waves::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _waves_" , []) do |row|
+            answer << {
+                "uuid"             => row["_uuid_"],
+                "nereiduuid"       => row["_nereiduuid_"],
+                "schedule"         => JSON.parse(row["_schedule_"]),
+                "lastDoneDateTime" => row["_lastDoneDateTime_"],
+            }
+        end
+        db.close
+        answer
+    end
+
+    # Waves::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(Waves::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _waves_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+    end
+
+    # --------------------------------------------------------------------
 
     # Waves::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
@@ -118,21 +198,9 @@ class Waves
     # Waves::performDone(wave)
     def self.performDone(wave)
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        TodoCoreData::put(wave)
+        Waves::commitWave(wave)
         unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-    end
-
-    # Waves::issueWave(uuid, element, schedule)
-    def self.issueWave(uuid, element, schedule)
-        wave = {
-            "uuid"       => uuid,
-            "nyxNxSet"   => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
-            "nereiduuid" => element["uuid"],
-            "schedule"   => schedule
-        }
-        TodoCoreData::put(wave)
-        wave
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
@@ -141,18 +209,7 @@ class Waves
         return nil if element.nil?
         schedule = Waves::makeScheduleObjectInteractivelyOrNull()
         return nil if schedule.nil?
-        wave = Waves::issueWave(LucilleCore::timeStringL22(), element, schedule)
-        wave
-    end
-
-    # Waves::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        TodoCoreData::getOrNull(uuid)
-    end
-
-    # Waves::waves()
-    def self.waves()
-        TodoCoreData::getSet("7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4")
+        Waves::issueWave(element, schedule)
     end
 
     # Waves::toString(wave)
@@ -209,15 +266,19 @@ class Waves
     def self.landing(wave)
         loop {
             system("clear")
-            return if TodoCoreData::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+
+            return if Waves::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"
+
             if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
+
             puts "schedule: #{wave["schedule"]}"
 
             menuitems = LCoreMenuItemsNX1.new()
@@ -233,23 +294,16 @@ class Waves
 
             menuitems.item("done",lambda { Waves::performDone(wave) })
 
-            menuitems.item("description", lambda { 
-                description = CatalystUtils::editTextSynchronously(wave["description"])
-                return if description.nil?
-                wave["description"] = description
-                TodoCoreData::put(wave)
-            })
-
-            menuitems.item("recast", lambda { 
+            menuitems.item("recast schedule", lambda { 
                 schedule = Waves::makeScheduleObjectInteractivelyOrNull()
                 return if schedule.nil?
                 wave["schedule"] = schedule
-                TodoCoreData::put(wave)
+                Waves::commitWave(wave)
             })
 
             menuitems.item("destroy", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    TodoCoreData::destroy(wave)
+                    Waves::destroy(wave["uuid"])
                 end
             })
 

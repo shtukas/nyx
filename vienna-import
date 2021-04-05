@@ -47,15 +47,8 @@ loop {
 
     nereiduuid = SecureRandom.hex
     NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, link, "Url", link)
-
-    quark = {
-        "uuid"       => SecureRandom.hex,
-        "nereiduuid" => nereiduuid
-    }
-    Quarks::issueQuark(quark["uuid"], quark["nereiduuid"])
-
+    quark = Quarks::issueQuark(nereiduuid)
     ordinal = Quarks::computeLowOrdinal()
-
     QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
 
     viennaLinkFeeder.done(link)

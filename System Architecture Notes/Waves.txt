@@ -1,9 +1,10 @@
 Wave are the todo repeating items of Catalyst. They carry a description and a schedule.
 
+sqlite> create table _waves_ (_uuid_ text, _nereiduuid_ text, _schedule_ text, _lastDoneDateTime_ text);
+
 Waves
 {
     "uuid"             : String
-    "nyxNxSet"         : "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
     "nereiduuid"       : String
     "schedule"         : Schedule
     "lastDoneDateTime" : Datetime | null

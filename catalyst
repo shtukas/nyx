@@ -9,13 +9,7 @@ require_relative "Libs/loader.rb"
 def insertQuarkLine(ordinal, line)
     nereiduuid = SecureRandom.hex
     NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, line, "Line", "")
-
-    quark = {
-        "uuid"       => SecureRandom.hex,
-        "nereiduuid" => nereiduuid
-    }
-    Quarks::issueQuark(quark["uuid"], quark["nereiduuid"])
-
+    quark = Quarks::issueQuark(nereiduuid)
     QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
 end
 

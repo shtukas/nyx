@@ -151,8 +151,6 @@ require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
 
-require_relative "TodoCoreData.rb"
-
 require_relative "Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()

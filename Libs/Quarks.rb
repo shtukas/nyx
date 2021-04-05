@@ -8,6 +8,20 @@ class Quarks
         "#{CatalystUtils::catalystDataCenterFolderpath()}/Quarks.sqlite3"
     end
 
+    # Quarks::issueQuark(nereiduuid)
+    def self.issueQuark(nereiduuid)
+        uuid = LucilleCore::timeStringL22()
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "insert into _quarks_ (_uuid_, _nereiduuid_) values (?,?)", [uuid, nereiduuid]
+        db.close
+        {
+            "uuid"       => uuid,
+            "nereiduuid" => nereiduuid
+        }
+    end
+
     # Quarks::getQuarkByUUIDOrNull(uuid)
     def self.getQuarkByUUIDOrNull(uuid)
         db = SQLite3::Database.new(Quarks::databaseFilepath())
@@ -42,27 +56,6 @@ class Quarks
         answer
     end
 
-    # Quarks::issueQuark(uuid, nereiduuid)
-    def self.issueQuark(uuid, nereiduuid)
-        db = SQLite3::Database.new(Quarks::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.execute "insert into _quarks_ (_uuid_, _nereiduuid_) values (?,?)", [uuid, nereiduuid]
-        db.close
-    end
-
-    # Quarks::issueNewQuarkInteractivelyOrNull()
-    def self.issueNewQuarkInteractivelyOrNull()
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return nil if element.nil?
-        uuid = SecureRandom.hex
-        Quarks::issueQuark(uuid, nereiduuid)
-        {
-            "uuid"       => uuid,
-            "nereiduuid" => element["uuid"]
-        }
-    end
-
     # Quarks::destroy(uuid)
     def self.destroy(uuid)
         db = SQLite3::Database.new(Quarks::databaseFilepath())
@@ -75,6 +68,13 @@ class Quarks
     end
 
     # --------------------------------------------------
+
+    # Quarks::issueNewQuarkInteractivelyOrNull()
+    def self.issueNewQuarkInteractivelyOrNull()
+        element = NereidInterface::interactivelyIssueNewElementOrNull()
+        return nil if element.nil?
+        Quarks::issueQuark(element["uuid"])
+    end
 
     # Quarks::toString(quark)
     def self.toString(quark)
