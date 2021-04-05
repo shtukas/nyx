@@ -44,15 +44,22 @@ loop {
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
-    puts ".. (access top) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
+    puts ".. (access top) || [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
-    break if command == ""
+    next if command == ""
 
     if Interpreting::match("..", command) then
         system("clear")
         items[0]["lambda"].call()
+    end
+
+    if Interpreting::match("[]", command) then
+        item = items[0]
+        next if !item["isTodo"]
+        Todos::applyNextTransformation(item["uuid"])
+        next
     end
 
     if Interpreting::match("++", command) then

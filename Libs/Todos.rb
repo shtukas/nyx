@@ -89,7 +89,8 @@ class Todos
                                 break
                             end
                         }
-                    }
+                    },
+                    "isTodo"   => true,
                 }
             }
     end
