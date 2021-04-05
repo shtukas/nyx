@@ -15,7 +15,6 @@ class Quarks
         quark = {
             "uuid"       => SecureRandom.hex,
             "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
-            "unixtime"   => Time.new.to_i,
             "nereiduuid" => element["uuid"]
         }
         TodoCoreData::put(quark)

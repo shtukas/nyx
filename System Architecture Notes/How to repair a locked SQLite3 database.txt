@@ -1,3 +1,0 @@
-
-sqlite3 NS-Core-Objects.sqlite3 .dump > NS-Core-Objects.sqlite3-dump.sql
-cat NS-Core-Objects.sqlite3-dump.sql | sqlite3 NS-Core-Objects.sqlite3

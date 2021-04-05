@@ -128,7 +128,6 @@ class Waves
         wave = {
             "uuid"       => uuid,
             "nyxNxSet"   => "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4",
-            "unixtime"   => Time.new.to_f,
             "nereiduuid" => element["uuid"],
             "schedule"   => schedule
         }
