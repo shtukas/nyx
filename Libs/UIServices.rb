@@ -23,27 +23,6 @@ class UIServices
 
             puts ""
 
-            ms.item("dangerously edit a TodoCoreData object by uuid", lambda { 
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                return if uuid == ""
-                object = TodoCoreData::getOrNull(uuid)
-                return if object.nil?
-                object = CatalystUtils::editTextSynchronously(JSON.pretty_generate(object))
-                object = JSON.parse(object)
-                TodoCoreData::put(object)
-            })
-
-            ms.item("dangerously delete a TodoCoreData object by uuid", lambda { 
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = TodoCoreData::getOrNull(uuid)
-                return if object.nil?
-                puts JSON.pretty_generate(object)
-                return if !LucilleCore::askQuestionAnswerAsBoolean("delete ? : ")
-                TodoCoreData::destroy(object)
-            })
-
-            puts ""
-
             status = ms.promptAndRunSandbox()
             break if !status
         }

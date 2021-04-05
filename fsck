@@ -18,7 +18,7 @@ require_relative "Libs/loader.rb"
         puts JSON.pretty_generate(item).red
         puts Quarks::toString(item).green
         exit
-        #Quarks::destroyQuarkAndNereidContent(item)
+        #Quarks::destroyAndNereidContent(item)
         next
     end
     NereidFsck::checkElement(element)

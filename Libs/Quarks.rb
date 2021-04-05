@@ -3,22 +3,75 @@
 
 class Quarks
 
+    # Quarks::databaseFilepath()
+    def self.databaseFilepath()
+        "#{CatalystUtils::catalystDataCenterFolderpath()}/Quarks.sqlite3"
+    end
+
+    # Quarks::getQuarkByUUIDOrNull(uuid)
+    def self.getQuarkByUUIDOrNull(uuid)
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _quarks_ where _uuid_=?" , [uuid]) do |row|
+            answer = {
+                "uuid"       => row["_uuid_"],
+                "nereiduuid" => row["_nereiduuid_"]
+            }
+        end
+        db.close
+        answer
+    end
+
     # Quarks::quarks()
     def self.quarks()
-        TodoCoreData::getSet("d65674c7-c8c4-4ed4-9de9-7c600b43eaab")
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _quarks_" , []) do |row|
+            answer << {
+                "uuid"       => row["_uuid_"],
+                "nereiduuid" => row["_nereiduuid_"]
+            }
+        end
+        db.close
+        answer
+    end
+
+    # Quarks::issueQuark(uuid, nereiduuid)
+    def self.issueQuark(uuid, nereiduuid)
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "insert into _quarks_ (_uuid_, _nereiduuid_) values (?,?)", [uuid, nereiduuid]
+        db.close
     end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
         element = NereidInterface::interactivelyIssueNewElementOrNull()
         return nil if element.nil?
-        quark = {
-            "uuid"       => SecureRandom.hex,
-            "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
+        uuid = SecureRandom.hex
+        Quarks::issueQuark(uuid, nereiduuid)
+        {
+            "uuid"       => uuid,
             "nereiduuid" => element["uuid"]
         }
-        TodoCoreData::put(quark)
-        quark
+    end
+
+    # Quarks::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _quarks_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
     end
 
     # --------------------------------------------------
@@ -50,8 +103,8 @@ class Quarks
     def self.landing(quark)
         loop {
 
-            return if TodoCoreData::getOrNull(quark["uuid"]).nil?
-            quark = TodoCoreData::getOrNull(quark["uuid"]) # could have been transmuted in the previous loop
+            return if Quarks::getQuarkByUUIDOrNull(quark["uuid"]).nil?
+            quark = Quarks::getQuarkByUUIDOrNull(quark["uuid"]) # Could have been transmuted in the previous loop
 
             system("clear")
 
@@ -94,7 +147,7 @@ class Quarks
 
             mx.item("destroy quark and content".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this quark and its content? ") then
-                    Quarks::destroyQuarkAndNereidContent(quark)
+                    Quarks::destroyAndNereidContent(quark)
                 end
             })
 
@@ -105,15 +158,10 @@ class Quarks
         }
     end
 
-    # Quarks::destroyQuark(quark)
-    def self.destroyQuark(quark)
-        TodoCoreData::destroy(quark)
-    end
-
-    # Quarks::destroyQuarkAndNereidContent(quark)
+    # Quarks::destroyAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
         NereidInterface::destroyElement(quark["nereiduuid"])
-        TodoCoreData::destroy(quark)
+        Quarks::destroy(quark["uuid"])
     end
 
     # Quarks::computeLowOrdinal()
@@ -218,7 +266,7 @@ class Quarks
             # The quark is obviously alive but the corresponding nereid item is dead
             puts Quarks::toString(quark).green
             if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
-                Quarks::destroyQuarkAndNereidContent(quark)
+                Quarks::destroyAndNereidContent(quark)
             end
             return
         end
@@ -256,13 +304,13 @@ class Quarks
             ["destroy", "destroy", lambda{|context, command|
                 quark = context["quark"]
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                Quarks::destroyQuarkAndNereidContent(quark)
+                Quarks::destroyAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
             }],
             [";;", ";; # destroy", lambda{|context, command|
                 quark = context["quark"]
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                Quarks::destroyQuarkAndNereidContent(quark)
+                Quarks::destroyAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
             }],
             ["", "(empty) # default # exit", lambda{|context, command|

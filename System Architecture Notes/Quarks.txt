@@ -1,6 +1,7 @@
 
+sqlite> create table _quarks_ (_uuid_ text, _nereiduuid_ text);
+
 Quark {
     "uuid"       : String
-    "nyxNxSet"   : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
     "nereiduuid" : String
 }

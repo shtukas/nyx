@@ -50,10 +50,9 @@ loop {
 
     quark = {
         "uuid"       => SecureRandom.hex,
-        "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
         "nereiduuid" => nereiduuid
     }
-    TodoCoreData::put(quark)
+    Quarks::issueQuark(quark["uuid"], quark["nereiduuid"])
 
     ordinal = Quarks::computeLowOrdinal()
 

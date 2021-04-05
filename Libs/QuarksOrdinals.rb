@@ -113,7 +113,7 @@ class QuarksOrdinals
     def self.firstNQuarksInOrdinalOrder(resultSize)
 
         getMaybeQuark = lambda {|uuid|
-            quark = TodoCoreData::getOrNull(uuid) 
+            quark = Quarks::getQuarkByUUIDOrNull(uuid) 
             return nil if quark.nil?
             quark
         }
@@ -139,7 +139,7 @@ class QuarksOrdinals
         end
 
         getMaybeVisibleQuark = lambda {|uuid|
-            quark = TodoCoreData::getOrNull(uuid) 
+            quark = Quarks::getQuarkByUUIDOrNull(uuid) 
             return nil if quark.nil?
             return nil if !DoNotShowUntil::isVisible(uuid)
             quark
@@ -164,7 +164,7 @@ Thread.new {
         sleep 10
         next if !ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("2e293e5c-79d2-4238-abee-a825c488eee7", 86400)
         QuarksOrdinals::getQuarkUUIDsInOrdinalOrder().each{|uuid|
-            next if TodoCoreData::getOrNull(uuid)
+            next if Quarks::getQuarkByUUIDOrNull(uuid)
             QuarksOrdinals::deleteRecordsByQuarkUUID(uuid)
         }
     }
