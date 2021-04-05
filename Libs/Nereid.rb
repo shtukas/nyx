@@ -1,7 +1,6 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
     NereidInterface::insertElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
@@ -386,11 +385,6 @@ class NereidInterface
         NereidInterface::toStringFromElement(input)
     end
 
-    # NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
-    def self.insertElementComponents(uuid, unixtime, description, type, payload)
-        NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, type, payload)
-    end
-
     # NereidInterface::insertElement(element)
     def self.insertElement(element)
         NereidDatabaseDataCarriers::insertElement(element)
@@ -399,7 +393,7 @@ class NereidInterface
     # NereidInterface::issueNewURLElement(url)
     def self.issueNewURLElement(url)
         uuid = SecureRandom.hex
-        NereidInterface::insertElementComponents(uuid, Time.new.to_i, link, "Url", link)
+        NereidDatabaseDataCarriers::insertElementComponents(uuid, Time.new.to_i, link, "Url", link)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
@@ -407,7 +401,7 @@ class NereidInterface
     def self.issueAionPointElement(location)
         uuid = SecureRandom.hex
         payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-        NereidInterface::insertElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
+        NereidDatabaseDataCarriers::insertElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
@@ -415,14 +409,14 @@ class NereidInterface
     def self.issueTextElement(description, text)
         uuid = SecureRandom.hex
         payload = NereidBinaryBlobsService::putBlob(text)
-        NereidInterface::insertElementComponents(uuid, Time.new.to_i, description, "Text", payload)
+        NereidDatabaseDataCarriers::insertElementComponents(uuid, Time.new.to_i, description, "Text", payload)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
     # NereidInterface::issueLineElement(line)
     def self.issueLineElement(line)
         uuid = SecureRandom.hex
-        NereidInterface::insertElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        NereidDatabaseDataCarriers::insertElementComponents(uuid, Time.new.to_i, line, "Line", "")
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 

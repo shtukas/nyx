@@ -154,7 +154,6 @@ require_relative "GalaxyFinder.rb"
 require_relative "Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
     NereidInterface::insertElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
