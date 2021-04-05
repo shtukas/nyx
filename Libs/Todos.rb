@@ -84,7 +84,7 @@ class Todos
                         puts text.green
 
                         loop {
-                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | >quarks".yellow
+                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done | >quarks".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -102,6 +102,11 @@ class Todos
 
                             if Interpreting::match("++", command) then
                                 DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                                break
+                            end
+
+                            if Interpreting::match("done", command) then
+                                Todos::delete(uuid)
                                 break
                             end
 
