@@ -277,17 +277,13 @@ class Quarks
         puts "running: #{Quarks::toString(quark).green}"
         NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
 
-        puts "/ | landing | ++ # Postpone quark by an hour | + <weekday> # Postpone quark | + <float> <datecode unit> # Postpone quark | destroy | ;; # destroy | (empty) # default # exit".yellow
+        puts "landing | ++ # Postpone quark by an hour | + <weekday> # Postpone quark | + <float> <datecode unit> # Postpone quark | destroy | ;; # destroy | (empty) # default # exit".yellow
 
         loop {
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             return if command == ""
-
-            if Interpreting::match("/", command) then
-                UIServices::servicesFront()
-            end
 
             if Interpreting::match("landing", command) then
                 Quarks::landing(quark)
