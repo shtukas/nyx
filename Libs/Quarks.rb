@@ -291,6 +291,7 @@ class Quarks
 
             if Interpreting::match("++", command) then
                 DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
+                break
             end
 
             if Interpreting::match("+ *", command) then
@@ -298,6 +299,7 @@ class Quarks
                 unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
                 next if unixtime.nil?
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+                break
             end
 
             if Interpreting::match("+ * *", command) then
@@ -305,18 +307,21 @@ class Quarks
                 unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+                break
             end
 
             if Interpreting::match("destroy", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
+                break
             end
 
             if Interpreting::match(";;", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
                 QuarksHorizon::makeNewDataPoint()
+                break
             end
 
             if Interpreting::match("", command) then
