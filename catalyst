@@ -6,26 +6,92 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-def insertQuarkLine(ordinal, line)
-    element = NereidInterface::issueLineElement(line)
-    quark = Quarks::issueQuarkUsingNereiduuid(element["uuid"])
-    QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
-end
+Thread.new {
+    loop {
+        sleep 120
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
+            system("#{File.dirname(__FILE__)}/../../vienna-import")
+        end
+    }
+}
 
-if ARGV.empty? then
-    puts "usage:"
-    puts "catalyst no-work-today"
-    puts "catalyst make quark line <ordinal> <line>"
-    exit
-end
+loop {
 
-if ARGV[0] == "no-work-today" then
-    KeyValueStore::setFlagTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{CatalystUtils::today()}")
-    exit
-end
+    CatalystUtils::importFromLucilleInbox()
+    Calendar::dailyBriefingIfNotDoneToday()
+    Anniversaries::dailyBriefingIfNotDoneToday()
 
-if ARGV[0] == "make" and ARGV[1] == "quark" and ARGV[2] == "line" and ARGV[3] and ARGV[4] then
-    ordinal = ARGV[3].to_f
-    line    = ARGV[4]
-    insertQuarkLine(ordinal, line)
-end
+    system("clear")
+
+    vspaceleft = CatalystUtils::screenHeight()-6
+
+    puts ""
+
+    if ![6, 0].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{CatalystUtils::today()}") and Time.new.hour >= 9 and Time.new.hour < 17 then
+        puts "==> { work }".green
+        vspaceleft = vspaceleft - 1
+    end
+
+    items = UIServices::catalystNS16s()
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+    items.each_with_index{|item, indx|
+        announce = "(#{"%3d" % indx}) #{item["announce"]}"
+        vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
+        next if vspaceleft < 0
+        puts announce
+    }
+
+    puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
+
+    puts ".. (access top) || [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
+
+    command = LucilleCore::askQuestionAnswerAsString("> ")
+
+    next if command == ""
+
+    if Interpreting::match("..", command) then
+        system("clear")
+        items[0]["lambda"].call()
+    end
+
+    if Interpreting::match("[]", command) then
+        item = items[0]
+        next if !item["isTodo"]
+        Todos::applyNextTransformation(item["uuid"])
+        next
+    end
+
+    if Interpreting::match("++", command) then
+        DoNotShowUntil::setUnixtime(items[0]["uuid"], Time.new.to_i+3600)
+    end
+
+    if Interpreting::match("+ *", command) then
+        _, weekdayname = Interpreting::tokenizer(command)
+        unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
+        next if unixtime.nil?
+        item = items[0]
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+    end
+
+    if Interpreting::match("+ * *", command) then
+        _, amount, unit = Interpreting::tokenizer(command)
+        unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+        next if unixtime.nil?
+        item = items[0]
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+    end
+
+    if Interpreting::match("select *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["lambda"].call()
+    end
+
+    if Interpreting::match("/", command) then
+        UIServices::servicesFront()
+    end
+}
+
