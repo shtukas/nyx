@@ -26,9 +26,9 @@ class QuarksHorizon
             }
     end
 
-    # QuarksHorizon::getPair1OrNull()
-    def self.getPair1OrNull()
-        limit = Time.new.to_i - 86400*7
+    # QuarksHorizon::getPair1OrNull(days)
+    def self.getPair1OrNull(days)
+        limit = Time.new.to_i - 86400*days
         QuarksHorizon::getPairs()
             .select{|pair| pair[0] <= limit }
             .last
@@ -40,20 +40,38 @@ class QuarksHorizon
             .last
     end
 
-    # QuarksHorizon::getHorizonDateTimeOrNull()
-    def self.getHorizonDateTimeOrNull()
-        pair1 = QuarksHorizon::getPair1OrNull()
-        return if pair1.nil?
+    # QuarksHorizon::getCoordinatesAtDaysOrNull(days)
+    def self.getCoordinatesAtDaysOrNull(days)
+        pair1 = QuarksHorizon::getPair1OrNull(days)
+        return nil if pair1.nil?
 
         pair2 = QuarksHorizon::getPair2OrNull()
-        return if pair2.nil?
+        return nil if pair2.nil?
 
         unixtime1 = pair1[0]
         count1    = pair1[1]
+
         unixtime2 = pair2[0]
         count2    = pair2[1]
 
-        horizon = QuarksHorizon::getHorizonOrNull(unixtime1, count1, unixtime2, count2)
+        [unixtime1, count1, unixtime2, count2]
+    end
+
+    # QuarksHorizon::getHorizonDateTimeOrNull()
+    def self.getHorizonDateTimeOrNull()
+
+        coordinates = QuarksHorizon::getCoordinatesAtDaysOrNull(7)
+        return nil if coordinates.nil?
+        unixtime1, count1, unixtime2, count2 = coordinates
+        horizon1 = QuarksHorizon::getHorizonOrNull(unixtime1, count1, unixtime2, count2)
+        
+        coordinates = QuarksHorizon::getCoordinatesAtDaysOrNull(14)
+        return nil if coordinates.nil?
+        unixtime1, count1, unixtime2, count2 = coordinates
+        horizon2 = QuarksHorizon::getHorizonOrNull(unixtime1, count1, unixtime2, count2)        
+
+        horizon = (horizon1+horizon2).to_f/2
+
         return nil if horizon.nil?
         Time.at(horizon).utc.iso8601
     end
