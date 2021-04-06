@@ -285,7 +285,7 @@ class Quarks
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            return if command == ""
+            break if command == ""
 
             if Interpreting::match("landing", command) then
                 Quarks::landing(quark)
@@ -333,16 +333,14 @@ class Quarks
 
         thr.exit
 
-        puts "Time since start: #{Time.new.to_f - startUnixtime}"
-        Quarks::incomingTime(quark, Time.new.to_f - startUnixtime)
+        timespan = Time.new.to_f - startUnixtime
 
-        NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
-    end
+        puts "Time since start: #{timespan}"
 
-    # Quarks::incomingTime(quark, timespan)
-    def self.incomingTime(quark, timespan)
         timespan = [timespan, 3600*2].min
         puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
         Bank::put(quark["uuid"], timespan)
+
+        NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 end
