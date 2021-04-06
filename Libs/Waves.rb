@@ -230,11 +230,14 @@ class Waves
                 {
                     "uuid"     => wave["uuid"],
                     "announce" => Waves::toString(wave),
-                    "lambda"   => lambda { 
+                    "start"    => lambda { 
                         Waves::access(wave)
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
                             Waves::performDone(wave)
                         end
+                    },
+                    "done"     => lambda{
+                        Waves::performDone(wave)
                     }
                 }
             }

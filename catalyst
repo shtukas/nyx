@@ -23,7 +23,7 @@ loop {
 
     puts "-- listing ----------------------------"
 
-    vspaceleft = Utils::screenHeight()-4
+    vspaceleft = Utils::screenHeight()-5
 
     items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -37,14 +37,15 @@ loop {
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
-    puts ".. (access top) || [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
+    puts "listing: .. (access top) || [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
+    puts "objects: start (<n>) | done (<n>)".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
     next if command == ""
 
     if Interpreting::match("..", command) then
-        items[0]["lambda"].call()
+        items[0]["start"].call()
     end
 
     if Interpreting::match("[]", command) then
@@ -79,11 +80,35 @@ loop {
         ordinal = ordinal.to_i
         item = items[ordinal]
         next if item.nil?
-        item["lambda"].call()
+        item["start"].call()
     end
 
     if Interpreting::match("/", command) then
         UIServices::servicesFront()
+    end
+
+    if Interpreting::match("start", command) then
+        items[0]["start"].call()
+    end
+
+    if Interpreting::match("start *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["start"].call()
+    end
+
+    if Interpreting::match("done", command) then
+        items[0]["done"].call()
+    end
+
+    if Interpreting::match("done *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["done"].call()
     end
 }
 

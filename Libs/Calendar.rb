@@ -93,11 +93,15 @@ class Calendar
                 {
                     "uuid"     => item["uuid"],
                     "announce" => Calendar::toString(item),
-                    "lambda"   => lambda{
+                    "start"   => lambda{
                         puts Calendar::toString(item).green
                         if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
                             Calendar::destroy(item["uuid"])
                         end
+                    },
+                    "done"   => lambda{
+                        puts Calendar::toString(item).green
+                        Calendar::destroy(item["uuid"])
                     }
                 }
             }

@@ -243,7 +243,13 @@ class Quarks
                 {
                     "uuid"     => quark["uuid"],
                     "announce" => "(#{"%5.3f" % averageRT}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Quarks::toString(quark)}",
-                    "lambda"   => lambda{ Quarks::runQuark(quark) }
+                    "start"    => lambda{ Quarks::runQuark(quark) },
+                    "done"     => lambda{
+                        if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(quark)}' ? ", true) then
+                            Quarks::destroyQuarkAndNereidContent(quark)
+                            QuarksHorizon::makeNewDataPoint()
+                        end
+                    }
                 }
             }
     end

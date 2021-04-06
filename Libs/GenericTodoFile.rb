@@ -73,7 +73,7 @@ class GenericTodoFile
                 {
                     "uuid"     => uuid,
                     "announce" => announce,
-                    "lambda"   => lambda{ 
+                    "start"   => lambda{ 
 
                         startUnixtime = Time.new.to_f
 
@@ -141,6 +141,10 @@ class GenericTodoFile
                         puts "putting #{timespan} seconds to [todo]"
                         Bank::put("da2a8102-633b-4b1b-bf98-8eef3a5d8a8e", timespan)
 
+                    },
+                    "done"   => lambda{
+                        puts text.green
+                        GenericTodoFile::delete(filepath, uuid)
                     },
                     "isTodo"   => true,
                     "filepath" => filepath,
