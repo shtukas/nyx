@@ -265,7 +265,6 @@ class Waves
     # Waves::landing(wave)
     def self.landing(wave)
         loop {
-            system("clear")
 
             return if Waves::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
 
@@ -315,7 +314,7 @@ class Waves
     # Waves::wavesDive()
     def self.wavesDive()
         loop {
-            system("clear")
+            system("Waves Dive")
             wave = Waves::selectWaveOrNull()
             return if wave.nil?
             Waves::landing(wave)
@@ -325,8 +324,7 @@ class Waves
     # Waves::main()
     def self.main()
         loop {
-            system("clear")
-            puts "Waves 🌊"
+            puts "Waves 🌊 (main)"
             options = [
                 "new wave",
                 "waves dive"

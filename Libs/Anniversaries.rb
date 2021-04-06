@@ -221,8 +221,7 @@ class Anniversaries
 
     # Anniversaries::dailyBriefing()
     def self.dailyBriefing()
-        system("clear")
-        puts "Anniversaries daily briefing"
+        puts "Anniversaries daily briefing:"
         Anniversaries::getItems()
             .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
             .each{|item|
@@ -242,7 +241,6 @@ class Anniversaries
     # Anniversaries::landing(item)
     def self.landing(item)
         loop {
-            system("clear")
             item = Anniversaries::getItemByUUID(item["uuid"]) # to get the current version
             return if item.nil?
             puts Anniversaries::toString(item).green
@@ -275,7 +273,7 @@ class Anniversaries
     # Anniversaries::main()
     def self.main()
         loop {
-            system("clear")
+            puts "Anniversaries (main)"
             mx = LCoreMenuItemsNX1.new()
             mx.item("dive into anniversary items".yellow, lambda { 
                 Anniversaries::anniversariesDive()

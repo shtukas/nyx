@@ -85,7 +85,7 @@ class GenericTodoFile
                             }
                         }
 
-                        system("clear")
+                        puts "[todo]"
                         puts text.green
 
                         loop {
@@ -143,6 +143,7 @@ class GenericTodoFile
 
                     },
                     "isTodo"   => true,
+                    "filepath" => filepath,
                 }
             }
     end

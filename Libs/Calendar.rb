@@ -107,8 +107,6 @@ class Calendar
     # Calendar::landing(item)
     def self.landing(item)
         loop {
-            system("clear")
-
             return if Calendar::getItemByUUID(item["uuid"]).nil?
             item = Calendar::getItemByUUID(item["uuid"]) # could have been transmuted in the previous loop
 
@@ -131,7 +129,6 @@ class Calendar
 
     # Calendar::dailyBriefing()
     def self.dailyBriefing()
-        system("clear")
         puts "Calendar daily briefing"
         Calendar::getItems()
             .sort{|i1, i2| i1["date"]<=>i2["date"] }
@@ -152,7 +149,7 @@ class Calendar
     # Calendar::diveCalendarItems()
     def self.diveCalendarItems()
         loop {
-            system("clear")
+            puts "Calendar Items Listing"
             mx = LCoreMenuItemsNX1.new()
             Calendar::getItems()
                 .each{|item|
@@ -168,7 +165,7 @@ class Calendar
     # Calendar::main()
     def self.main()
         loop {
-            system("clear")
+            puts "Calendar Items (main)"
             mx = LCoreMenuItemsNX1.new()
             mx.item("dive into calendar".yellow, lambda { 
                 Calendar::diveCalendarItems()

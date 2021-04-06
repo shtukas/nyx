@@ -109,8 +109,6 @@ class Quarks
             return if Quarks::getQuarkByUUIDOrNull(quark["uuid"]).nil?
             quark = Quarks::getQuarkByUUIDOrNull(quark["uuid"]) # Could have been transmuted in the previous loop
 
-            system("clear")
-
             mx = LCoreMenuItemsNX1.new()
 
             puts Quarks::toString(quark)
@@ -262,8 +260,6 @@ class Quarks
                 sleep 60
             }
         }
-
-        system("clear")
 
         if NereidInterface::getElementOrNull(quark["nereiduuid"]).nil? then
             # The quark is obviously alive but the corresponding nereid item is dead

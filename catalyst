@@ -21,20 +21,18 @@ loop {
     Calendar::dailyBriefingIfNotDoneToday()
     Anniversaries::dailyBriefingIfNotDoneToday()
 
-    system("clear")
+    puts "-- listing ----------------------------"
 
-    vspaceleft = Utils::screenHeight()-6
-
-    puts ""
+    vspaceleft = Utils::screenHeight()-4
 
     items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
     items.each_with_index{|item, indx|
         announce = "(#{"%3d" % indx}) #{item["announce"]}"
-        vspaceleft = vspaceleft - Utils::verticalSize(announce)
-        next if vspaceleft < 0
+        next if (vspaceleft - Utils::verticalSize(announce)) < 0
         puts announce
+        vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
@@ -46,14 +44,13 @@ loop {
     next if command == ""
 
     if Interpreting::match("..", command) then
-        system("clear")
         items[0]["lambda"].call()
     end
 
     if Interpreting::match("[]", command) then
         item = items[0]
         next if !item["isTodo"]
-        Todos::applyNextTransformation(item["uuid"])
+        GenericTodoFile::applyNextTransformation(item["filepath"], item["uuid"])
         next
     end
 
