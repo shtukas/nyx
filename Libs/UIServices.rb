@@ -35,7 +35,12 @@ class UIServices
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
-        UIServices::waveLikeNS16s() + Todos::ns16s() + Quarks::ns16s()
+        [
+            GenericTodoFile::ns16s("[work]".green, "/Users/pascal/Galaxy/Encyclopaedia Timeline/2016/Occupations/The Guardian/Pascal Work/B-In Progress.txt"),
+            UIServices::waveLikeNS16s(),
+            GenericTodoFile::ns16s("[todo]", "/Users/pascal/Desktop/Todo.txt"),
+            Quarks::ns16s()
+        ].flatten
     end
 end
 
