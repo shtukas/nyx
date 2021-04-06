@@ -138,8 +138,8 @@ class GenericTodoFile
                         puts "Time since start: #{Time.new.to_f - startUnixtime}"
 
                         timespan = [timespan, 3600*2].min
-                        puts "putting #{timespan} seconds to [todo]"
-                        Bank::put("da2a8102-633b-4b1b-bf98-8eef3a5d8a8e", timespan)
+                        puts "putting #{timespan} seconds to todo:#{filepath}"
+                        Bank::put("da2a8102-633b-4b1b-bf98-8eef3a5d8a8e:#{filepath}", timespan)
 
                     },
                     "done"   => lambda{
