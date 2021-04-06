@@ -294,18 +294,17 @@ class NereidInterface
         NereidDatabaseDataCarriers::commitElement(element)
     end
 
+    # NereidInterface::issueLineElement(line)
+    def self.issueLineElement(line)
+        uuid = SecureRandom.hex
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
     # NereidInterface::issueNewURLElement(url)
     def self.issueNewURLElement(url)
         uuid = SecureRandom.hex
         NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, link, "Url", link)
-        NereidDatabaseDataCarriers::getElementOrNull(uuid)
-    end
-
-    # NereidInterface::issueAionPointElement(location)
-    def self.issueAionPointElement(location)
-        uuid = SecureRandom.hex
-        payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
@@ -317,10 +316,11 @@ class NereidInterface
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
-    # NereidInterface::issueLineElement(line)
-    def self.issueLineElement(line)
+    # NereidInterface::issueAionPointElement(location)
+    def self.issueAionPointElement(location)
         uuid = SecureRandom.hex
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
