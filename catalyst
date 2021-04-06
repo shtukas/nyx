@@ -37,8 +37,9 @@ loop {
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
-    puts "listing: .. (access top) || [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item | select <n> | /".yellow
-    puts "objects: start (<n>) | done (<n>)".yellow
+    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | /".yellow
+    puts "top    : [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item".yellow
+
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
