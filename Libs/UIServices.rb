@@ -35,9 +35,10 @@ class UIServices
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
+        isWorkTime = [1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour)
         [
-            GenericTodoFile::ns16s("[work]".green, "/Users/pascal/Galaxy/Encyclopaedia Timeline/2016/Occupations/The Guardian/Pascal Work/B-In Progress.txt"),
             UIServices::waveLikeNS16s(),
+            isWorkTime ? GenericTodoFile::ns16s("[work]".green, "/Users/pascal/Galaxy/Encyclopaedia Timeline/2016/Occupations/The Guardian/Pascal Work/B-In Progress.txt") : [],
             GenericTodoFile::ns16s("[todo]", "/Users/pascal/Desktop/Todo.txt"),
             Quarks::ns16s()
         ].flatten
