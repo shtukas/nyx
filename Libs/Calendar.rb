@@ -71,9 +71,10 @@ class Calendar
 
     # Calendar::interactivelyIssueNewCalendarItemOrNull()
     def self.interactivelyIssueNewCalendarItemOrNull()
+        date = LucilleCore::askQuestionAnswerAsString("date: ")
+        return if date == ""
         element = NereidInterface::interactivelyIssueNewElementOrNull()
         return if element.nil?
-        date = LucilleCore::askQuestionAnswerAsString("date: ")
         uuid = SecureRandom.hex
         Calendar::insertRecord(uuid, date, element["uuid"])
         Calendar::getItemByUUID(uuid)

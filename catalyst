@@ -37,7 +37,7 @@ loop {
 
     puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
-    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | /".yellow
+    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new calendar item | new wave | new quark".yellow
     puts "top    : [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item".yellow
 
 
@@ -86,6 +86,18 @@ loop {
 
     if Interpreting::match("/", command) then
         UIServices::servicesFront()
+    end
+
+    if Interpreting::match("new calendar item", command) then
+        Calendar::interactivelyIssueNewCalendarItemOrNull()
+    end
+
+    if Interpreting::match("new wave", command) then
+        Waves::issueNewWaveInteractivelyOrNull()
+    end
+
+    if Interpreting::match("new quark", command) then
+        Quarks::getQuarkPossiblyArchitectedOrNull(nil, nil)
     end
 
     if Interpreting::match("start", command) then

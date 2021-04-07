@@ -16,6 +16,8 @@ class UIServices
 
             puts ""
 
+            ms.item("new calendar item", lambda { Calendar::interactivelyIssueNewCalendarItemOrNull() }) 
+
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
 
             ms.item("new quark", lambda { Quarks::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
