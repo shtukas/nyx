@@ -33,7 +33,7 @@ class GenericTodoFile
     # GenericTodoFile::applyNextTransformation(filepath, uuid)
     def self.applyNextTransformation(filepath, uuid)
         structure = GenericTodoFile::getStructure(filepath).map{|text|
-            if Digest::SHA1.hexdigest(text) == uuid then
+            if GenericTodoFile::determineTextUUID(text) == uuid then
                 text = SectionsType0141::applyNextTransformationToText(text)
             end
             text
@@ -44,7 +44,7 @@ class GenericTodoFile
     # GenericTodoFile::edit(filepath, uuid)
     def self.edit(filepath, uuid)
         structure = GenericTodoFile::getStructure(filepath).map{|text|
-            if Digest::SHA1.hexdigest(text) == uuid then
+            if GenericTodoFile::determineTextUUID(text) == uuid then
                 text = Utils::editTextSynchronously(text)
             end
             text
@@ -54,7 +54,7 @@ class GenericTodoFile
 
     # GenericTodoFile::delete(filepath, uuid)
     def self.delete(filepath, uuid)
-        structure = GenericTodoFile::getStructure(filepath).select{|text| Digest::SHA1.hexdigest(text) != uuid }
+        structure = GenericTodoFile::getStructure(filepath).select{|text| GenericTodoFile::determineTextUUID(text) != uuid }
         GenericTodoFile::sendStructureToDisk(filepath, structure)
     end
 
