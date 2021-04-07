@@ -221,37 +221,23 @@ class Quarks
 
         # We intersect the quarks for the database with the uuids of the current slot
 
-        quarks = QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(streamDepth).select{|quark| thisSlotUUIDs.include?(quark["uuid"])}
-
-        return [] if quarks.empty?
-
-        averageRT = quarks.map{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"])}.inject(0, :+).to_f/6
-
-        # We put first the highest below average
-        
-        quarks1 = quarks
-                    .reject{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > averageRT }
-                    .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"])}
-                    .reverse
-        
-        quarks2 = quarks
-                    .select{|quark| BankExtended::recoveredDailyTimeInHours(quark["uuid"]) > averageRT }
-                    .sort{|q1, q2| BankExtended::recoveredDailyTimeInHours(q1["uuid"]) <=> BankExtended::recoveredDailyTimeInHours(q2["uuid"])}
-        
-        (quarks1 + quarks2)
+        QuarksOrdinals::firstNVisibleQuarksInOrdinalOrder(streamDepth)
+            .select{|quark| thisSlotUUIDs.include?(quark["uuid"])}
             .map{|quark|
                 {
                     "uuid"     => quark["uuid"],
-                    "announce" => "(#{"%5.3f" % averageRT}, #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Quarks::toString(quark)}",
+                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"])}) #{Quarks::toString(quark)}",
                     "start"    => lambda{ Quarks::runQuark(quark) },
                     "done"     => lambda{
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(quark)}' ? ", true) then
                             Quarks::destroyQuarkAndNereidContent(quark)
                             QuarksHorizon::makeNewDataPoint()
                         end
-                    }
+                    },
+                    "recoveryTimeInHours" => BankExtended::recoveredDailyTimeInHours(quark["uuid"])
                 }
             }
+            .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
     end
 
     # Quarks::runQuark(quark)

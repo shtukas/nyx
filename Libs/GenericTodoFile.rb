@@ -58,17 +58,41 @@ class GenericTodoFile
         GenericTodoFile::sendStructureToDisk(filepath, structure)
     end
 
+    # GenericTodoFile::determineTextUUID(text)
+    def self.determineTextUUID(text)
+        getFragmentUuidOrNull = lambda {|fragment|
+            KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{fragment}")
+        }
+
+        makeFragments = lambda {|text|
+            text.lines
+        }
+
+        candidatesUUIDs = makeFragments.call(text).map{|fragment| getFragmentUuidOrNull.call(fragment) }.compact
+        
+        if candidatesUUIDs.empty? then
+            uuid = SecureRandom.hex
+        else
+            counts = candidatesUUIDs.inject(Hash.new(0)) {|h,x| h[x]+=1; h}.sort
+            uuid = counts.last[0]
+        end
+
+        makeFragments.call(text).each{|fragment| KeyValueStore::set(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{fragment}", uuid) }
+
+        uuid
+    end
+
     # GenericTodoFile::ns16s(announcePrefix, filepath)
     def self.ns16s(announcePrefix, filepath)
         GenericTodoFile::getStructure(filepath)
             .map
             .with_index{|text, i|
-                uuid = Digest::SHA1.hexdigest(text)
+                uuid = GenericTodoFile::determineTextUUID(text)
                 announce = (lambda{
                     if text.lines.size == 1 then
-                        return "#{announcePrefix} #{text.strip}"
+                        return "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{announcePrefix} #{text.strip}"
                     end
-                    "#{announcePrefix}\n#{text.lines.first(3).map{|line| "             #{line}"}.join() + "\n\n"}".strip
+                    "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{announcePrefix}\n#{text.lines.first(3).map{|line| "             #{line}"}.join() + "\n\n"}".strip
                 }).call()
                 {
                     "uuid"     => uuid,
@@ -138,8 +162,8 @@ class GenericTodoFile
                         puts "Time since start: #{Time.new.to_f - startUnixtime}"
 
                         timespan = [timespan, 3600*2].min
-                        puts "putting #{timespan} seconds to todo:#{filepath}"
-                        Bank::put("da2a8102-633b-4b1b-bf98-8eef3a5d8a8e:#{filepath}", timespan)
+                        puts "putting #{timespan} seconds to todo: #{uuid}"
+                        Bank::put(uuid, timespan)
 
                     },
                     "done"   => lambda{
@@ -148,7 +172,9 @@ class GenericTodoFile
                     },
                     "isTodo"   => true,
                     "filepath" => filepath,
+                    "recoveryTimeInHours" => BankExtended::recoveredDailyTimeInHours(uuid)
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 end
