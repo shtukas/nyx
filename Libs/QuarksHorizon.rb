@@ -64,11 +64,13 @@ class QuarksHorizon
         return nil if coordinates.nil?
         unixtime1, count1, unixtime2, count2 = coordinates
         horizon1 = QuarksHorizon::getHorizonOrNull(unixtime1, count1, unixtime2, count2)
-        
+        return nil if horizon1.nil?
+
         coordinates = QuarksHorizon::getCoordinatesAtDaysOrNull(14)
         return nil if coordinates.nil?
         unixtime1, count1, unixtime2, count2 = coordinates
         horizon2 = QuarksHorizon::getHorizonOrNull(unixtime1, count1, unixtime2, count2)        
+        return nil if horizon2.nil?
 
         horizon = (horizon1+horizon2).to_f/2
 
