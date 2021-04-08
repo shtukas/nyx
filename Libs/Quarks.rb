@@ -231,7 +231,6 @@ class Quarks
                     "done"     => lambda{
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(quark)}' ? ", true) then
                             Quarks::destroyQuarkAndNereidContent(quark)
-                            QuarksHorizon::makeNewDataPoint()
                         end
                     },
                     "recoveryTimeInHours" => BankExtended::recoveredDailyTimeInHours(quark["uuid"])
@@ -301,14 +300,12 @@ class Quarks
             if Interpreting::match("destroy", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
-                QuarksHorizon::makeNewDataPoint()
                 break
             end
 
             if Interpreting::match(";;", command) then
                 NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
-                QuarksHorizon::makeNewDataPoint()
                 break
             end
 

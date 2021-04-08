@@ -23,7 +23,7 @@ loop {
 
     puts "-- listing ----------------------------"
 
-    vspaceleft = Utils::screenHeight()-5
+    vspaceleft = Utils::screenHeight()-4
 
     items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -34,8 +34,6 @@ loop {
         puts announce
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
-
-    puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
 
     puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new calendar item | new wave | new quark".yellow
     puts "top    : [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item".yellow

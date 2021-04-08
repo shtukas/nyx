@@ -170,7 +170,6 @@ require_relative "ProgrammableBooleans.rb"
 
 require_relative "Quarks.rb"
 require_relative "QuarksOrdinals.rb"
-require_relative "QuarksHorizon.rb"
 
 require_relative "Runner.rb"
 =begin 
