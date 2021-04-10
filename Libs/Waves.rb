@@ -103,7 +103,7 @@ class Waves
         if scheduleType=='sticky' then
             fromHour = LucilleCore::askQuestionAnswerAsString("From hour (integer): ").to_i
             schedule = {
-                "uuid"      => SecureRandom.hex,
+                "uuid"      => SecureRandom.uuid,
                 "@"         => "sticky",
                 "from-hour" => fromHour
             }
@@ -130,7 +130,7 @@ class Waves
                 value = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("weekday: ", weekdays, lambda{|entity| entity })
             end
             schedule = {
-                "uuid" => SecureRandom.hex,
+                "uuid" => SecureRandom.uuid,
                 "@"    => type,
                 "repeat-value" => value
             }

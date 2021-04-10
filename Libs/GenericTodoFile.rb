@@ -71,7 +71,7 @@ class GenericTodoFile
         candidatesUUIDs = makeFragments.call(text).map{|fragment| getFragmentUuidOrNull.call(fragment) }.compact
         
         if candidatesUUIDs.empty? then
-            uuid = SecureRandom.hex
+            uuid = SecureRandom.uuid
         else
             counts = candidatesUUIDs.inject(Hash.new(0)) {|h,x| h[x]+=1; h}.sort
             uuid = counts.last[0]

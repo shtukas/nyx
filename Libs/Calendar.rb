@@ -75,7 +75,7 @@ class Calendar
         return if date == ""
         asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
         return if asteroid.nil?
-        uuid = SecureRandom.hex
+        uuid = SecureRandom.uuid
         Calendar::insertRecord(uuid, date, asteroid["uuid"])
         Calendar::getItemByUUID(uuid)
     end

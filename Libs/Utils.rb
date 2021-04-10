@@ -71,19 +71,13 @@ class Utils
 
     # Utils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
-        filename = SecureRandom.hex
+        filename = SecureRandom.uuid
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(text)}
         system("open '#{filepath}'")
         print "> press enter when done: "
         input = STDIN.gets
         IO.read(filepath)
-    end
-
-    # Utils::fileByFilenameIsSafelyOpenable(filename)
-    def self.fileByFilenameIsSafelyOpenable(filename)
-        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
-        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
     # Utils::importFromLucilleInbox()
@@ -107,11 +101,6 @@ class Utils
         end
     end
 
-    # Utils::isDateTime_UTC_ISO8601(datetime)
-    def self.isDateTime_UTC_ISO8601(datetime)
-        DateTime.parse(datetime).to_time.utc.iso8601 == datetime
-    end
-
     # Utils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s
@@ -120,16 +109,6 @@ class Utils
     # Utils::getNewValueEveryNSeconds(uuid, n)
     def self.getNewValueEveryNSeconds(uuid, n)
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
-    end
-
-    # Utils::horizontalRule()
-    def self.horizontalRule()
-      puts "-" * (Utils::screenWidth()-1)
-    end
-
-    # Utils::l22()
-    def self.l22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
     # Utils::nDaysInTheFuture(n)

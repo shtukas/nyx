@@ -12,7 +12,7 @@ class Bank
 
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
-        operationuuid = SecureRandom.hex
+        operationuuid = SecureRandom.uuid
         unixtime = Time.new.to_i
         date = Utils::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())

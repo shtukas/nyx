@@ -25,7 +25,7 @@ class AsteroidsUtils
 
     # AsteroidsUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
-        filename = SecureRandom.hex
+        filename = SecureRandom.uuid
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(text)}
         system("open '#{filepath}'")
@@ -293,21 +293,21 @@ class AsteroidsInterface
 
     # AsteroidsInterface::issueLineAsteroid(line)
     def self.issueLineAsteroid(line)
-        uuid = SecureRandom.hex
+        uuid = SecureRandom.uuid
         AsteroidDatabase::commitAsteroidComponents(uuid, Time.new.to_i, line, "Line", "")
         AsteroidDatabase::getAsteroidOrNull(uuid)
     end
 
     # AsteroidsInterface::issueURLAsteroid(url)
     def self.issueURLAsteroid(url)
-        uuid = SecureRandom.hex
+        uuid = SecureRandom.uuid
         AsteroidDatabase::commitAsteroidComponents(uuid, Time.new.to_i, link, "Url", link)
         AsteroidDatabase::getAsteroidOrNull(uuid)
     end
 
     # AsteroidsInterface::issueTextAsteroid(description, text)
     def self.issueTextAsteroid(description, text)
-        uuid = SecureRandom.hex
+        uuid = SecureRandom.uuid
         payload = AsteroidsBinaryBlobsService::putBlob(uuid, text)
         AsteroidDatabase::commitAsteroidComponents(uuid, Time.new.to_i, description, "Text", payload)
         AsteroidDatabase::getAsteroidOrNull(uuid)
@@ -315,7 +315,7 @@ class AsteroidsInterface
 
     # AsteroidsInterface::issueAionPointAsteroid(location)
     def self.issueAionPointAsteroid(location)
-        uuid = SecureRandom.hex
+        uuid = SecureRandom.uuid
         payload = AionCore::commitLocationReturnHash(AsteroidElizabeth.new(uuid), location)
         AsteroidDatabase::commitAsteroidComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
         AsteroidDatabase::getAsteroidOrNull(uuid)

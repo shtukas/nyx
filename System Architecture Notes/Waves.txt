@@ -12,12 +12,12 @@ Waves
 
 Schedule
 {
-    "uuid"         => SecureRandom.hex,
+    "uuid"         => UUID,
     "@"            => "sticky"
     "from-hour"    => fromHour
 }
 {
-    "uuid"         => SecureRandom.hex,
+    "uuid"         => UUID,
     "@"            => type
                         # every-n-hours
                         # every-n-days

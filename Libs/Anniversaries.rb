@@ -176,7 +176,7 @@ class Anniversaries
         end
 
         item = {
-            "uuid"                => SecureRandom.hex,
+            "uuid"                => SecureRandom.uuid,
             "startdate"           => startdate,
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate,
