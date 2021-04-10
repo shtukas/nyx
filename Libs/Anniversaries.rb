@@ -161,8 +161,8 @@ class Anniversaries
     # Anniversaries::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return if element.nil?
+        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
+        return if asteroid.nil?
 
         startdate = LucilleCore::askQuestionAnswerAsString("startdate: ")
         return nil if startdate == ""
@@ -180,7 +180,7 @@ class Anniversaries
             "startdate"           => startdate,
             "repeatType"          => repeatType,
             "lastCelebrationDate" => lastCelebrationDate,
-            "nereiduuid"          => element["uuid"]
+            "nereiduuid"          => asteroid["uuid"]
         }        
 
         Anniversaries::insertItem(item)
@@ -195,7 +195,7 @@ class Anniversaries
 
     # Anniversaries::toString(item)
     def self.toString(item)
-        "[anniversary] [#{Anniversaries::itemNextDateOrdinal(item).join(", ")}] #{NereidInterface::toString(item["nereiduuid"])} (#{item["repeatType"]} since #{item["startdate"]})"
+        "[anniversary] [#{Anniversaries::itemNextDateOrdinal(item).join(", ")}] #{AsteroidsInterface::asteroidUUIDToString(item["nereiduuid"])} (#{item["repeatType"]} since #{item["startdate"]})"
     end
 
     # Anniversaries::ns16s()

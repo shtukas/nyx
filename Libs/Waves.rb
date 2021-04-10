@@ -8,8 +8,8 @@ class Waves
         "#{Utils::catalystDataCenterFolderpath()}/Waves.sqlite3"
     end
 
-    # Waves::issueWave(nereidelement, schedule)
-    def self.issueWave(nereidelement, schedule)
+    # Waves::issueWave(asteroid, schedule)
+    def self.issueWave(asteroid, schedule)
 
         uuid = LucilleCore::timeStringL22()
         lastDoneDateTime = "2021-04-05T01:15:59Z"
@@ -17,12 +17,12 @@ class Waves
         db = SQLite3::Database.new(Waves::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
-        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [uuid, nereidelement["uuid"], JSON.generate(schedule), lastDoneDateTime]
+        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [uuid, asteroid["uuid"], JSON.generate(schedule), lastDoneDateTime]
         db.close
 
         {
             "uuid"             => uuid,
-            "nereiduuid"       => nereidelement["uuid"],
+            "nereiduuid"       => asteroid["uuid"],
             "schedule"         => schedule,
             "lastDoneDateTime" => lastDoneDateTime
         }
@@ -205,11 +205,11 @@ class Waves
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return nil if element.nil?
+        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
+        return nil if asteroid.nil?
         schedule = Waves::makeScheduleObjectInteractivelyOrNull()
         return nil if schedule.nil?
-        Waves::issueWave(element, schedule)
+        Waves::issueWave(asteroid, schedule)
     end
 
     # Waves::toString(wave)
@@ -220,7 +220,7 @@ class Waves
             else
                 ""
             end
-        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
+        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{AsteroidsInterface::asteroidUUIDToString(wave["nereiduuid"])} (#{ago})"
     end
 
     # Waves::ns16s()
@@ -248,15 +248,15 @@ class Waves
     def self.access(wave)
         puts Waves::toString(wave)
 
-        element = NereidInterface::getElementOrNull(wave["nereiduuid"])
-        return if element.nil?
+        asteroid = AsteroidsInterface::getAsteroidOrNull(wave["nereiduuid"])
+        return if asteroid.nil?
 
-        case element["type"]
+        case asteroid["type"]
         when "Line"
         when "Url"
-            Utils::openUrl(element["payload"])
+            Utils::openUrl(asteroid["payload"])
         else
-            NereidInterface::access(wave["nereiduuid"])
+            AsteroidsInterface::access(wave["nereiduuid"])
         end
     end
 
@@ -286,13 +286,13 @@ class Waves
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item("start", lambda {
-                NereidInterface::landing(wave["nereiduuid"])
+                AsteroidsInterface::landing(wave["nereiduuid"])
                 if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
                     Waves::performDone(wave)
                 end
             })
 
-            menuitems.item("nereid landing",lambda { NereidInterface::landing(wave["nereiduuid"]) })
+            menuitems.item("nereid landing",lambda { AsteroidsInterface::landing(wave["nereiduuid"]) })
 
             menuitems.item("done",lambda { Waves::performDone(wave) })
 

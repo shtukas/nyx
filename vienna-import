@@ -44,7 +44,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    element = NereidInterface::issueNewURLElement(link)
-    Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
+    asteroid = AsteroidsInterface::issueURLAsteroid(link)
+    Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
     viennaLinkFeeder.done(link)
 }

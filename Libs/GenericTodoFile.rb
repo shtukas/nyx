@@ -148,8 +148,8 @@ class GenericTodoFile
                                         LucilleCore::askQuestionAnswerAsString("description: ")
                                     end
                                 }).call()
-                                element = NereidInterface::issueTextElement(description, text)
-                                Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
+                                asteroid = AsteroidsInterface::issueTextAsteroid(description, text)
+                                Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
                                 GenericTodoFile::delete(filepath, uuid)
                                 break
                             end

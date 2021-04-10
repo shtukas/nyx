@@ -68,14 +68,14 @@ class Quarks
 
     # Quarks::toString(quark)
     def self.toString(quark)
-        "[quark] #{NereidInterface::toString(quark["nereiduuid"])}"
+        "[quark] #{AsteroidsInterface::asteroidUUIDToString(quark["nereiduuid"])}"
     end
 
     # Quarks::issueNewQuarkInteractivelyOrNull()
     def self.issueNewQuarkInteractivelyOrNull()
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return nil if element.nil?
-        Quarks::issueQuarkUsingNereiduuid(element["uuid"])
+        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
+        return nil if asteroid.nil?
+        Quarks::issueQuarkUsingNereiduuid(asteroid["uuid"])
     end
 
     # Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(nereiduuid)
@@ -99,7 +99,7 @@ class Quarks
 
     # Quarks::access(quark)
     def self.access(quark)
-        NereidInterface::access(quark["nereiduuid"])
+        AsteroidsInterface::access(quark["nereiduuid"])
     end
 
     # Quarks::landing(quark)
@@ -134,11 +134,11 @@ class Quarks
             })
 
             mx.item("edit".yellow, lambda {
-                NereidInterface::edit(quark["nereiduuid"])
+                AsteroidsInterface::edit(quark["nereiduuid"])
             })
 
             mx.item("transmute".yellow, lambda { 
-                NereidInterface::transmuteOrNull(quark["nereiduuid"])
+                AsteroidsInterface::transmuteOrNull(quark["nereiduuid"])
             })
 
             mx.item("json object".yellow, lambda { 
@@ -161,7 +161,7 @@ class Quarks
 
     # Quarks::destroyQuarkAndNereidContent(quark)
     def self.destroyQuarkAndNereidContent(quark)
-        NereidInterface::destroyElement(quark["nereiduuid"])
+        AsteroidsInterface::destroyAsteroid(quark["nereiduuid"])
         Quarks::destroy(quark["uuid"])
     end
 
@@ -190,15 +190,6 @@ class Quarks
 
     # Quarks::ns16s()
     def self.ns16s()
-
-        quarkRecoveredTimeX = lambda{|quark|
-            rt = BankExtended::recoveredDailyTimeInHours(quark["uuid"])
-            (rt == 0) ? 1 : rt
-            # The logic here is that is an element has never been touched, we put it at 0.4
-            # So that it doesn't take priority on stuff that we have in progresss
-            # If all the stuff that we have in progress have a high enough recovery time, then we work on 
-            # the new stuff (which from that moment takes a non zero rt)
-        }
 
         toString = lambda {|quark|
             "(ord: #{"%7.3f" % QuarksOrdinals::getQuarkOrdinalOrZero(quark)}, rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(quark["uuid"]).round(3)}) #{Quarks::toString(quark)}"
@@ -252,7 +243,7 @@ class Quarks
             }
         }
 
-        if NereidInterface::getElementOrNull(quark["nereiduuid"]).nil? then
+        if AsteroidsInterface::getAsteroidOrNull(quark["nereiduuid"]).nil? then
             # The quark is obviously alive but the corresponding nereid item is dead
             puts Quarks::toString(quark).green
             if LucilleCore::askQuestionAnswerAsBoolean("Should I delete this quark ? ") then
@@ -262,7 +253,7 @@ class Quarks
         end
 
         puts "running: #{Quarks::toString(quark).green}"
-        NereidInterface::accessTodoListingEdition(quark["nereiduuid"])
+        AsteroidsInterface::accessTodoListingEdition(quark["nereiduuid"])
 
         puts "landing | ++ # Postpone quark by an hour | + <weekday> # Postpone quark | + <float> <datecode unit> # Postpone quark | destroy | ;; # destroy | (empty) # default # exit".yellow
 
@@ -298,13 +289,13 @@ class Quarks
             end
 
             if Interpreting::match("destroy", command) then
-                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                AsteroidsInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
                 break
             end
 
             if Interpreting::match(";;", command) then
-                NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                AsteroidsInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"]) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 Quarks::destroyQuarkAndNereidContent(quark)
                 break
             end
@@ -324,6 +315,6 @@ class Quarks
         puts "putting #{timespan} seconds to quark: #{Quarks::toString(quark)}"
         Bank::put(quark["uuid"], timespan)
 
-        NereidInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
+        AsteroidsInterface::postAccessCleanUpTodoListingEdition(quark["nereiduuid"])
     end
 end

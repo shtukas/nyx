@@ -101,8 +101,8 @@ class Utils
                 FileUtils.mv(location, location2)
                 next
             end
-            element = NereidInterface::issueAionPointElement(location)
-            Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(element["uuid"])
+            asteroid = AsteroidsInterface::issueAionPointAsteroid(location)
+            Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
             LucilleCore::removeFileSystemLocation(location)
         end
     end

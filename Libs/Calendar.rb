@@ -73,16 +73,16 @@ class Calendar
     def self.interactivelyIssueNewCalendarItemOrNull()
         date = LucilleCore::askQuestionAnswerAsString("date: ")
         return if date == ""
-        element = NereidInterface::interactivelyIssueNewElementOrNull()
-        return if element.nil?
+        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
+        return if asteroid.nil?
         uuid = SecureRandom.hex
-        Calendar::insertRecord(uuid, date, element["uuid"])
+        Calendar::insertRecord(uuid, date, asteroid["uuid"])
         Calendar::getItemByUUID(uuid)
     end
 
     # Calendar::toString(item)
     def self.toString(item)
-        "[calendar] #{item["date"]} #{NereidInterface::toString(item["nereiduuid"])}"
+        "[calendar] #{item["date"]} #{AsteroidsInterface::asteroidUUIDToString(item["nereiduuid"])}"
     end
 
     # Calendar::ns16s()
@@ -118,7 +118,7 @@ class Calendar
             mx = LCoreMenuItemsNX1.new()
             puts Calendar::toString(item).green
             mx.item("data carrier landing".yellow, lambda { 
-                NereidInterface::landing(item["nereiduuid"])
+                AsteroidsInterface::landing(item["nereiduuid"])
             })
             mx.item("update date".yellow, lambda { 
                 date = LucilleCore::askQuestionAnswerAsString("date: ")

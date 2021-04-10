@@ -132,6 +132,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
+require_relative "Asteroids.rb"
 
 require_relative "Bank.rb"
 =begin 
@@ -151,20 +152,6 @@ require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
 require_relative "GenericTodoFile.rb"
-
-require_relative "Nereid.rb"
-=begin
-    NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::commitElement(element)
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::getElements()
-    NereidInterface::landing(input) # input: uuid: String , element Element
-    NereidInterface::access(input)
-    NereidInterface::edit(input): # new element with same uuid, or null
-    NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-=end
 
 require_relative "ProgrammableBooleans.rb"
 

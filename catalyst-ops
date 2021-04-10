@@ -7,8 +7,8 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 def insertQuarkLine(ordinal, line)
-    element = NereidInterface::issueLineElement(line)
-    quark = Quarks::issueQuarkUsingNereiduuid(element["uuid"])
+    asteroid = AsteroidsInterface::issueLineAsteroid(line)
+    quark = Quarks::issueQuarkUsingNereiduuid(asteroid["uuid"])
     QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
 end
 
