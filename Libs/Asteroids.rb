@@ -1,33 +1,14 @@
 
-class AsteroidsUtils
-
-    # AsteroidsUtils::editTextSynchronously(text)
-    def self.editTextSynchronously(text)
-        filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
-        print "> press enter when done: "
-        input = STDIN.gets
-        IO.read(filepath)
-    end
-
-    # AsteroidsUtils::openUrl(url)
-    def self.openUrl(url)
-        system("open -a Safari '#{url}'")
-    end
-end
-
 class AsteroidsBlobsPoints
 
-    # AsteroidsBlobsPoints::pathToDataLake()
-    def self.pathToDataLake()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Field"
+    # AsteroidsBlobsPoints::pathToMarbles()
+    def self.pathToMarbles()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles-Old"
     end
 
     # AsteroidsBlobsPoints::uuidToAsteroidFilepath(uuid)
     def self.uuidToAsteroidFilepath(uuid)
-        "#{AsteroidsBlobsPoints::pathToDataLake()}/#{uuid}.sqlite3"
+        "#{AsteroidsBlobsPoints::pathToMarbles()}/#{uuid}.sqlite3"
     end
 
     # AsteroidsBlobsPoints::prepareDatabaseIfNotExists(uuid)
@@ -71,7 +52,7 @@ class AsteroidsBlobsPoints
 
     # AsteroidsBlobsPoints::destroyPoint(uuid)
     def self.destroyPoint(uuid)
-        LucilleCore::locationsAtFolder(AsteroidsBlobsPoints::pathToDataLake())
+        LucilleCore::locationsAtFolder(AsteroidsBlobsPoints::pathToMarbles())
         .select{|location|
             (File.basename(location) == "#{uuid}.sqlite3") or File.basename(location).start_with?("#{uuid}-SHA256-")
         }
@@ -106,7 +87,7 @@ class AsteroidsBinaryBlobsService
         # (Actually, they were too big for sqlite, and the existence of those big blogs in the first place is because
         # "ClickableType" data exist in one big blob 🙄)
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-TheLargeMigrationBlobs/#{uuid}-#{nhash}.data"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles-TheLargeMigrationBlobs/#{uuid}-#{nhash}.data"
         return IO.read(filepath) if File.exists?(filepath)
 
         nil
@@ -399,7 +380,7 @@ class AsteroidsInterface
             })
 
             mx.item("set/update description".yellow, lambda {
-                description = AsteroidsUtils::editTextSynchronously(asteroid["description"])
+                description = MarbleUtils::editTextSynchronously(asteroid["description"])
                 return if description == ""
                 asteroid["description"] = description
                 AsteroidDatabase::commitAsteroid(asteroid)
@@ -442,7 +423,7 @@ class AsteroidsInterface
         end
         if asteroid["type"] == "Url" then
             puts "opening '#{asteroid["payload"]}'"
-            AsteroidsUtils::openUrl(asteroid["payload"])
+            MarbleUtils::openUrl(asteroid["payload"])
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -459,7 +440,7 @@ class AsteroidsInterface
             end
             if type == "read-write" then
                 text = AsteroidsBinaryBlobsService::getBlobOrNull(asteroid["uuid"], asteroid["payload"])
-                text = AsteroidsUtils::editTextSynchronously(text)
+                text = MarbleUtils::editTextSynchronously(text)
                 asteroid["payload"] = AsteroidsBinaryBlobsService::putBlob(asteroid["uuid"], text)
                 AsteroidDatabase::commitAsteroid(asteroid)
             end
@@ -542,13 +523,13 @@ class AsteroidsInterface
         end
         if asteroid["type"] == "Url" then
             puts "opening '#{asteroid["payload"]}'"
-            AsteroidsUtils::openUrl(asteroid["payload"])
+            MarbleUtils::openUrl(asteroid["payload"])
             return
         end
         if asteroid["type"] == "Text" then
             puts "opening text '#{asteroid["payload"]}'"
             text = AsteroidsBinaryBlobsService::getBlobOrNull(asteroid["uuid"], asteroid["payload"])
-            text = AsteroidsUtils::editTextSynchronously(text)
+            text = MarbleUtils::editTextSynchronously(text)
             asteroid["payload"] = AsteroidsBinaryBlobsService::putBlob(asteroid["uuid"], text)
             AsteroidDatabase::commitAsteroid(asteroid)
             return
