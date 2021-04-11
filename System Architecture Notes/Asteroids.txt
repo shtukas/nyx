@@ -1,4 +1,3 @@
-
 Asteroid {
     "uuid"          : String
     "unixtime"      : Float
@@ -7,16 +6,12 @@ Asteroid {
     "payload"       : (value)
 }
 
-Filename: Asteroids.sqlite3
-
-sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text, _type_ text, _payload_ text);
-
 "type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
 
-[type]            -> [payload]
+[type] -> [payload]
 
-"Line"            -> "" # empty string, the description is the payload
-"Url"             -> String
-"Text"            -> String # reference to a blob
-"ClickableType"   -> <nhash>|<dottedExtension>
-"AionPoint"       -> <nhash>
+    "Line"            -> "" # empty string, the description is the payload
+    "Url"             -> String
+    "Text"            -> String # reference to a blob
+    "ClickableType"   -> <nhash>|<dottedExtension>
+    "AionPoint"       -> <nhash>

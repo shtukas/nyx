@@ -1,26 +1,4 @@
 
-=begin
-
-Asteroid {
-    "uuid"          : String
-    "unixtime"      : Float
-    "description"   : String 
-    "type"          : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
-    "payload"       : (value)
-}
-
-"type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
-
-[type] -> [payload]
-
-    "Line"            -> "" # empty string, the description is the payload
-    "Url"             -> String
-    "Text"            -> String # reference to a blob
-    "ClickableType"   -> <nhash>|<dottedExtension>
-    "AionPoint"       -> <nhash>
-
-=end
-
 class AsteroidsUtils
 
     # AsteroidsUtils::editTextSynchronously(text)
@@ -44,7 +22,7 @@ class AsteroidsBlobsPoints
 
     # AsteroidsBlobsPoints::pathToDataLake()
     def self.pathToDataLake()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-DataLake"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-Field"
     end
 
     # AsteroidsBlobsPoints::uuidToAsteroidFilepath(uuid)
@@ -128,7 +106,7 @@ class AsteroidsBinaryBlobsService
         # (Actually, they were too big for sqlite, and the existence of those big blogs in the first place is because
         # "ClickableType" data exist in one big blob 🙄)
 
-        filepath = "#{AsteroidsBlobsPoints::pathToDataLake()}/#{uuid}-#{nhash}.data"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Asteroids-TheLargeMigrationBlobs/#{uuid}-#{nhash}.data"
         return IO.read(filepath) if File.exists?(filepath)
 
         nil
