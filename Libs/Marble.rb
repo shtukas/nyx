@@ -1,25 +1,6 @@
 
 # encoding: UTF-8
 
-class MarbleUtils
-
-    # MarbleUtils::editTextSynchronously(text)
-    def self.editTextSynchronously(text)
-        filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
-        print "> press enter when done: "
-        input = STDIN.gets
-        IO.read(filepath)
-    end
-
-    # MarbleUtils::openUrl(url)
-    def self.openUrl(url)
-        system("open -a Safari '#{url}'")
-    end
-end
-
 class MarbleElizabeth
 
     # @filepath

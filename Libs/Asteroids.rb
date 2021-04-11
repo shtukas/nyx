@@ -380,7 +380,7 @@ class AsteroidsInterface
             })
 
             mx.item("set/update description".yellow, lambda {
-                description = MarbleUtils::editTextSynchronously(asteroid["description"])
+                description = Utils::editTextSynchronously(asteroid["description"])
                 return if description == ""
                 asteroid["description"] = description
                 AsteroidDatabase::commitAsteroid(asteroid)
@@ -423,7 +423,7 @@ class AsteroidsInterface
         end
         if asteroid["type"] == "Url" then
             puts "opening '#{asteroid["payload"]}'"
-            MarbleUtils::openUrl(asteroid["payload"])
+            Utils::openUrl(asteroid["payload"])
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -440,7 +440,7 @@ class AsteroidsInterface
             end
             if type == "read-write" then
                 text = AsteroidsBinaryBlobsService::getBlobOrNull(asteroid["uuid"], asteroid["payload"])
-                text = MarbleUtils::editTextSynchronously(text)
+                text = Utils::editTextSynchronously(text)
                 asteroid["payload"] = AsteroidsBinaryBlobsService::putBlob(asteroid["uuid"], text)
                 AsteroidDatabase::commitAsteroid(asteroid)
             end
@@ -523,13 +523,13 @@ class AsteroidsInterface
         end
         if asteroid["type"] == "Url" then
             puts "opening '#{asteroid["payload"]}'"
-            MarbleUtils::openUrl(asteroid["payload"])
+            Utils::openUrl(asteroid["payload"])
             return
         end
         if asteroid["type"] == "Text" then
             puts "opening text '#{asteroid["payload"]}'"
             text = AsteroidsBinaryBlobsService::getBlobOrNull(asteroid["uuid"], asteroid["payload"])
-            text = MarbleUtils::editTextSynchronously(text)
+            text = Utils::editTextSynchronously(text)
             asteroid["payload"] = AsteroidsBinaryBlobsService::putBlob(asteroid["uuid"], text)
             AsteroidDatabase::commitAsteroid(asteroid)
             return
