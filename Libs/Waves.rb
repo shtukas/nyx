@@ -3,139 +3,48 @@
 
 class Waves
 
-    # Waves::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Utils::catalystDataCenterFolderpath()}/Waves.sqlite3"
-    end
-
-    # Waves::issueWave(asteroid, schedule)
-    def self.issueWave(asteroid, schedule)
-
-        uuid = LucilleCore::timeStringL22()
-        lastDoneDateTime = "2021-04-05T01:15:59Z"
-
-        db = SQLite3::Database.new(Waves::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [uuid, asteroid["uuid"], JSON.generate(schedule), lastDoneDateTime]
-        db.close
-
-        {
-            "uuid"             => uuid,
-            "nereiduuid"       => asteroid["uuid"],
-            "schedule"         => schedule,
-            "lastDoneDateTime" => lastDoneDateTime
-        }
-    end
-
-    # Waves::commitWave(wave)
-    def self.commitWave(wave)
-
-        uuid = LucilleCore::timeStringL22()
-        lastDoneDateTime = "2021-04-05T01:15:59Z"
-
-        db = SQLite3::Database.new(Waves::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.execute "delete from _waves_ where _uuid_=?", [wave["uuid"]]
-        db.execute "insert into _waves_ (_uuid_, _nereiduuid_, _schedule_, _lastDoneDateTime_) values (?,?,?,?)", [wave["uuid"], wave["nereiduuid"], JSON.generate(wave["schedule"]), wave["lastDoneDateTime"]]
-        db.close
-    end
-
-    # Waves::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        db = SQLite3::Database.new(Waves::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _waves_ where _uuid_=?" , [uuid]) do |row|
-            answer = {
-                "uuid"             => row["_uuid_"],
-                "nereiduuid"       => row["_nereiduuid_"],
-                "schedule"         => JSON.parse(row["_schedule_"]),
-                "lastDoneDateTime" => row["_lastDoneDateTime_"],
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Waves::waves()
-    def self.waves()
-        db = SQLite3::Database.new(Waves::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _waves_" , []) do |row|
-            answer << {
-                "uuid"             => row["_uuid_"],
-                "nereiduuid"       => row["_nereiduuid_"],
-                "schedule"         => JSON.parse(row["_schedule_"]),
-                "lastDoneDateTime" => row["_lastDoneDateTime_"],
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Waves::destroy(uuid)
-    def self.destroy(uuid)
-        db = SQLite3::Database.new(Waves::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _waves_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
-    end
-
-    # --------------------------------------------------------------------
-
-    # Waves::makeScheduleObjectInteractivelyOrNull()
-    def self.makeScheduleObjectInteractivelyOrNull()
+    # Waves::makeScheduleParametersInteractivelyOrNull() # [type, value]
+    def self.makeScheduleParametersInteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
-        schedule = nil
+        return nil if scheduleType.nil?
+
         if scheduleType=='sticky' then
             fromHour = LucilleCore::askQuestionAnswerAsString("From hour (integer): ").to_i
-            schedule = {
-                "uuid"      => SecureRandom.uuid,
-                "@"         => "sticky",
-                "from-hour" => fromHour
-            }
+            return ["sticky", fromHour]
         end
+
         if scheduleType=='repeat' then
 
             repeat_types = ['every-n-hours','every-n-days','every-this-day-of-the-week','every-this-day-of-the-month']
             type = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("repeat type: ", repeat_types, lambda{|entity| entity })
 
+            return nil if type.nil?
+
             if type=='every-n-hours' then
                 print "period (in hours): "
                 value = STDIN.gets().strip.to_f
+                return [type, value]
             end
             if type=='every-n-days' then
                 print "period (in days): "
                 value = STDIN.gets().strip.to_f
+                return [type, value]
             end
             if type=='every-this-day-of-the-month' then
                 print "day number (String, length 2): "
                 value = STDIN.gets().strip
+                return [type, value]
             end
             if type=='every-this-day-of-the-week' then
                 weekdays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
                 value = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("weekday: ", weekdays, lambda{|entity| entity })
+                return [type, value]
             end
-            schedule = {
-                "uuid" => SecureRandom.uuid,
-                "@"    => type,
-                "repeat-value" => value
-            }
         end
-        schedule
+        raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
     # Waves::unixtimeAtComingMidnight()
@@ -143,169 +52,172 @@ class Waves
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
     end
 
-    # Waves::scheduleToDoNotShowUnixtime(schedule)
-    def self.scheduleToDoNotShowUnixtime(schedule)
-        if schedule['@'] == 'sticky' then
+    # Waves::marbleToDoNotShowUnixtime(marble)
+    def self.marbleToDoNotShowUnixtime(marble)
+        if marble.get("repeatType") == 'sticky' then
             return Waves::unixtimeAtComingMidnight() + 6*3600
         end
-        if schedule['@'] == 'every-n-hours' then
-            return Time.new.to_i+3600 * schedule['repeat-value'].to_f
+        if marble.get("repeatType") == 'every-n-hours' then
+            return Time.new.to_i+3600 * marble.get("repeatValue").to_f
         end
-        if schedule['@'] == 'every-n-days' then
-            return Time.new.to_i+86400 * schedule['repeat-value'].to_f
+        if marble.get("repeatType") == 'every-n-days' then
+            return Time.new.to_i+86400 * marble.get("repeatValue").to_f
         end
-        if schedule['@'] == 'every-this-day-of-the-month' then
+        if marble.get("repeatType") == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != schedule['repeat-value'] do
+            while Time.at(cursor).strftime("%d") != marble.get("repeatValue") do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if schedule['@'] == 'every-this-day-of-the-week' then
+        if marble.get("repeatType") == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != schedule['repeat-value'] do
+            while mapping[Time.at(cursor).wday] != marble.get("repeatValue") do
                 cursor = cursor + 3600
             end
             return cursor
         end
     end
 
-    # Waves::scheduleToString(schedule)
-    def self.scheduleToString(schedule)
-        if schedule['@'] == 'sticky' then
-            # Backward compatibility
-            if schedule['from-hour'].nil? then
-                schedule['from-hour'] = 6
-            end
-            return "sticky, from: #{schedule['from-hour']}"
+    # Waves::scheduleString(marble)
+    def self.scheduleString(marble)
+        if marble.get("repeatType") == 'sticky' then
+            return "sticky, from: #{marble.get("repeatValue")}"
         end
-        if schedule['@'] == 'every-n-hours' then
-            return "every-n-hours #{schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-n-days' then
-            return "every-n-days #{schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-this-day-of-the-month' then
-            return "every-this-day-of-the-month: #{schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-this-day-of-the-week' then
-            return "every-this-day-of-the-week: #{schedule['repeat-value']}"
-        end
-        JSON.generate(schedule)
+        "#{marble.get("repeatType")}: #{marble.get("repeatValue")}"
     end
 
-    # Waves::performDone(wave)
-    def self.performDone(wave)
-        wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitWave(wave)
-        unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
-        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+    # Waves::performDone(marble)
+    def self.performDone(marble)
+        marble.set("lastDoneDateTime", Time.now.utc.iso8601)
+        unixtime = Waves::marbleToDoNotShowUnixtime(marble)
+        DoNotShowUntil::setUnixtime(marble.uuid(), unixtime)
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
-        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
-        return nil if asteroid.nil?
-        schedule = Waves::makeScheduleObjectInteractivelyOrNull()
-        return nil if schedule.nil?
-        Waves::issueWave(asteroid, schedule)
+
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+
+        marble = Marbles::issueNewOrUseExistingMarble(filepath)
+
+        marble.set("uuid", SecureRandom.uuid)
+        marble.set("unixtime", Time.new.to_i)
+        marble.set("domain", "waves")
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        if description == "" then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        marble.set("description", description)
+
+        marble.set("type", "Line")
+        marble.set("payload", "")
+
+        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+        if schedule.nil? then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        marble.set("repeatType", schedule[0])
+        marble.set("repeatValue", schedule[1])
+
+        marble.set("lastDoneDateTime", "2021-01-01T00:00:11Z")
+
+        marble
     end
 
-    # Waves::toString(wave)
-    def self.toString(wave)
+    # Waves::toString(marble)
+    def self.toString(marble)
         ago = 
-            if wave["lastDoneDateTime"] then
-                "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
+            if marble.get("lastDoneDateTime") then
+                "#{((Time.new.to_i - DateTime.parse(marble.get("lastDoneDateTime")).to_time.to_i).to_f/86400).round(2)} days ago"
             else
                 ""
             end
-        "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{AsteroidsInterface::asteroidUUIDToString(wave["nereiduuid"])} (#{ago})"
+        "[wave] [#{Waves::scheduleString(marble)}] #{marble.description()} (#{ago})"
     end
 
     # Waves::ns16s()
     def self.ns16s()
-        Waves::waves()
-            .map{|wave|
+        Marbles::marblesOfGivenDomain("waves")
+            .map{|marble|
                 {
-                    "uuid"     => wave["uuid"],
-                    "announce" => Waves::toString(wave),
+                    "uuid"     => marble.uuid(),
+                    "announce" => Waves::toString(marble),
                     "start"    => lambda { 
-                        Waves::access(wave)
+                        Waves::access(marble)
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                            Waves::performDone(wave)
+                            Waves::performDone(marble)
                         end
                     },
                     "done"     => lambda{
-                        Waves::performDone(wave)
+                        Waves::performDone(marble)
                     }
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
-    # Waves::access(wave)
-    def self.access(wave)
-        puts Waves::toString(wave)
-
-        asteroid = AsteroidsInterface::getAsteroidOrNull(wave["nereiduuid"])
-        return if asteroid.nil?
-
-        case asteroid["type"]
-        when "Line"
-        when "Url"
-            Utils::openUrl(asteroid["payload"])
-        else
-            AsteroidsInterface::access(wave["nereiduuid"])
+    # Waves::access(marble)
+    def self.access(marble)
+        puts Waves::toString(marble)
+        if marble.type() == "Line" then
+            return
         end
+        if marble.type() == "Url" then
+            Utils::openUrl(marble.payload())
+            return
+        end
+
+        raise "81367369-5265-44d3-a338-8240067b2442"
     end
 
-    # Waves::selectWaveOrNull()
-    def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves().sort{|w1, w2| Waves::toString(w1) <=> Waves::toString(w2) }, lambda {|wave| Waves::toString(wave) })
+    # Waves::selectMarbleWaveOrNull()
+    def self.selectMarbleWaveOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Marbles::marblesOfGivenDomain("waves").sort{|m1, m2| m1.get("lastDoneDateTime") <=> m2.get("lastDoneDateTime") }, lambda {|m| Waves::toString(m) })
     end
 
-    # Waves::landing(wave)
-    def self.landing(wave)
+    # Waves::landing(marble)
+    def self.landing(marble)
         loop {
 
-            return if Waves::getOrNull(wave["uuid"]).nil? # Could hve been destroyed in the previous loop
+            return if !marble.isStillAlive()
 
-            puts Waves::toString(wave)
-            puts "uuid: #{wave["uuid"]}"
-            puts "last done: #{wave["lastDoneDateTime"]}"
+            puts Waves::toString(marble)
+            puts "uuid: #{marble.uuid()}"
+            puts "last done: #{marble.get("lastDoneDateTime")}"
 
-            if DoNotShowUntil::isVisible(wave["uuid"]) then
+            if DoNotShowUntil::isVisible(marble.uuid()) then
                 puts "active"
             else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
+                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(marble.uuid())).to_s}"
             end
 
-            puts "schedule: #{wave["schedule"]}"
+            puts "schedule: #{Waves::scheduleString(marble)}"
 
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item("start", lambda {
-                AsteroidsInterface::landing(wave["nereiduuid"])
                 if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                    Waves::performDone(wave)
+                    Waves::performDone(marble)
                 end
             })
 
-            menuitems.item("nereid landing",lambda { AsteroidsInterface::landing(wave["nereiduuid"]) })
-
-            menuitems.item("done",lambda { Waves::performDone(wave) })
+            menuitems.item("done",lambda { Waves::performDone(marble) })
 
             menuitems.item("recast schedule", lambda { 
-                schedule = Waves::makeScheduleObjectInteractivelyOrNull()
+                schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                wave["schedule"] = schedule
-                Waves::commitWave(wave)
+                marble.set("repeatType", schedule[0])
+                marble.set("repeatValue", schedule[1])
             })
 
             menuitems.item("destroy", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    Waves::destroy(wave["uuid"])
+                    marble.destroy()
                 end
             })
 
@@ -318,7 +230,7 @@ class Waves
     def self.wavesDive()
         loop {
             system("Waves Dive")
-            wave = Waves::selectWaveOrNull()
+            wave = Waves::selectMarbleWaveOrNull()
             return if wave.nil?
             Waves::landing(wave)
         }

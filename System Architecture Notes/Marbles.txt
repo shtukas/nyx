@@ -4,7 +4,7 @@ Marbles
 Default Attributes in data file:
     - "uuid"
     - "unixtime"
-    - "domain"        : "anniversaries", "calendar", "waves", "quarks"
+    - "domain"      : "anniversaries", "calendar", "waves", "quarks"
     - "description"
     - "type"
     - "payload"
@@ -23,7 +23,26 @@ Marble object interface
     .destroy()
 
 "anniversaries"
-  - "startdate": "2017-11-23",
-  - "repeatType": "monthly",
-  - "lastCelebrationDate": "2021-03-23"
+    - "startdate"           : Date
+    - "repeatType"          : "weekly", "monthly", "yearly"
+    - "lastCelebrationDate" : Date
+
+"waves"
+    -
+        - "repeatType"  : "sticky"
+        - "repeatValue" : Integer
+
+        - "repeatType"  : "every-n-hours"
+        - "repeatValue" : Float
+
+        - "repeatType"  : "every-n-days"
+        - "repeatValue" : Float
+
+        - "repeatType"  : "every-this-day-of-the-week"
+        - "repeatValue" : 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
+
+        - "repeatType"  : "every-this-day-of-the-month"
+        - "repeatValue" : DayNumber2 (String, length 2)
+
+    - "lastDoneDateTime": ISO8601
 
