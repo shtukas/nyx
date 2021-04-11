@@ -111,6 +111,10 @@ class AsteroidElizabeth
     def readBlobErrorIfNotFound(nhash)
         blob = AsteroidsBinaryBlobsService::getBlobOrNull(@uuid, nhash)
         raise "[AsteroidElizabeth error: 2400b1c6-42ff-49d0-b37c-fbd37f179e01]" if blob.nil?
+        if $GlobalMarble then
+            puts "$GlobalMarble.set(#{nhash}, blob)"
+            $GlobalMarble.set(nhash, blob)
+        end
         blob
     end
 
@@ -227,15 +231,15 @@ class AsteroidsInterface
                 description = description[0, description.size/2]
             end
             # -------------------------------------------------
-            return "[nereid] [line] #{description}"    
+            return description
         end
         if asteroid["type"] == "Url" and asteroid["description"] == asteroid["payload"] then
-            return "[nereid] [url] #{asteroid["payload"]}"    
+            return asteroid["payload"]   
         end
         if asteroid["type"] == "AionPoint" then
-            return "[nereid] [#{asteroid["type"].downcase}] #{asteroid["description"]}"  
+            return asteroid["description"] 
         end
-        "[nereid] [#{asteroid["type"].downcase}] #{asteroid["description"]} | #{asteroid["payload"]}"
+        "#{asteroid["description"]} | #{asteroid["payload"]}"
     end
 
     # AsteroidsInterface::asteroidUUIDToString(uuid)
@@ -814,5 +818,6 @@ class AsteroidsFsck
     def self.fsck()
         AsteroidsInterface::getAsteroids()
             .each{|asteroid| AsteroidsFsck::fsckAsteroid(asteroid) }
+        puts "All good!".green
     end
 end

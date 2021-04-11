@@ -79,158 +79,93 @@ class Anniversaries
         raise "ff1f70da-1342-4a20-91cb-f5a86f66a44c" if Anniversaries::computeNextCelebrationDateOrdinal("2024-02-29", "yearly", "2025-01-01").join(", ") != "2025-02-28, 1"
     end
 
-    # -----------------------------------------------------------
-
-    # Anniversaries::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Utils::catalystDataCenterFolderpath()}/Anniversaries.sqlite3"
-    end
-
-    # Anniversaries::insertRecord(uuid, startdate, repeatType, lastCelebrationDate, nereiduuid)
-    def self.insertRecord(uuid, startdate, repeatType, lastCelebrationDate, nereiduuid)
-        db = SQLite3::Database.new(Anniversaries::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction
-        db.execute "delete from _anniversaries_ where _uuid_=?", [uuid]
-        db.execute "insert into _anniversaries_ (_uuid_, _startdate_, _repeatType_, _lastCelebrationDate_, _nereiduuid_) values (?,?,?,?,?)", [uuid, startdate, repeatType, lastCelebrationDate, nereiduuid]
-        db.commit
-        db.close
-        nil
-    end
-
-    # Anniversaries::insertItem(item)
-    def self.insertItem(item)
-        Anniversaries::insertRecord(item["uuid"], item["startdate"], item["repeatType"], item["lastCelebrationDate"], item["nereiduuid"])
-    end
-
-    # Anniversaries::getItemByUUID(uuid)
-    def self.getItemByUUID(uuid)
-        db = SQLite3::Database.new(Anniversaries::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute( "select * from _anniversaries_ where _uuid_=?", [uuid] ) do |row|
-            answer = {
-                "uuid"       => row['_uuid_'],
-                "startdate"  => row['_startdate_'],
-                "repeatType" => row['_repeatType_'],
-                "lastCelebrationDate" => row['_lastCelebrationDate_'],
-                "nereiduuid" => row['_nereiduuid_']
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Anniversaries::getItems()
-    def self.getItems()
-        db = SQLite3::Database.new(Anniversaries::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _anniversaries_", [] ) do |row|
-            answer << {
-                "uuid"       => row['_uuid_'],
-                "startdate"  => row['_startdate_'],
-                "repeatType" => row['_repeatType_'],
-                "lastCelebrationDate" => row['_lastCelebrationDate_'],
-                "nereiduuid" => row['_nereiduuid_']
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Anniversaries::destroy(uuid)
-    def self.destroy(uuid)
-        db = SQLite3::Database.new(Anniversaries::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction
-        db.execute "delete from _anniversaries_ where _uuid_=?", [uuid]
-        db.commit
-        db.close
-        nil
-    end
-
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::interactivelyIssueNewItemOrNull()
-    def self.interactivelyIssueNewItemOrNull()
+    # Anniversaries::interactivelyIssueNewMarbleAnniversaryOrNull()
+    def self.interactivelyIssueNewMarbleAnniversaryOrNull()
 
-        asteroid = AsteroidsInterface::interactivelyIssueNewAsteroidOrNull()
-        return if asteroid.nil?
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
 
-        startdate = LucilleCore::askQuestionAnswerAsString("startdate: ")
-        return nil if startdate == ""
+        marble = Marbles::issueNewOrUseExistingMarble(filepath)
+
+        marble.set("uuid", SecureRandom.uuid)
+        marble.set("unixtime", Time.new.to_i)
+        marble.set("domain", "anniversaries")
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        if description == "" then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        marble.set("description", description)
+
+        marble.set("type", "Line")
+        marble.set("payload", "")
+
+        startdate = LucilleCore::askQuestionAnswerAsString("startdate (empty to abort): ")
+        if startdate == "" then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        marble.set("startdate", anniversary["startdate"])
 
         repeatType = LucilleCore::selectEntityFromListOfEntitiesOrNull("repeat type", ["weekly", "monthly", "yearly"])
-        return nil if repeatType.nil?
+        if repeatType.nil? then
+            FileUtils.rm(filepath)
+            return nil
+        end
+        marble.set("repeatType", repeatType)
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
             lastCelebrationDate = Utils::today()
         end
+        marble.set("lastCelebrationDate", lastCelebrationDate)
 
-        item = {
-            "uuid"                => SecureRandom.uuid,
-            "startdate"           => startdate,
-            "repeatType"          => repeatType,
-            "lastCelebrationDate" => lastCelebrationDate,
-            "nereiduuid"          => asteroid["uuid"]
-        }        
-
-        Anniversaries::insertItem(item)
-
-        item
+        marble
     end
 
-    # Anniversaries::itemNextDateOrdinal(item) # [ date: String, ordinal: Int ]
-    def self.itemNextDateOrdinal(item)
-        Anniversaries::computeNextCelebrationDateOrdinal(item["startdate"], item["repeatType"], item["lastCelebrationDate"])
+    # Anniversaries::marbleNextDateOrdinal(marble) # [ date: String, ordinal: Int ]
+    def self.marbleNextDateOrdinal(marble)
+        Anniversaries::computeNextCelebrationDateOrdinal(marble.get("startdate"), marble.get("repeatType"), marble.get("lastCelebrationDate"))
     end
 
-    # Anniversaries::toString(item)
-    def self.toString(item)
-        "[anniversary] [#{Anniversaries::itemNextDateOrdinal(item).join(", ")}] #{AsteroidsInterface::asteroidUUIDToString(item["nereiduuid"])} (#{item["repeatType"]} since #{item["startdate"]})"
+    # Anniversaries::toString(marble)
+    def self.toString(marble)
+        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{marble.description()} (#{marble.get("repeatType")} since #{marble.get("startdate")})"
     end
 
     # Anniversaries::ns16s()
     def self.ns16s()
-        Anniversaries::getItems()
-            .select{|item| Anniversaries::itemNextDateOrdinal(item)[0] <= Utils::today() }
-            .map{|item|
+        Marbles::marblesOfGivenDomain("anniversaries")
+            .select{|marble| Anniversaries::marbleNextDateOrdinal(marble)[0] <= Utils::today() }
+            .map{|marble|
                 {
-                    "uuid"     => item["uuid"],
-                    "announce" => Anniversaries::toString(item),
+                    "uuid"     => marble.uuid(),
+                    "announce" => Anniversaries::toString(marble),
                     "start"   => lambda{
-                        puts Anniversaries::toString(item).green
+                        puts Anniversaries::toString(marble).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-                            item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                            Anniversaries::insertItem(item)
+                            marble.set("lastCelebrationDate", Time.new.to_s[0, 10])
                         end
                     },
                     "done"   => lambda{
-                        puts Anniversaries::toString(item).green
-                        item["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                        Anniversaries::insertItem(item)
+                        puts Anniversaries::toString(marble).green
+                        marble.set("lastCelebrationDate", Time.new.to_s[0, 10])
                     }
                 }
             }
             .sort{|i1, i2| i1["announce"]<=>i2["announce"] }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|marble| DoNotShowUntil::isVisible(marble.uuid()) }
     end
 
     # Anniversaries::dailyBriefing()
     def self.dailyBriefing()
         puts "Anniversaries daily briefing:"
-        Anniversaries::getItems()
-            .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
-            .each{|item|
-                puts Anniversaries::toString(item)
+        Marbles::marblesOfGivenDomain("anniversaries")
+            .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
+            .each{|marble|
+                puts Anniversaries::toString(marble)
             }
         LucilleCore::pressEnterToContinue()
     end
@@ -243,35 +178,33 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::landing(item)
-    def self.landing(item)
+    # Anniversaries::landing(marble)
+    def self.landing(marble)
         loop {
-            item = Anniversaries::getItemByUUID(item["uuid"]) # to get the current version
-            return if item.nil?
-            puts Anniversaries::toString(item).green
+            return if !marble.isStillAlive()
+            puts Anniversaries::toString(marble).green
             mx = LCoreMenuItemsNX1.new()
             mx.item("update start date".yellow, lambda { 
                 startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
                 return if startdate == ""
-                item["startdate"] = startdate
-                Anniversaries::insertItem(item)
+                marble.set("startdate", startdate)
             })
             mx.item("destroy".yellow, lambda { 
-                Anniversaries::destroy(item["uuid"])
+                marble.destroy()
             })
             status = mx.promptAndRunSandbox()
-            break if !status            
+            break if !status
         }
     end
 
     # Anniversaries::anniversariesDive()
     def self.anniversariesDive()
         loop {
-            items = Anniversaries::getItems()
-                        .sort{|i1, i2| Anniversaries::itemNextDateOrdinal(i1)[0] <=> Anniversaries::itemNextDateOrdinal(i2)[0] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Anniversaries::toString(item) })
-            return if item.nil?
-            Anniversaries::landing(item)
+            marbles = Marbles::marblesOfGivenDomain("anniversaries")
+                        .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
+            marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("marble", marbles, lambda{|m| Anniversaries::toString(m) })
+            return if marble.nil?
+            Anniversaries::landing(marble)
         }
     end
 
@@ -280,11 +213,11 @@ class Anniversaries
         loop {
             puts "Anniversaries (main)"
             mx = LCoreMenuItemsNX1.new()
-            mx.item("dive into anniversary items".yellow, lambda { 
+            mx.item("dive into anniversary marbles".yellow, lambda { 
                 Anniversaries::anniversariesDive()
             })
-            mx.item("make new anniversary item".yellow, lambda { 
-                Anniversaries::interactivelyIssueNewItemOrNull()
+            mx.item("make new anniversary marble".yellow, lambda { 
+                Anniversaries::interactivelyIssueNewMarbleAnniversaryOrNull()
             })
             status = mx.promptAndRunSandbox()
             break if !status

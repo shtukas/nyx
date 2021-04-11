@@ -4,24 +4,4 @@
 
 require_relative "Libs/loader.rb"
 
-# Anniversaries::getItems()
-# Calendar::getItems()
-# Waves::waves()
-# Quarks::quarks()
-
-(Anniversaries::getItems() + Calendar::getItems() + Waves::waves() + Quarks::quarks()).each{|item|
-    uuid = item["nereiduuid"]
-    puts "Checking asteroid uuid: #{uuid}"
-    asteroid =  AsteroidsInterface::getAsteroidOrNull(uuid)
-    if asteroid.nil? then
-        puts "could not find nereid asteroid for uuid: #{uuid}".red
-        puts JSON.pretty_generate(item).red
-        puts Quarks::toString(item).green
-        exit
-        #Quarks::destroyAndNereidContent(item)
-        next
-    end
-    AsteroidsFsck::fsckAsteroid(asteroid)
-}
-
-exit
+MarblesFsck::fsck()

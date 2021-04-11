@@ -1,0 +1,29 @@
+
+Marbles
+
+Default Attributes in data file:
+    - "uuid"
+    - "unixtime"
+    - "domain"        : "anniversaries", "calendar", "waves", "quarks"
+    - "description"
+    - "type"
+    - "payload"
+
+Marble object interface
+    .intialize(filepath)
+    .uuid()
+    .unixtime()
+    .domain()
+    .description()
+    .type()
+    .payload()
+    .set(key, value)
+    .getOrNull(key)
+    .isStillAlive()
+    .destroy()
+
+"anniversaries"
+  - "startdate": "2017-11-23",
+  - "repeatType": "monthly",
+  - "lastCelebrationDate": "2021-03-23"
+
