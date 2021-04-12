@@ -412,7 +412,9 @@ class MarblesFsck
             .map{|domain| Marbles::marblesOfGivenDomain(domain) }
             .flatten
             .each{|marble|
+                next if KeyValueStore::flagIsTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{marble.filepath()}:#{File.mtime(marble.filepath())}")
                 MarblesFsck::fsckMarble(marble)
+                KeyValueStore::setFlagTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{marble.filepath()}:#{File.mtime(marble.filepath())}")
             }
     end
 end
