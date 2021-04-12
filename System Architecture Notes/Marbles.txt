@@ -4,7 +4,7 @@ Marbles
 Default Attributes in data file:
     - "uuid"
     - "unixtime"
-    - "domain"      : "anniversaries", "calendar", "waves", "quarks"
+    - "domain"      : "anniversaries", "waves", "quarks"
     - "description"
     - "type"
     - "payload"

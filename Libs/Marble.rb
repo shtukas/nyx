@@ -155,20 +155,25 @@ end
 
 class Marbles
 
-    # Marbles::marbles()
-    def self.marbles()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles")
-            .first(200)
-            .map{|filepath|
-                Marble.new(filepath)
+    # Marbles::domains()
+    def self.domains()
+        ["anniversaries", "waves", "quarks"]
+    end
+
+    # Marbles::filepaths()
+    def self.filepaths()
+        Marbles::domains()
+            .map{|domain|
+                LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
             }
+            .flatten
     end
 
     # Marbles::marblesOfGivenDomain(domain)
     def self.marblesOfGivenDomain(domain)
-        Marbles::marbles().select{|marble|
-            marble.domain() == domain
-        }
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
+            .sort
+            .map{|filepath| Marble.new(filepath)}
     end
 
     # Marbles::issueNewEmptyMarble(filepath)
@@ -341,7 +346,7 @@ class MarblesFsck
         raise "[error: 5ff068b9-b9fb-4826-a6ad-398d8b0709bd] ; filepath: #{filepath}" if marble.unixtime().nil?
         raise "[error: 6d283c5e-3c50-45ef-8c26-2e10a563fb53] ; filepath: #{filepath}" if marble.domain().nil?
 
-        if !["anniversaries", "calendar", "waves", "quarks"].include?(marble.domain()) then
+        if !["anniversaries", "waves", "quarks"].include?(marble.domain()) then
             raise "[error: eacdf935-09d1-4e64-a16f-49c5de81c775] ; filepath: #{filepath}"
         end
 
@@ -403,9 +408,10 @@ class MarblesFsck
 
     # MarblesFsck::fsck()
     def self.fsck()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles")
-            .each{|filepath|
-                marble = Marble.new(filepath)
+        Marbles::domains()
+            .map{|domain| Marbles::marblesOfGivenDomain(domain) }
+            .flatten
+            .each{|marble|
                 MarblesFsck::fsckMarble(marble)
             }
     end
