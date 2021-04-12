@@ -8,19 +8,15 @@ class UIServices
 
             ms = LCoreMenuItemsNX1.new()
 
-            ms.item("Calendar", lambda { Calendar::main() })
-
             ms.item("Anniversaries", lambda { Anniversaries::main() })
 
             ms.item("Waves", lambda { Waves::main() })
 
             puts ""
 
-            ms.item("new calendar item", lambda { Calendar::interactivelyIssueNewCalendarItemOrNull() }) 
+            ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })
 
-            ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })            
-
-            ms.item("new quark", lambda { Quarks::getQuarkPossiblyArchitectedOrNull(nil, nil) })    
+            ms.item("new quark", lambda { Quarks::interactivelyIssueNewMarbleQuarkOrNull(l22) })
 
             puts ""
 
@@ -31,7 +27,7 @@ class UIServices
 
     # UIServices::waveLikeNS16s()
     def self.waveLikeNS16s()
-        Calendar::ns16s() + Anniversaries::ns16s() + Waves::ns16s()
+        Anniversaries::ns16s() + Waves::ns16s()
     end
 
     # UIServices::thatFunnyOrdering1(objects, keyValue)

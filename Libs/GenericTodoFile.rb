@@ -148,8 +148,20 @@ class GenericTodoFile
                                         LucilleCore::askQuestionAnswerAsString("description: ")
                                     end
                                 }).call()
-                                asteroid = AsteroidsInterface::issueTextAsteroid(description, text)
-                                Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
+
+                                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+
+                                marble = Marbles::issueNewEmptyMarble(filepath)
+
+                                marble.set("uuid", SecureRandom.uuid)
+                                marble.set("unixtime", Time.new.to_i)
+                                marble.set("domain", "quarks")
+                                marble.set("description", File.basename(location))
+
+                                marble.set("type", "Text")
+                                payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
+                                marble.set("payload", payload)
+
                                 GenericTodoFile::delete(filepath, uuid)
                                 break
                             end

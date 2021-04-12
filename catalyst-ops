@@ -6,26 +6,14 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-def insertQuarkLine(ordinal, line)
-    asteroid = AsteroidsInterface::issueLineAsteroid(line)
-    quark = Quarks::issueQuarkUsingNereiduuid(asteroid["uuid"])
-    QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
-end
 
 if ARGV.empty? then
     puts "usage:"
     puts "catalyst no-work-today"
-    puts "catalyst make quark line <ordinal> <line>"
     exit
 end
 
 if ARGV[0] == "no-work-today" then
     KeyValueStore::setFlagTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}")
     exit
-end
-
-if ARGV[0] == "make" and ARGV[1] == "quark" and ARGV[2] == "line" and ARGV[3] and ARGV[4] then
-    ordinal = ARGV[3].to_f
-    line    = ARGV[4]
-    insertQuarkLine(ordinal, line)
 end

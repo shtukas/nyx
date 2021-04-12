@@ -48,7 +48,7 @@ class MarbleElizabeth
             return IO.read(filepath) 
         end
 
-        raise "[AsteroidElizabeth error: 2400b1c6-42ff-49d0-b37c-fbd37f179e01]"
+        raise "[Error: 2400b1c6-42ff-49d0-b37c-fbd37f179e01, nhash: #{nhash}]"
     end
 
     def datablobCheck(nhash)
@@ -114,12 +114,22 @@ class Marble
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = nil
+        value = nil
         db.execute("select * from _data_ where _key_=?", [key]) do |row|
-            answer = row['_value_']
+            value = row['_value_']
         end
         db.close
-        answer
+        value
+
+        return value if value
+
+        nhash = key
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles-TheLargeMigrationBlobs/#{nhash}.data"
+        if File.exists?(filepath) then
+            return IO.read(filepath) 
+        end
+
+        nil
     end
 
     def get(key)
@@ -147,9 +157,11 @@ class Marbles
 
     # Marbles::marbles()
     def self.marbles()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles").map{|filepath|
-            Marble.new(filepath)
-        }
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles")
+            .first(200)
+            .map{|filepath|
+                Marble.new(filepath)
+            }
     end
 
     # Marbles::marblesOfGivenDomain(domain)
@@ -159,16 +171,161 @@ class Marbles
         }
     end
 
-    # Marbles::issueNewOrUseExistingMarble(filepath)
-    def self.issueNewOrUseExistingMarble(filepath)
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117  
-            db.busy_handler { |count| true }
-            db.execute "create table _data_ (_key_ string, _value_ blob)", []
-            db.close
-        end
+    # Marbles::issueNewEmptyMarble(filepath)
+    def self.issueNewEmptyMarble(filepath)
+        raise "[37d4ec0d-5562-47c1-861c-ca08078e26b0: #{filepath}]" if File.exists?(filepath)
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.execute "create table _data_ (_key_ string, _value_ blob)", []
+        db.close
+
         Marble.new(filepath)
+    end
+
+    # Marbles::access(marble)
+    def self.access(marble)
+
+        if marble.type() == "Line" then
+            puts marble.description()
+            return
+        end
+        if marble.type() == "Url" then
+            puts "opening '#{marble.payload()}'"
+            Utils::openUrl(marble.payload())
+            return
+        end
+        if marble.type() == "Text" then
+            puts "opening text '#{marble.payload()}' (edit mode)"
+            nhash = marble.payload()
+            text1 = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
+            text2 = Utils::editTextSynchronously(text1)
+            if (text1 != text2) and LucilleCore::askQuestionAnswerAsBoolean("commit changes ? ") then
+                payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text2)
+                marble.set("payload", payload)
+            end
+            return
+        end
+        if marble.type() == "ClickableType" then
+            puts "opening file '#{marble.payload()}'"
+            nhash, extension = marble.payload().split("|")
+            filepath = "/Users/pascal/Desktop/#{nhash}#{extension}"
+            blob = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
+            File.open(filepath, "w"){|f| f.write(blob) }
+            puts "I have exported the file at '#{filepath}'"
+            system("open '#{filepath}'")
+            return
+        end
+        if marble.type() == "AionPoint" then
+            puts "opening aion point '#{marble.payload()}'"
+            nhash = marble.payload()
+            targetReconstructionFolderpath = "/Users/pascal/Desktop"
+            AionCore::exportHashAtFolder(MarbleElizabeth.new(marble.filepath()), nhash, targetReconstructionFolderpath)
+            puts "Export completed"
+            return
+        end
+        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
+    end
+
+    # Marbles::postAccessCleanUp(marble)
+    def self.postAccessCleanUp(marble)
+
+        if marble.type() == "Line" then
+            return
+        end
+        if marble.type() == "Url" then
+            return
+        end
+        if marble.type() == "Text" then
+            return
+        end
+        if marble.type() == "ClickableType" then
+            puts "cleaning file '#{marble.payload()}'"
+            nhash, extension = marble.payload().split("|")
+            filepath = "/Users/pascal/Desktop/#{nhash}#{extension}"
+            return if !File.exists?(filepath)
+            LucilleCore::removeFileSystemLocation(filepath)
+            return
+        end
+        if marble.type() == "AionPoint" then
+            puts "cleaning aion point '#{marble.payload()}'"
+            nhash = marble.payload()
+            aionObject = AionCore::getAionObjectByHash(MarbleElizabeth.new(marble.filepath()), nhash)
+            location = "/Users/pascal/Desktop/#{aionObject["name"]}"
+            return if !File.exists?(location)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
+    end
+
+    # Marbles::edit(marble)
+    def self.edit(marble)
+
+        if marble.type() == "Line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            return nil if line == ""
+            marble.set("description", line)
+            marble.set("payload", "")
+            return
+        end
+        if marble.type() == "Url" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
+            if description != "" then
+                marble.set("description", description)
+            end  
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            if url != "" then
+                marble.set("payload", url)
+            end
+            return
+        end
+        if marble.type() == "Text" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
+            if description != "" then
+                marble.set("description", description)
+            end
+            nhash = marble.payload()
+            text1 = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
+            text2 = Utils::editTextSynchronously(text1)
+            payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text2)
+            marble.set("payload", payload)
+            return
+        end
+        if marble.type() == "ClickableType" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
+            if description != "" then
+                marble.set("description", description)
+            end
+            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
+            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
+            if File.exists?(filepath) then
+                nhash = MarbleElizabeth.new(marble.filepath()).commitBlob(IO.read(filepath)) # bad choice, this file could be large
+                dottedExtension = File.extname(filenameOnTheDesktop)
+                payload = "#{nhash}|#{dottedExtension}"
+                marble.set("payload", payload)
+            else
+                puts "Could not find file: #{filepath}"
+            end
+            return
+        end
+        if marble.type() == "AionPoint" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
+            if description != "" then
+                marble.set("description", description)
+            end
+            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
+            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
+            if File.exists?(location) then
+                payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
+                marble.set("payload", payload)
+            else
+                puts "Could not find file: #{filepath}"
+            end
+            return
+        end
+        raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
     end
 end
 
@@ -176,7 +333,9 @@ class MarblesFsck
     # MarblesFsck::fsckMarble(marble)
     def self.fsckMarble(marble)
 
-        puts "fsck: #{marble.filepath()}"
+        puts "fsck: #{marble.filepath()} (#{marble.domain()}, #{marble.type()})"
+
+        filepath = marble.filepath()
 
         raise "[error: f88fcaad-2882-4fd6-ac1e-a85a83f761b6] ; filepath: #{filepath}" if marble.uuid().nil?
         raise "[error: 5ff068b9-b9fb-4826-a6ad-398d8b0709bd] ; filepath: #{filepath}" if marble.unixtime().nil?
@@ -231,12 +390,11 @@ class MarblesFsck
             end
             return
         end 
-        if asteroid["type"] == "AionPoint" then
+        if marble.type() == "AionPoint" then
             nhash = marble.payload()
             status = AionFsck::structureCheckAionHash(MarbleElizabeth.new(marble.filepath()), nhash)
             if !status then
-                puts "Could not validate payload: #{asteroid["payload"]}".red
-                exit
+                raise "[error: 53BBC142-23CA-4939-9691-32F7C6FC9C65] ; filepath: #{filepath}"
             end
             return
         end

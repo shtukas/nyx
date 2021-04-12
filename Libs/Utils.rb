@@ -95,8 +95,20 @@ class Utils
                 FileUtils.mv(location, location2)
                 next
             end
-            asteroid = AsteroidsInterface::issueAionPointAsteroid(location)
-            Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
+
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+
+            marble = Marbles::issueNewEmptyMarble(filepath)
+
+            marble.set("uuid", SecureRandom.uuid)
+            marble.set("unixtime", Time.new.to_i)
+            marble.set("domain", "quarks")
+            marble.set("description", File.basename(location))
+
+            marble.set("type", "AionPoint")
+            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
+            marble.set("payload", payload)
+
             LucilleCore::removeFileSystemLocation(location)
         end
     end

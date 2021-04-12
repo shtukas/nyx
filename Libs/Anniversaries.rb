@@ -86,7 +86,7 @@ class Anniversaries
 
         filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
 
-        marble = Marbles::issueNewOrUseExistingMarble(filepath)
+        marble = Marbles::issueNewEmptyMarble(filepath)
 
         marble.set("uuid", SecureRandom.uuid)
         marble.set("unixtime", Time.new.to_i)

@@ -22,27 +22,43 @@ Marble object interface
     .isStillAlive()
     .destroy()
 
-"anniversaries"
-    - "startdate"           : Date
-    - "repeatType"          : "weekly", "monthly", "yearly"
-    - "lastCelebrationDate" : Date
+Contents:
 
-"waves"
-    -
-        - "repeatType"  : "sticky"
-        - "repeatValue" : Integer
+    "type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
 
-        - "repeatType"  : "every-n-hours"
-        - "repeatValue" : Float
+    [type] -> [payload]
 
-        - "repeatType"  : "every-n-days"
-        - "repeatValue" : Float
+        "Line"            -> "" # empty string, the description is the payload
+        "Url"             -> String
+        "Text"            -> String # reference to a blob
+        "ClickableType"   -> <nhash>|<dottedExtension>
+        "AionPoint"       -> <nhash>
 
-        - "repeatType"  : "every-this-day-of-the-week"
-        - "repeatValue" : 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
+Domains:
 
-        - "repeatType"  : "every-this-day-of-the-month"
-        - "repeatValue" : DayNumber2 (String, length 2)
+    "anniversaries"
+        - "startdate"           : Date
+        - "repeatType"          : "weekly", "monthly", "yearly"
+        - "lastCelebrationDate" : Date
 
-    - "lastDoneDateTime": ISO8601
+    "waves"
+        -
+            - "repeatType"  : "sticky"
+            - "repeatValue" : Integer
 
+            - "repeatType"  : "every-n-hours"
+            - "repeatValue" : Float
+
+            - "repeatType"  : "every-n-days"
+            - "repeatValue" : Float
+
+            - "repeatType"  : "every-this-day-of-the-week"
+            - "repeatValue" : 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
+
+            - "repeatType"  : "every-this-day-of-the-month"
+            - "repeatValue" : DayNumber2 (String, length 2)
+
+        - "lastDoneDateTime": ISO8601
+
+    "quarks"
+        (nothing)

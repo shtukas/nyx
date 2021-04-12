@@ -44,7 +44,18 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    asteroid = AsteroidsInterface::issueURLAsteroid(link)
-    Quarks::issueQuarkUsingNereiduuidAndPlaceAtLowOrdinal(asteroid["uuid"])
+
+    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+
+    marble = Marbles::issueNewEmptyMarble(filepath)
+
+    marble.set("uuid", SecureRandom.uuid)
+    marble.set("unixtime", Time.new.to_i)
+    marble.set("domain", "quarks")
+    marble.set("description", link)
+
+    marble.set("type", "Url")
+    marble.set("payload", link)
+
     viennaLinkFeeder.done(link)
 }
