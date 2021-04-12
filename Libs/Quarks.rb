@@ -6,7 +6,7 @@ class Quarks
     # Quarks::interactivelyIssueNewMarbleQuarkOrNull(l22)
     def self.interactivelyIssueNewMarbleQuarkOrNull(l22)
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{l22}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{l22}.marble"
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
@@ -295,6 +295,8 @@ class Quarks
         }
 
         thr.exit
+
+        return if !marble.isStillAlive()
 
         timespan = Time.new.to_f - startUnixtime
 

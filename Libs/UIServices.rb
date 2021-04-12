@@ -16,7 +16,7 @@ class UIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })
 
-            ms.item("new quark", lambda { Quarks::interactivelyIssueNewMarbleQuarkOrNull(l22) })
+            ms.item("new quark", lambda { Quarks::interactivelyIssueNewMarbleQuarkOrNull(Quarks::computeLowL22()) })
 
             puts ""
 

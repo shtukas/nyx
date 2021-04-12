@@ -95,7 +95,7 @@ loop {
     end
 
     if Interpreting::match("new quark", command) then
-        Quarks::interactivelyIssueNewMarbleQuarkOrNull(l22)
+        Quarks::interactivelyIssueNewMarbleQuarkOrNull(Quarks::computeLowL22())
     end
 
     if Interpreting::match("start", command) then

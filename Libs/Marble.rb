@@ -11,6 +11,8 @@ class MarbleElizabeth
 
     def commitBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "a57bb88e-d792-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -27,7 +29,8 @@ class MarbleElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "a57bb88e-d793-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -99,6 +102,8 @@ class Marble
     # -----------------------------------------------------
 
     def set(key, value)
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "a57bb88e-d794-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -110,6 +115,8 @@ class Marble
     end
 
     def getOrNull(key)
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "a57bb88e-d795-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
