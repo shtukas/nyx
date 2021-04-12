@@ -5,6 +5,7 @@ require 'json'
 # JSON.pretty_generate(object)
 
 require 'date'
+require 'time'
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -31,8 +32,6 @@ require 'sqlite3'
 require 'find'
 
 require 'thread'
-
-require "time"
 
 require 'colorize'
 

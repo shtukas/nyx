@@ -98,7 +98,7 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/waves/#{LucilleCore::timeStringL22()}.marble"
 
         marble = Marbles::issueNewEmptyMarble(filepath)
 
@@ -142,7 +142,7 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
-        Marbles::marblesOfGivenDomain("waves")
+        Marbles::marblesOfGivenDomainInOrder("waves")
             .map{|marble|
                 {
                     "uuid"     => marble.uuid(),
@@ -177,7 +177,7 @@ class Waves
 
     # Waves::selectMarbleWaveOrNull()
     def self.selectMarbleWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Marbles::marblesOfGivenDomain("waves").sort{|m1, m2| m1.get("lastDoneDateTime") <=> m2.get("lastDoneDateTime") }, lambda {|m| Waves::toString(m) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Marbles::marblesOfGivenDomainInOrder("waves").sort{|m1, m2| m1.get("lastDoneDateTime") <=> m2.get("lastDoneDateTime") }, lambda {|m| Waves::toString(m) })
     end
 
     # Waves::landing(marble)

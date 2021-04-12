@@ -84,7 +84,7 @@ class Anniversaries
     # Anniversaries::interactivelyIssueNewMarbleAnniversaryOrNull()
     def self.interactivelyIssueNewMarbleAnniversaryOrNull()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/anniversaries/#{LucilleCore::timeStringL22()}.marble"
 
         marble = Marbles::issueNewEmptyMarble(filepath)
 
@@ -137,7 +137,7 @@ class Anniversaries
 
     # Anniversaries::ns16s()
     def self.ns16s()
-        Marbles::marblesOfGivenDomain("anniversaries")
+        Marbles::marblesOfGivenDomainInOrder("anniversaries")
             .select{|marble| Anniversaries::marbleNextDateOrdinal(marble)[0] <= Utils::today() }
             .map{|marble|
                 {
@@ -162,7 +162,7 @@ class Anniversaries
     # Anniversaries::dailyBriefing()
     def self.dailyBriefing()
         puts "Anniversaries daily briefing:"
-        Marbles::marblesOfGivenDomain("anniversaries")
+        Marbles::marblesOfGivenDomainInOrder("anniversaries")
             .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
             .each{|marble|
                 puts Anniversaries::toString(marble)
@@ -200,7 +200,7 @@ class Anniversaries
     # Anniversaries::anniversariesDive()
     def self.anniversariesDive()
         loop {
-            marbles = Marbles::marblesOfGivenDomain("anniversaries")
+            marbles = Marbles::marblesOfGivenDomainInOrder("anniversaries")
                         .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
             marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("marble", marbles, lambda{|m| Anniversaries::toString(m) })
             return if marble.nil?

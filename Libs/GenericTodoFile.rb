@@ -149,7 +149,7 @@ class GenericTodoFile
                                     end
                                 }).call()
 
-                                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{LucilleCore::timeStringL22()}.marble"
+                                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
 
                                 marble = Marbles::issueNewEmptyMarble(filepath)
 

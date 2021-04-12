@@ -169,8 +169,8 @@ class Marbles
             .flatten
     end
 
-    # Marbles::marblesOfGivenDomain(domain)
-    def self.marblesOfGivenDomain(domain)
+    # Marbles::marblesOfGivenDomainInOrder(domain)
+    def self.marblesOfGivenDomainInOrder(domain)
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
             .sort
             .map{|filepath| Marble.new(filepath)}
@@ -409,7 +409,7 @@ class MarblesFsck
     # MarblesFsck::fsck()
     def self.fsck()
         Marbles::domains()
-            .map{|domain| Marbles::marblesOfGivenDomain(domain) }
+            .map{|domain| Marbles::marblesOfGivenDomainInOrder(domain) }
             .flatten
             .each{|marble|
                 next if KeyValueStore::flagIsTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{marble.filepath()}:#{File.mtime(marble.filepath())}")
