@@ -183,10 +183,19 @@ class GenericTodoFile
                         GenericTodoFile::delete(filepath, uuid)
                     },
                     "isTodo"   => true,
-                    "filepath" => filepath,
-                    "recoveryTimeInHours" => BankExtended::recoveredDailyTimeInHours(uuid)
+                    "filepath" => filepath
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+    end
+
+    # GenericTodoFile::ns17s(announcePrefix, filepath)
+    def self.ns17s(announcePrefix, filepath)
+        GenericTodoFile::ns16s(announcePrefix, filepath).map{|ns16|
+            {
+                "ns16" => ns16,
+                "rt"   => BankExtended::recoveredDailyTimeInHours(ns16["uuid"])
+            }
+        }
     end
 end

@@ -30,24 +30,29 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::thatFunnyOrdering1(objects, keyValue)
-    def self.thatFunnyOrdering1(objects, keyValue)
-        return [] if objects.empty?
-        average = objects.map{|object| object[keyValue]}.inject(0, :+).to_f/objects.size
-        objs1, objs2 = objects.partition { |object| object[keyValue] >= average }
+    # UIServices::orderNS17s(ns17s)
+    def self.orderNS17s(ns17s)
+        ns17s1 = ns17s.first(10) # The first 10
+        ns17s2 = ns17s.drop(10)  # Everything after 10
 
-        objs2 = objs2.sort{|o1, o2| o1[keyValue] <=> o2[keyValue] }.reverse
-        objs1 = objs1.sort{|o1, o2| o1[keyValue] <=> o2[keyValue] }
+        ns17s11, ns17s12 = ns17s1.partition{|o| o["rt"] > 1.5 }
+        # ns17s11 within first 10, those with a rt > 1.5
+        # ns17s12 within first 10, those with a rt <= 1.5
 
-        objs2 + objs1
+        ns17s11 = ns17s11
+                        .sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+
+        ns17s12 = ns17s12
+                        .sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+                        .reverse
+
+        ns17s12 + ns17s11 + ns17s2
     end
 
-    # UIServices::stuffToDoNS16s()
-    def self.stuffToDoNS16s()
-        objs1 = GenericTodoFile::ns16s("[todo]", "/Users/pascal/Desktop/Todo.txt")
-        objs2 = Quarks::ns16s()
-        # We expect a ket called recoveryTimeInHours
-        UIServices::thatFunnyOrdering1(objs1 + objs2.take([10-objs1.size, 0].max), "recoveryTimeInHours")
+    # UIServices::todoNS16s()
+    def self.todoNS16s()
+        ns17s = GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
+        UIServices::orderNS17s(ns17s).map{|ns17| ns17["ns16"] }
     end
 
     # UIServices::catalystNS16s()
@@ -56,7 +61,7 @@ class UIServices
         [
             isWorkTime ? [] : UIServices::waveLikeNS16s(),
             isWorkTime ? GenericTodoFile::ns16s("[work]".green, "/Users/pascal/Desktop/Work.txt") : [],
-            UIServices::stuffToDoNS16s()
+            UIServices::todoNS16s()
         ].flatten
     end
 end

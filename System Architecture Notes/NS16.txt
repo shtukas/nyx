@@ -4,3 +4,8 @@ NS16 {
     "start"    : Lambda
     "done"     : Lambda
 }
+
+NS17 {
+    "ns16" : NS16
+    "rt"   : Float
+}

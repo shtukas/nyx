@@ -189,25 +189,9 @@ class Quarks
             "(rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid()).round(3)}) #{Quarks::toString(marble)}"
         }
 
-        streamDepth = 10
-
-        # We fix the uuids that we are going to work with for a duration of two hours
-
-        thisSlotUUIDs = (lambda {
-            storageKey = Utils::getNewValueEveryNSeconds("5c47e435-899c-4ab7-96c6-0b941cf2dd8f", 2*3600)
-            uuids = KeyValueStore::getOrNull(nil, storageKey)
-            if uuids then
-                return JSON.parse(uuids)
-            end
-            uuids = Quarks::firstNVisibleMarbleQuarks(streamDepth).map{|m| m.uuid()}
-            KeyValueStore::set(nil, storageKey, JSON.generate(uuids))
-            uuids
-        }).call()
-
         # We intersect the quarks for the database with the uuids of the current slot
 
-        Quarks::firstNVisibleMarbleQuarks(streamDepth)
-            .select{|marble| thisSlotUUIDs.include?(marble.uuid())}
+        Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
             .map{|marble|
                 {
                     "uuid"     => marble.uuid(),
@@ -217,11 +201,19 @@ class Quarks
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(marble)}' ? ", true) then
                             marble.destroy()
                         end
-                    },
-                    "recoveryTimeInHours" => BankExtended::recoveredDailyTimeInHours(marble.uuid())
+                    }
                 }
             }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
+    end
+
+    # Quarks::ns17s()
+    def self.ns17s()
+        Quarks::ns16s().map{|ns16|
+            {
+                "ns16" => ns16,
+                "rt"   => BankExtended::recoveredDailyTimeInHours(ns16["uuid"])
+            }
+        }
     end
 
     # Quarks::runMarbleQuark(marble)
