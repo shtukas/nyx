@@ -234,7 +234,7 @@ class Quarks
         puts "running: #{Quarks::toString(marble).green}"
         Marbles::access(marble)
 
-        puts "landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | destroy | ;; # destroy | (empty) # default # exit".yellow
+        puts "landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
         loop {
 
@@ -269,13 +269,7 @@ class Quarks
                 break
             end
 
-            if Interpreting::match("destroy", command) then
-                Marbles::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                marble.destroy()
-                break
-            end
-
-            if Interpreting::match(";;", command) then
+            if Interpreting::match("done", command) then
                 Marbles::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                 marble.destroy()
                 break
