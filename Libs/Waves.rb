@@ -55,7 +55,14 @@ class Waves
     # Waves::marbleToDoNotShowUnixtime(marble)
     def self.marbleToDoNotShowUnixtime(marble)
         if marble.get("repeatType") == 'sticky' then
-            return Waves::unixtimeAtComingMidnight() + 6*3600
+            # unixtime1 is the time of the event happening today
+            # It can still be ahead of us.
+            unixtime1 = (Waves::unixtimeAtComingMidnight() - 86400) + marble.get("repeatValue").to_i*3600
+            if unixtime1 > Time.new.to_i then
+                return unixtime1
+            end
+            # We return the event happening tomorrow
+            return Waves::unixtimeAtComingMidnight() + marble.get("repeatValue").to_i*3600
         end
         if marble.get("repeatType") == 'every-n-hours' then
             return Time.new.to_i+3600 * marble.get("repeatValue").to_f
