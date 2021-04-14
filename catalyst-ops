@@ -9,7 +9,7 @@ require_relative "Libs/loader.rb"
 
 if ARGV.empty? then
     puts "usage:"
-    puts "catalyst no-work-today"
+    puts "catalyst-ops no-work-today"
     exit
 end
 

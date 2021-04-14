@@ -39,17 +39,72 @@ loop {
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
 
-    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark".yellow
-    puts "top    : [] (next transformation of top todo item) | ++ # Postpone top item by an hour | + <weekday> # Postpone top item | + <float> <datecode unit> # Postpone top item".yellow
-
+    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | >> (next unseen)".yellow
+    puts "top    : [] (next transformation of top todo item) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
     next if command == ""
 
+    # -- listing -----------------------------------------------------------------------------
+
     if Interpreting::match("..", command) then
         items[0]["start"].call()
     end
+
+    if Interpreting::match("select *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["start"].call()
+    end
+
+    if Interpreting::match("start", command) then
+        items[0]["start"].call()
+    end
+
+    if Interpreting::match("start *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["start"].call()
+    end
+
+    if Interpreting::match("done", command) then
+        items[0]["done"].call()
+    end
+
+    if Interpreting::match("done *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        item["done"].call()
+    end
+
+    if Interpreting::match("/", command) then
+        UIServices::servicesFront()
+    end
+
+    if Interpreting::match("new wave", command) then
+        Waves::issueNewWaveInteractivelyOrNull()
+    end
+
+    if Interpreting::match("new quark", command) then
+        Quarks::interactivelyIssueNewMarbleQuarkOrNull(Quarks::computeLowL22())
+    end
+
+    if Interpreting::match(">>", command) then
+        Marbles::marblesOfGivenDomainInOrder("quarks").each{|marble|
+            next if BankExtended::recoveredDailyTimeInHours(marble.uuid()) > 0
+            Quarks::runMarbleQuark(marble)
+            break
+        }
+    end
+
+    # -- top -----------------------------------------------------------------------------
 
     if Interpreting::match("[]", command) then
         item = items[0]
@@ -76,50 +131,6 @@ loop {
         next if unixtime.nil?
         item = items[0]
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-    end
-
-    if Interpreting::match("select *", command) then
-        _, ordinal = Interpreting::tokenizer(command)
-        ordinal = ordinal.to_i
-        item = items[ordinal]
-        next if item.nil?
-        item["start"].call()
-    end
-
-    if Interpreting::match("/", command) then
-        UIServices::servicesFront()
-    end
-
-    if Interpreting::match("new wave", command) then
-        Waves::issueNewWaveInteractivelyOrNull()
-    end
-
-    if Interpreting::match("new quark", command) then
-        Quarks::interactivelyIssueNewMarbleQuarkOrNull(Quarks::computeLowL22())
-    end
-
-    if Interpreting::match("start", command) then
-        items[0]["start"].call()
-    end
-
-    if Interpreting::match("start *", command) then
-        _, ordinal = Interpreting::tokenizer(command)
-        ordinal = ordinal.to_i
-        item = items[ordinal]
-        next if item.nil?
-        item["start"].call()
-    end
-
-    if Interpreting::match("done", command) then
-        items[0]["done"].call()
-    end
-
-    if Interpreting::match("done *", command) then
-        _, ordinal = Interpreting::tokenizer(command)
-        ordinal = ordinal.to_i
-        item = items[ordinal]
-        next if item.nil?
-        item["done"].call()
     end
 }
 
