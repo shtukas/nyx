@@ -204,6 +204,7 @@ class Quarks
                     }
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Quarks::ns17s()
@@ -220,6 +221,8 @@ class Quarks
     def self.runMarbleQuark(marble)
 
         return if !marble.isStillAlive()
+
+        uuid = marble.uuid()
 
         startUnixtime = Time.new.to_f
 
@@ -282,15 +285,21 @@ class Quarks
 
         thr.exit
 
-        return if !marble.isStillAlive()
-
         timespan = Time.new.to_f - startUnixtime
 
         puts "Time since start: #{timespan}"
 
         timespan = [timespan, 3600*2].min
-        puts "putting #{timespan} seconds to marble: #{Quarks::toString(marble)}"
-        Bank::put(marble.uuid(), timespan)
+
+        if marble.isStillAlive() then
+            puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{Quarks::toString(marble)}"
+        else
+            puts "putting #{timespan} seconds to uuid: #{uuid}"
+        end
+
+        Bank::put(uuid, timespan)
+
+        Synthetic::register(Time.now.utc.iso8601, uuid, timespan)
 
         Marbles::postAccessCleanUp(marble)
     end

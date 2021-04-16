@@ -177,6 +177,8 @@ class GenericTodoFile
                         puts "putting #{timespan} seconds to todo: #{uuid}"
                         Bank::put(uuid, timespan)
 
+                        Synthetic::register(Time.now.utc.iso8601, uuid, timespan)
+
                     },
                     "done"   => lambda{
                         puts text.green

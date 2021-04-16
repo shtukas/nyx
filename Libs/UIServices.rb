@@ -32,32 +32,32 @@ class UIServices
 
     # UIServices::orderNS17s(ns17s)
     def self.orderNS17s(ns17s)
-        return [] if ns17s.empty? # We won't be able to compute the average
+        s1 = ns17s.first(6)
+        s2 = ns17s.drop(6)
 
-        ns17s1 = ns17s.first(10) # The first 10
-        ns17s2 = ns17s.drop(10)  # Everything after 10
+        s1Actives = s1.select{|ns17| ns17["rt"] > 0}
+        s1Zero    = s1.select{|ns17| ns17["rt"] == 0}
 
-        averageRT = ns17s1.map{|ns17| ns17["rt"] }.inject(0, :+).to_f/ns17s1.size
+        if s1Zero.empty? then
+            return (s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2).reject{|ns17| ns17["synthetic"] }
+        end
 
+        if s1Actives.empty? then
+            return s1Zero + s2
+        end
 
+        s1Actives = s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
 
-        ns17s11, ns17s12 = ns17s1.partition{|o| o["rt"] <= averageRT  }
-        # ns17s11 within first 10, those with a rt <= averageRT
-        # ns17s12 within first 10, those with a rt > averageRT
-
-        ns17s11 = ns17s11
-                        .sort{|o1, o2| o1["rt"] <=> o2["rt"] }
-                        .reverse
-
-        ns17s12 = ns17s12
-                        .sort{|o1, o2| o1["rt"] <=> o2["rt"] }
-
-        ns17s11 + ns17s12 + ns17s2
+        if s1Actives[0]["synthetic"] then
+            s1Zero + s1Actives + s2
+        else
+            s1Actives + s1Zero + s2
+        end
     end
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        ns17s = GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
+        ns17s = [Synthetic::ns17()] + GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
         UIServices::orderNS17s(ns17s).map{|ns17| ns17["ns16"] }
     end
 

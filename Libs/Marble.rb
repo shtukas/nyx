@@ -199,6 +199,9 @@ class Marbles
     # Marbles::access(marble)
     def self.access(marble)
 
+        return if !marble.isStillAlive()
+        puts marble.type()
+
         if marble.type() == "Line" then
             puts marble.description()
             return
@@ -242,6 +245,8 @@ class Marbles
 
     # Marbles::postAccessCleanUp(marble)
     def self.postAccessCleanUp(marble)
+
+        return if !marble.isStillAlive()
 
         if marble.type() == "Line" then
             return
