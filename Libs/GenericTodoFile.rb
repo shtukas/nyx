@@ -118,10 +118,19 @@ class GenericTodoFile
                             }
                         }
 
-                        puts "[todo]"
-                        puts text.green
+
 
                         loop {
+
+                            text = GenericTodoFile::getStructure(filepath)
+                                .select{|text| 
+                                    GenericTodoFile::determineTextUUID(text) == uuid
+                                }
+                                .first
+
+                            puts "[todo]"
+                            puts text.green
+
                             puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done | >quarks".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -130,12 +139,12 @@ class GenericTodoFile
 
                             if Interpreting::match("[]", command) then
                                 GenericTodoFile::applyNextTransformation(filepath, uuid)
-                                break
+                                next
                             end
 
                             if Interpreting::match("edit", command) then
                                 GenericTodoFile::edit(filepath, uuid)
-                                break
+                                next
                             end
 
                             if Interpreting::match("++", command) then
