@@ -61,7 +61,16 @@ class GenericTodoFile
     # GenericTodoFile::determineTextUUID(text)
     def self.determineTextUUID(text)
         getFragmentUuidOrNull = lambda {|fragment|
-            KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{fragment}")
+            v1 = KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(0)}:#{fragment}")
+            if v1 then
+                return v1
+            end
+            v2 = KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(-1)}:#{fragment}")
+            if v2 then 
+                KeyValueStore::set(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(0)}:#{fragment}", v2)
+                return v2
+            end
+            nil
         }
 
         makeFragments = lambda {|text|
@@ -77,7 +86,7 @@ class GenericTodoFile
             uuid = counts.last[0]
         end
 
-        makeFragments.call(text).each{|fragment| KeyValueStore::set(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{fragment}", uuid) }
+        makeFragments.call(text).each{|fragment| KeyValueStore::set(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(0)}:#{fragment}", uuid) }
 
         uuid
     end
@@ -97,7 +106,7 @@ class GenericTodoFile
                 {
                     "uuid"     => uuid,
                     "announce" => announce,
-                    "start"   => lambda{ 
+                    "start"    => lambda{ 
 
                         startUnixtime = Time.new.to_f
 
@@ -174,6 +183,7 @@ class GenericTodoFile
                         puts "Time since start: #{Time.new.to_f - startUnixtime}"
 
                         timespan = [timespan, 3600*2].min
+
                         puts "putting #{timespan} seconds to todo: #{uuid}"
                         Bank::put(uuid, timespan)
 
