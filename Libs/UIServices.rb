@@ -33,6 +33,15 @@ class UIServices
     # UIServices::orderNS17s(ns17s, syntheticRT)
     def self.orderNS17s(ns17s, syntheticRT)
 
+        overflow, ns17s = ns17s.partition{|ns17| ns17["rt"] > 2 }
+
+        overflow = overflow.map{|ns17|
+            ns16 = ns17["ns16"]
+            ns16["announce"] = ns16["announce"].red
+            ns17["ns16"] = ns16
+            ns17
+        }
+
         makeSyntheticNs17 = lambda {
             ns16 = {
                 "uuid"     => SecureRandom.hex,
@@ -54,19 +63,19 @@ class UIServices
         s1Zero    = s1.select{|ns17| ns17["rt"] == 0}
 
         if s1Zero.empty? then
-            return s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2
+            return s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
         end
 
         if s1Actives.empty? then
-            return s1Zero + s2
+            return s1Zero + overflow + s2
         end
 
         # By this point we have actives and zeros
 
         if syntheticRT < s1Actives.map{|ns17| ns17["rt"] }.max then
-            s1Zero + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2
+            s1Zero + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
         else
-            (s1Actives + [makeSyntheticNs17.call()]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s1Zero + s2
+            (s1Actives + [makeSyntheticNs17.call()]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s1Zero + s2
         end
     end
 
