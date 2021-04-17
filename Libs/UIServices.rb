@@ -36,7 +36,7 @@ class UIServices
         makeSyntheticNs17 = lambda {
             ns16 = {
                 "uuid"     => SecureRandom.hex,
-                "announce" => "(#{"%5.3f" % syntheticRT}) Synthetic 🐠",
+                "announce" => "(#{"%5.3f" % syntheticRT}) (/◕ヮ◕)/ Synthetic",
                 "start"    => lambda { },
                 "done"     => lambda { }
             }
