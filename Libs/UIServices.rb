@@ -47,8 +47,8 @@ class UIServices
             }
         }
 
-        s1 = ns17s.first(10)
-        s2 = ns17s.drop(10)
+        s1 = ns17s.first(3)
+        s2 = ns17s.drop(3)
 
         s1Actives = s1.select{|ns17| ns17["rt"] > 0}
         s1Zero    = s1.select{|ns17| ns17["rt"] == 0}
