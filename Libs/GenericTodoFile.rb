@@ -128,6 +128,8 @@ class GenericTodoFile
                                 }
                                 .first
 
+                            break if text.nil?
+
                             puts "[todo]"
                             puts text.green
 
