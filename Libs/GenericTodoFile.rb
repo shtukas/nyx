@@ -169,14 +169,14 @@ class GenericTodoFile
                                     end
                                 }).call()
 
-                                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
+                                marbleFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
 
-                                marble = Marbles::issueNewEmptyMarble(filepath)
+                                marble = Marbles::issueNewEmptyMarble(marbleFilepath)
 
                                 marble.set("uuid", SecureRandom.uuid)
                                 marble.set("unixtime", Time.new.to_i)
                                 marble.set("domain", "quarks")
-                                marble.set("description", File.basename(location))
+                                marble.set("description", description)
 
                                 marble.set("type", "Text")
                                 payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
