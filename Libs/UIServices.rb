@@ -30,35 +30,51 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::orderNS17s(ns17s)
-    def self.orderNS17s(ns17s)
-        s1 = ns17s.first(6)
-        s2 = ns17s.drop(6)
+    # UIServices::orderNS17s(ns17s, syntheticRT)
+    def self.orderNS17s(ns17s, syntheticRT)
+
+        makeSyntheticNs17 = lambda {
+            ns16 = {
+                "uuid"     => SecureRandom.hex,
+                "announce" => "(#{"%5.3f" % syntheticRT}) Synthetic 🐠",
+                "start"    => lambda { },
+                "done"     => lambda { }
+            }
+            {
+                "ns16"      => ns16,
+                "rt"        => syntheticRT,
+                "synthetic" => true
+            }
+        }
+
+        s1 = ns17s.first(10)
+        s2 = ns17s.drop(10)
 
         s1Actives = s1.select{|ns17| ns17["rt"] > 0}
         s1Zero    = s1.select{|ns17| ns17["rt"] == 0}
 
         if s1Zero.empty? then
-            return (s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2).reject{|ns17| ns17["synthetic"] }
+            return s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2
         end
 
         if s1Actives.empty? then
             return s1Zero + s2
         end
 
-        s1Actives = s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+        # By this point we have actives and zeros
 
-        if s1Actives[0]["synthetic"] then
-            s1Zero + s1Actives + s2
+        if syntheticRT < s1Actives.map{|ns17| ns17["rt"] }.max then
+            s1Zero + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s2
         else
-            s1Actives + s1Zero + s2
+            (s1Actives + [makeSyntheticNs17.call()]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + s1Zero + s2
         end
     end
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        ns17s = [Synthetic::ns17()] + GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
-        UIServices::orderNS17s(ns17s).map{|ns17| ns17["ns16"] }
+        ns17s = GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
+        syntheticRT = Synthetic::getRecoveryTimeInHours()
+        UIServices::orderNS17s(ns17s, syntheticRT).map{|ns17| ns17["ns16"] }
     end
 
     # UIServices::catalystNS16s()

@@ -60,26 +60,6 @@ class Synthetic
         return 0 if rts.empty?
         rts.max
     end
-
-    # Synthetic::ns16()
-    def self.ns16()
-
-        {
-            "uuid"     => SecureRandom.hex,
-            "announce" => "(#{"%5.3f" % Synthetic::getRecoveryTimeInHours()}) Synthetic 🐠",
-            "start"    => lambda { },
-            "done"     => lambda { }
-        }
-    end
-
-    # Synthetic::ns17()
-    def self.ns17()
-        {
-            "ns16"      => Synthetic::ns16(),
-            "rt"        => Synthetic::getRecoveryTimeInHours(),
-            "synthetic" => true
-        }
-    end
 end
 
 
