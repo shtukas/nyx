@@ -81,7 +81,7 @@ class UIServices
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        ns17s = GenericTodoFile::ns17s("[todo]", "/Users/pascal/Desktop/Todo.txt") + Quarks::ns17s()
+        ns17s = GenericTodoFile::ns17s("[today]", "/Users/pascal/Desktop/Today.txt") + Quarks::ns17s()
         syntheticRT = Synthetic::getRecoveryTimeInHours()
         UIServices::orderNS17s(ns17s, syntheticRT).map{|ns17| ns17["ns16"] }
     end
