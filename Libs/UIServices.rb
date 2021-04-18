@@ -32,17 +32,37 @@ class UIServices
 
     # UIServices::orderNS17s(ns17s, synthetic)
     def self.orderNS17s(ns17s, synthetic)
-        depth = 3
-        activeWithinDepth, nonActiveWithinDepth = ns17s.first(depth).partition{|ns17| ns17["rt"] > 0}
 
-        if activeWithinDepth.size > 0 and synthetic["rt"] < activeWithinDepth.map{|ns17| ns17["rt"]}.min then
-            # There are some active with depth and we are below them
-            # Need to do some zero
-            zeros, nonzeros = ns17s.partition{|ns17| ns17["rt"] == 0}
-            zeros.first(depth) + [synthetic] + nonzeros.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + zeros.drop(depth)
-        else
-            (activeWithinDepth + (activeWithinDepth.size > 0 ? [synthetic] : [])).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + nonActiveWithinDepth + ns17s.drop(depth)
+        pool, rest = [ns17s.take(3), ns17s.drop(3)]
+
+        poolactive, poolnonactive = pool.partition{|ns17| ns17["rt"] > 0}
+
+        poolactivealpha, poolactivebeta = poolactive.partition{|ns17| ns17["rt"] < 2}
+
+        poolactivebeta = poolactivebeta.map{|ns17|
+            ns16 = ns17["ns16"]
+            ns16["announce"] = ns16["announce"].red
+            ns17["ns16"] = ns16
+            ns17
+        }
+
+        syntheticIsWinning = (poolactivealpha.size > 0 and synthetic["rt"] < poolactivealpha.map{|ns17| ns17["rt"]}.min)
+
+        if poolactivealpha.size > 0 and !syntheticIsWinning then
+            return (poolactivealpha + [synthetic]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + poolactivebeta.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + poolnonactive + rest
         end
+
+        if poolactivealpha.size > 0 and syntheticIsWinning then
+            zeros, nonzeros = ns17s.partition{|ns17| ns17["rt"] == 0}
+            return zeros.first(3) + [synthetic] + nonzeros.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + zeros.drop(3)
+        end
+
+        if poolactivealpha.size == 0 then
+            zeros, nonzeros = ns17s.partition{|ns17| ns17["rt"] == 0}
+            return zeros.first(3) + [synthetic] + nonzeros.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + zeros.drop(3)
+        end
+
+        raise "23479e0d-3d4e-4ca3-a44e-1c0c567ba84c"
     end
 
     # UIServices::todoNS16s()
