@@ -30,19 +30,27 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::orderNS17s(ns17s, syntheticRT)
-    def self.orderNS17s(ns17s, syntheticRT)
+    # UIServices::orderNS17s(ns17s, synthetic)
+    def self.orderNS17s(ns17s, synthetic)
+        depth = 3
+        if synthetic["rt"] < ns17s.first(depth).map{|ns17| ns17["rt"] }.min then
+            # need to do some zero
+            zeros, nonzeros = ns17s.partition{|ns17| ns17["rt"] == 0}
+            zeros.first(depth) + [synthetic] + nonzeros.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + zeros.drop(depth)
+        else
+            # normal ops
+            f1, f2    = ns17s.first(depth).partition{|ns17| ns17["rt"] > 0}
+            if f1.size > 0 then
+                (f1 + [synthetic]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + f2 + ns17s.drop(depth)
+            else
+                ns17s
+            end
+        end
+    end
 
-        overflow, ns17s = ns17s.partition{|ns17| ns17["rt"] > 2 }
-
-        overflow = overflow.map{|ns17|
-            ns16 = ns17["ns16"]
-            ns16["announce"] = ns16["announce"].red
-            ns17["ns16"] = ns16
-            ns17
-        }
-
-        makeSyntheticNs17 = lambda {
+    # UIServices::todoNS16s()
+    def self.todoNS16s()
+        makeSyntheticNs17 = lambda {|syntheticRT|
             ns16 = {
                 "uuid"     => SecureRandom.hex,
                 "announce" => "(#{"%5.3f" % syntheticRT}) #{"(/◕ヮ◕)/".green} Synthetic 🚀 🌝",
@@ -55,35 +63,7 @@ class UIServices
                 "synthetic" => true
             }
         }
-
-        s1 = ns17s.first(3)
-        s2 = ns17s.drop(3)
-
-        s1Actives = s1.select{|ns17| ns17["rt"] > 0}
-        s1Zero    = s1.select{|ns17| ns17["rt"] == 0}
-
-        if s1Zero.empty? then
-            return s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
-        end
-
-        if s1Actives.empty? then
-            return s1Zero + [makeSyntheticNs17.call()] + overflow + s2
-        end
-
-        # By this point we have actives and zeros
-
-        if syntheticRT < s1Actives.map{|ns17| ns17["rt"] }.min then
-            s1Zero + [makeSyntheticNs17.call()] + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
-        else
-            (s1Actives + [makeSyntheticNs17.call()]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s1Zero + s2
-        end
-    end
-
-    # UIServices::todoNS16s()
-    def self.todoNS16s()
-        ns17s = Quarks::ns17s()
-        syntheticRT = Synthetic::getRecoveryTimeInHours()
-        UIServices::orderNS17s(ns17s, syntheticRT).map{|ns17| ns17["ns16"] }
+        UIServices::orderNS17s(Quarks::ns17s(), makeSyntheticNs17.call(Synthetic::getRecoveryTimeInHours())).map{|ns17| ns17["ns16"] }
     end
 
     # UIServices::catalystNS16s()
