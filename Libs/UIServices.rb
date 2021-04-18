@@ -67,13 +67,13 @@ class UIServices
         end
 
         if s1Actives.empty? then
-            return s1Zero + overflow + s2
+            return s1Zero + [makeSyntheticNs17.call()] + overflow + s2
         end
 
         # By this point we have actives and zeros
 
-        if syntheticRT < s1Actives.map{|ns17| ns17["rt"] }.max then
-            s1Zero + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
+        if syntheticRT < s1Actives.map{|ns17| ns17["rt"] }.min then
+            s1Zero + [makeSyntheticNs17.call()] + s1Actives.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s2
         else
             (s1Actives + [makeSyntheticNs17.call()]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + overflow + s1Zero + s2
         end
