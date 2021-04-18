@@ -43,17 +43,17 @@ class UIServices
             if f1.size > 0 then
                 (f1 + [synthetic]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + f2 + ns17s.drop(depth)
             else
-                ns17s
+                ns17s.take(depth) + [synthetic] + ns17s.drop(depth)
             end
         end
     end
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        makeSyntheticNs17 = lambda {|syntheticRT|
+        makeSyntheticNs17 = lambda {|syntheticRT, trackingNumbers|
             ns16 = {
                 "uuid"     => SecureRandom.hex,
-                "announce" => "(#{"%5.3f" % syntheticRT}) #{"(/◕ヮ◕)/".green} Synthetic 🚀 🌝",
+                "announce" => "(#{"%5.3f" % syntheticRT}) #{"(/◕ヮ◕)/".green} Synthetic 🚀 🌝 (#{trackingNumbers["current"]}, #{trackingNumbers["performance"]})",
                 "start"    => lambda { },
                 "done"     => lambda { }
             }
@@ -63,7 +63,10 @@ class UIServices
                 "synthetic" => true
             }
         }
-        UIServices::orderNS17s(Quarks::ns17s(), makeSyntheticNs17.call(Synthetic::getRecoveryTimeInHours())).map{|ns17| ns17["ns16"] }
+        syntheticRT = Synthetic::getRecoveryTimeInHours()
+        trackingNumbers = Synthetic::targettingNumbers(Time.now.utc.iso8601)
+        synthetic = makeSyntheticNs17.call(syntheticRT, trackingNumbers)
+        UIServices::orderNS17s(Quarks::ns17s(), synthetic).map{|ns17| ns17["ns16"] }
     end
 
     # UIServices::catalystNS16s()

@@ -60,6 +60,20 @@ class Synthetic
         return 0 if rts.empty?
         rts.max
     end
+
+    # Synthetic::targettingCurveIdealValueAtDateTime(datetime)
+    def self.targettingCurveIdealValueAtDateTime(datetime)
+        t1 = DateTime.parse("2021-04-18T11:26:40Z").to_time.to_i
+        t2 = DateTime.parse(datetime).to_time.to_i
+        7759 - 30*((t2-t1).to_f/86400)
+    end
+
+    # Synthetic::targettingNumbers(datetime)
+    def self.targettingNumbers(datetime)
+        ideal = Synthetic::targettingCurveIdealValueAtDateTime(datetime)
+        current = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks").size
+        {"current" => current, "performance" => (ideal-current).to_i}
+    end
 end
 
 
