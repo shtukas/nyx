@@ -33,18 +33,15 @@ class UIServices
     # UIServices::orderNS17s(ns17s, synthetic)
     def self.orderNS17s(ns17s, synthetic)
         depth = 3
-        if synthetic["rt"] < ns17s.first(depth).map{|ns17| ns17["rt"] }.min then
-            # need to do some zero
+        activeWithinDepth, nonActiveWithinDepth = ns17s.first(depth).partition{|ns17| ns17["rt"] > 0}
+
+        if activeWithinDepth.size > 0 and synthetic["rt"] < activeWithinDepth.map{|ns17| ns17["rt"]}.min then
+            # There are some active with depth and we are below them
+            # Need to do some zero
             zeros, nonzeros = ns17s.partition{|ns17| ns17["rt"] == 0}
             zeros.first(depth) + [synthetic] + nonzeros.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + zeros.drop(depth)
         else
-            # normal ops
-            f1, f2    = ns17s.first(depth).partition{|ns17| ns17["rt"] > 0}
-            if f1.size > 0 then
-                (f1 + [synthetic]).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + f2 + ns17s.drop(depth)
-            else
-                ns17s.take(depth) + [synthetic] + ns17s.drop(depth)
-            end
+            (activeWithinDepth + (activeWithinDepth.size > 0 ? [synthetic] : [])).sort{|o1, o2| o1["rt"] <=> o2["rt"] } + nonActiveWithinDepth + ns17s.drop(depth)
         end
     end
 
