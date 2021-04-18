@@ -47,9 +47,18 @@ class Waves
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # Waves::unixtimeAtComingMidnight()
-    def self.unixtimeAtComingMidnight()
-        DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
+    # Waves::getLocalTimeZone()
+    def self.getLocalTimeZone()
+        `date`.strip[-3 , 3]
+    end
+
+    # Waves::unixtimeAtComingMidnightAtGivenTimeZone(timezone)
+    def self.unixtimeAtComingMidnightAtGivenTimeZone(timezone)
+        supportedTimeZones = ["BST", "GMT"]
+        if !supportedTimeZones.include?(timezone) then
+            raise "error: 7CB8000B-7896-4F61-89ED-89C12E009EE6 ; we are only supporting '#{supportedTimeZones}' and you provided #{timezone}"
+        end
+        DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00 #{timezone}").to_time.to_i
     end
 
     # Waves::marbleToDoNotShowUnixtime(marble)
@@ -57,12 +66,12 @@ class Waves
         if marble.get("repeatType") == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Waves::unixtimeAtComingMidnight() - 86400) + marble.get("repeatValue").to_i*3600
+            unixtime1 = (Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) - 86400) + marble.get("repeatValue").to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Waves::unixtimeAtComingMidnight() + marble.get("repeatValue").to_i*3600
+            return Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) + marble.get("repeatValue").to_i*3600
         end
         if marble.get("repeatType") == 'every-n-hours' then
             return Time.new.to_i+3600 * marble.get("repeatValue").to_f
