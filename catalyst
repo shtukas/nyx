@@ -25,16 +25,16 @@ loop {
         MarblesFsck::fsck()
     end
 
-    puts "-- listing ----------------------------"
-
     vspaceleft = Utils::screenHeight()-4
 
     today = IO.read("/Users/pascal/Desktop/Today.txt").strip
     if today.size > 0 then
-        puts "Today.txt"
-        puts today.lines.map{|line| "|#{line}" }.join().green
+        puts "-- Today.txt --------------------------"
+        puts today.green
         vspaceleft = vspaceleft - Utils::verticalSize(today) - 1
     end
+
+    puts "-- listing ----------------------------"
 
     items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
