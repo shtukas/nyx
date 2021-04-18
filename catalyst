@@ -29,6 +29,13 @@ loop {
 
     vspaceleft = Utils::screenHeight()-4
 
+    today = IO.read("/Users/pascal/Desktop/Today.txt").strip
+    if today.size > 0 then
+        puts "Today.txt"
+        puts today.lines.map{|line| "|#{line}" }.join().green
+        vspaceleft = vspaceleft - Utils::verticalSize(today) - 1
+    end
+
     items = UIServices::catalystNS16s()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
@@ -40,7 +47,7 @@ loop {
     }
 
     puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | >> (next unseen)".yellow
-    puts "top    : [] (next transformation of top todo item) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
+    puts "top    : [] (top next transformation) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -107,9 +114,14 @@ loop {
     # -- top -----------------------------------------------------------------------------
 
     if Interpreting::match("[]", command) then
+        if today.size > 0 then
+            text = SectionsType0141::applyNextTransformationToText(IO.read("/Users/pascal/Desktop/Today.txt"))
+            File.open("/Users/pascal/Desktop/Today.txt","w"){|f| f.puts(text)}
+            next
+        end
         item = items[0]
         next if !item["isTodo"]
-        GenericTodoFile::applyNextTransformation(item["filepath"], item["uuid"])
+        WorkTxt::applyNextTransformation(item["filepath"], item["uuid"])
         next
     end
 

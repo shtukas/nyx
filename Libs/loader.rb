@@ -148,7 +148,7 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
-require_relative "GenericTodoFile.rb"
+require_relative "WorkTxt.rb"
 
 require_relative "Marble.rb"
 

@@ -81,7 +81,7 @@ class UIServices
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        ns17s = GenericTodoFile::ns17s("[today]", "/Users/pascal/Desktop/Today.txt") + Quarks::ns17s()
+        ns17s = Quarks::ns17s()
         syntheticRT = Synthetic::getRecoveryTimeInHours()
         UIServices::orderNS17s(ns17s, syntheticRT).map{|ns17| ns17["ns16"] }
     end
@@ -92,7 +92,7 @@ class UIServices
         isWorkTime = (isWorkTime and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
         [
             isWorkTime ? [] : UIServices::waveLikeNS16s(),
-            isWorkTime ? GenericTodoFile::ns16s("[work]".green, "/Users/pascal/Desktop/Work.txt") : [],
+            isWorkTime ? WorkTxt::ns16s() : [],
             isWorkTime ? UIServices::waveLikeNS16s() : [] ,
             UIServices::todoNS16s()
         ].flatten

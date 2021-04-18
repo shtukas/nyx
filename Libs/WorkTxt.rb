@@ -3,9 +3,14 @@
 
 # -----------------------------------------------------------------------
 
-class GenericTodoFile
+class WorkTxt
 
-    # GenericTodoFile::getStructure(filepath)
+    # WorkTxt::filepath()
+    def self.filepath()
+        "/Users/pascal/Desktop/Work.txt"
+    end
+
+    # WorkTxt::getStructure(filepath)
     def self.getStructure(filepath)
         IO.read(filepath)
             .lines
@@ -25,40 +30,40 @@ class GenericTodoFile
             .select{|text| text.size > 0 }
     end
 
-    # GenericTodoFile::sendStructureToDisk(filepath, structure)
+    # WorkTxt::sendStructureToDisk(filepath, structure)
     def self.sendStructureToDisk(filepath, structure)
         File.open(filepath, "w"){|f| f.puts(structure.join("\n\n")) }
     end
 
-    # GenericTodoFile::applyNextTransformation(filepath, uuid)
+    # WorkTxt::applyNextTransformation(filepath, uuid)
     def self.applyNextTransformation(filepath, uuid)
-        structure = GenericTodoFile::getStructure(filepath).map{|text|
-            if GenericTodoFile::determineTextUUID(text) == uuid then
+        structure = WorkTxt::getStructure(filepath).map{|text|
+            if WorkTxt::determineTextUUID(text) == uuid then
                 text = SectionsType0141::applyNextTransformationToText(text)
             end
             text
         }
-        GenericTodoFile::sendStructureToDisk(filepath, structure)
+        WorkTxt::sendStructureToDisk(filepath, structure)
     end
 
-    # GenericTodoFile::edit(filepath, uuid)
+    # WorkTxt::edit(filepath, uuid)
     def self.edit(filepath, uuid)
-        structure = GenericTodoFile::getStructure(filepath).map{|text|
-            if GenericTodoFile::determineTextUUID(text) == uuid then
+        structure = WorkTxt::getStructure(filepath).map{|text|
+            if WorkTxt::determineTextUUID(text) == uuid then
                 text = Utils::editTextSynchronously(text)
             end
             text
         }
-        GenericTodoFile::sendStructureToDisk(filepath, structure)
+        WorkTxt::sendStructureToDisk(filepath, structure)
     end
 
-    # GenericTodoFile::delete(filepath, uuid)
+    # WorkTxt::delete(filepath, uuid)
     def self.delete(filepath, uuid)
-        structure = GenericTodoFile::getStructure(filepath).select{|text| GenericTodoFile::determineTextUUID(text) != uuid }
-        GenericTodoFile::sendStructureToDisk(filepath, structure)
+        structure = WorkTxt::getStructure(filepath).select{|text| WorkTxt::determineTextUUID(text) != uuid }
+        WorkTxt::sendStructureToDisk(filepath, structure)
     end
 
-    # GenericTodoFile::determineTextUUID(text)
+    # WorkTxt::determineTextUUID(text)
     def self.determineTextUUID(text)
         getFragmentUuidOrNull = lambda {|fragment|
             v1 = KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(0)}:#{fragment}")
@@ -91,22 +96,24 @@ class GenericTodoFile
         uuid
     end
 
-    # GenericTodoFile::ns16s(announcePrefix, filepath)
-    def self.ns16s(announcePrefix, filepath)
-        GenericTodoFile::getStructure(filepath)
+    # WorkTxt::ns16s()
+    def self.ns16s()
+        WorkTxt::getStructure(WorkTxt::filepath())
             .map
             .with_index{|text, i|
-                uuid = GenericTodoFile::determineTextUUID(text)
+                uuid = WorkTxt::determineTextUUID(text)
                 announce = (lambda{
                     if text.lines.size == 1 then
-                        return "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{announcePrefix} #{text.strip}"
+                        return "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{text.strip}"
                     end
-                    "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{announcePrefix}\n#{text.lines.first(3).map{|line| "             #{line}"}.join() + "\n\n"}".strip
+                    "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green}\n#{text.lines.first(3).map{|line| "             #{line}"}.join() + "\n\n"}".strip
                 }).call()
                 {
                     "uuid"     => uuid,
                     "announce" => announce,
                     "start"    => lambda{ 
+
+                        filepath = WorkTxt::filepath()
 
                         startUnixtime = Time.new.to_f
 
@@ -118,13 +125,11 @@ class GenericTodoFile
                             }
                         }
 
-
-
                         loop {
 
-                            text = GenericTodoFile::getStructure(filepath)
+                            text = WorkTxt::getStructure(filepath)
                                 .select{|text| 
-                                    GenericTodoFile::determineTextUUID(text) == uuid
+                                    WorkTxt::determineTextUUID(text) == uuid
                                 }
                                 .first
 
@@ -140,12 +145,12 @@ class GenericTodoFile
                             break if command == ""
 
                             if Interpreting::match("[]", command) then
-                                GenericTodoFile::applyNextTransformation(filepath, uuid)
+                                WorkTxt::applyNextTransformation(filepath, uuid)
                                 next
                             end
 
                             if Interpreting::match("edit", command) then
-                                GenericTodoFile::edit(filepath, uuid)
+                                WorkTxt::edit(filepath, uuid)
                                 next
                             end
 
@@ -155,7 +160,7 @@ class GenericTodoFile
                             end
 
                             if Interpreting::match("done", command) then
-                                GenericTodoFile::delete(filepath, uuid)
+                                WorkTxt::delete(filepath, uuid)
                                 break
                             end
 
@@ -182,7 +187,7 @@ class GenericTodoFile
                                 payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
                                 marble.set("payload", payload)
 
-                                GenericTodoFile::delete(filepath, uuid)
+                                WorkTxt::delete(filepath, uuid)
                                 break
                             end
                         }
@@ -203,22 +208,12 @@ class GenericTodoFile
                     },
                     "done"   => lambda{
                         puts text.green
-                        GenericTodoFile::delete(filepath, uuid)
+                        WorkTxt::delete(filepath, uuid)
                     },
                     "isTodo"   => true,
                     "filepath" => filepath
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-    end
-
-    # GenericTodoFile::ns17s(announcePrefix, filepath)
-    def self.ns17s(announcePrefix, filepath)
-        GenericTodoFile::ns16s(announcePrefix, filepath).map{|ns16|
-            {
-                "ns16" => ns16,
-                "rt"   => BankExtended::recoveredDailyTimeInHours(ns16["uuid"])
-            }
-        }
     end
 end
