@@ -41,24 +41,32 @@ class Synthetic
             .flatten
     end
 
+    # Synthetic::getgetSyntheticRecordsAfterHorizon(horizon)
+    def self.getgetSyntheticRecordsAfterHorizon(horizon)
+        records = Synthetic::getSyntheticRecordsInTimeOrder()
+        records.select{|record| record["unixtime"] >= horizon}
+    end
+
+    # Synthetic::getCumulatedTimespanAfterHorizon(horizon)
+    def self.getCumulatedTimespanAfterHorizon(horizon)
+        Synthetic::getgetSyntheticRecordsAfterHorizon(horizon)
+            .map{|record| record["timespan"] }.inject(0, :+)
+    end
+
     # Synthetic::getRecoveryTimeInHoursAfterHorizon(horizon)
     def self.getRecoveryTimeInHoursAfterHorizon(horizon)
-        records = Synthetic::getSyntheticRecordsInTimeOrder()
-        records = records.select{|record| record["unixtime"] >= horizon}
-        return 0 if records.empty?
-        unixtime1 = records[0]["unixtime"]
+        unixtime1 = horizon
         unixtime2 = Time.new.to_f
-        ratio = records.map{|record| record["timespan"] }.inject(0, :+).to_f/(unixtime2-unixtime1)
+        ratio = Synthetic::getCumulatedTimespanAfterHorizon(horizon).to_f/(unixtime2-unixtime1)
         ratio*24
     end
 
     # Synthetic::getRecoveryTimeInHours()
     def self.getRecoveryTimeInHours()
-        rts = (1..7)
-                .map{|i| Time.new.to_f - 86400*i }
-                .map{|horizon| Synthetic::getRecoveryTimeInHoursAfterHorizon(horizon)}
-        return 0 if rts.empty?
-        rts.max
+        (1..7)
+            .map{|i| Time.new.to_f - 86400*i }
+            .map{|horizon| Synthetic::getRecoveryTimeInHoursAfterHorizon(horizon)}
+            .max
     end
 
     # Synthetic::targettingCurveIdealValueAtDateTime(datetime)
