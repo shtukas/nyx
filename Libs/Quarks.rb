@@ -190,7 +190,7 @@ class Quarks
             .map{|marble|
                 announce = "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid())}) #{Quarks::toString(marble)}"
                 if marble.hasNote() then
-                    announce = announce + "\n              Note:\n" + marble.getNote().lines.map{|line| "                      #{line}"}.join()
+                    announce = announce + "\n                      Note:\n" + marble.getNote().lines.map{|line| "                      #{line}"}.join()
                 end
                 {
                     "uuid"     => marble.uuid(),
