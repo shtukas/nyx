@@ -117,11 +117,7 @@ loop {
         if today.size > 0 then
             text = SectionsType0141::applyNextTransformationToText(IO.read("/Users/pascal/Desktop/Today.txt"))
             File.open("/Users/pascal/Desktop/Today.txt","w"){|f| f.puts(text)}
-            next
         end
-        item = items[0]
-        next if !item["isTodo"]
-        WorkTxt::applyNextTransformation(item["filepath"], item["uuid"])
         next
     end
 

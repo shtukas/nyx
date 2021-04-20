@@ -5,64 +5,6 @@
 
 class WorkTxt
 
-    # WorkTxt::filepath()
-    def self.filepath()
-        "/Users/pascal/Desktop/Work.txt"
-    end
-
-    # WorkTxt::getStructure(filepath)
-    def self.getStructure(filepath)
-        IO.read(filepath)
-            .lines
-            .reduce([""]){|structure, line|
-                if line[0, 2] == "[]" then
-                    structure = structure + [line]
-                    structure
-                else
-                    i = structure.size
-                    t = structure[i-1]
-                    t = t + line
-                    structure[i-1] = t
-                    structure
-                end
-            }
-            .map{|text| text.strip }
-            .select{|text| text.size > 0 }
-    end
-
-    # WorkTxt::sendStructureToDisk(filepath, structure)
-    def self.sendStructureToDisk(filepath, structure)
-        File.open(filepath, "w"){|f| f.puts(structure.join("\n\n")) }
-    end
-
-    # WorkTxt::applyNextTransformation(filepath, uuid)
-    def self.applyNextTransformation(filepath, uuid)
-        structure = WorkTxt::getStructure(filepath).map{|text|
-            if WorkTxt::determineTextUUID(text) == uuid then
-                text = SectionsType0141::applyNextTransformationToText(text)
-            end
-            text
-        }
-        WorkTxt::sendStructureToDisk(filepath, structure)
-    end
-
-    # WorkTxt::edit(filepath, uuid)
-    def self.edit(filepath, uuid)
-        structure = WorkTxt::getStructure(filepath).map{|text|
-            if WorkTxt::determineTextUUID(text) == uuid then
-                text = Utils::editTextSynchronously(text)
-            end
-            text
-        }
-        WorkTxt::sendStructureToDisk(filepath, structure)
-    end
-
-    # WorkTxt::delete(filepath, uuid)
-    def self.delete(filepath, uuid)
-        structure = WorkTxt::getStructure(filepath).select{|text| WorkTxt::determineTextUUID(text) != uuid }
-        WorkTxt::sendStructureToDisk(filepath, structure)
-    end
-
     # WorkTxt::determineTextUUID(text)
     def self.determineTextUUID(text)
         getFragmentUuidOrNull = lambda {|fragment|
@@ -97,60 +39,43 @@ class WorkTxt
     end
 
     # WorkTxt::ns16s()
-    def self.ns16s()
-        WorkTxt::getStructure(WorkTxt::filepath())
-            .map
-            .with_index{|text, i|
-                uuid = WorkTxt::determineTextUUID(text)
-                announce = (lambda{
-                    if text.lines.size == 1 then
-                        return "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{text.strip}"
-                    end
-                    "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green}\n#{text.lines.first(3).map{|line| "             #{line}"}.join() + "\n\n"}".strip
-                }).call()
+    def self.ns16()
+        JSON.parse(`work api catalyst-preNS16`)
+            .map{|pns16|
+                uuid = pns16["uuid"]
                 {
                     "uuid"     => uuid,
-                    "announce" => announce,
-                    "start"    => lambda{ 
-
-                        filepath = WorkTxt::filepath()
+                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{pns16["description"]}",
+                    "start"    => lambda {
 
                         startUnixtime = Time.new.to_f
 
                         thr = Thread.new {
                             sleep 3600
                             loop {
-                                Utils::onScreenNotification("Catalyst", "Todo running for more than an hour")
+                                Utils::onScreenNotification("Catalyst", "Todo (work) running for more than an hour")
                                 sleep 60
                             }
                         }
 
                         loop {
 
-                            text = WorkTxt::getStructure(filepath)
-                                .select{|text| 
-                                    WorkTxt::determineTextUUID(text) == uuid
-                                }
-                                .first
+                            puts "[work]"
+                            puts pns16["text"].green
 
-                            break if text.nil?
-
-                            puts "[todo]"
-                            puts text.green
-
-                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done | >quarks".yellow
+                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
                             break if command == ""
 
                             if Interpreting::match("[]", command) then
-                                WorkTxt::applyNextTransformation(filepath, uuid)
+                                system("work api #{uuid} []")
                                 next
                             end
 
                             if Interpreting::match("edit", command) then
-                                WorkTxt::edit(filepath, uuid)
+                                system("work api #{uuid} edit")
                                 next
                             end
 
@@ -160,34 +85,7 @@ class WorkTxt
                             end
 
                             if Interpreting::match("done", command) then
-                                WorkTxt::delete(filepath, uuid)
-                                break
-                            end
-
-                            if Interpreting::match(">quarks", command) then
-
-                                description = (lambda{
-                                    if text.lines.size == 1 then
-                                        text.strip
-                                    else
-                                        LucilleCore::askQuestionAnswerAsString("description: ")
-                                    end
-                                }).call()
-
-                                marbleFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
-
-                                marble = Marbles::issueNewEmptyMarble(marbleFilepath)
-
-                                marble.set("uuid", SecureRandom.uuid)
-                                marble.set("unixtime", Time.new.to_i)
-                                marble.set("domain", "quarks")
-                                marble.set("description", description)
-
-                                marble.set("type", "Text")
-                                payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
-                                marble.set("payload", payload)
-
-                                WorkTxt::delete(filepath, uuid)
+                                system("work api #{uuid} done")
                                 break
                             end
                         }
@@ -206,14 +104,11 @@ class WorkTxt
                         Synthetic::register(Time.now.utc.iso8601, uuid, timespan)
 
                     },
-                    "done"   => lambda{
-                        puts text.green
-                        WorkTxt::delete(filepath, uuid)
-                    },
-                    "isTodo"   => true,
-                    "filepath" => filepath
+                    "done" => lambda {
+                        system("work api #{uuid} done")
+                    }
                 }
             }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
     end
 end
