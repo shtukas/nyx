@@ -83,9 +83,9 @@ class Utils
     # Utils::importFromLucilleInbox()
     def self.importFromLucilleInbox()
         getNextLocationAtTheInboxOrNull = lambda {
-            Dir.entries("/Users/pascal/Desktop/Quarks-Stream-Drop")
+            Dir.entries("/Users/pascal/Desktop/Inbox")
                 .reject{|filename| filename[0, 1] == '.' }
-                .map{|filename| "/Users/pascal/Desktop/Quarks-Stream-Drop/#{filename}" }
+                .map{|filename| "/Users/pascal/Desktop/Inbox/#{filename}" }
                 .first
         }
         while (location = getNextLocationAtTheInboxOrNull.call()) do
