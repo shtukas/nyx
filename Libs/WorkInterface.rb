@@ -3,9 +3,9 @@
 
 # -----------------------------------------------------------------------
 
-class WorkTxt
+class WorkInterface
 
-    # WorkTxt::determineTextUUID(text)
+    # WorkInterface::determineTextUUID(text)
     def self.determineTextUUID(text)
         getFragmentUuidOrNull = lambda {|fragment|
             v1 = KeyValueStore::getOrNull(nil, "4a4d8f20-1b36-4c33-abdf-d9797f9fd4c7:#{Utils::nDaysInTheFuture(0)}:#{fragment}")
@@ -38,7 +38,7 @@ class WorkTxt
         uuid
     end
 
-    # WorkTxt::ns16s()
+    # WorkInterface::ns16s()
     def self.ns16()
         JSON.parse(`work api catalyst-preNS16`)
             .map{|pns16|

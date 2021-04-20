@@ -92,7 +92,7 @@ class UIServices
         isWorkTime = (isWorkTime and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
         [
             isWorkTime ? [] : UIServices::waveLikeNS16s(),
-            isWorkTime ? WorkTxt::ns16s() : [],
+            isWorkTime ? WorkInterface::ns16s() : [],
             isWorkTime ? UIServices::waveLikeNS16s() : [] ,
             UIServices::todoNS16s()
         ].flatten
