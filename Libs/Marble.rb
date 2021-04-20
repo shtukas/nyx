@@ -158,6 +158,24 @@ class Marble
     def destroy()
         FileUtils.rm(@filepath)
     end
+
+    # -----------------------------------------------------
+
+    def hasNote()
+        text = getOrNull("note")
+        !text.nil? and text.size > 0 
+    end
+
+    def getNote()
+        getOrNull("note") || ""
+    end
+
+    def editNote()
+        text = getNote()
+        text = Utils::editTextSynchronously(text)
+        set("note", text)
+    end
+
 end
 
 class Marbles
@@ -343,6 +361,12 @@ class Marbles
             return
         end
         raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
+    end
+
+    # Marbles::transmute(marble)
+    def self.transmute(marble)
+        puts "Marbles::transmute(marble) is not implemented yet"
+        LucilleCore::pressEnterToContinue()
     end
 end
 

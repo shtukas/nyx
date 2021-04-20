@@ -1,7 +1,0 @@
-
-sqlite> create table _quarks_ (_uuid_ text, _nereiduuid_ text);
-
-Quark {
-    "uuid"       : String
-    "nereiduuid" : String
-}

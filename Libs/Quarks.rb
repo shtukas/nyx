@@ -111,16 +111,11 @@ class Quarks
             })
 
             mx.item("edit".yellow, lambda {
-                Marbles::edit(marble["nereiduuid"])
+                Marbles::edit(marble)
             })
 
             mx.item("transmute".yellow, lambda { 
                 Marbles::transmute(marble)
-            })
-
-            mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(marble)
-                LucilleCore::pressEnterToContinue()
             })
 
             mx.item("destroy".yellow, lambda { 
@@ -193,9 +188,13 @@ class Quarks
 
         Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
             .map{|marble|
+                announce = "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid())}) #{Quarks::toString(marble)}"
+                if marble.hasNote() then
+                    announce = announce + "\n              Note:\n" + marble.getNote().lines.map{|line| "                      #{line}"}.join()
+                end
                 {
                     "uuid"     => marble.uuid(),
-                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid())}) #{Quarks::toString(marble)}",
+                    "announce" => announce,
                     "start"    => lambda{ Quarks::runMarbleQuark(marble) },
                     "done"     => lambda{
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(marble)}' ? ", true) then
@@ -237,7 +236,7 @@ class Quarks
         puts "running: #{Quarks::toString(marble).green}"
         Marbles::access(marble)
 
-        puts "landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
+        puts "edit note | landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
         loop {
 
@@ -246,6 +245,10 @@ class Quarks
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if Interpreting::match("edit note", command) then
+                marble.editNote()
+            end
 
             if Interpreting::match("landing", command) then
                 Quarks::landing(marble)

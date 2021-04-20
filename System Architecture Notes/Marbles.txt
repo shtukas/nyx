@@ -1,13 +1,53 @@
 
 Marbles
 
-Default Attributes in data file:
-    - "uuid"
-    - "unixtime"
-    - "domain"      : "anniversaries", "waves", "quarks"
-    - "description"
-    - "type"
-    - "payload"
+Attributes in data file:
+
+    Default 
+        - "uuid"
+        - "unixtime"
+        - "domain"      : "anniversaries", "waves", "quarks"
+        - "description"
+        - "type"        : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
+        - "payload"
+
+            [type]            -> [payload]
+            "Line"            -> "" # empty string, the description is the payload
+            "Url"             -> String
+            "Text"            -> String # reference to a blob
+            "ClickableType"   -> <nhash>|<dottedExtension>
+            "AionPoint"       -> <nhash>
+
+        - "note"
+
+    Domains Extensions:
+
+        "anniversaries"
+            - "startdate"           : Date
+            - "repeatType"          : "weekly", "monthly", "yearly"
+            - "lastCelebrationDate" : Date
+
+        "waves"
+            -
+                - "repeatType"  : "sticky"
+                - "repeatValue" : Integer
+
+                - "repeatType"  : "every-n-hours"
+                - "repeatValue" : Float
+
+                - "repeatType"  : "every-n-days"
+                - "repeatValue" : Float
+
+                - "repeatType"  : "every-this-day-of-the-week"
+                - "repeatValue" : 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
+
+                - "repeatType"  : "every-this-day-of-the-month"
+                - "repeatValue" : DayNumber2 (String, length 2)
+
+            - "lastDoneDateTime": ISO8601
+
+        "quarks"
+            (nothing)
 
 Marble object interface
     .intialize(filepath)
@@ -21,44 +61,10 @@ Marble object interface
     .getOrNull(key)
     .isStillAlive()
     .destroy()
+    .hasNote()
+    .getNote()
+    .editNote()
 
-Contents:
 
-    "type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
 
-    [type] -> [payload]
 
-        "Line"            -> "" # empty string, the description is the payload
-        "Url"             -> String
-        "Text"            -> String # reference to a blob
-        "ClickableType"   -> <nhash>|<dottedExtension>
-        "AionPoint"       -> <nhash>
-
-Domains:
-
-    "anniversaries"
-        - "startdate"           : Date
-        - "repeatType"          : "weekly", "monthly", "yearly"
-        - "lastCelebrationDate" : Date
-
-    "waves"
-        -
-            - "repeatType"  : "sticky"
-            - "repeatValue" : Integer
-
-            - "repeatType"  : "every-n-hours"
-            - "repeatValue" : Float
-
-            - "repeatType"  : "every-n-days"
-            - "repeatValue" : Float
-
-            - "repeatType"  : "every-this-day-of-the-week"
-            - "repeatValue" : 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
-
-            - "repeatType"  : "every-this-day-of-the-month"
-            - "repeatValue" : DayNumber2 (String, length 2)
-
-        - "lastDoneDateTime": ISO8601
-
-    "quarks"
-        (nothing)
