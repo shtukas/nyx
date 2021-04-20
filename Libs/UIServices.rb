@@ -67,10 +67,10 @@ class UIServices
 
     # UIServices::todoNS16s()
     def self.todoNS16s()
-        makeSyntheticNs17 = lambda {|syntheticRT, trackingNumbers|
+        makeSyntheticNs17 = lambda {|syntheticRT|
             ns16 = {
                 "uuid"     => SecureRandom.hex,
-                "announce" => "(#{"%5.3f" % syntheticRT}) #{"(/◕ヮ◕)/".green} Synthetic 🚀 🌝 (#{trackingNumbers["current"]}, #{trackingNumbers["performance"]})",
+                "announce" => "(#{"%5.3f" % syntheticRT}) #{"(/◕ヮ◕)/".green} Synthetic 🚀 🌝",
                 "start"    => lambda { },
                 "done"     => lambda { }
             }
@@ -81,8 +81,7 @@ class UIServices
             }
         }
         syntheticRT = Synthetic::getRecoveryTimeInHours()
-        trackingNumbers = Synthetic::targettingNumbers(Time.now.utc.iso8601)
-        synthetic = makeSyntheticNs17.call(syntheticRT, trackingNumbers)
+        synthetic = makeSyntheticNs17.call(syntheticRT)
         UIServices::orderNS17s(Quarks::ns17s(), synthetic).map{|ns17| ns17["ns16"] }
     end
 
