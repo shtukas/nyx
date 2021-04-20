@@ -14,7 +14,7 @@ class MarbleElizabeth
         # Some operations may accidentally call those functions on a marble that has died, that create an empty file
         raise "a57bb88e-d792-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _data_ where _key_=?", [nhash]
@@ -32,7 +32,7 @@ class MarbleElizabeth
         # Some operations may accidentally call those functions on a marble that has died, that create an empty file
         raise "a57bb88e-d793-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         blob = nil
@@ -105,7 +105,7 @@ class Marble
         # Some operations may accidentally call those functions on a marble that has died, that create an empty file
         raise "a57bb88e-d794-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _data_ where _key_=?", [key]
@@ -118,7 +118,7 @@ class Marble
         # Some operations may accidentally call those functions on a marble that has died, that create an empty file
         raise "a57bb88e-d795-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         value = nil
@@ -188,7 +188,7 @@ class Marbles
         raise "[37d4ec0d-5562-47c1-861c-ca08078e26b0: #{filepath}]" if File.exists?(filepath)
 
         db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "create table _data_ (_key_ string, _value_ blob)", []
         db.close

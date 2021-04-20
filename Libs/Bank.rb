@@ -16,7 +16,7 @@ class Bank
         unixtime = Time.new.to_i
         date = Utils::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
@@ -29,7 +29,7 @@ class Bank
     # Bank::value(setuuid)
     def self.value(setuuid)
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = 0
@@ -44,7 +44,7 @@ class Bank
     def self.valueOverTimespan(setuuid, timespanInSeconds)
         horizon = Time.new.to_i - timespanInSeconds
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = 0
@@ -58,7 +58,7 @@ class Bank
     # Bank::valueAtDateUseTheForce(setuuid, date)
     def self.valueAtDateUseTheForce(setuuid, date)
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = 0
@@ -74,7 +74,7 @@ class Bank
 
         computationCore = lambda{|setuuid, date|
             db = SQLite3::Database.new(Bank::databaseFilepath())
-            db.busy_timeout = 117  
+            db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             answer = 0
@@ -95,7 +95,7 @@ class Bank
     # Bank::valueOverTimespanWithConnection(setuuid, timespanInSeconds)
     def self.valueOverTimespanWithConnection(setuuid, timespanInSeconds)
         db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117  
+        db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         horizon = Time.new.to_i - timespanInSeconds
