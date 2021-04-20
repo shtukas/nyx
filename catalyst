@@ -46,7 +46,7 @@ loop {
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
 
-    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | >> (next unseen)".yellow
+    puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work".yellow
     puts "top    : [] (top next transformation) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -103,12 +103,8 @@ loop {
         Quarks::interactivelyIssueNewMarbleQuarkOrNull(Quarks::computeLowL22())
     end
 
-    if Interpreting::match(">>", command) then
-        Marbles::marblesOfGivenDomainInOrder("quarks").each{|marble|
-            next if BankExtended::recoveredDailyTimeInHours(marble.uuid()) > 0
-            Quarks::runMarbleQuark(marble)
-            break
-        }
+    if Interpreting::match("new work", command) then
+        system("work new")
     end
 
     # -- top -----------------------------------------------------------------------------
