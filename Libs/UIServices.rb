@@ -136,7 +136,7 @@ class UIServices
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
             items.each_with_index{|item, indx|
-                announce = "(#{"%3d" % (indx+1)}) #{item["announce"]}"
+                announce = "(#{"%3d" % indx}) #{item["announce"]}"
                 break if (vspaceleft - Utils::verticalSize(announce)) < 0
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
@@ -158,7 +158,7 @@ class UIServices
             if Interpreting::match("select *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                item = items[ordinal-1]
+                item = items[ordinal]
                 next if item.nil?
                 item["start"].call()
             end
