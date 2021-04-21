@@ -238,7 +238,19 @@ class Quarks
 
         puts "edit note | landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
+        counter = 0
+
         loop {
+
+            counter = counter + 1
+
+            if counter > 1 and marble.getNote().size > 0 then
+                puts ""
+                puts "------------------------------------".green
+                puts marble.getNote().green
+                puts "------------------------------------".green
+                puts ""
+            end
 
             return if !marble.isStillAlive()
 
