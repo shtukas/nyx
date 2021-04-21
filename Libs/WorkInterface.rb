@@ -39,7 +39,7 @@ class WorkInterface
     end
 
     # WorkInterface::ns16s()
-    def self.ns16()
+    def self.ns16s()
         JSON.parse(`work api catalyst-preNS16`)
             .map{|pns16|
                 uuid = pns16["uuid"]
