@@ -40,7 +40,7 @@ class WorkInterface
 
     # WorkInterface::ns16s()
     def self.ns16s()
-        JSON.parse(`work api catalyst-preNS16`)
+        JSON.parse(`work api catalyst-preNS16s`)
             .map{|pns16|
                 uuid = pns16["uuid"]
                 {
@@ -60,8 +60,22 @@ class WorkInterface
 
                         loop {
 
+                            # This could be our re-entry in the loop after edition. We might want an updated object
+
+                            begin
+                                pns16 = JSON.parse(`work api catalyst-preNS16 #{pns16["uuid"]}`)
+                            rescue
+                            end
+
                             puts "[work] #{pns16["description"]}".green
-                            puts pns16["text"].green
+                            if pns16["text"].strip.size > 0 then
+                                puts ""
+                                puts "------------------------------------".green
+                                puts pns16["text"].green
+                                puts "------------------------------------".green
+                                puts ""
+                            end
+
 
                             puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done".yellow
 
