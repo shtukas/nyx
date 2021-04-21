@@ -60,7 +60,7 @@ class WorkInterface
 
                         loop {
 
-                            puts "[work]"
+                            puts "[work] #{pns16["description"]}".green
                             puts pns16["text"].green
 
                             puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done".yellow
