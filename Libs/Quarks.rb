@@ -288,8 +288,13 @@ class Quarks
             end
 
             if Interpreting::match("done", command) then
-                Marbles::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                marble.destroy()
+                if marble.getNote().size > 0 then
+                    puts "You can't delete a quark with  non empty note"
+                    LucilleCore::pressEnterToContinue()
+                else
+                    Marbles::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                    marble.destroy()
+                end
                 break
             end
 
