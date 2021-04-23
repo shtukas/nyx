@@ -180,17 +180,17 @@ class Quarks
     # Quarks::ns16s()
     def self.ns16s()
 
-        toAnnounce = lambda {|marble, indx|
-            numbers = [0,1,2].include?(indx) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : "        "
+        toAnnounce = lambda {|marble|
+            rt = BankExtended::stdRecoveredDailyTimeInHours(marble.uuid())
+            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : "        "
             "#{numbers}#{marble.description()}"
         }
 
         # We intersect the quarks for the database with the uuids of the current slot
 
         Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
-            .map
-            .with_index{|marble, indx|
-                announce = "#{toAnnounce.call(marble, indx)}"
+            .map{|marble|
+                announce = "#{toAnnounce.call(marble)}"
                 if marble.hasNote() then
                     prefix = "              "
                     announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
@@ -237,13 +237,17 @@ class Quarks
             }
         }
 
+        system("clear")
+        puts "running: #{Quarks::toString(marble)}"
         Marbles::access(marble)
 
         loop {
 
+            system("clear")
+
             return if !marble.isStillAlive()
 
-            puts Quarks::toString(marble)
+            puts "running: #{Quarks::toString(marble)}"
 
             if marble.getNote().size > 0 then
                 puts ""

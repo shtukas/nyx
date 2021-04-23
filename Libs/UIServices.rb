@@ -33,16 +33,16 @@ class UIServices
     # UIServices::orderNS17s(ns17s)
     def self.orderNS17s(ns17s)
 
-        theFew = ns17s.first(3)
-        theRest = ns17s.drop(3)
+        depth = 4
 
-        rtx = ns17s.map{|ns17| Bank::valueOverTimespan(ns17["uuid"], 3600*3) }.inject(0, :+)
+        theFew = ns17s.first(depth)
+        theRest = ns17s.drop(depth)
 
-        if rtx > 3600*2 then
-            return ns17s.select{|ns17| ns17["rt"] == 0 }
-        end
+        average = theFew.map{|ns17| ns17["rt"] }.inject(0, :+).to_f/depth
 
-        theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + theRest
+        theFew1, theFew2 = theFew.partition{|ns17| ns17["rt"] <= average }
+
+        theFew1.sort{|o1, o2| o1["rt"] <=> o2["rt"] }.reverse + theFew2.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + theRest
     end
 
     # UIServices::todayNS16sOrNull()
