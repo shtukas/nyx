@@ -170,7 +170,7 @@ class Quarks
     # Quarks::determineMarbleQuarkPlacingL22()
     def self.determineMarbleQuarkPlacingL22()
         puts "Placement ordinal listing"
-        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' #default, 'last'): ")
+        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' (default), 'last'): ")
         if command == "low" or command == "" then
             return Quarks::computeLowL22()
         end
@@ -181,7 +181,7 @@ class Quarks
     def self.ns16s()
 
         toAnnounce = lambda {|marble, indx|
-            numbers = [0,1,2].include?(indx) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : ""
+            numbers = [0,1,2].include?(indx) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : "        "
             "#{numbers}#{marble.description()}"
         }
 
@@ -192,7 +192,8 @@ class Quarks
             .with_index{|marble, indx|
                 announce = "#{toAnnounce.call(marble, indx)}"
                 if marble.hasNote() then
-                    announce = announce + "\n                      Note:\n" + marble.getNote().lines.map{|line| "                      #{line}"}.join()
+                    prefix = "              "
+                    announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
                 end
                 {
                     "uuid"     => marble.uuid(),
