@@ -156,7 +156,7 @@ class Anniversaries
                 }
             }
             .sort{|i1, i2| i1["announce"]<=>i2["announce"] }
-            .select{|marble| DoNotShowUntil::isVisible(marble.uuid()) }
+            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # Anniversaries::dailyBriefing()
