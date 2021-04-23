@@ -218,10 +218,8 @@ class Marbles
     def self.access(marble)
 
         return if !marble.isStillAlive()
-        puts marble.type()
 
         if marble.type() == "Line" then
-            puts marble.description()
             return
         end
         if marble.type() == "Url" then

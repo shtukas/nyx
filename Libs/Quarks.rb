@@ -237,26 +237,22 @@ class Quarks
             }
         }
 
-        puts "running: #{Quarks::toString(marble).green}"
         Marbles::access(marble)
-
-        puts "edit note | landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
-
-        counter = 0
 
         loop {
 
-            counter = counter + 1
+            return if !marble.isStillAlive()
 
-            if counter > 1 and marble.getNote().size > 0 then
+            puts Quarks::toString(marble)
+
+            if marble.getNote().size > 0 then
                 puts ""
-                puts "------------------------------------".green
-                puts marble.getNote().green
-                puts "------------------------------------".green
+                puts "Note:"
+                puts marble.getNote()
                 puts ""
             end
 
-            return if !marble.isStillAlive()
+            puts "edit note | landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
