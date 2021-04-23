@@ -91,21 +91,6 @@ class Bank
         
         $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"]
     end
-
-    # Bank::valueOverTimespanWithConnection(setuuid, timespanInSeconds)
-    def self.valueOverTimespanWithConnection(setuuid, timespanInSeconds)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        horizon = Time.new.to_i - timespanInSeconds
-        answer = 0
-        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
-            answer = (row["_sum_"] || 0)
-        end
-        db.close
-        answer
-    end
 end
 
 class BankExtended
@@ -124,8 +109,8 @@ class BankExtended
         (1..daysCount).map{|i| BankExtended::timeRatioOverDayCount(setuuid, i) }.max
     end
 
-    # BankExtended::recoveredDailyTimeInHours(setuuid)
-    def self.recoveredDailyTimeInHours(setuuid)
+    # BankExtended::stdRecoveredDailyTimeInHours(setuuid)
+    def self.stdRecoveredDailyTimeInHours(setuuid)
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
     end
 end

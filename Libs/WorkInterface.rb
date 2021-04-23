@@ -45,7 +45,7 @@ class WorkInterface
                 uuid = pns16["uuid"]
                 {
                     "uuid"     => uuid,
-                    "announce" => "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{pns16["description"]}",
+                    "announce" => "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{pns16["description"]}",
                     "start"    => lambda {
 
                         startUnixtime = Time.new.to_f

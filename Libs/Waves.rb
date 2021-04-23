@@ -164,19 +164,10 @@ class Waves
                     "uuid"     => marble.uuid(),
                     "announce" => Waves::toString(marble),
                     "start"    => lambda {
-                        t1 = Time.new.to_i
                         Waves::access(marble)
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
                             Waves::performDone(marble)
                         end
-                        t2 = Time.new.to_i
-                        # We register wave activity with Synthetic, otherwise there is no account of
-                        # the time we spend on Waves.
-                        # We perform the registration with a new id evertime so that the record 
-                        # is taken account
-                        timespan = t2-t1
-                        puts "Putting #{timespan} into Synthetic"
-                        Synthetic::register(Time.now.utc.iso8601, SecureRandom.hex, timespan)
                     },
                     "done"     => lambda{
                         Waves::performDone(marble)

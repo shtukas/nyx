@@ -102,7 +102,7 @@ class Quarks
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
-            puts "recoveredDailyTimeInHours: #{BankExtended::recoveredDailyTimeInHours(marble.uuid())}".yellow
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(marble.uuid())}".yellow
 
             puts ""
 
@@ -180,15 +180,17 @@ class Quarks
     # Quarks::ns16s()
     def self.ns16s()
 
-        toString = lambda {|marble|
-            "(rt: #{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid()).round(3)}) #{Quarks::toString(marble)}"
+        toAnnounce = lambda {|marble, indx|
+            numbers = [0,1,2].include?(indx) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : ""
+            "#{numbers}#{marble.description()}"
         }
 
         # We intersect the quarks for the database with the uuids of the current slot
 
         Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
-            .map{|marble|
-                announce = "(#{"%5.3f" % BankExtended::recoveredDailyTimeInHours(marble.uuid())}) #{Quarks::toString(marble)}"
+            .map
+            .with_index{|marble, indx|
+                announce = "#{toAnnounce.call(marble, indx)}"
                 if marble.hasNote() then
                     announce = announce + "\n                      Note:\n" + marble.getNote().lines.map{|line| "                      #{line}"}.join()
                 end
@@ -210,8 +212,9 @@ class Quarks
     def self.ns17s()
         Quarks::ns16s().map{|ns16|
             {
+                "uuid" => ns16["uuid"],
                 "ns16" => ns16,
-                "rt"   => BankExtended::recoveredDailyTimeInHours(ns16["uuid"])
+                "rt"   => BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"])
             }
         }
     end
@@ -319,8 +322,6 @@ class Quarks
 
         Bank::put(uuid, timespan)
 
-        Synthetic::register(Time.now.utc.iso8601, uuid, timespan)
-
         Marbles::postAccessCleanUp(marble)
     end
 
@@ -349,5 +350,4 @@ class Quarks
             end
         }
     end
-
 end
