@@ -33,19 +33,38 @@ class UIServices
     # UIServices::orderNS17s(ns17s)
     def self.orderNS17s(ns17s)
 
+        makeSyntheticNS17 = lambda {
+            uuid = "5eb5553d-1884-439d-8b71-fa5344b0f4c7"
+            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+            ns16 = {
+                "uuid"     => uuid,
+                "announce" => "(#{"%5.3f" % rt}) Synthetic (⌐■_■) 🚀 ☀️",
+                "start"    => lambda { },
+                "done"     => lambda { }               
+            }
+            {
+                "uuid"        => ns16["uuid"],
+                "ns16"        => ns16,
+                "rt"          => rt,
+                "isSynthetic" => true
+            }
+        }
+
+        synthetic = makeSyntheticNS17.call()
+
         depth = 3
 
-        theFew = ns17s.first(depth)
-        theRest = ns17s.drop(depth)
+        theFew = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic]
+        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth)
 
-        # Circuit Breaker
-        if theFew.map{|ns17| ns17["rt"] }.inject(0, :+) >= 5 then
-            return ns17s.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+        theFew = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+
+        if theFew[0]["isSynthetic"] then
+            zero, one = ns17s.partition{|ns17| ns17["rt"] == 0 }
+            return zero.take(depth) + [synthetic] + one + zero.drop(depth)
         end
 
-        theFew1, theFew2 = theFew.partition{|ns17| ns17["rt"] > 0 }
-
-        theFew1.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + theFew2 + theRest
+        theFew + theRest
     end
 
     # UIServices::todayNS16sOrNull()

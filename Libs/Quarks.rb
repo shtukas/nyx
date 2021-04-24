@@ -188,7 +188,7 @@ class Quarks
         toAnnounce = lambda {|marble|
             filepath = marble.filepath()
             rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))
-            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid")).round(3)}) " : "        "
+            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))}) " : "        "
             "#{numbers}#{Marbles::get(filepath, "description")}"
         }
 
@@ -235,6 +235,7 @@ class Quarks
         return if !marble.isStillAlive()
 
         uuid = Marbles::get(filepath, "uuid")
+        toString = Quarks::toString(marble)
 
         startUnixtime = Time.new.to_f
 
@@ -324,12 +325,13 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        if marble.isStillAlive() then
-            puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{Quarks::toString(marble)}"
-        else
-            puts "putting #{timespan} seconds to uuid: #{uuid}"
+        if !marble.isStillAlive() and (BankExtended::stdRecoveredDailyTimeInHours(uuid) == 0) then
+            # It's been killed on first use. Update Synthetic
+            puts "putting #{timespan} seconds to Synthetic"
+            Bank::put("5eb5553d-1884-439d-8b71-fa5344b0f4c7", timespan)
         end
 
+        puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
         Bank::put(uuid, timespan)
 
         Marbles::postAccessCleanUp(marble)
