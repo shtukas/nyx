@@ -40,7 +40,7 @@ class UIServices
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
             ns16 = {
                 "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) Synthetic (⌐■_■) 🚀 ☀️",
+                "announce" => "(#{"%5.3f" % rt}) #{"Synthetic".green} (⌐■_■) 🚀 ☀️",
                 "start"    => lambda { },
                 "done"     => lambda { }               
             }
@@ -56,20 +56,23 @@ class UIServices
 
         depth = 3
 
-        theFew = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic]
-        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth)
+        theFew  = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic]        # natural ordering
+        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth) # natural ordering
 
-        theFew = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+        theCloseRest = theRest.take(20)                                                  # natural ordering
+        theFarRest = theRest.drop(20)                                                    # natural ordering
 
+        theFew  = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }                           # rt ordering
+        
         if theFew[0]["isSynthetic"] then
             $SyntheticIsFront = true
-            zero, one = ns17s.partition{|ns17| ns17["rt"] == 0 }
-            return zero.take(depth) + [synthetic] + one + zero.drop(depth)
+            theCloseRest = theCloseRest.sort{|o1, o2| o1["rt"] <=> o2["rt"] }            # rt orderng
+            theCloseRest + theFew + theFarRest
         else
+            # Here we present theFew in order and then the rest. 
             $SyntheticIsFront = false
+            theFew + theRest
         end
-
-        theFew + theRest
     end
 
     # UIServices::todayNS16sOrNull()
