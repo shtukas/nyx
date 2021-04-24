@@ -102,16 +102,7 @@ class Marble
     # -----------------------------------------------------
 
     def set(key, value)
-        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
-        raise "a57bb88e-d794-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
-        db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _data_ where _key_=?", [key]
-        db.execute "insert into _data_ (_key_, _value_) values (?,?)", [key, value]
-        db.commit 
-        db.close
+        Marbles::set(@filepath, key, value)
     end
 
     def getOrNull(key)
@@ -463,6 +454,16 @@ class MarblesFsck
                 next if KeyValueStore::flagIsTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{marble.filepath()}:#{File.mtime(marble.filepath())}")
                 MarblesFsck::fsckMarble(marble)
                 KeyValueStore::setFlagTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{marble.filepath()}:#{File.mtime(marble.filepath())}")
+            }
+    end
+
+    # MarblesFsck::fsck()
+    def self.fsck()
+        Marbles::domains()
+            .map{|domain| Marbles::marblesOfGivenDomainInOrder(domain).first(100) }
+            .flatten
+            .each{|marble|
+                MarblesFsck::fsckMarble(marble)
             }
     end
 end
