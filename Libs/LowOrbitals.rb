@@ -20,8 +20,13 @@ class LowOrbitals
         LowOrbitals::filenames()
             .map{|filename|
                 filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{filename}"
-                Marble.new(filepath)
+                if File.exists?(filepath) then
+                    Marble.new(filepath)
+                else
+                    nil
+                end
             }
+            .compact
     end
 
     # LowOrbitals::ns17s()
