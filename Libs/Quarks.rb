@@ -325,7 +325,7 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        if !marble.isStillAlive() and (BankExtended::stdRecoveredDailyTimeInHours(uuid) == 0) then
+        if $SyntheticIsFront then
             # It's been killed on first use. Update Synthetic
             puts "putting #{timespan} seconds to Synthetic"
             Bank::put("5eb5553d-1884-439d-8b71-fa5344b0f4c7", timespan)

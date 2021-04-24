@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$SyntheticIsFront = false # Ugly global variable because I don't want to change the NS16 interface. 
+
 class UIServices
 
     # UIServices::servicesFront()
@@ -60,8 +62,11 @@ class UIServices
         theFew = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
 
         if theFew[0]["isSynthetic"] then
+            $SyntheticIsFront = true
             zero, one = ns17s.partition{|ns17| ns17["rt"] == 0 }
             return zero.take(depth) + [synthetic] + one + zero.drop(depth)
+        else
+            $SyntheticIsFront = false
         end
 
         theFew + theRest
