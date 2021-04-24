@@ -3,12 +3,6 @@ Marbles
 
 Marble object interface
     .intialize(filepath)
-    .uuid()
-    .unixtime()
-    .domain()
-    .description()
-    .type()
-    .payload()
     .set(key, value)
     .getOrNull(key)
     .isStillAlive()

@@ -75,30 +75,6 @@ class Marble
         @filepath = filepath
     end
 
-    def uuid()
-        get("uuid")
-    end
-
-    def unixtime()
-        get("unixtime")
-    end
-
-    def domain()
-        get("domain")
-    end
-
-    def description()
-        get("description")
-    end
-
-    def type()
-        get("type")
-    end
-
-    def payload()
-        get("payload")
-    end
-
     # -----------------------------------------------------
 
     def set(key, value)
@@ -237,17 +213,17 @@ class Marbles
 
         return if !marble.isStillAlive()
 
-        if marble.type() == "Line" then
+        if Marbles::get(marble.filepath(), "type") == "Line" then
             return
         end
-        if marble.type() == "Url" then
-            puts "opening '#{marble.payload()}'"
-            Utils::openUrl(marble.payload())
+        if Marbles::get(marble.filepath(), "type") == "Url" then
+            puts "opening '#{Marbles::get(marble.filepath(), "payload")}'"
+            Utils::openUrl(Marbles::get(marble.filepath(), "payload"))
             return
         end
-        if marble.type() == "Text" then
-            puts "opening text '#{marble.payload()}' (edit mode)"
-            nhash = marble.payload()
+        if Marbles::get(marble.filepath(), "type") == "Text" then
+            puts "opening text '#{Marbles::get(marble.filepath(), "payload")}' (edit mode)"
+            nhash = Marbles::get(marble.filepath(), "payload")
             text1 = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
             text2 = Utils::editTextSynchronously(text1)
             if (text1 != text2) and LucilleCore::askQuestionAnswerAsBoolean("commit changes ? ") then
@@ -256,9 +232,9 @@ class Marbles
             end
             return
         end
-        if marble.type() == "ClickableType" then
-            puts "opening file '#{marble.payload()}'"
-            nhash, extension = marble.payload().split("|")
+        if Marbles::get(marble.filepath(), "type") == "ClickableType" then
+            puts "opening file '#{Marbles::get(marble.filepath(), "payload")}'"
+            nhash, extension = Marbles::get(marble.filepath(), "payload").split("|")
             filepath = "/Users/pascal/Desktop/#{nhash}#{extension}"
             blob = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
             File.open(filepath, "w"){|f| f.write(blob) }
@@ -266,9 +242,9 @@ class Marbles
             system("open '#{filepath}'")
             return
         end
-        if marble.type() == "AionPoint" then
-            puts "opening aion point '#{marble.payload()}'"
-            nhash = marble.payload()
+        if Marbles::get(marble.filepath(), "type") == "AionPoint" then
+            puts "opening aion point '#{Marbles::get(marble.filepath(), "payload")}'"
+            nhash = Marbles::get(marble.filepath(), "payload")
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(MarbleElizabeth.new(marble.filepath()), nhash, targetReconstructionFolderpath)
             puts "Export completed"
@@ -282,26 +258,26 @@ class Marbles
 
         return if !marble.isStillAlive()
 
-        if marble.type() == "Line" then
+        if Marbles::get(marble.filepath(), "type") == "Line" then
             return
         end
-        if marble.type() == "Url" then
+        if Marbles::get(marble.filepath(), "type") == "Url" then
             return
         end
-        if marble.type() == "Text" then
+        if Marbles::get(marble.filepath(), "type") == "Text" then
             return
         end
-        if marble.type() == "ClickableType" then
-            puts "cleaning file '#{marble.payload()}'"
-            nhash, extension = marble.payload().split("|")
+        if Marbles::get(marble.filepath(), "type") == "ClickableType" then
+            puts "cleaning file '#{Marbles::get(marble.filepath(), "payload")}'"
+            nhash, extension = Marbles::get(marble.filepath(), "payload").split("|")
             filepath = "/Users/pascal/Desktop/#{nhash}#{extension}"
             return if !File.exists?(filepath)
             LucilleCore::removeFileSystemLocation(filepath)
             return
         end
-        if marble.type() == "AionPoint" then
-            puts "cleaning aion point '#{marble.payload()}'"
-            nhash = marble.payload()
+        if Marbles::get(marble.filepath(), "type") == "AionPoint" then
+            puts "cleaning aion point '#{Marbles::get(marble.filepath(), "payload")}'"
+            nhash = Marbles::get(marble.filepath(), "payload")
             aionObject = AionCore::getAionObjectByHash(MarbleElizabeth.new(marble.filepath()), nhash)
             location = "/Users/pascal/Desktop/#{aionObject["name"]}"
             return if !File.exists?(location)
@@ -314,14 +290,14 @@ class Marbles
     # Marbles::edit(marble)
     def self.edit(marble)
 
-        if marble.type() == "Line" then
+        if Marbles::get(marble.filepath(), "type") == "Line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line == ""
             Marbles::set(marble.filepath(), "description", line)
             Marbles::set(marble.filepath(), "payload", "")
             return
         end
-        if marble.type() == "Url" then
+        if Marbles::get(marble.filepath(), "type") == "Url" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
                 Marbles::set(marble.filepath(), "description", description)
@@ -332,19 +308,19 @@ class Marbles
             end
             return
         end
-        if marble.type() == "Text" then
+        if Marbles::get(marble.filepath(), "type") == "Text" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
                 Marbles::set(marble.filepath(), "description", description)
             end
-            nhash = marble.payload()
+            nhash = Marbles::get(marble.filepath(), "payload")
             text1 = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
             text2 = Utils::editTextSynchronously(text1)
             payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text2)
             Marbles::set(marble.filepath(), "payload", payload)
             return
         end
-        if marble.type() == "ClickableType" then
+        if Marbles::get(marble.filepath(), "type") == "ClickableType" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
                 Marbles::set(marble.filepath(), "description", description)
@@ -361,7 +337,7 @@ class Marbles
             end
             return
         end
-        if marble.type() == "AionPoint" then
+        if Marbles::get(marble.filepath(), "type") == "AionPoint" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
                 Marbles::set(marble.filepath(), "description", description)
@@ -390,65 +366,65 @@ class MarblesFsck
     # MarblesFsck::fsckMarble(marble)
     def self.fsckMarble(marble)
 
-        puts "fsck: #{marble.filepath()} (#{marble.domain()}, #{marble.type()})"
+        puts "fsck: #{marble.filepath()} (#{Marbles::get(marble.filepath(), "domain")}, #{Marbles::get(marble.filepath(), "type")})"
 
         filepath = marble.filepath()
 
-        raise "[error: f88fcaad-2882-4fd6-ac1e-a85a83f761b6] ; filepath: #{filepath}" if marble.uuid().nil?
-        raise "[error: 5ff068b9-b9fb-4826-a6ad-398d8b0709bd] ; filepath: #{filepath}" if marble.unixtime().nil?
-        raise "[error: 6d283c5e-3c50-45ef-8c26-2e10a563fb53] ; filepath: #{filepath}" if marble.domain().nil?
+        raise "[error: f88fcaad-2882-4fd6-ac1e-a85a83f761b6] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "uuid").nil?
+        raise "[error: 5ff068b9-b9fb-4826-a6ad-398d8b0709bd] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "unixtime").nil?
+        raise "[error: 6d283c5e-3c50-45ef-8c26-2e10a563fb53] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "domain").nil?
 
-        if !["anniversaries", "waves", "quarks"].include?(marble.domain()) then
+        if !["anniversaries", "waves", "quarks"].include?(Marbles::get(marble.filepath(), "domain")) then
             raise "[error: eacdf935-09d1-4e64-a16f-49c5de81c775] ; filepath: #{filepath}"
         end
 
-        raise "[error: dfb12670-1391-4cb1-ba4f-0541b77aad9b] ; filepath: #{filepath}" if marble.description().nil?
-        raise "[error: bf1662b8-b1aa-4610-ae17-9c3992a0e24d] ; filepath: #{filepath}" if marble.type().nil?
+        raise "[error: dfb12670-1391-4cb1-ba4f-0541b77aad9b] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "description").nil?
+        raise "[error: bf1662b8-b1aa-4610-ae17-9c3992a0e24d] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "type").nil?
 
-        if !["Line", "Url", "Text", "ClickableType", "AionPoint"].include?(marble.type()) then
+        if !["Line", "Url", "Text", "ClickableType", "AionPoint"].include?(Marbles::get(marble.filepath(), "type")) then
             raise "[error: 2ca6437e-5566-41d5-8cc9-620d0623bed9] ; filepath: #{filepath}"
         end
 
-        raise "[error: 672db530-20ca-4981-ab4b-0c7b832e205b] ; filepath: #{filepath}" if marble.payload().nil?
+        raise "[error: 672db530-20ca-4981-ab4b-0c7b832e205b] ; filepath: #{filepath}" if Marbles::get(marble.filepath(), "payload").nil?
 
-        if marble.domain() == "anniversaries" then
+        if Marbles::get(marble.filepath(), "domain") == "anniversaries" then
             raise "[error: 0912e41d-676b-4b54-82ec-fb45698fd902] ; filepath: #{filepath}" if marble.getOrNull("startdate").nil?
             raise "[error: 52e24a4f-6a12-4d76-ae4c-94fce3a88a87] ; filepath: #{filepath}" if marble.getOrNull("repeatType").nil?
             raise "[error: dfbe3fb4-d4a9-4e78-bb0f-4d3e00a06618] ; filepath: #{filepath}" if marble.getOrNull("lastCelebrationDate").nil?
         end
 
-        if marble.domain() == "waves" then
+        if Marbles::get(marble.filepath(), "domain") == "waves" then
             raise "[error: b4ea09e4-db79-416c-b3da-857305e37e46] ; filepath: #{filepath}" if marble.getOrNull("repeatType").nil?
             raise "[error: 38eec138-5ffe-44c5-a2bc-6b13c9bb4f60] ; filepath: #{filepath}" if marble.getOrNull("repeatValue").nil?
             raise "[error: fda08d22-406e-4dc4-89f7-db590b10db8c] ; filepath: #{filepath}" if marble.getOrNull("lastDoneDateTime").nil?
         end
 
-        if marble.type() == "Line" then
+        if Marbles::get(marble.filepath(), "type") == "Line" then
             return
         end
 
-        if marble.type() == "Url" then
-            if !marble.payload().start_with?("http") then
+        if Marbles::get(marble.filepath(), "type") == "Url" then
+            if !Marbles::get(marble.filepath(), "payload").start_with?("http") then
                 raise "[error: 4f2bab70-1ed5-476a-bd12-402355bbdb6b] ; filepath: #{filepath}"
             end
             return
         end
 
-        if marble.type() == "Text" then
-            if marble.getOrNull(marble.payload()).nil? then
+        if Marbles::get(marble.filepath(), "type") == "Text" then
+            if marble.getOrNull(Marbles::get(marble.filepath(), "payload")).nil? then
                 raise "[error: f220bac1-4ab1-40df-b751-7573d3adc685] ; filepath: #{filepath}"
             end
             return
         end
-        if marble.type() == "ClickableType" then
-            nhash = marble.payload().split("|").first
+        if Marbles::get(marble.filepath(), "type") == "ClickableType" then
+            nhash = Marbles::get(marble.filepath(), "payload").split("|").first
             if marble.getOrNull(nhash).nil? then
                 raise "[error: c195269a-264b-4a0b-b1d8-fb0175c12cbf] ; filepath: #{filepath}"
             end
             return
         end 
-        if marble.type() == "AionPoint" then
-            nhash = marble.payload()
+        if Marbles::get(marble.filepath(), "type") == "AionPoint" then
+            nhash = Marbles::get(marble.filepath(), "payload")
             status = AionFsck::structureCheckAionHash(MarbleElizabeth.new(marble.filepath()), nhash)
             if !status then
                 raise "[error: 53BBC142-23CA-4939-9691-32F7C6FC9C65] ; filepath: #{filepath}"

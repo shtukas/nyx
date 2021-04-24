@@ -132,7 +132,7 @@ class Anniversaries
 
     # Anniversaries::toString(marble)
     def self.toString(marble)
-        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{marble.description()} (#{Marbles::get(marble.filepath(), "repeatType")} since #{Marbles::get(marble.filepath(), "startdate")})"
+        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{Marbles::get(marble.filepath(), "description")} (#{Marbles::get(marble.filepath(), "repeatType")} since #{Marbles::get(marble.filepath(), "startdate")})"
     end
 
     # Anniversaries::ns16s()
@@ -141,7 +141,7 @@ class Anniversaries
             .select{|marble| Anniversaries::marbleNextDateOrdinal(marble)[0] <= Utils::today() }
             .map{|marble|
                 {
-                    "uuid"     => marble.uuid(),
+                    "uuid"     => Marbles::get(marble.filepath(), "uuid"),
                     "announce" => Anniversaries::toString(marble),
                     "start"   => lambda{
                         puts Anniversaries::toString(marble).green

@@ -83,7 +83,7 @@ class Quarks
 
     # Quarks::toString(marble)
     def self.toString(marble)
-        "[quark] #{marble.description()}"
+        "[quark] #{Marbles::get(marble.filepath(), "description")}"
     end
 
     # --------------------------------------------------
@@ -97,12 +97,12 @@ class Quarks
             mx = LCoreMenuItemsNX1.new()
 
             puts Quarks::toString(marble)
-            puts "uuid: #{marble.uuid()}".yellow
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(marble.uuid())
+            puts "uuid: #{Marbles::get(marble.filepath(), "uuid")}".yellow
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(Marbles::get(marble.filepath(), "uuid"))
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(marble.uuid())}".yellow
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid"))}".yellow
 
             puts ""
 
@@ -181,9 +181,9 @@ class Quarks
     def self.ns16s()
 
         toAnnounce = lambda {|marble|
-            rt = BankExtended::stdRecoveredDailyTimeInHours(marble.uuid())
-            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(marble.uuid()).round(3)}) " : "        "
-            "#{numbers}#{marble.description()}"
+            rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid"))
+            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid")).round(3)}) " : "        "
+            "#{numbers}#{Marbles::get(marble.filepath(), "description")}"
         }
 
         # We intersect the quarks for the database with the uuids of the current slot
@@ -196,7 +196,7 @@ class Quarks
                     announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
                 end
                 {
-                    "uuid"     => marble.uuid(),
+                    "uuid"     => Marbles::get(marble.filepath(), "uuid"),
                     "announce" => announce,
                     "start"    => lambda{ Quarks::runMarbleQuark(marble) },
                     "done"     => lambda{
@@ -225,7 +225,7 @@ class Quarks
 
         return if !marble.isStillAlive()
 
-        uuid = marble.uuid()
+        uuid = Marbles::get(marble.filepath(), "uuid")
 
         startUnixtime = Time.new.to_f
 
@@ -271,7 +271,7 @@ class Quarks
             end
 
             if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(marble.uuid(), Time.new.to_i+3600)
+                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), Time.new.to_i+3600)
                 break
             end
 
@@ -279,7 +279,7 @@ class Quarks
                 _, input = Interpreting::tokenizer(command)
                 unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
                 next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(marble.uuid(), unixtime)
+                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), unixtime)
                 break
             end
 
@@ -287,7 +287,7 @@ class Quarks
                 _, amount, unit = Interpreting::tokenizer(command)
                 unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(marble.uuid(), unixtime)
+                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), unixtime)
                 break
             end
 
@@ -343,7 +343,7 @@ class Quarks
             if selected.size >= resultSize then
                 selected
             else
-                if (DoNotShowUntil::isVisible(marble.uuid())) then
+                if (DoNotShowUntil::isVisible(Marbles::get(marble.filepath(), "uuid"))) then
                     selected + [marble]
                 else
                     selected

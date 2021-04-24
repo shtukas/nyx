@@ -108,7 +108,7 @@ class Waves
     def self.performDone(marble)
         Marbles::set(marble.filepath(), "lastDoneDateTime", Time.now.utc.iso8601)
         unixtime = Waves::marbleToDoNotShowUnixtime(marble)
-        DoNotShowUntil::setUnixtime(marble.uuid(), unixtime)
+        DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), unixtime)
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
@@ -153,7 +153,7 @@ class Waves
             else
                 ""
             end
-        "[wave] [#{Waves::scheduleString(marble)}] #{marble.description()} (#{ago})"
+        "[wave] [#{Waves::scheduleString(marble)}] #{Marbles::get(marble.filepath(), "description")} (#{ago})"
     end
 
     # Waves::ns16s()
@@ -161,7 +161,7 @@ class Waves
         Marbles::marblesOfGivenDomainInOrder("waves")
             .map{|marble|
                 {
-                    "uuid"     => marble.uuid(),
+                    "uuid"     => Marbles::get(marble.filepath(), "uuid"),
                     "announce" => Waves::toString(marble),
                     "start"    => lambda {
                         Waves::access(marble)
@@ -180,11 +180,11 @@ class Waves
     # Waves::access(marble)
     def self.access(marble)
         puts Waves::toString(marble)
-        if marble.type() == "Line" then
+        if Marbles::get(marble.filepath(), "type") == "Line" then
             return
         end
-        if marble.type() == "Url" then
-            Utils::openUrl(marble.payload())
+        if Marbles::get(marble.filepath(), "type") == "Url" then
+            Utils::openUrl(Marbles::get(marble.filepath(), "payload"))
             return
         end
 
@@ -203,13 +203,13 @@ class Waves
             return if !marble.isStillAlive()
 
             puts Waves::toString(marble)
-            puts "uuid: #{marble.uuid()}"
+            puts "uuid: #{Marbles::get(marble.filepath(), "uuid")}"
             puts "last done: #{Marbles::get(marble.filepath(), "lastDoneDateTime")}"
 
-            if DoNotShowUntil::isVisible(marble.uuid()) then
+            if DoNotShowUntil::isVisible(Marbles::get(marble.filepath(), "uuid")) then
                 puts "active"
             else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(marble.uuid())).to_s}"
+                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(Marbles::get(marble.filepath(), "uuid"))).to_s}"
             end
 
             puts "schedule: #{Waves::scheduleString(marble)}"
