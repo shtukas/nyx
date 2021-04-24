@@ -138,7 +138,7 @@ class Waves
             return nil
         end
         Marbles::set(marble.filepath(), "repeatType", schedule[0])
-        marble.set("repeatValue", schedule[1])
+        Marbles::set(marble.filepath(), "repeatValue",  schedule[1])
 
         Marbles::set(marble.filepath(), "lastDoneDateTime", "2021-01-01T00:00:11Z")
 
@@ -228,7 +228,7 @@ class Waves
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
                 Marbles::set(marble.filepath(), "repeatType", schedule[0])
-                marble.set("repeatValue", schedule[1])
+                Marbles::set(marble.filepath(), "repeatValue",  schedule[1])
             })
 
             menuitems.item("destroy", lambda {
