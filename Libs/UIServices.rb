@@ -97,20 +97,6 @@ class UIServices
         theFew + theRest
     end
 
-    # UIServices::todayNS16sOrNull()
-    def self.todayNS16OrNull()
-        text = IO.read("/Users/pascal/Desktop/Today.txt").strip
-        return nil if text == ""
-        text = text.lines.map{|line| "      #{line}" }.join()
-        {
-            "uuid"     => Digest::SHA1.hexdigest(text),
-            "announce" => ("-- Today.txt --------------------------\n" + text).green,
-            "start"    => lambda {},
-            "done"     => lambda {},
-            "isToday.txt" => true
-        }
-    end
-
     # UIServices::quarksNS16s()
     def self.quarksNS16s()
         UIServices::orderNS17s(Quarks::ns17s()).map{|ns17| ns17["ns16"] }
@@ -120,9 +106,9 @@ class UIServices
     def self.catalystNS16s()
         isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
         if isWorkTime then
-            return UIServices::waveLikeNS16s() + WorkInterface::ns16s() + [ UIServices::todayNS16OrNull() ].compact + UIServices::quarksNS16s()
+            return UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::quarksNS16s()
         end
-        UIServices::waveLikeNS16s() + [ UIServices::todayNS16OrNull() ].compact  + UIServices::quarksNS16s()
+        UIServices::waveLikeNS16s() + UIServices::quarksNS16s()
     end
 
     # UIServices::catalystDisplayLoop()
@@ -217,7 +203,6 @@ class UIServices
             # -- top -----------------------------------------------------------------------------
 
             if Interpreting::match("[]", command) then
-
                 filepath = "/Users/pascal/Desktop/Priority.txt"
                 text = IO.read(filepath).strip
                 if text.size > 0 then
@@ -225,20 +210,6 @@ class UIServices
                     File.open(filepath, "w"){|f| f.puts(text)}
                     next
                 end
-
-                item = items[0]
-                if item["isToday.txt"] then
-
-                    filepath = "/Users/pascal/Desktop/Today.txt"
-                    text = IO.read(filepath).strip
-                    if text.size > 0 then
-                        text = SectionsType0141::applyNextTransformationToText(text)
-                        File.open(filepath, "w"){|f| f.puts(text)}
-                        next
-                    end
-
-                end
-
                 next
             end
 
