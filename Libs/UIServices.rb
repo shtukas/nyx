@@ -33,16 +33,19 @@ class UIServices
     # UIServices::orderNS17s(ns17s)
     def self.orderNS17s(ns17s)
 
-        depth = 4
+        depth = 3
 
         theFew = ns17s.first(depth)
         theRest = ns17s.drop(depth)
 
-        average = theFew.map{|ns17| ns17["rt"] }.inject(0, :+).to_f/depth
+        # Circuit Breaker
+        if theFew.map{|ns17| ns17["rt"] }.inject(0, :+) >= 5 then
+            return ns17s.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+        end
 
-        theFew1, theFew2 = theFew.partition{|ns17| ns17["rt"] <= average }
+        theFew1, theFew2 = theFew.partition{|ns17| ns17["rt"] > 0 }
 
-        theFew1.sort{|o1, o2| o1["rt"] <=> o2["rt"] }.reverse + theFew2.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + theRest
+        theFew1.sort{|o1, o2| o1["rt"] <=> o2["rt"] } + theFew2 + theRest
     end
 
     # UIServices::todayNS16sOrNull()
