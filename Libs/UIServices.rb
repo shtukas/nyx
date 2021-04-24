@@ -233,6 +233,10 @@ class UIServices
                 item = items[0]
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             end
+
+            if Interpreting::match("exit", command) then
+                break
+            end
         }
     end
 end
