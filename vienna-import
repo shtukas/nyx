@@ -47,15 +47,15 @@ loop {
 
     filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{LucilleCore::timeStringL22()}.marble"
 
-    marble = Marbles::issueNewEmptyMarble(filepath)
+    Marbles::issueNewEmptyMarble(filepath)
 
-    Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
-    Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
-    Marbles::set(marble.filepath(), "domain", "quarks")
-    Marbles::set(marble.filepath(), "description", link)
+    Marbles::set(filepath, "uuid", SecureRandom.uuid)
+    Marbles::set(filepath, "unixtime", Time.new.to_i)
+    Marbles::set(filepath, "domain", "quarks")
+    Marbles::set(filepath, "description", link)
 
-    Marbles::set(marble.filepath(), "type", "Url")
-    Marbles::set(marble.filepath(), "payload", link)
+    Marbles::set(filepath, "type", "Url")
+    Marbles::set(filepath, "payload", link)
 
     viennaLinkFeeder.done(link)
 }
