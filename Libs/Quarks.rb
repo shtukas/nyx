@@ -3,10 +3,10 @@
 
 class Quarks
 
-    # Quarks::interactivelyIssueNewMarbleQuarkOrNull(l22)
-    def self.interactivelyIssueNewMarbleQuarkOrNull(l22)
+    # Quarks::interactivelyIssueNewMarbleQuarkOrNull()
+    def self.interactivelyIssueNewMarbleQuarkOrNull()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{l22}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{LucilleCore::timeStringL22()}.marble"
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
@@ -135,55 +135,6 @@ class Quarks
             status = mx.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # Quarks::middlePointOfTwoL22sOrNull(p1, p2)
-    def self.middlePointOfTwoL22sOrNull(p1, p2)
-        raise "ae294eb7-4a63-4c82-91a1-96ca58a04536" if p1 == p2
-
-        projectL22ToFloat = lambda{|l22|
-            Time.strptime(l22[0, 15], '%Y%m%d-%H%M%S').to_i + "0.#{l22[16, 6]}".to_f
-        }
-
-        float1 = projectL22ToFloat.call(p1)
-        float2 = projectL22ToFloat.call(p2)
-
-        float3 = (float1+float2).to_f/2
-
-        p3 = Time.at(float3.to_i).strftime("%Y%m%d-%H%M%S") + "-#{("#{"%.6f" % (float3-float3.to_i)}")[2, 6].ljust(6, "0")}"
-
-        return nil if [p1, p2].include?(p3)
-
-        p3
-    end
-
-    # Quarks::computeLowL22()
-    def self.computeLowL22()
-        indx = 0
-        loop {
-            marbles = Marbles::marblesOfGivenDomainInOrder("quarks")
-            if marbles.size < (21+indx) then
-                return LucilleCore::timeStringL22()
-            else
-                l22s = marbles.drop(19+indx).take(2).map{|marble| 
-                    filepath = marble.filepath()
-                    File.basename(filepath)[0, 22] 
-                }
-                l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
-                return l22 if l22
-            end
-            indx = indx+1
-        }
-    end
-
-    # Quarks::determineMarbleQuarkPlacingL22()
-    def self.determineMarbleQuarkPlacingL22()
-        puts "Placement ordinal listing"
-        command = LucilleCore::askQuestionAnswerAsString("placement ordinal ('low' (default), 'last'): ")
-        if command == "low" or command == "" then
-            return Quarks::computeLowL22()
-        end
-        LucilleCore::timeStringL22()
     end
 
     # Quarks::marbleToNS16(marble indx = nil)
