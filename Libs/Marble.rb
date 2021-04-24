@@ -106,28 +106,7 @@ class Marble
     end
 
     def getOrNull(key)
-        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
-        raise "a57bb88e-d795-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
-        db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        value = nil
-        db.execute("select * from _data_ where _key_=?", [key]) do |row|
-            value = row['_value_']
-        end
-        db.close
-        value
-
-        return value if value
-
-        nhash = key
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles-TheLargeMigrationBlobs/#{nhash}.data"
-        if File.exists?(filepath) then
-            return IO.read(filepath) 
-        end
-
-        nil
+        Marbles::getOrNull(@filepath, key)
     end
 
     def get(key)
@@ -183,6 +162,32 @@ class Marbles
         db.execute "insert into _data_ (_key_, _value_) values (?,?)", [key, value]
         db.commit 
         db.close
+    end
+
+    # Marbles::getOrNull(filepath, key)
+    def self.getOrNull(filepath, key)
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "a57bb88e-d795-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        value = nil
+        db.execute("select * from _data_ where _key_=?", [key]) do |row|
+            value = row['_value_']
+        end
+        db.close
+        value
+
+        return value if value
+
+        nhash = key
+        f1 = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles-TheLargeMigrationBlobs/#{nhash}.data"
+        if File.exists?(f1) then
+            return IO.read(f1) 
+        end
+
+        nil
     end
 
     # Marbles::domains()
