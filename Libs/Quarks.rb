@@ -10,18 +10,18 @@ class Quarks
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
-        marble = Marbles::issueNewEmptyMarble(filepath)
+        Marbles::issueNewEmptyMarble(filepath)
 
-        Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
-        Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
-        Marbles::set(marble.filepath(), "domain", "quarks")
+        Marbles::set(filepath, "uuid", SecureRandom.uuid)
+        Marbles::set(filepath, "unixtime", Time.new.to_i)
+        Marbles::set(filepath, "domain", "quarks")
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
             FileUtils.rm(filepath)
             return nil
         end  
-        Marbles::set(marble.filepath(), "description", description)
+        Marbles::set(filepath, "description", description)
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 
@@ -31,40 +31,40 @@ class Quarks
         end  
 
         if type == "Line" then
-            Marbles::set(marble.filepath(), "type", "Line")
-            Marbles::set(marble.filepath(), "payload", "")
+            Marbles::set(filepath, "type", "Line")
+            Marbles::set(filepath, "payload", "")
         end
         if type == "Url" then
-            Marbles::set(marble.filepath(), "type", "Url")
+            Marbles::set(filepath, "type", "Url")
 
             url = LucilleCore::askQuestionAnswerAsString("url (empty for abort): ")
             if url == "" then
                 FileUtils.rm(filepath)
                 return nil
             end  
-            Marbles::set(marble.filepath(), "payload", url)
+            Marbles::set(filepath, "payload", url)
         end
         if type == "Text" then
-            Marbles::set(marble.filepath(), "type", "Text")
+            Marbles::set(filepath, "type", "Text")
             text = Utils::editTextSynchronously("")
-            payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
-            Marbles::set(marble.filepath(), "payload", payload)
+            payload = MarbleElizabeth.new(filepath).commitBlob(text)
+            Marbles::set(filepath, "payload", payload)
         end
         if type == "ClickableType" then
-            Marbles::set(marble.filepath(), "type", "ClickableType")
+            Marbles::set(filepath, "type", "ClickableType")
             filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
-            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
-            if !File.exists?(filepath) or !File.file?(filepath) then
+            f1 = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
+            if !File.exists?(f1) or !File.file?(f1) then
                 FileUtils.rm(filepath)
                 return nil
             end
-            nhash = MarbleElizabeth.new(marble.filepath()).commitBlob(IO.read(filepath)) # bad choice, this file could be large
+            nhash = MarbleElizabeth.new(filepath).commitBlob(IO.read(f1)) # bad choice, this file could be large
             dottedExtension = File.extname(filenameOnTheDesktop)
             payload = "#{nhash}|#{dottedExtension}"
-            Marbles::set(marble.filepath(), "payload", payload)
+            Marbles::set(filepath, "payload", payload)
         end
         if type == "AionPoint" then
-            Marbles::set(marble.filepath(), "type", "AionPoint")
+            Marbles::set(filepath, "type", "AionPoint")
             uuid = SecureRandom.uuid
             unixtime = Time.new.to_i
             locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
@@ -73,8 +73,8 @@ class Quarks
                 FileUtils.rm(location)
                 return nil
             end
-            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
-            Marbles::set(marble.filepath(), "payload", payload)
+            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(filepath), location)
+            Marbles::set(filepath, "payload", payload)
         end
         marble
     end
@@ -83,13 +83,15 @@ class Quarks
 
     # Quarks::toString(marble)
     def self.toString(marble)
-        "[quark] #{Marbles::get(marble.filepath(), "description")}"
+        filepath = marble.filepath()
+        "[quark] #{Marbles::get(filepath, "description")}"
     end
 
     # --------------------------------------------------
 
     # Quarks::landing(marble)
     def self.landing(marble)
+        filepath = marble.filepath()
         loop {
 
             return if !marble.isStillAlive()
@@ -97,12 +99,12 @@ class Quarks
             mx = LCoreMenuItemsNX1.new()
 
             puts Quarks::toString(marble)
-            puts "uuid: #{Marbles::get(marble.filepath(), "uuid")}".yellow
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(Marbles::get(marble.filepath(), "uuid"))
+            puts "uuid: #{Marbles::get(filepath, "uuid")}".yellow
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(Marbles::get(filepath, "uuid"))
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid"))}".yellow
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))}".yellow
 
             puts ""
 
@@ -159,7 +161,10 @@ class Quarks
             if marbles.size < (21+indx) then
                 return LucilleCore::timeStringL22()
             else
-                l22s = marbles.drop(19+indx).take(2).map{|marble| File.basename(marble.filepath())[0, 22] }
+                l22s = marbles.drop(19+indx).take(2).map{|marble| 
+                    filepath = marble.filepath()
+                    File.basename(filepath)[0, 22] 
+                }
                 l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
                 return l22 if l22
             end
@@ -181,22 +186,24 @@ class Quarks
     def self.ns16s()
 
         toAnnounce = lambda {|marble|
-            rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid"))
-            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(marble.filepath(), "uuid")).round(3)}) " : "        "
-            "#{numbers}#{Marbles::get(marble.filepath(), "description")}"
+            filepath = marble.filepath()
+            rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))
+            numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid")).round(3)}) " : "        "
+            "#{numbers}#{Marbles::get(filepath, "description")}"
         }
 
         # We intersect the quarks for the database with the uuids of the current slot
 
         Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
             .map{|marble|
+                filepath = marble.filepath()
                 announce = "#{toAnnounce.call(marble)}"
                 if marble.hasNote() then
                     prefix = "              "
                     announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
                 end
                 {
-                    "uuid"     => Marbles::get(marble.filepath(), "uuid"),
+                    "uuid"     => Marbles::get(filepath, "uuid"),
                     "announce" => announce,
                     "start"    => lambda{ Quarks::runMarbleQuark(marble) },
                     "done"     => lambda{
@@ -223,9 +230,11 @@ class Quarks
     # Quarks::runMarbleQuark(marble)
     def self.runMarbleQuark(marble)
 
+        filepath = marble.filepath()
+
         return if !marble.isStillAlive()
 
-        uuid = Marbles::get(marble.filepath(), "uuid")
+        uuid = Marbles::get(filepath, "uuid")
 
         startUnixtime = Time.new.to_f
 
@@ -271,7 +280,7 @@ class Quarks
             end
 
             if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), Time.new.to_i+3600)
+                DoNotShowUntil::setUnixtime(Marbles::get(filepath, "uuid"), Time.new.to_i+3600)
                 break
             end
 
@@ -279,7 +288,7 @@ class Quarks
                 _, input = Interpreting::tokenizer(command)
                 unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
                 next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), unixtime)
+                DoNotShowUntil::setUnixtime(Marbles::get(filepath, "uuid"), unixtime)
                 break
             end
 
@@ -287,7 +296,7 @@ class Quarks
                 _, amount, unit = Interpreting::tokenizer(command)
                 unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(Marbles::get(marble.filepath(), "uuid"), unixtime)
+                DoNotShowUntil::setUnixtime(Marbles::get(filepath, "uuid"), unixtime)
                 break
             end
 
@@ -340,10 +349,11 @@ class Quarks
     # Quarks::firstNVisibleMarbleQuarks(resultSize)
     def self.firstNVisibleMarbleQuarks(resultSize)
         Marbles::marblesOfGivenDomainInOrder("quarks").reduce([]) {|selected, marble|
+            filepath = marble.filepath()
             if selected.size >= resultSize then
                 selected
             else
-                if (DoNotShowUntil::isVisible(Marbles::get(marble.filepath(), "uuid"))) then
+                if (DoNotShowUntil::isVisible(Marbles::get(filepath, "uuid"))) then
                     selected + [marble]
                 else
                     selected

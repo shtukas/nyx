@@ -98,16 +98,16 @@ class Utils
 
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
 
-            marble = Marbles::issueNewEmptyMarble(filepath)
+            Marbles::issueNewEmptyMarble(filepath)
 
-            Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
-            Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
-            Marbles::set(marble.filepath(), "domain", "quarks")
-            Marbles::set(marble.filepath(), "description", File.basename(location))
+            Marbles::set(filepath, "uuid", SecureRandom.uuid)
+            Marbles::set(filepath, "unixtime", Time.new.to_i)
+            Marbles::set(filepath, "domain", "quarks")
+            Marbles::set(filepath, "description", File.basename(location))
 
-            Marbles::set(marble.filepath(), "type", "AionPoint")
-            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
-            Marbles::set(marble.filepath(), "payload", payload)
+            Marbles::set(filepath, "type", "AionPoint")
+            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(filepath), location)
+            Marbles::set(filepath, "payload", payload)
 
             LucilleCore::removeFileSystemLocation(location)
         end
