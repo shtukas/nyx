@@ -443,19 +443,6 @@ class MarblesFsck
     # MarblesFsck::fsck()
     def self.fsck()
         Marbles::domains()
-            .map{|domain| Marbles::marblesOfGivenDomainInOrder(domain) }
-            .flatten
-            .each{|marble|
-                filepath = marble.filepath()
-                next if KeyValueStore::flagIsTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{filepath}:#{File.mtime(filepath)}")
-                MarblesFsck::fsckMarble(marble)
-                KeyValueStore::setFlagTrue(nil, "84acdcb8-ecac-4527-8cfa-aa2503148839:#{filepath}:#{File.mtime(filepath)}")
-            }
-    end
-
-    # MarblesFsck::fsck()
-    def self.fsck()
-        Marbles::domains()
             .map{|domain| Marbles::marblesOfGivenDomainInOrder(domain).first(100) }
             .flatten
             .each{|marble|

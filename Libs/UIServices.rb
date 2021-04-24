@@ -108,11 +108,6 @@ class UIServices
             Utils::importFromLucilleInbox()
             Anniversaries::dailyBriefingIfNotDoneToday()
 
-            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("3e15e448-25e2-4d03-a2b4-e5f23a9af461", 600) then
-                puts "MarblesFsck::fsck()"
-                MarblesFsck::fsck()
-            end
-
             vspaceleft = Utils::screenHeight()-4
 
             priority = IO.read("/Users/pascal/Desktop/Priority.txt").strip
