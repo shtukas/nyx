@@ -41,7 +41,7 @@ class UIServices
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
             ns16 = {
                 "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) ( #{"Synthetic Control".green} )",
+                "announce" => "(#{"%5.3f" % rt}) #{"SYNTHETIC CONTROL".green} ☀️",
                 "start"    => lambda { },
                 "done"     => lambda { }               
             }
@@ -58,7 +58,7 @@ class UIServices
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
             ns16 = {
                 "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) ( #{"Low Orbital Control".green} )",
+                "announce" => "(#{"%5.3f" % rt}) #{"LOW ORBITAL CONTROL".green} 🛰",
                 "start"    => lambda { },
                 "done"     => lambda { }               
             }
