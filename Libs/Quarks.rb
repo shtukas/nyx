@@ -76,7 +76,7 @@ class Quarks
             payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(filepath), location)
             Marbles::set(filepath, "payload", payload)
         end
-        marble
+        filepath
     end
 
     # --------------------------------------------------
