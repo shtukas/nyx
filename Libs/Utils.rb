@@ -80,39 +80,6 @@ class Utils
         IO.read(filepath)
     end
 
-    # Utils::importFromLucilleInbox()
-    def self.importFromLucilleInbox()
-        getNextLocationAtTheInboxOrNull = lambda {
-            Dir.entries("/Users/pascal/Desktop/Inbox")
-                .reject{|filename| filename[0, 1] == '.' }
-                .map{|filename| "/Users/pascal/Desktop/Inbox/#{filename}" }
-                .first
-        }
-        while (location = getNextLocationAtTheInboxOrNull.call()) do
-            if File.basename(location).include?("'") then
-                basename2 = File.basename(location).gsub("'", "-")
-                location2 = "#{File.dirname(location)}/#{basename2}"
-                FileUtils.mv(location, location2)
-                next
-            end
-
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
-
-            Marbles::issueNewEmptyMarble(filepath)
-
-            Marbles::set(filepath, "uuid", SecureRandom.uuid)
-            Marbles::set(filepath, "unixtime", Time.new.to_i)
-            Marbles::set(filepath, "domain", "quarks")
-            Marbles::set(filepath, "description", File.basename(location))
-
-            Marbles::set(filepath, "type", "AionPoint")
-            payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(filepath), location)
-            Marbles::set(filepath, "payload", payload)
-
-            LucilleCore::removeFileSystemLocation(location)
-        end
-    end
-
     # Utils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s

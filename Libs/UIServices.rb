@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
-$SyntheticIsFront = false # Ugly global variable because I don't want to change the NS16 interface. 
+$SyntheticIsFront  = false # Ugly global variable because I don't want to change the NS16 interface. 
+$LowOrbitalIsFront = false # Well, since the first one was already there.
 
 class UIServices
 
@@ -35,12 +36,12 @@ class UIServices
     # UIServices::orderNS17s(ns17s)
     def self.orderNS17s(ns17s)
 
-        makeSyntheticNS17 = lambda {
+        makeSyntheticControlNS17 = lambda {
             uuid = "5eb5553d-1884-439d-8b71-fa5344b0f4c7"
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
             ns16 = {
                 "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) #{"Synthetic".green} (⌐■_■) 🚀 ☀️",
+                "announce" => "(#{"%5.3f" % rt}) ( #{"Synthetic Control".green} )",
                 "start"    => lambda { },
                 "done"     => lambda { }               
             }
@@ -52,27 +53,48 @@ class UIServices
             }
         }
 
-        synthetic = makeSyntheticNS17.call()
+        makeLowOrbitalControlNS17 = lambda {
+            uuid = "4d9b5fff-cdf4-43be-ad87-3d1da1291fd1"
+            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+            ns16 = {
+                "uuid"     => uuid,
+                "announce" => "(#{"%5.3f" % rt}) ( #{"Low Orbital Control".green} )",
+                "start"    => lambda { },
+                "done"     => lambda { }               
+            }
+            {
+                "uuid"        => ns16["uuid"],
+                "ns16"        => ns16,
+                "rt"          => rt,
+                "isLowOrbital" => true
+            }
+        }
+
+        $SyntheticIsFront  = false
+        $LowOrbitalIsFront = false
+
+        synthetic = makeSyntheticControlNS17.call()
+        orbital   = makeLowOrbitalControlNS17.call()
 
         depth = 3
 
-        theFew  = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic]        # natural ordering
-        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth) # natural ordering
+        theFew  = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic, !LowOrbitals::ns17s().empty? ? orbital : nil].compact  # natural ordering
+        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth)                                                 # natural ordering
 
-        theCloseRest = theRest.take(20)                                                  # natural ordering
-        theFarRest = theRest.drop(20)                                                    # natural ordering
-
-        theFew  = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }                           # rt ordering
+        theFew  = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }         # rt ordering
         
         if theFew[0]["isSynthetic"] then
             $SyntheticIsFront = true
-            theCloseRest = theCloseRest.sort{|o1, o2| o1["rt"] <=> o2["rt"] }            # rt orderng
-            theCloseRest + theFew + theFarRest
-        else
-            # Here we present theFew in order and then the rest. 
-            $SyntheticIsFront = false
-            theFew + theRest
+            theRest = theRest.sort{|o1, o2| o1["rt"] <=> o2["rt"] }    # rt ordering
+            return theRest + theFew
         end
+        
+        if theFew[0]["isLowOrbital"] then
+            $LowOrbitalIsFront = true
+            return LowOrbitals::ns17s() + theFew + theRest
+        end
+
+        theFew + theRest
     end
 
     # UIServices::todayNS16sOrNull()
@@ -108,7 +130,6 @@ class UIServices
 
         loop {
 
-            Utils::importFromLucilleInbox()
             Anniversaries::dailyBriefingIfNotDoneToday()
 
             vspaceleft = Utils::screenHeight()-4
@@ -241,9 +262,7 @@ class UIServices
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             end
         }
-
     end
-
 end
 
 

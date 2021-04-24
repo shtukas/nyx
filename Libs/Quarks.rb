@@ -23,6 +23,10 @@ class Quarks
         end  
         Marbles::set(filepath, "description", description)
 
+        if LucilleCore::askQuestionAnswerAsBoolean("Low orbital ? : ") then
+            LowOrbitals::register(File.basename(filepath))
+        end
+
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 
         if type.nil? then
@@ -182,49 +186,57 @@ class Quarks
         LucilleCore::timeStringL22()
     end
 
-    # Quarks::ns16s()
-    def self.ns16s()
-
+    # Quarks::marbleToNS16(marble indx = nil)
+    def self.marbleToNS16(marble, indx = nil)
         toAnnounce = lambda {|marble|
             filepath = marble.filepath()
             rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))
             numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))}) " : "        "
-            "#{numbers}#{Marbles::get(filepath, "description")}"
+            lowOrdinalStr = LowOrbitals::isLowOrbital(File.basename(filepath)) ? "( 🛰  ) " : ""
+            syntheticStr = (indx and [0, 1, 2].include?(indx)) ? "( ☀️  ) " : ""
+            "#{numbers}#{syntheticStr}#{lowOrdinalStr}#{Marbles::get(filepath, "description")}"
         }
 
-        # We intersect the quarks for the database with the uuids of the current slot
-
-        Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
-            .map{|marble|
-                filepath = marble.filepath()
-                announce = "#{toAnnounce.call(marble)}"
-                if marble.hasNote() then
-                    prefix = "              "
-                    announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
+        filepath = marble.filepath()
+        announce = "#{toAnnounce.call(marble)}"
+        
+        if marble.hasNote() then
+            prefix = "              "
+            announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
+        end
+        
+        {
+            "uuid"     => Marbles::get(filepath, "uuid"),
+            "announce" => announce,
+            "start"    => lambda{ Quarks::runMarbleQuark(marble) },
+            "done"     => lambda{
+                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(marble)}' ? ", true) then
+                    marble.destroy()
                 end
-                {
-                    "uuid"     => Marbles::get(filepath, "uuid"),
-                    "announce" => announce,
-                    "start"    => lambda{ Quarks::runMarbleQuark(marble) },
-                    "done"     => lambda{
-                        if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(marble)}' ? ", true) then
-                            marble.destroy()
-                        end
-                    }
-                }
             }
+        }
+    end
+
+    # Quarks::ns16ToNS17(ns16)
+    def self.ns16ToNS17(ns16)
+        {
+            "uuid" => ns16["uuid"],
+            "ns16" => ns16,
+            "rt"   => BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"])
+        }
+    end
+
+    # Quarks::ns16s()
+    def self.ns16s()
+        Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
+            .map
+            .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Quarks::ns17s()
     def self.ns17s()
-        Quarks::ns16s().map{|ns16|
-            {
-                "uuid" => ns16["uuid"],
-                "ns16" => ns16,
-                "rt"   => BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"])
-            }
-        }
+        Quarks::ns16s().map{|ns16| Quarks::ns16ToNS17(ns16) }
     end
 
     # Quarks::runMarbleQuark(marble)
@@ -326,9 +338,13 @@ class Quarks
         timespan = [timespan, 3600*2].min
 
         if $SyntheticIsFront then
-            # It's been killed on first use. Update Synthetic
-            puts "putting #{timespan} seconds to Synthetic"
+            puts "putting #{timespan} seconds to Synthetic Control"
             Bank::put("5eb5553d-1884-439d-8b71-fa5344b0f4c7", timespan)
+        end
+
+        if $LowOrbitalIsFront then
+            puts "putting #{timespan} seconds to Low Orbital Control"
+            Bank::put("4d9b5fff-cdf4-43be-ad87-3d1da1291fd1", timespan)
         end
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"

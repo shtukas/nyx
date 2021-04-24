@@ -144,7 +144,8 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
-require_relative "WorkInterface.rb"
+
+require_relative "LowOrbitals.rb"
 
 require_relative "Marble.rb"
 
@@ -165,6 +166,7 @@ require_relative "SectionsType0141.rb"
 require_relative "UIServices.rb"
 
 require_relative "Waves.rb"
+require_relative "WorkInterface.rb"
 
 # ------------------------------------------------------------
 
