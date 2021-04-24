@@ -106,7 +106,7 @@ class Waves
 
     # Waves::performDone(marble)
     def self.performDone(marble)
-        marble.set("lastDoneDateTime", Time.now.utc.iso8601)
+        Marbles::set(marble.filepath(), "lastDoneDateTime", Time.now.utc.iso8601)
         unixtime = Waves::marbleToDoNotShowUnixtime(marble)
         DoNotShowUntil::setUnixtime(marble.uuid(), unixtime)
     end
@@ -118,29 +118,29 @@ class Waves
 
         marble = Marbles::issueNewEmptyMarble(filepath)
 
-        marble.set("uuid", SecureRandom.uuid)
-        marble.set("unixtime", Time.new.to_i)
-        marble.set("domain", "waves")
+        Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
+        Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
+        Marbles::set(marble.filepath(), "domain", "waves")
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
             FileUtils.rm(filepath)
             return nil
         end
-        marble.set("description", description)
+        Marbles::set(marble.filepath(), "description", description)
 
-        marble.set("type", "Line")
-        marble.set("payload", "")
+        Marbles::set(marble.filepath(), "type", "Line")
+        Marbles::set(marble.filepath(), "payload", "")
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         if schedule.nil? then
             FileUtils.rm(filepath)
             return nil
         end
-        marble.set("repeatType", schedule[0])
+        Marbles::set(marble.filepath(), "repeatType", schedule[0])
         marble.set("repeatValue", schedule[1])
 
-        marble.set("lastDoneDateTime", "2021-01-01T00:00:11Z")
+        Marbles::set(marble.filepath(), "lastDoneDateTime", "2021-01-01T00:00:11Z")
 
         marble
     end
@@ -227,7 +227,7 @@ class Waves
             menuitems.item("recast schedule", lambda { 
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                marble.set("repeatType", schedule[0])
+                Marbles::set(marble.filepath(), "repeatType", schedule[0])
                 marble.set("repeatValue", schedule[1])
             })
 

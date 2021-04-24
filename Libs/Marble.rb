@@ -244,7 +244,7 @@ class Marbles
             text2 = Utils::editTextSynchronously(text1)
             if (text1 != text2) and LucilleCore::askQuestionAnswerAsBoolean("commit changes ? ") then
                 payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text2)
-                marble.set("payload", payload)
+                Marbles::set(marble.filepath(), "payload", payload)
             end
             return
         end
@@ -309,37 +309,37 @@ class Marbles
         if marble.type() == "Line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return nil if line == ""
-            marble.set("description", line)
-            marble.set("payload", "")
+            Marbles::set(marble.filepath(), "description", line)
+            Marbles::set(marble.filepath(), "payload", "")
             return
         end
         if marble.type() == "Url" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
-                marble.set("description", description)
+                Marbles::set(marble.filepath(), "description", description)
             end  
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             if url != "" then
-                marble.set("payload", url)
+                Marbles::set(marble.filepath(), "payload", url)
             end
             return
         end
         if marble.type() == "Text" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
-                marble.set("description", description)
+                Marbles::set(marble.filepath(), "description", description)
             end
             nhash = marble.payload()
             text1 = MarbleElizabeth.new(marble.filepath()).readBlobErrorIfNotFound(nhash)
             text2 = Utils::editTextSynchronously(text1)
             payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text2)
-            marble.set("payload", payload)
+            Marbles::set(marble.filepath(), "payload", payload)
             return
         end
         if marble.type() == "ClickableType" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
-                marble.set("description", description)
+                Marbles::set(marble.filepath(), "description", description)
             end
             filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
             filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
@@ -347,7 +347,7 @@ class Marbles
                 nhash = MarbleElizabeth.new(marble.filepath()).commitBlob(IO.read(filepath)) # bad choice, this file could be large
                 dottedExtension = File.extname(filenameOnTheDesktop)
                 payload = "#{nhash}|#{dottedExtension}"
-                marble.set("payload", payload)
+                Marbles::set(marble.filepath(), "payload", payload)
             else
                 puts "Could not find file: #{filepath}"
             end
@@ -356,13 +356,13 @@ class Marbles
         if marble.type() == "AionPoint" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
             if description != "" then
-                marble.set("description", description)
+                Marbles::set(marble.filepath(), "description", description)
             end
             locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
             location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
             if File.exists?(location) then
                 payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
-                marble.set("payload", payload)
+                Marbles::set(marble.filepath(), "payload", payload)
             else
                 puts "Could not find file: #{filepath}"
             end

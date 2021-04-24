@@ -88,39 +88,39 @@ class Anniversaries
 
         marble = Marbles::issueNewEmptyMarble(filepath)
 
-        marble.set("uuid", SecureRandom.uuid)
-        marble.set("unixtime", Time.new.to_i)
-        marble.set("domain", "anniversaries")
+        Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
+        Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
+        Marbles::set(marble.filepath(), "domain", "anniversaries")
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
             FileUtils.rm(filepath)
             return nil
         end
-        marble.set("description", description)
+        Marbles::set(marble.filepath(), "description", description)
 
-        marble.set("type", "Line")
-        marble.set("payload", "")
+        Marbles::set(marble.filepath(), "type", "Line")
+        Marbles::set(marble.filepath(), "payload", "")
 
         startdate = LucilleCore::askQuestionAnswerAsString("startdate (empty to abort): ")
         if startdate == "" then
             FileUtils.rm(filepath)
             return nil
         end
-        marble.set("startdate", anniversary["startdate"])
+        Marbles::set(marble.filepath(), "startdate", anniversary["startdate"])
 
         repeatType = LucilleCore::selectEntityFromListOfEntitiesOrNull("repeat type", ["weekly", "monthly", "yearly"])
         if repeatType.nil? then
             FileUtils.rm(filepath)
             return nil
         end
-        marble.set("repeatType", repeatType)
+        Marbles::set(marble.filepath(), "repeatType", repeatType)
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
             lastCelebrationDate = Utils::today()
         end
-        marble.set("lastCelebrationDate", lastCelebrationDate)
+        Marbles::set(marble.filepath(), "lastCelebrationDate", lastCelebrationDate)
 
         marble
     end
@@ -146,12 +146,12 @@ class Anniversaries
                     "start"   => lambda{
                         puts Anniversaries::toString(marble).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-                            marble.set("lastCelebrationDate", Time.new.to_s[0, 10])
+                            Marbles::set(marble.filepath(), "lastCelebrationDate", Time.new.to_s[0, 10])
                         end
                     },
                     "done"   => lambda{
                         puts Anniversaries::toString(marble).green
-                        marble.set("lastCelebrationDate", Time.new.to_s[0, 10])
+                        Marbles::set(marble.filepath(), "lastCelebrationDate", Time.new.to_s[0, 10])
                     }
                 }
             }
@@ -187,7 +187,7 @@ class Anniversaries
             mx.item("update start date".yellow, lambda { 
                 startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
                 return if startdate == ""
-                marble.set("startdate", startdate)
+                Marbles::set(marble.filepath(), "startdate", startdate)
             })
             mx.item("destroy".yellow, lambda { 
                 marble.destroy()

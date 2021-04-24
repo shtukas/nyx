@@ -49,13 +49,13 @@ loop {
 
     marble = Marbles::issueNewEmptyMarble(filepath)
 
-    marble.set("uuid", SecureRandom.uuid)
-    marble.set("unixtime", Time.new.to_i)
-    marble.set("domain", "quarks")
-    marble.set("description", link)
+    Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
+    Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
+    Marbles::set(marble.filepath(), "domain", "quarks")
+    Marbles::set(marble.filepath(), "description", link)
 
-    marble.set("type", "Url")
-    marble.set("payload", link)
+    Marbles::set(marble.filepath(), "type", "Url")
+    Marbles::set(marble.filepath(), "payload", link)
 
     viennaLinkFeeder.done(link)
 }

@@ -100,14 +100,14 @@ class Utils
 
             marble = Marbles::issueNewEmptyMarble(filepath)
 
-            marble.set("uuid", SecureRandom.uuid)
-            marble.set("unixtime", Time.new.to_i)
-            marble.set("domain", "quarks")
-            marble.set("description", File.basename(location))
+            Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
+            Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
+            Marbles::set(marble.filepath(), "domain", "quarks")
+            Marbles::set(marble.filepath(), "description", File.basename(location))
 
-            marble.set("type", "AionPoint")
+            Marbles::set(marble.filepath(), "type", "AionPoint")
             payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
-            marble.set("payload", payload)
+            Marbles::set(marble.filepath(), "payload", payload)
 
             LucilleCore::removeFileSystemLocation(location)
         end

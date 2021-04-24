@@ -12,16 +12,16 @@ class Quarks
 
         marble = Marbles::issueNewEmptyMarble(filepath)
 
-        marble.set("uuid", SecureRandom.uuid)
-        marble.set("unixtime", Time.new.to_i)
-        marble.set("domain", "quarks")
+        Marbles::set(marble.filepath(), "uuid", SecureRandom.uuid)
+        Marbles::set(marble.filepath(), "unixtime", Time.new.to_i)
+        Marbles::set(marble.filepath(), "domain", "quarks")
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
             FileUtils.rm(filepath)
             return nil
         end  
-        marble.set("description", description)
+        Marbles::set(marble.filepath(), "description", description)
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 
@@ -31,27 +31,27 @@ class Quarks
         end  
 
         if type == "Line" then
-            marble.set("type", "Line")
-            marble.set("payload", "")
+            Marbles::set(marble.filepath(), "type", "Line")
+            Marbles::set(marble.filepath(), "payload", "")
         end
         if type == "Url" then
-            marble.set("type", "Url")
+            Marbles::set(marble.filepath(), "type", "Url")
 
             url = LucilleCore::askQuestionAnswerAsString("url (empty for abort): ")
             if url == "" then
                 FileUtils.rm(filepath)
                 return nil
             end  
-            marble.set("payload", url)
+            Marbles::set(marble.filepath(), "payload", url)
         end
         if type == "Text" then
-            marble.set("type", "Text")
+            Marbles::set(marble.filepath(), "type", "Text")
             text = Utils::editTextSynchronously("")
             payload = MarbleElizabeth.new(marble.filepath()).commitBlob(text)
-            marble.set("payload", payload)
+            Marbles::set(marble.filepath(), "payload", payload)
         end
         if type == "ClickableType" then
-            marble.set("type", "ClickableType")
+            Marbles::set(marble.filepath(), "type", "ClickableType")
             filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
             filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
             if !File.exists?(filepath) or !File.file?(filepath) then
@@ -61,10 +61,10 @@ class Quarks
             nhash = MarbleElizabeth.new(marble.filepath()).commitBlob(IO.read(filepath)) # bad choice, this file could be large
             dottedExtension = File.extname(filenameOnTheDesktop)
             payload = "#{nhash}|#{dottedExtension}"
-            marble.set("payload", payload)
+            Marbles::set(marble.filepath(), "payload", payload)
         end
         if type == "AionPoint" then
-            marble.set("type", "AionPoint")
+            Marbles::set(marble.filepath(), "type", "AionPoint")
             uuid = SecureRandom.uuid
             unixtime = Time.new.to_i
             locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
@@ -74,7 +74,7 @@ class Quarks
                 return nil
             end
             payload = AionCore::commitLocationReturnHash(MarbleElizabeth.new(marble.filepath()), location)
-            marble.set("payload", payload)
+            Marbles::set(marble.filepath(), "payload", payload)
         end
         marble
     end
