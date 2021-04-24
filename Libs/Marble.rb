@@ -180,6 +180,20 @@ end
 
 class Marbles
 
+    # Marbles::set(filepath, key, value)
+    def self.set(filepath, key, value)
+        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
+        raise "f6d2b713-7fa5-44a6-afff-97c8553b325d" if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _data_ where _key_=?", [key]
+        db.execute "insert into _data_ (_key_, _value_) values (?,?)", [key, value]
+        db.commit 
+        db.close
+    end
+
     # Marbles::domains()
     def self.domains()
         ["anniversaries", "waves", "quarks"]
