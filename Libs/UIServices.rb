@@ -76,22 +76,21 @@ class UIServices
         synthetic = makeSyntheticControlNS17.call()
         orbital   = makeLowOrbitalControlNS17.call()
 
-        depth = 3
-
-        theFew  = ns17s.first(depth).select{|ns17| ns17["rt"] > 0 } + [synthetic, !LowOrbitals::ns17s().empty? ? orbital : nil].compact  # natural ordering
-        theRest = ns17s.first(depth).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(depth)                                                 # natural ordering
+        theFew  = ns17s.first(3).select{|ns17| ns17["rt"] > 0 } + [synthetic, !LowOrbitals::ns17s().empty? ? orbital : nil].compact  # natural ordering
+        theRest = ns17s.first(3).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(3)                                                 # natural ordering
 
         theFew  = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }         # rt ordering
         
         if theFew[0]["isSynthetic"] then
             $SyntheticIsFront = true
             theRest = theRest.sort{|o1, o2| o1["rt"] <=> o2["rt"] }    # rt ordering
-            return theRest + theFew
+            return theRest.take(3) + theFew + theRest.drop(3)
         end
         
         if theFew[0]["isLowOrbital"] then
             $LowOrbitalIsFront = true
-            return LowOrbitals::ns17s() + theFew + theRest
+            los = LowOrbitals::ns17s()
+            return los.take(3) + theFew + los.drop(3) + theRest
         end
 
         theFew + theRest
