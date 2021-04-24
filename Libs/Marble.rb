@@ -190,6 +190,14 @@ class Marbles
         nil
     end
 
+    # Marbles::get(filepath, key)
+    def self.get(filepath, key)
+        value = Marbles::getOrNull(filepath, key)
+        raise "error: e5849f2e-d4e8-44a9-ac8a-8bcd721cc043: could not extract mandatory key '#{key}' at marble '#{filepath}'" if value.nil?
+        value
+    end
+
+
     # Marbles::domains()
     def self.domains()
         ["anniversaries", "waves", "quarks"]

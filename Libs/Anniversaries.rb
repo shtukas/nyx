@@ -127,12 +127,12 @@ class Anniversaries
 
     # Anniversaries::marbleNextDateOrdinal(marble) # [ date: String, ordinal: Int ]
     def self.marbleNextDateOrdinal(marble)
-        Anniversaries::computeNextCelebrationDateOrdinal(marble.get("startdate"), marble.get("repeatType"), marble.get("lastCelebrationDate"))
+        Anniversaries::computeNextCelebrationDateOrdinal(Marbles::get(marble.filepath(), "startdate"), Marbles::get(marble.filepath(), "repeatType"), Marbles::get(marble.filepath(), "lastCelebrationDate"))
     end
 
     # Anniversaries::toString(marble)
     def self.toString(marble)
-        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{marble.description()} (#{marble.get("repeatType")} since #{marble.get("startdate")})"
+        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{marble.description()} (#{Marbles::get(marble.filepath(), "repeatType")} since #{Marbles::get(marble.filepath(), "startdate")})"
     end
 
     # Anniversaries::ns16s()

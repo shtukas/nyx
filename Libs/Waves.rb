@@ -63,33 +63,33 @@ class Waves
 
     # Waves::marbleToDoNotShowUnixtime(marble)
     def self.marbleToDoNotShowUnixtime(marble)
-        if marble.get("repeatType") == 'sticky' then
+        if Marbles::get(marble.filepath(), "repeatType") == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) - 86400) + marble.get("repeatValue").to_i*3600
+            unixtime1 = (Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) - 86400) + Marbles::get(marble.filepath(), "repeatValue").to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) + marble.get("repeatValue").to_i*3600
+            return Waves::unixtimeAtComingMidnightAtGivenTimeZone(Waves::getLocalTimeZone()) + Marbles::get(marble.filepath(), "repeatValue").to_i*3600
         end
-        if marble.get("repeatType") == 'every-n-hours' then
-            return Time.new.to_i+3600 * marble.get("repeatValue").to_f
+        if Marbles::get(marble.filepath(), "repeatType") == 'every-n-hours' then
+            return Time.new.to_i+3600 * Marbles::get(marble.filepath(), "repeatValue").to_f
         end
-        if marble.get("repeatType") == 'every-n-days' then
-            return Time.new.to_i+86400 * marble.get("repeatValue").to_f
+        if Marbles::get(marble.filepath(), "repeatType") == 'every-n-days' then
+            return Time.new.to_i+86400 * Marbles::get(marble.filepath(), "repeatValue").to_f
         end
-        if marble.get("repeatType") == 'every-this-day-of-the-month' then
+        if Marbles::get(marble.filepath(), "repeatType") == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != marble.get("repeatValue") do
+            while Time.at(cursor).strftime("%d") != Marbles::get(marble.filepath(), "repeatValue") do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if marble.get("repeatType") == 'every-this-day-of-the-week' then
+        if Marbles::get(marble.filepath(), "repeatType") == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != marble.get("repeatValue") do
+            while mapping[Time.at(cursor).wday] != Marbles::get(marble.filepath(), "repeatValue") do
                 cursor = cursor + 3600
             end
             return cursor
@@ -98,10 +98,10 @@ class Waves
 
     # Waves::scheduleString(marble)
     def self.scheduleString(marble)
-        if marble.get("repeatType") == 'sticky' then
-            return "sticky, from: #{marble.get("repeatValue")}"
+        if Marbles::get(marble.filepath(), "repeatType") == 'sticky' then
+            return "sticky, from: #{Marbles::get(marble.filepath(), "repeatValue")}"
         end
-        "#{marble.get("repeatType")}: #{marble.get("repeatValue")}"
+        "#{Marbles::get(marble.filepath(), "repeatType")}: #{Marbles::get(marble.filepath(), "repeatValue")}"
     end
 
     # Waves::performDone(marble)
@@ -148,8 +148,8 @@ class Waves
     # Waves::toString(marble)
     def self.toString(marble)
         ago = 
-            if marble.get("lastDoneDateTime") then
-                "#{((Time.new.to_i - DateTime.parse(marble.get("lastDoneDateTime")).to_time.to_i).to_f/86400).round(2)} days ago"
+            if Marbles::get(marble.filepath(), "lastDoneDateTime") then
+                "#{((Time.new.to_i - DateTime.parse(Marbles::get(marble.filepath(), "lastDoneDateTime")).to_time.to_i).to_f/86400).round(2)} days ago"
             else
                 ""
             end
@@ -204,7 +204,7 @@ class Waves
 
             puts Waves::toString(marble)
             puts "uuid: #{marble.uuid()}"
-            puts "last done: #{marble.get("lastDoneDateTime")}"
+            puts "last done: #{Marbles::get(marble.filepath(), "lastDoneDateTime")}"
 
             if DoNotShowUntil::isVisible(marble.uuid()) then
                 puts "active"
