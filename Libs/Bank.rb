@@ -21,7 +21,7 @@ class Bank
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
 
-        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{Utils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Utils::today())
+        $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{Utils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Utils::today())
 
         nil
     end
@@ -85,11 +85,11 @@ class Bank
             answer
         }
 
-        if $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"].nil? then
-            $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
+        if $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"].nil? then
+            $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
         end
         
-        $BankInMemorySetuuidDateToValueStore["#{setuuid}-#{date}"]
+        $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"]
     end
 end
 
