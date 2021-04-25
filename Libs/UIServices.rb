@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-$SyntheticIsFront  = false # Ugly global variable because I don't want to change the NS16 interface. 
-$LowOrbitalIsFront = false # Well, since the first one was already there.
-
 class UIServices
 
     # UIServices::servicesFront()
@@ -33,74 +30,87 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::orderNS17s(ns17s)
-    def self.orderNS17s(ns17s)
+    # UIServices::orderQuarkNS17s(ns17s)
+    def self.orderQuarkNS17s(ns17s)
 
-        makeSyntheticControlNS17 = lambda {
-            uuid = "5eb5553d-1884-439d-8b71-fa5344b0f4c7"
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-            ns16 = {
-                "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) #{"SYNTHETIC CONTROL".green} ☀️",
+        agents = AirTrafficControl::agents()
+
+        agents = agents.map{|agent| 
+            agent["ns17s"] = []
+            agent
+        } # agents with a n empty["ns17s"]
+
+        agents = ns17s.reduce(agents){|ags, ns17|
+            # we need to find the correct agent for this ns17, if we do not find it, we put it in the default agent
+            agent = ags.select{|a| a["itemsuids"].include?(ns17["uuid"]) }.first
+            if agent then
+                ags.map{|a|
+                    if a["uuid"] == agent["uuid"] then
+                        a["ns17s"] << ns17
+                    end
+                    a
+                }
+            else
+                ags.map{|a|
+                    if "3AD70E36-826B-4958-95BF-02E12209C375" == a["uuid"] then
+                        a["ns17s"] << ns17
+                    end
+                    a
+                }
+            end
+        } # agent with populated "ns17s" from ns17s
+
+        agents = agents.map{|agent|
+            if !["Sequential", "FirstThreeCompeting", "AllCompetings"].include?(agent["processingStyle"]) then
+                puts JSON.pretty_generate(agent)
+                raise "5da5d984-7d27-49b1-946f-0780fefa0b71"
+            end
+            if agent["processingStyle"] == "Sequential" then
+                # Nothing to do
+            end
+            if agent["processingStyle"] == "FirstThreeCompeting" then
+                agent["ns17s"] = agent["ns17s"].first(3).sort{|x1, x2| x1["rt"] <=> x2["rt"] } + agent["ns17s"].drop(3)
+            end
+            if agent["processingStyle"] == "AllCompetings" then
+                agent["ns17s"] = agent["ns17s"].sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+            end
+            agent
+        } # agents with ordered ["ns17s"] according to the processing Style
+
+        agents = agents.map{|agent| 
+            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"]) 
+            agent
+        } # agents with a recovery time
+
+        agents = agents.map{|agent| 
+            agent["rtx"] = agent["rt"] * agent["timeDilatation"]
+            agent
+        } # agents with a time dilated recovery time
+
+        agents = agents.sort{|a1, a2| a1["rtx"] <=> a2["rtx"] }
+
+        agents, agentsE = agents.partition{ |agent| !agent["ns17s"].empty? }
+
+        agentToNS17 = lambda {|agent|
+            agentNS16 = {
+                "uuid"     => agent["uuid"],
+                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}, #{agent["timeDilatation"]}]",
                 "start"    => lambda { },
-                "done"     => lambda { }               
+                "done"     => lambda { }
             }
             {
-                "uuid"        => ns16["uuid"],
-                "ns16"        => ns16,
-                "rt"          => rt,
-                "isSynthetic" => true
+                "uuid"        => agentNS16["uuid"],
+                "ns16"        => agentNS16,
+                "rt"          => agent["rt"]
             }
         }
 
-        makeLowOrbitalControlNS17 = lambda {
-            uuid = "4d9b5fff-cdf4-43be-ad87-3d1da1291fd1"
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-            ns16 = {
-                "uuid"     => uuid,
-                "announce" => "(#{"%5.3f" % rt}) #{"LOW ORBITAL CONTROL".green} 🛰",
-                "start"    => lambda { },
-                "done"     => lambda { }               
-            }
-            {
-                "uuid"        => ns16["uuid"],
-                "ns16"        => ns16,
-                "rt"          => rt,
-                "isLowOrbital" => true
-            }
-        }
-
-        $SyntheticIsFront  = false
-        $LowOrbitalIsFront = false
-
-        synthetic = makeSyntheticControlNS17.call()
-        orbital   = makeLowOrbitalControlNS17.call()
-
-        theFew  = ns17s.first(3).select{|ns17| ns17["rt"] > 0 } + [synthetic, !LowOrbitals::ns17s().empty? ? orbital : nil].compact  # natural ordering
-        theRest = ns17s.first(3).select{|ns17| ns17["rt"] == 0 } + ns17s.drop(3)                                                     # natural ordering
-
-        theFew  = theFew.sort{|o1, o2| o1["rt"] <=> o2["rt"] }         # rt ordering
-        
-        if theFew[0]["isSynthetic"] then
-            $SyntheticIsFront = true
-            theRest0, theRest1 = theRest.partition { |ns17| ns17["rt"] == 0 } 
-            theRest1 = theRest1.sort{|o1, o2| o1["rt"] <=> o2["rt"] }  # rt ordering
-            theRest = theRest1 + theRest0
-            return theRest.take(3) + theFew + theRest.drop(3)
-        end
-        
-        if theFew[0]["isLowOrbital"] then
-            $LowOrbitalIsFront = true
-            los = LowOrbitals::ns17s()
-            return los.take(3) + theFew + los.drop(3) + theRest
-        end
-
-        theFew + theRest
+        agents.first["ns17s"].first(3) + agents.map{|agent| agentToNS17.call(agent) } + agentsE.map{|agent| agentToNS17.call(agent) } +  agents.first["ns17s"].drop(3) + agents.drop(1).map{|agent| agent["ns17s"] }.flatten
     end
 
     # UIServices::quarksNS16s()
     def self.quarksNS16s()
-        UIServices::orderNS17s(Quarks::ns17s()).map{|ns17| ns17["ns16"] }
+        UIServices::orderQuarkNS17s(Quarks::ns17s()).map{|ns17| ns17["ns16"] }
     end
 
     # UIServices::catalystNS16s()

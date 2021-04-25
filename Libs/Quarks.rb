@@ -3,16 +3,69 @@
 
 class Quarks
 
+    # Quarks::middlePointOfTwoL22sOrNull(p1, p2)
+    def self.middlePointOfTwoL22sOrNull(p1, p2)
+        raise "ae294eb7-4a63-4c82-91a1-96ca58a04536" if p1 == p2
+
+        projectL22ToFloat = lambda{|l22|
+            Time.strptime(l22[0, 15], '%Y%m%d-%H%M%S').to_i + "0.#{l22[16, 6]}".to_f
+        }
+
+        float1 = projectL22ToFloat.call(p1)
+        float2 = projectL22ToFloat.call(p2)
+
+        float3 = (float1+float2).to_f/2
+
+        p3 = Time.at(float3.to_i).strftime("%Y%m%d-%H%M%S") + "-#{("#{"%.6f" % (float3-float3.to_i)}")[2, 6].ljust(6, "0")}"
+
+        return nil if [p1, p2].include?(p3)
+
+        p3
+    end
+
+    # Quarks::computeLowL22()
+    def self.computeLowL22()
+        marbles = Marbles::marblesOfGivenDomainInOrder("quarks")
+        if marbles.size < 21 then
+            return LucilleCore::timeStringL22()
+        end
+
+        l22s = marbles.drop(19).take(2).map{|marble| File.basename(marble.filepath())[0, 22] }
+        l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
+        return l22 if l22
+
+        # let's make some space
+
+        Marbles::marblesOfGivenDomainInOrder("quarks").take(20).each{|marble|
+            filepath1 = marble.filepath()
+            x1 = File.basename(filepath1)[0, 4]
+            x2 = ((x1.to_i)-1).to_s
+            filepath2 = "#{File.dirname(filepath1)}/#{x2}#{File.basename(filepath1)[4, 99]}"
+            FileUtils.mv(filepath1, filepath2)
+        }
+
+        # Now having some space, let's recompute
+
+        marbles = Marbles::marblesOfGivenDomainInOrder("quarks")
+        l22s = marbles.drop(19).take(2).map{|marble| File.basename(marble.filepath())[0, 22] }
+        l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
+        raise "5802573f-2248-4c04-8915-b025d3ebdc02" if l22.nil? # this is not supposed to fire
+
+        l22
+    end
+
     # Quarks::interactivelyIssueNewMarbleQuarkOrNull()
     def self.interactivelyIssueNewMarbleQuarkOrNull()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{LucilleCore::timeStringL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowL22()}.marble"
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
         Marbles::issueNewEmptyMarble(filepath)
 
-        Marbles::set(filepath, "uuid", SecureRandom.uuid)
+        uuid = SecureRandom.uuid
+
+        Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
         Marbles::set(filepath, "domain", "quarks")
 
@@ -23,8 +76,10 @@ class Quarks
         end  
         Marbles::set(filepath, "description", description)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Low orbital ? : ") then
-            LowOrbitals::register(File.basename(filepath))
+        agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
+        if agent then
+            agent["itemsuids"] << uuid
+            AirTrafficControl::commitAgentToDisk(agent)
         end
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
@@ -143,9 +198,7 @@ class Quarks
             filepath = marble.filepath()
             rt = BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))
             numbers = (rt > 0) ? "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(Marbles::get(filepath, "uuid"))}) " : "        "
-            lowOrdinalStr = LowOrbitals::isLowOrbital(File.basename(filepath)) ? "( 🛰  ) " : ""
-            syntheticStr = (indx and [0, 1, 2].include?(indx)) ? "( ☀️  ) " : ""
-            "#{numbers}#{syntheticStr}#{lowOrdinalStr}#{Marbles::get(filepath, "description")}"
+            "#{numbers}#{Marbles::get(filepath, "description")}"
         }
 
         filepath = marble.filepath()
@@ -222,6 +275,10 @@ class Quarks
 
             puts "running: #{Quarks::toString(marble)}"
 
+            AirTrafficControl::agentsForUUID(uuid).each{|agent|
+                puts "@agent: #{agent["name"]}"
+            }
+
             if marble.getNote().size > 0 then
                 puts ""
                 puts "Note:"
@@ -229,7 +286,7 @@ class Quarks
                 puts ""
             end
 
-            puts "edit note | landing | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
+            puts "landing | edit note | update agent | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -237,6 +294,20 @@ class Quarks
 
             if Interpreting::match("edit note", command) then
                 marble.editNote()
+            end
+
+            if Interpreting::match("update agent", command) then
+                agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
+                if agent then
+                    agent["itemsuids"] << uuid
+                    AirTrafficControl::commitAgentToDisk(agent)
+                    AirTrafficControl::agents().each{|a|
+                        next if a["uuid"] == agent["uuid"]
+                        next if !a["itemsuids"].include?(uuid)
+                        a["itemsuids"] = a["itemsuids"] - [uuid]
+                        AirTrafficControl::commitAgentToDisk(a)
+                    }
+                end
             end
 
             if Interpreting::match("landing", command) then
@@ -288,15 +359,10 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        if $SyntheticIsFront then
-            puts "putting #{timespan} seconds to Synthetic Control"
-            Bank::put("5eb5553d-1884-439d-8b71-fa5344b0f4c7", timespan)
-        end
-
-        if $LowOrbitalIsFront then
-            puts "putting #{timespan} seconds to Low Orbital Control"
-            Bank::put("4d9b5fff-cdf4-43be-ad87-3d1da1291fd1", timespan)
-        end
+        AirTrafficControl::agentsForUUID(uuid).each{|agent|
+            puts "putting #{timespan} seconds into agent '#{agent["name"]}'"
+            Bank::put(agent["uuid"], timespan)
+        }
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
         Bank::put(uuid, timespan)
