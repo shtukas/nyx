@@ -173,19 +173,14 @@ class Marbles
         value
     end
 
-
     # Marbles::domains()
     def self.domains()
         ["anniversaries", "waves", "quarks"]
     end
 
-    # Marbles::filepaths()
-    def self.filepaths()
-        Marbles::domains()
-            .map{|domain|
-                LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
-            }
-            .flatten
+    # Marbles::filepaths(domain)
+    def self.filepaths(domain)
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
     end
 
     # Marbles::marblesOfGivenDomainInOrder(domain)
@@ -193,6 +188,14 @@ class Marbles
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/#{domain}")
             .sort
             .map{|filepath| Marble.new(filepath)}
+    end
+
+    # Marbles::getFilepathByIdAtDomainOrNull(domain, id)
+    def self.getFilepathByIdAtDomainOrNull(domain, id)
+        Marbles::filepaths(domain).each{|filepath|
+            return filepath if (Marbles::get(filepath, "uuid") == id)
+        }
+        nil
     end
 
     # Marbles::issueNewEmptyMarble(filepath)

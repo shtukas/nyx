@@ -1,22 +1,33 @@
 
 # encoding: UTF-8
 
+class L22Extentions
+
+    # L22Extentions::l22ToFloat(l22)
+    def self.l22ToFloat(l22)
+        Time.strptime(l22[0, 15], '%Y%m%d-%H%M%S').to_i + "0.#{l22[16, 6]}".to_f
+    end
+
+    # L22Extentions::floatToL22(float)
+    def self.floatToL22(float)
+        Time.at(float.to_i).strftime("%Y%m%d-%H%M%S") + "-#{("#{"%.6f" % (float-float.to_i)}")[2, 6].ljust(6, "0")}"
+    end
+end
+
+
+
 class Quarks
 
     # Quarks::middlePointOfTwoL22sOrNull(p1, p2)
     def self.middlePointOfTwoL22sOrNull(p1, p2)
         raise "ae294eb7-4a63-4c82-91a1-96ca58a04536" if p1 == p2
 
-        projectL22ToFloat = lambda{|l22|
-            Time.strptime(l22[0, 15], '%Y%m%d-%H%M%S').to_i + "0.#{l22[16, 6]}".to_f
-        }
-
-        float1 = projectL22ToFloat.call(p1)
-        float2 = projectL22ToFloat.call(p2)
+        float1 = L22Extentions::l22ToFloat(p1)
+        float2 = L22Extentions::l22ToFloat(p2)
 
         float3 = (float1+float2).to_f/2
 
-        p3 = Time.at(float3.to_i).strftime("%Y%m%d-%H%M%S") + "-#{("#{"%.6f" % (float3-float3.to_i)}")[2, 6].ljust(6, "0")}"
+        p3 = L22Extentions::floatToL22(float3)
 
         return nil if [p1, p2].include?(p3)
 
@@ -52,6 +63,20 @@ class Quarks
         raise "5802573f-2248-4c04-8915-b025d3ebdc02" if l22.nil? # this is not supposed to fire
 
         l22
+    end
+
+    # Quarks::computeLowerL22(l22)
+    def self.computeLowerL22(l22)
+        float1 = L22Extentions::l22ToFloat(l22)
+        cursor = 0
+        loop {
+            cursor = cursor + 1
+            floatx = float1 - cursor
+            l22x = L22Extentions::floatToL22(floatx)
+            filepathx = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{l22x}.marble"
+            next if File.exists?(filepathx)
+            return l22x
+        }
     end
 
     # Quarks::interactivelyIssueNewMarbleQuarkOrNull()
@@ -138,12 +163,30 @@ class Quarks
         filepath
     end
 
+    # Quarks::architechFilepathOrNull()
+    def self.architechFilepathOrNull()
+        marbles = Quarks::firstNVisibleMarbleQuarks(Utils::screenHeight()-3)
+        marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", marbles, lambda { |marble| Quarks::toString(marble) })
+        return marble.filepath() if marble
+        Quarks::interactivelyIssueNewMarbleQuarkOrNull()
+    end
+
     # --------------------------------------------------
 
     # Quarks::toString(marble)
     def self.toString(marble)
         filepath = marble.filepath()
         "[quark] #{Marbles::get(filepath, "description")}"
+    end
+
+    # Quarks::marbleHasActiveDependencies(uuid)
+    def self.marbleHasActiveDependencies(uuid)
+        # Let's pickup any possible dependency
+        filepath = Marbles::getFilepathByIdAtDomainOrNull("quarks", uuid)
+        raise "495ec4cf-aea7-4666-a609-6559c7a5d3d3" if filepath.nil?
+        uuidx = Marbles::getOrNull(filepath, "dependency")
+        return false if uuidx.nil?
+        !Marbles::getFilepathByIdAtDomainOrNull("quarks", uuidx).nil? # retrn true if a file for this uuidx was found
     end
 
     # --------------------------------------------------
@@ -226,6 +269,14 @@ class Quarks
         }
     end
 
+    # Quarks::ns16s()
+    def self.ns16s()
+        Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
+            .map
+            .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) and !Quarks::marbleHasActiveDependencies(item["uuid"]) }
+    end
+
     # Quarks::ns16ToNS17(ns16)
     def self.ns16ToNS17(ns16)
         {
@@ -233,14 +284,6 @@ class Quarks
             "ns16" => ns16,
             "rt"   => BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"])
         }
-    end
-
-    # Quarks::ns16s()
-    def self.ns16s()
-        Quarks::firstNVisibleMarbleQuarks([10, Utils::screenHeight()].max)
-            .map
-            .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Quarks::ns17s()
@@ -283,6 +326,13 @@ class Quarks
             AirTrafficControl::agentsForUUID(uuid).each{|agent|
                 puts "@agent: #{agent["name"]}"
             }
+            if Marbles::getOrNull(filepath, "dependency") then
+                uuidx = Marbles::getOrNull(filepath, "dependency")
+                filepathx = Marbles::getFilepathByIdAtDomainOrNull("quarks", uuidx)
+                if filepathx then
+                    puts "Dependency: #{Marbles::getOrNull(filepathx, "description")}"
+                end
+            end
 
             if marble.getNote().size > 0 then
                 puts ""
@@ -291,11 +341,15 @@ class Quarks
                 puts ""
             end
 
-            puts "landing | edit note | update agent | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
+            puts "landing | edit note | update agent | set dependency | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if Interpreting::match("landing", command) then
+                Quarks::landing(marble)
+            end
 
             if Interpreting::match("edit note", command) then
                 marble.editNote()
@@ -315,8 +369,19 @@ class Quarks
                 end
             end
 
-            if Interpreting::match("landing", command) then
-                Quarks::landing(marble)
+            if Interpreting::match("set dependency", command) then
+                filepathx1 = Quarks::architechFilepathOrNull()
+                return if filepathx1.nil?
+                puts "Setting dependency on #{Marbles::get(filepathx1, "description")}"
+                uuidx = Marbles::get(filepathx1, "uuid")
+                return if uuidx == uuid
+                Marbles::set(filepath, "dependency", uuidx)
+                # There is one more thing we need to do, and that is to move the architected marble (aka the dependency) before [this]
+                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Marbles/quarks/#{Quarks::computeLowerL22(File.basename(filepath)[0, 22])}.marble"
+                puts "moving marbe:"
+                puts "    #{filepathx1}"
+                puts "    #{filepathx2}"
+                FileUtils.mv(filepathx1, filepathx2)
             end
 
             if Interpreting::match("++", command) then
