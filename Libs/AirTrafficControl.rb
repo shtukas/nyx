@@ -16,7 +16,9 @@ class AirTrafficControl
 
     # AirTrafficControl::agentsForUUID(uuid)
     def self.agentsForUUID(uuid)
-        AirTrafficControl::agents().select{|agent| agent["itemsuids"].include?(uuid) }
+        agents = AirTrafficControl::agents().select{|agent| agent["itemsuids"].include?(uuid) }
+        return agents if !agents.empty?
+        AirTrafficControl::agents().select{|agent| agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375"}
     end
 end
 
