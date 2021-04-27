@@ -214,6 +214,11 @@ class Quarks
             "announce" => announce,
             "start"    => lambda{ Quarks::runMarbleQuark(marble) },
             "done"     => lambda{
+                if marble.hasNote() or marble.get("type") != "Line" then
+                    puts "You cannot listing done this quark"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(marble)}' ? ", true) then
                     marble.destroy()
                 end
