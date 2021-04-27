@@ -127,6 +127,15 @@ class UIServices
 
         loop {
 
+            if !KeyValueStore::flagIsTrue(nil, "ccc82794-58cd-4d32-94db-6918cbe1e0a3:#{Utils::today()}") then
+                puts "Calendar review:"
+                puts IO.read("/Users/pascal/Galaxy/Documents/Calendar/01 Calendar.txt").strip.green
+                if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+                    KeyValueStore::setFlagTrue(nil, "ccc82794-58cd-4d32-94db-6918cbe1e0a3:#{Utils::today()}")
+                end
+                next
+            end
+
             Anniversaries::dailyBriefingIfNotDoneToday()
 
             vspaceleft = Utils::screenHeight()-4
