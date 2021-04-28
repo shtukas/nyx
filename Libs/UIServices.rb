@@ -115,11 +115,12 @@ class UIServices
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
+        isWeekday = ![6, 0].include?(Time.new.wday)
         isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
         if isWorkTime then
-            return UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::quarksNS16s()
+            return UIServices::waveLikeNS16s() + WorkInterface::ns16s() + (isWeekday ? [] : UIServices::quarksNS16s())
         end
-        UIServices::waveLikeNS16s() + UIServices::quarksNS16s()
+        UIServices::waveLikeNS16s() + (isWeekday ? [] : UIServices::quarksNS16s())
     end
 
     # UIServices::catalystDisplayLoop()
@@ -145,6 +146,12 @@ class UIServices
                 puts "-- Priority.txt -----------------------"
                 puts priority.green
                 vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
+            end
+
+            if ![6, 0].include?(Time.new.wday) then
+                puts "-- DocNet Directive -------------------".red
+                puts "Until it's done we are completely focusing on DocNet".red
+                vspaceleft = vspaceleft - 2
             end
 
             puts "-- listing ----------------------------"
