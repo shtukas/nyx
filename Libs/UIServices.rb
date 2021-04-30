@@ -128,6 +128,8 @@ class UIServices
 
         loop {
 
+            system("clear")
+
             if !KeyValueStore::flagIsTrue(nil, "ccc82794-58cd-4d32-94db-6918cbe1e0a3:#{Utils::today()}") then
                 puts "Calendar review:"
                 puts IO.read("/Users/pascal/Galaxy/Documents/Calendar/01 Calendar.txt").strip.green
@@ -141,10 +143,13 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-4
 
-            priority = IO.read("/Users/pascal/Desktop/Priority.txt").strip
+            priorityFilepath = "/Users/pascal/Desktop/Priority.txt"
+            priority = IO.read(priorityFilepath).strip
+            priorityhash = Digest::SHA1.file(priorityFilepath).hexdigest
+
             if priority.size > 0 then
                 puts "-- Priority.txt -----------------------"
-                puts priority.green
+                puts priority.lines.first(10).join().strip.green
                 vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
             end
 
@@ -230,11 +235,13 @@ class UIServices
             # -- top -----------------------------------------------------------------------------
 
             if Interpreting::match("[]", command) then
-                filepath = "/Users/pascal/Desktop/Priority.txt"
-                text = IO.read(filepath).strip
+                # This prevents to run a [] order on a file which may have been manually changed after 
+                # The display ran. 
+                next if Digest::SHA1.file(priorityFilepath).hexdigest != priorityhash
+                text = IO.read(priorityFilepath).strip
                 if text.size > 0 then
                     text = SectionsType0141::applyNextTransformationToText(text)
-                    File.open(filepath, "w"){|f| f.puts(text)}
+                    File.open(priorityFilepath, "w"){|f| f.puts(text)}
                     next
                 end
                 next
