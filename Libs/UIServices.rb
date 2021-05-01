@@ -176,7 +176,7 @@ class UIServices
             }
 
             puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new calendar item".yellow
-            puts "top    : [] (top next transformation) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
+            puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
