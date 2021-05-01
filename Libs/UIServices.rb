@@ -140,6 +140,11 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-4
 
+            Calendar::items().each{|item|
+                puts "[calendar] (#{item["date"]}) #{item["description"]}"
+                vspaceleft = vspaceleft - 1
+            }
+
             priorityFilepath = "/Users/pascal/Desktop/Priority.txt"
             priority = IO.read(priorityFilepath).strip
             priorityhash = Digest::SHA1.file(priorityFilepath).hexdigest
@@ -158,6 +163,7 @@ class UIServices
             end
 
             puts "-- listing ----------------------------"
+            vspaceleft = vspaceleft - 1
 
             items = UIServices::catalystNS16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -169,7 +175,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new calendar item".yellow
             puts "top    : [] (top next transformation) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -226,8 +232,12 @@ class UIServices
                 Quarks::interactivelyIssueNewElbramQuarkOrNull()
             end
 
-            if Interpreting::match("new work", command) then
-                system("work new")
+            if Interpreting::match("new work item", command) then
+                WorkInterface::issueNewWorkItem()
+            end
+
+            if Interpreting::match("new calendar item", command) then
+                Calendar::interactivelyIssueNewCalendarItem()
             end
 
             # -- top -----------------------------------------------------------------------------

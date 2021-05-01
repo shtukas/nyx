@@ -138,12 +138,14 @@ require_relative "Anniversaries.rb"
 require_relative "Bank.rb"
 require_relative "BinaryBlobsService.rb"
 
-require_relative "Elbrams.rb"
+require_relative "Calendar.rb"
 
 require_relative "DetachedRunning.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
+
+require_relative "Elbrams.rb"
 
 require_relative "Interpreting.rb"
 
