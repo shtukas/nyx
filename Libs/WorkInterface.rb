@@ -68,26 +68,13 @@ class WorkInterface
                             end
 
                             puts "[work] #{pns16["description"]}".green
-                            if pns16["text"].strip.size > 0 then
-                                puts ""
-                                puts "------------------------------------".green
-                                puts pns16["text"].green
-                                puts "------------------------------------".green
-                                puts ""
-                            end
 
-
-                            puts "[] (next transformation) | edit | ++ (postpone today by one hour) | done".yellow
+                            puts "edit | ++ (postpone today by one hour) | done".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
                             break if command == ""
-
-                            if Interpreting::match("[]", command) then
-                                system("work api #{uuid} []")
-                                next
-                            end
-
+                            
                             if Interpreting::match("edit", command) then
                                 system("work api #{uuid} edit")
                                 next
