@@ -4,4 +4,4 @@
 
 require_relative "Libs/loader.rb"
 
-MarblesFsck::fsck()
+ElbramsFsck::fsck()

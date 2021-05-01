@@ -1,7 +1,7 @@
 
-Marbles
+Elbrams
 
-Marble object interface
+Elbram object interface
     .intialize(filepath)
     .set(key, value)
     .getOrNull(key)
