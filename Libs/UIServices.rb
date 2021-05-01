@@ -117,10 +117,7 @@ class UIServices
     def self.catalystNS16s()
         isWeekday = ![6, 0].include?(Time.new.wday)
         isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
-        if isWorkTime then
-            return UIServices::waveLikeNS16s() + WorkInterface::ns16s() + (isWeekday ? [] : UIServices::quarksNS16s())
-        end
-        UIServices::waveLikeNS16s() + (isWeekday ? [] : UIServices::quarksNS16s())
+        return DetachedRunning::ns16s() + UIServices::waveLikeNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
     end
 
     # UIServices::catalystDisplayLoop()

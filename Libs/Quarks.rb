@@ -341,7 +341,7 @@ class Quarks
                 puts ""
             end
 
-            puts "landing | edit note | update agent | set dependency | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | done | (empty) # default # exit".yellow
+            puts "landing | edit note | update agent | set dependency | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | detach running | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -402,6 +402,16 @@ class Quarks
                 unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
+                break
+            end
+
+            if Interpreting::match("detach running", command) then
+                bankAccounts = []
+                bankAccounts << uuid
+                AirTrafficControl::agentsForUUID(uuid).each{|agent|
+                    bankAccounts << agent["uuid"]
+                }
+                DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, bankAccounts)
                 break
             end
 
