@@ -149,8 +149,9 @@ class UIServices
 
             if priority.size > 0 then
                 puts "-- Priority.txt -----------------------"
-                puts priority.lines.first(10).join().strip.green
-                vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
+                text = priority.lines.first(10).join().strip.green
+                puts text
+                vspaceleft = vspaceleft - Utils::verticalSize(text) - 1
             end
 
             if ![6, 0].include?(Time.new.wday) then
@@ -166,7 +167,7 @@ class UIServices
 
             items.each_with_index{|item, indx|
                 announce = "(#{"%3d" % indx}) #{item["announce"]}"
-                break if (vspaceleft - Utils::verticalSize(announce)) < 0
+                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
