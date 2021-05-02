@@ -40,7 +40,7 @@ class WorkInterface
             return false if !File.file?(location)
             File.basename(location)[-7, 7] == ".marble"
         }
-        LucilleCore::locationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter)
+        LucilleCore::enumeratorLocationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter)
     end
 
     # WorkInterface::issueNewWorkItem()

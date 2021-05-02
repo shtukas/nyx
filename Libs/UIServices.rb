@@ -120,6 +120,25 @@ class UIServices
         return DetachedRunning::ns16s() + UIServices::waveLikeNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
     end
 
+    # UIServices::getPriorityConfig()
+    def self.getPriorityConfig()
+        isWeekday = ![6, 0].include?(Time.new.wday)
+        isDocNetTime = (isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)
+        if isDocNetTime then
+            filename = "DocNet-Todo.txt"
+            filepath = "/Users/pascal/Galaxy/Software/#{filename}"
+            contents = IO.read(filepath).strip
+            hash1 = Digest::SHA1.file(filepath).hexdigest
+            return [filename, filepath, contents, hash1]
+        end
+
+        filename = "Priority.txt"
+        filepath = "/Users/pascal/Desktop/Priority.txt"
+        contents = IO.read(filepath).strip
+        hash1 = Digest::SHA1.file(filepath).hexdigest
+        [filename, filepath, contents, hash1]
+    end
+
     # UIServices::catalystDisplayLoop()
     def self.catalystDisplayLoop()
 
@@ -136,21 +155,13 @@ class UIServices
                 vspaceleft = vspaceleft - 1
             }
 
-            priorityFilepath = "/Users/pascal/Desktop/Priority.txt"
-            priority = IO.read(priorityFilepath).strip
-            priorityhash = Digest::SHA1.file(priorityFilepath).hexdigest
+            priorityFilename, priorityFilepath, priorityContents, priorityHash = UIServices::getPriorityConfig()
 
-            if priority.size > 0 then
-                puts "-- Priority.txt -----------------------"
-                text = priority.lines.first(10).join().strip.green
+            if priorityContents.size > 0 then
+                puts "-- #{priorityFilename} -----------------------"
+                text = priorityContents.lines.first(10).join().strip.green
                 puts text
                 vspaceleft = vspaceleft - Utils::verticalSize(text) - 1
-            end
-
-            if ![6, 0].include?(Time.new.wday) then
-                puts "-- DocNet Directive -------------------".red
-                puts "Until it's done we are completely focusing on DocNet".red
-                vspaceleft = vspaceleft - 2
             end
 
             puts "-- listing ----------------------------"
@@ -236,12 +247,12 @@ class UIServices
             if Interpreting::match("[]", command) then
                 # This prevents to run a [] order on a file which may have been manually changed after 
                 # The display ran. 
-                next if Digest::SHA1.file(priorityFilepath).hexdigest != priorityhash
-                text = IO.read(priorityFilepath).strip
-                if text.size > 0 then
-                    text = SectionsType0141::applyNextTransformationToText(text)
-                    File.open(priorityFilepath, "w"){|f| f.puts(text)}
-                    next
+
+                priorityFilename2, priorityFilepath2, priorityContents2, priorityHash2 = UIServices::getPriorityConfig()
+
+                if priorityHash == priorityHash2 and priorityContents2.size > 0 then
+                    priorityContents2 = SectionsType0141::applyNextTransformationToText(priorityContents2)
+                    File.open(priorityFilepath2, "w"){|f| f.puts(priorityContents2)}
                 end
                 next
             end
