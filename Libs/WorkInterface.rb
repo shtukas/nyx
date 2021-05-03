@@ -13,6 +13,7 @@ marble keys:
     unixtime    : Integer
     description : String
     text        : String 
+    WorkItemType: null (forbackward compatibility) # equivalent of "General" | "General" | "PR"
 
 
 PreNS16 {
@@ -43,19 +44,44 @@ class WorkInterface
         LucilleCore::enumeratorLocationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter)
     end
 
-    # WorkInterface::issueNewWorkItem()
-    def self.issueNewWorkItem()
+    # WorkInterface::sanitiseDescriptionForBasename(description)
+    def self.sanitiseDescriptionForBasename(description)
+        description = description.gsub(":", " ")
+        description = description.gsub("'", " ")
+        description = description.gsub("/", " ")
+        description.strip
+    end
+
+    # WorkInterface::issueNewGeneralWorkItem()
+    def self.issueNewGeneralWorkItem()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if (description == "")
         uuid = SecureRandom.hex(6)
-        folderpath = "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} #{description}"
+        folderpath = "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
         FileUtils.mkdir(folderpath)
         filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
-        Marbles::issueNewEmptyElbramFile(filepath)
+        Marbles::issueNewEmptyMarbleFile(filepath)
         Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
         Marbles::set(filepath, "description", description)
-        puts "work marble created"
+        Marbles::set(filepath, "WorkItemType", "General")
+        puts "work marble (general) created"
+    end
+
+    # WorkInterface::issueNewPR()
+    def self.issueNewPR()
+        description = LucilleCore::askQuestionAnswerAsString("PR link: ")
+        return if (description == "")
+        uuid = SecureRandom.hex(6)
+        folderpath = "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} PR {#{SecureRandom.hex(2)}}"
+        FileUtils.mkdir(folderpath)
+        filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
+        Marbles::issueNewEmptyMarbleFile(filepath)
+        Marbles::set(filepath, "uuid", uuid)
+        Marbles::set(filepath, "unixtime", Time.new.to_i)
+        Marbles::set(filepath, "description", description)
+        Marbles::set(filepath, "WorkItemType", "PR")
+        puts "work marble (pr) created"
     end
 
     # WorkInterface::filepathToDescription(filepath)

@@ -177,7 +177,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new calendar item".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new pr | new calendar item".yellow
             puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -235,7 +235,11 @@ class UIServices
             end
 
             if Interpreting::match("new work item", command) then
-                WorkInterface::issueNewWorkItem()
+                WorkInterface::issueNewGeneralWorkItem()
+            end
+
+            if Interpreting::match("new pr", command) then
+                WorkInterface::issueNewPR()
             end
 
             if Interpreting::match("new calendar item", command) then
