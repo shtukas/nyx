@@ -34,9 +34,39 @@ class Calendar
             pair = File.basename(folderpath).split("|").map{|s| s.strip }
             {
                 "date" => pair[0],
-                "description" => pair[1]
+                "description" => pair[1],
+                "folderpath" => folderpath
             }
         }
+    end
+
+    # Calendar::toString(item)
+    def self.toString(item)
+        "[calendar] (#{item["date"]}) #{item["description"]}"
+    end
+
+    # Calendar::itemIsForNS16s(item)
+    def self.itemIsForNS16s(item)
+        item["date"] <= Time.new.to_s[0, 10]
+    end
+
+    # Calendar::ns16s()
+    def self.ns16s()
+        Calendar::items()
+            .select{|item| Calendar::itemIsForNS16s(item) }
+            .map{|item|
+                uuid = Digest::SHA1.hexdigest("4dc9a277-8880-472e-a459-cf1d9b7b6604:#{item["date"]}:#{item["description"]}")
+                {
+                    "uuid"     => uuid,
+                    "announce" => Calendar::toString(item),
+                    "start"    => lambda { },
+                    "done"     => lambda {
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '' ? ") then
+                            FileUtils.mv(item["folderpath"], "#{Calendar::pathToCalendarFolder()}/01-Archives")
+                        end
+                    }
+                }
+            }
     end
 end
 

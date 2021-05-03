@@ -1,8 +1,8 @@
 NS16 {
     "uuid"     : String # used by DoNotShowUntil
     "announce" : String
-    "start"    : Lambda
-    "done"     : Lambda
+    "start"    : Lambda or nil # optional
+    "done"     : Lambda or nil # optional
 }
 
 NS17 {

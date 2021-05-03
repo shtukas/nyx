@@ -95,8 +95,6 @@ class UIServices
             agentNS16 = {
                 "uuid"     => agent["uuid"],
                 "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}, #{agent["timeDilatation"]}]",
-                "start"    => lambda { },
-                "done"     => lambda { }
             }
             {
                 "uuid"        => agentNS16["uuid"],
@@ -117,7 +115,7 @@ class UIServices
     def self.catalystNS16s()
         isWeekday = ![6, 0].include?(Time.new.wday)
         isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
-        return DetachedRunning::ns16s() + UIServices::waveLikeNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
+        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::waveLikeNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
     end
 
     # UIServices::getPriorityConfig()
@@ -149,11 +147,6 @@ class UIServices
             Anniversaries::dailyBriefingIfNotDoneToday()
 
             vspaceleft = Utils::screenHeight()-4
-
-            Calendar::items().each{|item|
-                puts "[calendar] (#{item["date"]}) #{item["description"]}"
-                vspaceleft = vspaceleft - 1
-            }
 
             priorityFilename, priorityFilepath, priorityContents, priorityHash = UIServices::getPriorityConfig()
 
@@ -187,7 +180,10 @@ class UIServices
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
-                items[0]["start"].call()
+                item = items[0]
+                next if item.nil? 
+                next if item["start"].nil?
+                item["start"].call()
             end
 
             if Interpreting::match("select *", command) then
@@ -195,11 +191,15 @@ class UIServices
                 ordinal = ordinal.to_i
                 item = items[ordinal]
                 next if item.nil?
+                next if item["start"].nil?
                 item["start"].call()
             end
 
             if Interpreting::match("start", command) then
-                items[0]["start"].call()
+                item = items[0]
+                next if item.nil? 
+                next if item["start"].nil?
+                item["start"].call()
             end
 
             if Interpreting::match("start *", command) then
@@ -207,11 +207,15 @@ class UIServices
                 ordinal = ordinal.to_i
                 item = items[ordinal]
                 next if item.nil?
+                next if item["start"].nil?
                 item["start"].call()
             end
 
             if Interpreting::match("done", command) then
-                items[0]["done"].call()
+                item = items[0]
+                next if item.nil? 
+                next if item["done"].nil?
+                item["done"].call()
             end
 
             if Interpreting::match("done *", command) then
@@ -219,6 +223,7 @@ class UIServices
                 ordinal = ordinal.to_i
                 item = items[ordinal]
                 next if item.nil?
+                next if item["done"].nil?
                 item["done"].call()
             end
 
