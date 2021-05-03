@@ -177,7 +177,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new pr | new calendar item".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | new pr | no work today | new calendar item".yellow
             puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -244,6 +244,10 @@ class UIServices
 
             if Interpreting::match("new calendar item", command) then
                 Calendar::interactivelyIssueNewCalendarItem()
+            end
+
+            if Interpreting::match("no work today", command) then
+                KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
             end
 
             # -- top -----------------------------------------------------------------------------

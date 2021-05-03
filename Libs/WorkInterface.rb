@@ -42,6 +42,7 @@ class WorkInterface
             File.basename(location)[-7, 7] == ".marble"
         }
         LucilleCore::enumeratorLocationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter)
+            .sort{|f1, f2| Marbles::get(f1, "unixtime") <=> Marbles::get(f2, "unixtime") }
     end
 
     # WorkInterface::sanitiseDescriptionForBasename(description)
@@ -91,6 +92,8 @@ class WorkInterface
 
     # WorkInterface::ns16s()
     def self.ns16s()
+        return [] if KeyValueStore::flagIsTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
+
         WorkInterface::filepathsInUnixtimeOrder()
             .to_a
             .reverse
