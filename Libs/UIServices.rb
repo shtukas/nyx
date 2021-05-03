@@ -111,30 +111,48 @@ class UIServices
         UIServices::orderQuarkNS17s(Quarks::ns17s()).map{|ns17| ns17["ns16"] }
     end
 
+    # UIServices::priorityFileNS16OrNull(filepath)
+    def self.priorityFileNS16OrNull(filepath)
+        filename = File.basename(filepath)
+        contents = IO.read(filepath)
+        return nil if contents.strip == ""
+        hash1 = Digest::SHA1.file(filepath).hexdigest
+        announce = "-- #{filename} --------------\n#{contents.green}"
+
+        {
+            "uuid"     => hash1,
+            "announce" => announce,
+            "start"    => lambda { },
+            "done"     => lambda { },
+            "[]"       => lambda {
+                contents = IO.read(filepath)
+                return if contents.strip == ""
+                hash2 = Digest::SHA1.file(filepath).hexdigest
+                return if hash1 != hash2
+                contents = SectionsType0141::applyNextTransformationToText(contents)
+                File.open(priorityFilepath2, "w"){|f| f.puts(contents)}
+                next
+            }
+        }
+    end
+
+    # UIServices::getPriorityNS16s()
+    def self.getPriorityNS16s()
+        isWeekday = ![6, 0].include?(Time.new.wday)
+        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
+        ns16s = []
+        if isDocNetTime then
+            ns16s << UIServices::priorityFileNS16OrNull("/Users/pascal/Galaxy/Software/DocNet-Todo.txt")
+        end
+        ns16s << UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority.txt")
+        ns16s.compact
+    end
+
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
         isWeekday = ![6, 0].include?(Time.new.wday)
         isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
-        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::waveLikeNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
-    end
-
-    # UIServices::getPriorityConfig()
-    def self.getPriorityConfig()
-        isWeekday = ![6, 0].include?(Time.new.wday)
-        isDocNetTime = (isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)
-        if isDocNetTime then
-            filename = "DocNet-Todo.txt"
-            filepath = "/Users/pascal/Galaxy/Software/#{filename}"
-            contents = IO.read(filepath).strip
-            hash1 = Digest::SHA1.file(filepath).hexdigest
-            return [filename, filepath, contents, hash1]
-        end
-
-        filename = "Priority.txt"
-        filepath = "/Users/pascal/Desktop/Priority.txt"
-        contents = IO.read(filepath).strip
-        hash1 = Digest::SHA1.file(filepath).hexdigest
-        [filename, filepath, contents, hash1]
+        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::waveLikeNS16s() + UIServices::getPriorityNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
     end
 
     # UIServices::catalystDisplayLoop()
@@ -147,15 +165,6 @@ class UIServices
             Anniversaries::dailyBriefingIfNotDoneToday()
 
             vspaceleft = Utils::screenHeight()-4
-
-            priorityFilename, priorityFilepath, priorityContents, priorityHash = UIServices::getPriorityConfig()
-
-            if priorityContents.size > 0 then
-                puts "-- #{priorityFilename} -----------------------"
-                text = priorityContents.lines.first(10).join().strip.green
-                puts text
-                vspaceleft = vspaceleft - Utils::verticalSize(text) - 1
-            end
 
             puts "-- listing ----------------------------"
             vspaceleft = vspaceleft - 1
@@ -258,15 +267,10 @@ class UIServices
             # -- top -----------------------------------------------------------------------------
 
             if Interpreting::match("[]", command) then
-                # This prevents to run a [] order on a file which may have been manually changed after 
-                # The display ran. 
-
-                priorityFilename2, priorityFilepath2, priorityContents2, priorityHash2 = UIServices::getPriorityConfig()
-
-                if priorityHash == priorityHash2 and priorityContents2.size > 0 then
-                    priorityContents2 = SectionsType0141::applyNextTransformationToText(priorityContents2)
-                    File.open(priorityFilepath2, "w"){|f| f.puts(priorityContents2)}
-                end
+                item = items[0]
+                next if item.nil? 
+                next if item["[]"].nil?
+                item["[]"].call()
                 next
             end
 

@@ -3,6 +3,7 @@ NS16 {
     "announce" : String
     "start"    : Lambda or nil # optional
     "done"     : Lambda or nil # optional
+    "[]"       : Lambda or nil # optional
 }
 
 NS17 {
