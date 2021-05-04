@@ -117,7 +117,7 @@ class UIServices
         contents = IO.read(filepath)
         return nil if contents.strip == ""
         hash1 = Digest::SHA1.file(filepath).hexdigest
-        announce = "-- #{filename} --------------\n#{contents.strip.green}"
+        announce = "\n#{contents.strip.lines.map{|line| "      #{line}" }.join().green}"
 
         {
             "uuid"     => hash1,
@@ -130,7 +130,7 @@ class UIServices
                 hash2 = Digest::SHA1.file(filepath).hexdigest
                 return if hash1 != hash2
                 contents = SectionsType0141::applyNextTransformationToText(contents)
-                File.open(priorityFilepath2, "w"){|f| f.puts(contents)}
+                File.open(filepath, "w"){|f| f.puts(contents)}
                 next
             }
         }
@@ -175,11 +175,11 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-4
 
-            puts "-- listing ----------------------------"
-            vspaceleft = vspaceleft - 1
-
             items = UIServices::catalystNS16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+            puts ""
+            vspaceleft = vspaceleft - 1
 
             items.each_with_index{|item, indx|
                 announce = "(#{"%3d" % indx}) #{item["announce"]}"

@@ -61,7 +61,7 @@ class Calendar
                     "announce" => Calendar::toString(item),
                     "start"    => lambda { },
                     "done"     => lambda {
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '' ? ") then
+                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
                             FileUtils.mv(item["folderpath"], "#{Calendar::pathToCalendarFolder()}/01-Archives")
                         end
                     }
