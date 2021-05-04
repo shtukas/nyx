@@ -136,23 +136,32 @@ class UIServices
         }
     end
 
+    # UIServices::isWeekday()
+    def self.isWeekday()
+        ![6, 0].include?(Time.new.wday)
+    end
+
+    # UIServices::isWorkTime()
+    def self.isWorkTime()
+        (UIServices::isWeekday() and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
+    end
+
+    # UIServices::getDocNetNS16s()
+    def self.getDocNetNS16s()
+        isWeekday = UIServices::isWeekday()
+        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
+        return [] if !isDocNetTime
+        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Galaxy/Software/DocNet-Todo.txt") ].compact
+    end
+
     # UIServices::getPriorityNS16s()
     def self.getPriorityNS16s()
-        isWeekday = ![6, 0].include?(Time.new.wday)
-        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
-        ns16s = []
-        if isDocNetTime then
-            ns16s << UIServices::priorityFileNS16OrNull("/Users/pascal/Galaxy/Software/DocNet-Todo.txt")
-        end
-        ns16s << UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority.txt")
-        ns16s.compact
+        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority.txt") ].compact
     end
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
-        isWeekday = ![6, 0].include?(Time.new.wday)
-        isWorkTime = ([1,2,3,4,5].include?(Time.new.wday) and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
-        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::waveLikeNS16s() + UIServices::getPriorityNS16s() + (isWorkTime ? WorkInterface::ns16s() : []) + (isWeekday ? [] : UIServices::quarksNS16s())
+        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getDocNetNS16s() + UIServices::waveLikeNS16s() + UIServices::getPriorityNS16s() + (UIServices::isWorkTime() ? WorkInterface::ns16s() : []) + UIServices::quarksNS16s()
     end
 
     # UIServices::catalystDisplayLoop()
