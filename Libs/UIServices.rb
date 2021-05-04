@@ -117,7 +117,7 @@ class UIServices
         contents = IO.read(filepath)
         return nil if contents.strip == ""
         hash1 = Digest::SHA1.file(filepath).hexdigest
-        announce = "-- #{filename} --------------\n#{contents.green}"
+        announce = "-- #{filename} --------------\n#{contents.strip.green}"
 
         {
             "uuid"     => hash1,
