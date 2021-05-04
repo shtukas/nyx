@@ -82,11 +82,6 @@ class UIServices
             agent
         } # agents with a recovery time
 
-        agents = agents.map{|agent| 
-            agent["rtx"] = agent["rt"] * agent["timeDilatation"]
-            agent
-        } # agents with a time dilated recovery time
-
         agents = agents.sort{|a1, a2| a1["rtx"] <=> a2["rtx"] }
 
         agents, agentsE = agents.partition{ |agent| !agent["ns17s"].empty? }
@@ -94,7 +89,7 @@ class UIServices
         agentToNS17 = lambda {|agent|
             agentNS16 = {
                 "uuid"     => agent["uuid"],
-                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}, #{agent["timeDilatation"]}]",
+                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
             }
             {
                 "uuid"        => agentNS16["uuid"],

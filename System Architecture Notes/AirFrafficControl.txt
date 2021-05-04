@@ -7,10 +7,7 @@ Agent {
     "name"            : String
     "processingStyle" : "Sequential", "FirstThreeCompeting", "AllCompetings"  
     "itemsuids"       : Array[String]
-    "timeDilatation"  : Float
 }
-
-timeDilatation default value is 1. The recovery time is multiplied by the timeDilatation and it is used to indicate relative importance between agents. Less than 1 means more important, more than 1 means less important.
 
 There is a special agent for quarks not in another agent
 
@@ -19,5 +16,4 @@ Default {
     "name"            : "Stream"
     "processingStyle" : "Sequential"
     "itemsuids"       : nil
-    "timeDilatation"  : 1
 }
