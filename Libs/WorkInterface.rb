@@ -13,7 +13,7 @@ marble keys:
     unixtime    : Integer
     description : String
     text        : String 
-    WorkItemType: null (forbackward compatibility) # equivalent of "General" | "General" | "PR"
+    WorkItemType: null (forbackward compatibility) # equivalent of "General" | "General" | "PR" | "RotaItem"
 
 
 PreNS16 {
@@ -53,36 +53,43 @@ class WorkInterface
         description.strip
     end
 
-    # WorkInterface::issueNewGeneralWorkItem()
+    # WorkInterface::interactivelyDecideAWorkItemTypeOrNull()
+    def self.interactivelyDecideAWorkItemTypeOrNull()
+        types = ["General", "PR", "RotaItem"]
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("work item type", types)
+    end
+
+    # WorkInterface::issueNewItem()
     def self.issueNewGeneralWorkItem()
+
+        decideFolderPath = lambda{|wit, description|
+            if ["General", "RotaItem"].include?(wit) then
+                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
+            end
+            if wit == "PR" then
+                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} PR {#{SecureRandom.hex(2)}}"
+            end
+            raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
+        }
+
+        workItemType = (WorkInterface::interactivelyDecideAWorkItemTypeOrNull() || "General")
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if (description == "")
         uuid = SecureRandom.hex(6)
-        folderpath = "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
+        folderpath = decideFolderPath.call(workItemType, description)
         FileUtils.mkdir(folderpath)
         filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
         Marbles::issueNewEmptyMarbleFile(filepath)
         Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
         Marbles::set(filepath, "description", description)
-        Marbles::set(filepath, "WorkItemType", "General")
-        puts "work marble (general) created"
-    end
-
-    # WorkInterface::issueNewPR()
-    def self.issueNewPR()
-        description = LucilleCore::askQuestionAnswerAsString("PR link: ")
-        return if (description == "")
-        uuid = SecureRandom.hex(6)
-        folderpath = "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} PR {#{SecureRandom.hex(2)}}"
-        FileUtils.mkdir(folderpath)
-        filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
-        Marbles::issueNewEmptyMarbleFile(filepath)
-        Marbles::set(filepath, "uuid", uuid)
-        Marbles::set(filepath, "unixtime", Time.new.to_i)
-        Marbles::set(filepath, "description", description)
-        Marbles::set(filepath, "WorkItemType", "PR")
-        puts "work marble (pr) created"
+        Marbles::set(filepath, "WorkItemType", workItemType)
+        if ["General", "RotaItem"].include?(wit) then
+            filepath2 = "#{folderpath}/01-README.txt"
+            FileUtils.touch(filepath2)
+            system("open '#{filepath2}'")
+        end
+        puts "work marble (#{workItemType}) created"
     end
 
     # WorkInterface::filepathToDescription(filepath)
