@@ -107,12 +107,25 @@ class WorkInterface
         "(#{Time.at(Marbles::get(filepath, "unixtime").to_i).to_s[0, 10]}) #{Marbles::get(filepath, "description")}"
     end
 
+    # WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
+    def self.moveFolderToArchiveWithDatePrefix(folderpath)
+        date = Time.new.strftime("%Y-%m-%d")
+        if !File.basename(folderpath).start_with?(date) then
+            folderpath2 = "#{File.dirname(folderpath)}/#{Time.new.strftime("%Y-%m-%d")} #{File.basename(folderpath)}"
+            FileUtils.mv(folderpath, folderpath2)
+        else
+            folderpath2 = folderpath
+        end
+        FileUtils.mv(folderpath2, $WorkInterface_ArchivesFolderPath)
+    end
+
     # WorkInterface::done(filepath)
     def self.done(filepath)
         itemType = (Marbles::getOrNull(filepath, "WorkItemType") || "General")
         if itemType == "General" then
-            puts "Moving folder: '#{File.dirname(filepath)}' to archives"
-            FileUtils.mv(File.dirname(filepath), $WorkInterface_ArchivesFolderPath)
+            folderpath = File.dirname(filepath)
+            puts "Moving folder: '#{folderpath}' to archives"
+            WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
             return
         end
         if itemType == "PR" then
@@ -122,8 +135,9 @@ class WorkInterface
         end
         if itemType == "RotaItem" then
             if LucilleCore::askQuestionAnswerAsBoolean("move to archives ? ") then
-                puts "Moving folder: '#{File.dirname(filepath)}' to archives"
-                FileUtils.mv(File.dirname(filepath), $WorkInterface_ArchivesFolderPath)
+                folderpath = File.dirname(filepath)
+                puts "Moving folder: '#{folderpath}' to archives"
+                WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
             else
                 puts "Removing folder: '#{File.dirname(filepath)}'"
                 LucilleCore::removeFileSystemLocation(File.dirname(filepath))
@@ -162,21 +176,22 @@ class WorkInterface
                             description = WorkInterface::filepathToDescription(filepath)
 
                             puts "[work] #{description}".green
+                            system("open '#{File.dirname(filepath)}'")
 
-                            puts "edit | ++ (postpone today by one hour) | done".yellow
+                            puts "access | edit description | ++ (postpone today by one hour) | done".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
                             break if command == ""
 
-                            if Interpreting::match("edit description", command) then
-                                description = Utils::editTextSynchronously(Marbles::get(filepath, "description"))
-                                Marbles::set(filepath, "description", description)
+                            if Interpreting::match("access", command) then
+                                system("open '#{File.dirname(filepath)}'")
                                 next
                             end
 
-                            if Interpreting::match("access", command) then
-                                system("open '#{File.dirname(filepath)}'")
+                            if Interpreting::match("edit description", command) then
+                                description = Utils::editTextSynchronously(Marbles::get(filepath, "description"))
+                                Marbles::set(filepath, "description", description)
                                 next
                             end
 
