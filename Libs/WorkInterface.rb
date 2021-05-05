@@ -60,20 +60,30 @@ class WorkInterface
     end
 
     # WorkInterface::issueNewItem()
-    def self.issueNewGeneralWorkItem()
+    def self.issueNewItem()
 
         decideFolderPath = lambda{|wit, description|
             if ["General", "RotaItem"].include?(wit) then
-                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
+                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
             end
             if wit == "PR" then
-                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m")} PR {#{SecureRandom.hex(2)}}"
+                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} PR {#{SecureRandom.hex(2)}}"
+            end
+            raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
+        }
+
+        decideDescriptionPrompt = lambda{|wit|
+            if ["General", "RotaItem"].include?(wit) then
+                return "description (empty to abort): "
+            end
+            if wit == "PR" then
+                return "pr link (empty to abort): "
             end
             raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
         }
 
         workItemType = (WorkInterface::interactivelyDecideAWorkItemTypeOrNull() || "General")
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        description = LucilleCore::askQuestionAnswerAsString(decideDescriptionPrompt.call(workItemType))
         return if (description == "")
         uuid = SecureRandom.hex(6)
         folderpath = decideFolderPath.call(workItemType, description)
@@ -84,7 +94,7 @@ class WorkInterface
         Marbles::set(filepath, "unixtime", Time.new.to_i)
         Marbles::set(filepath, "description", description)
         Marbles::set(filepath, "WorkItemType", workItemType)
-        if ["General", "RotaItem"].include?(wit) then
+        if ["General", "RotaItem"].include?(workItemType) then
             filepath2 = "#{folderpath}/01-README.txt"
             FileUtils.touch(filepath2)
             system("open '#{filepath2}'")
@@ -95,6 +105,31 @@ class WorkInterface
     # WorkInterface::filepathToDescription(filepath)
     def self.filepathToDescription(filepath)
         "(#{Time.at(Marbles::get(filepath, "unixtime").to_i).to_s[0, 10]}) #{Marbles::get(filepath, "description")}"
+    end
+
+    # WorkInterface::done(filepath)
+    def self.done(filepath)
+        itemType = (Marbles::getOrNull(filepath, "WorkItemType") || "General")
+        if itemType == "General" then
+            puts "Moving folder: '#{File.dirname(filepath)}' to archives"
+            FileUtils.mv(File.dirname(filepath), $WorkInterface_ArchivesFolderPath)
+            return
+        end
+        if itemType == "PR" then
+            puts "Removing folder: '#{File.dirname(filepath)}'"
+            LucilleCore::removeFileSystemLocation(File.dirname(filepath))
+            return
+        end
+        if itemType == "RotaItem" then
+            if LucilleCore::askQuestionAnswerAsBoolean("move to archives ? ") then
+                puts "Moving folder: '#{File.dirname(filepath)}' to archives"
+                FileUtils.mv(File.dirname(filepath), $WorkInterface_ArchivesFolderPath)
+            else
+                puts "Removing folder: '#{File.dirname(filepath)}'"
+                LucilleCore::removeFileSystemLocation(File.dirname(filepath))
+            end
+            return
+        end
     end
 
     # WorkInterface::ns16s()
@@ -151,7 +186,7 @@ class WorkInterface
                             end
 
                             if Interpreting::match("done", command) then
-                                FileUtils.mv(File.dirname(filepath), $WorkInterface_ArchivesFolderPath)
+                                WorkInterface::done(filepath)
                                 break
                             end
                         }
@@ -168,7 +203,7 @@ class WorkInterface
                         Bank::put(uuid, timespan)
                     },
                     "done" => lambda {
-                        system("work api #{uuid} done")
+                        WorkInterface::done(filepath)
                     }
                 }
             }
