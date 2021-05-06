@@ -178,7 +178,9 @@ class Anniversaries
         if !KeyValueStore::flagIsTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{Utils::today()}") then
             Anniversaries::dailyBriefing()
             KeyValueStore::setFlagTrue(nil, "9140133b-4189-4c5f-b85f-8b3c9a77e0c2:#{Utils::today()}")
+            return true
         end
+        false
     end
 
     # Anniversaries::landing(marble)

@@ -166,7 +166,8 @@ class UIServices
 
             system("clear")
 
-            Anniversaries::dailyBriefingIfNotDoneToday()
+            status = Anniversaries::dailyBriefingIfNotDoneToday()
+            next if status
 
             vspaceleft = Utils::screenHeight()-4
 
