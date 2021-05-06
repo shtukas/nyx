@@ -172,6 +172,12 @@ class Utils
         displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)
     end
 
+    # Utils::locationByUniqueStringOrNull(uniquestring)
+    def self.locationByUniqueStringOrNull(uniquestring)
+        location = `atlas locate '#{uniquestring}'`.strip
+        location.size > 0 ? location : nil
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

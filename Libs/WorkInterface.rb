@@ -23,11 +23,11 @@ PreNS16 {
 
 =end
 
-$WorkInterface_WorkFolderPath = "/Users/pascal/Galaxy/Nyx/StdFSTrees/534916595068-01/The Guardian/Pascal Work/02 In Progress [Log]"
-$WorkInterface_ArchivesFolderPath = "/Users/pascal/Galaxy/Nyx/StdFSTrees/534916595068-01/The Guardian/Pascal Work/01 Archive [Log]"
+$WorkInterface_WorkFolderPath = Utils::locationByUniqueStringOrNull("328ed6bd-29c8")
+$WorkInterface_ArchivesFolderPath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
 
-if !File.exists?($WorkInterface_WorkFolderPath) then
-    puts "The Work Elbram Folder is not at its intended position"
+if !File.exists?($WorkInterface_ArchivesFolderPath) then
+    puts "[error: d48c4aa9-8af2] Could not locate the Work folder"
     exit
 end
 
