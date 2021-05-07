@@ -148,11 +148,10 @@ class WorkInterface
 
     # WorkInterface::ns16s()
     def self.ns16s()
-        return [] if KeyValueStore::flagIsTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
+        return [] if !Utils::isWorkTime()
 
         WorkInterface::filepathsInUnixtimeOrder()
             .to_a
-            .reverse
             .map{|filepath| 
                 uuid = Marbles::get(filepath, "uuid")
                 description = WorkInterface::filepathToDescription(filepath)

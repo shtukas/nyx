@@ -178,6 +178,30 @@ class Utils
         location.size > 0 ? location : nil
     end
 
+    # Utils::isWeekday()
+    def self.isWeekday()
+        ![6, 0].include?(Time.new.wday)
+    end
+
+    # Utils::isWorkTime()
+    def self.isWorkTime()
+        (Utils::isWeekday() and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}"))
+    end
+
+    # Utils::getLocalTimeZone()
+    def self.getLocalTimeZone()
+        `date`.strip[-3 , 3]
+    end
+
+    # Utils::unixtimeAtComingMidnightAtGivenTimeZone(timezone)
+    def self.unixtimeAtComingMidnightAtGivenTimeZone(timezone)
+        supportedTimeZones = ["BST", "GMT"]
+        if !supportedTimeZones.include?(timezone) then
+            raise "error: 7CB8000B-7896-4F61-89ED-89C12E009EE6 ; we are only supporting '#{supportedTimeZones}' and you provided #{timezone}"
+        end
+        DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00 #{timezone}").to_time.to_i
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

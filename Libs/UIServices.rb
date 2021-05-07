@@ -131,32 +131,22 @@ class UIServices
         }
     end
 
-    # UIServices::isWeekday()
-    def self.isWeekday()
-        ![6, 0].include?(Time.new.wday)
-    end
-
-    # UIServices::isWorkTime()
-    def self.isWorkTime()
-        (UIServices::isWeekday() and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{Utils::today()}"))
-    end
-
-    # UIServices::getDocNetNS16s()
-    def self.getDocNetNS16s()
-        isWeekday = UIServices::isWeekday()
+    # UIServices::getDocNetMorningNS16s()
+    def self.getDocNetMorningNS16s()
+        isWeekday = Utils::isWeekday()
         isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
         return [] if !isDocNetTime
         [ UIServices::priorityFileNS16OrNull("/Users/pascal/Galaxy/Software/DocNet-Todo.txt") ].compact
     end
 
-    # UIServices::getPriorityNS16s()
-    def self.getPriorityNS16s()
-        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority.txt") ].compact
+    # UIServices::getPriorityNS16s(index)
+    def self.getPriorityNS16s(index)
+        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority (#{index}).txt") ].compact
     end
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
-        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getDocNetNS16s() + UIServices::waveLikeNS16s() + UIServices::getPriorityNS16s() + (UIServices::isWorkTime() ? WorkInterface::ns16s() : []) + UIServices::quarksNS16s()
+        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriorityNS16s(1) + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::getPriorityNS16s(2) + UIServices::quarksNS16s()
     end
 
     # UIServices::catalystDisplayLoop()
@@ -185,7 +175,7 @@ class UIServices
             }
 
             puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | no work today | new calendar item".yellow
-            puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit>".yellow
+            puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -273,6 +263,11 @@ class UIServices
                 next if item["[]"].nil?
                 item["[]"].call()
                 next
+            end
+
+            if Interpreting::match("not today", command) then
+                unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone())
+                DoNotShowUntil::setUnixtime(items[0]["uuid"], unixtime)
             end
 
             if Interpreting::match("++", command) then
