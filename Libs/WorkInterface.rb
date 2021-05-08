@@ -26,7 +26,7 @@ PreNS16 {
 $WorkInterface_WorkFolderPath = Utils::locationByUniqueStringOrNull("328ed6bd-29c8")
 $WorkInterface_ArchivesFolderPath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
 
-if !File.exists?($WorkInterface_ArchivesFolderPath) then
+if $WorkInterface_ArchivesFolderPath.nil? then
     puts "[error: d48c4aa9-8af2] Could not locate the Work folder"
     exit
 end
