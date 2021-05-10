@@ -33,13 +33,30 @@ class UIServices
     # UIServices::orderQuarkNS17s(ns17s)
     def self.orderQuarkNS17s(ns17s)
 
+        agentToNS17 = lambda {|agent|
+            agentNS16 = {
+                "uuid"     => agent["uuid"],
+                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
+            }
+            {
+                "uuid"        => agentNS16["uuid"],
+                "ns16"        => agentNS16,
+                "rt"          => agent["rt"]
+            }
+        }
+
         agents = AirTrafficControl::agents()
 
+        # agents with a recovery time and an empty "ns17s" array
         agents = agents.map{|agent| 
+            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
             agent["ns17s"] = []
             agent
-        } # agents with a n empty["ns17s"]
+        }
 
+        # ----------------------------------------------------------
+
+        # agent with populated "ns17s" from ns17s
         agents = ns17s.reduce(agents){|ags, ns17|
             # we need to find the correct agent for this ns17, if we do not find it, we put it in the default agent
             agent = ags.select{|a| a["itemsuids"].include?(ns17["uuid"]) }.first
@@ -58,8 +75,13 @@ class UIServices
                     a
                 }
             end
-        } # agent with populated "ns17s" from ns17s
+        }
 
+        # ----------------------------------------------------------
+
+        agents, agentsE = agents.partition{ |agent| !agent["ns17s"].empty? }
+
+        # agents with ordered ["ns17s"] according to the processing Style
         agents = agents.map{|agent|
             if !["Sequential", "FirstThreeCompeting", "AllCompetings"].include?(agent["processingStyle"]) then
                 puts JSON.pretty_generate(agent)
@@ -75,30 +97,11 @@ class UIServices
                 agent["ns17s"] = agent["ns17s"].sort{|x1, x2| x1["rt"] <=> x2["rt"] }
             end
             agent
-        } # agents with ordered ["ns17s"] according to the processing Style
-
-        agents = agents.map{|agent| 
-            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"]) 
-            agent
-        } # agents with a recovery time
-
-        agents = agents.sort{|a1, a2| a1["rtx"] <=> a2["rtx"] }
-
-        agents, agentsE = agents.partition{ |agent| !agent["ns17s"].empty? }
-
-        agentToNS17 = lambda {|agent|
-            agentNS16 = {
-                "uuid"     => agent["uuid"],
-                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
-            }
-            {
-                "uuid"        => agentNS16["uuid"],
-                "ns16"        => agentNS16,
-                "rt"          => agent["rt"]
-            }
         }
 
-        agents.first["ns17s"].first(3) + agents.map{|agent| agentToNS17.call(agent) } + agentsE.map{|agent| agentToNS17.call(agent) } +  agents.first["ns17s"].drop(3) + agents.drop(1).map{|agent| agent["ns17s"] }.flatten
+        agents = agents.sort{|a1, a2| a1["rt"] <=> a2["rt"] }
+
+        agents.first["ns17s"].first(3) + (agents + agentsE).map{|agent| agentToNS17.call(agent) } + agents.first["ns17s"].drop(3) + agents.drop(1).map{|agent| agent["ns17s"] }.flatten
     end
 
     # UIServices::quarksNS16s()
