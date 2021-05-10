@@ -156,7 +156,8 @@ class Waves
                     "announce" => Waves::toString(marble),
                     "start"    => lambda {
                         Waves::access(marble)
-                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+                        command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
+                        if command == "done" then
                             Waves::performDone(marble)
                         end
                     },
