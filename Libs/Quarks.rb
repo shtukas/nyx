@@ -14,8 +14,6 @@ class L22Extentions
     end
 end
 
-
-
 class Quarks
 
     # Quarks::middlePointOfTwoL22sOrNull(p1, p2)
@@ -165,7 +163,7 @@ class Quarks
 
     # Quarks::architechFilepathOrNull()
     def self.architechFilepathOrNull()
-        marbles = Quarks::firstNVisibleElbramQuarks(Utils::screenHeight()-3)
+        marbles = Quarks::firstNVisibleQuarks(Utils::screenHeight()-3)
         marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", marbles, lambda { |marble| Quarks::toString(marble) })
         return marble.filepath() if marble
         Quarks::interactivelyIssueNewElbramQuarkOrNull()
@@ -255,7 +253,7 @@ class Quarks
         {
             "uuid"     => Elbrams::get(filepath, "uuid"),
             "announce" => announce,
-            "start"    => lambda{ Quarks::runElbramQuark(marble) },
+            "start"    => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
                 if marble.hasNote() or marble.get("type") != "Line" then
                     puts "You cannot listing done this quark"
@@ -271,7 +269,7 @@ class Quarks
 
     # Quarks::ns16s()
     def self.ns16s()
-        Quarks::firstNVisibleElbramQuarks([10, Utils::screenHeight()].max)
+        Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
             .map
             .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) and !Quarks::marbleHasActiveDependencies(item["uuid"]) }
@@ -291,8 +289,8 @@ class Quarks
         Quarks::ns16s().map{|ns16| Quarks::ns16ToNS17(ns16) }
     end
 
-    # Quarks::runElbramQuark(marble)
-    def self.runElbramQuark(marble)
+    # Quarks::runQuark(marble)
+    def self.runQuark(marble)
 
         filepath = marble.filepath()
 
@@ -450,8 +448,8 @@ class Quarks
         Elbrams::postAccessCleanUp(marble)
     end
 
-    # Quarks::firstNElbramQuarks(resultSize)
-    def self.firstNElbramQuarks(resultSize)
+    # Quarks::firstNQuarks(resultSize)
+    def self.firstNQuarks(resultSize)
         Elbrams::marblesOfGivenDomainInOrder("quarks").reduce([]) {|selected, marble|
             if selected.size >= resultSize then
                 selected
@@ -461,8 +459,8 @@ class Quarks
         }
     end
 
-    # Quarks::firstNVisibleElbramQuarks(resultSize)
-    def self.firstNVisibleElbramQuarks(resultSize)
+    # Quarks::firstNVisibleQuarks(resultSize)
+    def self.firstNVisibleQuarks(resultSize)
         Elbrams::marblesOfGivenDomainInOrder("quarks").reduce([]) {|selected, marble|
             filepath = marble.filepath()
             if selected.size >= resultSize then

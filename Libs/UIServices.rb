@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$ListedNS16s = nil
+
 class UIServices
 
     # UIServices::servicesFront()
@@ -149,7 +151,8 @@ class UIServices
 
     # UIServices::catalystNS16s()
     def self.catalystNS16s()
-        return DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriorityNS16s(1) + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::getPriorityNS16s(2) + UIServices::quarksNS16s()
+        items = DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriorityNS16s(1) + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::getPriorityNS16s(2) + UIServices::quarksNS16s()
+        items.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # UIServices::catalystDisplayLoop()
@@ -165,7 +168,8 @@ class UIServices
             vspaceleft = Utils::screenHeight()-4
 
             items = UIServices::catalystNS16s()
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+            $ListedNS16s = items.clone
 
             puts ""
             vspaceleft = vspaceleft - 1
@@ -300,4 +304,15 @@ class UIServices
     end
 end
 
-
+Thread.new {
+    trace = lambda {|items|
+        items.map{|item| item["uuid"] }.sort.join(";")
+    }
+    loop {
+        sleep 60
+        items = UIServices::catalystNS16s()
+        if trace.call(UIServices::catalystNS16s()) != trace.call($ListedNS16s) then
+            Utils::onScreenNotification("Catalyst", "New listing items")
+        end
+    }
+}
