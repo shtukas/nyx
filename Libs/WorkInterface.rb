@@ -72,7 +72,7 @@ class WorkInterface
             raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
         }
 
-        decideDescriptionPrompt = lambda{|wit|
+        descriptionPrompt = lambda{|wit|
             if ["General", "RotaItem"].include?(wit) then
                 return "description (empty to abort): "
             end
@@ -83,7 +83,7 @@ class WorkInterface
         }
 
         workItemType = (WorkInterface::interactivelyDecideAWorkItemTypeOrNull() || "General")
-        description = LucilleCore::askQuestionAnswerAsString(decideDescriptionPrompt.call(workItemType))
+        description = LucilleCore::askQuestionAnswerAsString(descriptionPrompt.call(workItemType))
         return if (description == "")
         uuid = SecureRandom.hex(6)
         folderpath = decideFolderPath.call(workItemType, description)
@@ -122,27 +122,25 @@ class WorkInterface
     # WorkInterface::done(filepath)
     def self.done(filepath)
         itemType = (Marbles::getOrNull(filepath, "WorkItemType") || "General")
-        if itemType == "General" then
-            folderpath = File.dirname(filepath)
-            puts "Moving folder: '#{folderpath}' to archives"
-            WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
-            return
-        end
         if itemType == "PR" then
             puts "Removing folder: '#{File.dirname(filepath)}'"
             LucilleCore::removeFileSystemLocation(File.dirname(filepath))
             return
         end
-        if itemType == "RotaItem" then
-            if LucilleCore::askQuestionAnswerAsBoolean("move to archives ? ") then
-                folderpath = File.dirname(filepath)
-                puts "Moving folder: '#{folderpath}' to archives"
-                WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
-            else
-                puts "Removing folder: '#{File.dirname(filepath)}'"
-                LucilleCore::removeFileSystemLocation(File.dirname(filepath))
-            end
+        if LucilleCore::locationsAtFolder(File.dirname(filepath)).size == 1 then
+            # There only is the marble file.
+            LucilleCore::removeFileSystemLocation(File.dirname(filepath))
             return
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("move to archives ? ") then
+            LucilleCore::removeFileSystemLocation(filepath) # Removing the marble file itself which doesn't need to be in the archives
+            folderpath = File.dirname(filepath)
+            puts "Moving folder: '#{folderpath}' to archives"
+            WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
+        else
+            puts "Removing folder: '#{folderpath}'"
+            LucilleCore::removeFileSystemLocation(folderpath)
         end
     end
 
