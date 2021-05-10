@@ -173,6 +173,14 @@ class WorkInterface
                             description = WorkInterface::filepathToDescription(filepath)
 
                             puts "[work] #{description}".green
+
+                            text = Marbles::get(filepath, "text").strip
+                            if text.size > 0 then
+                                puts "----------------------------------------"
+                                puts text.green
+                                puts "----------------------------------------"
+                            end 
+
                             system("open '#{File.dirname(filepath)}'")
 
                             puts "access | edit description | ++ (postpone today by one hour) | done".yellow
