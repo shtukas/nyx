@@ -32,26 +32,11 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::orderQuarkNS17s(ns17s)
-    def self.orderQuarkNS17s(ns17s)
+    # UIServices::combine(agents, ns17s): Array[Agent]
+    def self.combine(agents, ns17s)
 
-        agentToNS17 = lambda {|agent|
-            agentNS16 = {
-                "uuid"     => agent["uuid"],
-                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
-            }
-            {
-                "uuid"        => agentNS16["uuid"],
-                "ns16"        => agentNS16,
-                "rt"          => agent["rt"]
-            }
-        }
-
-        agents = AirTrafficControl::agents()
-
-        # agents with a recovery time and an empty "ns17s" array
+        # agents with an empty "ns17s" array
         agents = agents.map{|agent| 
-            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
             agent["ns17s"] = []
             agent
         }
@@ -81,7 +66,7 @@ class UIServices
 
         # ----------------------------------------------------------
 
-        agents, agentsE = agents.partition{ |agent| !agent["ns17s"].empty? }
+        agents = agents.select{ |agent| !agent["ns17s"].empty? }
 
         # agents with ordered ["ns17s"] according to the processing Style
         agents = agents.map{|agent|
@@ -101,14 +86,33 @@ class UIServices
             agent
         }
 
-        agents = agents.sort{|a1, a2| a1["rt"] <=> a2["rt"] }
+        # agents with ordered ["ns16s"]
+        agents = agents.map{|agent|
+            agent["ns16s"] = agent["ns17s"].map{|ns17| ns17["ns16"] }
+            agent
+        }
 
-        agents.first["ns17s"].first(3) + (agents + agentsE).map{|agent| agentToNS17.call(agent) } + agents.first["ns17s"].drop(3) + agents.drop(1).map{|agent| agent["ns17s"] }.flatten
+        # agents with a recovery time
+        agents = agents.map{|agent| 
+            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
+            agent
+        }
+
+        agents.sort{|a1, a2| a1["rt"] <=> a2["rt"] }
     end
 
     # UIServices::quarksNS16s()
     def self.quarksNS16s()
-        UIServices::orderQuarkNS17s(Quarks::ns17s()).map{|ns17| ns17["ns16"] }
+        agentToNS16 = lambda {|agent|
+            {
+                "uuid"     => agent["uuid"],
+                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
+            }
+        }
+
+        agents = UIServices::combine(AirTrafficControl::agents(), Quarks::ns17s())
+
+        agents.first["ns16s"].first(3) + agents.map{|agent| agentToNS16.call(agent) } + agents.first["ns16s"].drop(3)
     end
 
     # UIServices::priorityFileNS16OrNull(filepath)
