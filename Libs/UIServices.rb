@@ -117,6 +117,7 @@ class UIServices
 
     # UIServices::priorityFileNS16OrNull(filepath)
     def self.priorityFileNS16OrNull(filepath)
+        raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
         filename = File.basename(filepath)
         contents = IO.read(filepath)
         return nil if contents.strip == ""
@@ -126,7 +127,9 @@ class UIServices
         {
             "uuid"     => hash1,
             "announce" => announce,
-            "start"    => lambda { },
+            "start"    => lambda { 
+                system("open '#{filepath}'")
+            },
             "done"     => lambda { },
             "[]"       => lambda {
                 contents = IO.read(filepath)
@@ -145,7 +148,7 @@ class UIServices
         isWeekday = Utils::isWeekday()
         isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
         return [] if !isDocNetTime
-        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Galaxy/Software/DocNet-Todo.txt") ].compact
+        [ UIServices::priorityFileNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
     end
 
     # UIServices::getPriorityNS16s(index)
