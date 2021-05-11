@@ -11,6 +11,7 @@ items are marbles in the folder: "/Users/pascal/Galaxy/Documents/NyxSpace/534916
 marble keys:
     uuid         : String
     unixtime     : Integer
+    ordinal      : Float
     description  : String
     WorkItemType : null (forbackward compatibility) # equivalent of "General" | "General" | "PR" | "RotaItem"
     trelloLink   : null or String # URL to Trello board.
@@ -31,14 +32,20 @@ end
 
 class WorkInterface
 
-    # WorkInterface::filepathsInUnixtimeOrder()
-    def self.filepathsInUnixtimeOrder()
+    # WorkInterface::filepaths()
+    def self.filepaths()
         filter = lambda{|location|
             return false if !File.file?(location)
             File.basename(location)[-7, 7] == ".marble"
         }
-        LucilleCore::enumeratorLocationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter)
-            .sort{|f1, f2| Marbles::get(f1, "unixtime") <=> Marbles::get(f2, "unixtime") }
+        LucilleCore::enumeratorLocationsInFileHierarchyWithFilter($WorkInterface_WorkFolderPath, filter).to_a
+    end
+
+    # WorkInterface::ordinals()
+    def self.ordinals()
+        WorkInterface::filepaths().map{|filepath|
+            Marbles::get(filepath, "ordinal").to_f
+        }
     end
 
     # WorkInterface::sanitiseDescriptionForFilename(description)
@@ -100,6 +107,7 @@ class WorkInterface
 
         Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
+        Marbles::set(filepath, "ordinal", (WorkInterface::ordinals() + [0]).max + 1)
         Marbles::set(filepath, "description", description)
         Marbles::set(filepath, "WorkItemType", workItemType)
 
@@ -170,16 +178,16 @@ class WorkInterface
     def self.ns16s()
         return [] if !Utils::isWorkTime()
 
-        WorkInterface::filepathsInUnixtimeOrder()
-            .to_a
+        WorkInterface::filepaths()
+            .sort{|f1, f2| Marbles::get(f1, "ordinal").to_f <=> Marbles::get(f2, "ordinal").to_f }
             .map{|filepath| 
                 uuid = Marbles::get(filepath, "uuid")
                 description = Marbles::get(filepath, "description")
                 workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
-                    "announce" => "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{description}",
-                    "access"    => lambda {
+                    "announce" => "#{"[work]".green} #{description}",
+                    "access"   => lambda {
 
                         if workItemType == "PR" then
                             system("open '#{description}'")
@@ -205,10 +213,11 @@ class WorkInterface
 
                             puts WorkInterface::toString(filepath).green
                             puts "folder: #{File.dirname(filepath)}"
+                            puts "ordinal: #{Marbles::get(filepath, "ordinal")}"
                             if Marbles::getOrNull(filepath, "trelloLink") then
                                 puts "trello link: #{Marbles::get(filepath, "trelloLink")}"
                             end
-                            puts "access folder | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
+                            puts "access folder | set top | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -216,6 +225,11 @@ class WorkInterface
 
                             if Interpreting::match("access folder", command) then
                                 system("open '#{File.dirname(filepath)}'")
+                                next
+                            end
+
+                            if Interpreting::match("set top", command) then
+                                Marbles::set(filepath, "ordinal", (WorkInterface::ordinals() + [0]).min - 1)
                                 next
                             end
 
