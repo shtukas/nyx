@@ -59,7 +59,7 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item),
-                    "start"    => lambda { },
+                    "access"    => lambda { },
                     "done"     => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
                             FileUtils.mv(item["folderpath"], "#{Calendar::pathToCalendarFolder()}/01-Archives")

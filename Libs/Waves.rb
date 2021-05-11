@@ -154,7 +154,7 @@ class Waves
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
                     "announce" => Waves::toString(marble),
-                    "start"    => lambda {
+                    "access"    => lambda {
                         Waves::access(marble)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
                         if command == "done" then
@@ -210,7 +210,7 @@ class Waves
 
             menuitems = LCoreMenuItemsNX1.new()
 
-            menuitems.item("start", lambda {
+            menuitems.item("access", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
                     Waves::performDone(marble)
                 end

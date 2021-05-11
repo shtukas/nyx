@@ -9,17 +9,13 @@
 items are marbles in the folder: "/Users/pascal/Galaxy/Documents/NyxSpace/534916595068-01/06a4a51e/The Guardian/Pascal Work/03 Work Marbles"
 
 marble keys:
-    uuid        : String
-    unixtime    : Integer
-    description : String
-    text        : String 
-    WorkItemType: null (forbackward compatibility) # equivalent of "General" | "General" | "PR" | "RotaItem"
+    uuid         : String
+    unixtime     : Integer
+    description  : String
+    WorkItemType : null (forbackward compatibility) # equivalent of "General" | "General" | "PR" | "RotaItem"
+    trelloLink   : null or String # URL to Trello board.
 
-
-PreNS16 {
-    "uuid"        : String
-    "description" : String
-}
+# The description is the PR link in the case of WorkItemType == "PR"
 
 =end
 
@@ -45,8 +41,8 @@ class WorkInterface
             .sort{|f1, f2| Marbles::get(f1, "unixtime") <=> Marbles::get(f2, "unixtime") }
     end
 
-    # WorkInterface::sanitiseDescriptionForBasename(description)
-    def self.sanitiseDescriptionForBasename(description)
+    # WorkInterface::sanitiseDescriptionForFilename(description)
+    def self.sanitiseDescriptionForFilename(description)
         description = description.gsub(":", " ")
         description = description.gsub("'", " ")
         description = description.gsub("/", " ")
@@ -59,51 +55,76 @@ class WorkInterface
         LucilleCore::selectEntityFromListOfEntitiesOrNull("work item type", types)
     end
 
-    # WorkInterface::issueNewItem()
-    def self.issueNewItem()
+    # WorkInterface::interactivelyDecideADescriptionOrNull(workItemType)
+    def self.interactivelyDecideADescriptionOrNull(workItemType)
+        if ["General" | "RotaItem"].include?(workItemType) then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+            return description
+        end
+        if ["PR"].include?(workItemType) then
+            description = LucilleCore::askQuestionAnswerAsString("PR link (empty to abort): ")
+            return nil if description == ""
+            return description
+        end
+        raise "96b2b823-ddae-403b-b7b8-23058e1df203"
+    end
 
-        decideFolderPath = lambda{|wit, description|
-            if ["General", "RotaItem"].include?(wit) then
-                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} #{WorkInterface::sanitiseDescriptionForBasename(description)}"
-            end
-            if wit == "PR" then
-                return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} PR {#{SecureRandom.hex(2)}}"
-            end
-            raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
-        }
+    # WorkInterface::makeNewItemFolderpath(workItemType, description)
+    def self.makeNewItemFolderpath(workItemType, description)
+        if ["General", "RotaItem"].include?(workItemType) then
+            return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} #{WorkInterface::sanitiseDescriptionForFilename(description)}"
+        end
+        if ["PR"].include?(workItemType) then
+            return "#{$WorkInterface_WorkFolderPath}/#{Time.new.strftime("%Y-%m-%d")} PR #{SecureRandom.hex(6)}"
+        end
+        raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
+    end
 
-        descriptionPrompt = lambda{|wit|
-            if ["General", "RotaItem"].include?(wit) then
-                return "description (empty to abort): "
-            end
-            if wit == "PR" then
-                return "pr link (empty to abort): "
-            end
-            raise "af8ed9c8-6132-4ac9-b412-71de104b6eac"
-        }
-
-        workItemType = (WorkInterface::interactivelyDecideAWorkItemTypeOrNull() || "General")
-        description = LucilleCore::askQuestionAnswerAsString(descriptionPrompt.call(workItemType))
-        return if (description == "")
+    # WorkInterface::interactvelyIssueNewItem()
+    def self.interactvelyIssueNewItem()
         uuid = SecureRandom.hex(6)
-        folderpath = decideFolderPath.call(workItemType, description)
+
+        workItemType = WorkInterface::interactivelyDecideAWorkItemTypeOrNull()
+        return if workItemType.nil?
+
+        description = WorkInterface::interactivelyDecideADescriptionOrNull(workItemType)
+        return if description.nil?
+
+        folderpath = WorkInterface::makeNewItemFolderpath(workItemType, description)
         FileUtils.mkdir(folderpath)
+
         filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
+
         Marbles::issueNewEmptyMarbleFile(filepath)
+
         Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
         Marbles::set(filepath, "description", description)
         Marbles::set(filepath, "WorkItemType", workItemType)
+
+        if ["General", "RotaItem"].include?(workItemType) then
+            if LucilleCore::askQuestionAnswerAsBoolean("trello link ? ") then
+                link = LucilleCore::askQuestionAnswerAsString("trello link: ")
+                if link != "" then
+                    Marbles::set(filepath, "trelloLink", link)
+                end
+            end
+        end
+
         if ["General", "RotaItem"].include?(workItemType) then
             filepath2 = "#{folderpath}/01-README.txt"
             FileUtils.touch(filepath2)
-            system("open '#{filepath2}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit the readme file ? ") then
+                system("open '#{filepath2}'")
+            end
         end
+
         puts "work marble (#{workItemType}) created"
     end
 
-    # WorkInterface::filepathToDescription(filepath)
-    def self.filepathToDescription(filepath)
+    # WorkInterface::toString(filepath)
+    def self.toString(filepath)
         "(#{Time.at(Marbles::get(filepath, "unixtime").to_i).to_s[0, 10]}) #{Marbles::get(filepath, "description")}"
     end
 
@@ -133,12 +154,13 @@ class WorkInterface
             return
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("move to archives ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("move folder to archives ? ") then
             LucilleCore::removeFileSystemLocation(filepath) # Removing the marble file itself which doesn't need to be in the archives
             folderpath = File.dirname(filepath)
             puts "Moving folder: '#{folderpath}' to archives"
             WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
         else
+            folderpath = File.dirname(filepath)
             puts "Removing folder: '#{folderpath}'"
             LucilleCore::removeFileSystemLocation(folderpath)
         end
@@ -152,11 +174,20 @@ class WorkInterface
             .to_a
             .map{|filepath| 
                 uuid = Marbles::get(filepath, "uuid")
-                description = WorkInterface::filepathToDescription(filepath)
+                description = Marbles::get(filepath, "description")
+                workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
                     "announce" => "(#{"%5.3f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{"[work]".green} #{description}",
-                    "start"    => lambda {
+                    "access"    => lambda {
+
+                        if workItemType == "PR" then
+                            system("open '#{description}'")
+                            if LucilleCore::askQuestionAnswerAsBoolean("merged ? ") then
+                                WorkInterface::done(filepath)
+                            end
+                            return
+                        end
 
                         startUnixtime = Time.new.to_f
 
@@ -168,28 +199,22 @@ class WorkInterface
                             }
                         }
 
+                        system("open '#{File.dirname(filepath)}'")
+
                         loop {
 
-                            description = WorkInterface::filepathToDescription(filepath)
-
-                            puts "[work] #{description}".green
-
-                            text = Marbles::get(filepath, "text").strip
-                            if text.size > 0 then
-                                puts "----------------------------------------"
-                                puts text.green
-                                puts "----------------------------------------"
-                            end 
-
-                            system("open '#{File.dirname(filepath)}'")
-
-                            puts "access | edit description | ++ (postpone today by one hour) | done".yellow
+                            puts WorkInterface::toString(filepath).green
+                            puts "folder: #{File.dirname(filepath)}"
+                            if Marbles::getOrNull(filepath, "trelloLink") then
+                                puts "trello link: #{Marbles::get(filepath, "trelloLink")}"
+                            end
+                            puts "access folder | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
 
                             command = LucilleCore::askQuestionAnswerAsString("> ")
 
                             break if command == ""
 
-                            if Interpreting::match("access", command) then
+                            if Interpreting::match("access folder", command) then
                                 system("open '#{File.dirname(filepath)}'")
                                 next
                             end
@@ -197,6 +222,19 @@ class WorkInterface
                             if Interpreting::match("edit description", command) then
                                 description = Utils::editTextSynchronously(Marbles::get(filepath, "description"))
                                 Marbles::set(filepath, "description", description)
+                                folder1 = File.dirname(filepath)
+                                folder2 = "#{File.dirname(folder1)}/#{Time.at(Marbles::get(filepath, "unixtime")).to_s[0, 10]} #{WorkInterface::sanitiseDescriptionForFilename(description)}"
+                                if folder1 != folder2 then
+                                    FileUtils.mv(folder1, folder2)
+                                end
+                                return
+                            end
+
+                            if Interpreting::match("set trello link", command) then
+                                link = LucilleCore::askQuestionAnswerAsString("trello link: ")
+                                if link != "" then
+                                    Marbles::set(filepath, "trelloLink", link)
+                                end
                                 next
                             end
 

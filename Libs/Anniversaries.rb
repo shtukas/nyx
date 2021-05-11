@@ -146,7 +146,7 @@ class Anniversaries
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
                     "announce" => Anniversaries::toString(marble),
-                    "start"   => lambda {
+                    "access"   => lambda {
                         puts Anniversaries::toString(marble).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
                             Elbrams::set(filepath, "lastCelebrationDate", Time.new.to_s[0, 10])

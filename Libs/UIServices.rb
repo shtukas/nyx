@@ -127,7 +127,7 @@ class UIServices
         {
             "uuid"     => hash1,
             "announce" => announce,
-            "start"    => lambda { 
+            "access"    => lambda { 
                 system("open '#{filepath}'")
             },
             "done"     => lambda { },
@@ -200,8 +200,8 @@ class UIServices
             if Interpreting::match("..", command) then
                 item = items[0]
                 next if item.nil? 
-                next if item["start"].nil?
-                item["start"].call()
+                next if item["access"].nil?
+                item["access"].call()
             end
 
             if Interpreting::match("select *", command) then
@@ -209,15 +209,15 @@ class UIServices
                 ordinal = ordinal.to_i
                 item = items[ordinal]
                 next if item.nil?
-                next if item["start"].nil?
-                item["start"].call()
+                next if item["access"].nil?
+                item["access"].call()
             end
 
-            if Interpreting::match("start", command) then
+            if Interpreting::match("access", command) then
                 item = items[0]
                 next if item.nil? 
-                next if item["start"].nil?
-                item["start"].call()
+                next if item["access"].nil?
+                item["access"].call()
             end
 
             if Interpreting::match("start *", command) then
@@ -225,8 +225,8 @@ class UIServices
                 ordinal = ordinal.to_i
                 item = items[ordinal]
                 next if item.nil?
-                next if item["start"].nil?
-                item["start"].call()
+                next if item["access"].nil?
+                item["access"].call()
             end
 
             if Interpreting::match("done", command) then
@@ -258,7 +258,7 @@ class UIServices
             end
 
             if Interpreting::match("new work item", command) then
-                WorkInterface::issueNewItem()
+                WorkInterface::interactvelyIssueNewItem()
             end
 
             if Interpreting::match("new calendar item", command) then

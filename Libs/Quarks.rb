@@ -253,7 +253,7 @@ class Quarks
         {
             "uuid"     => Elbrams::get(filepath, "uuid"),
             "announce" => announce,
-            "start"    => lambda{ Quarks::runQuark(marble) },
+            "access"    => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
                 if marble.hasNote() or marble.get("type") != "Line" then
                     puts "You cannot listing done this quark"
