@@ -64,7 +64,7 @@ class WorkInterface
 
     # WorkInterface::interactivelyDecideADescriptionOrNull(workItemType)
     def self.interactivelyDecideADescriptionOrNull(workItemType)
-        if ["General" | "RotaItem"].include?(workItemType) then
+        if ["General", "RotaItem"].include?(workItemType) then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
             return description
@@ -101,13 +101,15 @@ class WorkInterface
         folderpath = WorkInterface::makeNewItemFolderpath(workItemType, description)
         FileUtils.mkdir(folderpath)
 
+        ordinal = (WorkInterface::ordinals() + [0]).max + 1
+
         filepath = "#{folderpath}/00-#{SecureRandom.hex}.marble"
 
         Marbles::issueNewEmptyMarbleFile(filepath)
 
         Marbles::set(filepath, "uuid", uuid)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
-        Marbles::set(filepath, "ordinal", (WorkInterface::ordinals() + [0]).max + 1)
+        Marbles::set(filepath, "ordinal", ordinal)
         Marbles::set(filepath, "description", description)
         Marbles::set(filepath, "WorkItemType", workItemType)
 
@@ -180,13 +182,22 @@ class WorkInterface
 
         WorkInterface::filepaths()
             .sort{|f1, f2| Marbles::get(f1, "ordinal").to_f <=> Marbles::get(f2, "ordinal").to_f }
-            .map{|filepath| 
+            .map{|filepath|
+                makeAnnounce = lambda{|description, workItemType|
+                    if workItemType == "PR" then
+                        return "#{"[work]".green} [monitor] #{description}"
+                    end
+                    if workItemType == "RotaItem" then
+                        return "#{"[work]".green} [rota] #{description}"
+                    end
+                    "#{"[work]".green} #{description}"
+                }
                 uuid = Marbles::get(filepath, "uuid")
                 description = Marbles::get(filepath, "description")
                 workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
-                    "announce" => "#{"[work]".green} #{description}",
+                    "announce" => makeAnnounce.call(description, workItemType),
                     "access"   => lambda {
 
                         if workItemType == "PR" then
