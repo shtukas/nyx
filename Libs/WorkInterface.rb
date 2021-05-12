@@ -209,14 +209,6 @@ class WorkInterface
 
                         startUnixtime = Time.new.to_f
 
-                        thr = Thread.new {
-                            sleep 3600
-                            loop {
-                                Utils::onScreenNotification("Catalyst", "Todo (work) running for more than an hour")
-                                sleep 60
-                            }
-                        }
-
                         system("open '#{File.dirname(filepath)}'")
 
                         loop {
@@ -272,8 +264,6 @@ class WorkInterface
                                 break
                             end
                         }
-
-                        thr.exit
 
                         timespan = Time.new.to_f - startUnixtime
 
