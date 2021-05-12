@@ -7,6 +7,12 @@ NS16 {
 }
 
 NS17 {
-    "ns16" : NS16
-    "rt"   : Float
+    (NS16 keys)
+    "recoveryTime" : Float
+}
+
+NS20 {
+    "announce"     : String
+    "recoveryTime" : Float
+    "ns16s"        : Array[NS16]
 }

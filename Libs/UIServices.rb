@@ -32,91 +32,16 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::combine(agents, ns17s): Array[Agent]
-    def self.combine(agents, ns17s)
-
-        # agents with an empty "ns17s" array
-        agents = agents.map{|agent| 
-            agent["ns17s"] = []
-            agent
-        }
-
-        # ----------------------------------------------------------
-
-        # agent with populated "ns17s" from ns17s
-        agents = ns17s.reduce(agents){|ags, ns17|
-            # we need to find the correct agent for this ns17, if we do not find it, we put it in the default agent
-            agent = ags.select{|a| a["itemsuids"].include?(ns17["uuid"]) }.first
-            if agent then
-                ags.map{|a|
-                    if a["uuid"] == agent["uuid"] then
-                        a["ns17s"] << ns17
-                    end
-                    a
-                }
-            else
-                ags.map{|a|
-                    if "3AD70E36-826B-4958-95BF-02E12209C375" == a["uuid"] then
-                        a["ns17s"] << ns17
-                    end
-                    a
-                }
-            end
-        }
-
-        # ----------------------------------------------------------
-
-        agents = agents.select{ |agent| !agent["ns17s"].empty? }
-
-        # agents with ordered ["ns17s"] according to the processing Style
-        agents = agents.map{|agent|
-            if !["Sequential", "FirstThreeCompeting", "AllCompetings"].include?(agent["processingStyle"]) then
-                puts JSON.pretty_generate(agent)
-                raise "5da5d984-7d27-49b1-946f-0780fefa0b71"
-            end
-            if agent["processingStyle"] == "Sequential" then
-                # Nothing to do
-            end
-            if agent["processingStyle"] == "FirstThreeCompeting" then
-                agent["ns17s"] = agent["ns17s"].first(3).sort{|x1, x2| x1["rt"] <=> x2["rt"] } + agent["ns17s"].drop(3)
-            end
-            if agent["processingStyle"] == "AllCompetings" then
-                agent["ns17s"] = agent["ns17s"].sort{|x1, x2| x1["rt"] <=> x2["rt"] }
-            end
-            agent
-        }
-
-        # agents with ordered ["ns16s"]
-        agents = agents.map{|agent|
-            agent["ns16s"] = agent["ns17s"].map{|ns17| ns17["ns16"] }
-            agent
-        }
-
-        # agents with a recovery time
-        agents = agents.map{|agent| 
-            agent["rt"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
-            agent
-        }
-
-        agents.sort{|a1, a2| a1["rt"] <=> a2["rt"] }
+    # UIServices::getDocNetMorningNS16s()
+    def self.getDocNetMorningNS16s()
+        isWeekday = Utils::isWeekday()
+        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
+        return [] if !isDocNetTime
+        [ UIServices::todoFilepathToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
     end
 
-    # UIServices::quarksNS16s()
-    def self.quarksNS16s()
-        agentToNS16 = lambda {|agent|
-            {
-                "uuid"     => agent["uuid"],
-                "announce" => "(#{"%5.3f" % agent["rt"]}) #{"[Air Traffic Control] #{agent["name"]}".green} (#{agent["ns17s"].size}) [#{agent["processingStyle"]}]",
-            }
-        }
-
-        agents = UIServices::combine(AirTrafficControl::agents(), Quarks::ns17s())
-
-        agents.first["ns16s"].first(3) + agents.map{|agent| agentToNS16.call(agent) } + agents.first["ns16s"].drop(3)
-    end
-
-    # UIServices::priorityFileNS16OrNull(filepath)
-    def self.priorityFileNS16OrNull(filepath)
+    # UIServices::todoFilepathToNS16OrNull(filepath)
+    def self.todoFilepathToNS16OrNull(filepath)
         raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
         filename = File.basename(filepath)
         contents = IO.read(filepath)
@@ -143,23 +68,48 @@ class UIServices
         }
     end
 
-    # UIServices::getDocNetMorningNS16s()
-    def self.getDocNetMorningNS16s()
-        isWeekday = Utils::isWeekday()
-        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
-        return [] if !isDocNetTime
-        [ UIServices::priorityFileNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
+    # UIServices::getPriority1NS16s()
+    def self.getPriority1NS16s()
+        [ UIServices::todoFilepathToNS16OrNull("/Users/pascal/Desktop/Priority 1.txt") ].compact
     end
 
-    # UIServices::getPriorityNS16s(index)
-    def self.getPriorityNS16s(index)
-        [ UIServices::priorityFileNS16OrNull("/Users/pascal/Desktop/Priority (#{index}).txt") ].compact
+    # UIServices::getTodoListNS20OrNull()
+    def self.getTodoListNS20OrNull()
+        filepath = "/Users/pascal/Desktop/Todo.txt"
+        ns16 = UIServices::todoFilepathToNS16OrNull(filepath)
+        return nil if ns16.nil?
+        bankAccount = filepath
+        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(bankAccount)
+        {
+            "announce"     => File.basename(filepath),
+            "recoveryTime" => recoveryTime,
+            "ns16s"        => [ns16]
+        }
     end
 
-    # UIServices::catalystNS16s()
-    def self.catalystNS16s()
-        items = DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriorityNS16s(1) + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + UIServices::getPriorityNS16s(2) + UIServices::quarksNS16s()
-        items.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+    # UIServices::ns16sAtTheBottomTheNS20Type()
+    def self.ns16sAtTheBottomTheNS20Type()
+        ns20s = Quarks::ns20s() + [UIServices::getTodoListNS20OrNull()].compact
+        ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
+
+        ns16representative = ns20s.map{|ns20|
+            {
+                "uuid"     => SecureRandom.hex,
+                "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
+                "access"   => nil,
+                "done"     => nil
+            }
+        }
+
+        first = ns20s.first
+        others = ns20s.drop(1)
+        first["ns16s"].first(3) + ns16representative + first["ns16s"].drop(3)
+    end
+
+    # UIServices::ns16s()
+    def self.ns16s()
+        (DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriority1NS16s() + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # UIServices::catalystDisplayLoop()
@@ -174,7 +124,7 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-4
 
-            items = UIServices::catalystNS16s()
+            items = UIServices::ns16s()
 
             $ListedNS16s = items.clone
 
@@ -317,8 +267,8 @@ Thread.new {
     }
     loop {
         sleep 60
-        items = UIServices::catalystNS16s()
-        if trace.call(UIServices::catalystNS16s()) != trace.call($ListedNS16s) then
+        items = UIServices::ns16s()
+        if trace.call(UIServices::ns16s()) != trace.call($ListedNS16s) then
             Utils::onScreenNotification("Catalyst", "New listing items")
         end
     }

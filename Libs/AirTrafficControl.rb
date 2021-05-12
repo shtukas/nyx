@@ -2,6 +2,11 @@
 
 class AirTrafficControl
 
+    # AirTrafficControl::processingStyles()
+    def self.processingStyles()
+        ["Sequential", "FirstThreeCompeting", "AllCompetings"]
+    end
+
     # AirTrafficControl::agents()
     def self.agents()
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/AirTrafficControl")
