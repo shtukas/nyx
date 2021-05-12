@@ -123,10 +123,9 @@ class WorkInterface
         end
 
         if ["General", "RotaItem"].include?(workItemType) then
-            filepath2 = "#{folderpath}/01-README.txt"
-            FileUtils.touch(filepath2)
-            if LucilleCore::askQuestionAnswerAsBoolean("edit the readme file ? ") then
-                system("open '#{filepath2}'")
+            FileUtils.touch("#{folderpath}/01-README.txt")
+            if LucilleCore::askQuestionAnswerAsBoolean("access the folder ? ") then
+                system("open '#{folderpath}'")
             end
         end
 
