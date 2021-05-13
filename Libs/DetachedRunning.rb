@@ -47,7 +47,7 @@ class DetachedRunning
                 "uuid"     => item["uuid"],
                 "announce" => "[detached running] #{item["description"]}".green,
                 "access"    => lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
                         DetachedRunning::done(item)
                     end
                 },
