@@ -147,8 +147,6 @@ class Quarks
         end
         if type == "AionPoint" then
             Elbrams::set(filepath, "type", "AionPoint")
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
             locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
             location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
             if !File.exists?(location) then
