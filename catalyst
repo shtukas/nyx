@@ -6,6 +6,35 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Quarks Inbox").each{|location|
+
+        sleep 0.5
+
+        system("clear")
+
+        puts location
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{Quarks::computeLowL22()}.marble"
+
+        Elbrams::issueNewEmptyElbram(filepath)
+
+        uuid = SecureRandom.uuid
+
+        Elbrams::set(filepath, "uuid", uuid)
+        Elbrams::set(filepath, "unixtime", Time.new.to_i)
+        Elbrams::set(filepath, "domain", "quarks")
+
+        description = File.basename(location) 
+        Elbrams::set(filepath, "description", description)
+
+        Elbrams::set(filepath, "type", "AionPoint")
+
+        payload = AionCore::commitLocationReturnHash(ElbramElizabeth.new(filepath), location)
+        Elbrams::set(filepath, "payload", payload)
+
+        LucilleCore::removeFileSystemLocation(location)
+
+}
+
 Thread.new {
     loop {
         sleep 120
