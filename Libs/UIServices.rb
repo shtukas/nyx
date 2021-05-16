@@ -32,64 +32,9 @@ class UIServices
         Anniversaries::ns16s() + Waves::ns16s()
     end
 
-    # UIServices::getDocNetMorningNS16s()
-    def self.getDocNetMorningNS16s()
-        isWeekday = Utils::isWeekday()
-        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
-        return [] if !isDocNetTime
-        [ UIServices::todoFilepathToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
-    end
-
-    # UIServices::todoFilepathToNS16OrNull(filepath)
-    def self.todoFilepathToNS16OrNull(filepath)
-        raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
-        filename = File.basename(filepath)
-        contents = IO.read(filepath)
-        return nil if contents.strip == ""
-        hash1 = Digest::SHA1.file(filepath).hexdigest
-        announce = "\n#{contents.strip.lines.map{|line| "      #{line}" }.join().green}"
-
-        {
-            "uuid"     => hash1,
-            "announce" => announce,
-            "access"    => lambda { 
-                system("open '#{filepath}'")
-            },
-            "done"     => lambda { },
-            "[]"       => lambda {
-                contents = IO.read(filepath)
-                return if contents.strip == ""
-                hash2 = Digest::SHA1.file(filepath).hexdigest
-                return if hash1 != hash2
-                contents = SectionsType0141::applyNextTransformationToText(contents)
-                File.open(filepath, "w"){|f| f.puts(contents)}
-                next
-            }
-        }
-    end
-
-    # UIServices::getPriority1NS16s()
-    def self.getPriority1NS16s()
-        [ UIServices::todoFilepathToNS16OrNull("/Users/pascal/Desktop/Priority 1.txt") ].compact
-    end
-
-    # UIServices::getTodoListNS20OrNull()
-    def self.getTodoListNS20OrNull()
-        filepath = "/Users/pascal/Desktop/Todo.txt"
-        ns16 = UIServices::todoFilepathToNS16OrNull(filepath)
-        return nil if ns16.nil?
-        bankAccount = filepath
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(bankAccount)
-        {
-            "announce"     => File.basename(filepath),
-            "recoveryTime" => recoveryTime,
-            "ns16s"        => [ns16]
-        }
-    end
-
     # UIServices::ns16sAtTheBottomTheNS20Type()
     def self.ns16sAtTheBottomTheNS20Type()
-        ns20s = Quarks::ns20s() + [UIServices::getTodoListNS20OrNull()].compact
+        ns20s = Quarks::ns20s() + [TodoFiles::ns20OrNull("/Users/pascal/Desktop/Todo.txt")].compact
         ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
 
         ns16representative = ns20s.map{|ns20|
@@ -108,7 +53,7 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        (DetachedRunning::ns16s() + Calendar::ns16s() + UIServices::getPriority1NS16s() + UIServices::getDocNetMorningNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
+        (DetachedRunning::ns16s() + Calendar::ns16s() + TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt") + TodoFiles::docnetNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
