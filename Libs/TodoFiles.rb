@@ -2,8 +2,8 @@
 
 class TodoFiles
 
-    # TodoFiles::todoFileToNS16OrNull(filepath)
-    def self.todoFileToNS16OrNull(filepath)
+    # TodoFiles::todoFileToNS16OrNull(filepath, showFileContents)
+    def self.todoFileToNS16OrNull(filepath, showFileContents)
 
         applyNextTransformation = lambda{|filepath, hash1|
             contents = IO.read(filepath)
@@ -19,7 +19,14 @@ class TodoFiles
         contents = IO.read(filepath)
         return nil if contents.strip == ""
         hash1 = Digest::SHA1.file(filepath).hexdigest
-        announce = "\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+
+        announce =
+            if showFileContents then
+                "\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+            else
+                File.basename(filepath)
+            end 
+        
         uuid = hash1
 
         {
@@ -33,6 +40,9 @@ class TodoFiles
 
                 loop {
                     system("clear")
+
+                    puts contents.strip.lines.first(10).strip.green
+                    puts ""
 
                     puts "open | ++ / + datecode | [] | (empty) # default # exit".yellow
 
@@ -88,14 +98,14 @@ class TodoFiles
         }
     end
 
-    # TodoFiles::ns16s(filepath)
-    def self.ns16s(filepath)
-        [ TodoFiles::todoFileToNS16OrNull(filepath) ].compact
+    # TodoFiles::ns16s(filepath, showFileContents)
+    def self.ns16s(filepath, showFileContents)
+        [ TodoFiles::todoFileToNS16OrNull(filepath, showFileContents) ].compact
     end
 
-    # TodoFiles::ns20OrNull(filepath)
-    def self.ns20OrNull(filepath)
-        ns16 = TodoFiles::todoFileToNS16OrNull(filepath)
+    # TodoFiles::ns20OrNull(filepath, showFileContents)
+    def self.ns20OrNull(filepath, showFileContents)
+        ns16 = TodoFiles::todoFileToNS16OrNull(filepath, showFileContents)
         return nil if ns16.nil?
         bankAccount = filepath
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(bankAccount)
@@ -111,6 +121,6 @@ class TodoFiles
         isWeekday = Utils::isWeekday()
         isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
         return [] if !isDocNetTime
-        [ TodoFiles::todoFileToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
+        [ TodoFiles::todoFileToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578"), true) ].compact
     end
 end

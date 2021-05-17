@@ -34,7 +34,7 @@ class UIServices
 
     # UIServices::ns16sAtTheBottomTheNS20Type()
     def self.ns16sAtTheBottomTheNS20Type()
-        ns20s = Quarks::ns20s() + [TodoFiles::ns20OrNull("/Users/pascal/Desktop/Todo.txt")].compact
+        ns20s = Quarks::ns20s() + [TodoFiles::ns20OrNull("/Users/pascal/Desktop/Todo.txt", false)].compact
         ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
 
         ns16representative = ns20s.map{|ns20|
@@ -53,7 +53,7 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        (DetachedRunning::ns16s() + Calendar::ns16s() + TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt") + TodoFiles::docnetNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
+        (DetachedRunning::ns16s() + Calendar::ns16s() + TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt", false) + TodoFiles::docnetNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
