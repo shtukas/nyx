@@ -16,22 +16,20 @@ class TodoFiles
 
         raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
         filename = File.basename(filepath)
-        contents = IO.read(filepath)
-        return nil if contents.strip == ""
-        hash1 = Digest::SHA1.file(filepath).hexdigest
+        return nil if IO.read(filepath).strip == ""
 
         announce =
             if showFileContents then
-                "\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+                "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
             else
                 File.basename(filepath)
             end 
         
-        uuid = hash1
+        uuid = Digest::SHA1.hexdigest(filepath)
 
         {
-            "uuid"     => hash1,
-            "announce" => announce,
+            "uuid"      => uuid,
+            "announce"  => announce,
             "access"    => lambda {
 
                 startUnixtime = Time.new.to_f
@@ -41,7 +39,7 @@ class TodoFiles
                 loop {
                     system("clear")
 
-                    puts contents.strip.lines.first(10).strip.green
+                    puts IO.read(filepath).strip.lines.first(10).join().strip.green
                     puts ""
 
                     puts "open | ++ / + datecode | [] | (empty) # default # exit".yellow
@@ -76,7 +74,7 @@ class TodoFiles
                     end
 
                     if Interpreting::match("[]", command) then
-                        applyNextTransformation.call(filepath, hash1)
+                        applyNextTransformation.call(filepath, Digest::SHA1.file(filepath).hexdigest)
                     end
                     
                     if Interpreting::match("", command) then
@@ -94,7 +92,7 @@ class TodoFiles
                 Bank::put(uuid, timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { applyNextTransformation.call(filepath, hash1) }
+            "[]"       => lambda { applyNextTransformation.call(filepath, Digest::SHA1.file(filepath).hexdigest) }
         }
     end
 
@@ -107,7 +105,7 @@ class TodoFiles
     def self.ns20OrNull(filepath, showFileContents)
         ns16 = TodoFiles::todoFileToNS16OrNull(filepath, showFileContents)
         return nil if ns16.nil?
-        bankAccount = filepath
+        bankAccount = Digest::SHA1.hexdigest(filepath)
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(bankAccount)
         {
             "announce"     => File.basename(filepath),
