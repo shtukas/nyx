@@ -181,6 +181,7 @@ class WorkInterface
 
         WorkInterface::filepaths()
             .sort{|f1, f2| Marbles::get(f1, "ordinal").to_f <=> Marbles::get(f2, "ordinal").to_f }
+            .reverse
             .map{|filepath|
                 makeAnnounce = lambda{|description, workItemType|
                     if workItemType == "PR" then
