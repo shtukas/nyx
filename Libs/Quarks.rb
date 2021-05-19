@@ -14,9 +14,9 @@ class L22Extentions
     end
 end
 
-class Quarks
+class QuarkPlacementManagement
 
-    # Quarks::middlePointOfTwoL22sOrNull(p1, p2)
+    # QuarkPlacementManagement::middlePointOfTwoL22sOrNull(p1, p2)
     def self.middlePointOfTwoL22sOrNull(p1, p2)
         raise "ae294eb7-4a63-4c82-91a1-96ca58a04536" if p1 == p2
 
@@ -32,55 +32,52 @@ class Quarks
         p3
     end
 
-    # Quarks::computeLowL22()
-    def self.computeLowL22()
-        marbles = Elbrams::marblesOfGivenDomainInOrder("quarks")
-        if marbles.size < 21 then
+    # QuarkPlacementManagement::newL22()
+    def self.newL22()
+
+        l22s = Elbrams::marblesOfGivenDomainInOrder("quarks").map{|marble| File.basename(marble.filepath())[0, 22] }
+        
+        if l22s.size < 100 then # If we actually have less then 100 elements, we just return return the current time
             return LucilleCore::timeStringL22()
         end
 
-        l22s = marbles.drop(19).take(2).map{|marble| File.basename(marble.filepath())[0, 22] }
-        l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
-        return l22 if l22
+        unixtime = 1621462757 # 2021-05-19 23:19:17 +0100
+        alpha = 1.to_f/(Math::PI/2) * Math.atan( (Time.new.to_f - unixtime) * 1.to_f/(86400*365) )
 
-        # let's make some space
+        # alpha increases from 0 to 1 asymptotically starting at unixtime
+  
+        base = (1-alpha) * L22Extentions::l22ToFloat(l22s[0]) + alpha * L22Extentions::l22ToFloat(l22s[-1])
 
-        Elbrams::marblesOfGivenDomainInOrder("quarks").take(20).each{|marble|
-            filepath1 = marble.filepath()
-            x1 = File.basename(filepath1)[0, 4]
-            x2 = ((x1.to_i)-1).to_s
-            filepath2 = "#{File.dirname(filepath1)}/#{x2}#{File.basename(filepath1)[4, 99]}"
-            FileUtils.mv(filepath1, filepath2)
-        }
+        ienum = LucilleCore::integerEnumerator()
 
-        # Now having some space, let's recompute
-
-        marbles = Elbrams::marblesOfGivenDomainInOrder("quarks")
-        l22s = marbles.drop(19).take(2).map{|marble| File.basename(marble.filepath())[0, 22] }
-        l22 = Quarks::middlePointOfTwoL22sOrNull(l22s[0], l22s[1])
-        raise "5802573f-2248-4c04-8915-b025d3ebdc02" if l22.nil? # this is not supposed to fire
-
-        l22
-    end
-
-    # Quarks::computeLowerL22(l22)
-    def self.computeLowerL22(l22)
-        float1 = L22Extentions::l22ToFloat(l22)
-        cursor = 0
         loop {
-            cursor = cursor + 1
-            floatx = float1 - cursor
-            l22x = L22Extentions::floatToL22(floatx)
-            filepathx = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22x}.marble"
-            next if File.exists?(filepathx)
-            return l22x
+            l22 = L22Extentions::floatToL22(base+ienum.next().to_f/1000)
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
+            next if File.exists?(filepath)
+            return l22
         }
     end
 
-    # Quarks::interactivelyIssueNewElbramQuarkOrNull()
-    def self.interactivelyIssueNewElbramQuarkOrNull()
+    # QuarkPlacementManagement::findFreeToUseLowerL22(l22)
+    def self.findFreeToUseLowerL22(l22)
+        float1 = L22Extentions::l22ToFloat(l22)
+        ienum = LucilleCore::integerEnumerator()
+        loop {
+            float2 = float1 - ienum.next().to_f/1000
+            l22 = L22Extentions::floatToL22(float2)
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
+            next if File.exists?(filepath)
+            return l22
+        }
+    end
+end
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{Quarks::computeLowL22()}.marble"
+class Quarks
+
+    # Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
+    def self.interactivelyIssueNewElbramQuarkOrNullAtLowL22()
+
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
@@ -164,7 +161,7 @@ class Quarks
         marbles = Quarks::firstNVisibleQuarks(Utils::screenHeight()-3)
         marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", marbles, lambda { |marble| Quarks::toString(marble) })
         return marble.filepath() if marble
-        Quarks::interactivelyIssueNewElbramQuarkOrNull()
+        Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
     end
 
     # Quarks::firstNQuarks(resultSize)
@@ -435,7 +432,7 @@ class Quarks
                 return if uuidx == uuid
                 Elbrams::set(filepath, "dependency", uuidx)
                 # There is one more thing we need to do, and that is to move the architected marble (aka the dependency) before [this]
-                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{Quarks::computeLowerL22(File.basename(filepath)[0, 22])}.marble"
+                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::findFreeToUseLowerL22(File.basename(filepath)[0, 22])}.marble"
                 puts "moving marbe:"
                 puts "    #{filepathx1}"
                 puts "    #{filepathx2}"

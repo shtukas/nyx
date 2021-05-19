@@ -18,7 +18,7 @@ class UIServices
 
             ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })
 
-            ms.item("new quark", lambda { Quarks::interactivelyIssueNewElbramQuarkOrNull() })
+            ms.item("new quark", lambda { Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22() })
 
             puts ""
 
@@ -154,7 +154,7 @@ class UIServices
             end
 
             if Interpreting::match("new quark", command) then
-                Quarks::interactivelyIssueNewElbramQuarkOrNull()
+                Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
             end
 
             if Interpreting::match("new work item", command) then

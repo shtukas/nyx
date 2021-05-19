@@ -13,7 +13,7 @@ LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Quarks Inbox").each{|locat
         system("clear")
 
         puts location
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{Quarks::computeLowL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
 
         Elbrams::issueNewEmptyElbram(filepath)
 
