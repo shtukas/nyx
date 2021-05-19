@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-$ListedNS16s = nil
+$NS16sTrace = nil
 
 class UIServices
 
@@ -57,6 +57,11 @@ class UIServices
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
+    # UIServices::ns16sToTrace(ns16s)
+    def self.ns16sToTrace(ns16s)
+        ns16s.first(3).map{|item| item["uuid"] }.join(";")
+    end
+
     # UIServices::catalystDisplayLoop()
     def self.catalystDisplayLoop()
 
@@ -71,7 +76,7 @@ class UIServices
 
             items = UIServices::ns16s()
 
-            $ListedNS16s = items.clone
+            $NS16sTrace = UIServices::ns16sToTrace(items)
 
             puts ""
             vspaceleft = vspaceleft - 1
@@ -207,13 +212,9 @@ class UIServices
 end
 
 Thread.new {
-    trace = lambda {|items|
-        items.map{|item| item["uuid"] }.sort.join(";")
-    }
     loop {
         sleep 60
-        items = UIServices::ns16s()
-        if trace.call(UIServices::ns16s()) != trace.call($ListedNS16s) then
+        if UIServices::ns16sToTrace(UIServices::ns16s()) != $NS16sTrace then
             Utils::onScreenNotification("Catalyst", "New listing items")
         end
     }
