@@ -74,6 +74,53 @@ end
 
 class Quarks
 
+    # Quarks::applyBlueTagToFile(filepath)
+    def self.applyBlueTagToFile(filepath)
+        system("xattr -wx com.apple.FinderInfo \"0000000000000000000900000000000000000000000000000000000000000000\" '#{filepath}'")
+    end
+
+    # Quarks::importLocationAsNewAionPointQuark(location)
+    def self.importLocationAsNewAionPointQuark(location)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
+
+        Elbrams::issueNewEmptyElbram(filepath)
+
+        Quarks::applyBlueTagToFile(filepath)
+
+        uuid = SecureRandom.uuid
+
+        Elbrams::set(filepath, "uuid", uuid)
+        Elbrams::set(filepath, "unixtime", Time.new.to_i)
+        Elbrams::set(filepath, "domain", "quarks")
+
+        description = File.basename(location) 
+        Elbrams::set(filepath, "description", description)
+
+        Elbrams::set(filepath, "type", "AionPoint")
+
+        payload = AionCore::commitLocationReturnHash(ElbramElizabeth.new(filepath), location)
+        Elbrams::set(filepath, "payload", payload)
+    end
+
+    # Quarks::importURLAsNewURLQuark(url)
+    def self.importURLAsNewURLQuark(url)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
+
+        Elbrams::issueNewEmptyElbram(filepath)
+
+        Quarks::applyBlueTagToFile(filepath)
+
+        uuid = SecureRandom.uuid
+
+        Elbrams::set(filepath, "uuid", uuid)
+        Elbrams::set(filepath, "unixtime", Time.new.to_i)
+        Elbrams::set(filepath, "domain", "quarks")
+        Elbrams::set(filepath, "description", url)
+
+        Elbrams::set(filepath, "type", "Url")
+        Elbrams::set(filepath, "payload", url)
+    end
+
     # Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
     def self.interactivelyIssueNewElbramQuarkOrNullAtLowL22()
 
@@ -82,6 +129,8 @@ class Quarks
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
         Elbrams::issueNewEmptyElbram(filepath)
+
+        Quarks::applyBlueTagToFile(filepath)
 
         uuid = SecureRandom.uuid
 
@@ -164,6 +213,14 @@ class Quarks
         Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
     end
 
+    # --------------------------------------------------
+
+    # Quarks::toString(marble)
+    def self.toString(marble)
+        filepath = marble.filepath()
+        "[quark] #{Elbrams::get(filepath, "description")}"
+    end
+
     # Quarks::firstNQuarks(resultSize)
     def self.firstNQuarks(resultSize)
         Elbrams::marblesOfGivenDomainInOrder("quarks").reduce([]) {|selected, marble|
@@ -201,13 +258,166 @@ class Quarks
         !Elbrams::getFilepathByIdAtDomainOrNull("quarks", uuidx).nil? # retrn true if a file for this uuidx was found
     end
 
-    # Quarks::toString(marble)
-    def self.toString(marble)
-        filepath = marble.filepath()
-        "[quark] #{Elbrams::get(filepath, "description")}"
-    end
-
     # --------------------------------------------------
+
+    # Quarks::runQuark(marble)
+    def self.runQuark(marble)
+
+        filepath = marble.filepath()
+
+        return if !marble.isStillAlive()
+
+        uuid = Elbrams::get(filepath, "uuid")
+        toString = Quarks::toString(marble)
+
+        startUnixtime = Time.new.to_f
+
+        thr = Thread.new {
+            sleep 3600
+            loop {
+                Utils::onScreenNotification("Catalyst", "Elbram quark running for more than an hour")
+                sleep 60
+            }
+        }
+
+        system("clear")
+        puts "running: #{Quarks::toString(marble)}"
+        Elbrams::access(marble)
+
+        loop {
+
+            system("clear")
+
+            return if !marble.isStillAlive()
+
+            puts "running: #{Quarks::toString(marble)}"
+
+            AirTrafficControl::agentsForUUID(uuid).each{|agent|
+                puts "@agent: #{agent["name"]}"
+            }
+            if Elbrams::getOrNull(filepath, "dependency") then
+                uuidx = Elbrams::getOrNull(filepath, "dependency")
+                filepathx = Elbrams::getFilepathByIdAtDomainOrNull("quarks", uuidx)
+                if filepathx then
+                    puts "Dependency: #{Elbrams::getOrNull(filepathx, "description")}"
+                end
+            end
+
+            if marble.getNote().size > 0 then
+                puts ""
+                puts "Note:"
+                puts marble.getNote()
+                puts ""
+            end
+
+            puts "landing | edit note | update agent | set dependency | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | detach running | done | (empty) # default # exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if Interpreting::match("landing", command) then
+                Quarks::landing(marble)
+            end
+
+            if Interpreting::match("edit note", command) then
+                marble.editNote()
+            end
+
+            if Interpreting::match("update agent", command) then
+                agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
+                if agent then
+                    agent["itemsuids"] << uuid
+                    AirTrafficControl::commitAgentToDisk(agent)
+                    AirTrafficControl::agents().each{|a|
+                        next if a["uuid"] == agent["uuid"]
+                        next if !a["itemsuids"].include?(uuid)
+                        a["itemsuids"] = a["itemsuids"] - [uuid]
+                        AirTrafficControl::commitAgentToDisk(a)
+                    }
+                end
+            end
+
+            if Interpreting::match("set dependency", command) then
+                filepathx1 = Quarks::architechFilepathOrNull()
+                return if filepathx1.nil?
+                puts "Setting dependency on #{Elbrams::get(filepathx1, "description")}"
+                uuidx = Elbrams::get(filepathx1, "uuid")
+                return if uuidx == uuid
+                Elbrams::set(filepath, "dependency", uuidx)
+                # There is one more thing we need to do, and that is to move the architected marble (aka the dependency) before [this]
+                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::findFreeToUseLowerL22(File.basename(filepath)[0, 22])}.marble"
+                puts "moving marble:"
+                puts "    #{filepathx1}"
+                puts "    #{filepathx2}"
+                FileUtils.mv(filepathx1, filepathx2)
+            end
+
+            if Interpreting::match("++", command) then
+                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), Time.new.to_i+3600)
+                break
+            end
+
+            if Interpreting::match("+ *", command) then
+                _, input = Interpreting::tokenizer(command)
+                unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
+                next if unixtime.nil?
+                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
+                break
+            end
+
+            if Interpreting::match("+ * *", command) then
+                _, amount, unit = Interpreting::tokenizer(command)
+                unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+                return if unixtime.nil?
+                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
+                break
+            end
+
+            if Interpreting::match("detach running", command) then
+                bankAccounts = []
+                bankAccounts << uuid
+                AirTrafficControl::agentsForUUID(uuid).each{|agent|
+                    bankAccounts << agent["uuid"]
+                }
+                DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, bankAccounts)
+                break
+            end
+
+            if Interpreting::match("done", command) then
+                if marble.getNote().size > 0 then
+                    puts "You can't delete a quark with  non empty note"
+                    LucilleCore::pressEnterToContinue()
+                else
+                    Elbrams::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
+                    marble.destroy()
+                end
+                break
+            end
+
+            if Interpreting::match("", command) then
+                break
+            end
+        }
+
+        thr.exit
+
+        timespan = Time.new.to_f - startUnixtime
+
+        puts "Time since start: #{timespan}"
+
+        timespan = [timespan, 3600*2].min
+
+        AirTrafficControl::agentsForUUID(uuid).each{|agent|
+            puts "putting #{timespan} seconds into agent '#{agent["name"]}'"
+            Bank::put(agent["uuid"], timespan)
+        }
+
+        puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
+        Bank::put(uuid, timespan)
+
+        Elbrams::postAccessCleanUp(marble)
+    end
 
     # Quarks::marbleToNS16(marble)
     def self.marbleToNS16(marble)
@@ -344,164 +554,5 @@ class Quarks
             status = mx.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # Quarks::runQuark(marble)
-    def self.runQuark(marble)
-
-        filepath = marble.filepath()
-
-        return if !marble.isStillAlive()
-
-        uuid = Elbrams::get(filepath, "uuid")
-        toString = Quarks::toString(marble)
-
-        startUnixtime = Time.new.to_f
-
-        thr = Thread.new {
-            sleep 3600
-            loop {
-                Utils::onScreenNotification("Catalyst", "Elbram quark running for more than an hour")
-                sleep 60
-            }
-        }
-
-        system("clear")
-        puts "running: #{Quarks::toString(marble)}"
-        Elbrams::access(marble)
-
-        loop {
-
-            system("clear")
-
-            return if !marble.isStillAlive()
-
-            puts "running: #{Quarks::toString(marble)}"
-
-            AirTrafficControl::agentsForUUID(uuid).each{|agent|
-                puts "@agent: #{agent["name"]}"
-            }
-            if Elbrams::getOrNull(filepath, "dependency") then
-                uuidx = Elbrams::getOrNull(filepath, "dependency")
-                filepathx = Elbrams::getFilepathByIdAtDomainOrNull("quarks", uuidx)
-                if filepathx then
-                    puts "Dependency: #{Elbrams::getOrNull(filepathx, "description")}"
-                end
-            end
-
-            if marble.getNote().size > 0 then
-                puts ""
-                puts "Note:"
-                puts marble.getNote()
-                puts ""
-            end
-
-            puts "landing | edit note | update agent | set dependency | ++ # Postpone marble by an hour | + <weekday> # Postpone marble | + <float> <datecode unit> # Postpone marble | detach running | done | (empty) # default # exit".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if Interpreting::match("landing", command) then
-                Quarks::landing(marble)
-            end
-
-            if Interpreting::match("edit note", command) then
-                marble.editNote()
-            end
-
-            if Interpreting::match("update agent", command) then
-                agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
-                if agent then
-                    agent["itemsuids"] << uuid
-                    AirTrafficControl::commitAgentToDisk(agent)
-                    AirTrafficControl::agents().each{|a|
-                        next if a["uuid"] == agent["uuid"]
-                        next if !a["itemsuids"].include?(uuid)
-                        a["itemsuids"] = a["itemsuids"] - [uuid]
-                        AirTrafficControl::commitAgentToDisk(a)
-                    }
-                end
-            end
-
-            if Interpreting::match("set dependency", command) then
-                filepathx1 = Quarks::architechFilepathOrNull()
-                return if filepathx1.nil?
-                puts "Setting dependency on #{Elbrams::get(filepathx1, "description")}"
-                uuidx = Elbrams::get(filepathx1, "uuid")
-                return if uuidx == uuid
-                Elbrams::set(filepath, "dependency", uuidx)
-                # There is one more thing we need to do, and that is to move the architected marble (aka the dependency) before [this]
-                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::findFreeToUseLowerL22(File.basename(filepath)[0, 22])}.marble"
-                puts "moving marbe:"
-                puts "    #{filepathx1}"
-                puts "    #{filepathx2}"
-                FileUtils.mv(filepathx1, filepathx2)
-            end
-
-            if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), Time.new.to_i+3600)
-                break
-            end
-
-            if Interpreting::match("+ *", command) then
-                _, input = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
-                break
-            end
-
-            if Interpreting::match("+ * *", command) then
-                _, amount, unit = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
-                break
-            end
-
-            if Interpreting::match("detach running", command) then
-                bankAccounts = []
-                bankAccounts << uuid
-                AirTrafficControl::agentsForUUID(uuid).each{|agent|
-                    bankAccounts << agent["uuid"]
-                }
-                DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, bankAccounts)
-                break
-            end
-
-            if Interpreting::match("done", command) then
-                if marble.getNote().size > 0 then
-                    puts "You can't delete a quark with  non empty note"
-                    LucilleCore::pressEnterToContinue()
-                else
-                    Elbrams::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
-                    marble.destroy()
-                end
-                break
-            end
-
-            if Interpreting::match("", command) then
-                break
-            end
-        }
-
-        thr.exit
-
-        timespan = Time.new.to_f - startUnixtime
-
-        puts "Time since start: #{timespan}"
-
-        timespan = [timespan, 3600*2].min
-
-        AirTrafficControl::agentsForUUID(uuid).each{|agent|
-            puts "putting #{timespan} seconds into agent '#{agent["name"]}'"
-            Bank::put(agent["uuid"], timespan)
-        }
-
-        puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
-        Bank::put(uuid, timespan)
-
-        Elbrams::postAccessCleanUp(marble)
     end
 end

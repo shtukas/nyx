@@ -34,28 +34,13 @@ class ViennaLinkFeeder
     end
 end
 
-def timeStringL22()
-    "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-end
-
 viennaLinkFeeder = ViennaLinkFeeder.new()
 
 loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-
-    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{LucilleCore::timeStringL22()}.marble"
-
-    Elbrams::issueNewEmptyElbram(filepath)
-
-    Elbrams::set(filepath, "uuid", SecureRandom.uuid)
-    Elbrams::set(filepath, "unixtime", Time.new.to_i)
-    Elbrams::set(filepath, "domain", "quarks")
-    Elbrams::set(filepath, "description", link)
-
-    Elbrams::set(filepath, "type", "Url")
-    Elbrams::set(filepath, "payload", link)
-
+    Quarks::importURLAsNewURLQuark(link)
     viennaLinkFeeder.done(link)
+    sleep 1
 }
