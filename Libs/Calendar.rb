@@ -45,6 +45,13 @@ class Calendar
         "[calendar] (#{item["date"]}) #{item["description"]}"
     end
 
+    # Calendar::moveToArchives(item)
+    def self.moveToArchives(item)
+        FileUtils.mv(item["folderpath"], "#{Calendar::pathToCalendarFolder()}/01-Archives")
+    end
+
+    # -----------------------------------------------------
+
     # Calendar::itemIsForNS16s(item)
     def self.itemIsForNS16s(item)
         item["date"] <= Time.new.to_s[0, 10]
@@ -59,10 +66,14 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item),
-                    "access"    => lambda { },
+                    "access"   => lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("'#{Calendar::toString(item)}' done ? ") then
+                            Calendar::moveToArchives(item)
+                        end
+                    },
                     "done"     => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
-                            FileUtils.mv(item["folderpath"], "#{Calendar::pathToCalendarFolder()}/01-Archives")
+                            Calendar::moveToArchives(item)
                         end
                     }
                 }
