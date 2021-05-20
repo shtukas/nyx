@@ -175,6 +175,111 @@ class WorkInterface
         end
     end
 
+    # WorkInterface::accessPR(filepath)
+    def self.accessPR(filepath)
+        uuid = Marbles::get(filepath, "uuid")
+        description = Marbles::get(filepath, "description")
+        loop {
+            puts "link: '#{description}'".green
+            puts "open | done".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if Interpreting::match("open", command) then
+                system("open '#{description}'")
+                next
+            end
+
+            if Interpreting::match("done", command) then
+                WorkInterface::done(filepath)
+                break
+            end
+        }
+    end
+
+    # WorkInterface::access(filepath)
+    def self.access(filepath)
+        uuid = Marbles::get(filepath, "uuid")
+        description = Marbles::get(filepath, "description")
+        workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
+
+        if workItemType == "PR" then
+            WorkInterface::accessPR(filepath)
+            return
+        end
+
+        startUnixtime = Time.new.to_f
+
+        system("open '#{File.dirname(filepath)}'")
+
+        loop {
+
+            puts WorkInterface::toString(filepath).green
+            puts "folder: #{File.dirname(filepath)}"
+            puts "ordinal: #{Marbles::get(filepath, "ordinal")}"
+
+            if Marbles::getOrNull(filepath, "trelloLink") then
+                puts "trello link: #{Marbles::get(filepath, "trelloLink")}"
+            end
+
+            puts "access folder | set top | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if Interpreting::match("access folder", command) then
+                system("open '#{File.dirname(filepath)}'")
+                next
+            end
+
+            if Interpreting::match("set top", command) then
+                Marbles::set(filepath, "ordinal", (WorkInterface::ordinals() + [0]).min - 1)
+                next
+            end
+
+            if Interpreting::match("edit description", command) then
+                description = Utils::editTextSynchronously(Marbles::get(filepath, "description"))
+                Marbles::set(filepath, "description", description)
+                folder1 = File.dirname(filepath)
+                folder2 = "#{File.dirname(folder1)}/#{Time.at(Marbles::get(filepath, "unixtime")).to_s[0, 10]} #{WorkInterface::sanitiseDescriptionForFilename(description)}"
+                if folder1 != folder2 then
+                    FileUtils.mv(folder1, folder2)
+                end
+                return
+            end
+
+            if Interpreting::match("set trello link", command) then
+                link = LucilleCore::askQuestionAnswerAsString("trello link: ")
+                if link != "" then
+                    Marbles::set(filepath, "trelloLink", link)
+                end
+                next
+            end
+
+            if Interpreting::match("++", command) then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
+
+            if Interpreting::match("done", command) then
+                WorkInterface::done(filepath)
+                break
+            end
+        }
+
+        timespan = Time.new.to_f - startUnixtime
+
+        puts "Time since start: #{Time.new.to_f - startUnixtime}"
+
+        timespan = [timespan, 3600*2].min
+
+        puts "putting #{timespan} seconds to todo: #{uuid}"
+        Bank::put(uuid, timespan)
+    end
+
     # WorkInterface::ns16s()
     def self.ns16s()
         return [] if !Utils::isWorkTime()
@@ -198,86 +303,8 @@ class WorkInterface
                 {
                     "uuid"     => uuid,
                     "announce" => makeAnnounce.call(description, workItemType),
-                    "access"   => lambda {
-
-                        if workItemType == "PR" then
-                            system("open '#{description}'")
-                            if LucilleCore::askQuestionAnswerAsBoolean("merged ? ") then
-                                WorkInterface::done(filepath)
-                            end
-                            return
-                        end
-
-                        startUnixtime = Time.new.to_f
-
-                        system("open '#{File.dirname(filepath)}'")
-
-                        loop {
-
-                            puts WorkInterface::toString(filepath).green
-                            puts "folder: #{File.dirname(filepath)}"
-                            puts "ordinal: #{Marbles::get(filepath, "ordinal")}"
-                            if Marbles::getOrNull(filepath, "trelloLink") then
-                                puts "trello link: #{Marbles::get(filepath, "trelloLink")}"
-                            end
-                            puts "access folder | set top | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
-
-                            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-                            break if command == ""
-
-                            if Interpreting::match("access folder", command) then
-                                system("open '#{File.dirname(filepath)}'")
-                                next
-                            end
-
-                            if Interpreting::match("set top", command) then
-                                Marbles::set(filepath, "ordinal", (WorkInterface::ordinals() + [0]).min - 1)
-                                next
-                            end
-
-                            if Interpreting::match("edit description", command) then
-                                description = Utils::editTextSynchronously(Marbles::get(filepath, "description"))
-                                Marbles::set(filepath, "description", description)
-                                folder1 = File.dirname(filepath)
-                                folder2 = "#{File.dirname(folder1)}/#{Time.at(Marbles::get(filepath, "unixtime")).to_s[0, 10]} #{WorkInterface::sanitiseDescriptionForFilename(description)}"
-                                if folder1 != folder2 then
-                                    FileUtils.mv(folder1, folder2)
-                                end
-                                return
-                            end
-
-                            if Interpreting::match("set trello link", command) then
-                                link = LucilleCore::askQuestionAnswerAsString("trello link: ")
-                                if link != "" then
-                                    Marbles::set(filepath, "trelloLink", link)
-                                end
-                                next
-                            end
-
-                            if Interpreting::match("++", command) then
-                                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                                break
-                            end
-
-                            if Interpreting::match("done", command) then
-                                WorkInterface::done(filepath)
-                                break
-                            end
-                        }
-
-                        timespan = Time.new.to_f - startUnixtime
-
-                        puts "Time since start: #{Time.new.to_f - startUnixtime}"
-
-                        timespan = [timespan, 3600*2].min
-
-                        puts "putting #{timespan} seconds to todo: #{uuid}"
-                        Bank::put(uuid, timespan)
-                    },
-                    "done" => lambda {
-                        WorkInterface::done(filepath)
-                    }
+                    "access"   => lambda { WorkInterface::access(filepath) },
+                    "done" => lambda { WorkInterface::done(filepath) }
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
