@@ -4,34 +4,6 @@ $NS16sTrace = nil
 
 class UIServices
 
-    # UIServices::servicesFront()
-    def self.servicesFront()
-        loop {
-
-            ms = LCoreMenuItemsNX1.new()
-
-            ms.item("Anniversaries", lambda { Anniversaries::main() })
-
-            ms.item("Waves", lambda { Waves::main() })
-
-            puts ""
-
-            ms.item("new wave", lambda { Waves::issueNewWaveInteractivelyOrNull() })
-
-            ms.item("new quark", lambda { Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22() })
-
-            puts ""
-
-            status = ms.promptAndRunSandbox()
-            break if !status
-        }
-    end
-
-    # UIServices::waveLikeNS16s()
-    def self.waveLikeNS16s()
-        Anniversaries::ns16s() + Waves::ns16s()
-    end
-
     # UIServices::ns16sAtTheBottomTheNS20Type()
     def self.ns16sAtTheBottomTheNS20Type()
         ns20s = Quarks::ns20s() + [TodoFiles::ns20OrNull("/Users/pascal/Desktop/Todo.txt", false)].compact
@@ -53,7 +25,17 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        (DetachedRunning::ns16s() + Calendar::ns16s() + TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt", true) + TodoFiles::docnetNS16s() + UIServices::waveLikeNS16s() + WorkInterface::ns16s() + ns16sAtTheBottomTheNS20Type())
+        [
+            DetachedRunning::ns16s(),
+            Calendar::ns16s(),
+            TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt", true),
+            TodoFiles::docnetNS16s(),
+            Anniversaries::ns16s(),
+            Waves::ns16s(),
+            WorkInterface::ns16s(),
+            UIServices::ns16sAtTheBottomTheNS20Type()
+        ]
+            .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
@@ -88,7 +70,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | no work today | new calendar item".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves".yellow
             puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -145,10 +127,6 @@ class UIServices
                 item["done"].call()
             end
 
-            if Interpreting::match("/", command) then
-                UIServices::servicesFront()
-            end
-
             if Interpreting::match("new wave", command) then
                 Waves::issueNewWaveInteractivelyOrNull()
             end
@@ -167,6 +145,18 @@ class UIServices
 
             if Interpreting::match("no work today", command) then
                 KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
+            end
+
+            if Interpreting::match("anniversaries", command) then
+                Anniversaries::main()
+            end
+
+            if Interpreting::match("calendar", command) then
+                Calendar::main()
+            end
+
+            if Interpreting::match("waves", command) then
+                Waves::main()
             end
 
             # -- top -----------------------------------------------------------------------------

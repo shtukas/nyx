@@ -86,6 +86,14 @@ class Calendar
                 }
             }
     end
+
+    # -----------------------------------------------------
+
+    # Calendar::main()
+    def self.main()
+        puts "Calendar::main() has not been implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
 end
 
 
