@@ -86,7 +86,7 @@ class Quarks
     # Quarks::applyBlueTagToFile(filepath)
     def self.applyBlueTagToFile(filepath)
         Elbrams::set(filepath, "blue-tag-2f45a660", "true")
-        system("xattr -wx com.apple.FinderInfo \"0000000000000000000900000000000000000000000000000000000000000000\" '#{filepath}'")
+        # system("xattr -wx com.apple.FinderInfo \"0000000000000000000900000000000000000000000000000000000000000000\" '#{filepath}'")
     end
 
     # Quarks::importLocationAsNewAionPointQuark(location)
