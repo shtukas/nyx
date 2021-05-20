@@ -6,18 +6,23 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+def imports()
+    LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Quarks Inbox").each{|location|
+        puts location
+        Quarks::importLocationAsNewAionPointQuark(location)
+        LucilleCore::removeFileSystemLocation(location)
+        sleep 1
+    }
+
+    system("#{File.dirname(__FILE__)}/../../vienna-import")
+end
+
+imports()
+
 Thread.new {
     loop {
         sleep 300
-
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Quarks Inbox").each{|location|
-            puts location
-            Quarks::importLocationAsNewAionPointQuark(location)
-            LucilleCore::removeFileSystemLocation(location)
-            sleep 1
-        }
-
-        system("#{File.dirname(__FILE__)}/../../vienna-import")
+        imports()
     }
 }
 

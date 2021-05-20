@@ -35,27 +35,36 @@ class QuarkPlacementManagement
     # QuarkPlacementManagement::newL22()
     def self.newL22()
 
-        l22s = Elbrams::marblesOfGivenDomainInOrder("quarks").map{|marble| File.basename(marble.filepath())[0, 22] }
-        
-        if l22s.size < 100 then # If we actually have less then 100 elements, we just return return the current time
+        # l22s = Elbrams::marblesOfGivenDomainInOrder("quarks").map{|marble| File.basename(marble.filepath())[0, 22] }
+
+        marbles = Elbrams::marblesOfGivenDomainInOrder("quarks")
+
+        if marbles.size < 100 then # If we actually have less then 100 elements, we just return return the current time
             return LucilleCore::timeStringL22()
         end
 
-        unixtime = 1621462757 # 2021-05-19 23:19:17 +0100
-        alpha = 1.to_f/(Math::PI/2) * Math.atan( (Time.new.to_f - unixtime) * 1.to_f/(86400*365) )
-
-        # alpha increases from 0 to 1 asymptotically starting at unixtime
-  
-        base = (1-alpha) * L22Extentions::l22ToFloat(l22s[0]) + alpha * L22Extentions::l22ToFloat(l22s[-1])
-
-        ienum = LucilleCore::integerEnumerator()
-
         loop {
-            l22 = L22Extentions::floatToL22(base+ienum.next().to_f/1000)
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
-            next if File.exists?(filepath)
-            return l22
+            break if marbles.size < 2
+            m0 = marbles[0]
+            m1 = marbles[1] 
+            if (m0.getOrNull("blue-tag-2f45a660") or m1.getOrNull("blue-tag-2f45a660")) then
+                marbles.shift
+                next
+            end
+            p0 = File.basename(m0.filepath())[0, 22]
+            p1 = File.basename(m1.filepath())[0, 22]
+            l22 = QuarkPlacementManagement::middlePointOfTwoL22sOrNull(p0, p1)
+            if l22 then
+                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
+                if !File.exists?(filepath) then
+                    return l22
+                end
+            end
+            marbles.shift
         }
+
+        LucilleCore::timeStringL22()
+
     end
 
     # QuarkPlacementManagement::findFreeToUseLowerL22(l22)
@@ -76,6 +85,7 @@ class Quarks
 
     # Quarks::applyBlueTagToFile(filepath)
     def self.applyBlueTagToFile(filepath)
+        Elbrams::set(filepath, "blue-tag-2f45a660", "true")
         system("xattr -wx com.apple.FinderInfo \"0000000000000000000900000000000000000000000000000000000000000000\" '#{filepath}'")
     end
 
