@@ -96,22 +96,9 @@ class TodoFiles
         }
     end
 
-    # TodoFiles::ns16s(filepath, showFileContents)
-    def self.ns16s(filepath, showFileContents)
+    # TodoFiles::filepathToNS16s(filepath, showFileContents)
+    def self.filepathToNS16s(filepath, showFileContents)
         [ TodoFiles::todoFileToNS16OrNull(filepath, showFileContents) ].compact
-    end
-
-    # TodoFiles::ns20OrNull(filepath, showFileContents)
-    def self.ns20OrNull(filepath, showFileContents)
-        ns16 = TodoFiles::todoFileToNS16OrNull(filepath, showFileContents)
-        return nil if ns16.nil?
-        bankAccount = Digest::SHA1.hexdigest(filepath)
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(bankAccount)
-        {
-            "announce"     => File.basename(filepath),
-            "recoveryTime" => recoveryTime,
-            "ns16s"        => [ns16]
-        }
     end
 
     # TodoFiles::docnetNS16s()

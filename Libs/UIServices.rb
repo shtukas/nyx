@@ -6,7 +6,7 @@ class UIServices
 
     # UIServices::ns16sAtTheBottomTheNS20Type()
     def self.ns16sAtTheBottomTheNS20Type()
-        ns20s = Quarks::ns20s() + [TodoFiles::ns20OrNull("/Users/pascal/Desktop/Todo.txt", false)].compact
+        ns20s = Quarks::ns20s() + [Todos::ns20()]
         ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
 
         ns16representative = ns20s.map{|ns20|
@@ -28,7 +28,7 @@ class UIServices
         [
             DetachedRunning::ns16s(),
             Calendar::ns16s(),
-            TodoFiles::ns16s("/Users/pascal/Desktop/Priority 1.txt", true),
+            TodoFiles::filepathToNS16s("/Users/pascal/Desktop/Priority 1.txt", true),
             TodoFiles::docnetNS16s(),
             Anniversaries::ns16s(),
             Waves::ns16s(),
@@ -70,7 +70,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | / | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves".yellow
             puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -125,6 +125,10 @@ class UIServices
                 next if item.nil?
                 next if item["done"].nil?
                 item["done"].call()
+            end
+
+            if Interpreting::match("new todo", command) then
+                Todos::interactivelyMakeNewTodoItem()
             end
 
             if Interpreting::match("new wave", command) then
