@@ -90,6 +90,8 @@ class TodoFiles
 
                 puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
                 Bank::put(uuid, timespan)
+
+                $counterx.registerTimeInSeconds(timespan)
             },
             "done"     => lambda { },
             "[]"       => lambda { applyNextTransformation.call(filepath, Digest::SHA1.file(filepath).hexdigest) }

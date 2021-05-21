@@ -98,6 +98,7 @@ class Waves
         Elbrams::set(filepath, "lastDoneDateTime", Time.now.utc.iso8601)
         unixtime = Waves::marbleToDoNotShowUnixtime(marble)
         DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
+        $counterx.registerDone()
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()

@@ -72,6 +72,7 @@ class Todos
 
             if Interpreting::match("destroy", command) then
                 FileUtils.rm(filepath)
+                $counterx.registerDone()
                 break
             end
         }
@@ -85,6 +86,8 @@ class Todos
         puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
         Bank::put(uuid, timespan)
         Bank::put(Todos::todosCommonBankAccount(), timespan)
+
+        $counterx.registerTimeInSeconds(timespan)
     end
 
     # Todos::filepathToNS16OrNull(filepath)
@@ -111,6 +114,7 @@ class Todos
             .map{|filepath| Todos::filepathToNS16OrNull(filepath) }
             .compact
             .sort{|x1, x2| x1["recoveryTime"]<=>x2["recoveryTime"] }
+            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # Todos::ns20()

@@ -151,6 +151,7 @@ class WorkInterface
 
     # WorkInterface::done(filepath)
     def self.done(filepath)
+        $counterx.registerDone()
         itemType = (Marbles::getOrNull(filepath, "WorkItemType") || "General")
         if itemType == "PR" then
             puts "Removing folder: '#{File.dirname(filepath)}'"
@@ -162,7 +163,6 @@ class WorkInterface
             LucilleCore::removeFileSystemLocation(File.dirname(filepath))
             return
         end
-
         if LucilleCore::askQuestionAnswerAsBoolean("move folder to archives ? ") then
             LucilleCore::removeFileSystemLocation(filepath) # Removing the marble file itself which doesn't need to be in the archives
             folderpath = File.dirname(filepath)
@@ -278,6 +278,8 @@ class WorkInterface
 
         puts "putting #{timespan} seconds to todo: #{uuid}"
         Bank::put(uuid, timespan)
+
+        $counterx.registerTimeInSeconds(timespan)
     end
 
     # WorkInterface::ns16s()

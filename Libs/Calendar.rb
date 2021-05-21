@@ -76,11 +76,13 @@ class Calendar
                     "access"   => lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("'#{Calendar::toString(item)}' done ? ") then
                             Calendar::moveToArchives(item)
+                            $counterx.registerDone()
                         end
                     },
                     "done"     => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
                             Calendar::moveToArchives(item)
+                            $counterx.registerDone()
                         end
                     }
                 }

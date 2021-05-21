@@ -402,6 +402,7 @@ class Quarks
                     Elbrams::postAccessCleanUp(marble) # we need to do it here because after the Neired content destroy, the one at the ottom won't work
                     marble.destroy()
                 end
+                $counterx.registerDone()
                 break
             end
 
@@ -425,6 +426,8 @@ class Quarks
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
         Bank::put(uuid, timespan)
+
+        $counterx.registerTimeInSeconds(timespan)
 
         Elbrams::postAccessCleanUp(marble)
     end
