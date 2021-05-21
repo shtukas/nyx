@@ -94,18 +94,23 @@ class Todos
             return nil 
         end
         uuid = File.basename(filepath)
+        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
-            "uuid"      => uuid,
-            "announce"  => Todos::filepathToString(filepath),
-            "access"    => lambda { Todos::accessFilepath(filepath) },
-            "done"      => lambda { Todos::accessFilepath(filepath) },
-            "[]"        => lambda { Todos::applyNextTransformationToFile(filepath, Digest::SHA1.file(filepath).hexdigest) }
+            "uuid"         => uuid,
+            "recoveryTime" => recoveryTime,
+            "announce"     => "(#{"%5.3f" % recoveryTime}) #{Todos::filepathToString(filepath)}",
+            "access"       => lambda { Todos::accessFilepath(filepath) },
+            "done"         => lambda { Todos::accessFilepath(filepath) },
+            "[]"           => lambda { Todos::applyNextTransformationToFile(filepath, Digest::SHA1.file(filepath).hexdigest) }
         }
     end
 
     # Todos::ns16s()
     def self.ns16s()
-        Todos::todoFilepaths().map{|filepath| Todos::filepathToNS16OrNull(filepath) }.compact
+        Todos::todoFilepaths()
+            .map{|filepath| Todos::filepathToNS16OrNull(filepath) }
+            .compact
+            .sort{|x1, x2| x1["recoveryTime"]<=>x2["recoveryTime"] }
     end
 
     # Todos::ns20()

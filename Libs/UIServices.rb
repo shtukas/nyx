@@ -9,7 +9,7 @@ class UIServices
         ns20s = Quarks::ns20s() + [Todos::ns20()]
         ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
 
-        ns16representative = ns20s.map{|ns20|
+        ns16representatives = ns20s.map{|ns20|
             {
                 "uuid"     => SecureRandom.hex,
                 "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
@@ -18,9 +18,9 @@ class UIServices
             }
         }
 
-        first = ns20s.first
-        others = ns20s.drop(1)
-        first["ns16s"].first(3) + ns16representative + first["ns16s"].drop(3)
+        ns16s = (ns20s.map{|ns20| ns20["ns16s"].first(3) } + ns20s.map{|ns20| ns20["ns16s"].drop(3) }).flatten
+
+        ns16s.first(3) + ns16representatives + ns16s.drop(3)
     end
 
     # UIServices::ns16s()
