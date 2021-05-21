@@ -145,7 +145,7 @@ class Anniversaries
                 filepath = marble.filepath()
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
-                    "announce" => Anniversaries::toString(marble),
+                    "announce" => "        #{Anniversaries::toString(marble)}",
                     "access"   => lambda {
                         puts Anniversaries::toString(marble).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then

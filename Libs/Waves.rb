@@ -153,7 +153,7 @@ class Waves
                 filepath = marble.filepath()
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
-                    "announce" => Waves::toString(marble),
+                    "announce" => "        #{Waves::toString(marble)}",
                     "access"    => lambda {
                         Waves::access(marble)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
