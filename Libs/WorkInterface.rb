@@ -285,7 +285,6 @@ class WorkInterface
     # WorkInterface::ns16s()
     def self.ns16s()
         return [] if !Utils::isWorkTime()
-
         WorkInterface::filepaths()
             .sort{|f1, f2| Marbles::get(f1, "ordinal").to_f <=> Marbles::get(f2, "ordinal").to_f }
             .reverse
@@ -305,12 +304,11 @@ class WorkInterface
                 workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
-                    "metric"   => Metrics::metric("today", nil, indx),
+                    "metric"   => ["ns:work", nil, nil, indx],
                     "announce" => makeAnnounce.call(description, workItemType),
                     "access"   => lambda { WorkInterface::access(filepath) },
                     "done" => lambda { WorkInterface::done(filepath) }
                 }
             }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
     end
 end

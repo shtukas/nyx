@@ -178,4 +178,4 @@ require_relative "WorkInterface.rb"
 
 # ------------------------------------------------------------
 
-
+$AirTrafficDataOperator = AirTrafficDataOperator.new()

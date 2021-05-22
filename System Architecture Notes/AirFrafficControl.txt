@@ -5,8 +5,6 @@ It works around the notion of agent.
 Agent {
     "uuid"            : String
     "name"            : String
-    "processingStyle" : "Sequential", "FirstThreeCompeting", "AllCompetings"  
-    "itemsuids"       : Array[String]
 }
 
 There is a special agent for quarks not in another agent
@@ -14,6 +12,4 @@ There is a special agent for quarks not in another agent
 {
     "uuid"            : "3AD70E36-826B-4958-95BF-02E12209C375"
     "name"            : "Stream"
-    "processingStyle" : "Sequential"
-    "itemsuids"       : nil
 }

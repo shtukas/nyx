@@ -157,8 +157,7 @@ class Quarks
 
         agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
         if agent then
-            agent["itemsuids"] << uuid
-            AirTrafficControl::commitAgentToDisk(agent)
+            Elbrams::set(filepath, "air-traffic-control-agent", agent["uuid"])
         end
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
@@ -270,6 +269,12 @@ class Quarks
 
     # --------------------------------------------------
 
+    # Quarks::marbleToAgent(marble)
+    def self.marbleToAgent(marble)
+        agentuuid = Elbrams::getOrNull(marble.filepath(), "air-traffic-control-agent")
+        $AirTrafficDataOperator.getAgentByIdOrNull(agentuuid) || AirTrafficControl::defaultAgent()
+    end
+
     # Quarks::runQuark(marble)
     def self.runQuark(marble)
 
@@ -302,7 +307,7 @@ class Quarks
 
             puts "running: #{Quarks::toString(marble)}"
 
-            agent = AirTrafficControl::agentForUUID(uuid)
+            agent = Quarks::marbleToAgent(marble)
             puts "@agent: #{agent["name"]}"
 
             if Elbrams::getOrNull(filepath, "dependency") then
@@ -336,16 +341,9 @@ class Quarks
 
             if Interpreting::match("update agent", command) then
                 agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
-                if agent then
-                    agent["itemsuids"] << uuid
-                    AirTrafficControl::commitAgentToDisk(agent)
-                    AirTrafficControl::agents().each{|a|
-                        next if a["uuid"] == agent["uuid"]
-                        next if !a["itemsuids"].include?(uuid)
-                        a["itemsuids"] = a["itemsuids"] - [uuid]
-                        AirTrafficControl::commitAgentToDisk(a)
-                    }
-                end
+                next if agent.nil?
+                Elbrams::set(filepath, "air-traffic-control-agent", agent["uuid"])
+                return
             end
 
             if Interpreting::match("set dependency", command) then
@@ -385,7 +383,7 @@ class Quarks
             end
 
             if Interpreting::match("detach running", command) then
-                agent = AirTrafficControl::agentForUUID(uuid)
+                agent = Quarks::marbleToAgent(marble)
                 DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, [uuid, agent["uuid"]])
                 break
             end
@@ -415,7 +413,7 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        agent = AirTrafficControl::agentForUUID(uuid)
+        agent = Quarks::marbleToAgent(marble)
 
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
@@ -429,12 +427,16 @@ class Quarks
     # Quarks::marbleToNS16(marble, indx = nil)
     def self.marbleToNS16(marble, indx = nil)
 
+        indx         = indx || 0
+
         filepath     = marble.filepath()
         uuid         = Elbrams::get(filepath, "uuid")
         description  = Elbrams::get(filepath, "description")
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        numbersStr   = (recoveryTime > 0) ? "(#{"%5.3f" % recoveryTime}) " : "        "
-        announce     = "#{numbersStr}#{description}"
+        agent        = Quarks::marbleToAgent(marble)
+        metricLevel, agentRecoveryTime = $AirTrafficDataOperator.agentToMetricData(agent)
+
+        announce     = "(#{agent["name"]}) #{description}"
 
         if marble.hasNote() then
             prefix = "              "
@@ -443,7 +445,7 @@ class Quarks
 
         {
             "uuid"     => uuid,
-            "metric"   => Metrics::metric(GeneralMetricHelpers::quarkIdToMetricLevel(uuid), (indx and (indx < 3)) ? 1-recoveryTime.to_f/2 : 0, nil),
+            "metric"   => [metricLevel, agentRecoveryTime, recoveryTime, indx],
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
@@ -456,8 +458,11 @@ class Quarks
                     marble.destroy()
                 end
             },
-            "x-source"     => "Quarks",
-            "recoveryTime" => recoveryTime
+            "x-source"       => "Quarks",
+            "x-index"        => indx,
+            "x-recoveryTime" => recoveryTime,
+            "x-agent"        => agent,
+            "x-agent-metric-data" => $AirTrafficDataOperator.agentToMetricData(agent)
         }
     end
 
@@ -466,7 +471,7 @@ class Quarks
         Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
             .map 
             .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) and !Quarks::marbleHasActiveDependencies(item["uuid"]) }
+            .select{|item| !Quarks::marbleHasActiveDependencies(item["uuid"]) }
     end
 
     # --------------------------------------------------

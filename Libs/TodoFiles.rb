@@ -29,7 +29,7 @@ class TodoFiles
 
         {
             "uuid"      => uuid,
-            "metric"    => Metrics::metric("today", nil, nil),
+            "metric"    => ["ns:important", nil, nil, nil],
             "announce"  => announce,
             "access"    => lambda {
 

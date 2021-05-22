@@ -155,8 +155,8 @@ class Waves
                 filepath = marble.filepath()
                 {
                     "uuid"      => Elbrams::get(filepath, "uuid"),
-                    "metric"    => Metrics::metric("wave", nil, indx),
-                    "announce"  => "        #{Waves::toString(marble)}",
+                    "metric"    => ["ns:wave", nil, nil, indx],
+                    "announce"  => Waves::toString(marble),
                     "access"    => lambda {
                         Waves::access(marble)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
@@ -169,7 +169,6 @@ class Waves
                     }
                 }
             }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Waves::access(marble)

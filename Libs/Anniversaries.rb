@@ -146,8 +146,8 @@ class Anniversaries
                 filepath = marble.filepath()
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
-                    "metric"   => Metrics::metric("today", nil, indx),
-                    "announce" => "        #{Anniversaries::toString(marble)}",
+                    "metric"   => ["ns:important", nil, nil, indx],
+                    "announce" => Anniversaries::toString(marble),
                     "access"   => lambda {
                         puts Anniversaries::toString(marble).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
@@ -160,8 +160,6 @@ class Anniversaries
                     }
                 }
             }
-            .sort{|i1, i2| i1["announce"]<=>i2["announce"] }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # Anniversaries::dailyBriefing()

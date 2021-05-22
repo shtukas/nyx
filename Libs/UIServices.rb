@@ -57,7 +57,7 @@ class UIServices
         ns16representatives = ns20s.map{|ns20|
             {
                 "uuid"     => SecureRandom.hex,
-                "metric"   => Metrics::metric("running", nil, nil),
+                "metric"   => ["ns:running", nil, nil, nil],
                 "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
                 "access"   => nil,
                 "done"     => nil
@@ -84,7 +84,11 @@ class UIServices
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .sort{|item1, item2| item1["metric"][3] <=> item2["metric"][3] }
+            .map{|item|
+                item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
+                item
+            }
+            .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
             .reverse
     end
 
@@ -113,13 +117,19 @@ class UIServices
             vspaceleft = vspaceleft - 1
 
             items.each_with_index{|item, indx|
-                announce = "(#{"%3d" % indx}) (#{"%5.3f" % item["metric"][3]}) #{item["announce"]}"
+                indexStr   = "(#{"%3d" % indx})"
+                x1 = item["metric"][1] || 0
+                x2 = item["metric"][2] || 0
+                x3 = item["metric"][3]
+                numbersStr = "" # " ( #{item["metric"][0].ljust(12)}, #{x1 > 0 ? "%5.3f" % x1 : "     "}, #{x2 > 0 ? "%5.3f" % x2 : "     "}, #{x3 ? "%2d" % x3 : "  "} )"
+                s1 = " #{item["announce"].gsub("(Default Stream) ", "")}"
+                announce   = "#{indexStr}#{numbersStr}#{s1}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents".yellow
             puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -208,8 +218,17 @@ class UIServices
                 Calendar::main()
             end
 
-            if Interpreting::match("waves", command) then
-                Waves::main()
+            if Interpreting::match("agents", command) then
+                AirTrafficControl::agents()
+                .map{|agent|
+                    agent["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
+                    agent
+                }
+                .sort{|a1, a2| a1["recoveryTime"] <=> a2["recoveryTime"] }
+                .each{|agent|
+                    puts "#{agent["name"].ljust(50)} #{agent["recoveryTime"]}"
+                }
+                LucilleCore::pressEnterToContinue()
             end
 
             # -- top -----------------------------------------------------------------------------
