@@ -141,10 +141,12 @@ class Anniversaries
     def self.ns16s()
         Elbrams::marblesOfGivenDomainInOrder("anniversaries")
             .select{|marble| Anniversaries::marbleNextDateOrdinal(marble)[0] <= Utils::today() }
-            .map{|marble|
+            .map
+            .with_index{|marble, indx|
                 filepath = marble.filepath()
                 {
                     "uuid"     => Elbrams::get(filepath, "uuid"),
+                    "metric"   => Metrics::metric("today", nil, indx),
                     "announce" => "        #{Anniversaries::toString(marble)}",
                     "access"   => lambda {
                         puts Anniversaries::toString(marble).green

@@ -1,5 +1,6 @@
 NS16 {
     "uuid"     : String # used by DoNotShowUntil
+    "metric"   : Float, between 0 and 1, use Metrics module
     "announce" : String
     "access"   : Lambda or nil # optional
     "done"     : Lambda or nil # optional

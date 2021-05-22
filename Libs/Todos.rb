@@ -100,11 +100,12 @@ class Todos
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"         => uuid,
-            "recoveryTime" => recoveryTime,
+            "metric"       => Metrics::metric("zone", nil, nil),
             "announce"     => "(#{"%5.3f" % recoveryTime}) #{Todos::filepathToString(filepath)}",
             "access"       => lambda { Todos::accessFilepath(filepath) },
             "done"         => lambda { Todos::accessFilepath(filepath) },
-            "[]"           => lambda { Todos::applyNextTransformationToFile(filepath, Digest::SHA1.file(filepath).hexdigest) }
+            "[]"           => lambda { Todos::applyNextTransformationToFile(filepath, Digest::SHA1.file(filepath).hexdigest) },
+            "recoveryTime" => recoveryTime
         }
     end
 

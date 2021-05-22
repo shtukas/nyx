@@ -289,7 +289,8 @@ class WorkInterface
         WorkInterface::filepaths()
             .sort{|f1, f2| Marbles::get(f1, "ordinal").to_f <=> Marbles::get(f2, "ordinal").to_f }
             .reverse
-            .map{|filepath|
+            .map
+            .with_index{|filepath, indx|
                 makeAnnounce = lambda{|description, workItemType|
                     if workItemType == "PR" then
                         return "#{"[work] ".green} [monitor] #{description}"
@@ -304,6 +305,7 @@ class WorkInterface
                 workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
+                    "metric"   => Metrics::metric("today", nil, indx),
                     "announce" => makeAnnounce.call(description, workItemType),
                     "access"   => lambda { WorkInterface::access(filepath) },
                     "done" => lambda { WorkInterface::done(filepath) }

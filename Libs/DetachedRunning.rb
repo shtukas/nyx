@@ -42,11 +42,14 @@ class DetachedRunning
 
     # DetachedRunning::ns16s()
     def self.ns16s()
-        DetachedRunning::items().map{|item|
+        DetachedRunning::items()
+        .map
+        .with_index{|item, indx|
             {
                 "uuid"     => item["uuid"],
+                "metric"   => Metrics::metric("running", nil, indx),
                 "announce" => "[detached running] #{item["description"]}".green,
-                "access"    => lambda{
+                "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
                         DetachedRunning::done(item)
                     end

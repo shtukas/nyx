@@ -1,0 +1,9 @@
+
+Metric zones
+
+"running" :        1.0 : Running Items 
+"today"   : 0.7 -> 0.8 : Todo next 
+"zone"    : 0.4 -> 0.5 : The Zone
+
+
+

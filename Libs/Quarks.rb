@@ -432,8 +432,8 @@ class Quarks
         Elbrams::postAccessCleanUp(marble)
     end
 
-    # Quarks::marbleToNS16(marble)
-    def self.marbleToNS16(marble)
+    # Quarks::marbleToNS16(marble, indx = nil)
+    def self.marbleToNS16(marble, indx = nil)
 
         filepath     = marble.filepath()
         uuid         = Elbrams::get(filepath, "uuid")
@@ -449,6 +449,7 @@ class Quarks
         
         {
             "uuid"     => uuid,
+            "metric"   => Metrics::metric("running", (indx and (indx < 3)) ? 1-recoveryTime.to_f/2 : 0, nil),
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
@@ -468,7 +469,8 @@ class Quarks
     # Quarks::ns16s()
     def self.ns16s()
         Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
-            .map {|marble| Quarks::marbleToNS16(marble) }
+            .map 
+            .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) and !Quarks::marbleHasActiveDependencies(item["uuid"]) }
     end
 

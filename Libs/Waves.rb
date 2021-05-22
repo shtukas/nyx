@@ -150,11 +150,13 @@ class Waves
     # Waves::ns16s()
     def self.ns16s()
         Elbrams::marblesOfGivenDomainInOrder("waves")
-            .map{|marble|
+            .map
+            .with_index{|marble, indx|
                 filepath = marble.filepath()
                 {
-                    "uuid"     => Elbrams::get(filepath, "uuid"),
-                    "announce" => "        #{Waves::toString(marble)}",
+                    "uuid"      => Elbrams::get(filepath, "uuid"),
+                    "metric"    => Metrics::metric("today", nil, indx),
+                    "announce"  => "        #{Waves::toString(marble)}",
                     "access"    => lambda {
                         Waves::access(marble)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
