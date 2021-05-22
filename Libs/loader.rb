@@ -141,6 +141,7 @@ require_relative "BinaryBlobsService.rb"
 require_relative "Calendar.rb"
 
 require_relative "DetachedRunning.rb"
+require_relative "Dispatch.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
@@ -178,5 +179,3 @@ require_relative "Waves.rb"
 require_relative "WorkInterface.rb"
 
 # ------------------------------------------------------------
-
-$AirTrafficDataOperator = AirTrafficDataOperator.new()
