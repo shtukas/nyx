@@ -517,3 +517,19 @@ class Quarks
         }
     end
 end
+
+class QuarksOperator
+    
+    def initalize()
+        @ns16s = nil
+    end
+
+    def ns16s()
+        if @ns16s.nil? then
+            @ns16s = Quarks::ns16s()
+        end
+        @ns16s
+    end
+end
+
+$QuarksOperator = QuarksOperator.new()

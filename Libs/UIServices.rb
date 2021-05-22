@@ -80,7 +80,7 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
-            Quarks::ns16s(),
+            $QuarksOperator.ns16s(),
             Todos::ns16s()
         ]
             .flatten
