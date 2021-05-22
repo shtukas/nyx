@@ -45,6 +45,7 @@ $counterx = CounterX.new()
 # ------------------------------------------------------------------------------------------
 
 $NS16sTrace = nil
+$ShowNumbers = false
 
 class UIServices
 
@@ -121,7 +122,12 @@ class UIServices
                 x1 = item["metric"][1] || 0
                 x2 = item["metric"][2] || 0
                 x3 = item["metric"][3]
-                numbersStr = "" # " ( #{item["metric"][0].ljust(12)}, #{x1 > 0 ? "%5.3f" % x1 : "     "}, #{x2 > 0 ? "%5.3f" % x2 : "     "}, #{x3 ? "%2d" % x3 : "  "} )"
+                if $ShowNumbers then
+                    numbersStr = " ( #{item["metric"][0].ljust(12)}, #{x1 > 0 ? "%5.3f" % x1 : "     "}, #{x2 > 0 ? "%5.3f" % x2 : "     "}, #{x3 ? "%2d" % x3 : "  "} )"
+                else
+                    numbersStr = ""
+                end
+
                 s1 = " #{item["announce"].gsub("(Default Stream) ", "")}"
                 announce   = "#{indexStr}#{numbersStr}#{s1}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
@@ -129,7 +135,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | show numbers".yellow
             puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -229,6 +235,10 @@ class UIServices
                     puts "#{agent["name"].ljust(50)} #{agent["recoveryTime"]}"
                 }
                 LucilleCore::pressEnterToContinue()
+            end
+
+            if Interpreting::match("show numbers", command) then
+                $ShowNumbers = true
             end
 
             # -- top -----------------------------------------------------------------------------
