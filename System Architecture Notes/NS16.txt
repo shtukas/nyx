@@ -6,14 +6,3 @@ NS16 {
     "done"     : Lambda or nil # optional
     "[]"       : Lambda or nil # optional
 }
-
-NS17 {
-    (NS16 keys)
-    "recoveryTime" : Float
-}
-
-NS20 {
-    "announce"     : String
-    "recoveryTime" : Float
-    "ns16s"        : Array[NS16]
-}

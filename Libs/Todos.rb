@@ -117,13 +117,4 @@ class Todos
             .sort{|x1, x2| x1["recoveryTime"]<=>x2["recoveryTime"] }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
-
-    # Todos::ns20()
-    def self.ns20()
-        {
-            "announce"     => "Todos",
-            "recoveryTime" => BankExtended::stdRecoveredDailyTimeInHours(Todos::todosCommonBankAccount()),
-            "ns16s"        => Todos::ns16s()
-        }
-    end
 end

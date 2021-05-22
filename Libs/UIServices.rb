@@ -57,6 +57,7 @@ class UIServices
         ns16representatives = ns20s.map{|ns20|
             {
                 "uuid"     => SecureRandom.hex,
+                "metric"   => Metrics::metric("running", nil, nil),
                 "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
                 "access"   => nil,
                 "done"     => nil
@@ -78,10 +79,13 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
-            UIServices::ns16sAtTheBottomTheNS20Type()
+            Quarks::ns16s(),
+            Todos::ns16s()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .sort{|item1, item2| item1["metric"][3] <=> item2["metric"][3] }
+            .reverse
     end
 
     # UIServices::ns16sToTrace(ns16s)
@@ -109,14 +113,14 @@ class UIServices
             vspaceleft = vspaceleft - 1
 
             items.each_with_index{|item, indx|
-                announce = "(#{"%3d" % indx}) #{item["announce"]}"
+                announce = "(#{"%3d" % indx}) (#{"%5.3f" % item["metric"][3]}) #{item["announce"]}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
             puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves".yellow
-            puts "top    : [] (Priority.txt) | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
+            puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -209,6 +213,14 @@ class UIServices
             end
 
             # -- top -----------------------------------------------------------------------------
+
+            if Interpreting::match("expose", command) then
+                item = items[0]
+                next if item.nil? 
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
 
             if Interpreting::match("[]", command) then
                 item = items[0]

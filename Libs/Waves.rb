@@ -155,7 +155,7 @@ class Waves
                 filepath = marble.filepath()
                 {
                     "uuid"      => Elbrams::get(filepath, "uuid"),
-                    "metric"    => Metrics::metric("today", nil, indx),
+                    "metric"    => Metrics::metric("wave", nil, indx),
                     "announce"  => "        #{Waves::toString(marble)}",
                     "access"    => lambda {
                         Waves::access(marble)

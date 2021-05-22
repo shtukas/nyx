@@ -19,11 +19,11 @@ class AirTrafficControl
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/AirTrafficControl/#{agent["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(agent))}
     end
 
-    # AirTrafficControl::agentsForUUID(uuid)
-    def self.agentsForUUID(uuid)
-        agents = AirTrafficControl::agents().select{|agent| agent["itemsuids"].include?(uuid) }
-        return agents if !agents.empty?
-        AirTrafficControl::agents().select{|agent| agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375"}
+    # AirTrafficControl::agentForUUID(uuid)
+    def self.agentForUUID(uuid)
+        agent = AirTrafficControl::agents().select{|agent| agent["itemsuids"].include?(uuid) }.first
+        return agent if agent
+        AirTrafficControl::agents().select{|agent| agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375"}.first
     end
 end
 

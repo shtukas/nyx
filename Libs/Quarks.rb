@@ -302,9 +302,9 @@ class Quarks
 
             puts "running: #{Quarks::toString(marble)}"
 
-            AirTrafficControl::agentsForUUID(uuid).each{|agent|
-                puts "@agent: #{agent["name"]}"
-            }
+            agent = AirTrafficControl::agentForUUID(uuid)
+            puts "@agent: #{agent["name"]}"
+
             if Elbrams::getOrNull(filepath, "dependency") then
                 uuidx = Elbrams::getOrNull(filepath, "dependency")
                 filepathx = Elbrams::getFilepathByIdAtDomainOrNull("quarks", uuidx)
@@ -385,12 +385,8 @@ class Quarks
             end
 
             if Interpreting::match("detach running", command) then
-                bankAccounts = []
-                bankAccounts << uuid
-                AirTrafficControl::agentsForUUID(uuid).each{|agent|
-                    bankAccounts << agent["uuid"]
-                }
-                DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, bankAccounts)
+                agent = AirTrafficControl::agentForUUID(uuid)
+                DetachedRunning::issueNew(uuid, Quarks::toString(marble), Time.new.to_i, [uuid, agent["uuid"]])
                 break
             end
 
@@ -419,10 +415,8 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        AirTrafficControl::agentsForUUID(uuid).each{|agent|
-            puts "putting #{timespan} seconds into agent '#{agent["name"]}'"
-            Bank::put(agent["uuid"], timespan)
-        }
+        agent = AirTrafficControl::agentForUUID(uuid)
+
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
         Bank::put(uuid, timespan)
@@ -439,17 +433,17 @@ class Quarks
         uuid         = Elbrams::get(filepath, "uuid")
         description  = Elbrams::get(filepath, "description")
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        numbersX     = (recoveryTime > 0) ? "(#{"%5.3f" % recoveryTime}) " : "        "
-        announce     = "#{numbersX}#{description}"
-        
+        numbersStr   = (recoveryTime > 0) ? "(#{"%5.3f" % recoveryTime}) " : "        "
+        announce     = "#{numbersStr}#{description}"
+
         if marble.hasNote() then
             prefix = "              "
             announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
         end
-        
+
         {
             "uuid"     => uuid,
-            "metric"   => Metrics::metric("running", (indx and (indx < 3)) ? 1-recoveryTime.to_f/2 : 0, nil),
+            "metric"   => Metrics::metric(GeneralMetricHelpers::quarkIdToMetricLevel(uuid), (indx and (indx < 3)) ? 1-recoveryTime.to_f/2 : 0, nil),
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
@@ -462,6 +456,7 @@ class Quarks
                     marble.destroy()
                 end
             },
+            "x-source"     => "Quarks",
             "recoveryTime" => recoveryTime
         }
     end
@@ -472,57 +467,6 @@ class Quarks
             .map 
             .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) and !Quarks::marbleHasActiveDependencies(item["uuid"]) }
-    end
-
-    # Quarks::ns17s()
-    def self.ns17s()
-        Quarks::ns16s().map{|x| 
-            x["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(x["uuid"])
-            x
-        }
-    end
-
-    # Quarks::airTrafficControlAgentToNS20OrNull(agent, agents, ns17s)
-    def self.airTrafficControlAgentToNS20OrNull(agent, agents, ns17s)
-
-        ns17s =
-            if agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375" then
-                # We collect the ns17s with are not in any agent
-                ns17s.select{|ns17| agents.none?{|ag| ag["itemsuids"].include?(ns17["uuid"]) } }
-            else
-                # We collect the ns17s which are in this agent
-                ns17s.select{|ns17| agent["itemsuids"].include?(ns17["uuid"]) }
-            end
-
-        return nil if ns17s.empty?
-
-        if !AirTrafficControl::processingStyles().include?(agent["processingStyle"]) then
-            puts JSON.pretty_generate(agent)
-            raise "5da5d984-7d27-49b1-946f-0780fefa0b71"
-        end
-
-        if agent["processingStyle"] == "Sequential" then
-            # Nothing to do
-        end
-        if agent["processingStyle"] == "FirstThreeCompeting" then
-            ns17s = ns17s.first(3).sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] } + ns17s.drop(3)
-        end
-        if agent["processingStyle"] == "AllCompetings" then
-            ns17s = ns17s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] } 
-        end
-
-        {
-            "announce"     => agent["name"],
-            "recoveryTime" => BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"]),
-            "ns16s"        => ns17s
-        }
-    end
-
-    # Quarks::ns20s()
-    def self.ns20s()
-        agents = AirTrafficControl::agents()
-        ns17s = Quarks::ns17s()
-        agents.map{|agent| Quarks::airTrafficControlAgentToNS20OrNull(agent, agents, ns17s)}.compact
     end
 
     # --------------------------------------------------
