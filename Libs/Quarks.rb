@@ -1,38 +1,35 @@
 
 # encoding: UTF-8
 
-class L22Extentions
+class L22X
 
-    # L22Extentions::l22ToFloat(l22)
+    # L22X::l22ToFloat(l22)
     def self.l22ToFloat(l22)
         Time.strptime(l22[0, 15], '%Y%m%d-%H%M%S').to_i + "0.#{l22[16, 6]}".to_f
     end
 
-    # L22Extentions::floatToL22(float)
+    # L22X::floatToL22(float)
     def self.floatToL22(float)
         Time.at(float.to_i).strftime("%Y%m%d-%H%M%S") + "-#{("#{"%.6f" % (float-float.to_i)}")[2, 6].ljust(6, "0")}"
     end
-end
 
-class QuarkPlacementManagement
-
-    # QuarkPlacementManagement::middlePointOfTwoL22sOrNull(p1, p2)
+    # L22X::middlePointOfTwoL22sOrNull(p1, p2)
     def self.middlePointOfTwoL22sOrNull(p1, p2)
         raise "ae294eb7-4a63-4c82-91a1-96ca58a04536" if p1 == p2
 
-        float1 = L22Extentions::l22ToFloat(p1)
-        float2 = L22Extentions::l22ToFloat(p2)
+        float1 = L22X::l22ToFloat(p1)
+        float2 = L22X::l22ToFloat(p2)
 
         float3 = (float1+float2).to_f/2
 
-        p3 = L22Extentions::floatToL22(float3)
+        p3 = L22X::floatToL22(float3)
 
         return nil if [p1, p2].include?(p3)
 
         p3
     end
 
-    # QuarkPlacementManagement::newL22()
+    # L22X::newL22()
     def self.newL22()
 
         # l22s = Elbrams::marblesOfGivenDomainInOrder("quarks").map{|marble| File.basename(marble.filepath())[0, 22] }
@@ -53,7 +50,7 @@ class QuarkPlacementManagement
             end
             p0 = File.basename(m0.filepath())[0, 22]
             p1 = File.basename(m1.filepath())[0, 22]
-            l22 = QuarkPlacementManagement::middlePointOfTwoL22sOrNull(p0, p1)
+            l22 = L22X::middlePointOfTwoL22sOrNull(p0, p1)
             if l22 then
                 filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
                 if !File.exists?(filepath) then
@@ -67,13 +64,13 @@ class QuarkPlacementManagement
 
     end
 
-    # QuarkPlacementManagement::findFreeToUseLowerL22(l22)
+    # L22X::findFreeToUseLowerL22(l22)
     def self.findFreeToUseLowerL22(l22)
-        float1 = L22Extentions::l22ToFloat(l22)
+        float1 = L22X::l22ToFloat(l22)
         ienum = LucilleCore::integerEnumerator()
         loop {
             float2 = float1 - ienum.next().to_f/1000
-            l22 = L22Extentions::floatToL22(float2)
+            l22 = L22X::floatToL22(float2)
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{l22}.marble"
             next if File.exists?(filepath)
             return l22
@@ -91,7 +88,7 @@ class Quarks
 
     # Quarks::importLocationAsNewAionPointQuark(location)
     def self.importLocationAsNewAionPointQuark(location)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{L22X::newL22()}.marble"
 
         Elbrams::issueNewEmptyElbram(filepath)
 
@@ -114,7 +111,7 @@ class Quarks
 
     # Quarks::importURLAsNewURLQuark(url)
     def self.importURLAsNewURLQuark(url)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{L22X::newL22()}.marble"
 
         Elbrams::issueNewEmptyElbram(filepath)
 
@@ -134,7 +131,7 @@ class Quarks
     # Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
     def self.interactivelyIssueNewElbramQuarkOrNullAtLowL22()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::newL22()}.marble"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{L22X::newL22()}.marble"
 
         raise "[error: e7ed22f0-9962-472d-907f-419916d224ee]" if File.exists?(filepath)
 
@@ -354,7 +351,7 @@ class Quarks
                 return if uuidx == uuid
                 Elbrams::set(filepath, "dependency", uuidx)
                 # There is one more thing we need to do, and that is to move the architected marble (aka the dependency) before [this]
-                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{QuarkPlacementManagement::findFreeToUseLowerL22(File.basename(filepath)[0, 22])}.marble"
+                filepathx2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks/#{L22X::findFreeToUseLowerL22(File.basename(filepath)[0, 22])}.marble"
                 puts "moving marble:"
                 puts "    #{filepathx1}"
                 puts "    #{filepathx2}"
