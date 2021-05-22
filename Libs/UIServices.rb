@@ -113,7 +113,7 @@ class UIServices
 
             $NS16sTrace = UIServices::ns16sToTrace(items)
 
-            puts (" "*(Utils::screenWidth()-30)) + "done: #{$counterx.doneCount()}, time: #{($counterx.timeCount().to_f/3600).round(2)} hours"
+            puts (" "*(Utils::screenWidth()-35)) + "week: done: #{$counterx.doneCount()}, time: #{($counterx.timeCount().to_f/3600).round(2)} hours"
             vspaceleft = vspaceleft - 1
 
             items.each_with_index{|item, indx|
