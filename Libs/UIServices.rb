@@ -75,7 +75,7 @@ class UIServices
         [
             DetachedRunning::ns16s(),
             Calendar::ns16s(),
-            TodoFiles::filepathToNS16s("/Users/pascal/Desktop/Priority 1.txt", true),
+            Priority1::ns16OrNull(),
             TodoFiles::docnetNS16s(),
             Anniversaries::ns16s(),
             Waves::ns16s(),
@@ -84,6 +84,7 @@ class UIServices
             Todos::ns16s()
         ]
             .flatten
+            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .map{|item|
                 item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
