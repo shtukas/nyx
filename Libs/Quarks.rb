@@ -113,30 +113,9 @@ class Quarks
         "[quark] #{quark["description"]}"
     end
 
-    # Quarks::firstNQuarks(resultSize)
-    def self.firstNQuarks(resultSize)
-        CoreDataTx::getObjectsBySchema("quark").reduce([]) {|selected, quark|
-            if selected.size >= resultSize then
-                selected
-            else
-                selected + [quark] 
-            end
-        }
-    end
-
-    # Quarks::firstNVisibleQuarks(resultSize)
-    def self.firstNVisibleQuarks(resultSize)
-        CoreDataTx::getObjectsBySchema("quark").reduce([]) {|selected, quark|
-            if selected.size >= resultSize then
-                selected
-            else
-                if DoNotShowUntil::isVisible(quark["uuid"]) then
-                    selected + [quark]
-                else
-                    selected
-                end 
-            end
-        }
+    # Quarks::quarks()
+    def self.quarks()
+        CoreDataTx::getObjectsBySchema("quark")
     end
 
     # --------------------------------------------------
@@ -296,12 +275,28 @@ class Quarks
 
     # Quarks::ns16s()
     def self.ns16s()
+        l1 = lambda{|agent|
+            cacheduuids = KeyValueStore::getOrNull(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb7:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}")
+            if cacheduuids then
+                cacheduuids = JSON.parse(cacheduuids)
+                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
+            end
+
+            quarks = Quarks::quarks()
+                        .select{|quark| (agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375" and quark["air-traffic-control-agent"].nil?) or (quark["air-traffic-control-agent"] == agent["uuid"]) }
+            quarks = quarks.first(16)
+            cacheduuids = quarks.map{|quark| quark["uuid"] }
+            KeyValueStore::set(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb7:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
+            quarks
+        }
+
         AirTrafficControl::agentsOrderedByRecoveryTime().map{|agent|
-            Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
-                .select{|quark| (quark["air-traffic-control-agent"] || "3AD70E36-826B-4958-95BF-02E12209C375") == agent["uuid"] }
+            l1.call(agent)
+                .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
                 .first(3)
                 .map {|quark| Quarks::quarkToNS16(quark) }
         }
+        .flatten
     end
 
     # --------------------------------------------------

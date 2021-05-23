@@ -128,8 +128,7 @@ class UIServices
                     numbersStr = ""
                 end
 
-                s1 = " #{item["announce"].gsub("(Default Stream) ", "")}"
-                announce   = "#{indexStr}#{numbersStr}#{s1}"
+                announce   = "#{indexStr}#{numbersStr} #{item["announce"]}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
