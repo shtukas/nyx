@@ -9,7 +9,7 @@ class Calendar
 
     # Calendar::pathToArchivesFolder()
     def self.pathToArchivesFolder()
-        folderpath = "/Users/pascal/Galaxy/Documents/06 Timeline/#{Time.new.strftime("%Y")}/Calendar (Catalyst)"
+        folderpath = "/Users/pascal/Galaxy/Documents/30 Timeline/#{Time.new.strftime("%Y")}/Calendar (Catalyst)"
         raise "d1d363cb-1b34-4091-bd87-455c96ab16e2" if File.exists?(folderpath)
         folderpath
     end
