@@ -10,18 +10,7 @@ class ElbramElizabeth
     end
 
     def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        # Some operations may accidentally call those functions on a marble that has died, that create an empty file
-        raise "a57bb88e-d792-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
-        db = SQLite3::Database.new(@filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _data_ where _key_=?", [nhash]
-        db.execute "insert into _data_ (_key_, _value_) values (?,?)", [nhash, blob]
-        db.commit 
-        db.close
-        nhash
+        BinaryBlobsService::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -29,6 +18,10 @@ class ElbramElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
+
+        blob = BinaryBlobsService::getBlobOrNull(nhash)
+        return blob if blob
+
         # Some operations may accidentally call those functions on a marble that has died, that create an empty file
         raise "a57bb88e-d793-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(@filepath)
         db = SQLite3::Database.new(@filepath)
@@ -40,7 +33,11 @@ class ElbramElizabeth
             blob = row['_value_']
         end
         db.close
-        return blob if blob
+
+        if blob then
+            commitBlob(blob)
+            return blob
+        end
 
         # When I did the original data migration, some blobs endded up in Asteroids-TheBigBlobs. Don't ask why...
         # (Actually, they were too big for sqlite, and the existence of those big blogs in the first place is because
@@ -48,7 +45,9 @@ class ElbramElizabeth
 
         filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams-TheLargeMigrationBlobs/#{nhash}.data"
         if File.exists?(filepath) then
-            return IO.read(filepath) 
+            blob = IO.read(filepath)
+            commitBlob(blob)
+            return blob
         end
 
         raise "[Error: 2400b1c6-42ff-49d0-b37c-fbd37f179e01, nhash: #{nhash}]"
@@ -175,7 +174,7 @@ class Elbrams
 
     # Elbrams::domains()
     def self.domains()
-        ["anniversaries", "waves", "quarks"]
+        ["anniversaries", "quarks"]
     end
 
     # Elbrams::filepaths(domain)
@@ -446,7 +445,7 @@ class ElbramsFsck
     # ElbramsFsck::fsck()
     def self.fsck()
         Elbrams::domains()
-            .map{|domain| Elbrams::marblesOfGivenDomainInOrder(domain).first(100) }
+            .map{|domain| Elbrams::marblesOfGivenDomainInOrder(domain) }
             .flatten
             .each{|marble|
                 ElbramsFsck::fsckElbram(marble)

@@ -5,7 +5,7 @@ class BinaryBlobsService
 
     # BinaryBlobsService::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Nyx/NyxDatablobsDepth2"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/DataBlobs2"
     end
 
     # BinaryBlobsService::filepathToContentHash(filepath)

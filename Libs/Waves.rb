@@ -47,122 +47,114 @@ class Waves
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # Waves::marbleToDoNotShowUnixtime(marble)
-    def self.marbleToDoNotShowUnixtime(marble)
-        filepath = marble.filepath()
-        if Elbrams::get(filepath, "repeatType") == 'sticky' then
+    # Waves::waveToDoNotShowUnixtime(wave)
+    def self.waveToDoNotShowUnixtime(wave)
+        if wave["repeatType"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + Elbrams::get(filepath, "repeatValue").to_i*3600
+            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + wave["repeatValue"].to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + Elbrams::get(filepath, "repeatValue").to_i*3600
+            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + wave["repeatValue"].to_i*3600
         end
-        if Elbrams::get(filepath, "repeatType") == 'every-n-hours' then
-            return Time.new.to_i+3600 * Elbrams::get(filepath, "repeatValue").to_f
+        if wave["repeatType"] == 'every-n-hours' then
+            return Time.new.to_i+3600 * wave["repeatValue"].to_f
         end
-        if Elbrams::get(filepath, "repeatType") == 'every-n-days' then
-            return Time.new.to_i+86400 * Elbrams::get(filepath, "repeatValue").to_f
+        if wave["repeatType"] == 'every-n-days' then
+            return Time.new.to_i+86400 * wave["repeatValue"].to_f
         end
-        if Elbrams::get(filepath, "repeatType") == 'every-this-day-of-the-month' then
+        if wave["repeatType"] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != Elbrams::get(filepath, "repeatValue") do
+            while Time.at(cursor).strftime("%d") != wave["repeatValue"] do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if Elbrams::get(filepath, "repeatType") == 'every-this-day-of-the-week' then
+        if wave["repeatType"] == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != Elbrams::get(filepath, "repeatValue") do
+            while mapping[Time.at(cursor).wday] != wave["repeatValue"] do
                 cursor = cursor + 3600
             end
             return cursor
         end
     end
 
-    # Waves::scheduleString(marble)
-    def self.scheduleString(marble)
-        filepath = marble.filepath()
-        if Elbrams::get(filepath, "repeatType") == 'sticky' then
-            return "sticky, from: #{Elbrams::get(filepath, "repeatValue")}"
+    # Waves::scheduleString(wave)
+    def self.scheduleString(wave)
+        if wave["repeatType"] == 'sticky' then
+            return "sticky, from: #{wave["repeatValue"]}"
         end
-        "#{Elbrams::get(filepath, "repeatType")}: #{Elbrams::get(filepath, "repeatValue")}"
+        "#{wave["repeatType"]}: #{wave["repeatValue"]}"
     end
 
-    # Waves::performDone(marble)
-    def self.performDone(marble)
-        filepath = marble.filepath()
-        Elbrams::set(filepath, "lastDoneDateTime", Time.now.utc.iso8601)
-        unixtime = Waves::marbleToDoNotShowUnixtime(marble)
-        DoNotShowUntil::setUnixtime(Elbrams::get(filepath, "uuid"), unixtime)
+    # Waves::performDone(wave)
+    def self.performDone(wave)
+        wave["lastDoneDateTime"] = Time.now.utc.iso8601
+        CoreDataTx::commit(wave)
+        unixtime = Waves::waveToDoNotShowUnixtime(wave)
+        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
         $counterx.registerDone()
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
+        wave = {}
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/waves/#{LucilleCore::timeStringL22()}.marble"
+        uuid = SecureRandom.uuid
 
-        Elbrams::issueNewEmptyElbram(filepath)
-
-        Elbrams::set(filepath, "uuid", SecureRandom.uuid)
-        Elbrams::set(filepath, "unixtime", Time.new.to_i)
-        Elbrams::set(filepath, "domain", "waves")
+        wave["uuid"] = uuid
+        wave["schema"] = "wave"
+        wave["unixtime"] = Time.new.to_i
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
-            FileUtils.rm(filepath)
             return nil
         end
-        Elbrams::set(filepath, "description", description)
 
-        Elbrams::set(filepath, "type", "Line")
-        Elbrams::set(filepath, "payload", "")
+        wave["description"] = description
+
+        wave["contentType"] = "Line"
+        wave["payload"] = ""
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         if schedule.nil? then
-            FileUtils.rm(filepath)
             return nil
         end
-        Elbrams::set(filepath, "repeatType", schedule[0])
-        Elbrams::set(filepath, "repeatValue",  schedule[1])
 
-        Elbrams::set(filepath, "lastDoneDateTime", "2021-01-01T00:00:11Z")
+        wave["repeatType"] = schedule[0]
+        wave["repeatValue"] = schedule[1]
 
-        nil
+        wave["lastDoneDateTime"] = "2021-01-01T00:00:11Z"
+
+        CoreDataTx::commit(wave)
+
+        wave
     end
 
-    # Waves::toString(marble)
-    def self.toString(marble)
-        filepath = marble.filepath()
-        ago = 
-            if Elbrams::get(filepath, "lastDoneDateTime") then
-                "#{((Time.new.to_i - DateTime.parse(Elbrams::get(filepath, "lastDoneDateTime")).to_time.to_i).to_f/86400).round(2)} days ago"
-            else
-                ""
-            end
-        "[wave] [#{Waves::scheduleString(marble)}] #{Elbrams::get(filepath, "description")} (#{ago})"
+    # Waves::toString(wave)
+    def self.toString(wave)
+        ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
+        "[wave] [#{Waves::scheduleString(wave)}] #{wave["description"]} (#{ago})"
     end
 
     # Waves::ns16s()
     def self.ns16s()
-        Elbrams::marblesOfGivenDomainInOrder("waves")
+        CoreDataTx::getObjectsBySchema("wave")
             .map
-            .with_index{|marble, indx|
-                filepath = marble.filepath()
+            .with_index{|wave, indx|
                 {
-                    "uuid"      => Elbrams::get(filepath, "uuid"),
+                    "uuid"      => wave["uuid"],
                     "metric"    => ["ns:wave", nil, nil, indx],
-                    "announce"  => Waves::toString(marble),
+                    "announce"  => Waves::toString(wave),
                     "access"    => lambda {
                         startUnixtime = Time.new.to_f
-                        Waves::access(marble)
+                        Waves::access(wave)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
                         if command == "done" then
-                            Waves::performDone(marble)
+                            Waves::performDone(wave)
                         end
                         timespan = Time.new.to_f - startUnixtime
                         timespan = [timespan, 3600*2].min
@@ -170,71 +162,67 @@ class Waves
                         $counterx.registerTimeInSeconds(timespan)
                     },
                     "done"     => lambda{
-                        Waves::performDone(marble)
+                        Waves::performDone(wave)
                     }
                 }
             }
     end
 
-    # Waves::access(marble)
-    def self.access(marble)
-        filepath = marble.filepath()
-        puts Waves::toString(marble)
-        if Elbrams::get(filepath, "type") == "Line" then
+    # Waves::access(wave)
+    def self.access(wave)
+        puts Waves::toString(wave)
+        if wave["contentType"] == "Line" then
             return
         end
-        if Elbrams::get(filepath, "type") == "Url" then
-            Utils::openUrl(Elbrams::get(filepath, "payload"))
+        if wave["contentType"] == "Url" then
+            Utils::openUrl(wave["payload"])
             return
         end
-
         raise "81367369-5265-44d3-a338-8240067b2442"
     end
 
     # Waves::selectElbramWaveOrNull()
     def self.selectElbramWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Elbrams::marblesOfGivenDomainInOrder("waves").sort{|m1, m2| m1.get("lastDoneDateTime") <=> m2.get("lastDoneDateTime") }, lambda {|m| Waves::toString(m) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", CoreDataTx::getObjectsBySchema("wave").sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
     end
 
-    # Waves::landing(marble)
-    def self.landing(marble)
-        filepath = marble.filepath()
+    # Waves::landing(wave)
+    def self.landing(wave)
         loop {
 
-            return if !marble.isStillAlive()
+            puts Waves::toString(wave)
+            puts "uuid: #{wave["uuid"]}"
+            puts "last done: #{wave["lastDoneDateTime"]}"
 
-            puts Waves::toString(marble)
-            puts "uuid: #{Elbrams::get(filepath, "uuid")}"
-            puts "last done: #{Elbrams::get(filepath, "lastDoneDateTime")}"
-
-            if DoNotShowUntil::isVisible(Elbrams::get(filepath, "uuid")) then
+            if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
             else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(Elbrams::get(filepath, "uuid"))).to_s}"
+                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "schedule: #{Waves::scheduleString(marble)}"
+            puts "schedule: #{Waves::scheduleString(wave)}"
 
             menuitems = LCoreMenuItemsNX1.new()
 
             menuitems.item("access", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                    Waves::performDone(marble)
+                    Waves::performDone(wave)
                 end
             })
 
-            menuitems.item("done",lambda { Waves::performDone(marble) })
+            menuitems.item("done",lambda { Waves::performDone(wave) })
 
             menuitems.item("recast schedule", lambda { 
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                Elbrams::set(filepath, "repeatType", schedule[0])
-                Elbrams::set(filepath, "repeatValue",  schedule[1])
+                wave["repeatType"] = schedule[0]
+                wave["repeatValue"] = schedule[1]
+                CoreDataTx::commit(wave)
             })
 
             menuitems.item("destroy", lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    marble.destroy()
+                    CoreDataTx::delete(wave["uuid"])
                 end
             })
 
@@ -272,6 +260,3 @@ class Waves
         }
     end
 end
-
-
-
