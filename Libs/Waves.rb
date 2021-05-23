@@ -158,11 +158,16 @@ class Waves
                     "metric"    => ["ns:wave", nil, nil, indx],
                     "announce"  => Waves::toString(marble),
                     "access"    => lambda {
+                        startUnixtime = Time.new.to_f
                         Waves::access(marble)
                         command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
                         if command == "done" then
                             Waves::performDone(marble)
                         end
+                        timespan = Time.new.to_f - startUnixtime
+                        timespan = [timespan, 3600*2].min
+                        puts "putting #{timespan} seconds to CounterX"
+                        $counterx.registerTimeInSeconds(timespan)
                     },
                     "done"     => lambda{
                         Waves::performDone(marble)
