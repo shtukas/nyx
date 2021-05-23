@@ -422,6 +422,13 @@ class Quarks
         $counterx.registerTimeInSeconds(timespan)
 
         Elbrams::postAccessCleanUp(marble)
+
+        Dispatch::send({
+            "type"    => "c95462ff: quark has been accessed",
+            "payload" => {
+                "filepath" => filepath
+            } 
+        })
     end
 
     # Quarks::marbleToNS16(marble, indx = nil)
@@ -459,6 +466,7 @@ class Quarks
                 end
             },
             "x-source"       => "Quarks",
+            "x-filepath"     => filepath,
             "x-index"        => indx,
             "x-recoveryTime" => recoveryTime,
             "x-agent"        => agent,
@@ -521,18 +529,33 @@ class Quarks
     end
 end
 
+$NS16sCached = nil
+
 class QuarksOperator
-    
-    def initalize()
-        @ns16s = nil
+
+    # QuarksOperator::ns16s()
+    def self.ns16s()
+        if $NS16sCached.nil? then
+            $NS16sCached = Quarks::ns16s()
+        end
+        $NS16sCached
     end
 
-    def ns16s()
-        if @ns16s.nil? then
-            @ns16s = Quarks::ns16s()
-        end
-        @ns16s
+    # QuarksOperator::removeItemIdentifiedByFilepath(filepath)
+    def self.removeItemIdentifiedByFilepath(filepath)
+        $NS16sCached = $NS16sCached.reject{|item| item["x-filepath"] == filepath }
     end
 end
 
-$QuarksOperator = QuarksOperator.new()
+Dispatch::callback(lambda{|type, payload|
+    if type == "c95462ff: quark has been accessed" then
+        QuarksOperator::removeItemIdentifiedByFilepath(payload["filepath"])
+    end
+})
+
+Thread.new {
+    loop {
+        sleep 600
+        $NS16sCached = Quarks::ns16s()
+    }
+}

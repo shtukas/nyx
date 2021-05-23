@@ -11,8 +11,8 @@ $DispatchA935A252 = []
 
 class Dispatch
 
-    # Dispatch::registerLambda(l : Lambda(type: String, payload: Payload))
-    def self.registerLambda(l)
+    # Dispatch::callback(lambda(type: String, payload: Payload))
+    def self.callback(l)
         $DispatchA935A252 << l
     end
 
