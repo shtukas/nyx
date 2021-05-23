@@ -57,7 +57,7 @@ class CoreDataTx
         if object["schema"] == "anniversary" then
             object["startdate"]           = object["payload1"]
             object["repeatType"]          = object["payload2"]
-            object["lastCelebrationDate"] = object["payload5"]
+            object["lastCelebrationDate"] = object["payload3"]
         end
 
         if object["schema"] == "quark" then
