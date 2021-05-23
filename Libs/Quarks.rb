@@ -61,7 +61,6 @@ class L22X
         }
 
         LucilleCore::timeStringL22()
-
     end
 
     # L22X::findFreeToUseLowerL22(l22)
@@ -269,7 +268,7 @@ class Quarks
     # Quarks::marbleToAgent(marble)
     def self.marbleToAgent(marble)
         agentuuid = Elbrams::getOrNull(marble.filepath(), "air-traffic-control-agent")
-        $AirTrafficDataOperator.getAgentByIdOrNull(agentuuid) || AirTrafficControl::defaultAgent()
+        AirTrafficControl::getAgentByIdOrNull(agentuuid) || AirTrafficControl::defaultAgent()
     end
 
     # Quarks::runQuark(marble)
@@ -431,17 +430,14 @@ class Quarks
         })
     end
 
-    # Quarks::marbleToNS16(marble, indx = nil)
-    def self.marbleToNS16(marble, indx = nil)
-
-        indx         = indx || 0
-
+    # Quarks::marbleToNS16(marble)
+    def self.marbleToNS16(marble)
         filepath     = marble.filepath()
         uuid         = Elbrams::get(filepath, "uuid")
         description  = Elbrams::get(filepath, "description")
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         agent        = Quarks::marbleToAgent(marble)
-        metricLevel, agentRecoveryTime = $AirTrafficDataOperator.agentToMetricData(agent)
+        metricLevel, agentRecoveryTime = AirTrafficDataOperator::agentToMetricData(agent)
 
         announce     = "(#{agent["name"]}) #{description}"
 
@@ -450,9 +446,11 @@ class Quarks
             announce = announce + "\n#{prefix}Note:\n" + marble.getNote().lines.map{|line| "#{prefix}#{line}"}.join()
         end
 
+        recoveryTime > 0 ? recoveryTime : 0.4 # This means that zero elements, notably the new one, don't monopolise the feed
+
         {
             "uuid"     => uuid,
-            "metric"   => [metricLevel, agentRecoveryTime, recoveryTime, indx],
+            "metric"   => [metricLevel, agentRecoveryTime, recoveryTime, nil],
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(marble) },
             "done"     => lambda{
@@ -467,19 +465,21 @@ class Quarks
             },
             "x-source"       => "Quarks",
             "x-filepath"     => filepath,
-            "x-index"        => indx,
             "x-recoveryTime" => recoveryTime,
             "x-agent"        => agent,
-            "x-agent-metric-data" => $AirTrafficDataOperator.agentToMetricData(agent)
+            "x-agent-metric-data" => AirTrafficDataOperator::agentToMetricData(agent)
         }
     end
 
     # Quarks::ns16s()
     def self.ns16s()
-        Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
-            .map 
-            .with_index{|marble, indx| Quarks::marbleToNS16(marble, indx) }
-            .select{|item| !Quarks::marbleHasActiveDependencies(item["uuid"]) }
+        AirTrafficControl::agentsOrderedByRecoveryTime().map{|agent|
+            Quarks::firstNVisibleQuarks([10, Utils::screenHeight()].max)
+                .select{|marble| (Elbrams::getOrNull(marble.filepath(), "air-traffic-control-agent") || "3AD70E36-826B-4958-95BF-02E12209C375") == agent["uuid"] }
+                .first(3)
+                .map {|marble| Quarks::marbleToNS16(marble) }
+                .select{|item| !Quarks::marbleHasActiveDependencies(item["uuid"]) }
+        }
     end
 
     # --------------------------------------------------

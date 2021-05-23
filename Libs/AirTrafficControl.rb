@@ -18,6 +18,21 @@ class AirTrafficControl
         sas + [AirTrafficControl::defaultAgent()]
     end
 
+    # AirTrafficControl::agentsOrderedByRecoveryTime()
+    def self.agentsOrderedByRecoveryTime()
+        AirTrafficControl::agents()
+            .map{|agent|
+                agent["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
+                agent
+            }
+            .sort{|agent1, agent2| agent1["recoveryTime"] <=> agent2["recoveryTime"] }
+    end
+
+    # AirTrafficControl::getAgentByIdOrNull(uuid)
+    def self.getAgentByIdOrNull(uuid)
+        AirTrafficControl::agents().select{|agent| agent["uuid"] == uuid }.first
+    end
+
     # AirTrafficControl::commitAgentToDisk(agent)
     def self.commitAgentToDisk(agent)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/AirTrafficControl/#{agent["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(agent))}
@@ -26,42 +41,13 @@ end
 
 class AirTrafficDataOperator
 
-    def initialize()
-        @isLoaded = false
-    end
-
-    def loadAgentXTsSorted()
-        @agentXTs = AirTrafficControl::agents()
-            .map{|agent|
-                agent["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
-                agent
-            }
-            .sort{|agent1, agent2| agent1["recoveryTime"] <=> agent2["recoveryTime"] }
-    end
-
-    def loadIfNotLoaded()
-        if !@isLoaded then
-            loadAgentXTsSorted()
-            @isLoaded = true
-        end
-
-    end
-
-    def getAgentRecoveryTime(agent)
-        loadIfNotLoaded()
-        @agentXTs.select{|a| a["uuid"] == agent["uuid"] }.first["recoveryTime"]
-    end
-
-    def agentToMetricData(agent)
-        loadIfNotLoaded()
-        [@agentXTs[0]["uuid"] == agent["uuid"] ? "ns:important" : "ns:zone", getAgentRecoveryTime(agent)]
-    end
-
-    def getAgentByIdOrNull(uuid)
-        loadIfNotLoaded()
-        @agentXTs.select{|a| a["uuid"] == uuid }.first
+    # AirTrafficDataOperator::agentToMetricData(agent)
+    def self.agentToMetricData(agent)
+        topAgent = AirTrafficControl::agentsOrderedByRecoveryTime().first
+        level = (agent["uuid"] == topAgent["uuid"]) ? "ns:important" : "ns:zone"
+        rt = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
+        [level, rt]
     end
 end
 
-$AirTrafficDataOperator = AirTrafficDataOperator.new()
 
