@@ -1,0 +1,6 @@
+
+A CoreDataTx object implements Nx101, if it has the two keys, contentType and payload. This is the case of:
+    - Wave
+    - Quark
+
+Such an object can be given as argument to the functions in Nx101.

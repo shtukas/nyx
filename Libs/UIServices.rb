@@ -80,7 +80,7 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
-            QuarksOperator::ns16s(),
+            Quarks::ns16s(),
             Todos::ns16s()
         ]
             .flatten
@@ -203,7 +203,7 @@ class UIServices
             end
 
             if Interpreting::match("new quark", command) then
-                Quarks::interactivelyIssueNewElbramQuarkOrNullAtLowL22()
+                Quarks::interactivelyIssueNewQuarkOrNull()
             end
 
             if Interpreting::match("new work item", command) then

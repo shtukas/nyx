@@ -4,4 +4,4 @@
 
 require_relative "Libs/loader.rb"
 
-ElbramsFsck::fsck()
+

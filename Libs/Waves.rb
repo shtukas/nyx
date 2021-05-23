@@ -181,8 +181,8 @@ class Waves
         raise "81367369-5265-44d3-a338-8240067b2442"
     end
 
-    # Waves::selectElbramWaveOrNull()
-    def self.selectElbramWaveOrNull()
+    # Waves::selectWaveOrNull()
+    def self.selectWaveOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", CoreDataTx::getObjectsBySchema("wave").sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
     end
 
@@ -235,7 +235,7 @@ class Waves
     def self.wavesDive()
         loop {
             system("Waves Dive")
-            wave = Waves::selectElbramWaveOrNull()
+            wave = Waves::selectWaveOrNull()
             return if wave.nil?
             Waves::landing(wave)
         }

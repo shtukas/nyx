@@ -60,6 +60,12 @@ class CoreDataTx
             object["lastCelebrationDate"] = object["payload5"]
         end
 
+        if object["schema"] == "quark" then
+            object["contentType"]               = object["payload1"]
+            object["payload"]                   = object["payload2"]
+            object["air-traffic-control-agent"] = object["payload3"]
+        end
+
         object.delete("payload1")
         object.delete("payload2")
         object.delete("payload3")
@@ -90,7 +96,7 @@ class CoreDataTx
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _objects_ where _schema_=?" , [schema] ) do |row|
+        db.execute( "select * from _objects_ where _schema_=? order by _unixtime_" , [schema] ) do |row|
             answer << CoreDataTx::rowToAppropriateObject(row)
         end
         db.close
@@ -101,7 +107,8 @@ class CoreDataTx
     def self.supportedSchemas()
         [
             "wave", 
-            "anniversary"
+            "anniversary",
+            "quark"
         ]
     end
 
@@ -122,6 +129,14 @@ class CoreDataTx
             object["payload1"] = object["startdate"]
             object["payload2"] = object["repeatType"]
             object["payload3"] = object["lastCelebrationDate"]
+            object["payload4"] = nil
+            object["payload5"] = nil
+        end
+
+        if object["schema"] == "quark" then
+            object["payload1"] = object["contentType"]
+            object["payload2"] = object["payload"]
+            object["payload3"] = object["air-traffic-control-agent"]
             object["payload4"] = nil
             object["payload5"] = nil
         end
