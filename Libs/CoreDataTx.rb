@@ -46,12 +46,18 @@ class CoreDataTx
             "payload5"    => row["_payload5_"],
         }
 
-        if object["schema"] == "wave"
+        if object["schema"] == "wave" then
             object["repeatType"]       = object["payload1"]
             object["repeatValue"]      = object["payload2"]
             object["lastDoneDateTime"] = object["payload3"]
             object["contentType"]      = object["payload4"]
             object["payload"]          = object["payload5"]
+        end
+
+        if object["schema"] == "anniversary" then
+            object["startdate"]           = object["payload1"]
+            object["repeatType"]          = object["payload2"]
+            object["lastCelebrationDate"] = object["payload5"]
         end
 
         object.delete("payload1")
@@ -93,12 +99,17 @@ class CoreDataTx
 
     # CoreDataTx::supportedSchemas()
     def self.supportedSchemas()
-        ["wave"]
+        [
+            "wave", 
+            "anniversary"
+        ]
     end
 
     # CoreDataTx::commit(object)
     def self.commit(object)
+
         raise "04d8079d-e804-48af-9a12-25cdec657112: #{object}" if !CoreDataTx::supportedSchemas().include?(object["schema"])
+
         if object["schema"] == "wave" then
             object["payload1"] = object["repeatType"]
             object["payload2"] = object["repeatValue"]
@@ -106,7 +117,15 @@ class CoreDataTx
             object["payload4"] = object["contentType"]
             object["payload5"] = object["payload"]
         end
-        puts JSON.pretty_generate(object)
+
+        if object["schema"] == "anniversary" then
+            object["payload1"] = object["startdate"]
+            object["payload2"] = object["repeatType"]
+            object["payload3"] = object["lastCelebrationDate"]
+            object["payload4"] = nil
+            object["payload5"] = nil
+        end
+
         CoreDataTx::insertRecord(object["uuid"], object["schema"], object["unixtime"], object["description"], object["payload1"], object["payload2"], object["payload3"], object["payload4"], object["payload5"])
     end
 end

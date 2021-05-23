@@ -218,6 +218,10 @@ class UIServices
                 KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
             end
 
+            if Interpreting::match("waves", command) then
+                Waves::main()
+            end
+
             if Interpreting::match("anniversaries", command) then
                 Anniversaries::main()
             end

@@ -81,82 +81,76 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::interactivelyIssueNewElbramAnniversaryOrNull()
-    def self.interactivelyIssueNewElbramAnniversaryOrNull()
+    # Anniversaries::interactivelyIssueNewAnniversaryOrNull()
+    def self.interactivelyIssueNewAnniversaryOrNull()
 
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/anniversaries/#{LucilleCore::timeStringL22()}.marble"
+        uuid = SecureRandom.uuid
 
-        Elbrams::issueNewEmptyElbram(filepath)
-
-        Elbrams::set(filepath, "uuid", SecureRandom.uuid)
-        Elbrams::set(filepath, "unixtime", Time.new.to_i)
-        Elbrams::set(filepath, "domain", "anniversaries")
+        anniversary = {}
+        anniversary["uuid"] = uuid
+        anniversary["schema"] = "anniversary"
+        anniversary["unixtime"] = Time.new.to_i
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
-            FileUtils.rm(filepath)
             return nil
         end
-        Elbrams::set(filepath, "description", description)
-
-        Elbrams::set(filepath, "type", "Line")
-        Elbrams::set(filepath, "payload", "")
+        anniversary["description"] = description
 
         startdate = LucilleCore::askQuestionAnswerAsString("startdate (empty to abort): ")
         if startdate == "" then
-            FileUtils.rm(filepath)
             return nil
         end
-        Elbrams::set(filepath, "startdate", anniversary["startdate"])
+        anniversary["startdate"] = startdate
 
         repeatType = LucilleCore::selectEntityFromListOfEntitiesOrNull("repeat type", ["weekly", "monthly", "yearly"])
         if repeatType.nil? then
-            FileUtils.rm(filepath)
             return nil
         end
-        Elbrams::set(filepath, "repeatType", repeatType)
+        anniversary["repeatType"] = repeatType
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
             lastCelebrationDate = Utils::today()
         end
-        Elbrams::set(filepath, "lastCelebrationDate", lastCelebrationDate)
+        anniversary["lastCelebrationDate"] = lastCelebrationDate
 
-        marble
+        CoreDataTx::commit(anniversary)
+
+        anniversary
     end
 
-    # Anniversaries::marbleNextDateOrdinal(marble) # [ date: String, ordinal: Int ]
-    def self.marbleNextDateOrdinal(marble)
-        filepath = marble.filepath()
-        Anniversaries::computeNextCelebrationDateOrdinal(Elbrams::get(filepath, "startdate"), Elbrams::get(filepath, "repeatType"), Elbrams::get(filepath, "lastCelebrationDate"))
+    # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
+    def self.nextDateOrdinal(anniversary)
+        Anniversaries::computeNextCelebrationDateOrdinal(anniversary["startdate"], anniversary["repeatType"], anniversary["lastCelebrationDate"] || "2001-01-01")
     end
 
-    # Anniversaries::toString(marble)
-    def self.toString(marble)
-        filepath = marble.filepath()
-        "[anniversary] [#{Anniversaries::marbleNextDateOrdinal(marble).join(", ")}] #{Elbrams::get(filepath, "description")} (#{Elbrams::get(filepath, "repeatType")} since #{Elbrams::get(filepath, "startdate")})"
+    # Anniversaries::toString(anniversary)
+    def self.toString(anniversary)
+        "[anniversary] [#{Anniversaries::nextDateOrdinal(anniversary).join(", ")}] #{anniversary["description"]} (#{anniversary["repeatType"]} since #{anniversary["startdate"]})"
     end
 
     # Anniversaries::ns16s()
     def self.ns16s()
-        Elbrams::marblesOfGivenDomainInOrder("anniversaries")
-            .select{|marble| Anniversaries::marbleNextDateOrdinal(marble)[0] <= Utils::today() }
+        CoreDataTx::getObjectsBySchema("anniversary")
+            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map
-            .with_index{|marble, indx|
-                filepath = marble.filepath()
+            .with_index{|anniversary, indx|
                 {
-                    "uuid"     => Elbrams::get(filepath, "uuid"),
+                    "uuid"     => anniversary["uuid"],
                     "metric"   => ["ns:important", nil, nil, indx],
-                    "announce" => Anniversaries::toString(marble),
+                    "announce" => Anniversaries::toString(anniversary),
                     "access"   => lambda {
-                        puts Anniversaries::toString(marble).green
+                        puts Anniversaries::toString(anniversary).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-                            Elbrams::set(filepath, "lastCelebrationDate", Time.new.to_s[0, 10])
+                            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+                            CoreDataTx::commit(anniversary)
                         end
                     },
                     "done"   => lambda {
-                        puts Anniversaries::toString(marble).green
-                        Elbrams::set(filepath, "lastCelebrationDate", Time.new.to_s[0, 10])
+                        puts Anniversaries::toString(anniversary).green
+                        anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+                        CoreDataTx::commit(anniversary)
                     }
                 }
             }
@@ -165,10 +159,10 @@ class Anniversaries
     # Anniversaries::dailyBriefing()
     def self.dailyBriefing()
         puts "Anniversaries daily briefing:"
-        Elbrams::marblesOfGivenDomainInOrder("anniversaries")
-            .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
-            .each{|marble|
-                puts Anniversaries::toString(marble)
+        CoreDataTx::getObjectsBySchema("anniversary")
+            .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
+            .each{|anniversary|
+                puts Anniversaries::toString(anniversary)
             }
         LucilleCore::pressEnterToContinue()
     end
@@ -183,20 +177,19 @@ class Anniversaries
         false
     end
 
-    # Anniversaries::landing(marble)
-    def self.landing(marble)
-        filepath = marble.filepath()
+    # Anniversaries::landing(anniversary)
+    def self.landing(anniversary)
         loop {
-            return if !marble.isStillAlive()
-            puts Anniversaries::toString(marble).green
+            puts Anniversaries::toString(anniversary).green
             mx = LCoreMenuItemsNX1.new()
             mx.item("update start date".yellow, lambda { 
                 startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
                 return if startdate == ""
-                Elbrams::set(filepath, "startdate", startdate)
+                anniversary["startdate"] = startdate
+                CoreDataTx::commit(anniversary)
             })
             mx.item("destroy".yellow, lambda { 
-                marble.destroy()
+                anniversary.destroy()
             })
             status = mx.promptAndRunSandbox()
             break if !status
@@ -206,11 +199,11 @@ class Anniversaries
     # Anniversaries::anniversariesDive()
     def self.anniversariesDive()
         loop {
-            marbles = Elbrams::marblesOfGivenDomainInOrder("anniversaries")
-                        .sort{|i1, i2| Anniversaries::marbleNextDateOrdinal(i1)[0] <=> Anniversaries::marbleNextDateOrdinal(i2)[0] }
-            marble = LucilleCore::selectEntityFromListOfEntitiesOrNull("marble", marbles, lambda{|m| Anniversaries::toString(m) })
-            return if marble.nil?
-            Anniversaries::landing(marble)
+            anniversaries = CoreDataTx::getObjectsBySchema("anniversary")
+                        .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
+            anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
+            return if anniversary.nil?
+            Anniversaries::landing(anniversary)
         }
     end
 
@@ -219,11 +212,11 @@ class Anniversaries
         loop {
             puts "Anniversaries (main)"
             mx = LCoreMenuItemsNX1.new()
-            mx.item("dive into anniversary marbles".yellow, lambda { 
+            mx.item("dive into anniversaries".yellow, lambda { 
                 Anniversaries::anniversariesDive()
             })
-            mx.item("make new anniversary marble".yellow, lambda { 
-                Anniversaries::interactivelyIssueNewElbramAnniversaryOrNull()
+            mx.item("make new anniversary".yellow, lambda { 
+                Anniversaries::interactivelyIssueNewAnniversaryOrNull()
             })
             status = mx.promptAndRunSandbox()
             break if !status
