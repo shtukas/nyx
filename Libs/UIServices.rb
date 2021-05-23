@@ -76,7 +76,7 @@ class UIServices
             DetachedRunning::ns16s(),
             Calendar::ns16s(),
             Priority1::ns16OrNull(),
-            TodoFiles::docnetNS16s(),
+            DocNetTodo::ns16s(),
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
@@ -109,14 +109,13 @@ class UIServices
             status = Anniversaries::dailyBriefingIfNotDoneToday()
             next if status
 
-            vspaceleft = Utils::screenHeight()-4
+            vspaceleft = Utils::screenHeight()-6
 
             items = UIServices::ns16s()
 
             $NS16sTrace = UIServices::ns16sToTrace(items)
 
-            puts (" "*(Utils::screenWidth()-35)) + "week: done: #{$counterx.doneCount()}, time: #{($counterx.timeCount().to_f/3600).round(2)} hours"
-            vspaceleft = vspaceleft - 1
+            puts ""
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
@@ -138,6 +137,8 @@ class UIServices
 
             puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | show numbers".yellow
             puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
+
+            puts "(week: done: #{$counterx.doneCount()}, time: #{($counterx.timeCount().to_f/3600).round(2)} hours)"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

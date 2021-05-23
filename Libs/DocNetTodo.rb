@@ -1,35 +1,40 @@
 # encoding: UTF-8
 
-class TodoFiles
+class DocNetTodo
 
-    # TodoFiles::todoFileToNS16OrNull(filepath, showFileContents)
-    def self.todoFileToNS16OrNull(filepath, showFileContents)
+    # Priority1::applyNextTransformation(filepath, hash1)
+    def self.applyNextTransformation(filepath, hash1)
+        contents = IO.read(filepath)
+        return if contents.strip == ""
+        hash2 = Digest::SHA1.file(filepath).hexdigest
+        return if hash1 != hash2
+        contents = SectionsType0141::applyNextTransformationToText(contents)
+        File.open(filepath, "w"){|f| f.puts(contents)}
+    end
 
-        applyNextTransformation = lambda{|filepath, hash1|
-            contents = IO.read(filepath)
-            return if contents.strip == ""
-            hash2 = Digest::SHA1.file(filepath).hexdigest
-            return if hash1 != hash2
-            contents = SectionsType0141::applyNextTransformationToText(contents)
-            File.open(filepath, "w"){|f| f.puts(contents)}
-        }
+    # DocNetTodo::metric()
+    def self.metric()
+        dctime = Utils::isWeekday() and Time.new.hour >= 7 and Time.new.hour < 9
+        if dctime then
+            return ["ns:important", nil, nil, nil]
+        end
+        ["ns:zone", BankExtended::stdRecoveredDailyTimeInHours("e575a46c-ba58-4bc2-97f4-e047a2ee2123"), nil, nil]
+    end
+
+    # DocNetTodo::filepathToNS16OrNull(filepath)
+    def self.filepathToNS16OrNull(filepath)
 
         raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
         filename = File.basename(filepath)
         return nil if IO.read(filepath).strip == ""
 
-        announce =
-            if showFileContents then
-                "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
-            else
-                File.basename(filepath)
-            end 
+        announce = "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
         
-        uuid = Digest::SHA1.hexdigest(filepath)
+        uuid = "e575a46c-ba58-4bc2-97f4-e047a2ee2123"
 
         {
             "uuid"      => uuid,
-            "metric"    => ["ns:important", nil, nil, nil],
+            "metric"    => DocNetTodo::metric(),
             "announce"  => announce,
             "access"    => lambda {
 
@@ -75,7 +80,7 @@ class TodoFiles
                     end
 
                     if Interpreting::match("[]", command) then
-                        applyNextTransformation.call(filepath, Digest::SHA1.file(filepath).hexdigest)
+                        Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest)
                     end
                     
                     if Interpreting::match("", command) then
@@ -95,20 +100,12 @@ class TodoFiles
                 $counterx.registerTimeInSeconds(timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { applyNextTransformation.call(filepath, Digest::SHA1.file(filepath).hexdigest) }
+            "[]"       => lambda { Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) }
         }
     end
 
-    # TodoFiles::filepathToNS16s(filepath, showFileContents)
-    def self.filepathToNS16s(filepath, showFileContents)
-        [ TodoFiles::todoFileToNS16OrNull(filepath, showFileContents) ].compact
-    end
-
-    # TodoFiles::docnetNS16s()
-    def self.docnetNS16s()
-        isWeekday = Utils::isWeekday()
-        isDocNetTime = ((Time.new.hour >= 7) and ((isWeekday and Time.new.hour < 10) or (!isWeekday and Time.new.hour < 12)))
-        return [] if !isDocNetTime
-        [ TodoFiles::todoFileToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578"), true) ].compact
+    # DocNetTodo::ns16s()
+    def self.ns16s()
+        [ DocNetTodo::filepathToNS16OrNull(Utils::locationByUniqueStringOrNull("ab25a8f8-0578")) ].compact
     end
 end
