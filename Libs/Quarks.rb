@@ -280,7 +280,10 @@ class Quarks
         return if !marble.isStillAlive()
 
         uuid = Elbrams::get(filepath, "uuid")
+
         toString = Quarks::toString(marble)
+
+        agent = Quarks::marbleToAgent(marble)
 
         startUnixtime = Time.new.to_f
 
@@ -410,11 +413,11 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        agent = Quarks::marbleToAgent(marble)
-
-
         puts "putting #{timespan} seconds to uuid: #{uuid} ; marble: #{toString}"
         Bank::put(uuid, timespan)
+
+        puts "putting #{timespan} seconds to uuid: #{agent}"
+        Bank::put(agent["uuid"], timespan)
 
         $counterx.registerTimeInSeconds(timespan)
 
