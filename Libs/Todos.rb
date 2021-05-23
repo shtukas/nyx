@@ -99,6 +99,7 @@ class Todos
         uuid = File.basename(filepath)
         todosRecoveryTime = BankExtended::stdRecoveredDailyTimeInHours(Todos::todosCommonBankAccount())
         itemRecoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        itemRecoveryTime = (itemRecoveryTime == 0) ? 0.4 : itemRecoveryTime # to avoid the new ones monopilising
         {
             "uuid"         => uuid,
             "metric"       => ["ns:zone", todosRecoveryTime, itemRecoveryTime, nil],

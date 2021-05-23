@@ -254,7 +254,7 @@ class Quarks
 
         announce     = "(#{agent["name"]}) #{description}"
 
-        recoveryTime > 0 ? recoveryTime : 0.4 # This means that zero elements, notably the new one, don't monopolise the feed
+        recoveryTime = (recoveryTime > 0) ? recoveryTime : 0.4 # This means that zero elements, notably the new ones, don't monopolise the feed
 
         {
             "uuid"     => uuid,
