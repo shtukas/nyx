@@ -53,11 +53,15 @@ class Todos
 
             hash1 = Digest::SHA1.file(filepath).hexdigest
 
-            puts "[] | open | destroy".yellow
+            puts "[] | open | <datecode> | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+            end
 
             if Interpreting::match("[]", command) then
                 system("open '#{File.dirname(filepath)}'")

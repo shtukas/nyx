@@ -53,35 +53,18 @@ class DocNetTodo
                     puts IO.read(filepath).strip.lines.first(10).join().strip.green
                     puts ""
 
-                    puts "open | ++ / + datecode | [] | (empty) # default # exit".yellow
+                    puts "open | <datecode> | [] | (empty) # default # exit".yellow
 
                     command = LucilleCore::askQuestionAnswerAsString("> ")
 
                     break if command == ""
 
+                    if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                        DoNotShowUntil::setUnixtime(uuid, unixtime)
+                    end
+
                     if Interpreting::match("open", command) then
                         system("open '#{filepath}'")
-                    end
-
-                    if Interpreting::match("++", command) then
-                        DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                        break
-                    end
-
-                    if Interpreting::match("+ *", command) then
-                        _, input = Interpreting::tokenizer(command)
-                        unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
-                        next if unixtime.nil?
-                        DoNotShowUntil::setUnixtime(uuid, unixtime)
-                        break
-                    end
-
-                    if Interpreting::match("+ * *", command) then
-                        _, amount, unit = Interpreting::tokenizer(command)
-                        unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
-                        return if unixtime.nil?
-                        DoNotShowUntil::setUnixtime(uuid, unixtime)
-                        break
                     end
 
                     if Interpreting::match("[]", command) then

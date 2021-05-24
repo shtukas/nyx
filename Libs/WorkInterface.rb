@@ -224,11 +224,15 @@ class WorkInterface
                 puts "trello link: #{Marbles::get(filepath, "trelloLink")}"
             end
 
-            puts "access folder | set top | edit description | set trello link | ++ (postpone today by one hour) | done".yellow
+            puts "access folder | set top | edit description | set trello link | <datecode> | done".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+            end
 
             if Interpreting::match("access folder", command) then
                 system("open '#{File.dirname(filepath)}'")
@@ -257,11 +261,6 @@ class WorkInterface
                     Marbles::set(filepath, "trelloLink", link)
                 end
                 next
-            end
-
-            if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                break
             end
 
             if Interpreting::match("done", command) then

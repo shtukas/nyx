@@ -135,13 +135,19 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
-            puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
+            puts "top    : [] (Priority.txt) | expose | <datecode> | not today".yellow
             puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             next if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                item = items[0]
+                next if item.nil? 
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            end
 
             # -- listing -----------------------------------------------------------------------------
 
@@ -273,26 +279,6 @@ class UIServices
             if Interpreting::match("not today", command) then
                 unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone())
                 DoNotShowUntil::setUnixtime(items[0]["uuid"], unixtime)
-            end
-
-            if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(items[0]["uuid"], Time.new.to_i+3600)
-            end
-
-            if Interpreting::match("+ *", command) then
-                _, weekdayname = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{weekdayname}")
-                next if unixtime.nil?
-                item = items[0]
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            end
-
-            if Interpreting::match("+ * *", command) then
-                _, amount, unit = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
-                next if unixtime.nil?
-                item = items[0]
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             end
 
             if Interpreting::match("exit", command) then

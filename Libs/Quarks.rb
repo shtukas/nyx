@@ -161,11 +161,15 @@ class Quarks
             agent = Quarks::quarkToAgent(quark)
             puts "@agent: #{agent["name"]}"
 
-            puts "landing | update agent | set dependency | ++ # Postpone quark by an hour | + <weekday> # Postpone quark | + <float> <datecode unit> # Postpone quark | detach running | done | (empty) # default # exit".yellow
+            puts "landing | update agent | set dependency | <datecode> | detach running | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+            end
 
             if Interpreting::match("landing", command) then
                 Quarks::landing(quark)
@@ -176,28 +180,7 @@ class Quarks
                 next if agent.nil?
                 quark["air-traffic-control-agent"] = agent["uuid"]
                 CoreDataTx::commit(object)
-                return
-            end
-
-            if Interpreting::match("++", command) then
-                DoNotShowUntil::setUnixtime(quark["uuid"], Time.new.to_i+3600)
-                break
-            end
-
-            if Interpreting::match("+ *", command) then
-                _, input = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{input}")
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                break
-            end
-
-            if Interpreting::match("+ * *", command) then
-                _, amount, unit = Interpreting::tokenizer(command)
-                unixtime = Utils::codeToUnixtimeOrNull("+#{amount}#{unit}")
-                return if unixtime.nil?
-                DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
-                break
+                next
             end
 
             if Interpreting::match("detach running", command) then
@@ -283,13 +266,60 @@ class Quarks
             quarks
         }
 
-        AirTrafficControl::agentsOrderedByRecoveryTime().map{|agent|
-            l1.call(agent)
+        l2 = lambda{
+            # We do this capture quarks which carry an agent that no longer exists
+            cacheduuids = KeyValueStore::getOrNull(nil, "ea0b9674-f8b8-46f6-a0e6-69ec8b688322:#{Time.new.to_s[0, 13]}")
+            if cacheduuids then
+                cacheduuids = JSON.parse(cacheduuids)
+                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
+            end
+
+            quarks = Quarks::quarks().first(16)
+            cacheduuids = quarks.map{|quark| quark["uuid"] }
+            KeyValueStore::set(nil, "ea0b9674-f8b8-46f6-a0e6-69ec8b688322:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
+            quarks
+        }
+
+        l3 = lambda{
+            # Here we get the end of the stream
+            cacheduuids = KeyValueStore::getOrNull(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}")
+            if cacheduuids then
+                cacheduuids = JSON.parse(cacheduuids)
+                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
+            end
+
+            quarks = Quarks::quarks().reverse.first(16)
+            cacheduuids = quarks.map{|quark| quark["uuid"] }
+            KeyValueStore::set(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
+            quarks
+        }
+
+        n1 = AirTrafficControl::agentsOrderedByRecoveryTime()
+                .map{|agent|
+                    l1.call(agent)
+                        .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
+                        .first(3)
+                        .map {|quark| Quarks::quarkToNS16(quark) }
+                }
+                .flatten
+
+        n2 = l2.call()
                 .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
                 .first(3)
                 .map {|quark| Quarks::quarkToNS16(quark) }
+
+        n3 = l3.call()
+                .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
+                .first(3)
+                .map {|quark| Quarks::quarkToNS16(quark) }
+
+        (n1 + n2 + n3).reduce([]){|selected, quark|
+            if selected.none?{|q| q["uuid"] == quark["uuid"] } then
+                selected + [quark]
+            else
+                selected
+            end
         }
-        .flatten
     end
 
     # --------------------------------------------------

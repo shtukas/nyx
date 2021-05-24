@@ -23,6 +23,8 @@ class Utils
         return nil if code.nil?
         return nil if code == ""
 
+        return (Time.new.to_i+3600) if code == "++"
+
         # +<weekdayname>
         # +<integer>day(s)
         # +<integer>hour(s)
