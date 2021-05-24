@@ -245,75 +245,73 @@ class Quarks
 
     # Quarks::ns16s()
     def self.ns16s()
-        l1 = lambda{|agent|
-            cacheduuids = KeyValueStore::getOrNull(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb7:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}")
+        l1 = lambda{|agent, agentsuuids|
+
+            cacheduuids = KeyValueStore::getOrNull(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb8:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}")
             if cacheduuids then
                 cacheduuids = JSON.parse(cacheduuids)
-                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
+                quarks = cacheduuids
+                            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
+                            .compact
+                            .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
+                if quarks.size == 3 then
+                    return quarks
+                end
             end
 
             quarks = Quarks::quarks()
-                        .select{|quark| (agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375" and quark["air-traffic-control-agent"].nil?) or (quark["air-traffic-control-agent"] == agent["uuid"]) }
-            quarks = quarks.first(16)
-            cacheduuids = quarks.map{|quark| quark["uuid"] }
-            KeyValueStore::set(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb7:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
-            quarks
-        }
+                        .map{|quark|
+                            if (quark["air-traffic-control-agent"].nil? or !agentsuuids.include?(quark["air-traffic-control-agent"])) then
+                                quark["air-traffic-control-agent"] = "3AD70E36-826B-4958-95BF-02E12209C375"
+                            end
+                            quark
+                        }
+                        .select{|quark| quark["air-traffic-control-agent"] == agent["uuid"] }
+                        .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
+                        .first(3)
 
-        l2 = lambda{
-            # We do this capture quarks which carry an agent that no longer exists
-            cacheduuids = KeyValueStore::getOrNull(nil, "ea0b9674-f8b8-46f6-a0e6-69ec8b688322:#{Time.new.to_s[0, 13]}")
-            if cacheduuids then
-                cacheduuids = JSON.parse(cacheduuids)
-                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
-            end
-
-            quarks = Quarks::quarks().first(16)
             cacheduuids = quarks.map{|quark| quark["uuid"] }
-            KeyValueStore::set(nil, "ea0b9674-f8b8-46f6-a0e6-69ec8b688322:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
+            KeyValueStore::set(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb8:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
             quarks
         }
 
         l3 = lambda{
+
             # Here we get the end of the stream
             cacheduuids = KeyValueStore::getOrNull(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}")
             if cacheduuids then
                 cacheduuids = JSON.parse(cacheduuids)
-                return cacheduuids.map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }.compact
+                quarks = cacheduuids
+                            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
+                            .compact
+                            .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
+                if quarks.size == 3 then
+                    return quarks
+                end
             end
 
-            quarks = Quarks::quarks().reverse.first(16)
+            quarks = Quarks::quarks().reverse.first(3)
+
             cacheduuids = quarks.map{|quark| quark["uuid"] }
             KeyValueStore::set(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
             quarks
         }
 
-        n1 = AirTrafficControl::agentsOrderedByRecoveryTime()
-                .map{|agent|
-                    l1.call(agent)
-                        .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                        .first(3)
-                        .map {|quark| Quarks::quarkToNS16(quark) }
-                }
-                .flatten
+        agents = AirTrafficControl::agents()
+        agentsuuids = agents.map{|a| a["uuid"] }
 
-        n2 = l2.call()
-                .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                .first(3)
-                .map {|quark| Quarks::quarkToNS16(quark) }
-
+        n1 = agents.map{|agent| l1.call(agent, agentsuuids)}.flatten
         n3 = l3.call()
-                .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                .first(3)
-                .map {|quark| Quarks::quarkToNS16(quark) }
 
-        (n1 + n2 + n3).reduce([]){|selected, quark|
-            if selected.none?{|q| q["uuid"] == quark["uuid"] } then
-                selected + [quark]
-            else
-                selected
-            end
-        }
+        (n1 + n3)
+            .reduce([]){|selected, quark|
+                if selected.none?{|q| q["uuid"] == quark["uuid"] } then
+                    selected + [quark]
+                else
+                    selected
+                end
+            }
+            .map{|quark| Quarks::quarkToNS16(quark) }
     end
 
     # --------------------------------------------------

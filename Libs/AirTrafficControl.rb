@@ -18,16 +18,6 @@ class AirTrafficControl
         sas + [AirTrafficControl::defaultAgent()]
     end
 
-    # AirTrafficControl::agentsOrderedByRecoveryTime()
-    def self.agentsOrderedByRecoveryTime()
-        AirTrafficControl::agents()
-            .map{|agent|
-                agent["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
-                agent
-            }
-            .sort{|agent1, agent2| agent1["recoveryTime"] <=> agent2["recoveryTime"] }
-    end
-
     # AirTrafficControl::getAgentByIdOrNull(uuid)
     def self.getAgentByIdOrNull(uuid)
         AirTrafficControl::agents().select{|agent| agent["uuid"] == uuid }.first
