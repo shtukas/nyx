@@ -1,0 +1,8 @@
+
+Levels
+    "ns:running"
+    "ns:wave"
+    "ns:work"
+    "ns:important"
+    "ns:zone"
+

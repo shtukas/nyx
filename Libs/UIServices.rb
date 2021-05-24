@@ -161,6 +161,16 @@ class UIServices
                 item["access"].call()
             end
 
+            if Interpreting::match("expose *", command) then
+                _, ordinal = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                item = items[ordinal]
+                next if item.nil?
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
             if Interpreting::match("access", command) then
                 item = items[0]
                 next if item.nil? 
@@ -251,14 +261,6 @@ class UIServices
             end
 
             # -- top -----------------------------------------------------------------------------
-
-            if Interpreting::match("expose", command) then
-                item = items[0]
-                next if item.nil? 
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
 
             if Interpreting::match("[]", command) then
                 item = items[0]

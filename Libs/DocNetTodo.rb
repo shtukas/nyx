@@ -2,7 +2,12 @@
 
 class DocNetTodo
 
-    # Priority1::applyNextTransformation(filepath, hash1)
+    # DocNetTodo::uuid()
+    def self.uuid()
+        "e575a46c-ba58-4bc2-97f4-e047a2ee2123"
+    end
+
+    # DocNetTodo::applyNextTransformation(filepath, hash1)
     def self.applyNextTransformation(filepath, hash1)
         contents = IO.read(filepath)
         return if contents.strip == ""
@@ -14,11 +19,11 @@ class DocNetTodo
 
     # DocNetTodo::metric()
     def self.metric()
-        dctime = Utils::isWeekday() and Time.new.hour >= 7 and Time.new.hour < 9
+        dctime = ( Utils::isWeekday() and Time.new.hour >= 7 and Time.new.hour < 10 )
         if dctime then
             return ["ns:important", nil, nil, nil]
         end
-        ["ns:zone", BankExtended::stdRecoveredDailyTimeInHours("e575a46c-ba58-4bc2-97f4-e047a2ee2123"), nil, nil]
+        ["ns:zone", BankExtended::stdRecoveredDailyTimeInHours(DocNetTodo::uuid()), nil, nil]
     end
 
     # DocNetTodo::filepathToNS16OrNull(filepath)
@@ -30,7 +35,7 @@ class DocNetTodo
 
         announce = "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
         
-        uuid = "e575a46c-ba58-4bc2-97f4-e047a2ee2123"
+        uuid = DocNetTodo::uuid()
 
         {
             "uuid"      => uuid,
@@ -94,13 +99,14 @@ class DocNetTodo
 
                 timespan = [timespan, 3600*2].min
 
-                puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
+                puts "putting #{timespan} seconds to uuid: #{uuid}"
                 Bank::put(uuid, timespan)
 
                 $counterx.registerTimeInSeconds(timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) }
+            "[]"       => lambda { Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) },
+            "x-recovery-time" => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
     end
 
