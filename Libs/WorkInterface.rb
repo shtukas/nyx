@@ -292,12 +292,12 @@ class WorkInterface
             .with_index{|filepath, indx|
                 makeAnnounce = lambda{|description, workItemType|
                     if workItemType == "PR" then
-                        return "#{"[work] ".green} [monitor] #{description}"
+                        return "#{"[work]".green} [monitor] #{description}"
                     end
                     if workItemType == "RotaItem" then
-                        return "#{"[work] ".green} [rota] #{description}"
+                        return "#{"[work]".green} [rota] #{description}"
                     end
-                    "#{"[work] ".green} #{description}"
+                    "#{"[work]".green} #{description}"
                 }
                 uuid = Marbles::get(filepath, "uuid")
                 description = Marbles::get(filepath, "description")

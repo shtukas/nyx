@@ -252,7 +252,7 @@ class Quarks
         agent        = Quarks::quarkToAgent(quark)
         metricLevel, agentRecoveryTime = AirTrafficDataOperator::agentToMetricData(agent)
 
-        announce     = "(#{agent["name"]}) #{description}"
+        announce     = "[qurk] (#{agent["name"]}) #{description}"
 
         recoveryTime = (recoveryTime > 0) ? recoveryTime : 0.4 # This means that zero elements, notably the new ones, don't monopolise the feed
 
