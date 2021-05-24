@@ -73,7 +73,7 @@ class Calendar
                 uuid = Digest::SHA1.hexdigest("4dc9a277-8880-472e-a459-cf1d9b7b6604:#{item["date"]}:#{item["description"]}")
                 {
                     "uuid"     => uuid,
-                    "metric"   => ["ns:important", nil, nil, indx],
+                    "metric"   => ["ns:important", nil, indx],
                     "announce" => Calendar::toString(item),
                     "access"   => lambda { 
                         if LucilleCore::askQuestionAnswerAsBoolean("'#{Calendar::toString(item)}' done ? ") then

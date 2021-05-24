@@ -138,7 +138,7 @@ class Anniversaries
             .with_index{|anniversary, indx|
                 {
                     "uuid"     => anniversary["uuid"],
-                    "metric"   => ["ns:important", nil, nil, indx],
+                    "metric"   => ["ns:important", nil, indx],
                     "announce" => Anniversaries::toString(anniversary),
                     "access"   => lambda {
                         puts Anniversaries::toString(anniversary).green

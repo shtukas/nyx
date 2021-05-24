@@ -18,10 +18,14 @@ class Metrics
 
     # Metrics::metricDataToFloat(data)
     def self.metricDataToFloat(data)
-        level, domainRT, itemRT, indx = data
-        domainRT = domainRT || 0
+        level, itemRT, indx = data
         itemRT = itemRT || 0
-        Metrics::levelToFloat(level) - domainRT.to_f/100 - itemRT.to_f/100 - indx.to_f/1000
+        indx  = indx || 0
+        if itemRT == 0 then
+            # We adjust itemRT to prevent obsessing over new zero elements
+            itemRT = 0.2
+        end
+        Metrics::levelToFloat(level) - itemRT.to_f/100 - indx.to_f/1000
     end
 end
 

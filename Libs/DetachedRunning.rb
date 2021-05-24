@@ -47,7 +47,7 @@ class DetachedRunning
         .with_index{|item, indx|
             {
                 "uuid"     => item["uuid"],
-                "metric"   => ["ns:running", nil, nil, indx],
+                "metric"   => ["ns:running", nil, indx],
                 "announce" => "[detached running] #{item["description"]}".green,
                 "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then

@@ -303,7 +303,7 @@ class WorkInterface
                 workItemType = Marbles::getOrNull(filepath, "WorkItemType") || "General"
                 {
                     "uuid"     => uuid,
-                    "metric"   => ["ns:work", nil, nil, indx],
+                    "metric"   => ["ns:work", nil, indx],
                     "announce" => makeAnnounce.call(description, workItemType),
                     "access"   => lambda { WorkInterface::access(filepath) },
                     "done" => lambda { WorkInterface::done(filepath) }

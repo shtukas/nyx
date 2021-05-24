@@ -224,15 +224,12 @@ class Quarks
         description  = quark["description"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         agent        = Quarks::quarkToAgent(quark)
-        metricLevel, agentRecoveryTime = AirTrafficDataOperator::agentToMetricData(agent)
 
         announce     = "[qurk] (#{agent["name"]}) #{description}"
 
-        recoveryTime = (recoveryTime > 0) ? recoveryTime : 0.4 # This means that zero elements, notably the new ones, don't monopolise the feed
-
         {
             "uuid"     => uuid,
-            "metric"   => [metricLevel, agentRecoveryTime, recoveryTime, nil],
+            "metric"   => ["ns:zone", recoveryTime, nil],
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(quark) },
             "done"     => lambda{
@@ -242,8 +239,7 @@ class Quarks
             },
             "x-source"       => "Quarks",
             "x-recoveryTime" => recoveryTime,
-            "x-agent"        => agent,
-            "x-agent-metric-data" => AirTrafficDataOperator::agentToMetricData(agent)
+            "x-agent"        => agent
         }
     end
 

@@ -38,16 +38,3 @@ class AirTrafficControl
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/AirTrafficControl/#{agent["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(agent))}
     end
 end
-
-class AirTrafficDataOperator
-
-    # AirTrafficDataOperator::agentToMetricData(agent)
-    def self.agentToMetricData(agent)
-        topAgent = AirTrafficControl::agentsOrderedByRecoveryTime().first
-        level = (agent["uuid"] == topAgent["uuid"]) ? "ns:important" : "ns:zone"
-        rt = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
-        [level, rt]
-    end
-end
-
-

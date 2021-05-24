@@ -1,6 +1,6 @@
 NS16 {
     "uuid"     : String # used by DoNotShowUntil
-    "metric"   : [Level, domain RT or null, item RT or null, item Index or null]
+    "metric"   : [Level, item RT or null, item Index or null]
     "announce" : String
     "access"   : Lambda or nil # optional
     "done"     : Lambda or nil # optional

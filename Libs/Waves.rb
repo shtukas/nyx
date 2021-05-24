@@ -147,7 +147,7 @@ class Waves
             .with_index{|wave, indx|
                 {
                     "uuid"      => wave["uuid"],
-                    "metric"    => ["ns:wave", nil, nil, indx],
+                    "metric"    => ["ns:wave", nil, indx],
                     "announce"  => Waves::toString(wave),
                     "access"    => lambda {
                         startUnixtime = Time.new.to_f

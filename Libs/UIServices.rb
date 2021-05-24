@@ -57,7 +57,7 @@ class UIServices
         ns16representatives = ns20s.map{|ns20|
             {
                 "uuid"     => SecureRandom.hex,
-                "metric"   => ["ns:running", nil, nil, nil],
+                "metric"   => ["ns:running", nil, nil],
                 "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
                 "access"   => nil,
                 "done"     => nil
@@ -120,11 +120,11 @@ class UIServices
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
-                x1 = item["metric"][1] || 0
-                x2 = item["metric"][2] || 0
-                x3 = item["metric"][3]
+                x0 = item["metric"][0]
+                x1 = item["metric"][1]
+                x2 = item["metric"][2]
                 if showNumbers then
-                    numbersStr = " ( #{item["metric"][0].ljust(12)}, #{x1 > 0 ? "%5.3f" % x1 : "     "}, #{x2 > 0 ? "%5.3f" % x2 : "     "}, #{x3 ? "%2d" % x3 : "  "} )"
+                    numbersStr = " ( #{x0.ljust(12)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "}, #{x2 ? "%2d" % x2 : "  "} )"
                 else
                     numbersStr = ""
                 end
