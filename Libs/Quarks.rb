@@ -179,7 +179,7 @@ class Quarks
                 agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
                 next if agent.nil?
                 quark["air-traffic-control-agent"] = agent["uuid"]
-                CoreDataTx::commit(object)
+                CoreDataTx::commit(quark)
                 next
             end
 
