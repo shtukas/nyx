@@ -6,7 +6,7 @@ class Metrics
     # Metrics::levelToFloat(level)
     def self.levelToFloat(level)
         mapping = {
-            "ns:running"    => 0.1,
+            "ns:running"    => 1.0,
             "ns:wave"       => 0.8,
             "ns:work"       => 0.6,
             "ns:important"  => 0.4,

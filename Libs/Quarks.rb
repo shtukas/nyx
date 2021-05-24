@@ -235,13 +235,6 @@ class Quarks
         $counterx.registerTimeInSeconds(timespan)
 
         Nx101::postAccessCleanUp(quark)
-
-        Dispatch::send({
-            "type"    => "c95462ff: quark has been accessed",
-            "payload" => {
-                "filepath" => filepath
-            } 
-        })
     end
 
     # Quarks::quarkToNS16(quark)
