@@ -237,7 +237,7 @@ class Quarks
             "access"   => lambda{ Quarks::runQuark(quark) },
             "done"     => lambda{
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(quark)}' ? ", true) then
-                    quark.destroy()
+                    CoreDataTx::delete(quark["uuid"])
                 end
             },
             "x-source"       => "Quarks",

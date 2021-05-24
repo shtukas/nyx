@@ -191,8 +191,8 @@ class Anniversaries
                 anniversary["startdate"] = startdate
                 CoreDataTx::commit(anniversary)
             })
-            mx.item("destroy".yellow, lambda { 
-                anniversary.destroy()
+            mx.item("destroy".yellow, lambda {
+                CoreDataTx::delete(anniversary["uuid"])
             })
             status = mx.promptAndRunSandbox()
             break if !status
