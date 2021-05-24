@@ -132,8 +132,6 @@ class Quarks
 
         uuid = quark["uuid"]
 
-        toString = Quarks::toString(quark)
-
         agent = Quarks::quarkToAgent(quark)
 
         startUnixtime = Time.new.to_f
@@ -209,7 +207,7 @@ class Quarks
 
         timespan = [timespan, 3600*2].min
 
-        puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{toString}"
+        puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{Quarks::toString(quark)}"
         Bank::put(uuid, timespan)
 
         puts "putting #{timespan} seconds to uuid: #{agent}"
