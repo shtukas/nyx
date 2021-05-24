@@ -46,7 +46,6 @@ class Todos
         startUnixtime = Time.new.to_f
 
         puts IO.read(filepath).strip.green
-        puts ""
 
         uuid = File.basename(filepath)
 
