@@ -45,7 +45,6 @@ $counterx = CounterX.new()
 # ------------------------------------------------------------------------------------------
 
 $NS16sTrace = nil
-$ShowNumbers = false
 
 class UIServices
 
@@ -104,6 +103,8 @@ class UIServices
 
         loop {
 
+            showNumbers = KeyValueStore::flagIsTrue(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
+
             system("clear")
 
             status = Anniversaries::dailyBriefingIfNotDoneToday()
@@ -122,7 +123,7 @@ class UIServices
                 x1 = item["metric"][1] || 0
                 x2 = item["metric"][2] || 0
                 x3 = item["metric"][3]
-                if $ShowNumbers then
+                if showNumbers then
                     numbersStr = " ( #{item["metric"][0].ljust(12)}, #{x1 > 0 ? "%5.3f" % x1 : "     "}, #{x2 > 0 ? "%5.3f" % x2 : "     "}, #{x3 ? "%2d" % x3 : "  "} )"
                 else
                     numbersStr = ""
@@ -135,7 +136,7 @@ class UIServices
             }
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | expose | ++ by an hour | + <weekday> | + <float> <datecode unit> | not today".yellow
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | show numbers".yellow
+            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -241,8 +242,12 @@ class UIServices
                 LucilleCore::pressEnterToContinue()
             end
 
-            if Interpreting::match("show numbers", command) then
-                $ShowNumbers = true
+            if Interpreting::match("numbers on", command) then
+                KeyValueStore::setFlagTrue(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
+            end
+
+            if Interpreting::match("numbers off", command) then
+                KeyValueStore::setFlagFalse(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
             end
 
             # -- top -----------------------------------------------------------------------------

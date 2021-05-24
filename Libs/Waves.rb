@@ -190,6 +190,8 @@ class Waves
     def self.landing(wave)
         loop {
 
+            return if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil?
+
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"

@@ -147,16 +147,16 @@ class Quarks
         }
 
         system("clear")
-        puts "running: #{Quarks::toString(quark)}"
+        puts Quarks::toString(quark)
         Nx101::access(quark)
 
         loop {
 
+            return if CoreDataTx::getObjectByIdOrNull(quark["uuid"]).nil?
+
             system("clear")
 
-            return if !quark.isStillAlive()
-
-            puts "running: #{Quarks::toString(quark)}"
+            puts Quarks::toString(quark)
 
             agent = Quarks::quarkToAgent(quark)
             puts "@agent: #{agent["name"]}"

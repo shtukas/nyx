@@ -180,6 +180,9 @@ class Anniversaries
     # Anniversaries::landing(anniversary)
     def self.landing(anniversary)
         loop {
+
+            return if CoreDataTx::getObjectByIdOrNull(anniversary["uuid"]).nil?
+
             puts Anniversaries::toString(anniversary).green
             mx = LCoreMenuItemsNX1.new()
             mx.item("update start date".yellow, lambda { 
