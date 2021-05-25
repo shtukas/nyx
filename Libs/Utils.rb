@@ -94,7 +94,7 @@ class Utils
 
     # Utils::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
-        (Time.now+86400*n).utc.iso8601[0,10]
+        (Time.now+86400*n).to_s[0,10]
     end
 
     # Utils::dateIsWeekEnd(date)
