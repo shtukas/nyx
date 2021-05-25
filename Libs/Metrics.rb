@@ -20,12 +20,8 @@ class Metrics
     def self.metricDataToFloat(data)
         level, itemRT, indx = data
         itemRT = itemRT || 0
-        indx  = indx || 0
-        if itemRT == 0 then
-            # We adjust itemRT to prevent obsessing over new zero elements
-            itemRT = 0.2
-        end
-        Metrics::levelToFloat(level) - itemRT.to_f/100 - indx.to_f/1000
+        indx = indx || 0
+        Metrics::levelToFloat(level) - itemRT.to_f/100 - indx.to_f/100
     end
 end
 

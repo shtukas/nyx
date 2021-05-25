@@ -48,27 +48,6 @@ $NS16sTrace = nil
 
 class UIServices
 
-    # UIServices::ns16sAtTheBottomTheNS20Type()
-    def self.ns16sAtTheBottomTheNS20Type()
-        ns20s = Quarks::ns20s() + [Todos::ns20()]
-        ns20s = ns20s.select{|ns20| ns20["ns16s"].size>0 }
-        ns20s = ns20s.sort{|x1, x2| x1["recoveryTime"] <=> x2["recoveryTime"] }
-
-        ns16representatives = ns20s.map{|ns20|
-            {
-                "uuid"     => SecureRandom.hex,
-                "metric"   => ["ns:running", nil, nil],
-                "announce" => "(#{"%5.3f" % ns20["recoveryTime"]}) #{ns20["announce"].green}",
-                "access"   => nil,
-                "done"     => nil
-            }
-        }
-
-        ns16s = (ns20s.map{|ns20| ns20["ns16s"].first(3) } + ns20s.map{|ns20| ns20["ns16s"].drop(3) }).flatten
-
-        ns16s.first(3) + ns16representatives + ns16s.drop(3)
-    end
-
     # UIServices::ns16s()
     def self.ns16s()
         [
@@ -135,9 +114,8 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
-            puts "top    : [] (Priority.txt) | expose | <datecode> | not today".yellow
-            puts "listing: .. (access top) | select <n> | start (<n>) | done (<n>) | new todo | new wave | new quark | new work item | no work today | new calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
-
+            puts "top    : [] (Priority.txt) | <datecode> | not today".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new todo / wave / quark / work item / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

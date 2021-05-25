@@ -21,7 +21,7 @@ class Todos
     def self.filepathToString(filepath)
         contents = IO.read(filepath)
         return "[todo] [empty] @ #{File.basename(filepath)}" if contents.strip == ""
-        "[todo] #{contents.lines.first.strip}"
+        "[todo] #{contents.strip.lines.first.strip}"
     end
 
     # Todos::interactivelyMakeNewTodoItem()
@@ -53,7 +53,7 @@ class Todos
 
             hash1 = Digest::SHA1.file(filepath).hexdigest
 
-            puts "[] | open | <datecode> | destroy".yellow
+            puts "[] | open | <datecode> | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -74,7 +74,7 @@ class Todos
                 next
             end
 
-            if Interpreting::match("destroy", command) then
+            if Interpreting::match("completed", command) then
                 FileUtils.rm(filepath)
                 $counterx.registerDone()
                 break
@@ -101,8 +101,8 @@ class Todos
             return nil 
         end
         uuid = File.basename(filepath)
-        todosRecoveryTime = BankExtended::stdRecoveredDailyTimeInHours(Todos::todosCommonBankAccount())
-        itemRecoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        itemRecoveryTime  = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        itemRecoveryTime  = itemRecoveryTime>0 ? itemRecoveryTime : 0.2 # To prevent endlessly focusing on new items
         {
             "uuid"         => uuid,
             "metric"       => ["ns:zone", itemRecoveryTime, nil],

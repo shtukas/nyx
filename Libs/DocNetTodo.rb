@@ -17,17 +17,6 @@ class DocNetTodo
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
-    # DocNetTodo::metric()
-    def self.metric()
-        dctime = ( Utils::isWeekday() and Time.new.hour >= 7 and Time.new.hour < 10 )
-        if dctime then
-            return ["ns:important", nil, nil]
-        end
-        # We treat all of dotnet as one unit when doing "ns:zone" as per "ns:zone" specifications
-        # See fda46790-3453-4e1d-a379-499adce87a5c
-        ["ns:zone", BankExtended::stdRecoveredDailyTimeInHours(DocNetTodo::uuid()), nil]
-    end
-
     # DocNetTodo::filepathToNS16OrNull(filepath)
     def self.filepathToNS16OrNull(filepath)
 
@@ -35,13 +24,17 @@ class DocNetTodo
         filename = File.basename(filepath)
         return nil if IO.read(filepath).strip == ""
 
-        announce = "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
-        
         uuid = DocNetTodo::uuid()
+
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        dctime = ( Utils::isWeekday() and Time.new.hour >= 7 and Time.new.hour < 10 )
+        level = dctime ? "ns:important" : "ns:zone"
+
+        announce = "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
 
         {
             "uuid"      => uuid,
-            "metric"    => DocNetTodo::metric(),
+            "metric"    => [level, rt, nil],
             "announce"  => announce,
             "access"    => lambda {
 
