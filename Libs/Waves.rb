@@ -198,6 +198,8 @@ class Waves
 
             return if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil?
 
+            uuid = wave["uuid"]
+
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"
@@ -210,32 +212,42 @@ class Waves
 
             puts "schedule: #{Waves::scheduleString(wave)}"
 
-            menuitems = LCoreMenuItemsNX1.new()
+                    puts "<datecode> | access | recast schedule | done".yellow
 
-            menuitems.item("access", lambda {
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
+            if Interpreting::match("access", command) then
+                Waves::access(wave)
                 if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
                     Waves::performDone(wave)
                 end
-            })
+            end
 
-            menuitems.item("done",lambda { Waves::performDone(wave) })
+            if Interpreting::match("done", command) then
+                Waves::performDone(wave)
+            end
 
-            menuitems.item("recast schedule", lambda { 
+            if Interpreting::match("recast schedule", command) then
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
                 CoreDataTx::commit(wave)
-            })
+            end
 
-            menuitems.item("destroy", lambda {
+            if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                     CoreDataTx::delete(wave["uuid"])
+                    break
                 end
-            })
-
-            status = menuitems.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 

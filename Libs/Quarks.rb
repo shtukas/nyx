@@ -323,8 +323,6 @@ class Quarks
     def self.landing(quark)
         loop {
 
-            mx = LCoreMenuItemsNX1.new()
-
             puts Quarks::toString(quark)
             puts "uuid: #{quark["uuid"]}".yellow
             unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
