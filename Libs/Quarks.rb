@@ -222,13 +222,17 @@ class Quarks
     # Quarks::quarkToNS16(quark)
     def self.quarkToNS16(quark)
         uuid         = quark["uuid"]
-        description  = quark["description"]
+
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        recoveryTime = recoveryTime>0 ? recoveryTime : 0.2 # To prevent endlessly focusing on new items
+        # To prevent endlessly focusing on new items
+        if recoveryTime == 0 then
+            Bank::put(uuid, rand*3600)
+            recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        end
 
         agent        = Quarks::quarkToAgent(quark)
 
-        announce     = "[qurk] (#{agent["name"]}) #{description}"
+        announce     = "[qurk] (#{agent["name"]}) #{quark["description"]}"
 
         {
             "uuid"     => uuid,

@@ -100,12 +100,19 @@ class Todos
             FileUtils.rm(filepath)
             return nil 
         end
+
         uuid = File.basename(filepath)
-        itemRecoveryTime  = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        itemRecoveryTime  = itemRecoveryTime>0 ? itemRecoveryTime : 0.2 # To prevent endlessly focusing on new items
+
+        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        # To prevent endlessly focusing on new items
+        if recoveryTime == 0 then
+            Bank::put(uuid, rand*3600)
+            recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        end
+
         {
             "uuid"         => uuid,
-            "metric"       => ["ns:zone", itemRecoveryTime, nil],
+            "metric"       => ["ns:zone", recoveryTime, nil],
             "announce"     => Todos::filepathToString(filepath),
             "access"       => lambda { Todos::accessFilepath(filepath) },
             "done"         => lambda { Todos::accessFilepath(filepath) },
