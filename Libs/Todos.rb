@@ -2,11 +2,6 @@
 
 class Todos
 
-    # Todos::todosCommonBankAccount()
-    def self.todosCommonBankAccount()
-        "20698c0669f72c05e214ecceaed9ca28"
-    end
-
     # Todos::todosFolderPath()
     def self.todosFolderPath()
         "#{Utils::catalystDataCenterFolderpath()}/Todos"
@@ -89,7 +84,6 @@ class Todos
 
         puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
         Bank::put(uuid, timespan)
-        Bank::put(Todos::todosCommonBankAccount(), timespan)
 
         $counterx.registerTimeInSeconds(timespan)
     end
