@@ -140,34 +140,6 @@ class Waves
         "[wave] [#{Waves::scheduleString(wave)}] #{wave["description"]} (#{ago})"
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
-        CoreDataTx::getObjectsBySchema("wave")
-            .map
-            .with_index{|wave, indx|
-                {
-                    "uuid"      => wave["uuid"],
-                    "metric"    => ["ns:wave", nil, indx],
-                    "announce"  => Waves::toString(wave),
-                    "access"    => lambda {
-                        startUnixtime = Time.new.to_f
-                        Waves::access(wave)
-                        command = LucilleCore::askQuestionAnswerAsString("[actions: 'done'] action : ")
-                        if command == "done" then
-                            Waves::performDone(wave)
-                        end
-                        timespan = Time.new.to_f - startUnixtime
-                        timespan = [timespan, 3600*2].min
-                        puts "putting #{timespan} seconds to CounterX"
-                        $counterx.registerTimeInSeconds(timespan)
-                    },
-                    "done"     => lambda{
-                        Waves::performDone(wave)
-                    }
-                }
-            }
-    end
-
     # Waves::access(wave)
     def self.access(wave)
         puts Waves::toString(wave)
@@ -179,6 +151,40 @@ class Waves
             return
         end
         raise "81367369-5265-44d3-a338-8240067b2442"
+    end
+
+    # Waves::access2(wave)
+    def self.access2(wave)
+        startUnixtime = Time.new.to_f
+        Waves::access(wave)
+        command = LucilleCore::askQuestionAnswerAsString("[actions: 'done', 'destroy'] action : ")
+        if command == "done" then
+            Waves::performDone(wave)
+        end
+        if command == "destroy" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
+                CoreDataTx::delete(wave["uuid"])
+            end
+        end
+        timespan = Time.new.to_f - startUnixtime
+        timespan = [timespan, 3600*2].min
+        puts "putting #{timespan} seconds to CounterX"
+        $counterx.registerTimeInSeconds(timespan)
+    end
+
+    # Waves::ns16s()
+    def self.ns16s()
+        CoreDataTx::getObjectsBySchema("wave")
+            .map
+            .with_index{|wave, indx|
+                {
+                    "uuid"     => wave["uuid"],
+                    "metric"   => ["ns:wave", nil, indx],
+                    "announce" => Waves::toString(wave),
+                    "access"   => lambda { Waves::access2(wave) },
+                    "done"     => lambda { Waves::performDone(wave) }
+                }
+            }
     end
 
     # Waves::selectWaveOrNull()
