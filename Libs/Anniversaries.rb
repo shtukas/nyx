@@ -181,21 +181,21 @@ class Anniversaries
     def self.landing(anniversary)
         loop {
 
-            return if CoreDataTx::getObjectByIdOrNull(anniversary["uuid"]).nil?
-
             puts Anniversaries::toString(anniversary).green
-            mx = LCoreMenuItemsNX1.new()
-            mx.item("update start date".yellow, lambda { 
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+
+            if Interpreting::match("update start date", command) then
                 startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
                 return if startdate == ""
                 anniversary["startdate"] = startdate
                 CoreDataTx::commit(anniversary)
-            })
-            mx.item("destroy".yellow, lambda {
+            end
+
+            if Interpreting::match("destroy", command) then
                 CoreDataTx::delete(anniversary["uuid"])
-            })
-            status = mx.promptAndRunSandbox()
-            break if !status
+                break
+            end
         }
     end
 
@@ -214,15 +214,20 @@ class Anniversaries
     def self.main()
         loop {
             puts "Anniversaries (main)"
-            mx = LCoreMenuItemsNX1.new()
-            mx.item("dive into anniversaries".yellow, lambda { 
+
+            puts "dive (into anniversaries) | make (new anniversary)"
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+
+            if Interpreting::match("dive", command) then
                 Anniversaries::anniversariesDive()
-            })
-            mx.item("make new anniversary".yellow, lambda { 
+            end
+
+            if Interpreting::match("make", command) then
                 Anniversaries::interactivelyIssueNewAnniversaryOrNull()
-            })
-            status = mx.promptAndRunSandbox()
-            break if !status
+                break
+            end
         }
     end
 end
