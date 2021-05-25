@@ -215,7 +215,7 @@ class Anniversaries
         loop {
             puts "Anniversaries (main)"
 
-            puts "dive (into anniversaries) | make (new anniversary)"
+            puts "dive (into anniversaries) | make (new anniversary)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""

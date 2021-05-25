@@ -321,7 +321,6 @@ class Quarks
 
     # Quarks::landing(quark)
     def self.landing(quark)
-
         loop {
 
             mx = LCoreMenuItemsNX1.new()
@@ -334,30 +333,27 @@ class Quarks
             end
             puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(quark["uuid"])}".yellow
 
-            puts ""
+            puts "access (partial edit) | edit | transmute | destroy".yellow
 
-            mx.item("access (partial edit)".yellow,lambda { 
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+
+            if Interpreting::match("access", command) then
                 Nx101::access(quark)
-            })
+            end
 
-            mx.item("edit".yellow, lambda {
+            if Interpreting::match("edit", command) then
                 Nx101::edit(quark)
-            })
+            end
 
-            mx.item("transmute".yellow, lambda { 
+            if Interpreting::match("transmute", command) then
                 Nx101::transmute(quark)
-            })
+            end
 
-            mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this quark and its content? ") then
-                    CoreDataTx::delete(quark["uuid"])
-                end
-            })
-
-            puts ""
-
-            status = mx.promptAndRunSandbox()
-            break if !status
+            if Interpreting::match("destroy", command) then
+                CoreDataTx::delete(quark["uuid"])
+                break
+            end
         }
     end
 end
