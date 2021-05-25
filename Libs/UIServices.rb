@@ -273,7 +273,6 @@ class UIServices
                 next if item.nil? 
                 next if item["[]"].nil?
                 item["[]"].call()
-                next
             end
 
             if Interpreting::match("not today", command) then

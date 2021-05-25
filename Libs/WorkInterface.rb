@@ -232,6 +232,7 @@ class WorkInterface
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
             end
 
             if Interpreting::match("access folder", command) then

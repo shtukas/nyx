@@ -167,6 +167,7 @@ class Quarks
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
+                break
             end
 
             if Interpreting::match("landing", command) then

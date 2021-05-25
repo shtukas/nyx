@@ -63,6 +63,7 @@ class DocNetTodo
 
                     if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                         DoNotShowUntil::setUnixtime(uuid, unixtime)
+                        break
                     end
 
                     if Interpreting::match("open", command) then
