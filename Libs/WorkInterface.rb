@@ -114,11 +114,9 @@ class WorkInterface
         Marbles::set(filepath, "WorkItemType", workItemType)
 
         if ["General", "RotaItem"].include?(workItemType) then
-            if LucilleCore::askQuestionAnswerAsBoolean("trello link ? ") then
-                link = LucilleCore::askQuestionAnswerAsString("trello link: ")
-                if link != "" then
-                    Marbles::set(filepath, "trelloLink", link)
-                end
+            link = LucilleCore::askQuestionAnswerAsString("trello link (empty for no link): ")
+            if link != "" then
+                Marbles::set(filepath, "trelloLink", link)
             end
         end
 
