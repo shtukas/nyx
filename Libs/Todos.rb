@@ -16,7 +16,7 @@ class Todos
     def self.filepathToString(filepath)
         contents = IO.read(filepath)
         return "[todo] [empty] @ #{File.basename(filepath)}" if contents.strip == ""
-        "[todo] #{contents.strip.lines.first.strip}"
+        "[todo] [text] #{contents.strip.lines.first.strip}"
     end
 
     # Todos::interactivelyMakeNewTodoItem()
@@ -40,15 +40,15 @@ class Todos
     def self.accessFilepath(filepath)
         startUnixtime = Time.new.to_f
 
-        puts IO.read(filepath).strip.green
-
         uuid = File.basename(filepath)
 
         loop {
 
+            puts IO.read(filepath).strip.green
+
             hash1 = Digest::SHA1.file(filepath).hexdigest
 
-            puts "[] | open | <datecode> | completed".yellow
+            puts "[] | edit | <datecode> | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -60,11 +60,11 @@ class Todos
             end
 
             if Interpreting::match("[]", command) then
-                system("open '#{File.dirname(filepath)}'")
+                Todos::applyNextTransformationToFile(filepath, Digest::SHA1.file(filepath).hexdigest)
                 next
             end
 
-            if Interpreting::match("open", command) then
+            if Interpreting::match("edit", command) then
                 system("open '#{filepath}'")
                 next
             end
