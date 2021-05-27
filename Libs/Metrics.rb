@@ -10,7 +10,8 @@ class Metrics
             "ns:wave"       => 0.8,
             "ns:work"       => 0.6,
             "ns:important"  => 0.4,
-            "ns:zone"       => 0.2
+            "ns:zone"       => 0.2,
+            "ns:zero"       => 0.0
         }
         raise "23835313-fa4b-442c-8ec2-a77ecf4f3073" if !mapping.keys.include?(level)
         mapping[level]

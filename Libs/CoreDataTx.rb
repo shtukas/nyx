@@ -74,6 +74,11 @@ class CoreDataTx
             object["directoryFilename"] = object["payload5"]
         end
 
+        if object["schema"] == "project" then
+            object["directoryFilename"]            = object["payload1"]
+            object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
+        end
+
         object.delete("payload1")
         object.delete("payload2")
         object.delete("payload3")
@@ -117,7 +122,8 @@ class CoreDataTx
             "wave", 
             "anniversary",
             "quark",
-            "workitem"
+            "workitem",
+            "project"
         ]
     end
 
@@ -161,6 +167,15 @@ class CoreDataTx
             object["payload3"] = object["prLink"]
             object["payload4"] = object["gitBranch"]
             object["payload5"] = object["directoryFilename"]
+            hasBeenTransformed = true
+        end
+
+        if object["schema"] == "project" then
+            object["payload1"] = object["directoryFilename"]
+            object["payload2"] = object["timeCommitmentInHoursPerWeek"]
+            object["payload3"] = nil
+            object["payload4"] = nil
+            object["payload5"] = nil
             hasBeenTransformed = true
         end
 

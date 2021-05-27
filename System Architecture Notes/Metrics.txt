@@ -5,3 +5,4 @@ Levels
     "ns:work"
     "ns:important"
     "ns:zone"
+    "ns:zero"

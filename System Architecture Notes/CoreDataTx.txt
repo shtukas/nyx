@@ -7,6 +7,19 @@ create table _objects_ (_objectId_ text, _schema_ text, _unixtime_ real, _descri
 
 # ----------------------------------------------------
 
+Anniversary {
+    uuid                : String        # _objectId_
+    schema              : "anniversary" # _schema_
+    unixtime            : Float         # _unixtime_
+    description         : String        # _description_
+
+    startdate           : String, Date  # _payload1_ "YYYY-MM-DD"
+    repeatType          : String        # _payload2_ # "weekly", "monthly", "yearly"
+    lastCelebrationDate : String, Date  # _payload3_
+}
+
+# ----------------------------------------------------
+
 Wave {
     uuid             : String   # _objectId_
     schema           : "wave"   # _schema_
@@ -29,19 +42,6 @@ Wave {
     "Text"            -> String # reference to a blob
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
-
-# ----------------------------------------------------
-
-Anniversary {
-    uuid                : String        # _objectId_
-    schema              : "anniversary" # _schema_
-    unixtime            : Float         # _unixtime_
-    description         : String        # _description_
-
-    startdate           : String, Date  # _payload1_ "YYYY-MM-DD"
-    repeatType          : String        # _payload2_ # "weekly", "monthly", "yearly"
-    lastCelebrationDate : String, Date  # _payload3_
-}
 
 # ----------------------------------------------------
 
@@ -79,4 +79,16 @@ WorkItem {
     "prLink"            : String or null # _payload3_
     "gitBranch"         : String or null # _payload4_
     "directoryFilename" : String         # _payload5_
+}
+
+# ----------------------------------------------------
+
+Project {
+    uuid                : String         # _objectId_
+    schema              : "project"      # _schema_
+    unixtime            : Float          # _unixtime_
+    description         : String         # _description_
+
+    "directoryFilename"            : String # _payload1_
+    "timeCommitmentInHoursPerWeek" : Float  # _payload2_
 }

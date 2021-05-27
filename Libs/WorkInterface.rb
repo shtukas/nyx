@@ -69,7 +69,7 @@ class WorkInterface
 
     # WorkInterface::interactvelyIssueNewItem()
     def self.interactvelyIssueNewItem()
-        uuid = SecureRandom.hex(6)
+        uuid = SecureRandom.uuid
 
         workItemType = WorkInterface::selectAWorkItemTypeOrNull()
         return if workItemType.nil?

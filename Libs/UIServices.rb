@@ -59,7 +59,7 @@ class UIServices
             Waves::ns16s(),
             WorkInterface::ns16s(),
             Quarks::ns16s(),
-            Todos::ns16s()
+            Projects::ns16s()
         ]
             .flatten
             .compact
@@ -68,6 +68,7 @@ class UIServices
                 item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
                 item
             }
+            .select{|item| item["metric-float"] > 0 }
             .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
             .reverse
     end
@@ -115,7 +116,7 @@ class UIServices
             }
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new todo / wave / quark / work item / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / quark / work item / project / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -187,8 +188,8 @@ class UIServices
                 item["done"].call()
             end
 
-            if Interpreting::match("new todo", command) then
-                Todos::interactivelyMakeNewTodoItem()
+            if Interpreting::match("new project", command) then
+                Projects::interactivelyCreateNewProject()
             end
 
             if Interpreting::match("new wave", command) then

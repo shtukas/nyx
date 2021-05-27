@@ -157,6 +157,7 @@ require_relative "GalaxyFinder.rb"
 require_relative "Metrics.rb"
 
 require_relative "Priority1.rb"
+require_relative "Projects.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Quarks.rb"
@@ -172,7 +173,6 @@ require_relative "Runner.rb"
 require_relative "SectionsType0141.rb"
 
 require_relative "DocNetTodo.rb"
-require_relative "Todos.rb"
 
 require_relative "UIServices.rb"
 require_relative "Utils.rb"
