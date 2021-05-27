@@ -2,6 +2,11 @@
 
 class Nx50s
 
+    # Nx50s::isFull()
+    def self.isFull()
+        CoreDataTx::getObjectsBySchema("Nx50").size > 50
+    end
+
     # Nx50s::importURLAsNewURLNx50(url)
     def self.importURLAsNewURLNx50(url)
         uuid = SecureRandom.uuid

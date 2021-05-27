@@ -8,6 +8,7 @@ require_relative "Libs/loader.rb"
 
 def imports()
     LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Inbox").each{|location|
+        break if Nx50s::isFull()
         puts location
         Nx50s::importLocationAsNewAionPointNx50(location)
         LucilleCore::removeFileSystemLocation(location)
