@@ -21,7 +21,7 @@ class Metrics
         level, itemRT, indx = data
         itemRT = itemRT || 0
         indx = indx || 0
-        Metrics::levelToFloat(level) - itemRT.to_f/100 - indx.to_f/100
+        Metrics::levelToFloat(level) - itemRT.to_f/1000 - indx.to_f/1000
     end
 end
 
