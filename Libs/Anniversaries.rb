@@ -127,7 +127,8 @@ class Anniversaries
 
     # Anniversaries::toString(anniversary)
     def self.toString(anniversary)
-        "[anniversary] [#{Anniversaries::nextDateOrdinal(anniversary).join(", ")}] #{anniversary["description"]} (#{anniversary["repeatType"]} since #{anniversary["startdate"]})"
+        date, n = Anniversaries::nextDateOrdinal(anniversary)
+        "[anniversary] [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
     # Anniversaries::ns16s()
@@ -182,11 +183,14 @@ class Anniversaries
         loop {
 
             puts Anniversaries::toString(anniversary).green
+
+            puts "update start date | destroy"
+
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
 
             if Interpreting::match("update start date", command) then
-                startdate = LucilleCore::askQuestionAnswerAsString("start date: ")
+                startdate = Utils::editTextSynchronously(anniversary["startdate"])
                 return if startdate == ""
                 anniversary["startdate"] = startdate
                 CoreDataTx::commit(anniversary)
