@@ -7,7 +7,7 @@ class Waves
     def self.makeScheduleParametersInteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
-        scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes, lambda{|entity| entity })
+        scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes)
 
         return nil if scheduleType.nil?
 
@@ -99,6 +99,23 @@ class Waves
         $counterx.registerDone()
     end
 
+    # Waves::interactivelyMakeContentsOrNull() : [type, payload] 
+    def self.interactivelyMakeContentsOrNull()
+        types = ['line', 'url']
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("types", types)
+        return nil if type.nil?
+        if type == "line" then
+            line  = LucilleCore::askQuestionAnswerAsString("line (empty to abort) : ")
+            return nil if line == ""
+            return ["Line", line]
+        end
+        if type == "url" then
+            url  = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
+            return nil if url == ""
+            return ["Url", url]
+        end
+    end
+
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
         wave = {}
@@ -109,15 +126,20 @@ class Waves
         wave["schema"] = "wave"
         wave["unixtime"] = Time.new.to_i
 
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        if description == "" then
-            return nil
+        contents = Waves::interactivelyMakeContentsOrNull()
+        return nil if contents.nil?
+
+        if contents[0] == "Line" then
+            wave["description"] = contents[1]
+            wave["contentType"] = contents[0]
+            wave["payload"]     = ""
         end
 
-        wave["description"] = description
-
-        wave["contentType"] = "Line"
-        wave["payload"] = ""
+        if contents[0] == "Url" then
+            wave["description"] = contents[1]
+            wave["contentType"] = contents[0]
+            wave["payload"]     = contents[1]
+        end
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         if schedule.nil? then
@@ -137,54 +159,7 @@ class Waves
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] [#{Waves::scheduleString(wave)}] #{wave["description"]} (#{ago})"
-    end
-
-    # Waves::access(wave)
-    def self.access(wave)
-        puts Waves::toString(wave)
-        if wave["contentType"] == "Line" then
-            return
-        end
-        if wave["contentType"] == "Url" then
-            Utils::openUrl(wave["payload"])
-            return
-        end
-        raise "81367369-5265-44d3-a338-8240067b2442"
-    end
-
-    # Waves::access2(wave)
-    def self.access2(wave)
-        startUnixtime = Time.new.to_f
-        Waves::access(wave)
-        command = LucilleCore::askQuestionAnswerAsString("[actions: 'done', 'destroy'] action : ")
-        if command == "done" then
-            Waves::performDone(wave)
-        end
-        if command == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                CoreDataTx::delete(wave["uuid"])
-            end
-        end
-        timespan = Time.new.to_f - startUnixtime
-        timespan = [timespan, 3600*2].min
-        puts "putting #{timespan} seconds to CounterX"
-        $counterx.registerTimeInSeconds(timespan)
-    end
-
-    # Waves::ns16s()
-    def self.ns16s()
-        CoreDataTx::getObjectsBySchema("wave")
-            .map
-            .with_index{|wave, indx|
-                {
-                    "uuid"     => wave["uuid"],
-                    "metric"   => ["ns:wave", nil, indx],
-                    "announce" => Waves::toString(wave),
-                    "access"   => lambda { Waves::access2(wave) },
-                    "done"     => lambda { Waves::performDone(wave) }
-                }
-            }
+        "[wave] [#{Waves::scheduleString(wave)}] [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
     end
 
     # Waves::selectWaveOrNull()
@@ -202,17 +177,16 @@ class Waves
 
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
-            puts "last done: #{wave["lastDoneDateTime"]}"
 
+            puts "schedule: #{Waves::scheduleString(wave)}"
+            puts "last done: #{wave["lastDoneDateTime"]}"
             if DoNotShowUntil::isVisible(wave["uuid"]) then
                 puts "active"
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "schedule: #{Waves::scheduleString(wave)}"
-
-                    puts "<datecode> | access | recast schedule | done".yellow
+            puts "<datecode> | done | recast contents | recast schedule | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -223,15 +197,24 @@ class Waves
                 break
             end
 
-            if Interpreting::match("access", command) then
-                Waves::access(wave)
-                if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-                    Waves::performDone(wave)
-                end
-            end
-
             if Interpreting::match("done", command) then
                 Waves::performDone(wave)
+            end
+
+            if Interpreting::match("recast contents", command) then
+                contents = Waves::interactivelyMakeContentsOrNull()
+                next if contents.nil?
+                if contents[0] == "Line" then
+                    wave["description"] = contents[1]
+                    wave["contentType"] = contents[0]
+                    wave["payload"]     = ""
+                end
+                if contents[0] == "Url" then
+                    wave["description"] = contents[1]
+                    wave["contentType"] = contents[0]
+                    wave["payload"]     = contents[1]
+                end
+                CoreDataTx::commit(wave)
             end
 
             if Interpreting::match("recast schedule", command) then
@@ -251,16 +234,6 @@ class Waves
         }
     end
 
-    # Waves::wavesDive()
-    def self.wavesDive()
-        loop {
-            system("Waves Dive")
-            wave = Waves::selectWaveOrNull()
-            return if wave.nil?
-            Waves::landing(wave)
-        }
-    end
-
     # Waves::main()
     def self.main()
         loop {
@@ -275,8 +248,55 @@ class Waves
                 Waves::issueNewWaveInteractivelyOrNull()
             end
             if option == "waves dive" then
-                Waves::wavesDive()
+                loop {
+                    system("Waves Dive")
+                    wave = Waves::selectWaveOrNull()
+                    return if wave.nil?
+                    Waves::landing(wave)
+                }
             end
         }
+    end
+
+    # Waves::access(wave)
+    def self.access(wave)
+        uuid = wave["uuid"]
+        startUnixtime = Time.new.to_f
+        if wave["contentType"] == "Line" then
+
+        end
+        if wave["contentType"] == "Url" then
+            Utils::openUrl(wave["payload"])
+        end
+        puts Waves::toString(wave)
+        command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing'] action : ")
+        if command == "done" then
+            Waves::performDone(wave)
+        end
+        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            DoNotShowUntil::setUnixtime(uuid, unixtime)
+        end
+        if command == "landing" then
+            Waves::landing(wave)
+        end
+        timespan = Time.new.to_f - startUnixtime
+        timespan = [timespan, 3600*2].min
+        puts "putting #{timespan} seconds to CounterX"
+        $counterx.registerTimeInSeconds(timespan)
+    end
+
+    # Waves::ns16s()
+    def self.ns16s()
+        CoreDataTx::getObjectsBySchema("wave")
+            .map
+            .with_index{|wave, indx|
+                {
+                    "uuid"     => wave["uuid"],
+                    "metric"   => ["ns:wave", nil, indx],
+                    "announce" => Waves::toString(wave),
+                    "access"   => lambda { Waves::access(wave) },
+                    "done"     => lambda { Waves::performDone(wave) }
+                }
+            }
     end
 end

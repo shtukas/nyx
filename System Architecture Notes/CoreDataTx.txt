@@ -34,14 +34,11 @@ Wave {
     payload          : String   # _payload5_
 }
 
-- contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
+- contentType : "Line" | "Url"
 - payload
     [contentType]     -> [payload]
     "Line"            -> "" # empty string, the description is the payload
     "Url"             -> String
-    "Text"            -> String # reference to a blob
-    "ClickableType"   -> <nhash>|<dottedExtension>
-    "AionPoint"       -> <nhash>
 
 # ----------------------------------------------------
 
