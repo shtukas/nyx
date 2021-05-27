@@ -3,36 +3,6 @@
 
 class Quarks
 
-    # Quarks::importLocationAsNewAionPointQuark(location)
-    def self.importLocationAsNewAionPointQuark(location)
-        uuid = SecureRandom.uuid
-
-        quark = {}
-        quark["uuid"]        = uuid
-        quark["schema"]      = "quark"
-        quark["unixtime"]    = Time.new.to_f
-        quark["description"] = File.basename(location) 
-        quark["contentType"] = "AionPoint"
-        quark["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-
-        CoreDataTx::commit(quark)
-    end
-
-    # Quarks::importURLAsNewURLQuark(url)
-    def self.importURLAsNewURLQuark(url)
-        uuid = SecureRandom.uuid
-
-        quark = {}
-        quark["uuid"]        = uuid
-        quark["schema"]      = "quark"
-        quark["unixtime"]    = Time.new.to_f
-        quark["description"] = url
-        quark["contentType"] = "Url"
-        quark["payload"]     = url
-
-        CoreDataTx::commit(quark)
-    end
-
     # Quarks::interactivelyIssueNewQuarkOrNull()
     def self.interactivelyIssueNewQuarkOrNull()
         uuid = SecureRandom.uuid
@@ -221,7 +191,7 @@ class Quarks
 
     # Quarks::quarkToNS16(quark)
     def self.quarkToNS16(quark)
-        uuid         = quark["uuid"]
+        uuid = quark["uuid"]
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         # To prevent endlessly focusing on new items
@@ -248,77 +218,6 @@ class Quarks
             "x-recoveryTime" => recoveryTime,
             "x-agent"        => agent
         }
-    end
-
-    # Quarks::ns16s()
-    def self.ns16s()
-        l1 = lambda{|agent, agentsuuids|
-
-            cacheduuids = KeyValueStore::getOrNull(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb8:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}")
-            if cacheduuids then
-                cacheduuids = JSON.parse(cacheduuids)
-                quarks = cacheduuids
-                            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
-                            .compact
-                            .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                if quarks.size == 3 then
-                    return quarks
-                end
-            end
-
-            quarks = Quarks::quarks()
-                        .map{|quark|
-                            if (quark["air-traffic-control-agent"].nil? or !agentsuuids.include?(quark["air-traffic-control-agent"])) then
-                                quark["air-traffic-control-agent"] = "3AD70E36-826B-4958-95BF-02E12209C375"
-                            end
-                            quark
-                        }
-                        .select{|quark| quark["air-traffic-control-agent"] == agent["uuid"] }
-                        .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                        .first(3)
-
-            cacheduuids = quarks.map{|quark| quark["uuid"] }
-            KeyValueStore::set(nil, "f56a2ee4-385a-4647-821e-b66c89c93cb8:#{agent["uuid"]}:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
-            quarks
-        }
-
-        l3 = lambda{
-
-            # Here we get the end of the stream
-            cacheduuids = KeyValueStore::getOrNull(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}")
-            if cacheduuids then
-                cacheduuids = JSON.parse(cacheduuids)
-                quarks = cacheduuids
-                            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
-                            .compact
-                            .select{|quark| DoNotShowUntil::isVisible(quark["uuid"]) }
-                if quarks.size == 3 then
-                    return quarks
-                end
-            end
-
-            quarks = Quarks::quarks().reverse.first(3)
-
-            cacheduuids = quarks.map{|quark| quark["uuid"] }
-            KeyValueStore::set(nil, "69fe83c5-479d-46da-ae0c-921e9941a154:#{Time.new.to_s[0, 13]}", JSON.generate(cacheduuids))
-            quarks
-        }
-
-        agents = AirTrafficControl::agents()
-        agentsuuids = agents.map{|a| a["uuid"] }
-
-        n1 = agents.map{|agent| l1.call(agent, agentsuuids)}.flatten
-        n3 = l3.call()
-
-        (n1 + n3)
-            .reduce([]){|selected, quark|
-                if selected.none?{|q| q["uuid"] == quark["uuid"] } then
-                    selected + [quark]
-                else
-                    selected
-                end
-            }
-            .map{|quark| Quarks::quarkToNS16(quark) }
     end
 
     # --------------------------------------------------

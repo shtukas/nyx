@@ -7,9 +7,9 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 def imports()
-    LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Quarks Inbox").each{|location|
+    LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Inbox").each{|location|
         puts location
-        Quarks::importLocationAsNewAionPointQuark(location)
+        Nx50s::importLocationAsNewAionPointNx50(location)
         LucilleCore::removeFileSystemLocation(location)
         sleep 1
     }

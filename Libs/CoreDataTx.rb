@@ -46,6 +46,12 @@ class CoreDataTx
             "payload5"    => row["_payload5_"],
         }
 
+        if object["schema"] == "anniversary" then
+            object["startdate"]           = object["payload1"]
+            object["repeatType"]          = object["payload2"]
+            object["lastCelebrationDate"] = object["payload3"]
+        end
+
         if object["schema"] == "wave" then
             object["repeatType"]       = object["payload1"]
             object["repeatValue"]      = object["payload2"]
@@ -54,13 +60,13 @@ class CoreDataTx
             object["payload"]          = object["payload5"]
         end
 
-        if object["schema"] == "anniversary" then
-            object["startdate"]           = object["payload1"]
-            object["repeatType"]          = object["payload2"]
-            object["lastCelebrationDate"] = object["payload3"]
+        if object["schema"] == "quark" then
+            object["contentType"]               = object["payload1"]
+            object["payload"]                   = object["payload2"]
+            object["air-traffic-control-agent"] = object["payload3"]
         end
 
-        if object["schema"] == "quark" then
+        if object["schema"] == "Nx50" then
             object["contentType"]               = object["payload1"]
             object["payload"]                   = object["payload2"]
             object["air-traffic-control-agent"] = object["payload3"]
@@ -119,9 +125,10 @@ class CoreDataTx
     # CoreDataTx::supportedSchemas()
     def self.supportedSchemas()
         [
-            "wave", 
             "anniversary",
+            "wave",
             "quark",
+            "Nx50",
             "workitem",
             "project"
         ]
@@ -134,15 +141,6 @@ class CoreDataTx
 
         hasBeenTransformed = false
 
-        if object["schema"] == "wave" then
-            object["payload1"] = object["repeatType"]
-            object["payload2"] = object["repeatValue"]
-            object["payload3"] = object["lastDoneDateTime"]
-            object["payload4"] = object["contentType"]
-            object["payload5"] = object["payload"]
-            hasBeenTransformed = true
-        end
-
         if object["schema"] == "anniversary" then
             object["payload1"] = object["startdate"]
             object["payload2"] = object["repeatType"]
@@ -152,7 +150,25 @@ class CoreDataTx
             hasBeenTransformed = true
         end
 
+        if object["schema"] == "wave" then
+            object["payload1"] = object["repeatType"]
+            object["payload2"] = object["repeatValue"]
+            object["payload3"] = object["lastDoneDateTime"]
+            object["payload4"] = object["contentType"]
+            object["payload5"] = object["payload"]
+            hasBeenTransformed = true
+        end
+
         if object["schema"] == "quark" then
+            object["payload1"] = object["contentType"]
+            object["payload2"] = object["payload"]
+            object["payload3"] = object["air-traffic-control-agent"]
+            object["payload4"] = nil
+            object["payload5"] = nil
+            hasBeenTransformed = true
+        end
+
+        if object["schema"] == "Nx50" then
             object["payload1"] = object["contentType"]
             object["payload2"] = object["payload"]
             object["payload3"] = object["air-traffic-control-agent"]

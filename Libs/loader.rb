@@ -156,6 +156,8 @@ require_relative "GalaxyFinder.rb"
 
 require_relative "Metrics.rb"
 
+require_relative "Nx50s.rb"
+
 require_relative "Priority1.rb"
 require_relative "Projects.rb"
 require_relative "ProgrammableBooleans.rb"

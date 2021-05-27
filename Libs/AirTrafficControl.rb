@@ -6,7 +6,7 @@ class AirTrafficControl
     def self.defaultAgent()
         {
             "uuid" => "3AD70E36-826B-4958-95BF-02E12209C375",
-            "name" => "quarks"
+            "name" => "Asteroids"
         }
     end
 

@@ -40,7 +40,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    Quarks::importURLAsNewURLQuark(link)
+    Nx50s::importURLAsNewURLNx50(link)
     viennaLinkFeeder.done(link)
     sleep 1
 }

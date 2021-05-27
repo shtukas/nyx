@@ -66,6 +66,8 @@ Quark {
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
 
+A Nx50 is like a quark but the schema is "Nx50"
+
 # ----------------------------------------------------
 
 WorkItem {

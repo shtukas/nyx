@@ -58,7 +58,7 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
-            Quarks::ns16s(),
+            Nx50s::ns16s(),
             Projects::ns16s()
         ]
             .flatten
@@ -90,7 +90,7 @@ class UIServices
             status = Anniversaries::dailyBriefingIfNotDoneToday()
             next if status
 
-            vspaceleft = Utils::screenHeight()-6
+            vspaceleft = Utils::screenHeight()-7
 
             items = UIServices::ns16s()
 
@@ -114,6 +114,7 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
+            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
             puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / quark / work item / project / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
