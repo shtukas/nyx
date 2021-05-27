@@ -114,7 +114,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
-            puts "top    : [] (Priority.txt) | <datecode> | not today".yellow
+            puts "top    : [] (Priority.txt) | <datecode>".yellow
             puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new todo / wave / quark / work item / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -251,11 +251,6 @@ class UIServices
                 next if item.nil? 
                 next if item["[]"].nil?
                 item["[]"].call()
-            end
-
-            if Interpreting::match("not today", command) then
-                unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone())
-                DoNotShowUntil::setUnixtime(items[0]["uuid"], unixtime)
             end
 
             if Interpreting::match("exit", command) then

@@ -178,7 +178,7 @@ class WorkInterface
         uuid = Marbles::get(filepath, "uuid")
         description = Marbles::get(filepath, "description")
         loop {
-            puts "link: '#{description}'".green
+            puts "link: #{description}".green
             puts "open | done".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")

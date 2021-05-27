@@ -23,13 +23,16 @@ class Utils
         return nil if code.nil?
         return nil if code == ""
 
-        return (Time.new.to_i+3600) if code == "++"
-
+        # +++ postpone til midnight
+        # ++ postpone by one hour
         # +<weekdayname>
         # +<integer>day(s)
         # +<integer>hour(s)
         # +YYYY-MM-DD
         # +1@12:34
+
+        return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) if code == "+++"
+        return (Time.new.to_i+3600) if code == "++"
 
         code = code[1,99].strip
 
