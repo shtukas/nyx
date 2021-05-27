@@ -66,4 +66,17 @@ Quark {
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
 
+# ----------------------------------------------------
 
+WorkItem {
+    uuid                : String         # _objectId_
+    schema              : "workitem"     # _schema_
+    unixtime            : Float          # _unixtime_
+    description         : String         # _description_
+
+    "workItemType"      : String         # _payload1_ # "General" | "PR" | "RotaItem"
+    "trelloLink"        : String or null # _payload2_
+    "prLink"            : String or null # _payload3_
+    "gitBranch"         : String or null # _payload4_
+    "directoryFilename" : String         # _payload5_
+}

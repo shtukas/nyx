@@ -66,6 +66,14 @@ class CoreDataTx
             object["air-traffic-control-agent"] = object["payload3"]
         end
 
+        if object["schema"] == "workitem" then
+            object["workItemType"]      = object["payload1"]
+            object["trelloLink"]        = object["payload2"]
+            object["prLink"]            = object["payload3"]
+            object["gitBranch"]         = object["payload4"]
+            object["directoryFilename"] = object["payload5"]
+        end
+
         object.delete("payload1")
         object.delete("payload2")
         object.delete("payload3")
@@ -108,7 +116,8 @@ class CoreDataTx
         [
             "wave", 
             "anniversary",
-            "quark"
+            "quark",
+            "workitem"
         ]
     end
 
@@ -117,12 +126,15 @@ class CoreDataTx
 
         raise "04d8079d-e804-48af-9a12-25cdec657112: #{object}" if !CoreDataTx::supportedSchemas().include?(object["schema"])
 
+        hasBeenTransformed = false
+
         if object["schema"] == "wave" then
             object["payload1"] = object["repeatType"]
             object["payload2"] = object["repeatValue"]
             object["payload3"] = object["lastDoneDateTime"]
             object["payload4"] = object["contentType"]
             object["payload5"] = object["payload"]
+            hasBeenTransformed = true
         end
 
         if object["schema"] == "anniversary" then
@@ -131,6 +143,7 @@ class CoreDataTx
             object["payload3"] = object["lastCelebrationDate"]
             object["payload4"] = nil
             object["payload5"] = nil
+            hasBeenTransformed = true
         end
 
         if object["schema"] == "quark" then
@@ -139,6 +152,20 @@ class CoreDataTx
             object["payload3"] = object["air-traffic-control-agent"]
             object["payload4"] = nil
             object["payload5"] = nil
+            hasBeenTransformed = true
+        end
+
+        if object["schema"] == "workitem" then
+            object["payload1"] = object["workItemType"]
+            object["payload2"] = object["trelloLink"]
+            object["payload3"] = object["prLink"]
+            object["payload4"] = object["gitBranch"]
+            object["payload5"] = object["directoryFilename"]
+            hasBeenTransformed = true
+        end
+
+        if !hasBeenTransformed then
+            raise "f542f249-77db-4d4c-a984-3efa14e62fa1: #{object}"
         end
 
         CoreDataTx::insertRecord(object["uuid"], object["schema"], object["unixtime"], object["description"], object["payload1"], object["payload2"], object["payload3"], object["payload4"], object["payload5"])
