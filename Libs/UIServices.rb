@@ -117,7 +117,7 @@ class UIServices
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
             puts "( velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / quark / work item / project / calendar item | anniversaries | calendar | waves | agents | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -195,6 +195,20 @@ class UIServices
 
             if Interpreting::match("new wave", command) then
                 Waves::issueNewWaveInteractivelyOrNull()
+            end
+
+           if Interpreting::match("new todo", command) then
+                line = LucilleCore::askQuestionAnswerAsString("line (empty to abort) : ")
+                return if line == ""
+                nx50 = {
+                    "uuid"        => SecureRandom.uuid,
+                    "schema"      => "Nx50",
+                    "unixtime"    => Time.new.to_i,
+                    "description" => line,
+                    "contentType" => "Line",
+                    "payload"     => ""
+                }
+                CoreDataTx::commit(nx50)
             end
 
             if Interpreting::match("new quark", command) then
