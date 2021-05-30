@@ -95,7 +95,9 @@ class Projects
 
     # Projects::toString(project)
     def self.toString(project)
-        "[project] #{project["description"]}"
+        items = ProjectItems::itemsForProject(project["uuid"])
+        itemsStr = (items.size > 0 ? " [#{items.size} item(s)]" : "")
+        "[project] #{project["description"]}#{itemsStr}"
     end
 
     # Projects::interactivelyCreateNewProject()
