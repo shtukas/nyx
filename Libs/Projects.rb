@@ -100,6 +100,19 @@ class Projects
         "[project] #{project["description"]}#{itemsStr}"
     end
 
+    # Projects::toStringListing(project)
+    def self.toStringListing(project)
+        items = ProjectItems::itemsForProject(project["uuid"])
+        itemsStr = (items.size > 0 ? " [#{items.size} item(s)]" : "")
+
+        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(project["uuid"])
+        ratio = recoveryTime.to_f/project["timeCommitmentInHoursPerWeek"]
+        ratioStr = "#{"%6.2f" % (ratio*100)} % of #{project["timeCommitmentInHoursPerWeek"]}"
+
+        "[project] (#{ratioStr}) #{project["description"]}#{itemsStr}"
+    end
+
+
     # Projects::interactivelyCreateNewProject()
     def self.interactivelyCreateNewProject()
 
@@ -142,6 +155,9 @@ class Projects
 
         uuid = project["uuid"]
 
+        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        ratio = recoveryTime.to_f/project["timeCommitmentInHoursPerWeek"]
+
         startUnixtime = Time.new.to_f
 
         thr = Thread.new {
@@ -157,6 +173,8 @@ class Projects
             projectItems = ProjectItems::itemsForProject(project["uuid"])
 
             puts "#{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+            puts "ratio: #{ratio}"
+
             projectItems.each_with_index{|item, indx|
                 puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
@@ -222,7 +240,6 @@ class Projects
     def self.projectToNS16(project)
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-
         level = 
             if Bank::valueOverTimespan(uuid, 86400*7) < project["timeCommitmentInHoursPerWeek"]*3600 then
                 "ns:important"
@@ -233,7 +250,7 @@ class Projects
         {
             "uuid"         => uuid,
             "metric"       => [level, recoveryTime, nil],
-            "announce"     => Projects::toString(project),
+            "announce"     => Projects::toStringListing(project),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
