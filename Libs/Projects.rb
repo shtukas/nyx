@@ -226,6 +226,10 @@ class Projects
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
+                    ProjectItems::itemsForProject(project["uuid"]).each{|item|
+                        puts "Destroying #{ProjectItems::toString(item)}"
+                        ProjectItems::destroy(item)
+                    }
                     CoreDataTx::delete(project["uuid"])
                     $counterx.registerDone()
                 end
