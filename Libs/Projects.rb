@@ -107,7 +107,7 @@ class Projects
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(project["uuid"])
         ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
-        ratioStr = "#{"%6.2f" % (ratio*100)} % of #{project["timeCommitmentInHoursPerWeek"]}"
+        ratioStr = "#{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]}"
 
         "[project] (#{ratioStr}) #{project["description"]}#{itemsStr}"
     end
@@ -179,7 +179,7 @@ class Projects
                 puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
 
-            puts "access | <datecode> | update description | new item | completed".yellow
+            puts "access | <datecode> | update description | new item | detach running | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
