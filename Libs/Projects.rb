@@ -22,13 +22,13 @@ class ProjectItems
     def self.interativelyIssueNewProjectItem(projectId)
         coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
         return if coordinates.nil?
-        description, type, payload = coordinates
+        description, contentType, payload = coordinates
         item = {
             "uuid"          => SecureRandom.uuid,
             "projectId"     => projectId,
             "unixtime"      => Time.new.to_f,
             "description"   => description,
-            "type"          => type,
+            "contentType"   => contentType,
             "payload"       => payload
         }
         BTreeSets::set(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"], item)
@@ -48,6 +48,29 @@ class ProjectItems
     # ProjectItems::destroy(item)
     def self.destroy(item)
         BTreeSets::destroy(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"])
+    end
+
+    # ProjectItems::toString(item)
+    def self.toString(item)
+        "- #{item["description"]}"
+    end
+
+    # ProjectItems::landing(item)
+    def self.landing(item)
+        loop {
+            puts ProjectItems::toString(item).green
+            puts "access | delete".yellow
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(item["contentType"], item["payload"])
+                next
+            end
+            if Interpreting::match("delete", command) then
+                ProjectItems::destroy(item)
+                break
+            end
+        }
     end
 end 
 
@@ -114,7 +137,7 @@ class Projects
 
             puts "#{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
             ProjectItems::itemsForProject(project["uuid"]).each{|item|
-                puts item
+                puts ProjectItems::toString(item)
             }
 
             puts "access | <datecode> | update description | new item | completed".yellow
@@ -142,8 +165,7 @@ class Projects
             end
 
             if Interpreting::match("new item", command) then
-                item = ProjectItems::interativelyIssueNewProjectItem(project["uuid"])
-                puts JSON.pretty_generate(item)
+                ProjectItems::interativelyIssueNewProjectItem(project["uuid"])
                 next
             end
 
@@ -174,8 +196,6 @@ class Projects
         folderpath = "#{Projects::repositoryFolderPath()}/#{project["directoryFilename"]}"
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-        announce = ([ Projects::toString(project) ] + ProjectItems::itemsForProject(project["uuid"]).map{|item| "                #{item.to_s}" }).join("\n")
-
         level = 
             if Bank::valueOverTimespan(uuid, 86400*7) < project["timeCommitmentInHoursPerWeek"]*3600 then
                 "ns:important"
@@ -186,7 +206,7 @@ class Projects
         {
             "uuid"         => uuid,
             "metric"       => [level, recoveryTime, nil],
-            "announce"     => announce,
+            "announce"     => Projects::toString(project),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
