@@ -106,7 +106,7 @@ class Projects
         itemsStr = (items.size > 0 ? " [#{items.size} item(s)]" : "")
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(project["uuid"])
-        ratio = recoveryTime.to_f/project["timeCommitmentInHoursPerWeek"]
+        ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
         ratioStr = "#{"%6.2f" % (ratio*100)} % of #{project["timeCommitmentInHoursPerWeek"]}"
 
         "[project] (#{ratioStr}) #{project["description"]}#{itemsStr}"
@@ -156,7 +156,7 @@ class Projects
         uuid = project["uuid"]
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ratio = recoveryTime.to_f/project["timeCommitmentInHoursPerWeek"]
+        ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
 
         startUnixtime = Time.new.to_f
 
@@ -241,7 +241,7 @@ class Projects
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         level = 
-            if Bank::valueOverTimespan(uuid, 86400*7) < project["timeCommitmentInHoursPerWeek"]*3600 then
+            if (recoveryTime*7) < project["timeCommitmentInHoursPerWeek"]then
                 "ns:important"
             else
                 "ns:zero"
