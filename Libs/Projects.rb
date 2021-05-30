@@ -135,9 +135,11 @@ class Projects
 
         loop {
 
+            projectItems = ProjectItems::itemsForProject(project["uuid"])
+
             puts "#{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
-            ProjectItems::itemsForProject(project["uuid"]).each{|item|
-                puts ProjectItems::toString(item)
+            projectItems.each_with_index{|item, indx|
+                puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
 
             puts "access | <datecode> | update description | new item | completed".yellow
@@ -149,6 +151,12 @@ class Projects
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
+            end
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                item = projectItems[indx]
+                next if item.nil?
+                ProjectItems::landing(item)
             end
 
             if Interpreting::match("access", command) then
