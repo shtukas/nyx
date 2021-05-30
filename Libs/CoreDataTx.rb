@@ -81,7 +81,6 @@ class CoreDataTx
         end
 
         if object["schema"] == "project" then
-            object["directoryFilename"]            = object["payload1"]
             object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
         end
 
@@ -187,7 +186,7 @@ class CoreDataTx
         end
 
         if object["schema"] == "project" then
-            object["payload1"] = object["directoryFilename"]
+            object["payload1"] = nil
             object["payload2"] = object["timeCommitmentInHoursPerWeek"]
             object["payload3"] = nil
             object["payload4"] = nil

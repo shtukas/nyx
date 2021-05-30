@@ -76,11 +76,6 @@ end
 
 class Projects
 
-    # Projects::repositoryFolderPath()
-    def self.repositoryFolderPath()
-        "#{Utils::catalystDataCenterFolderpath()}/Projects"
-    end
-
     # Projects::toString(project)
     def self.toString(project)
         "[project] #{project["description"]}"
@@ -103,17 +98,11 @@ class Projects
 
         timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
 
-        directoryFilename = LucilleCore::timeStringL22()
-
-        folderpath = "#{Projects::repositoryFolderPath()}/#{directoryFilename}"
-        FileUtils.mkdir(folderpath)
-
         project = {}
-        project["uuid"]              = uuid
-        project["schema"]            = "project"
-        project["unixtime"]          = Time.new.to_i
-        project["description"]       = description
-        project["directoryFilename"] = directoryFilename
+        project["uuid"]        = uuid
+        project["schema"]      = "project"
+        project["unixtime"]    = Time.new.to_i
+        project["description"] = description
         project["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
 
         CoreDataTx::commit(project)
@@ -128,10 +117,6 @@ class Projects
         startUnixtime = Time.new.to_f
 
         uuid = project["uuid"]
-
-        folderpath = "#{Projects::repositoryFolderPath()}/#{project["directoryFilename"]}"
-
-        system("open '#{folderpath}'")
 
         loop {
 
@@ -201,7 +186,6 @@ class Projects
     # Projects::projectToNS16(project)
     def self.projectToNS16(project)
         uuid = project["uuid"]
-        folderpath = "#{Projects::repositoryFolderPath()}/#{project["directoryFilename"]}"
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
         level = 
