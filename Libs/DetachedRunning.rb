@@ -25,7 +25,7 @@ class DetachedRunning
     def self.done(item)
         timespan = [Time.new.to_i - item["startUnixtime"], 3600*2].min
         if item["type"] == "bank accounts" then
-            item["BankAccounts"].each{|account|
+            item["payload"].each{|account|
                 puts "Putting #{timespan} seconds into account: #{account}"
                 Bank::put(account, timespan)
             }

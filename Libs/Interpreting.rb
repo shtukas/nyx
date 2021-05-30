@@ -14,7 +14,7 @@ Usage:
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
-    next if command == ""
+    break if command == ""
 
     if Interpreting::match("select *", command) then
         _, ordinal = Interpreting::tokenizer(command)
