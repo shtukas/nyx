@@ -6,8 +6,22 @@ Interpreting::tokenizer
     Takes a string and decompose it in tokens. 
     Tokens are separated by spaces unless within a double quoted string.
 
-action: (commandPattern: String, usage: String, lambda(context:Object, command: String): ActionStatus)
-actions: Array[action]
+Usage:
+
+    puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
+
+    command = LucilleCore::askQuestionAnswerAsString("> ")
+
+    next if command == ""
+
+    if Interpreting::match("select *", command) then
+        _, ordinal = Interpreting::tokenizer(command)
+        ordinal = ordinal.to_i
+        item = items[ordinal]
+        next if item.nil?
+        next if item["access"].nil?
+        item["access"].call()
+    end
 
 =end
 
@@ -74,6 +88,16 @@ class Interpreting
                 return false
             end
         end
+    end
+
+    # -----------------------------------------------------------
+
+    # Interpreting::readAsIntegerOrNull(command)
+    def self.readAsIntegerOrNull(command)
+        if command.to_i.to_s == command then
+            return command.to_i
+        end
+        nil
     end
 
     # Interpreting::match(pattern, command)
