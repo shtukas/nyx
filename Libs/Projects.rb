@@ -91,6 +91,7 @@ class Projects
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
                     CoreDataTx::delete(project["uuid"])
                     LucilleCore::removeFileSystemLocation(folderpath)
+                    break
                 end
             end
         }
