@@ -156,9 +156,9 @@ class Quarks
             recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         end
 
-        agent        = Quarks::quarkToAgent(quark)
+        agent = Quarks::quarkToAgent(quark)
 
-        announce     = "[qurk] (#{agent["name"]}) #{quark["description"]}"
+        announce = "[qurk] (#{agent["name"]}) #{quark["description"]}"
 
         {
             "uuid"     => uuid,

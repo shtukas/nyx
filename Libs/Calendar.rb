@@ -49,7 +49,10 @@ class Calendar
 
     # Calendar::toString(item)
     def self.toString(item)
-        "[calendar] (#{item["date"]}) #{item["description"]}"
+        folderpath = item["folderpath"]
+        hasElementsInFolder = LucilleCore::locationsAtFolder(folderpath).size > 0
+        folderStr = hasElementsInFolder ? " [Folder Elements]" : ""
+        "[calendar] (#{item["date"]}) #{item["description"]}#{folderStr}"
     end
 
     # Calendar::moveToArchives(item)
@@ -70,18 +73,28 @@ class Calendar
             .select{|item| Calendar::itemIsForNS16s(item) }
             .map
             .with_index{|item, indx|
+                folderpath = item["folderpath"]
+                hasElementsInFolder = LucilleCore::locationsAtFolder(folderpath).size > 0
                 uuid = Digest::SHA1.hexdigest("4dc9a277-8880-472e-a459-cf1d9b7b6604:#{item["date"]}:#{item["description"]}")
                 {
                     "uuid"     => uuid,
                     "metric"   => ["ns:important", nil, indx],
                     "announce" => Calendar::toString(item),
-                    "access"   => lambda { 
+                    "access"   => lambda {
+                        if hasElementsInFolder then
+                            system("open '#{folderpath}'")
+                            LucilleCore::pressEnterToContinue()
+                        end
                         if LucilleCore::askQuestionAnswerAsBoolean("'#{Calendar::toString(item)}' done ? ") then
                             Calendar::moveToArchives(item)
                             $counterx.registerDone()
                         end
                     },
                     "done"     => lambda {
+                        if hasElementsInFolder then
+                            system("open '#{folderpath}'")
+                            LucilleCore::pressEnterToContinue()
+                        end
                         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
                             Calendar::moveToArchives(item)
                             $counterx.registerDone()

@@ -18,6 +18,11 @@ class ProjectItems
         "/Users/pascal/Galaxy/DataBank/Catalyst/Project-Items"
     end
 
+    # ProjectItems::commit(item)
+    def self.commit(item)
+        BTreeSets::set(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"], item)
+    end
+
     # ProjectItems::interativelyIssueNewProjectItem(projectId)
     def self.interativelyIssueNewProjectItem(projectId)
         coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
@@ -31,7 +36,7 @@ class ProjectItems
             "contentType"   => contentType,
             "payload"       => payload
         }
-        BTreeSets::set(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"], item)
+        ProjectItems::commit(item)
         item
     end
 
@@ -52,11 +57,18 @@ class ProjectItems
 
     # ProjectItems::toString(item)
     def self.toString(item)
-        "- #{item["description"]}"
+        "#{item["description"]} (#{item["contentType"]})"
     end
 
     # ProjectItems::landing(item)
     def self.landing(item)
+        coordinates = Nx102::access(item["contentType"], item["payload"])
+        if coordinates then
+            item["contentType"] = coordinates[0]
+            item["payload"]     = coordinates[1]
+            ProjectItems::commit(item)
+        end
+
         loop {
             puts ProjectItems::toString(item).green
             puts "access | delete".yellow
@@ -64,6 +76,11 @@ class ProjectItems
             break if command == ""
             if Interpreting::match("access", command) then
                 coordinates = Nx102::access(item["contentType"], item["payload"])
+                if coordinates then
+                    item["contentType"] = coordinates[0]
+                    item["payload"]     = coordinates[1]
+                    ProjectItems::commit(item)
+                end
                 next
             end
             if Interpreting::match("delete", command) then
@@ -170,6 +187,7 @@ class Projects
             if Interpreting::match("completed", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
                     CoreDataTx::delete(project["uuid"])
+                    $counterx.registerDone()
                     break
                 end
             end
@@ -209,6 +227,7 @@ class Projects
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
                     CoreDataTx::delete(project["uuid"])
+                    $counterx.registerDone()
                 end
             }
         }
