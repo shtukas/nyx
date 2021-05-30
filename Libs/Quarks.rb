@@ -154,7 +154,7 @@ class Quarks
 
             if Interpreting::match("detach running", command) then
                 agent = Quarks::quarkToAgent(quark)
-                DetachedRunning::issueNew(uuid, Quarks::toString(quark), Time.new.to_i, [uuid, agent["uuid"]])
+                DetachedRunning::issueNew2(Quarks::toString(quark), Time.new.to_i, "bank accounts", [uuid, agent["uuid"]])
                 break
             end
 

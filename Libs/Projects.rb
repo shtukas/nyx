@@ -79,6 +79,14 @@ class Projects
                 next
             end
 
+            if Interpreting::match("update description", command) then
+                description = Utils::editTextSynchronously(project["description"])
+                next if description == ""
+                project["description"] = description
+                CoreDataTx::commit(project)
+                next
+            end
+
             if Interpreting::match("completed", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
                     CoreDataTx::delete(project["uuid"])

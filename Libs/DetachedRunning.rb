@@ -1,26 +1,17 @@
 
 # encoding: UTF-8
 
-=begin
-
-{
-    "uuid"          : String
-    "description"   : String
-    "startUnixtime" : Integer
-    "BankAccounts"  : Array[String]
-}
-
-=end
-
 class DetachedRunning
 
-    # DetachedRunning::issueNew(uuid, description, startUnixtime, bankAccounts)
-    def self.issueNew(uuid, description, startUnixtime, bankAccounts)
+    # DetachedRunning::issueNew2(description, startUnixtime, type, payload)
+    def self.issueNew2(description, startUnixtime, type, payload)
+        raise "df3dc3a4-3962-42c2-92e8-e08c28a51081" if !["bank accounts", "counterx"].include?(type)
         item = {
-            "uuid"          => uuid,
+            "uuid"          => SecureRandom.uuid,
             "description"   => description,
             "startUnixtime" => startUnixtime,
-            "BankAccounts"  => bankAccounts
+            "type"          => type,
+            "payload"       => payload
         }
         BTreeSets::set(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"], item)
     end
@@ -33,10 +24,16 @@ class DetachedRunning
     # DetachedRunning::done(item)
     def self.done(item)
         timespan = [Time.new.to_i - item["startUnixtime"], 3600*2].min
-        item["BankAccounts"].each{|account|
-            puts "Putting #{timespan} seconds into account: #{account}"
-            Bank::put(account, timespan)
-        }
+        if item["type"] == "bank accounts" then
+            item["BankAccounts"].each{|account|
+                puts "Putting #{timespan} seconds into account: #{account}"
+                Bank::put(account, timespan)
+            }
+        end
+        if item["type"] == "counterx" then
+            puts "putting #{timespan} seconds to CounterX"
+            $counterx.registerTimeInSeconds(timespan)
+        end
         BTreeSets::destroy(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"])
     end
 

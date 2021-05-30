@@ -269,7 +269,7 @@ class Waves
             Utils::openUrl(wave["payload"])
         end
         puts Waves::toString(wave)
-        command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing'] action : ")
+        command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing', 'detach running'] action : ")
         if command == "done" then
             Waves::performDone(wave)
         end
@@ -278,6 +278,9 @@ class Waves
         end
         if command == "landing" then
             Waves::landing(wave)
+        end
+        if command == "detach running" then
+            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, "counterx", nil)
         end
         timespan = Time.new.to_f - startUnixtime
         timespan = [timespan, 3600*2].min
