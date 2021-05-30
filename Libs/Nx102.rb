@@ -57,7 +57,7 @@ class Nx102
         [description, contentType, payload]
     end
 
-    # Nx102::access(contentType, payload): nil or coordinates = [contentTypeNew, payloadNew]
+    # Nx102::access(contentType, payload): nil or coordinates = [contentType, payload]
     def self.access(contentType, payload)
 
         if contentType == "Line" then

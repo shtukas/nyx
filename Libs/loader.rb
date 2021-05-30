@@ -140,7 +140,6 @@ require_relative "BinaryBlobsService.rb"
 
 require_relative "Calendar.rb"
 require_relative "CoreDataTx.rb"
-require_relative "Nx101.rb"
 
 require_relative "DetachedRunning.rb"
 require_relative "Dispatch.rb"
@@ -157,6 +156,7 @@ require_relative "GalaxyFinder.rb"
 require_relative "Metrics.rb"
 
 require_relative "Nx50s.rb"
+require_relative "Nx102.rb"
 
 require_relative "Priority1.rb"
 require_relative "Projects.rb"

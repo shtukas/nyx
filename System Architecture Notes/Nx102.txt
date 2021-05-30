@@ -1,0 +1,6 @@
+
+Nx102 is a library that manages the creation, access, edition and transmuation of pairs of contentType, payload.
+
+Those pairs can then be stored in objects that are interested in those type of contents.
+
+Quarks, Nx50 and ProjectItems are type of objects that carry those pairs and use Nx102 for management.

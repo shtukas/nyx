@@ -12,66 +12,17 @@ class Quarks
         quark["schema"]      = "quark"
         quark["unixtime"]    = Time.new.to_f
 
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
-        if description == "" then
-            return nil
-        end  
-        quark["description"] = description
+        coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+        return nil if coordinates.nil?
+
+        quark["description"] = coordinates[0]
+        quark["contentType"] = coordinates[1]
+        quark["payload"]     = coordinates[2]
 
         agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
         if agent then
             quark["air-traffic-control-agent"] = agent["uuid"]
         end
-
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
-
-        if type.nil? then
-            return nil
-        end  
-
-        if type == "Line" then
-            quark["contentType"] = "Line"
-            quark["payload"]     = ""
-        end
-
-        if type == "Url" then
-            url = LucilleCore::askQuestionAnswerAsString("url (empty for abort): ")
-            if url == "" then
-                return nil
-            end
-            quark["contentType"] = "Url"
-            quark["payload"]     = url
-        end
-
-        if type == "Text" then
-            text = Utils::editTextSynchronously("")
-            quark["contentType"] = "Text"
-            quark["payload"]     = BinaryBlobsService::putBlob(text)
-        end
-
-        if type == "ClickableType" then
-            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
-            f1 = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
-            if !File.exists?(f1) or !File.file?(f1) then
-                return nil
-            end
-            nhash = BinaryBlobsService::putBlob(IO.read(f1))
-            dottedExtension = File.extname(filenameOnTheDesktop)
-            payload = "#{nhash}|#{dottedExtension}"
-            quark["contentType"] = "ClickableType"
-            quark["payload"]     = payload
-        end
-
-        if type == "AionPoint" then
-            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
-            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
-            if !File.exists?(location) then
-                return nil
-            end
-            quark["contentType"] = "AionPoint"
-            quark["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-        end
-
 
         CoreDataTx::commit(quark)
     end
@@ -116,7 +67,12 @@ class Quarks
 
         system("clear")
         puts Quarks::toString(quark)
-        Nx101::access(quark)
+        coordinates = Nx102::access(quark["contentType"], quark["payload"])
+        if coordinates then
+            quark["contentType"] = coordinates[0]
+            quark["payload"]     = coordinates[1]
+            CoreDataTx::commit(quark)
+        end
 
         loop {
 
@@ -159,7 +115,7 @@ class Quarks
             end
 
             if Interpreting::match("done", command) then
-                Nx101::postAccessCleanUp(quark)
+                Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
                 CoreDataTx::delete(quark["uuid"])
                 $counterx.registerDone()
                 break
@@ -186,7 +142,7 @@ class Quarks
 
         $counterx.registerTimeInSeconds(timespan)
 
-        Nx101::postAccessCleanUp(quark)
+        Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
     end
 
     # Quarks::quarkToNS16(quark)
@@ -240,15 +196,26 @@ class Quarks
             break if command == ""
 
             if Interpreting::match("access", command) then
-                Nx101::access(quark)
+                coordinates = Nx102::access(quark["contentType"], quark["payload"])
+                if coordinates then
+                    quark["contentType"] = coordinates[0]
+                    quark["payload"]     = coordinates[1]
+                    CoreDataTx::commit(quark)
+                end
             end
 
             if Interpreting::match("edit", command) then
-                Nx101::edit(quark)
+                coordinates = Nx102::edit(quark["description"], quark["contentType"], quark["payload"])
+                if coordinates then
+                    quark["description"] = coordinates[0]
+                    quark["contentType"] = coordinates[1]
+                    quark["payload"]     = coordinates[2]
+                    CoreDataTx::commit(quark)
+                end
             end
 
             if Interpreting::match("transmute", command) then
-                Nx101::transmute(quark)
+                Nx102::transmute(quark["description"], quark["contentType"], quark["payload"])
             end
 
             if Interpreting::match("destroy", command) then
