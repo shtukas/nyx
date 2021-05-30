@@ -2,63 +2,52 @@
 
 =begin
 {
-    "uuid" : String
-    
+    "uuid"        : String
+    "projectId"   : String
+    "unixtime"    : Float
+    "description" : String
+    "contentType" : String
+    "payload"     : String
 }
 =end
 
 class ProjectItems
-    # ProjectItems::issueNew2(description, startUnixtime, type, payload)
-    def self.issueNew2(description, startUnixtime, type, payload)
-        raise "df3dc3a4-3962-42c2-92e8-e08c28a51081" if !["bank accounts", "counterx"].include?(type)
+
+    # ProjectItems::projectItemsDataRepositoryFolderpath()
+    def self.projectItemsDataRepositoryFolderpath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Project-Items"
+    end
+
+    # ProjectItems::interativelyIssueNewProjectItem(projectId)
+    def self.interativelyIssueNewProjectItem(projectId)
+        coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+        return if coordinates.nil?
+        description, type, payload = coordinates
         item = {
             "uuid"          => SecureRandom.uuid,
+            "projectId"     => projectId,
+            "unixtime"      => Time.new.to_f,
             "description"   => description,
-            "startUnixtime" => startUnixtime,
             "type"          => type,
             "payload"       => payload
         }
-        BTreeSets::set(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"], item)
+        BTreeSets::set(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"], item)
+        item
     end
 
     # ProjectItems::items()
     def self.items()
-        BTreeSets::values(nil, "72ddaf05-e70e-4480-885c-06c00527025b")
+        BTreeSets::values(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a")
     end
 
-    # ProjectItems::done(item)
-    def self.done(item)
-        timespan = [Time.new.to_i - item["startUnixtime"], 3600*2].min
-        if item["type"] == "bank accounts" then
-            item["BankAccounts"].each{|account|
-                puts "Putting #{timespan} seconds into account: #{account}"
-                Bank::put(account, timespan)
-            }
-        end
-        if item["type"] == "counterx" then
-            puts "putting #{timespan} seconds to CounterX"
-            $counterx.registerTimeInSeconds(timespan)
-        end
-        BTreeSets::destroy(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"])
+    # ProjectItems::itemsForProject(projectId)
+    def self.itemsForProject(projectId)
+        ProjectItems::items().select{|item| item["projectId"] == projectId }
     end
 
-    # ProjectItems::ns16s()
-    def self.ns16s()
-        ProjectItems::items()
-        .map
-        .with_index{|item, indx|
-            {
-                "uuid"     => item["uuid"],
-                "metric"   => ["ns:running", nil, indx],
-                "announce" => "[detached running] #{item["description"]}".green,
-                "access"   => lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
-                        ProjectItems::done(item)
-                    end
-                },
-                "done"     => lambda { ProjectItems::done(item) }
-            }
-        }
+    # ProjectItems::destroy(item)
+    def self.destroy(item)
+        BTreeSets::destroy(ProjectItems::projectItemsDataRepositoryFolderpath(), "9bd4d29e-e2bf-430c-a5ba-b9a145a13d8a", item["uuid"])
     end
 end 
 
@@ -123,9 +112,12 @@ class Projects
 
         loop {
 
-            puts Projects::toString(project).green
+            puts "#{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+            ProjectItems::itemsForProject(project["uuid"]).each{|item|
+                puts item
+            }
 
-            puts "access | <datecode> | completed".yellow
+            puts "access | <datecode> | update description | new item | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -146,6 +138,12 @@ class Projects
                 next if description == ""
                 project["description"] = description
                 CoreDataTx::commit(project)
+                next
+            end
+
+            if Interpreting::match("new item", command) then
+                item = ProjectItems::interativelyIssueNewProjectItem(project["uuid"])
+                puts JSON.pretty_generate(item)
                 next
             end
 
@@ -176,6 +174,8 @@ class Projects
         folderpath = "#{Projects::repositoryFolderPath()}/#{project["directoryFilename"]}"
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
+        announce = ([ Projects::toString(project) ] + ProjectItems::itemsForProject(project["uuid"]).map{|item| "                #{item.to_s}" }).join("\n")
+
         level = 
             if Bank::valueOverTimespan(uuid, 86400*7) < project["timeCommitmentInHoursPerWeek"]*3600 then
                 "ns:important"
@@ -186,7 +186,7 @@ class Projects
         {
             "uuid"         => uuid,
             "metric"       => [level, recoveryTime, nil],
-            "announce"     => Projects::toString(project),
+            "announce"     => announce,
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
