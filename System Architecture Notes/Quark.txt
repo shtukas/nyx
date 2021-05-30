@@ -1,0 +1,31 @@
+CoreDataTx
+
+CoreDataTx refers to both the single sqlite3 database that contains Catalyst objects and the BinaryBlob store.
+
+objects.sqlite3
+create table _objects_ (_objectId_ text, _schema_ text, _unixtime_ real, _description_ text, _payload1_ text, _payload2_ text, _payload3_ text, _payload4_ text, _payload5_ text);
+
+# ----------------------------------------------------
+
+Quark {
+    uuid             : String   # _objectId_
+    schema           : "quark"  # _schema_
+    unixtime         : Float    # _unixtime_
+    description      : String   # _description_
+
+    contentType      : String   # _payload1_
+    payload          : String   # _payload2_
+
+    air-traffic-control-agent : String # _payload3_ # optional air traffic control agent uuid
+}
+
+- contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
+- payload
+    [contentType]     -> [payload]
+    "Line"            -> "" # empty string, the description is the payload
+    "Url"             -> String
+    "Text"            -> String # reference to a blob
+    "ClickableType"   -> <nhash>|<dottedExtension>
+    "AionPoint"       -> <nhash>
+
+A Nx50 is like a quark but the schema is "Nx50"

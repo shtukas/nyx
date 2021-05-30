@@ -106,10 +106,6 @@ class Projects
         project["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
 
         CoreDataTx::commit(project)
-
-        if LucilleCore::askQuestionAnswerAsBoolean("access the folder ? ") then
-            system("open '#{folderpath}'")
-        end
     end
 
     # Projects::access(project)
@@ -153,11 +149,6 @@ class Projects
                 ProjectItems::landing(item)
             end
 
-            if Interpreting::match("access", command) then
-                system("open '#{folderpath}'")
-                next
-            end
-
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(project["description"])
                 next if description == ""
@@ -177,9 +168,8 @@ class Projects
             end
 
             if Interpreting::match("completed", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
                     CoreDataTx::delete(project["uuid"])
-                    LucilleCore::removeFileSystemLocation(folderpath)
                     break
                 end
             end
@@ -217,9 +207,8 @@ class Projects
             "announce"     => Projects::toString(project),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
                     CoreDataTx::delete(project["uuid"])
-                    LucilleCore::removeFileSystemLocation(folderpath)
                 end
             }
         }
