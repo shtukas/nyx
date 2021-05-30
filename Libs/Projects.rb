@@ -114,9 +114,18 @@ class Projects
 
     # Projects::access(project)
     def self.access(project)
-        startUnixtime = Time.new.to_f
 
         uuid = project["uuid"]
+
+        startUnixtime = Time.new.to_f
+
+        thr = Thread.new {
+            sleep 3600
+            loop {
+                Utils::onScreenNotification("Catalyst", "Project running for more than an hour")
+                sleep 60
+            }
+        }
 
         loop {
 
@@ -162,6 +171,11 @@ class Projects
                 next
             end
 
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2(Projects::toString(project), Time.new.to_i, "bank accounts", [uuid])
+                break
+            end
+
             if Interpreting::match("completed", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project object and project folder ? ") then
                     CoreDataTx::delete(project["uuid"])
@@ -170,6 +184,8 @@ class Projects
                 end
             end
         }
+
+        thr.exit
 
         timespan = Time.new.to_f - startUnixtime
 
