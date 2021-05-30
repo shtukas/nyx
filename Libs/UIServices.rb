@@ -54,7 +54,6 @@ class UIServices
             DetachedRunning::ns16s(),
             Calendar::ns16s(),
             Priority1::ns16OrNull(),
-            DocNetTodo::ns16s(),
             Anniversaries::ns16s(),
             Waves::ns16s(),
             WorkInterface::ns16s(),
