@@ -125,6 +125,16 @@ class Projects
         CoreDataTx::commit(project)
     end
 
+    # Projects::completeProject(project)
+    def self.completeProject(project)
+        ProjectItems::itemsForProject(project["uuid"]).each{|item|
+            puts "Destroying #{ProjectItems::toString(item)}"
+            ProjectItems::destroy(item)
+        }
+        CoreDataTx::delete(project["uuid"])
+        $counterx.registerDone()
+    end
+
     # Projects::access(project)
     def self.access(project)
 
@@ -186,8 +196,7 @@ class Projects
 
             if Interpreting::match("completed", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
-                    CoreDataTx::delete(project["uuid"])
-                    $counterx.registerDone()
+                    Projects::completeProject(project)
                     break
                 end
             end
@@ -226,12 +235,7 @@ class Projects
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
-                    ProjectItems::itemsForProject(project["uuid"]).each{|item|
-                        puts "Destroying #{ProjectItems::toString(item)}"
-                        ProjectItems::destroy(item)
-                    }
-                    CoreDataTx::delete(project["uuid"])
-                    $counterx.registerDone()
+                    Projects::completeProject(project)
                 end
             }
         }
