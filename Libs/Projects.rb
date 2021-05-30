@@ -112,7 +112,6 @@ class Projects
         "[project] (#{ratioStr}) #{project["description"]}#{itemsStr}"
     end
 
-
     # Projects::interactivelyCreateNewProject()
     def self.interactivelyCreateNewProject()
 
@@ -264,5 +263,15 @@ class Projects
     def self.ns16s()
          CoreDataTx::getObjectsBySchema("project")
             .map{|project| Projects::projectToNS16(project) }
+    end
+
+    # Projects::report()
+    def self.report()
+         CoreDataTx::getObjectsBySchema("project")
+            .sort{|p1, p2| BankExtended::stdRecoveredDailyTimeInHours(p1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(p2["uuid"]) }
+            .each{|project| 
+                puts "    #{Projects::toStringListing(project)}"
+            }
+        LucilleCore::pressEnterToContinue()
     end
 end

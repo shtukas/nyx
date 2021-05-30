@@ -115,7 +115,7 @@ class UIServices
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | projects | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -235,6 +235,10 @@ class UIServices
 
             if Interpreting::match("calendar", command) then
                 Calendar::main()
+            end
+
+            if Interpreting::match("projects", command) then
+                Projects::report()
             end
 
             if Interpreting::match("agents", command) then
