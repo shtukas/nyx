@@ -96,7 +96,6 @@ class Waves
         CoreDataTx::commit(wave)
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-        $counterx.registerDone()
     end
 
     # Waves::interactivelyMakeContentsOrNull() : [type, payload] 
@@ -186,7 +185,7 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "<datecode> | done | recast contents | recast schedule | destroy".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -198,6 +197,11 @@ class Waves
             end
 
             if Interpreting::match("done", command) then
+                Waves::performDone(wave)
+            end
+
+            if Interpreting::match("update description", command) then
+                wave["description"] = Utils::editTextSynchronously(wave["description"])
                 Waves::performDone(wave)
             end
 
@@ -286,7 +290,6 @@ class Waves
         timespan = Time.new.to_f - startUnixtime
         timespan = [timespan, 3600*2].min
         puts "putting #{timespan} seconds to CounterX"
-        $counterx.registerTimeInSeconds(timespan)
     end
 
     # Waves::ns16s()

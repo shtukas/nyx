@@ -91,7 +91,6 @@ class Quarks
             if Interpreting::match("done", command) then
                 Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
                 CoreDataTx::delete(quark["uuid"])
-                $counterx.registerDone()
                 break
             end
 
@@ -110,9 +109,6 @@ class Quarks
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{Quarks::toString(quark)}"
         Bank::put(uuid, timespan)
-
-        $counterx.registerTimeInSeconds(timespan)
-
         Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
     end
 

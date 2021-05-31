@@ -1,16 +1,5 @@
 # encoding: UTF-8
 
-=begin
-{
-    "uuid"        : String
-    "projectId"   : String
-    "unixtime"    : Float
-    "description" : String
-    "contentType" : String
-    "payload"     : String
-}
-=end
-
 class ProjectItems
 
     # ProjectItems::projectItemsDataRepositoryFolderpath()
@@ -146,7 +135,6 @@ class Projects
             ProjectItems::destroy(item)
         }
         CoreDataTx::delete(project["uuid"])
-        $counterx.registerDone()
     end
 
     # Projects::access(project)
@@ -166,6 +154,17 @@ class Projects
                 sleep 60
             }
         }
+
+        projectItems = ProjectItems::itemsForProject(project["uuid"])
+        if projectItems.size == 1 then
+            item = projectItems[0]
+            coordinates = Nx102::access(item["contentType"], item["payload"])
+            if coordinates then
+                item["contentType"] = coordinates[0]
+                item["payload"]     = coordinates[1]
+                ProjectItems::commit(item)
+            end
+        end
 
         loop {
 
@@ -231,8 +230,6 @@ class Projects
 
         puts "putting #{timespan} seconds to project #{Projects::toString(project)} (uuid: #{uuid})"
         Bank::put(uuid, timespan)
-
-        $counterx.registerTimeInSeconds(timespan)
     end
 
     # Projects::projectToNS16(project)

@@ -165,7 +165,6 @@ class WorkInterface
             end
         end
         CoreDataTx::delete(workitem["uuid"])
-        $counterx.registerDone()
     end
 
     # WorkInterface::accessPR(workitem)
@@ -270,8 +269,6 @@ class WorkInterface
 
         puts "putting #{timespan} seconds to todo: #{uuid}"
         Bank::put(uuid, timespan)
-
-        $counterx.registerTimeInSeconds(timespan)
     end
 
     # WorkInterface::ns16s()

@@ -75,8 +75,6 @@ class Priority1
 
                 puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
                 Bank::put(uuid, timespan)
-
-                $counterx.registerTimeInSeconds(timespan)
             },
             "done"     => lambda { },
             "[]"       => lambda { Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) }

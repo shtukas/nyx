@@ -2,48 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-=begin
-
-["time", unixtime, timeInSeconds]
-["done", unixtime]
-
-=end
-
-class CounterX
-    
-    def initialize()
-        @data = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "9caea594-40d3-449d-afcf-3f2fe63535b2", '[]'))
-    end
-
-    def garbageCollection(data)
-        data.select{|item| (Time.new.to_i - item[1]) < 86400*7 } # one week
-    end
-
-    def registerTimeInSeconds(timeInSeconds)
-        @data << ["time", Time.new.to_i, timeInSeconds]
-        @data = garbageCollection(@data)
-        KeyValueStore::set(nil, "9caea594-40d3-449d-afcf-3f2fe63535b2", JSON.generate(@data))
-    end
-
-    def registerDone()
-        @data << ["done", Time.new.to_i]
-        @data = garbageCollection(@data)
-        KeyValueStore::set(nil, "9caea594-40d3-449d-afcf-3f2fe63535b2", JSON.generate(@data))
-    end
-
-    def doneCount()
-        @data.select{|item| item[0] == "done" }.count
-    end
-
-    def timeCount()
-        @data.select{|item| item[0] == "time" }.map{|item| item[2] }.inject(0, :+)
-    end
-end
-
-$counterx = CounterX.new()
-
-# ------------------------------------------------------------------------------------------
-
 $NS16sTrace = nil
 
 class UIServices
@@ -113,7 +71,7 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
+            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
             puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | numbers/work on/off".yellow
 
