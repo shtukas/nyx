@@ -115,7 +115,7 @@ class UIServices
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | projects | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | projects | numbers/work on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -206,6 +206,7 @@ class UIServices
                     "contentType" => "Line",
                     "payload"     => ""
                 }
+                puts JSON.pretty_generate(nx50)
                 CoreDataTx::commit(nx50)
             end
 
@@ -219,10 +220,6 @@ class UIServices
 
             if Interpreting::match("new calendar item", command) then
                 Calendar::interactivelyIssueNewCalendarItem()
-            end
-
-            if Interpreting::match("no work today", command) then
-                KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
             end
 
             if Interpreting::match("waves", command) then
@@ -260,6 +257,14 @@ class UIServices
 
             if Interpreting::match("numbers off", command) then
                 KeyValueStore::setFlagFalse(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
+            end
+
+            if Interpreting::match("work off", command) then
+                KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
+            end
+
+            if Interpreting::match("work on", command) then
+                KeyValueStore::setFlagFalse(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
             end
 
             # -- top -----------------------------------------------------------------------------

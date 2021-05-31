@@ -32,9 +32,14 @@ class DetachedRunning
         end
         if item["type"] == "counterx" then
             puts "putting #{timespan} seconds to CounterX"
-            $counterx.registerTimeInSeconds(timespan)
         end
+        $counterx.registerTimeInSeconds(timespan)
         BTreeSets::destroy(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"])
+    end
+
+    # DetachedRunning::toString(item)
+    def self.toString(item)
+        "[detached running] #{item["description"]} (running for #{((Time.new.to_i - item["startUnixtime"]).to_f/3600).round(2)} hours)"
     end
 
     # DetachedRunning::ns16s()
@@ -45,7 +50,7 @@ class DetachedRunning
             {
                 "uuid"     => item["uuid"],
                 "metric"   => ["ns:running", nil, indx],
-                "announce" => "[detached running] #{item["description"]}".green,
+                "announce" => DetachedRunning::toString(item).green,
                 "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
                         DetachedRunning::done(item)
