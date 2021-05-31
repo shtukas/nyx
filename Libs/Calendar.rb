@@ -71,14 +71,13 @@ class Calendar
     def self.ns16s()
         Calendar::items()
             .select{|item| Calendar::itemIsForNS16s(item) }
-            .map
-            .with_index{|item, indx|
+            .map{|item|
                 folderpath = item["folderpath"]
                 hasElementsInFolder = LucilleCore::locationsAtFolder(folderpath).size > 0
                 uuid = Digest::SHA1.hexdigest("4dc9a277-8880-472e-a459-cf1d9b7b6604:#{item["date"]}:#{item["description"]}")
                 {
                     "uuid"     => uuid,
-                    "metric"   => ["ns:important", nil, indx],
+                    "metric"   => ["ns:important", nil],
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "access"   => lambda {
                         if hasElementsInFolder then

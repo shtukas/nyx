@@ -59,9 +59,8 @@ class UIServices
                 indexStr   = "(#{"%3d" % indx})"
                 x0 = item["metric"][0]
                 x1 = item["metric"][1]
-                x2 = item["metric"][2]
                 if showNumbers then
-                    numbersStr = " ( #{x0.ljust(12)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "}, #{x2 ? "%2d" % x2 : "  "} )"
+                    numbersStr = " ( #{x0.ljust(12)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "} )"
                 else
                     numbersStr = ""
                 end

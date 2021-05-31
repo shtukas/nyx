@@ -135,11 +135,10 @@ class Anniversaries
     def self.ns16s()
         CoreDataTx::getObjectsBySchema("anniversary")
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
-            .map
-            .with_index{|anniversary, indx|
+            .map{|anniversary|
                 {
                     "uuid"     => anniversary["uuid"],
-                    "metric"   => ["ns:important", nil, indx],
+                    "metric"   => ["ns:important", nil],
                     "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
                     "access"   => lambda {
                         puts Anniversaries::toString(anniversary).green

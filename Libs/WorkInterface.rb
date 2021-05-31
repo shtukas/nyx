@@ -277,12 +277,12 @@ class WorkInterface
         CoreDataTx::getObjectsBySchema("workitem")
             .sort{|w1, w2| w1["unixtime"] <=> w2["unixtime"] }
             .reverse
-            .map
-            .with_index{|workitem, indx|
+            .map{|workitem|
                 uuid = workitem["uuid"]
+                recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
                 {
                     "uuid"     => uuid,
-                    "metric"   => ["ns:work", nil, indx],
+                    "metric"   => ["ns:work", recoveryTime],
                     "announce" => WorkInterface::toString(workitem).green,
                     "access"   => lambda { WorkInterface::access(workitem) },
                     "done"     => lambda { WorkInterface::done(workitem) }

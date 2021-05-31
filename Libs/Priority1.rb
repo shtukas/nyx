@@ -29,7 +29,7 @@ class Priority1
 
         {
             "uuid"      => uuid,
-            "metric"    => ["ns:running", nil, nil],
+            "metric"    => ["ns:running", nil],
             "announce"  => announce,
             "access"    => lambda {
 

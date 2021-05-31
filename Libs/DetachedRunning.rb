@@ -44,11 +44,10 @@ class DetachedRunning
     # DetachedRunning::ns16s()
     def self.ns16s()
         DetachedRunning::items()
-        .map
-        .with_index{|item, indx|
+        .map{|item|
             {
                 "uuid"     => item["uuid"],
-                "metric"   => ["ns:running", nil, indx],
+                "metric"   => ["ns:running", nil],
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
                 "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then

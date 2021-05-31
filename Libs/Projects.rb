@@ -245,7 +245,7 @@ class Projects
 
         {
             "uuid"         => uuid,
-            "metric"       => [level, recoveryTime, nil],
+            "metric"       => [level, recoveryTime],
             "announce"     => Projects::toStringListing(project).gsub("[project]", "[proj]"),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 

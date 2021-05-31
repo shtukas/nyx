@@ -127,7 +127,7 @@ class Quarks
 
         {
             "uuid"     => uuid,
-            "metric"   => ["ns:zone", recoveryTime, nil],
+            "metric"   => ["ns:zone", recoveryTime],
             "announce" => announce,
             "access"   => lambda{ Quarks::runQuark(quark) },
             "done"     => lambda{

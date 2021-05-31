@@ -295,11 +295,10 @@ class Waves
     # Waves::ns16s()
     def self.ns16s()
         CoreDataTx::getObjectsBySchema("wave")
-            .map
-            .with_index{|wave, indx|
+            .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
-                    "metric"   => ["ns:wave", nil, indx],
+                    "metric"   => ["ns:wave", nil],
                     "announce" => Waves::toString(wave),
                     "access"   => lambda { Waves::access(wave) },
                     "done"     => lambda { Waves::performDone(wave) }

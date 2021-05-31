@@ -19,10 +19,9 @@ class Metrics
 
     # Metrics::metricDataToFloat(data)
     def self.metricDataToFloat(data)
-        level, itemRT, indx = data
+        level, itemRT = data
         itemRT = itemRT || 0
-        indx = indx || 0
-        Metrics::levelToFloat(level) - itemRT.to_f/1000 - indx.to_f/1000
+        Metrics::levelToFloat(level) - itemRT.to_f/1000
     end
 end
 
