@@ -70,7 +70,7 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
+            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
             puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | numbers/work on/off".yellow
 

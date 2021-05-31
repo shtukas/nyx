@@ -46,7 +46,7 @@ class ProjectItems
 
     # ProjectItems::toString(item)
     def self.toString(item)
-        "#{item["description"]} (#{item["contentType"]})"
+        "[project item] #{item["description"]} (#{item["contentType"]})"
     end
 
     # ProjectItems::landing(item)

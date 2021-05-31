@@ -109,6 +109,7 @@ class Quarks
 
         puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{Quarks::toString(quark)}"
         Bank::put(uuid, timespan)
+        Bank::put("QUARKS-404E-A1D2-0777E64077BA", timespan)
         Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
     end
 

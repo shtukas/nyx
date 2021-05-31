@@ -52,6 +52,8 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .first(3)
             .map{|nx50| Quarks::quarkToNS16(nx50) }
     end
 
