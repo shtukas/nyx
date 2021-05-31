@@ -140,7 +140,7 @@ class Anniversaries
                 {
                     "uuid"     => anniversary["uuid"],
                     "metric"   => ["ns:important", nil, indx],
-                    "announce" => Anniversaries::toString(anniversary),
+                    "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
                     "access"   => lambda {
                         puts Anniversaries::toString(anniversary).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then

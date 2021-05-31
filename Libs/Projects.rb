@@ -249,7 +249,7 @@ class Projects
         {
             "uuid"         => uuid,
             "metric"       => [level, recoveryTime, nil],
-            "announce"     => Projects::toStringListing(project),
+            "announce"     => Projects::toStringListing(project).gsub("[project]", "[proj]"),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then

@@ -50,7 +50,7 @@ class DetachedRunning
             {
                 "uuid"     => item["uuid"],
                 "metric"   => ["ns:running", nil, indx],
-                "announce" => DetachedRunning::toString(item).green,
+                "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
                 "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
                         DetachedRunning::done(item)

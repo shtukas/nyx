@@ -79,7 +79,7 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "metric"   => ["ns:important", nil, indx],
-                    "announce" => Calendar::toString(item),
+                    "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "access"   => lambda {
                         if hasElementsInFolder then
                             system("open '#{folderpath}'")
