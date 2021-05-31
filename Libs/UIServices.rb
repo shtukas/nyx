@@ -115,7 +115,7 @@ class UIServices
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, velocity: done: #{($counterx.doneCount().to_f/7).round(2)}/day, time: #{($counterx.timeCount().to_f/(3600*7)).round(2)} hours/day )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | projects | numbers/work on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | numbers/work on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -236,19 +236,6 @@ class UIServices
 
             if Interpreting::match("projects", command) then
                 Projects::report()
-            end
-
-            if Interpreting::match("agents", command) then
-                AirTrafficControl::agents()
-                .map{|agent|
-                    agent["recoveryTime"] = BankExtended::stdRecoveredDailyTimeInHours(agent["uuid"])
-                    agent
-                }
-                .sort{|a1, a2| a1["recoveryTime"] <=> a2["recoveryTime"] }
-                .each{|agent|
-                    puts "#{agent["name"].ljust(50)} #{agent["recoveryTime"]}"
-                }
-                LucilleCore::pressEnterToContinue()
             end
 
             if Interpreting::match("numbers on", command) then

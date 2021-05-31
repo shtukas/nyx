@@ -15,8 +15,6 @@ Quark {
 
     contentType      : String   # _payload1_
     payload          : String   # _payload2_
-
-    air-traffic-control-agent : String # _payload3_ # optional air traffic control agent uuid
 }
 
 - contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
@@ -28,4 +26,3 @@ Quark {
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
 
-A Nx50 is like a quark but the schema is "Nx50"

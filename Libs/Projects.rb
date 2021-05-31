@@ -103,7 +103,7 @@ class Projects
     # Projects::toStringListing(project)
     def self.toStringListing(project)
         items = ProjectItems::itemsForProject(project["uuid"])
-        itemsStr = (items.size > 0 ? " [#{items.size} item(s)]" : "")
+        itemsStr = (items.size > 0 ? " (#{items.size})" : "")
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(project["uuid"])
         ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]

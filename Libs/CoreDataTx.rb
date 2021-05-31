@@ -63,13 +63,11 @@ class CoreDataTx
         if object["schema"] == "quark" then
             object["contentType"]               = object["payload1"]
             object["payload"]                   = object["payload2"]
-            object["air-traffic-control-agent"] = object["payload3"]
         end
 
         if object["schema"] == "Nx50" then
             object["contentType"]               = object["payload1"]
             object["payload"]                   = object["payload2"]
-            object["air-traffic-control-agent"] = object["payload3"]
         end
 
         if object["schema"] == "workitem" then
@@ -161,7 +159,7 @@ class CoreDataTx
         if object["schema"] == "quark" then
             object["payload1"] = object["contentType"]
             object["payload2"] = object["payload"]
-            object["payload3"] = object["air-traffic-control-agent"]
+            object["payload3"] = nil
             object["payload4"] = nil
             object["payload5"] = nil
             hasBeenTransformed = true
@@ -170,7 +168,7 @@ class CoreDataTx
         if object["schema"] == "Nx50" then
             object["payload1"] = object["contentType"]
             object["payload2"] = object["payload"]
-            object["payload3"] = object["air-traffic-control-agent"]
+            object["payload3"] = nil
             object["payload4"] = nil
             object["payload5"] = nil
             hasBeenTransformed = true

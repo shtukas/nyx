@@ -37,37 +37,16 @@ class Nx50s
         CoreDataTx::commit(quark)
     end
 
-    # Nx50s::nx50sForAgent(agent)
-    def self.nx50sForAgent(agent)
-        if agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375" then
-            CoreDataTx::getObjectsBySchema("Nx50").select{|nx50| nx50["air-traffic-control-agent"].nil? }
-        else
-            CoreDataTx::getObjectsBySchema("Nx50").select{|nx50| nx50["air-traffic-control-agent"] == agent["uuid"]}
-        end
-    end
-
-    # Nx50s::quarksForAgent(agent)
-    def self.quarksForAgent(agent)
-        if agent["uuid"] == "3AD70E36-826B-4958-95BF-02E12209C375" then
-            CoreDataTx::getObjectsBySchema("quark").select{|nx50| nx50["air-traffic-control-agent"].nil? }
-        else
-            CoreDataTx::getObjectsBySchema("quark").select{|nx50| nx50["air-traffic-control-agent"] == agent["uuid"]}
-        end
-    end
-
     # Nx50s::maintenance()
     def self.maintenance()
-        AirTrafficControl::agents().each{|agent|
-            if Nx50s::nx50sForAgent(agent).size < 3 then
-                Nx50s::quarksForAgent(agent)
-                    .first(3-Nx50s::nx50sForAgent(agent).size)
-                    .each{|quark|
-                        nx50 = quark.clone
-                        nx50["schema"] = "Nx50"
-                        CoreDataTx::commit(nx50)
-                    }
-            end
-        }
+        if CoreDataTx::getObjectsBySchema("Nx50").size <= 20 then
+            Quarks::quarks()
+                .sample(20)
+                .each{|object|
+                    object["schema"] = "Nx50"
+                    CoreDataTx::commit(quark)
+                }
+        end
     end
 
     # Nx50s::ns16s()

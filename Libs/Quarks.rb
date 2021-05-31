@@ -19,11 +19,6 @@ class Quarks
         quark["contentType"] = coordinates[1]
         quark["payload"]     = coordinates[2]
 
-        agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
-        if agent then
-            quark["air-traffic-control-agent"] = agent["uuid"]
-        end
-
         CoreDataTx::commit(quark)
     end
 
@@ -41,19 +36,10 @@ class Quarks
 
     # --------------------------------------------------
 
-    # Quarks::quarkToAgent(quark)
-    def self.quarkToAgent(quark)
-        agentuuid = quark["air-traffic-control-agent"]
-        return AirTrafficControl::defaultAgent() if agentuuid.nil?
-        AirTrafficControl::getAgentByIdOrNull(agentuuid) || AirTrafficControl::defaultAgent()
-    end
-
     # Quarks::runQuark(quark)
     def self.runQuark(quark)
 
         uuid = quark["uuid"]
-
-        agent = Quarks::quarkToAgent(quark)
 
         startUnixtime = Time.new.to_f
 
@@ -82,10 +68,7 @@ class Quarks
 
             puts Quarks::toString(quark)
 
-            agent = Quarks::quarkToAgent(quark)
-            puts "@agent: #{agent["name"]}"
-
-            puts "landing | update agent | set dependency | <datecode> | detach running | done | (empty) # default # exit".yellow
+            puts "landing | <datecode> | detach running | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -100,17 +83,8 @@ class Quarks
                 Quarks::landing(quark)
             end
 
-            if Interpreting::match("update agent", command) then
-                agent = LucilleCore::selectEntityFromListOfEntitiesOrNull("air traffic control agent", AirTrafficControl::agents(), lambda{|agent| agent["name"]})
-                next if agent.nil?
-                quark["air-traffic-control-agent"] = agent["uuid"]
-                CoreDataTx::commit(quark)
-                next
-            end
-
             if Interpreting::match("detach running", command) then
-                agent = Quarks::quarkToAgent(quark)
-                DetachedRunning::issueNew2(Quarks::toString(quark), Time.new.to_i, "bank accounts", [uuid, agent["uuid"]])
+                DetachedRunning::issueNew2(Quarks::toString(quark), Time.new.to_i, "bank accounts", [uuid])
                 break
             end
 
@@ -137,9 +111,6 @@ class Quarks
         puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{Quarks::toString(quark)}"
         Bank::put(uuid, timespan)
 
-        puts "putting #{timespan} seconds to uuid: #{agent}"
-        Bank::put(agent["uuid"], timespan)
-
         $counterx.registerTimeInSeconds(timespan)
 
         Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
@@ -156,9 +127,7 @@ class Quarks
             recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         end
 
-        agent = Quarks::quarkToAgent(quark)
-
-        announce = "[qurk] (#{agent["name"]}) #{quark["description"]}"
+        announce = "[qurk] #{quark["description"]}"
 
         {
             "uuid"     => uuid,
@@ -171,8 +140,7 @@ class Quarks
                 end
             },
             "x-source"       => "Quarks",
-            "x-recoveryTime" => recoveryTime,
-            "x-agent"        => agent
+            "x-recoveryTime" => recoveryTime
         }
     end
 

@@ -281,6 +281,7 @@ class Waves
         end
         if command == "detach running" then
             DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, "counterx", nil)
+            Waves::performDone(wave)
         end
         timespan = Time.new.to_f - startUnixtime
         timespan = [timespan, 3600*2].min
