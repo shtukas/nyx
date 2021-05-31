@@ -94,11 +94,10 @@ class Projects
         items = ProjectItems::itemsForProject(project["uuid"])
         itemsStr = (items.size > 0 ? " (#{items.size})" : "")
 
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(project["uuid"])
-        ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
-        ratioStr = "#{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]}"
+        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
+        ratioStr = "(completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]})"
 
-        "[project] (#{ratioStr}) #{project["description"]}#{itemsStr}"
+        "[project] #{ratioStr} #{project["description"]}#{itemsStr}"
     end
 
     # Projects::interactivelyCreateNewProject()
@@ -236,16 +235,11 @@ class Projects
     def self.projectToNS16(project)
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        level = 
-            if (recoveryTime*7) < project["timeCommitmentInHoursPerWeek"]then
-                "ns:important"
-            else
-                "ns:zero"
-            end
-
+        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
+        metric = (ratio < 1 ? ["ns:time-target", ratio] : ["ns:zero", nil])
         {
             "uuid"         => uuid,
-            "metric"       => [level, recoveryTime],
+            "metric"       => metric,
             "announce"     => Projects::toStringListing(project).gsub("[project]", "[proj]"),
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 

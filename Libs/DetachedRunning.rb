@@ -31,7 +31,7 @@ class DetachedRunning
             }
         end
         if item["type"] == "counterx" then
-            puts "putting #{timespan} seconds to CounterX"
+            puts "putting #{timespan} seconds to detached running item: #{item["description"]}"
         end
         BTreeSets::destroy(nil, "72ddaf05-e70e-4480-885c-06c00527025b", item["uuid"])
     end

@@ -188,11 +188,6 @@ class Utils
         ![6, 0].include?(Time.new.wday)
     end
 
-    # Utils::isWorkTime()
-    def self.isWorkTime()
-        (Utils::isWeekday() and (9..16).to_a.include?(Time.new.hour) and !KeyValueStore::flagIsTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}"))
-    end
-
     # Utils::getLocalTimeZone()
     def self.getLocalTimeZone()
         `date`.strip[-3 , 3]

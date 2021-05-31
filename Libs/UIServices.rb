@@ -14,7 +14,7 @@ class UIServices
             Priority1::ns16OrNull(),
             Anniversaries::ns16s(),
             Waves::ns16s(),
-            WorkInterface::ns16s(),
+            [Work::ns16()],
             Nx50s::ns16s(),
             Projects::ns16s()
         ]
@@ -60,7 +60,7 @@ class UIServices
                 x0 = item["metric"][0]
                 x1 = item["metric"][1]
                 if showNumbers then
-                    numbersStr = " ( #{x0.ljust(12)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "} )"
+                    numbersStr = " ( #{x0.ljust(14)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "} )"
                 else
                     numbersStr = ""
                 end
@@ -70,9 +70,9 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
+            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rts: waves, work, quarks: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}, #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}, #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
             puts "top    : [] (Priority.txt) | <datecode>".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | numbers/work on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -172,7 +172,7 @@ class UIServices
             end
 
             if Interpreting::match("new work item", command) then
-                WorkInterface::interactvelyIssueNewItem()
+                Work::interactvelyIssueNewItem()
             end
 
             if Interpreting::match("new calendar item", command) then
@@ -195,20 +195,16 @@ class UIServices
                 Projects::report()
             end
 
+            if Interpreting::match("work", command) then
+                Work::main()
+            end
+
             if Interpreting::match("numbers on", command) then
                 KeyValueStore::setFlagTrue(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
             end
 
             if Interpreting::match("numbers off", command) then
                 KeyValueStore::setFlagFalse(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
-            end
-
-            if Interpreting::match("work off", command) then
-                KeyValueStore::setFlagTrue(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
-            end
-
-            if Interpreting::match("work on", command) then
-                KeyValueStore::setFlagFalse(nil, "865cb030-537a-4af8-b1af-202cff383ea1:#{Utils::today()}")
             end
 
             # -- top -----------------------------------------------------------------------------

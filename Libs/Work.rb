@@ -21,19 +21,19 @@ WorkItem {
 
 =end
 
-$WorkInterface_WorkFolderPath = Utils::locationByUniqueStringOrNull("328ed6bd-29c8")
-$WorkInterface_ArchivesFolderPath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
+$Work_WorkFolderPath = Utils::locationByUniqueStringOrNull("328ed6bd-29c8")
+$Work_ArchivesFolderPath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
 
-if $WorkInterface_ArchivesFolderPath.nil? then
+if $Work_ArchivesFolderPath.nil? then
     puts "[error: d48c4aa9-8af2] Could not locate the Work folder"
     exit
 end
 
 # ----------------------------------------------------------------------------
 
-class WorkInterface
+class Work
 
-    # WorkInterface::sanitiseDescriptionForFilename(description)
+    # Work::sanitiseDescriptionForFilename(description)
     def self.sanitiseDescriptionForFilename(description)
         description = description.gsub(":", " ")
         description = description.gsub("'", " ")
@@ -41,13 +41,13 @@ class WorkInterface
         description.strip
     end
 
-    # WorkInterface::selectAWorkItemTypeOrNull()
+    # Work::selectAWorkItemTypeOrNull()
     def self.selectAWorkItemTypeOrNull()
         types = ["General", "PR", "RotaItem"]
         LucilleCore::selectEntityFromListOfEntitiesOrNull("work item type", types)
     end
 
-    # WorkInterface::makeDescriptionOrNull(workItemType)
+    # Work::makeDescriptionOrNull(workItemType)
     def self.makeDescriptionOrNull(workItemType)
         if ["General", "RotaItem"].include?(workItemType) then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -62,19 +62,19 @@ class WorkInterface
         raise "96b2b823-ddae-403b-b7b8-23058e1df203"
     end
 
-    # WorkInterface::directoryFilenameToFolderpath(namex)
+    # Work::directoryFilenameToFolderpath(namex)
     def self.directoryFilenameToFolderpath(namex)
         "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{namex}"
     end
 
-    # WorkInterface::interactvelyIssueNewItem()
+    # Work::interactvelyIssueNewItem()
     def self.interactvelyIssueNewItem()
         uuid = SecureRandom.uuid
 
-        workItemType = WorkInterface::selectAWorkItemTypeOrNull()
+        workItemType = Work::selectAWorkItemTypeOrNull()
         return if workItemType.nil?
 
-        description = WorkInterface::makeDescriptionOrNull(workItemType)
+        description = Work::makeDescriptionOrNull(workItemType)
         return if description.nil?
 
         workitem = {}
@@ -91,7 +91,7 @@ class WorkInterface
         CoreDataTx::commit(workitem)
 
         if workItemType == "General" then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{WorkInterface::sanitiseDescriptionForFilename(description)}"
+            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
             workitem["directoryFilename"] = File.basename(folderpath)
             FileUtils.touch("#{folderpath}/01-README.txt")
@@ -106,7 +106,7 @@ class WorkInterface
         end
 
         if workItemType == "RotaItem" then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{WorkInterface::sanitiseDescriptionForFilename(description)}"
+            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
             workitem["directoryFilename"] = File.basename(folderpath)
             FileUtils.touch("#{folderpath}/01-README.txt")
@@ -130,7 +130,7 @@ class WorkInterface
         end
     end
 
-    # WorkInterface::toString(workitem)
+    # Work::toString(workitem)
     def self.toString(workitem)
         map1 = {
             "General"  => "",
@@ -140,7 +140,7 @@ class WorkInterface
         "[work]#{map1[workitem["workItemType"]]} #{workitem["description"]}"
     end
 
-    # WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
+    # Work::moveFolderToArchiveWithDatePrefix(folderpath)
     def self.moveFolderToArchiveWithDatePrefix(folderpath)
         date = Time.new.strftime("%Y-%m-%d")
         if !File.basename(folderpath).start_with?(date) then
@@ -149,16 +149,16 @@ class WorkInterface
         else
             folderpath2 = folderpath
         end
-        FileUtils.mv(folderpath2, $WorkInterface_ArchivesFolderPath)
+        FileUtils.mv(folderpath2, $Work_ArchivesFolderPath)
     end
 
-    # WorkInterface::done(workitem)
+    # Work::done(workitem)
     def self.done(workitem)
         if workitem["directoryFilename"] then
             folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{workitem["directoryFilename"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("move folder to archives ? ") then
                 puts "Moving folder: '#{folderpath}' to archives"
-                WorkInterface::moveFolderToArchiveWithDatePrefix(folderpath)
+                Work::moveFolderToArchiveWithDatePrefix(folderpath)
             else
                 puts "Removing folder: '#{folderpath}'"
                 LucilleCore::removeFileSystemLocation(folderpath)
@@ -167,7 +167,7 @@ class WorkInterface
         CoreDataTx::delete(workitem["uuid"])
     end
 
-    # WorkInterface::accessPR(workitem)
+    # Work::accessItemPR(workitem)
     def self.accessPR(workitem)
         loop {
             puts "description: #{workitem["description"]}".green
@@ -185,17 +185,17 @@ class WorkInterface
             end
 
             if Interpreting::match("done", command) then
-                WorkInterface::done(workitem)
+                Work::done(workitem)
                 break
             end
         }
     end
 
-    # WorkInterface::access(workitem)
-    def self.access(workitem)
+    # Work::accessItem(workitem)
+    def self.accessItem(workitem)
         
         if workitem["workItemType"] == "PR" then
-            WorkInterface::accessPR(workitem)
+            Work::accessItemPR(workitem)
             return
         end
 
@@ -204,7 +204,7 @@ class WorkInterface
 
         loop {
 
-            puts WorkInterface::toString(workitem).green
+            puts Work::toString(workitem).green
 
             puts "trello link        : #{workitem["trelloLink"]}"
             puts "pr link            : #{workitem["prLink"]}"
@@ -235,7 +235,7 @@ class WorkInterface
                 description = Utils::editTextSynchronously(workitem["description"])
                 workitem["description"] = description
                 CoreDataTx::commit(workitem)
-                directoryFilename2 = WorkInterface::sanitiseDescriptionForFilename(description)
+                directoryFilename2 = Work::sanitiseDescriptionForFilename(description)
 
                 folder1 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename1}"
                 folder2 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename2}"
@@ -256,7 +256,7 @@ class WorkInterface
             end
 
             if Interpreting::match("done", command) then
-                WorkInterface::done(workitem)
+                Work::done(workitem)
                 break
             end
         }
@@ -271,22 +271,64 @@ class WorkInterface
         Bank::put(uuid, timespan)
     end
 
-    # WorkInterface::ns16s()
-    def self.ns16s()
-        return [] if !Utils::isWorkTime()
-        CoreDataTx::getObjectsBySchema("workitem")
-            .sort{|w1, w2| w1["unixtime"] <=> w2["unixtime"] }
-            .reverse
-            .map{|workitem|
-                uuid = workitem["uuid"]
-                recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                {
-                    "uuid"     => uuid,
-                    "metric"   => ["ns:work", recoveryTime],
-                    "announce" => WorkInterface::toString(workitem).green,
-                    "access"   => lambda { WorkInterface::access(workitem) },
-                    "done"     => lambda { WorkInterface::done(workitem) }
-                }
+    # Work::main()
+    def self.main()
+        startUnixtime = Time.new.to_i
+
+        thr = Thread.new {
+            sleep 3600
+            loop {
+                Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
+                sleep 60
             }
+        }
+
+        loop {
+            system("clear")
+
+            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours"
+
+            workitems = CoreDataTx::getObjectsBySchema("workitem")
+            workitems.each_with_index{|workitem, indx|
+                puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
+            }
+
+            puts "<item index> | detach running | exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == "exit"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                item = workitems[indx]
+                next if item.nil?
+                Work::accessItem(workitem)
+            end
+
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2("Work", Time.new.to_i, "bank accounts", ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+            end
+        }
+
+        thr.exit
+
+        timespan = Time.new.to_f - startUnixtime
+        timespan = [timespan, 3600*2].min
+        puts "putting #{timespan} seconds to Work: WORK-E4A9-4BCD-9824-1EEC4D648408"
+        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
+    end
+
+    # Work::ns16()
+    def self.ns16()
+        timeCommitmentInHoursPerWeek = 25 # 5 hours, 5 days 
+        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", timeCommitmentInHoursPerWeek)
+        metric = (ratio < 1 ? ["ns:time-target", ratio] : ["ns:zero", nil])
+        {
+            "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
+            "metric"   => metric,
+            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % timeCommitmentInHoursPerWeek})",
+            "access"   => lambda { Work::main() },
+            "done"     => lambda { }
+        }
     end
 end

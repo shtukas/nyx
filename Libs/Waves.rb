@@ -289,7 +289,10 @@ class Waves
         end
         timespan = Time.new.to_f - startUnixtime
         timespan = [timespan, 3600*2].min
-        puts "putting #{timespan} seconds to CounterX"
+        puts "putting #{timespan} seconds to wave: #{Waves::toString(wave)}"
+        Bank::put(uuid, timespan)
+        puts "putting #{timespan} seconds to WAVES-A81E-4726-9F17-B71CAD66D793"
+        Bank::put("WAVES-A81E-4726-9F17-B71CAD66D793", timespan)
     end
 
     # Waves::ns16s()

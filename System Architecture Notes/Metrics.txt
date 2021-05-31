@@ -1,8 +1,8 @@
 
 Levels
     "ns:running"
+    "ns:admin"
     "ns:wave"
-    "ns:work"
-    "ns:important"
+    "ns:time-target" # In this case we do not submit a receovery time, but a ratio
     "ns:zone"
     "ns:zero"
