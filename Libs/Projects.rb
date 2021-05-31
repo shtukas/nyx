@@ -84,20 +84,13 @@ class Projects
 
     # Projects::toString(project)
     def self.toString(project)
-        items = ProjectItems::itemsForProject(project["uuid"])
-        itemsStr = (items.size > 0 ? " [#{items.size} item(s)]" : "")
-        "[project] #{project["description"]}#{itemsStr}"
+        "[project] #{project["description"]}"
     end
 
     # Projects::toStringListing(project)
     def self.toStringListing(project)
-        items = ProjectItems::itemsForProject(project["uuid"])
-        itemsStr = (items.size > 0 ? " (#{items.size})" : "")
-
         ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
-        ratioStr = "(completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]})"
-
-        "[project] #{ratioStr} #{project["description"]}#{itemsStr}"
+        "[project] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]}) #{project["description"]}"
     end
 
     # Projects::interactivelyCreateNewProject()
@@ -252,17 +245,34 @@ class Projects
 
     # Projects::ns16s()
     def self.ns16s()
-         CoreDataTx::getObjectsBySchema("project")
+        CoreDataTx::getObjectsBySchema("project")
             .map{|project| Projects::projectToNS16(project) }
     end
 
-    # Projects::report()
-    def self.report()
-         CoreDataTx::getObjectsBySchema("project")
-            .sort{|p1, p2| BankExtended::stdRecoveredDailyTimeInHours(p1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(p2["uuid"]) }
-            .each{|project| 
-                puts "    #{Projects::toStringListing(project)}"
+    # Projects::main()
+    def self.main()
+
+        loop {
+            system("clear")
+
+            projects = CoreDataTx::getObjectsBySchema("project")
+                .sort{|p1, p2| BankExtended::stdRecoveredDailyTimeInHours(p1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(p2["uuid"]) }
+
+            projects.each_with_index{|project, indx| 
+                puts "[#{indx}] #{Projects::toStringListing(project)}"
             }
-        LucilleCore::pressEnterToContinue()
+
+            puts "<item index> | exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == "exit"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                project = projects[indx]
+                next if project.nil?
+                Projects::access(project)
+            end
+        }
     end
 end

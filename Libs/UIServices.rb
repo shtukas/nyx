@@ -70,8 +70,8 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rts: waves, work, quarks: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}, #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}, #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
-            puts "top    : [] (Priority.txt) | <datecode>".yellow
+            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
+            puts "top    : [] (Priority.txt) | <datecode> | done".yellow
             puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -192,7 +192,7 @@ class UIServices
             end
 
             if Interpreting::match("projects", command) then
-                Projects::report()
+                Projects::main()
             end
 
             if Interpreting::match("work", command) then
