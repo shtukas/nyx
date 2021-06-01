@@ -200,7 +200,7 @@ class Projects
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Projects::toString(project), Time.new.to_i, "bank accounts", [uuid])
+                DetachedRunning::issueNew2(Projects::toString(project), Time.new.to_i, [uuid])
                 break
             end
 

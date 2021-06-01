@@ -84,7 +84,7 @@ class Quarks
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Quarks::toString(quark), Time.new.to_i, "bank accounts", [uuid])
+                DetachedRunning::issueNew2(Quarks::toString(quark), Time.new.to_i, [uuid, "QUARKS-404E-A1D2-0777E64077BA"])
                 break
             end
 

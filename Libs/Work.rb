@@ -306,7 +306,7 @@ class Work
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2("Work", Time.new.to_i, "bank accounts", ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+                DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
             end
         }
 
@@ -326,7 +326,7 @@ class Work
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => metric,
-            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % timeCommitmentInHoursPerWeek})",
+            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % timeCommitmentInHoursPerWeek})".green,
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }

@@ -284,7 +284,7 @@ class Waves
             Waves::landing(wave)
         end
         if command == "detach running" then
-            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, "counterx", nil)
+            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
             Waves::performDone(wave)
         end
         timespan = Time.new.to_f - startUnixtime
