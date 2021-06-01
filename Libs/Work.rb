@@ -300,8 +300,8 @@ class Work
             break if command == "exit"
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                item = workitems[indx]
-                next if item.nil?
+                workitem = workitems[indx]
+                next if workitem.nil?
                 Work::accessItem(workitem)
             end
 
