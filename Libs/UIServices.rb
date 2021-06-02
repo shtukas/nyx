@@ -35,6 +35,14 @@ class UIServices
         ns16s.first(3).map{|item| item["uuid"] }.join(";")
     end
 
+    # UIServices::accessItem(item)
+    def self.accessItem(item)
+        return if item.nil? 
+        return if item["access"].nil?
+        system("clear")
+        item["access"].call()
+    end
+
     # UIServices::catalystDisplayLoop()
     def self.catalystDisplayLoop()
 
@@ -87,19 +95,13 @@ class UIServices
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
-                item = items[0]
-                next if item.nil? 
-                next if item["access"].nil?
-                item["access"].call()
+                UIServices::accessItem(items[0])
             end
 
             if Interpreting::match("select *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                item = items[ordinal]
-                next if item.nil?
-                next if item["access"].nil?
-                item["access"].call()
+                UIServices::accessItem(items[ordinal])
             end
 
             if Interpreting::match("expose *", command) then
@@ -113,19 +115,13 @@ class UIServices
             end
 
             if Interpreting::match("access", command) then
-                item = items[0]
-                next if item.nil? 
-                next if item["access"].nil?
-                item["access"].call()
+                UIServices::accessItem(items[0])
             end
 
             if Interpreting::match("start *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                item = items[ordinal]
-                next if item.nil?
-                next if item["access"].nil?
-                item["access"].call()
+                UIServices::accessItem(items[ordinal])
             end
 
             if Interpreting::match("done", command) then

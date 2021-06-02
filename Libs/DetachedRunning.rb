@@ -39,7 +39,7 @@ class DetachedRunning
         DetachedRunning::items()
         .map{|item|
             {
-                "uuid"     => item["uuid"],
+                "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
                 "metric"   => ["ns:running", nil],
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
                 "access"   => lambda{
@@ -52,3 +52,15 @@ class DetachedRunning
         }
     end
 end
+
+Thread.new {
+    sleep 60
+    loop {
+        DetachedRunning::items().each{|item|
+            if (Time.new.to_i - item["startUnixtime"]) >= 3600 then
+                Utils::onScreenNotification("Catalyst", "Detached Running item running for more than an hour")
+            end
+        }
+        sleep 60
+    }
+}

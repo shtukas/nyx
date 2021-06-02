@@ -271,6 +271,11 @@ class Work
         Bank::put(uuid, timespan)
     end
 
+    # Work::timeCommitmentInHoursPerWeek()
+    def self.timeCommitmentInHoursPerWeek()
+        30 # 6 hours, 5 days a week
+    end
+
     # Work::main()
     def self.main()
         startUnixtime = Time.new.to_i
@@ -284,12 +289,9 @@ class Work
         }
 
         loop {
-            timeCommitmentInHoursPerWeek = 25 # 5 hours, 5 days 
-            ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", timeCommitmentInHoursPerWeek)
-
             system("clear")
 
-            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; ratio: #{ratio.round(2)}".green
+            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
             workitems.each_with_index{|workitem, indx|
@@ -323,13 +325,12 @@ class Work
 
     # Work::ns16()
     def self.ns16()
-        timeCommitmentInHoursPerWeek = 25 # 5 hours, 5 days 
-        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", timeCommitmentInHoursPerWeek)
+        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", Work::timeCommitmentInHoursPerWeek())
         metric = (ratio < 1 ? ["ns:time-target", ratio] : ["ns:zero", nil])
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => metric,
-            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % timeCommitmentInHoursPerWeek})".green,
+            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})".green,
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }
