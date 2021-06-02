@@ -51,6 +51,7 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+        return [] if (BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA") > 2)
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .first(3)

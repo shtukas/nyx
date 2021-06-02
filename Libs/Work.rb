@@ -284,9 +284,12 @@ class Work
         }
 
         loop {
+            timeCommitmentInHoursPerWeek = 25 # 5 hours, 5 days 
+            ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", timeCommitmentInHoursPerWeek)
+
             system("clear")
 
-            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours"
+            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; ratio: #{ratio.round(2)}".green
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
             workitems.each_with_index{|workitem, indx|
