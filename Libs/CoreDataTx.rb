@@ -82,6 +82,12 @@ class CoreDataTx
             object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
         end
 
+        if object["schema"] == "Nx31" then
+            object["contentType"]     = object["payload1"]
+            object["payload"]         = object["payload2"]
+            object["date"]            = object["payload3"]
+        end
+
         object.delete("payload1")
         object.delete("payload2")
         object.delete("payload3")
@@ -127,7 +133,8 @@ class CoreDataTx
             "quark",
             "Nx50",
             "workitem",
-            "project"
+            "project",
+            "Nx31",
         ]
     end
 
@@ -187,6 +194,15 @@ class CoreDataTx
             object["payload1"] = nil
             object["payload2"] = object["timeCommitmentInHoursPerWeek"]
             object["payload3"] = nil
+            object["payload4"] = nil
+            object["payload5"] = nil
+            hasBeenTransformed = true
+        end
+
+        if object["schema"] == "Nx31" then
+            object["payload1"] = object["contentType"]
+            object["payload2"] = object["payload"]
+            object["payload3"] = object["date"]
             object["payload4"] = nil
             object["payload5"] = nil
             hasBeenTransformed = true

@@ -70,7 +70,7 @@ class Quarks
 
             puts "running: #{Quarks::toString(quark)}".green
 
-            puts "landing | <datecode> | detach running | done | (empty) # default # exit".yellow
+            puts "access | landing | <datecode> | detach running | done | (empty) # default # exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -79,6 +79,16 @@ class Quarks
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(quark["uuid"], unixtime)
                 break
+            end
+
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(quark["contentType"], quark["payload"])
+                if coordinates then
+                    quark["contentType"] = coordinates[0]
+                    quark["payload"]     = coordinates[1]
+                    ProjectItems::commit(quark)
+                end
+                next
             end
 
             if Interpreting::match("landing", command) then
@@ -93,10 +103,6 @@ class Quarks
             if Interpreting::match("done", command) then
                 Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
                 CoreDataTx::delete(quark["uuid"])
-                break
-            end
-
-            if Interpreting::match("", command) then
                 break
             end
         }

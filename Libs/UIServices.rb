@@ -16,7 +16,8 @@ class UIServices
             Waves::ns16s(),
             [Work::ns16()],
             Nx50s::ns16s(),
-            Projects::ns16s()
+            Projects::ns16s(),
+            Nx31s::ns16s()
         ]
             .flatten
             .compact
@@ -80,7 +81,7 @@ class UIServices
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
             puts "top    : [] (Priority.txt) | <datecode> | done".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / ondate / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -142,6 +143,10 @@ class UIServices
 
             if Interpreting::match("new project", command) then
                 Projects::interactivelyCreateNewProject()
+            end
+
+            if Interpreting::match("new ondate", command) then
+                Nx31s::interactivelyIssueNewQuarkOrNull()
             end
 
             if Interpreting::match("new wave", command) then

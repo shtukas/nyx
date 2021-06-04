@@ -154,6 +154,7 @@ require_relative "GalaxyFinder.rb"
 
 require_relative "Metrics.rb"
 
+require_relative "Nx31s.rb"
 require_relative "Nx50s.rb"
 require_relative "Nx102.rb"
 
