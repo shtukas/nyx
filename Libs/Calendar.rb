@@ -41,7 +41,7 @@ class Calendar
             pair = File.basename(folderpath).split("|").map{|s| s.strip }
             {
                 "date" => pair[0],
-                "description" => pair[1],
+                "description" => "(#{pair[1]}) #{pair[2]}",
                 "folderpath" => folderpath
             }
         }
