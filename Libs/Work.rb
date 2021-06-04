@@ -91,7 +91,7 @@ class Work
         CoreDataTx::commit(workitem)
 
         if workItemType == "General" then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Work::sanitiseDescriptionForFilename(description)}"
+            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]} #{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
             workitem["directoryFilename"] = File.basename(folderpath)
             FileUtils.touch("#{folderpath}/01-README.txt")
@@ -106,7 +106,7 @@ class Work
         end
 
         if workItemType == "RotaItem" then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Work::sanitiseDescriptionForFilename(description)}"
+            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]}#{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
             workitem["directoryFilename"] = File.basename(folderpath)
             FileUtils.touch("#{folderpath}/01-README.txt")
@@ -291,14 +291,14 @@ class Work
         loop {
             system("clear")
 
-            puts "[work] running #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
+            puts "running: [work] #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
             workitems.each_with_index{|workitem, indx|
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
 
-            puts "<item index> | detach running | exit".yellow
+            puts "<item index> | detach running | new item | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -312,6 +312,10 @@ class Work
 
             if Interpreting::match("detach running", command) then
                 DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+            end
+
+            if Interpreting::match("new item", command) then
+                Work::interactvelyIssueNewItem()
             end
         }
 
