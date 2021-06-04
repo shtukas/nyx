@@ -235,13 +235,15 @@ class Work
                 description = Utils::editTextSynchronously(workitem["description"])
                 workitem["description"] = description
                 CoreDataTx::commit(workitem)
-                directoryFilename2 = Work::sanitiseDescriptionForFilename(description)
+                directoryFilename2 = "#{directoryFilename1[0, directoryFilename1.index(" ")]} #{Work::sanitiseDescriptionForFilename(description)}"
 
                 folder1 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename1}"
                 folder2 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename2}"
 
                 if folder1 != folder2 then
                     FileUtils.mv(folder1, folder2)
+                    workitem["directoryFilename"] = directoryFilename2
+                    CoreDataTx::commit(workitem)
                 end
                 return
             end

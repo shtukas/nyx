@@ -19,3 +19,5 @@ WorkItem {
     "gitBranch"         : String or null # _payload4_
     "directoryFilename" : String         # _payload5_
 }
+
+The descripion and the directoryFilename are fundamentally independant, but at creation or at description update the directoryFilename is the date together with the sanitised version of the description.
