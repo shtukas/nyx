@@ -11,11 +11,10 @@ class Nx31s
         nx31["schema"]      = "Nx31"
         nx31["unixtime"]    = Time.new.to_f
 
-        date = LucilleCore::askQuestionAnswerAsString("date (empty to abort): ")
-        return nil if date == ""
-
-        # I should probably do a bit of validation here
-        # I could also use a datecode
+        datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
+        unixtime = Utils::codeToUnixtimeOrNull(datecode)
+        return nil if unixtime.nil?
+        date = Time.at(unixtime).to_s[0, 10]
 
         coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
         return nil if coordinates.nil?
