@@ -147,6 +147,10 @@ class Projects
             }
         }
 
+        system("clear")
+
+        puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+
         projectItems = ProjectItems::itemsForProject(project["uuid"])
         if projectItems.size == 1 then
             item = projectItems[0]
@@ -160,9 +164,11 @@ class Projects
 
         loop {
 
+            system("clear")
+
             projectItems = ProjectItems::itemsForProject(project["uuid"])
 
-            puts "#{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
             puts "ratio: #{ratio}"
 
             projectItems.each_with_index{|item, indx|
