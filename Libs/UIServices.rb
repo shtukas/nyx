@@ -81,7 +81,7 @@ class UIServices
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
             puts "top    : [] (Priority.txt) | <datecode> | done".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / ondate / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
+            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / ondate / calendar item / quark / todo / work item / project | ondates | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -194,6 +194,10 @@ class UIServices
 
             if Interpreting::match("projects", command) then
                 Projects::main()
+            end
+
+            if Interpreting::match("ondates", command) then
+                Nx31s::main()
             end
 
             if Interpreting::match("work", command) then

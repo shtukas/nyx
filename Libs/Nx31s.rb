@@ -28,7 +28,7 @@ class Nx31s
         CoreDataTx::commit(nx31)
     end
 
-    # Nx31s::runQuark(nx31)
+    # Nx31s::toString(nx31)
     def self.toString(nx31)
         "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
@@ -113,6 +113,32 @@ class Nx31s
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
             .map{|nx31| Nx31s::nx31ToNS16(nx31) }
+    end
+
+    # Nx31s::main()
+    def self.main()
+        loop {
+            system("clear")
+
+            nx31s = CoreDataTx::getObjectsBySchema("Nx31")
+                .sort{|i1, i2| i1["date"] <=> i2["date"] }
+
+            nx31s.each_with_index{|nx31, indx| 
+                puts "[#{indx}] #{Nx31s::toString(nx31)}"
+            }
+
+            puts "<item index> | (empty) # exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                nx31 = nx31s[indx]
+                next if nx31.nil?
+                Nx31s::runNx31(nx31)
+            end
+        }
     end
 
 end
