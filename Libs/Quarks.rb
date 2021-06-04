@@ -52,7 +52,9 @@ class Quarks
         }
 
         system("clear")
-        puts Quarks::toString(quark)
+        
+        puts "running: #{Quarks::toString(quark)}".green
+
         coordinates = Nx102::access(quark["contentType"], quark["payload"])
         if coordinates then
             quark["contentType"] = coordinates[0]
@@ -66,7 +68,7 @@ class Quarks
 
             system("clear")
 
-            puts Quarks::toString(quark)
+            puts "running: #{Quarks::toString(quark)}".green
 
             puts "landing | <datecode> | detach running | done | (empty) # default # exit".yellow
 
