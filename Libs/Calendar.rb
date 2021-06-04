@@ -9,8 +9,8 @@ class Calendar
 
     # Calendar::pathToArchivesFolder()
     def self.pathToArchivesFolder()
-        folderpath = "/Users/pascal/Galaxy/Documents/30 Timeline/#{Time.new.strftime("%Y")}/Calendar (Catalyst)"
-        raise "d1d363cb-1b34-4091-bd87-455c96ab16e2" if File.exists?(folderpath)
+        folderpath = "/Users/pascal/Galaxy/Documents/20 Timeline/#{Time.new.strftime("%Y")}/Calendar (Catalyst)"
+        raise "d1d363cb-1b34-4091-bd87-455c96ab16e2" if !File.exists?(folderpath)
         folderpath
     end
 
@@ -80,22 +80,17 @@ class Calendar
                     "metric"   => ["ns:admin", nil],
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "access"   => lambda {
-                        if hasElementsInFolder then
+                        puts Calendar::toString(item)
+                        if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
                             system("open '#{folderpath}'")
                             LucilleCore::pressEnterToContinue()
                         end
-                        if LucilleCore::askQuestionAnswerAsBoolean("'#{Calendar::toString(item)}' done ? ") then
+                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
                             Calendar::moveToArchives(item)
                         end
                     },
                     "done"     => lambda {
-                        if hasElementsInFolder then
-                            system("open '#{folderpath}'")
-                            LucilleCore::pressEnterToContinue()
-                        end
-                        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to done '#{Calendar::toString(item)}' ? ") then
-                            Calendar::moveToArchives(item)
-                        end
+                        Calendar::moveToArchives(item)
                     }
                 }
             }
