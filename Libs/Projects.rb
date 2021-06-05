@@ -149,7 +149,7 @@ class Projects
 
         system("clear")
 
-        puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+        puts "starting: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
 
         projectItems = ProjectItems::itemsForProject(project["uuid"])
         if projectItems.size == 1 then
@@ -168,18 +168,18 @@ class Projects
 
             projectItems = ProjectItems::itemsForProject(project["uuid"])
 
-            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} ) for #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours".green
             puts "ratio: #{ratio}"
 
             projectItems.each_with_index{|item, indx|
                 puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
 
-            puts "access | <datecode> | update description | new item | detach running | completed".yellow
+            puts "access | <datecode> | update description | new item | detach running | completed | exit | peek".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == ""
+            break if command == "exit"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -215,6 +215,10 @@ class Projects
                     Projects::completeProject(project)
                     break
                 end
+            end
+
+            if Interpreting::match("peek", command) then
+                UIServices::peek()
             end
         }
 

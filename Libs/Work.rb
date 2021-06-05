@@ -211,7 +211,7 @@ class Work
             puts "git branch         : #{workitem["gitBranch"]}"
             puts "directory filename : #{workitem["directoryFilename"]}"
 
-            puts "access | edit description | set trello link | pr link | <datecode> | done".yellow
+            puts "access | edit description | set trello link | pr link | <datecode> | done | peek".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -261,6 +261,11 @@ class Work
                 Work::done(workitem)
                 break
             end
+
+            if Interpreting::match("peek", command) then
+                UIServices::peek()
+            end
+
         }
 
         timespan = Time.new.to_f - startUnixtime
@@ -300,7 +305,7 @@ class Work
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
 
-            puts "<item index> | detach running | new item | exit".yellow
+            puts "<item index> | detach running | new item | exit | peek".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -319,6 +324,11 @@ class Work
             if Interpreting::match("new item", command) then
                 Work::interactvelyIssueNewItem()
             end
+
+            if Interpreting::match("peek", command) then
+                UIServices::peek()
+            end
+
         }
 
         thr.exit

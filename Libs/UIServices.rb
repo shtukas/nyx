@@ -226,6 +226,18 @@ class UIServices
             end
         }
     end
+
+    # UIServices::peek()
+    def self.peek()
+        loop {
+            items = UIServices::ns16s()
+            $NS16sTrace = UIServices::ns16sToTrace(items)
+            # This function is to be called from projects, work, etc, sub processes which can consume time
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items.first(10), lambda{|item| item["announce"] })
+            break if item.nil?
+            item["access"].call()
+        }
+    end
 end
 
 Thread.new {
