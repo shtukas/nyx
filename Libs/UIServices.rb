@@ -8,7 +8,7 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        [
+        items = [
             DetachedRunning::ns16s(),
             Calendar::ns16s(),
             Priority1::ns16OrNull(),
@@ -27,6 +27,18 @@ class UIServices
                 item
             }
             .select{|item| item["metric-float"] > 0 }
+
+        if items.empty? then
+            items = Nx50s::ns16sExtra()
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                .map{|item|
+                    item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
+                    item
+                }
+                .select{|item| item["metric-float"] > 0 }
+        end
+
+        items
             .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
             .reverse
     end
@@ -59,10 +71,6 @@ class UIServices
             vspaceleft = Utils::screenHeight()-6
 
             items = UIServices::ns16s()
-
-            if items.empty? then
-                items = Nx50s::ns16sExtra()
-            end 
 
             $NS16sTrace = UIServices::ns16sToTrace(items)
 

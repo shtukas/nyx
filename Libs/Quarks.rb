@@ -127,11 +127,6 @@ class Quarks
         uuid = quark["uuid"]
 
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        # To prevent endlessly focusing on new items
-        if recoveryTime == 0 then
-            Bank::put(uuid, rand*3600)
-            recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        end
 
         announce = "[qurk] #{quark["description"]}"
 
