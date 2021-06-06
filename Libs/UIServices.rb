@@ -60,6 +60,10 @@ class UIServices
 
             items = UIServices::ns16s()
 
+            if items.empty? then
+                items = Nx50s::ns16sExtra()
+            end 
+
             $NS16sTrace = UIServices::ns16sToTrace(items)
 
             puts ""

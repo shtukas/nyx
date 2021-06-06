@@ -58,6 +58,17 @@ class Nx50s
             .map{|nx50| Quarks::quarkToNS16(nx50) }
     end
 
+    # Nx50s::ns16sExtra()
+    def self.ns16sExtra()
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .map{|nx50| 
+                ns16 = Quarks::quarkToNS16(nx50) 
+                ns16["announce"] = ns16["announce"].red
+                ns16
+            }
+    end
+
 end
 
 Thread.new {
