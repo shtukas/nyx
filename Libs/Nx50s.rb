@@ -44,7 +44,7 @@ class Nx50s
                 .sample(20)
                 .each{|object|
                     object["schema"] = "Nx50"
-                    CoreDataTx::commit(quark)
+                    CoreDataTx::commit(object)
                 }
         end
     end
@@ -70,11 +70,3 @@ class Nx50s
     end
 
 end
-
-Thread.new {
-    sleep 60
-    loop {
-        Nx50s::maintenance()
-        sleep 3600
-    }
-}
