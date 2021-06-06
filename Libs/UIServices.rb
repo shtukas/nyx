@@ -80,8 +80,10 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items ; rt: #{BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA").round(2)} )"
-            puts "top    : [] (Priority.txt) | <datecode> | done".yellow
-            puts "listing: .. (access top) | select / expose / start / done (<n>) | new wave / ondate / calendar item / quark / todo / work item / project | ondates | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
+            puts "listing: new wave / ondate / calendar item / quark / todo / work item / project | ondates | anniversaries | calendar | waves | projects | work | numbers on/off".yellow
+            if !items.empty? then
+                puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
+            end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

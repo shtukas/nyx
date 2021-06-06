@@ -342,7 +342,8 @@ class Work
     # Work::ns16()
     def self.ns16()
         ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", Work::timeCommitmentInHoursPerWeek())
-        metric = (ratio < 1 ? ["ns:time-target", ratio] : ["ns:zero", nil])
+        timeTargetFlag = (ratio < 1 and Utils::isWeekday())
+        metric = (timeTargetFlag ? ["ns:time-target", ratio] : ["ns:zero", nil])
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => metric,
