@@ -40,6 +40,10 @@ class UIServices
             .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
             .reverse
 
+        if Time.new.hour < 9 and items2.size>0 then
+            return items2
+        end
+
         items1+items2
 
     end
