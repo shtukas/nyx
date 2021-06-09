@@ -74,6 +74,8 @@ class Nx50s
     def self.ns15s()
         # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
 
+        showNumbers = KeyValueStore::flagIsTrue(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
+
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .map{|nx50| Nx50s::toNS15(nx50) }
@@ -81,7 +83,8 @@ class Nx50s
             .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
             .reverse
             .map{|ns15|  
-                ns15["announce"] = ns15["announce"].red
+                nstr = showNumbers ? "(#{"%.3f" % ns15["x-stdRecoveryTime"]}) " : ""
+                ns15["announce"] = "#{nstr}#{ns15["announce"].red}"
                 ns15
             }
     end
