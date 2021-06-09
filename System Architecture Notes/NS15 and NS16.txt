@@ -1,3 +1,11 @@
+NS15 {
+    "uuid"     : String # used by DoNotShowUntil
+    "announce" : String
+    "access"   : Lambda or nil # optional
+    "done"     : Lambda or nil # optional
+    "[]"       : Lambda or nil # optional
+}
+
 NS16 {
     "uuid"     : String # used by DoNotShowUntil
     "metric"   : [Level, item RT or null]

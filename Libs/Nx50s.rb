@@ -49,24 +49,40 @@ class Nx50s
         end
     end
 
-    # Nx50s::ns16s()
-    def self.ns16s()
-        return [] if (BankExtended::stdRecoveredDailyTimeInHours("QUARKS-404E-A1D2-0777E64077BA") > 2)
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .first(3)
-            .map{|nx50| Quarks::quarkToNS16(nx50) }
+    # Nx50s::toNS15(nx50)
+    def self.toNS15(nx50)
+        uuid = nx50["uuid"]
+
+        announce = "[nx50] #{nx50["description"]}"
+
+        {
+            "uuid"     => uuid,
+            "announce" => announce,
+            "access"   => lambda{ Quarks::runQuark(nx50) },
+            "done"     => lambda{
+                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(nx50)}' ? ", true) then
+                    CoreDataTx::delete(nx50["uuid"])
+                end
+            },
+            "x-source"          => "Nx50s",
+            "x-stdRecoveryTime" => BankExtended::stdRecoveredDailyTimeInHours(uuid),
+            "x-24Timespan"      => Bank::valueOverTimespan(uuid, 86400)
+        }
     end
 
-    # Nx50s::ns16sExtra()
-    def self.ns16sExtra()
+    # Nx50s::ns15s()
+    def self.ns15s()
+        # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
+
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|nx50| 
-                ns16 = Quarks::quarkToNS16(nx50) 
-                ns16["announce"] = ns16["announce"].red
-                ns16
+            .map{|nx50| Nx50s::toNS15(nx50) }
+            .select{|nx50| nx50["x-24Timespan" ] < 3600 }
+            .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
+            .reverse
+            .map{|ns15|  
+                ns15["announce"] = ns15["announce"].red
+                ns15
             }
     end
-
 end

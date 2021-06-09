@@ -15,37 +15,19 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             [Work::ns16()],
-            Nx50s::ns16s(),
             Projects::ns16s(),
             Nx31s::ns16s()
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|item|
-                item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
-                item
-            }
-            .select{|item| item["metric-float"] > 0 }
-            .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
+            .select{|item| Metrics::metricDataToFloat(item["metric"]) > 0 }
+            .sort{|item1, item2| Metrics::metricDataToFloat(item1["metric"]) <=> Metrics::metricDataToFloat(item2["metric"]) }
             .reverse
 
-        items2 = Nx50s::ns16sExtra()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|item|
-                item["metric-float"] = Metrics::metricDataToFloat(item["metric"])
-                item
-            }
-            .select{|item| item["metric-float"] > 0 }
-            .sort{|item1, item2| item1["metric-float"] <=> item2["metric-float"] }
-            .reverse
+        items2 = Nx50s::ns15s()
 
-        if Time.new.hour < 9 and items2.size>0 then
-            return items2
-        end
-
-        items1+items2
-
+        items1 + items2
     end
 
     # UIServices::ns16sToTrace(ns16s)
@@ -83,9 +65,9 @@ class UIServices
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
-                x0 = item["metric"][0]
-                x1 = item["metric"][1]
-                if showNumbers then
+                if showNumbers and item["metric"] then
+                    x0 = item["metric"][0]
+                    x1 = item["metric"][1]
                     numbersStr = " ( #{x0.ljust(14)}, #{(x1 and x1 > 0) ? "%5.3f" % x1 : "     "} )"
                 else
                     numbersStr = ""
