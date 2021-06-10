@@ -170,12 +170,13 @@ class Projects
 
             puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} ) for #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours".green
             puts "ratio: #{ratio}"
+            puts "timeCommitmentInHoursPerWeek: #{project["timeCommitmentInHoursPerWeek"]}"
 
             projectItems.each_with_index{|item, indx|
                 puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
 
-            puts "access | <datecode> | update description | new item | detach running | completed | exit | peek".yellow
+            puts "access | <datecode> | update description / time commitment | new item | detach running | completed | exit | peek".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -196,6 +197,15 @@ class Projects
                 description = Utils::editTextSynchronously(project["description"])
                 next if description == ""
                 project["description"] = description
+                CoreDataTx::commit(project)
+                next
+            end
+
+            if Interpreting::match("update time commitment", command) then
+                timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("timeCommitmentInHoursPerWeek (empty for abort): ")
+                next if timeCommitmentInHoursPerWeek == ""
+                timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
+                project["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
                 CoreDataTx::commit(project)
                 next
             end
