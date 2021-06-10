@@ -79,7 +79,7 @@ class Nx50s
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .map{|nx50| Nx50s::toNS15(nx50) }
-            .select{|nx50| nx50["x-24Timespan" ] < 3600 }
+            .reject{|nx50| nx50["x-24Timespan" ] >= 3600 }
             .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
             .reverse
             .map{|ns15|  
