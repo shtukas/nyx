@@ -186,15 +186,17 @@ class Nx102
             if input != "" then
                 description = input
             end 
-            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
-            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
-            if File.exists?(location) then
-                payload = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-                return [description, contentType, payload]
-            else
-                puts "Could not find file: #{filepath}"
-                LucilleCore::pressEnterToContinue()
-                return nil
+            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop) (empty to abort): ")
+            if locationNameOnTheDesktop.size > 0 then
+                location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
+                if File.exists?(location) then
+                    payload = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+                    return [description, contentType, payload]
+                else
+                    puts "Could not find file: #{filepath}"
+                    LucilleCore::pressEnterToContinue()
+                    return nil
+                end
             end
             return nil
         end
