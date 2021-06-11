@@ -145,7 +145,7 @@ processItems = lambda {|items|
 
    if Interpreting::match("new todo", command) then
         nx50 = {}
-        nx50["uuid"]        = uuid
+        nx50["uuid"]        = SecureRandom.uuid
         nx50["schema"]      = "Nx50"
         nx50["unixtime"]    = Time.new.to_f
 
