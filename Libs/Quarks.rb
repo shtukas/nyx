@@ -120,35 +120,6 @@ class Quarks
         Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
     end
 
-    # Quarks::quarkToNS16(quark)
-    def self.quarkToNS16(quark)
-        uuid = quark["uuid"]
-
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-
-        # To prevent endlessly focusing on new items
-        if recoveryTime == 0 then
-            Bank::put(uuid, rand*3600)
-            recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        end
-
-        announce = "[qurk] #{quark["description"]}"
-
-        {
-            "uuid"     => uuid,
-            "metric"   => ["ns:zone", recoveryTime],
-            "announce" => announce,
-            "access"   => lambda{ Quarks::runQuark(quark) },
-            "done"     => lambda{
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(quark)}' ? ", true) then
-                    CoreDataTx::delete(quark["uuid"])
-                end
-            },
-            "x-source"       => "Quarks",
-            "x-recoveryTime" => recoveryTime
-        }
-    end
-
     # --------------------------------------------------
 
     # Quarks::landing(quark)

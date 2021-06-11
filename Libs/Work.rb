@@ -226,7 +226,7 @@ class Work
             puts "git branch         : #{workitem["gitBranch"]}"
             puts "directory filename : #{workitem["directoryFilename"]}"
 
-            puts "access | edit description | set trello link | pr link | <datecode> | done | peek".yellow
+            puts "access | edit description | set trello link | pr link | <datecode> | done".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -276,11 +276,6 @@ class Work
                 Work::done(workitem)
                 break
             end
-
-            if Interpreting::match("peek", command) then
-                UIServices::peek()
-            end
-
         }
 
         BankExtended::closeNxBall(nxball, true)
@@ -320,7 +315,7 @@ class Work
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
 
-            puts "<item index> | detach running | new item | exit | peek".yellow
+            puts "<item index> | detach running | new item | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -339,11 +334,6 @@ class Work
             if Interpreting::match("new item", command) then
                 Work::interactvelyIssueNewItem()
             end
-
-            if Interpreting::match("peek", command) then
-                UIServices::peek()
-            end
-
         }
 
         thr.exit
@@ -353,13 +343,13 @@ class Work
 
     # Work::ns16()
     def self.ns16()
-        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", Work::timeCommitmentInHoursPerWeek())
+        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", Work::timeCommitmentInHoursPerWeek())
         timeTargetFlag = (ratio < 1 and Utils::isWeekday())
-        metric = (timeTargetFlag ? ["ns:time-target", ratio] : ["ns:zero", nil])
+        metric = (timeTargetFlag ? ["ns:time-commitment", ratio] : ["ns:zero", nil])
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => metric,
-            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})".green,
+            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})",
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }

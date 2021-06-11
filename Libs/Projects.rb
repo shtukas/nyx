@@ -89,7 +89,7 @@ class Projects
 
     # Projects::toStringListing(project)
     def self.toStringListing(project)
-        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
+        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
         "[project] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]}) #{project["description"]}"
     end
 
@@ -183,7 +183,7 @@ class Projects
                 puts "[#{indx}] #{ProjectItems::toString(item)}"
             }
 
-            puts "access | <datecode> | update description / time commitment | new item | detach running | completed | exit | peek".yellow
+            puts "access | <datecode> | update description / time commitment | new item | detach running | completed | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -233,10 +233,6 @@ class Projects
                     break
                 end
             end
-
-            if Interpreting::match("peek", command) then
-                UIServices::peek()
-            end
         }
 
         thr.exit
@@ -248,8 +244,8 @@ class Projects
     def self.projectToNS16(project)
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ratio = BankExtended::completionRationRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
-        metric = (ratio < 1 ? ["ns:time-target", ratio] : ["ns:zero", nil])
+        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
+        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:zero", nil])
         {
             "uuid"         => uuid,
             "metric"       => metric,
