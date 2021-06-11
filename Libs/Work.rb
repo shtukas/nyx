@@ -219,6 +219,8 @@ class Work
 
         loop {
 
+            system("clear")
+
             puts Work::toString(workitem).green
 
             puts "trello link        : #{workitem["trelloLink"]}"

@@ -64,8 +64,13 @@ class Nx50s
     def self.landing(quark)
         loop {
 
+            system("clear")
+
             puts Nx50s::toString(quark)
+
             puts "uuid: #{quark["uuid"]}".yellow
+            puts "coordinates: #{quark["contentType"]}, #{quark["payload"]}"
+
             unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
