@@ -168,7 +168,7 @@ class Waves
         wave["repeatType"] = schedule[0]
         wave["repeatValue"] = schedule[1]
 
-        wave["lastDoneDateTime"] = "2021-01-01T00:00:11Z"
+        wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
         CoreDataTx::commit(wave)
 
