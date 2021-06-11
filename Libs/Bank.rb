@@ -116,7 +116,7 @@ class BankExtended
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|
-            puts "putting #{timespan} seconds into account: #{account}" if verbose
+            #puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
         nxball["cursorUnixtime"] = Time.new.to_i
@@ -133,7 +133,7 @@ class BankExtended
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|
-            puts "putting #{timespan} seconds into account: #{account}" if verbose
+            #puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
         nil

@@ -16,40 +16,37 @@ NS15 {
 
 class Nx50s
 
-    # Nx50s::isFull()
-    def self.isFull()
-        CoreDataTx::getObjectsBySchema("Nx50").size >= 50
-    end
-
     # Nx50s::importURLAsNewURLNx50(url)
     def self.importURLAsNewURLNx50(url)
         uuid = SecureRandom.uuid
 
-        quark = {}
-        quark["uuid"]        = uuid
-        quark["schema"]      = "Nx50"
-        quark["unixtime"]    = Time.new.to_f
-        quark["description"] = url
-        quark["contentType"] = "Url"
-        quark["payload"]     = url
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = url
+        nx50["contentType"] = "Url"
+        nx50["payload"]     = url
 
-        CoreDataTx::commit(quark)
+        CoreDataTx::commit(nx50)
     end
 
     # Nx50s::importLocationAsNewAionPointNx50(location)
     def self.importLocationAsNewAionPointNx50(location)
         uuid = SecureRandom.uuid
 
-        quark = {}
-        quark["uuid"]        = uuid
-        quark["schema"]      = "Nx50"
-        quark["unixtime"]    = Time.new.to_f
-        quark["description"] = File.basename(location) 
-        quark["contentType"] = "AionPoint"
-        quark["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = File.basename(location) 
+        nx50["contentType"] = "AionPoint"
+        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
 
-        CoreDataTx::commit(quark)
+        CoreDataTx::commit(nx50)
     end
+
+    # --------------------------------------------------
 
     # Nx50s::maintenance()
     def self.maintenance()
@@ -63,6 +60,97 @@ class Nx50s
         end
     end
 
+    # --------------------------------------------------
+
+    # Nx50s::toString(nx50)
+    def self.toString(nx50)
+        "[nx50] #{nx50["description"]}"
+    end
+
+    # Nx50s::access(nx50)
+    def self.access(nx50)
+
+        uuid = nx50["uuid"]
+
+        nxball = BankExtended::makeNxBall([uuid, "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Quark running for more than an hour")
+                end
+            }
+        }
+
+        system("clear")
+        
+        puts "running: #{Nx50s::toString(nx50)}".green
+
+        coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
+        if coordinates then
+            nx50["contentType"] = coordinates[0]
+            nx50["payload"]     = coordinates[1]
+            CoreDataTx::commit(nx50)
+        end
+
+        loop {
+
+            return if CoreDataTx::getObjectByIdOrNull(nx50["uuid"]).nil?
+
+            system("clear")
+
+            puts "running: #{Nx50s::toString(nx50)}".green
+
+            puts "access | landing | <datecode> | detach running | done | (empty) # default # exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(nx50["uuid"], unixtime)
+                break
+            end
+
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    ProjectItems::commit(nx50)
+                end
+                next
+            end
+
+            if Interpreting::match("landing", command) then
+                Quarks::landing(nx50)
+            end
+
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794"])
+                break
+            end
+
+            if Interpreting::match("done", command) then
+                Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+                CoreDataTx::delete(nx50["uuid"])
+                break
+            end
+        }
+
+        thr.exit
+
+        BankExtended::closeNxBall(nxball, true)
+
+        Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+    end
+
     # Nx50s::toNS15(nx50)
     def self.toNS15(nx50)
         uuid = nx50["uuid"]
@@ -74,9 +162,9 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "access"   => lambda{ Quarks::runQuark(nx50) },
+            "access"   => lambda{ Nx50s::access(nx50) },
             "done"     => lambda{
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Quarks::toString(nx50)}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx50s::toString(nx50)}' ? ", true) then
                     CoreDataTx::delete(nx50["uuid"])
                 end
             },
