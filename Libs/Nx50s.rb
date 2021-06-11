@@ -107,11 +107,11 @@ class Nx50s
 
             puts "running: #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | done | (empty) # default # exit".yellow
+            puts "access | landing | <datecode> | detach running | done | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == ""
+            break if command == "exit"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(nx50["uuid"], unixtime)
@@ -177,12 +177,24 @@ class Nx50s
     # Nx50s::ns15s()
     def self.ns15s()
         # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|nx50| Nx50s::toNS15(nx50) }
-            .reject{|nx50| nx50["x-24Timespan" ] >= 3600 }
-            .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
-            .reverse
+
+        items0 = CoreDataTx::getObjectsBySchema("Nx50")
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .map{|nx50| Nx50s::toNS15(nx50) }
+                    .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
+
+        items1 = items0
+                    .select{|nx50| nx50["x-24Timespan" ] < 3600 }
+                    .reverse
+
+        items2 = items0
+                    .select{|nx50| nx50["x-24Timespan" ] >= 3600 }
+                    .map{|ns15|
+                        ns15["announce"] = ns15["announce"].red
+                        ns15
+                    }
+
+        items1.take(3) + items2 + items1.drop(3)
     end
 
     # Nx50s::timeCommitmentPerWeek()
@@ -345,7 +357,6 @@ class Nx50s
         }
 
         UIServices::programmableListingDisplay(getItems, processItems)
-
     end
 
     # Nx50s::ns16()
