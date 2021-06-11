@@ -326,7 +326,7 @@ class Waves
                         Waves::setLowPriority(wave)
                     end
                 end
-                level = Waves::isLowPriority(wave) ? "ns:low-priority" : "ns:wave"
+                level = Waves::isLowPriority(wave) ? "ns:low-priority-waves" : "ns:wave"
                 {
                     "uuid"     => wave["uuid"],
                     "metric"   => [level, nil],

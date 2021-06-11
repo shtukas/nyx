@@ -4,5 +4,6 @@ Levels
     "ns:admin"
     "ns:wave"
     "ns:time-commitment"
-    "ns:low-priority"
+    "ns:low-priority-waves"
+    "ns:low-priority-projects"
     "ns:zero"

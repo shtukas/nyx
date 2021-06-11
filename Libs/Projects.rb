@@ -245,11 +245,15 @@ class Projects
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
-        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:zero", nil])
+        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-projects", ratio])
+        announce = Projects::toStringListing(project).gsub("[project]", "[proj]")
+        if ratio >= 1 then
+            announce = announce.red
+        end
         {
             "uuid"         => uuid,
             "metric"       => metric,
-            "announce"     => Projects::toStringListing(project).gsub("[project]", "[proj]"),
+            "announce"     => announce,
             "access"       => lambda { Projects::access(project) },
             "done"         => lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
