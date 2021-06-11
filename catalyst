@@ -58,7 +58,7 @@ processItems = lambda {|items|
         puts announce
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
-    puts "listing: new wave / ondate / calendar item / quark / todo / work item / project | ondates | anniversaries | calendar | waves | projects | work | numbers on/off | exit".yellow
+    puts "listing: new wave / ondate / calendar item / todo / work item / project | ondates | anniversaries | calendar | waves | projects | work | numbers on/off | exit".yellow
     if !items.empty? then
         puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
     end
@@ -144,23 +144,20 @@ processItems = lambda {|items|
     end
 
    if Interpreting::match("new todo", command) then
-        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort) : ")
-        return "ns:loop" if line == ""
-        nx50 = {
-            "uuid"        => SecureRandom.uuid,
-            "schema"      => "Nx50",
-            "unixtime"    => Time.new.to_i,
-            "description" => line,
-            "contentType" => "Line",
-            "payload"     => ""
-        }
-        puts JSON.pretty_generate(nx50)
-        CoreDataTx::commit(nx50)
-        return "ns:loop"
-    end
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
 
-    if Interpreting::match("new quark", command) then
-        Quarks::interactivelyIssueNewOrNull()
+        coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+        return nil if coordinates.nil?
+
+        nx50["description"] = coordinates[0]
+        nx50["contentType"] = coordinates[1]
+        nx50["payload"]     = coordinates[2]
+
+        CoreDataTx::commit(nx50)
+
         return "ns:loop"
     end
 

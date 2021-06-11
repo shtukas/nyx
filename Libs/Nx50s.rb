@@ -51,13 +51,60 @@ class Nx50s
     # Nx50s::maintenance()
     def self.maintenance()
         if CoreDataTx::getObjectsBySchema("Nx50").size <= 20 then
-            Quarks::quarks()
+            CoreDataTx::getObjectsBySchema("quark")
                 .sample(20)
                 .each{|object|
                     object["schema"] = "Nx50"
                     CoreDataTx::commit(object)
                 }
         end
+    end
+
+    # Nx50s::landing(quark)
+    def self.landing(quark)
+        loop {
+
+            puts Nx50s::toString(quark)
+            puts "uuid: #{quark["uuid"]}".yellow
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
+            if unixtime then
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
+            end
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(quark["uuid"])}".yellow
+
+            puts "access (partial edit) | edit | transmute | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(quark["contentType"], quark["payload"])
+                if coordinates then
+                    quark["contentType"] = coordinates[0]
+                    quark["payload"]     = coordinates[1]
+                    CoreDataTx::commit(quark)
+                end
+            end
+
+            if Interpreting::match("edit", command) then
+                coordinates = Nx102::edit(quark["description"], quark["contentType"], quark["payload"])
+                if coordinates then
+                    quark["description"] = coordinates[0]
+                    quark["contentType"] = coordinates[1]
+                    quark["payload"]     = coordinates[2]
+                    CoreDataTx::commit(quark)
+                end
+            end
+
+            if Interpreting::match("transmute", command) then
+                Nx102::transmute(quark["description"], quark["contentType"], quark["payload"])
+            end
+
+            if Interpreting::match("destroy", command) then
+                CoreDataTx::delete(quark["uuid"])
+                break
+            end
+        }
     end
 
     # --------------------------------------------------
@@ -129,7 +176,7 @@ class Nx50s
             end
 
             if Interpreting::match("landing", command) then
-                Quarks::landing(nx50)
+                Nx50s::landing(nx50)
             end
 
             if Interpreting::match("detach running", command) then
@@ -223,7 +270,7 @@ class Nx50s
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
-            puts "listing: new wave / ondate / calendar item / quark / todo / work item / project | exit".yellow
+            puts "listing: new wave / ondate / calendar item / todo / work item / project | exit".yellow
             if !items.empty? then
                 puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
             end
@@ -321,11 +368,6 @@ class Nx50s
                 }
                 puts JSON.pretty_generate(nx50)
                 CoreDataTx::commit(nx50)
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new quark", command) then
-                Quarks::interactivelyIssueNewOrNull()
                 return "ns:loop"
             end
 

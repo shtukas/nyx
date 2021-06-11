@@ -162,8 +162,6 @@ require_relative "Priority1.rb"
 require_relative "Projects.rb"
 require_relative "ProgrammableBooleans.rb"
 
-require_relative "Quarks.rb"
-
 require_relative "Runner.rb"
 =begin 
     Runner::isRunning?(uuid)

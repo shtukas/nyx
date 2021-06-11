@@ -1,0 +1,23 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+uuid = SecureRandom.uuid
+
+nx50 = {}
+nx50["uuid"]        = uuid
+nx50["schema"]      = "Nx50"
+nx50["unixtime"]    = Time.new.to_f
+
+coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+return nil if coordinates.nil?
+
+nx50["description"] = coordinates[0]
+nx50["contentType"] = coordinates[1]
+nx50["payload"]     = coordinates[2]
+
+CoreDataTx::commit(nx50)
