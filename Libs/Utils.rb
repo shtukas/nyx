@@ -124,8 +124,8 @@ class Utils
         LucilleCore::pressEnterToContinue()
     end
 
-    # Utils::openUrl(url)
-    def self.openUrl(url)
+    # Utils::openUrlUsingSafari(url)
+    def self.openUrlUsingSafari(url)
         system("open -a Safari '#{url}'")
     end
 

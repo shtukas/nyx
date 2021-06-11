@@ -290,7 +290,7 @@ class Waves
 
         end
         if wave["contentType"] == "Url" then
-            Utils::openUrl(wave["payload"])
+            Utils::openUrlUsingSafari(wave["payload"])
         end
         puts Waves::toString(wave)
         command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing', 'detach running'] action : ")

@@ -65,7 +65,7 @@ class Nx102
         end
         if contentType == "Url" then
             puts "opening '#{payload}'"
-            Utils::openUrl(payload)
+            Utils::openUrlUsingSafari(payload)
             return nil
         end
         if contentType == "Text" then
