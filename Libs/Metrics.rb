@@ -10,6 +10,7 @@ class Metrics
             "ns:admin"   => 0.8,
             "ns:wave"    => 0.6,
             "ns:time-commitment" => 0.4,
+            "ns:low-priority"    => 0.2,
             "ns:zero"    => 0.0
         }
         raise "23835313-fa4b-442c-8ec2-a77ecf4f3073" if !mapping.keys.include?(level)

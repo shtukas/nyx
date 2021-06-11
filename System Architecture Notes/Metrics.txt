@@ -3,5 +3,6 @@ Levels
     "ns:running"
     "ns:admin"
     "ns:wave"
-    "ns:time-commitment" # In this case we do not submit a recovery time, but a ratio
+    "ns:time-commitment"
+    "ns:low-priority"
     "ns:zero"

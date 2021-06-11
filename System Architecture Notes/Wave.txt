@@ -18,3 +18,5 @@ Wave (CoreDataTx) {
     [contentType]     -> [payload]
     "Line"            -> "" # empty string, the description is the payload
     "Url"             -> String
+
+Waves also have an attribute "isLowPriority" 

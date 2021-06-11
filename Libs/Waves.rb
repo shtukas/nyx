@@ -3,6 +3,26 @@
 
 class Waves
 
+    # Waves::isLowPriority(wave)
+    def self.isLowPriority(wave)
+        return false if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
+        return false if ["sticky"].include?(wave["repeatType"])
+        # This returns a boolean or nil if not set.
+        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
+        return nil if value.nil?
+        value == "ns:103:true"
+    end
+
+    # Waves::setLowPriority(wave)
+    def self.setLowPriority(wave)
+        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:true")
+    end
+
+    # Waves::setHighPriority(wave)
+    def self.setHighPriority(wave)
+        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:false")
+    end
+
     # Waves::makeScheduleParametersInteractivelyOrNull() # [type, value]
     def self.makeScheduleParametersInteractivelyOrNull()
 
@@ -299,9 +319,17 @@ class Waves
     def self.ns16s()
         CoreDataTx::getObjectsBySchema("wave")
             .map{|wave|
+                if Waves::isLowPriority(wave).nil? then
+                    if LucilleCore::askQuestionAnswerAsBoolean("'#{Waves::toString(wave)}' is high priority ? ") then
+                        Waves::setHighPriority(wave)
+                    else
+                        Waves::setLowPriority(wave)
+                    end
+                end
+                level = Waves::isLowPriority(wave) ? "ns:low-priority" : "ns:wave"
                 {
                     "uuid"     => wave["uuid"],
-                    "metric"   => ["ns:wave", nil],
+                    "metric"   => [level, nil],
                     "announce" => Waves::toString(wave),
                     "access"   => lambda { Waves::access(wave) },
                     "done"     => lambda { Waves::performDone(wave) }
