@@ -68,16 +68,16 @@ class Nx50s
 
             puts Nx50s::toString(quark)
 
-            puts "uuid: #{quark["uuid"]}".yellow
+            puts "uuid: #{quark["uuid"]}"
             puts "coordinates: #{quark["contentType"]}, #{quark["payload"]}"
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
             if unixtime then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}"
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(quark["uuid"])}".yellow
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(quark["uuid"])}"
 
-            puts "access (partial edit) | edit | transmute | destroy".yellow
+            puts "access (partial edit) | edit | transmute | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
