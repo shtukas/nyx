@@ -1,3 +1,3 @@
-The Nx50s are the Quarks that we list. The capacity is 50 elements. If the number of elements is less than 50 then we import from Nx50 Inbox or from vienna-import. 
+The Nx50s are the Quarks that we list.
 
-If the number of elements is less than 20, then a thread takes 20 random Quarks and transmute them to Nx50s.
+If the number of elements is less than 30, then a thread takes 20 random Quarks and transmute them to Nx50s.

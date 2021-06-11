@@ -50,7 +50,7 @@ class Nx50s
 
     # Nx50s::maintenance()
     def self.maintenance()
-        if CoreDataTx::getObjectsBySchema("Nx50").size <= 20 then
+        if CoreDataTx::getObjectsBySchema("Nx50").size <= 30 then
             CoreDataTx::getObjectsBySchema("quark")
                 .sample(20)
                 .each{|object|
@@ -130,7 +130,7 @@ class Nx50s
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Quark running for more than an hour")
+                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
                 end
             }
         }
@@ -398,7 +398,21 @@ class Nx50s
             "ns:loop"
         }
 
+        startUnixtime = Time.new.to_i
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - startUnixtime) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Nx50 itself running for more than an hour")
+                end
+            }
+        }
+
         UIServices::programmableListingDisplay(getItems, processItems)
+
+        thr.exit
     end
 
     # Nx50s::ns16()
