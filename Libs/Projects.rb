@@ -134,16 +134,19 @@ class Projects
 
         uuid = project["uuid"]
 
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
-
-        startUnixtime = Time.new.to_f
+        nxball = BankExtended::makeNxBall([uuid])
 
         thr = Thread.new {
-            sleep 3600
             loop {
-                Utils::onScreenNotification("Catalyst", "Project running for more than an hour")
                 sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Project running for more than an hour")
+                end
             }
         }
 
@@ -168,8 +171,12 @@ class Projects
 
             projectItems = ProjectItems::itemsForProject(project["uuid"])
 
-            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} ) for #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours".green
+            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} ) for #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours".green
+
+            recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+            ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
             puts "ratio: #{ratio}"
+            
             puts "timeCommitmentInHoursPerWeek: #{project["timeCommitmentInHoursPerWeek"]}"
 
             projectItems.each_with_index{|item, indx|
@@ -234,14 +241,7 @@ class Projects
 
         thr.exit
 
-        timespan = Time.new.to_f - startUnixtime
-
-        puts "Time since start: #{timespan}"
-
-        timespan = [timespan, 3600*2].min
-
-        puts "putting #{timespan} seconds to project #{Projects::toString(project)} (uuid: #{uuid})"
-        Bank::put(uuid, timespan)
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Projects::projectToNS16(project)

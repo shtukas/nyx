@@ -3,8 +3,8 @@
 
 class Quarks
 
-    # Quarks::interactivelyIssueNewQuarkOrNull()
-    def self.interactivelyIssueNewQuarkOrNull()
+    # Quarks::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
 
         quark = {}
@@ -41,13 +41,19 @@ class Quarks
 
         uuid = quark["uuid"]
 
-        startUnixtime = Time.new.to_f
+        nxball = BankExtended::makeNxBall([uuid, "QUARKS-404E-A1D2-0777E64077BA"])
 
         thr = Thread.new {
-            sleep 3600
             loop {
-                Utils::onScreenNotification("Catalyst", "Quark running for more than an hour")
                 sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Quark running for more than an hour")
+                end
             }
         }
 
@@ -109,16 +115,8 @@ class Quarks
 
         thr.exit
 
-        timespan = Time.new.to_f - startUnixtime
+        BankExtended::closeNxBall(nxball, true)
 
-        puts "Time since start: #{timespan}"
-
-        timespan = [timespan, 3600*2].min
-
-        puts "putting #{timespan} seconds to uuid: #{uuid} ; quark: #{Quarks::toString(quark)}"
-        Bank::put(uuid, timespan)
-        puts "putting #{timespan} seconds to QUARKS-404E-A1D2-0777E64077BA"
-        Bank::put("QUARKS-404E-A1D2-0777E64077BA", timespan)
         Nx102::postAccessCleanUp(quark["contentType"], quark["payload"])
     end
 

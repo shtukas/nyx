@@ -200,7 +200,22 @@ class Work
         end
 
         uuid = workitem["uuid"]
-        startUnixtime = Time.new.to_f
+        
+        nxball = BankExtended::makeNxBall([uuid])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work item running for more than an hour")
+                end
+            }
+        }
 
         loop {
 
@@ -268,14 +283,7 @@ class Work
 
         }
 
-        timespan = Time.new.to_f - startUnixtime
-
-        puts "Time since start: #{Time.new.to_f - startUnixtime}"
-
-        timespan = [timespan, 3600*2].min
-
-        puts "putting #{timespan} seconds to todo: #{uuid}"
-        Bank::put(uuid, timespan)
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Work::timeCommitmentInHoursPerWeek()
@@ -285,20 +293,27 @@ class Work
 
     # Work::main()
     def self.main()
-        startUnixtime = Time.new.to_i
+
+        nxball = BankExtended::makeNxBall(["WORK-E4A9-4BCD-9824-1EEC4D648408"])
 
         thr = Thread.new {
-            sleep 3600
             loop {
-                Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
                 sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
+                end
             }
         }
 
         loop {
             system("clear")
 
-            puts "running: [work] #{((Time.new.to_f - startUnixtime).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
+            puts "running: [work] #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
             workitems.each_with_index{|workitem, indx|
@@ -333,10 +348,7 @@ class Work
 
         thr.exit
 
-        timespan = Time.new.to_f - startUnixtime
-        timespan = [timespan, 3600*2].min
-        puts "putting #{timespan} seconds to Work: WORK-E4A9-4BCD-9824-1EEC4D648408"
-        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Work::ns16()

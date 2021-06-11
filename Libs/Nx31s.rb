@@ -2,8 +2,8 @@
 
 class Nx31s
 
-    # Nx31s::interactivelyIssueNewQuarkOrNull()
-    def self.interactivelyIssueNewQuarkOrNull()
+    # Nx31s::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
 
         nx31 = {}
@@ -79,7 +79,7 @@ class Nx31s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx31s::toString(nx31), Time.new.to_i, [uuid, "QUARKS-404E-A1D2-0777E64077BA"])
+                DetachedRunning::issueNew2(Nx31s::toString(nx31), Time.new.to_i, [uuid])
                 break
             end
 

@@ -147,7 +147,7 @@ class UIServices
             end
 
             if Interpreting::match("new ondate", command) then
-                Nx31s::interactivelyIssueNewQuarkOrNull()
+                Nx31s::interactivelyIssueNewOrNull()
             end
 
             if Interpreting::match("new wave", command) then
@@ -170,7 +170,7 @@ class UIServices
             end
 
             if Interpreting::match("new quark", command) then
-                Quarks::interactivelyIssueNewQuarkOrNull()
+                Quarks::interactivelyIssueNewOrNull()
             end
 
             if Interpreting::match("new work item", command) then

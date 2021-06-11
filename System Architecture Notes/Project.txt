@@ -1,13 +1,5 @@
-CoreDataTx
 
-CoreDataTx refers to both the single sqlite3 database that contains Catalyst objects and the BinaryBlob store.
-
-objects.sqlite3
-create table _objects_ (_objectId_ text, _schema_ text, _unixtime_ real, _description_ text, _payload1_ text, _payload2_ text, _payload3_ text, _payload4_ text, _payload5_ text);
-
-# ----------------------------------------------------
-
-Project {
+Project (CoreDataTx) {
     uuid                : String         # _objectId_
     schema              : "project"      # _schema_
     unixtime            : Float          # _unixtime_
