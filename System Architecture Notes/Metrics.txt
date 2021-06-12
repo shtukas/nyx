@@ -5,5 +5,5 @@ Levels
     "ns:wave"
     "ns:time-commitment"
     "ns:low-priority-waves"
-    "ns:low-priority-projects"
+    "ns:low-priority-time-commitment"
     "ns:zero"

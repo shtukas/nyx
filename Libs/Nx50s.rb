@@ -131,7 +131,7 @@ class Nx50s
                 sleep 60
 
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, true)
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
@@ -159,7 +159,7 @@ class Nx50s
 
             puts "running: #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | done | exit".yellow
+            puts "access | landing | <datecode> | detach running | completed | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -189,7 +189,7 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("done", command) then
+            if Interpreting::match("completed", command) then
                 Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
                 CoreDataTx::delete(nx50["uuid"])
                 break
@@ -221,8 +221,7 @@ class Nx50s
                 end
             },
             "x-source"          => "Nx50s",
-            "x-stdRecoveryTime" => stdRecTime,
-            "x-24Timespan"      => Bank::valueOverTimespan(uuid, 86400)
+            "x-stdRecoveryTime" => stdRecTime
         }
     end
 
@@ -236,11 +235,11 @@ class Nx50s
                     .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
 
         items1 = items0
-                    .select{|nx50| nx50["x-24Timespan" ] < 3600 }
+                    .select{|nx50| nx50["x-stdRecoveryTime"] < 1 }
                     .reverse
 
         items2 = items0
-                    .select{|nx50| nx50["x-24Timespan" ] >= 3600 }
+                    .select{|nx50| nx50["x-stdRecoveryTime"] >= 1 }
                     .map{|ns15|
                         ns15["announce"] = ns15["announce"].red
                         ns15
@@ -423,7 +422,7 @@ class Nx50s
     # Nx50s::ns16()
     def self.ns16()
         ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794", Nx50s::timeCommitmentPerWeek())
-        metric = ((ratio < 1) ? ["ns:time-commitment", ratio] : ["ns:zero", nil])
+        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-time-commitment", ratio])
         {
             "uuid"     => "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794",
             "metric"   => metric,

@@ -23,9 +23,11 @@ class Priority1
         
         return nil if IO.read(filepath).strip == ""
 
-        announce = "\n#{IO.read(filepath).strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+        contents = IO.read(filepath)
+
+        announce = "\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
         
-        uuid = "558F572F-094C-4C7A-B171-032DB0F35D63"
+        uuid = Digest::SHA1.hexdigest(contents.strip)
 
         {
             "uuid"      => uuid,

@@ -245,7 +245,7 @@ class Projects
         uuid = project["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
-        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-projects", ratio])
+        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-time-commitment", ratio])
         announce = Projects::toStringListing(project).gsub("[project]", "[proj]")
         if ratio >= 1 then
             announce = announce.red
