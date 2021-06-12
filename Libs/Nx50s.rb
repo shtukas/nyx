@@ -262,6 +262,12 @@ class Nx50s
 
         processItems = lambda {|items|
 
+            accessItem = lambda { |item| 
+                return if item.nil? 
+                return if item["access"].nil?
+                item["access"].call()
+            }
+
             system("clear")
 
             vspaceleft = Utils::screenHeight()-6
@@ -295,14 +301,19 @@ class Nx50s
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
-                UIServices::accessItem(items[0])
+                accessItem.call(items[0])
+                return "ns:loop"
+            end
+
+            if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
+                accessItem.call(items[ordinal])
                 return "ns:loop"
             end
 
             if Interpreting::match("select *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                UIServices::accessItem(items[ordinal])
+                accessItem.call(items[ordinal])
                 return "ns:loop"
             end
 
@@ -317,14 +328,14 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                UIServices::accessItem(items[0])
+                accessItem.call(items[0])
                 return "ns:loop"
             end
 
             if Interpreting::match("start *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                UIServices::accessItem(items[ordinal])
+                accessItem.call(items[ordinal])
                 return "ns:loop"
             end
 

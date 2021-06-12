@@ -30,14 +30,6 @@ class UIServices
         ns16s.first(3).map{|item| item["uuid"] }.join(";")
     end
 
-    # UIServices::accessItem(item)
-    def self.accessItem(item)
-        return if item.nil? 
-        return if item["access"].nil?
-        system("clear")
-        item["access"].call()
-    end
-
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
     def self.programmableListingDisplay(getItems, processItems)
         loop {

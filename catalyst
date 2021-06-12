@@ -32,6 +32,12 @@ getItems = lambda {
 
 processItems = lambda {|items|
 
+    accessItem = lambda { |item| 
+        return if item.nil? 
+        return if item["access"].nil?
+        item["access"].call()
+    }
+
     system("clear")
 
     showNumbers = KeyValueStore::flagIsTrue(nil, "b08cad0a-3c7f-42ad-95d6-91f079adb2ba")
@@ -77,14 +83,19 @@ processItems = lambda {|items|
     # -- listing -----------------------------------------------------------------------------
 
     if Interpreting::match("..", command) then
-        UIServices::accessItem(items[0])
+        accessItem.call(items[0])
+        return "ns:loop"
+    end
+
+    if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
+        accessItem.call(items[ordinal])
         return "ns:loop"
     end
 
     if Interpreting::match("select *", command) then
         _, ordinal = Interpreting::tokenizer(command)
         ordinal = ordinal.to_i
-        UIServices::accessItem(items[ordinal])
+        accessItem.call(items[ordinal])
         return "ns:loop"
     end
 
@@ -99,14 +110,14 @@ processItems = lambda {|items|
     end
 
     if Interpreting::match("access", command) then
-        UIServices::accessItem(items[0])
+        accessItem.call(items[0])
         return "ns:loop"
     end
 
     if Interpreting::match("start *", command) then
         _, ordinal = Interpreting::tokenizer(command)
         ordinal = ordinal.to_i
-        UIServices::accessItem(items[ordinal])
+        accessItem.call(items[ordinal])
         return "ns:loop"
     end
 
