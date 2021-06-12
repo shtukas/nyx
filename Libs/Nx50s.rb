@@ -157,7 +157,9 @@ class Nx50s
 
             system("clear")
 
-            puts "running: #{Nx50s::toString(nx50)}".green
+            stdRecTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+
+            puts "running: (#{"%.3f" % stdRecTime}) #{Nx50s::toString(nx50)}".green
 
             puts "access | landing | <datecode> | detach running | completed | exit".yellow
 
