@@ -427,7 +427,7 @@ class Nx50s
         {
             "uuid"     => "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794",
             "metric"   => metric,
-            "announce" => "[Nx50] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Nx50s::timeCommitmentPerWeek()})",
+            "announce" => "[Nx50] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Nx50s::timeCommitmentPerWeek()}) #{CoreDataTx::getObjectsBySchema("Nx50").size} items ⛵️",
             "access"   => lambda { Nx50s::main() },
             "done"     => lambda { }
         }
