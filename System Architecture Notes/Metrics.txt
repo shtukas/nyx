@@ -5,6 +5,4 @@ Levels
     "ns:wave"
     "ns:work"
     "ns:time-commitment"
-    "ns:low-priority-waves"
-    "ns:low-priority-time-commitment"
     "ns:zero"

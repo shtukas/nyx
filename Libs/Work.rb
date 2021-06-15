@@ -283,8 +283,8 @@ class Work
         BankExtended::closeNxBall(nxball, true)
     end
 
-    # Work::timeCommitmentInHoursPerWeek()
-    def self.timeCommitmentInHoursPerWeek()
+    # Work::targetRT()
+    def self.targetRT()
         30 # 6 hours, 5 days a week
     end
 
@@ -350,7 +350,7 @@ class Work
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => isWorkTime ? ["ns:work", nil] : ["ns:zero", nil],
-            "announce" => "[#{"work".green}] (rt: #{rt.round(2)} hours)",
+            "announce" => "[#{"work".green}] (rt: #{rt.round(2)})",
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }

@@ -250,9 +250,9 @@ class Nx50s
         items1.take(3) + items2 + items1.drop(3)
     end
 
-    # Nx50s::timeCommitmentPerWeek()
-    def self.timeCommitmentPerWeek()
-        2*7 # 2 hours per day
+    # Nx50s::targetRT()
+    def self.targetRT()
+        2 # 2 hours per day
     end
 
     # Nx50s::main()
@@ -434,12 +434,12 @@ class Nx50s
 
     # Nx50s::ns16()
     def self.ns16()
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794", Nx50s::timeCommitmentPerWeek())
-        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-time-commitment", ratio])
+        rt = BankExtended::stdRecoveredDailyTimeInHours("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794")
+        ratio = rt.to_f/Nx50s::targetRT()
         {
             "uuid"     => "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794",
-            "metric"   => metric,
-            "announce" => "[Nx50] (#{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Nx50s::timeCommitmentPerWeek()}) #{CoreDataTx::getObjectsBySchema("Nx50").size} items ⛵️",
+            "metric"   => ["ns:time-commitment", ratio],
+            "announce" => "[Nx50] (rt: #{rt.round(2)} of #{"%3.1f" % Nx50s::targetRT()}) #{CoreDataTx::getObjectsBySchema("Nx50").size} items ⛵️",
             "access"   => lambda { Nx50s::main() },
             "done"     => lambda { }
         }

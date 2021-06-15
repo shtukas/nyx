@@ -79,7 +79,7 @@ class CoreDataTx
         end
 
         if object["schema"] == "endless" then
-            object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
+            object["targetRT"]    = object["payload2"].to_f
             object["contentType"] = object["payload3"]
             object["payload"]     = object["payload4"]
         end
@@ -152,7 +152,7 @@ class CoreDataTx
 
         if object["schema"] == "endless" then
             object["payload1"] = nil
-            object["payload2"] = object["timeCommitmentInHoursPerWeek"]
+            object["payload2"] = object["targetRT"]
             object["payload3"] = object["contentType"]
             object["payload4"] = object["payload"]
             object["payload5"] = nil

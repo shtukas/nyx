@@ -9,8 +9,9 @@ class Endless
 
     # Endless::toStringListing(endless)
     def self.toStringListing(endless)
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(endless["uuid"], endless["timeCommitmentInHoursPerWeek"])
-        "[endless] (#{"%6.2f" % (ratio*100)} % of #{"%4.1f" % endless["timeCommitmentInHoursPerWeek"]}) #{endless["description"]}"
+        rt = BankExtended::stdRecoveredDailyTimeInHours(endless["uuid"])
+        targetRT = endless["targetRT"]
+        "[endless] (rt: #{rt.round(2)} of #{"%3.1f" % targetRT}) #{endless["description"]}"
     end
 
     # Endless::interactivelyCreateNew()
@@ -23,19 +24,19 @@ class Endless
             return nil
         end
 
-        timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("timeCommitmentInHoursPerWeek (empty for abort): ")
-        if timeCommitmentInHoursPerWeek == "" then
+        targetRT = LucilleCore::askQuestionAnswerAsString("targetRT (empty for abort): ")
+        if targetRT == "" then
             return nil
         end
 
-        timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
+        targetRT = [targetRT.to_f, 0.5].max # at least 30 mins
 
         endless = {}
         endless["uuid"]        = uuid
         endless["schema"]      = "endless"
         endless["unixtime"]    = Time.new.to_i
         endless["description"] = description
-        endless["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
+        endless["targetRT"]    = targetRT
 
         CoreDataTx::commit(endless)
     end
@@ -79,12 +80,12 @@ class Endless
             puts "running: #{Endless::toString(endless)} ( uuid: #{endless["uuid"]} ) for #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours".green
 
             recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-            ratio = (recoveryTime*7).to_f/endless["timeCommitmentInHoursPerWeek"]
+            ratio = (recoveryTime*7).to_f/endless["targetRT"]
             puts "ratio: #{ratio}"
             
-            puts "timeCommitmentInHoursPerWeek: #{endless["timeCommitmentInHoursPerWeek"]}"
+            puts "targetRT: #{endless["targetRT"]}"
 
-            puts "access | <datecode> | update description / time commitment | new item | detach running | completed | exit".yellow
+            puts "access | <datecode> | update description / update target rt | new item | detach running | completed | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -113,11 +114,11 @@ class Endless
                 next
             end
 
-            if Interpreting::match("update time commitment", command) then
-                timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("timeCommitmentInHoursPerWeek (empty for abort): ")
-                next if timeCommitmentInHoursPerWeek == ""
-                timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
-                endless["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
+            if Interpreting::match("update target rt", command) then
+                targetRT = LucilleCore::askQuestionAnswerAsString("targetRT (empty for abort): ")
+                next if targetRT == ""
+                targetRT = [targetRT.to_f, 0.5].max # at least 30 mins
+                endless["targetRT"] = targetRT
                 CoreDataTx::commit(endless)
                 next
             end
@@ -143,16 +144,14 @@ class Endless
     # Endless::toNS16(endless)
     def self.toNS16(endless)
         uuid = endless["uuid"]
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(endless["uuid"], endless["timeCommitmentInHoursPerWeek"])
-        metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-time-commitment", ratio])
         announce = Endless::toStringListing(endless).gsub("[endless]", "[endl]")
+        ratio = BankExtended::stdRecoveredDailyTimeInHours(endless["uuid"]).to_f/endless["targetRT"]
         if ratio >= 1 then
             announce = announce.red
         end
         {
             "uuid"         => uuid,
-            "metric"       => metric,
+            "metric"       => ["ns:time-commitment", ratio],
             "announce"     => announce,
             "access"       => lambda { Endless::access(endless) },
             "done"         => lambda { 

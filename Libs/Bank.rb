@@ -157,10 +157,4 @@ class BankExtended
     def self.stdRecoveredDailyTimeInHours(setuuid)
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
     end
-
-    # BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(uuid, timeCommitmentInHoursPerWeek)
-    def self.completionRatioRelativelyToTimeCommitmentInHoursPerWeek(uuid, timeCommitmentInHoursPerWeek)
-        recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        (recoveryTime*7).to_f/timeCommitmentInHoursPerWeek
-    end
 end
