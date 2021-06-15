@@ -13,6 +13,11 @@ class Waves
         value == "ns:103:true"
     end
 
+    # Waves::isHighPriority(wave)
+    def self.isHighPriority(wave)
+        !Waves::isLowPriority(wave)
+    end
+
     # Waves::setLowPriority(wave)
     def self.setLowPriority(wave)
         KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:true")
@@ -178,7 +183,7 @@ class Waves
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] [#{Waves::scheduleString(wave)}] [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
+        "[wave] (#{Waves::scheduleString(wave)}) [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
     end
 
     # Waves::selectWaveOrNull()
@@ -313,12 +318,17 @@ class Waves
         Bank::put(uuid, timespan)
         puts "putting #{timespan} seconds to WAVES-A81E-4726-9F17-B71CAD66D793"
         Bank::put("WAVES-A81E-4726-9F17-B71CAD66D793", timespan)
+
+        if Waves::isLowPriority(wave) then
+            puts "putting #{timespan} seconds to Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794 (low prority wave processing)"
+            Bank::put("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794", timespan)
+        end
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
+    # Waves::ensureProritySettings()
+    def self.ensureProritySettings()
         CoreDataTx::getObjectsBySchema("wave")
-            .map{|wave|
+            .each{|wave|
                 if Waves::isLowPriority(wave).nil? then
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{Waves::toString(wave)}' is high priority ? ") then
                         Waves::setHighPriority(wave)
@@ -326,10 +336,34 @@ class Waves
                         Waves::setLowPriority(wave)
                     end
                 end
-                level = Waves::isLowPriority(wave) ? "ns:low-priority-waves" : "ns:wave"
+            }
+    end
+
+    # Waves::ns16sHighPriority()
+    def self.ns16sHighPriority()
+        Waves::ensureProritySettings()
+        CoreDataTx::getObjectsBySchema("wave")
+            .select{|wave| Waves::isHighPriority(wave) }
+            .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
-                    "metric"   => [level, nil],
+                    "metric"   => ["ns:wave", nil],
+                    "announce" => Waves::toString(wave),
+                    "access"   => lambda { Waves::access(wave) },
+                    "done"     => lambda { Waves::performDone(wave) }
+                }
+            }
+    end
+
+    # Waves::ns16sLowPriority()
+    def self.ns16sLowPriority()
+        Waves::ensureProritySettings()
+        CoreDataTx::getObjectsBySchema("wave")
+            .select{|wave| Waves::isLowPriority(wave) }
+            .map{|wave|
+                {
+                    "uuid"     => wave["uuid"],
+                    "metric"   => ["ns:low-priority-waves", nil],
                     "announce" => Waves::toString(wave),
                     "access"   => lambda { Waves::access(wave) },
                     "done"     => lambda { Waves::performDone(wave) }

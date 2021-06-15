@@ -10,7 +10,7 @@ class Endless
     # Endless::toStringListing(endless)
     def self.toStringListing(endless)
         ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(endless["uuid"], endless["timeCommitmentInHoursPerWeek"])
-        "[endless] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % endless["timeCommitmentInHoursPerWeek"]}) #{endless["description"]}"
+        "[endless] (#{"%6.2f" % (ratio*100)} % of #{"%4.1f" % endless["timeCommitmentInHoursPerWeek"]}) #{endless["description"]}"
     end
 
     # Endless::interactivelyCreateNew()

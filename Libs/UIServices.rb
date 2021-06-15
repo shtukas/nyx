@@ -11,7 +11,7 @@ class UIServices
             Calendar::ns16s(),
             Priority1::ns16OrNull(),
             Anniversaries::ns16s(),
-            Waves::ns16s(),
+            Waves::ns16sHighPriority(),
             Work::ns16(),
             Endless::ns16s(),
             Nx31s::ns16s(),
