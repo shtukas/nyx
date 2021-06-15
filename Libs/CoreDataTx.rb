@@ -78,7 +78,7 @@ class CoreDataTx
             object["directoryFilename"] = object["payload5"]
         end
 
-        if object["schema"] == "project" then
+        if object["schema"] == "endless" then
             object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
             object["contentType"] = object["payload3"]
             object["payload"]     = object["payload4"]
@@ -150,7 +150,7 @@ class CoreDataTx
             hasBeenTransformed = true
         end
 
-        if object["schema"] == "project" then
+        if object["schema"] == "endless" then
             object["payload1"] = nil
             object["payload2"] = object["timeCommitmentInHoursPerWeek"]
             object["payload3"] = object["contentType"]
@@ -211,7 +211,7 @@ class CoreDataTx
             "quark",
             "Nx50",
             "workitem",
-            "project",
+            "endless",
             "Nx31",
         ]
     end

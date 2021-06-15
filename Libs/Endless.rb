@@ -32,7 +32,7 @@ class Endless
 
         endless = {}
         endless["uuid"]        = uuid
-        endless["schema"]      = "project"
+        endless["schema"]      = "endless"
         endless["unixtime"]    = Time.new.to_i
         endless["description"] = description
         endless["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
@@ -163,7 +163,7 @@ class Endless
 
     # Endless::ns16s()
     def self.ns16s()
-        CoreDataTx::getObjectsBySchema("project")
+        CoreDataTx::getObjectsBySchema("endless")
             .map{|endless| Endless::toNS16(endless) }
     end
 
@@ -173,7 +173,7 @@ class Endless
         loop {
             system("clear")
 
-            endlesss = CoreDataTx::getObjectsBySchema("project")
+            endlesss = CoreDataTx::getObjectsBySchema("endless")
                 .sort{|p1, p2| BankExtended::stdRecoveredDailyTimeInHours(p1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(p2["uuid"]) }
 
             endlesss.each_with_index{|endless, indx| 
