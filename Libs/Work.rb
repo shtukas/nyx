@@ -168,7 +168,7 @@ class Work
     end
 
     # Work::accessItemPR(workitem)
-    def self.accessPR(workitem)
+    def self.accessItemPR(workitem)
         loop {
             puts "description: #{workitem["description"]}".green
             puts "link       : #{workitem["prLink"]}".green
@@ -201,22 +201,6 @@ class Work
 
         uuid = workitem["uuid"]
         
-        nxball = BankExtended::makeNxBall([uuid])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Work item running for more than an hour")
-                end
-            }
-        }
-
         loop {
 
             system("clear")
@@ -279,8 +263,6 @@ class Work
                 break
             end
         }
-
-        BankExtended::closeNxBall(nxball, true)
     end
 
     # Work::targetRT()
@@ -291,33 +273,17 @@ class Work
     # Work::main()
     def self.main()
 
-        nxball = BankExtended::makeNxBall(["WORK-E4A9-4BCD-9824-1EEC4D648408"])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
-                end
-            }
-        }
-
         loop {
             system("clear")
 
-            puts "running: [work] #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours ; recovery time: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)}".green
+            puts "[work] (running)".green
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
             workitems.each_with_index{|workitem, indx|
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
 
-            puts "<item index> | detach running | new item | exit".yellow
+            puts "<item index> | new item | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -329,28 +295,19 @@ class Work
                 Work::accessItem(workitem)
             end
 
-            if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
-            end
-
             if Interpreting::match("new item", command) then
                 Work::interactvelyIssueNewItem()
             end
         }
-
-        thr.exit
-
-        BankExtended::closeNxBall(nxball, true)
     end
 
     # Work::ns16()
     def self.ns16()
         isWorkTime = Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => isWorkTime ? ["ns:work", nil] : ["ns:zero", nil],
-            "announce" => "[#{"work".green}] (rt: #{rt.round(2)})",
+            "announce" => "[#{"work".green}]",
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }
