@@ -303,7 +303,7 @@ class Work
 
     # Work::ns16()
     def self.ns16()
-        isWorkTime = Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17
+        isWorkTime = (Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17)
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => isWorkTime ? ["ns:work", nil] : ["ns:zero", nil],
