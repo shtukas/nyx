@@ -9,6 +9,7 @@ class Metrics
             "ns:running" => 1.0,
             "ns:admin"   => 0.8,
             "ns:wave"    => 0.6,
+            "ns:work"    => 0.5,
             "ns:time-commitment"    => 0.4,
             "ns:low-priority-waves" => 0.2,
             "ns:low-priority-time-commitment" => 0.1,

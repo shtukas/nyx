@@ -345,13 +345,12 @@ class Work
 
     # Work::ns16()
     def self.ns16()
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek("WORK-E4A9-4BCD-9824-1EEC4D648408", Work::timeCommitmentInHoursPerWeek())
-        timeTargetFlag = (ratio < 1 and Utils::isWeekday())
-        metric = (timeTargetFlag ? ["ns:time-commitment", ratio] : ["ns:zero", nil])
+        isWorkTime = Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "metric"   => metric,
-            "announce" => "[#{"work".green}] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})",
+            "metric"   => isWorkTime ? ["ns:work", nil] : ["ns:zero", nil],
+            "announce" => "[#{"work".green}] (rt: #{rt.round(2)} hours)",
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }
