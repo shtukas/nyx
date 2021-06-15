@@ -351,7 +351,7 @@ class Work
         {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "metric"   => metric,
-            "announce" => "[work] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})",
+            "announce" => "[#{"work".green}] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % Work::timeCommitmentInHoursPerWeek()})",
             "access"   => lambda { Work::main() },
             "done"     => lambda { }
         }
