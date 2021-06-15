@@ -13,7 +13,7 @@ class UIServices
             Anniversaries::ns16s(),
             Waves::ns16s(),
             Work::ns16(),
-            Projects::ns16s(),
+            Endless::ns16s(),
             Nx31s::ns16s(),
             Nx50s::ns16()
         ]

@@ -1,5 +1,5 @@
 
-Project (CoreDataTx) {
+Endless (CoreDataTx) {
     uuid                : String         # _objectId_
     schema              : "project"      # _schema_
     unixtime            : Float          # _unixtime_

@@ -1,20 +1,20 @@
 # encoding: UTF-8
 
-class Projects
+class Endless
 
-    # Projects::toString(project)
-    def self.toString(project)
-        "[project] #{project["description"]}"
+    # Endless::toString(endless)
+    def self.toString(endless)
+        "[endless] #{endless["description"]}"
     end
 
-    # Projects::toStringListing(project)
-    def self.toStringListing(project)
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
-        "[project] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % project["timeCommitmentInHoursPerWeek"]}) #{project["description"]}"
+    # Endless::toStringListing(endless)
+    def self.toStringListing(endless)
+        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(endless["uuid"], endless["timeCommitmentInHoursPerWeek"])
+        "[endless] (completion: #{"%6.2f" % (ratio*100)} % of #{"%4.1f" % endless["timeCommitmentInHoursPerWeek"]}) #{endless["description"]}"
     end
 
-    # Projects::interactivelyCreateNewProject()
-    def self.interactivelyCreateNewProject()
+    # Endless::interactivelyCreateNew()
+    def self.interactivelyCreateNew()
 
         uuid = SecureRandom.uuid
 
@@ -30,25 +30,20 @@ class Projects
 
         timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
 
-        project = {}
-        project["uuid"]        = uuid
-        project["schema"]      = "project"
-        project["unixtime"]    = Time.new.to_i
-        project["description"] = description
-        project["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
+        endless = {}
+        endless["uuid"]        = uuid
+        endless["schema"]      = "project"
+        endless["unixtime"]    = Time.new.to_i
+        endless["description"] = description
+        endless["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
 
-        CoreDataTx::commit(project)
+        CoreDataTx::commit(endless)
     end
 
-    # Projects::completeProject(project)
-    def self.completeProject(project)
-        CoreDataTx::delete(project["uuid"])
-    end
+    # Endless::access(endless)
+    def self.access(endless)
 
-    # Projects::access(project)
-    def self.access(project)
-
-        uuid = project["uuid"]
+        uuid = endless["uuid"]
 
         nxball = BankExtended::makeNxBall([uuid])
 
@@ -68,26 +63,26 @@ class Projects
 
         system("clear")
 
-        puts "starting: #{Projects::toString(project)} ( uuid: #{project["uuid"]} )".green
+        puts "starting: #{Endless::toString(endless)} ( uuid: #{endless["uuid"]} )".green
 
-        coordinates = Nx102::access(project["contentType"], project["payload"])
+        coordinates = Nx102::access(endless["contentType"], endless["payload"])
         if coordinates then
-            project["contentType"] = coordinates[0]
-            project["payload"]     = coordinates[1]
-            CoreDataTx::commit(project)
+            endless["contentType"] = coordinates[0]
+            endless["payload"]     = coordinates[1]
+            CoreDataTx::commit(endless)
         end
 
         loop {
 
             system("clear")
 
-            puts "running: #{Projects::toString(project)} ( uuid: #{project["uuid"]} ) for #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours".green
+            puts "running: #{Endless::toString(endless)} ( uuid: #{endless["uuid"]} ) for #{((Time.new.to_f - nxball["startUnixtime"]).to_f/3600).round(2)} hours".green
 
             recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-            ratio = (recoveryTime*7).to_f/project["timeCommitmentInHoursPerWeek"]
+            ratio = (recoveryTime*7).to_f/endless["timeCommitmentInHoursPerWeek"]
             puts "ratio: #{ratio}"
             
-            puts "timeCommitmentInHoursPerWeek: #{project["timeCommitmentInHoursPerWeek"]}"
+            puts "timeCommitmentInHoursPerWeek: #{endless["timeCommitmentInHoursPerWeek"]}"
 
             puts "access | <datecode> | update description / time commitment | new item | detach running | completed | exit".yellow
 
@@ -101,20 +96,20 @@ class Projects
             end
 
             if Interpreting::match("access", command) then
-                coordinates = Nx102::access(project["contentType"], project["payload"])
+                coordinates = Nx102::access(endless["contentType"], endless["payload"])
                 if coordinates then
-                    project["contentType"] = coordinates[0]
-                    project["payload"]     = coordinates[1]
-                    CoreDataTx::commit(project)
+                    endless["contentType"] = coordinates[0]
+                    endless["payload"]     = coordinates[1]
+                    CoreDataTx::commit(endless)
                 end
                 next
             end
 
             if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(project["description"])
+                description = Utils::editTextSynchronously(endless["description"])
                 next if description == ""
-                project["description"] = description
-                CoreDataTx::commit(project)
+                endless["description"] = description
+                CoreDataTx::commit(endless)
                 next
             end
 
@@ -122,19 +117,19 @@ class Projects
                 timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("timeCommitmentInHoursPerWeek (empty for abort): ")
                 next if timeCommitmentInHoursPerWeek == ""
                 timeCommitmentInHoursPerWeek = [timeCommitmentInHoursPerWeek.to_f, 0.5].max # at least 30 mins
-                project["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
-                CoreDataTx::commit(project)
+                endless["timeCommitmentInHoursPerWeek"] = timeCommitmentInHoursPerWeek
+                CoreDataTx::commit(endless)
                 next
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Projects::toString(project), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(Endless::toString(endless), Time.new.to_i, [uuid])
                 break
             end
 
             if Interpreting::match("completed", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
-                    CoreDataTx::delete(project["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy endless ? ") then
+                    CoreDataTx::delete(endless["uuid"])
                     break
                 end
             end
@@ -145,13 +140,13 @@ class Projects
         BankExtended::closeNxBall(nxball, true)
     end
 
-    # Projects::projectToNS16(project)
-    def self.projectToNS16(project)
-        uuid = project["uuid"]
+    # Endless::toNS16(endless)
+    def self.toNS16(endless)
+        uuid = endless["uuid"]
         recoveryTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(project["uuid"], project["timeCommitmentInHoursPerWeek"])
+        ratio = BankExtended::completionRatioRelativelyToTimeCommitmentInHoursPerWeek(endless["uuid"], endless["timeCommitmentInHoursPerWeek"])
         metric = (ratio < 1 ? ["ns:time-commitment", ratio] : ["ns:low-priority-time-commitment", ratio])
-        announce = Projects::toStringListing(project).gsub("[project]", "[proj]")
+        announce = Endless::toStringListing(endless).gsub("[endless]", "[endl]")
         if ratio >= 1 then
             announce = announce.red
         end
@@ -159,32 +154,30 @@ class Projects
             "uuid"         => uuid,
             "metric"       => metric,
             "announce"     => announce,
-            "access"       => lambda { Projects::access(project) },
+            "access"       => lambda { Endless::access(endless) },
             "done"         => lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy project ? ") then
-                    Projects::completeProject(project)
-                end
+                puts "You cannot done an endless, please land on it first"
             }
         }
     end
 
-    # Projects::ns16s()
+    # Endless::ns16s()
     def self.ns16s()
         CoreDataTx::getObjectsBySchema("project")
-            .map{|project| Projects::projectToNS16(project) }
+            .map{|endless| Endless::toNS16(endless) }
     end
 
-    # Projects::main()
+    # Endless::main()
     def self.main()
 
         loop {
             system("clear")
 
-            projects = CoreDataTx::getObjectsBySchema("project")
+            endlesss = CoreDataTx::getObjectsBySchema("project")
                 .sort{|p1, p2| BankExtended::stdRecoveredDailyTimeInHours(p1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(p2["uuid"]) }
 
-            projects.each_with_index{|project, indx| 
-                puts "[#{indx}] #{Projects::toStringListing(project)}"
+            endlesss.each_with_index{|endless, indx| 
+                puts "[#{indx}] #{Endless::toStringListing(endless)}"
             }
 
             puts "<item index> | exit".yellow
@@ -194,9 +187,9 @@ class Projects
             break if command == "exit"
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                project = projects[indx]
-                next if project.nil?
-                Projects::access(project)
+                endless = endlesss[indx]
+                next if endless.nil?
+                Endless::access(endless)
             end
         }
     end

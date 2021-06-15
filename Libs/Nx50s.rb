@@ -282,7 +282,7 @@ class Nx50s
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
             puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
-            puts "listing: new wave / ondate / calendar item / todo / work item / project | exit".yellow
+            puts "listing: new wave / ondate / calendar item / todo / work item / endless | exit".yellow
             if !items.empty? then
                 puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
             end
@@ -357,8 +357,8 @@ class Nx50s
                 return "ns:loop"
             end
 
-            if Interpreting::match("new project", command) then
-                Projects::interactivelyCreateNewProject()
+            if Interpreting::match("new endless", command) then
+                Endless::interactivelyCreateNew()
                 return "ns:loop"
             end
 
