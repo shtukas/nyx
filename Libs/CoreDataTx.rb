@@ -31,8 +31,8 @@ class CoreDataTx
         db.close
     end
 
-    # CoreDataTx::rowToAppropriateObject(row)
-    def self.rowToAppropriateObject(row)
+    # CoreDataTx::databaseRowToAppropriateModelObject(row)
+    def self.databaseRowToAppropriateModelObject(row)
         object = {
             "uuid"        => row["_objectId_"],
             "schema"      => row["_schema_"],
@@ -80,6 +80,8 @@ class CoreDataTx
 
         if object["schema"] == "project" then
             object["timeCommitmentInHoursPerWeek"] = object["payload2"].to_f
+            object["contentType"] = object["payload3"]
+            object["payload"]     = object["payload4"]
         end
 
         if object["schema"] == "Nx31" then
@@ -97,50 +99,8 @@ class CoreDataTx
         object
     end
 
-    # CoreDataTx::getObjectByIdOrNull(objectId)
-    def self.getObjectByIdOrNull(objectId)
-        db = SQLite3::Database.new(CoreDataTx::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute( "select * from _objects_ where _objectId_=?" , [objectId] ) do |row|
-            answer = CoreDataTx::rowToAppropriateObject(row)
-        end
-        db.close
-        answer
-    end
-
-    # CoreDataTx::getObjectsBySchema(schema)
-    def self.getObjectsBySchema(schema)
-        db = SQLite3::Database.new(CoreDataTx::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _objects_ where _schema_=? order by _unixtime_" , [schema] ) do |row|
-            answer << CoreDataTx::rowToAppropriateObject(row)
-        end
-        db.close
-        answer
-    end
-
-    # CoreDataTx::supportedSchemas()
-    def self.supportedSchemas()
-        [
-            "anniversary",
-            "wave",
-            "quark",
-            "Nx50",
-            "workitem",
-            "project",
-            "Nx31",
-        ]
-    end
-
-    # CoreDataTx::commit(object)
-    def self.commit(object)
-
+    # CoreDataTx::modelObjectToStorable(object)
+    def self.modelObjectToStorable(object)
         raise "04d8079d-e804-48af-9a12-25cdec657112: #{object}" if !CoreDataTx::supportedSchemas().include?(object["schema"])
 
         hasBeenTransformed = false
@@ -193,8 +153,8 @@ class CoreDataTx
         if object["schema"] == "project" then
             object["payload1"] = nil
             object["payload2"] = object["timeCommitmentInHoursPerWeek"]
-            object["payload3"] = nil
-            object["payload4"] = nil
+            object["payload3"] = object["contentType"]
+            object["payload4"] = object["payload"]
             object["payload5"] = nil
             hasBeenTransformed = true
         end
@@ -212,6 +172,53 @@ class CoreDataTx
             raise "f542f249-77db-4d4c-a984-3efa14e62fa1: #{object}"
         end
 
+        object
+    end
+
+    # CoreDataTx::getObjectByIdOrNull(objectId)
+    def self.getObjectByIdOrNull(objectId)
+        db = SQLite3::Database.new(CoreDataTx::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _objects_ where _objectId_=?" , [objectId] ) do |row|
+            answer = CoreDataTx::databaseRowToAppropriateModelObject(row)
+        end
+        db.close
+        answer
+    end
+
+    # CoreDataTx::getObjectsBySchema(schema)
+    def self.getObjectsBySchema(schema)
+        db = SQLite3::Database.new(CoreDataTx::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _objects_ where _schema_=? order by _unixtime_" , [schema] ) do |row|
+            answer << CoreDataTx::databaseRowToAppropriateModelObject(row)
+        end
+        db.close
+        answer
+    end
+
+    # CoreDataTx::supportedSchemas()
+    def self.supportedSchemas()
+        [
+            "anniversary",
+            "wave",
+            "quark",
+            "Nx50",
+            "workitem",
+            "project",
+            "Nx31",
+        ]
+    end
+
+    # CoreDataTx::commit(object)
+    def self.commit(object)
+        object = CoreDataTx::modelObjectToStorable(object)
         CoreDataTx::insertRecord(object["uuid"], object["schema"], object["unixtime"], object["description"], object["payload1"], object["payload2"], object["payload3"], object["payload4"], object["payload5"])
     end
 end

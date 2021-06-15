@@ -6,4 +6,7 @@ Project (CoreDataTx) {
     description         : String         # _description_
 
     "timeCommitmentInHoursPerWeek" : Float  # _payload2_
+
+    "contentType"       : contentType    # _payload3_
+    "payload"           : payload        # _payload4_
 }
