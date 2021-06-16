@@ -9,7 +9,8 @@ WorkItem (CoreDataTx) {
     "trelloLink"        : String or null # _payload2_
     "prLink"            : String or null # _payload3_
     "gitBranch"         : String or null # _payload4_
-    "directoryFilename" : String         # _payload5_
 }
 
-The descripion and the directoryFilename are fundamentally independant, but at creation or at description update the directoryFilename is the date together with the sanitised version of the description.
+At [creation] or at [description update] the directory filename is the date together with the sanitised version of the description, but at any time the directory name can be manually updated because the resolution of the directory name is done using a marker in the folder itself.
+
+The uuid is written inside the directory in a .NxC144FB7A file.

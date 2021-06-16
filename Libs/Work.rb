@@ -16,7 +16,6 @@ WorkItem {
     "trelloLink"        : String or null # _payload2_
     "prLink"            : String or null # _payload3_
     "gitBranch"         : String or null # _payload4_
-    "directoryFilename" : String         # _payload5_
 }
 
 =end
@@ -32,6 +31,23 @@ end
 # ----------------------------------------------------------------------------
 
 class Work
+
+    # Work::writeNxC144FB7A(folderpath, uuid)
+    def self.writeNxC144FB7A(folderpath, uuid)
+        filepath = "#{folderpath}/.NxC144FB7A"
+        File.open(filepath, "w") {|f| f.write(uuid) }
+    end
+
+    # Work::findItemFolderpathByUUIDOrNull(uuid)
+    def self.findItemFolderpathByUUIDOrNull(uuid)
+        Find.find(Utils::locationByUniqueStringOrNull("328ed6bd-29c8")) do |path|
+            next if !File.file?(path)
+            next if File.basename(path) != ".NxC144FB7A"
+            next if IO.read(path).strip != uuid
+            return File.dirname(path)
+        end
+        nil
+    end
 
     # Work::sanitiseDescriptionForFilename(description)
     def self.sanitiseDescriptionForFilename(description)
@@ -62,11 +78,6 @@ class Work
         raise "96b2b823-ddae-403b-b7b8-23058e1df203"
     end
 
-    # Work::directoryFilenameToFolderpath(namex)
-    def self.directoryFilenameToFolderpath(namex)
-        "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{namex}"
-    end
-
     # Work::interactvelyIssueNewItem()
     def self.interactvelyIssueNewItem()
         uuid = SecureRandom.uuid
@@ -86,14 +97,13 @@ class Work
         workitem["trelloLink"]        = nil
         workitem["prLink"]            = nil
         workitem["gitBranch"]         = nil
-        workitem["directoryFilename"] = nil
 
         CoreDataTx::commit(workitem)
 
         if workItemType == "General" then
             folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]} #{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
-            workitem["directoryFilename"] = File.basename(folderpath)
+            Work::writeNxC144FB7A(folderpath, uuid)
             FileUtils.touch("#{folderpath}/01-README.txt")
             link = LucilleCore::askQuestionAnswerAsString("trello link (empty for no link): ")
             if link != "" then
@@ -108,7 +118,7 @@ class Work
         if workItemType == "RotaItem" then
             folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]}#{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
-            workitem["directoryFilename"] = File.basename(folderpath)
+            Work::writeNxC144FB7A(folderpath, uuid)
             FileUtils.touch("#{folderpath}/01-README.txt")
             link = LucilleCore::askQuestionAnswerAsString("trello link (empty for no link): ")
             if link != "" then
@@ -154,8 +164,8 @@ class Work
 
     # Work::done(workitem)
     def self.done(workitem)
-        if workitem["directoryFilename"] then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{workitem["directoryFilename"]}"
+        folderpath = Work::findItemFolderpathByUUIDOrNull(workitem["uuid"])
+        if folderpath then
             if LucilleCore::askQuestionAnswerAsBoolean("move folder to archives ? ") then
                 puts "Moving folder: '#{folderpath}' to archives"
                 Work::moveFolderToArchiveWithDatePrefix(folderpath)
@@ -210,7 +220,6 @@ class Work
             puts "trello link        : #{workitem["trelloLink"]}"
             puts "pr link            : #{workitem["prLink"]}"
             puts "git branch         : #{workitem["gitBranch"]}"
-            puts "directory filename : #{workitem["directoryFilename"]}"
 
             puts "access | edit description | set trello link | pr link | <datecode> | done".yellow
 
@@ -224,27 +233,34 @@ class Work
             end
 
             if Interpreting::match("access", command) then
-                if workitem["directoryFilename"] then
-                    folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{workitem["directoryFilename"]}"
-                    system("open '#{folderpath}'")
+                folderpath = Work::findItemFolderpathByUUIDOrNull(workitem["uuid"])
+                if folderpath.nil? then
+                    puts "I could not determine the folder for '#{Work::toString(workitem)}' (uuid: #{workitem["uuid"]})"
+                    LucilleCore::pressEnterToContinue()
+                    next
                 end
+                system("open '#{folderpath}'")
                 next
             end
 
             if Interpreting::match("edit description", command) then
-                directoryFilename1 = workitem["directoryFilename"]
                 description = Utils::editTextSynchronously(workitem["description"])
                 workitem["description"] = description
                 CoreDataTx::commit(workitem)
-                directoryFilename2 = "#{directoryFilename1[0, directoryFilename1.index(" ")]} #{Work::sanitiseDescriptionForFilename(description)}"
 
-                folder1 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename1}"
-                folder2 = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{directoryFilename2}"
+                folderpath1 = "#{Work::findItemFolderpathByUUIDOrNull(uuid)}"
+                if folderpath1.nil? then
+                    puts "I could not determine the folder for '#{Work::toString(workitem)}' [no folder renaming] (uuid: #{workitem["uuid"]})"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
 
-                if folder1 != folder2 then
-                    FileUtils.mv(folder1, folder2)
-                    workitem["directoryFilename"] = directoryFilename2
-                    CoreDataTx::commit(workitem)
+                filename1 = File.basename(folderpath1)
+                filename2 = "#{filename1[0, filename1.index(" ")]} #{Work::sanitiseDescriptionForFilename(description)}"
+                folderpath2 = "#{File.dirname(folderpath1)}/#{filename2}"
+
+                if folderpath1 != folderpath2 then
+                    FileUtils.mv(folderpath1, folderpath2)
                 end
                 return
             end

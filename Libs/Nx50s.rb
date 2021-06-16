@@ -258,7 +258,9 @@ class Nx50s
     # Nx50s::main()
     def self.main()
 
-        getItems = lambda { Waves::ns16sLowPriority() + Nx50s::ns15s() }
+        getItems = lambda { 
+            (Waves::ns16sLowPriority() + Nx50s::ns15s()).select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        }
 
         processItems = lambda {|items|
 

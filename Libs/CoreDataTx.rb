@@ -75,7 +75,6 @@ class CoreDataTx
             object["trelloLink"]        = object["payload2"]
             object["prLink"]            = object["payload3"]
             object["gitBranch"]         = object["payload4"]
-            object["directoryFilename"] = object["payload5"]
         end
 
         if object["schema"] == "endless" then
@@ -146,7 +145,7 @@ class CoreDataTx
             object["payload2"] = object["trelloLink"]
             object["payload3"] = object["prLink"]
             object["payload4"] = object["gitBranch"]
-            object["payload5"] = object["directoryFilename"]
+            object["payload5"] = nil
             hasBeenTransformed = true
         end
 
