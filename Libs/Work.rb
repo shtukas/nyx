@@ -283,11 +283,29 @@ class Work
 
     # Work::targetRT()
     def self.targetRT()
-        30 # 6 hours, 5 days a week
+        6 
     end
 
     # Work::main()
     def self.main()
+
+        uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
+
+        nxball = BankExtended::makeNxBall([uuid])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
+                end
+            }
+        }
 
         loop {
             system("clear")
@@ -315,16 +333,22 @@ class Work
                 Work::interactvelyIssueNewItem()
             end
         }
+
+        thr.exit
+
+        BankExtended::closeNxBall(nxball, true)
+
     end
 
     # Work::ns16s()
     def self.ns16s()
-        isWorkTime = (Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17)
-        return [] if !isWorkTime
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        ratio = rt.to_f/Work::targetRT()
+        return [] if ratio > 10
         [
             {
                 "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-                "announce" => "[#{"work".green}]",
+                "announce" => "[#{"work".green}] (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) (ratio: #{"%3.1f" % (ratio*100).round(2)} %)",
                 "access"   => lambda { Work::main() },
                 "done"     => lambda { }
             }

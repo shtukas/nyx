@@ -57,7 +57,7 @@ class Endless
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Project running for more than an hour")
+                    Utils::onScreenNotification("Catalyst", "Endless running for more than an hour")
                 end
             }
         }
