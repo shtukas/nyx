@@ -31,7 +31,6 @@ class Priority1
 
         {
             "uuid"      => uuid,
-            "metric"    => ["ns:running", nil],
             "announce"  => announce,
             "access"    => lambda {
 

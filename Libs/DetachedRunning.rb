@@ -62,7 +62,6 @@ class DetachedRunning
         .map{|item|
             {
                 "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
-                "metric"   => ["ns:running", nil],
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
                 "access"   => lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then

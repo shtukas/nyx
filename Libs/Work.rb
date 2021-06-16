@@ -317,15 +317,17 @@ class Work
         }
     end
 
-    # Work::ns16()
-    def self.ns16()
+    # Work::ns16s()
+    def self.ns16s()
         isWorkTime = (Utils::isWeekday() and Time.new.hour >= 9 and Time.new.hour < 17)
-        {
-            "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "metric"   => isWorkTime ? ["ns:work", nil] : ["ns:zero", nil],
-            "announce" => "[#{"work".green}]",
-            "access"   => lambda { Work::main() },
-            "done"     => lambda { }
-        }
+        return [] if !isWorkTime
+        [
+            {
+                "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
+                "announce" => "[#{"work".green}]",
+                "access"   => lambda { Work::main() },
+                "done"     => lambda { }
+            }
+        ]
     end
 end

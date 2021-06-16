@@ -11,7 +11,7 @@ class Endless
     def self.toStringListing(endless)
         rt = BankExtended::stdRecoveredDailyTimeInHours(endless["uuid"])
         targetRT = endless["targetRT"]
-        "[endless] (rt: #{rt.round(2)} of #{"%3.1f" % targetRT}) #{endless["description"]}"
+        "[endless] (rt: #{"%4.2f" % rt} of #{"%3.1f" % targetRT}) #{endless["description"]}"
     end
 
     # Endless::interactivelyCreateNew()
@@ -146,24 +146,24 @@ class Endless
         uuid = endless["uuid"]
         announce = Endless::toStringListing(endless).gsub("[endless]", "[endl]")
         ratio = BankExtended::stdRecoveredDailyTimeInHours(endless["uuid"]).to_f/endless["targetRT"]
-        if ratio >= 1 then
-            announce = announce.red
-        end
         {
             "uuid"         => uuid,
-            "metric"       => ["ns:time-commitment", ratio],
             "announce"     => announce,
             "access"       => lambda { Endless::access(endless) },
             "done"         => lambda { 
                 puts "You cannot done an endless, please land on it first"
-            }
+                LucilleCore::pressEnterToContinue()
+            },
+            "x-ratio"      => ratio
         }
     end
 
-    # Endless::ns16s()
-    def self.ns16s()
+    # Endless::ns16sOrdered()
+    def self.ns16sOrdered()
         CoreDataTx::getObjectsBySchema("endless")
             .map{|endless| Endless::toNS16(endless) }
+            .select{|ns16| ns16["x-ratio"] < 1 }
+            .sort{|i1, i2| i1["x-ratio"] <=> i2["x-ratio"] }
     end
 
     # Endless::main()

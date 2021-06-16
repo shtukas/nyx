@@ -124,7 +124,7 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        nxball = BankExtended::makeNxBall([uuid, "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794"])
+        nxball = BankExtended::makeNxBall([uuid])
 
         thr = Thread.new {
             loop {
@@ -157,9 +157,9 @@ class Nx50s
 
             system("clear")
 
-            stdRecTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: (#{"%.3f" % stdRecTime}) #{Nx50s::toString(nx50)}".green
+            puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
             puts "access | landing | <datecode> | detach running | completed | exit".yellow
 
@@ -187,7 +187,7 @@ class Nx50s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794"])
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid])
                 break
             end
 
@@ -205,13 +205,13 @@ class Nx50s
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
 
-    # Nx50s::toNS15(nx50)
-    def self.toNS15(nx50)
+    # Nx50s::toNS16(nx50)
+    def self.toNS16(nx50)
         uuid = nx50["uuid"]
 
-        stdRecTime = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-        announce = "[nx50] (#{"%.3f" % stdRecTime}) #{nx50["description"]}"
+        announce = "[nx50] (#{"%4.2f" % rt}) #{nx50["description"]}"
 
         {
             "uuid"     => uuid,
@@ -222,228 +222,31 @@ class Nx50s
                     CoreDataTx::delete(nx50["uuid"])
                 end
             },
-            "x-source"          => "Nx50s",
-            "x-stdRecoveryTime" => stdRecTime
+            "rt"       => rt
         }
     end
 
-    # Nx50s::ns15s()
-    def self.ns15s()
+    # Nx50s::ns16sOrdered()
+    def self.ns16sOrdered()
         # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
 
         items0 = CoreDataTx::getObjectsBySchema("Nx50")
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .map{|nx50| Nx50s::toNS15(nx50) }
-                    .sort{|i1, i2| i1["x-stdRecoveryTime"] <=> i2["x-stdRecoveryTime"] }
+                    .map{|nx50| Nx50s::toNS16(nx50) }
 
         items1 = items0
-                    .select{|nx50| nx50["x-stdRecoveryTime"] < 1 }
+                    .select{|ns16| ns16["rt"] < 1 }
+                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
                     .reverse
 
         items2 = items0
-                    .select{|nx50| nx50["x-stdRecoveryTime"] >= 1 }
+                    .select{|ns16| ns16["rt"] >= 1 }
                     .map{|ns15|
                         ns15["announce"] = ns15["announce"].red
                         ns15
                     }
+                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
         items1.take(3) + items2 + items1.drop(3)
-    end
-
-    # Nx50s::targetRT()
-    def self.targetRT()
-        2 # 2 hours per day
-    end
-
-    # Nx50s::main()
-    def self.main()
-
-        getItems = lambda { 
-            (Waves::ns16sLowPriority() + Nx50s::ns15s()).select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        }
-
-        processItems = lambda {|items|
-
-            accessItem = lambda { |item| 
-                return if item.nil? 
-                return if item["access"].nil?
-                item["access"].call()
-            }
-
-            system("clear")
-
-            vspaceleft = Utils::screenHeight()-6
-
-            puts ""
-
-            items.each_with_index{|item, indx|
-                indexStr   = "(#{"%3d" % indx})"
-                announce   = "#{indexStr} #{item["announce"]}"
-                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
-            puts "( Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items )"
-            puts "listing: new wave / ondate / calendar item / todo / work item / endless | exit".yellow
-            if !items.empty? then
-                puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
-            end
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            return "ns:loop" if command == ""
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return "ns:loop"
-            end
-
-            # -- listing -----------------------------------------------------------------------------
-
-            if Interpreting::match("..", command) then
-                accessItem.call(items[0])
-                return "ns:loop"
-            end
-
-            if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
-                accessItem.call(items[ordinal])
-                return "ns:loop"
-            end
-
-            if Interpreting::match("select *", command) then
-                _, ordinal = Interpreting::tokenizer(command)
-                ordinal = ordinal.to_i
-                accessItem.call(items[ordinal])
-                return "ns:loop"
-            end
-
-            if Interpreting::match("expose *", command) then
-                _, ordinal = Interpreting::tokenizer(command)
-                ordinal = ordinal.to_i
-                item = items[ordinal]
-                return "ns:loop" if item.nil?
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("access", command) then
-                accessItem.call(items[0])
-                return "ns:loop"
-            end
-
-            if Interpreting::match("start *", command) then
-                _, ordinal = Interpreting::tokenizer(command)
-                ordinal = ordinal.to_i
-                accessItem.call(items[ordinal])
-                return "ns:loop"
-            end
-
-            if Interpreting::match("done", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item["done"].nil?
-                item["done"].call()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("done *", command) then
-                _, ordinal = Interpreting::tokenizer(command)
-                ordinal = ordinal.to_i
-                item = items[ordinal]
-                return "ns:loop" if item.nil?
-                return "ns:loop" if item["done"].nil?
-                item["done"].call()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new endless", command) then
-                Endless::interactivelyCreateNew()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new ondate", command) then
-                Nx31s::interactivelyIssueNewOrNull()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new wave", command) then
-                Waves::issueNewWaveInteractivelyOrNull()
-                return "ns:loop"
-            end
-
-           if Interpreting::match("new todo", command) then
-                line = LucilleCore::askQuestionAnswerAsString("line (empty to abort) : ")
-                return "ns:loop" if line == ""
-                nx50 = {
-                    "uuid"        => SecureRandom.uuid,
-                    "schema"      => "Nx50",
-                    "unixtime"    => Time.new.to_i,
-                    "description" => line,
-                    "contentType" => "Line",
-                    "payload"     => ""
-                }
-                puts JSON.pretty_generate(nx50)
-                CoreDataTx::commit(nx50)
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new work item", command) then
-                Work::interactvelyIssueNewItem()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("new calendar item", command) then
-                Calendar::interactivelyIssueNewCalendarItem()
-                return "ns:loop"
-            end
-
-            # -- top -----------------------------------------------------------------------------
-
-            if Interpreting::match("[]", command) then
-                item = items[0]
-                next if item.nil? 
-                next if item["[]"].nil?
-                item["[]"].call()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("exit", command) then
-                return "ns:exit"
-            end
-
-            "ns:loop"
-        }
-
-        startUnixtime = Time.new.to_i
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - startUnixtime) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx50 itself running for more than an hour")
-                end
-            }
-        }
-
-        UIServices::programmableListingDisplay(getItems, processItems)
-
-        thr.exit
-    end
-
-    # Nx50s::ns16()
-    def self.ns16()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794")
-        ratio = rt.to_f/Nx50s::targetRT()
-        {
-            "uuid"     => "Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794",
-            "metric"   => ["ns:time-commitment", ratio],
-            "announce" => "[Nx50] (rt: #{rt.round(2)} of #{"%3.1f" % Nx50s::targetRT()}) #{CoreDataTx::getObjectsBySchema("Nx50").size} items ⛵️",
-            "access"   => lambda { Nx50s::main() },
-            "done"     => lambda { }
-        }
     end
 end

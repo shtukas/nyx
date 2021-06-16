@@ -6,23 +6,21 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        items1 = [
+        [
             DetachedRunning::ns16s(),
-            Calendar::ns16s(),
             Priority1::ns16OrNull(),
             Anniversaries::ns16s(),
-            Waves::ns16sHighPriority(),
-            Work::ns16(),
-            Endless::ns16s(),
+            Calendar::ns16s(),
             Nx31s::ns16s(),
-            Nx50s::ns16()
+            Waves::ns16sHighPriority(),
+            Work::ns16s(),
+            Waves::ns16sLowPriority(),
+            Endless::ns16sOrdered(),
+            Nx50s::ns16sOrdered()
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| Metrics::metricDataToFloat(item["metric"]) > 0 }
-            .sort{|item1, item2| Metrics::metricDataToFloat(item1["metric"]) <=> Metrics::metricDataToFloat(item2["metric"]) }
-            .reverse
     end
 
     # UIServices::ns16sToTrace(ns16s)

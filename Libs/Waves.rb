@@ -347,7 +347,6 @@ class Waves
             .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
-                    "metric"   => ["ns:wave", nil],
                     "announce" => Waves::toString(wave),
                     "access"   => lambda { Waves::access(wave) },
                     "done"     => lambda { Waves::performDone(wave) }
@@ -363,7 +362,6 @@ class Waves
             .map{|wave|
                 {
                     "uuid"     => wave["uuid"],
-                    "metric"   => ["ns:wave", nil],
                     "announce" => Waves::toString(wave),
                     "access"   => lambda { Waves::access(wave) },
                     "done"     => lambda { Waves::performDone(wave) }

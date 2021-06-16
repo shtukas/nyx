@@ -26,6 +26,8 @@ class Nx31s
         nx31["date"]        = date
 
         CoreDataTx::commit(nx31)
+
+        nx31
     end
 
     # Nx31s::toString(nx31)
@@ -95,7 +97,6 @@ class Nx31s
     def self.nx31ToNS16(nx31)
         {
             "uuid"     => nx31["uuid"],
-            "metric"   => ["ns:admin", nil],
             "announce" => Nx31s::toString(nx31),
             "access"   => lambda{ Nx31s::runNx31(nx31) },
             "done"     => lambda{
@@ -140,5 +141,4 @@ class Nx31s
             end
         }
     end
-
 end

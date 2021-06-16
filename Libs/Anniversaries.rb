@@ -138,7 +138,6 @@ class Anniversaries
             .map{|anniversary|
                 {
                     "uuid"     => anniversary["uuid"],
-                    "metric"   => ["ns:admin", nil],
                     "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
                     "access"   => lambda {
                         puts Anniversaries::toString(anniversary).green
