@@ -318,7 +318,7 @@ class Work
 
     # Work::targetRT()
     def self.targetRT()
-        6 
+        5
     end
 
     # Work::ns16s()
@@ -328,7 +328,7 @@ class Work
         ratio = rt.to_f/Work::targetRT()
         work = {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "announce" => "[#{"work".green}] 👩🏻‍💻 (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) (ratio: #{"%3.1f" % (ratio*100).round(2)} %)",
+            "announce" => "[#{"work".green}] (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) 👩🏻‍💻",
             "access"   => lambda { 
                 DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
             },
@@ -343,7 +343,26 @@ class Work
                     "done"     => lambda { Work::done(workitem) }
                 }
             }
-        [work] + items
+        [work] + items.reverse # The items are coming in the default CoreDataX default unixtime order
+    end
+
+    # Work::ns17s()
+    def self.ns17s()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        ratio = rt.to_f/Work::targetRT()
+        [
+            {
+                "ratio" => ratio,
+                "ns16s" => Work::ns16s()
+            }
+        ]
+    end
+
+    # Work::ns17text()
+    def self.ns17text()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        ratio = rt.to_f/Work::targetRT()
+        "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % Work::targetRT()}) Work"
     end
 
     # Work::main()

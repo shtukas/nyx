@@ -117,6 +117,7 @@ class Waves
 
     # Waves::performDone(wave)
     def self.performDone(wave)
+        puts "doning: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         CoreDataTx::commit(wave)
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
@@ -290,7 +291,9 @@ class Waves
     # Waves::access(wave)
     def self.access(wave)
         uuid = wave["uuid"]
-        startUnixtime = Time.new.to_f
+        
+        nxball = BankExtended::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+
         if wave["contentType"] == "Line" then
 
         end
@@ -312,17 +315,8 @@ class Waves
             DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
             Waves::performDone(wave)
         end
-        timespan = Time.new.to_f - startUnixtime
-        timespan = [timespan, 3600*2].min
-        puts "putting #{timespan} seconds to wave: #{Waves::toString(wave)}"
-        Bank::put(uuid, timespan)
-        puts "putting #{timespan} seconds to WAVES-A81E-4726-9F17-B71CAD66D793"
-        Bank::put("WAVES-A81E-4726-9F17-B71CAD66D793", timespan)
-
-        if Waves::isLowPriority(wave) then
-            puts "putting #{timespan} seconds to Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794 (low prority wave processing)"
-            Bank::put("Nx50s-E65A9917-EFF4-4AF7-877C-CC0DC10C8794", timespan)
-        end
+        
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Waves::ensureProritySettings()
@@ -368,4 +362,29 @@ class Waves
                 }
             }
     end
+
+    # Waves::targetForNS17()
+    def self.targetForNS17()
+        1
+    end
+
+    # Waves::ns17sLowPriority()
+    def self.ns17sLowPriority()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
+        ratio = rt.to_f/Waves::targetForNS17()
+        [
+            {
+                "ratio" => ratio,
+                "ns16s" => Waves::ns16sLowPriority()
+            }
+        ]
+    end
+
+    # Waves::ns17sLowPriorityText()
+    def self.ns17sLowPriorityText()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
+        ratio = rt.to_f/Waves::targetForNS17()
+        "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % 1}) Waves"
+    end
+
 end

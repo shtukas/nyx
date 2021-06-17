@@ -43,7 +43,7 @@ processItems = lambda {|items|
     status = Anniversaries::dailyBriefingIfNotDoneToday()
     return "ns:loop" if status
 
-    vspaceleft = Utils::screenHeight()-6
+    vspaceleft = Utils::screenHeight()-5
 
     puts ""
 
@@ -54,7 +54,8 @@ processItems = lambda {|items|
         puts announce
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
-    puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | work on/off | exit".yellow
+
+    puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | work on/off | ns17s | exit".yellow
     if !items.empty? then
         puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
     end
@@ -210,6 +211,16 @@ processItems = lambda {|items|
     if Interpreting::match("work off", command) then
         KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "off")
     end
+
+    if Interpreting::match("ns17s", command) then
+        [Endless::ns17sTexts(), Nx50s::ns17text(), Work::ns17text(), Waves::ns17sLowPriorityText()]
+            .flatten
+            .sort
+            .each{|str| puts "    #{str }"}
+        LucilleCore::pressEnterToContinue()
+    end
+
+
 
     # -- top -----------------------------------------------------------------------------
 

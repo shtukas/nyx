@@ -124,7 +124,7 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        nxball = BankExtended::makeNxBall([uuid])
+        nxball = BankExtended::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
 
         thr = Thread.new {
             loop {
@@ -248,5 +248,29 @@ class Nx50s
                     .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
         items1.take(3) + items2 + items1.drop(3)
+    end
+
+    # Nx50s::targetForNS17()
+    def self.targetForNS17()
+        2
+    end
+
+    # Nx50s::ns17s()
+    def self.ns17s()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+        ratio = rt.to_f/Nx50s::targetForNS17()
+        [
+            {
+                "ratio" => ratio,
+                "ns16s" => Nx50s::ns16sOrdered().first(6)
+            }
+        ]
+    end
+
+    # Nx50s::ns17text()
+    def self.ns17text()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+        ratio = rt.to_f/Nx50s::targetForNS17()
+        "(ratio: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) Nx50s"
     end
 end

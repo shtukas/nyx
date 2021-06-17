@@ -166,6 +166,26 @@ class Endless
             .sort{|i1, i2| i1["x-ratio"] <=> i2["x-ratio"] }
     end
 
+    # Endless::ns17s()
+    def self.ns17s()
+        Endless::ns16sOrdered()
+            .map{|item| 
+                {
+                    "ratio" => item["x-ratio"],
+                    "ns16s" => [item]
+                }
+            }
+    end
+
+    # Endless::ns17sTexts()
+    def self.ns17sTexts()
+        Endless::ns16sOrdered()
+            .map{|item| 
+                ratio = item["x-ratio"].to_f/1
+                "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % 1}) #{item["announce"]}"
+            }
+    end
+
     # Endless::main()
     def self.main()
 

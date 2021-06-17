@@ -6,3 +6,8 @@ NS16 {
     "done"     : Lambda or nil # optional
     "[]"       : Lambda or nil # optional
 }
+
+NS17 {
+    "ratio" => Float,
+    "ns16s" => Array[NS16]
+}

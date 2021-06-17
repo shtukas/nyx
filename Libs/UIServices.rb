@@ -4,6 +4,11 @@
 
 class UIServices
 
+    # UIServices::ns17sToNS16s(ns17s)
+    def self.ns17sToNS16s(ns17s)
+        ns17s.sort{|i1, i2| i1["ratio"] <=> i2["ratio"] }.map{|item| item["ns16s"] }.flatten
+    end
+
     # UIServices::ns16s()
     def self.ns16s()
         [
@@ -13,10 +18,7 @@ class UIServices
             Calendar::ns16s(),
             Nx31s::ns16s(),
             Waves::ns16sHighPriority(),
-            Work::ns16s(),
-            Waves::ns16sLowPriority(),
-            Endless::ns16sOrdered(),
-            Nx50s::ns16sOrdered()
+            UIServices::ns17sToNS16s(Work::ns17s() + Endless::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
         ]
             .flatten
             .compact
