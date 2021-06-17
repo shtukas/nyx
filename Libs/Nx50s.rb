@@ -211,7 +211,7 @@ class Nx50s
 
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-        announce = "[nx50] (#{"%4.2f" % rt}) #{nx50["description"]}"
+        announce = "[nx50] (#{"%4.2f" % rt}) #{nx50["description"]}".gsub("(0.00)", "      ")
 
         {
             "uuid"     => uuid,
