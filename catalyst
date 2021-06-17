@@ -54,7 +54,7 @@ processItems = lambda {|items|
         puts announce
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
-    puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | exit".yellow
+    puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | work on/off | exit".yellow
     if !items.empty? then
         puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
     end
@@ -201,6 +201,14 @@ processItems = lambda {|items|
     if Interpreting::match("work", command) then
         Work::main()
         return "ns:loop"
+    end
+
+    if Interpreting::match("work on", command) then
+        KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "on")
+    end
+
+    if Interpreting::match("work off", command) then
+        KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "off")
     end
 
     # -- top -----------------------------------------------------------------------------

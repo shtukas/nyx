@@ -34,6 +34,16 @@ class Work
 
     # -- Utils ------------------------------------------------
 
+    # Work::workIsActive()
+    def self.workIsActive()
+        activityFlag = KeyValueStore::getOrNull(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}")
+        return true if (activityFlag and activityFlag == "on")
+        return false if (activityFlag and activityFlag == "off")
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        ratio = rt.to_f/Work::targetRT()
+        ratio < 1
+    end
+
     # Work::writeNxC144FB7A(folderpath, uuid)
     def self.writeNxC144FB7A(folderpath, uuid)
         filepath = "#{folderpath}/.NxC144FB7A"
@@ -313,9 +323,9 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
+        return [] if !Work::workIsActive()
         rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
         ratio = rt.to_f/Work::targetRT()
-        return [] if ratio > 10
         work = {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
             "announce" => "[#{"work".green}] 👩🏻‍💻 (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) (ratio: #{"%3.1f" % (ratio*100).round(2)} %)",
