@@ -32,6 +32,8 @@ end
 
 class Work
 
+    # -- Utils ------------------------------------------------
+
     # Work::writeNxC144FB7A(folderpath, uuid)
     def self.writeNxC144FB7A(folderpath, uuid)
         filepath = "#{folderpath}/.NxC144FB7A"
@@ -77,6 +79,8 @@ class Work
         end
         raise "96b2b823-ddae-403b-b7b8-23058e1df203"
     end
+
+    # --------------------------------------------------
 
     # Work::interactvelyIssueNewItem()
     def self.interactvelyIssueNewItem()
@@ -147,7 +151,7 @@ class Work
             "RotaItem" => " [rota]",
             "PR"       => " [pr]"
         }
-        "[work]#{map1[workitem["workItemType"]]} #{workitem["description"]}"
+        "[#{"work".green}]#{map1[workitem["workItemType"]]} #{workitem["description"]}"
     end
 
     # Work::moveFolderToArchiveWithDatePrefix(folderpath)
@@ -210,7 +214,23 @@ class Work
         end
 
         uuid = workitem["uuid"]
-        
+
+        nxball = BankExtended::makeNxBall([uuid, "WORK-E4A9-4BCD-9824-1EEC4D648408"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work item running for more than an hour")
+                end
+            }
+        }
+
         loop {
 
             system("clear")
@@ -221,11 +241,11 @@ class Work
             puts "pr link            : #{workitem["prLink"]}"
             puts "git branch         : #{workitem["gitBranch"]}"
 
-            puts "access | edit description | set trello link | pr link | <datecode> | done".yellow
+            puts "access | edit description | set trello link | pr link | <datecode> | exit | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == ""
+            break if command == "exit"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -274,11 +294,16 @@ class Work
                 next
             end
 
-            if Interpreting::match("done", command) then
+            if Interpreting::match("completed", command) then
                 Work::done(workitem)
                 break
             end
         }
+
+        thr.exit
+
+        BankExtended::closeNxBall(nxball, true)
+
     end
 
     # Work::targetRT()
@@ -286,33 +311,40 @@ class Work
         6 
     end
 
+    # Work::ns16s()
+    def self.ns16s()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        ratio = rt.to_f/Work::targetRT()
+        return [] if ratio > 10
+        work = {
+            "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
+            "announce" => "[#{"work".green}] 👩🏻‍💻 (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) (ratio: #{"%3.1f" % (ratio*100).round(2)} %)",
+            "access"   => lambda { 
+                DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+            },
+            "done"     => lambda { }
+        }
+        items = CoreDataTx::getObjectsBySchema("workitem")
+            .map{|workitem|
+                {
+                    "uuid"     => workitem["uuid"],
+                    "announce" => Work::toString(workitem),
+                    "access"   => lambda { Work::accessItem(workitem) },
+                    "done"     => lambda { Work::done(workitem) }
+                }
+            }
+        [work] + items
+    end
+
     # Work::main()
     def self.main()
-
-        uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
-
-        nxball = BankExtended::makeNxBall([uuid])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
-                end
-            }
-        }
-
         loop {
             system("clear")
 
-            puts "[work] (running)".green
+            puts "[work] (focus)"
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
+
             workitems.each_with_index{|workitem, indx|
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
@@ -333,25 +365,5 @@ class Work
                 Work::interactvelyIssueNewItem()
             end
         }
-
-        thr.exit
-
-        BankExtended::closeNxBall(nxball, true)
-
-    end
-
-    # Work::ns16s()
-    def self.ns16s()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        ratio = rt.to_f/Work::targetRT()
-        return [] if ratio > 10
-        [
-            {
-                "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-                "announce" => "[#{"work".green}] (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) (ratio: #{"%3.1f" % (ratio*100).round(2)} %)",
-                "access"   => lambda { Work::main() },
-                "done"     => lambda { }
-            }
-        ]
     end
 end
