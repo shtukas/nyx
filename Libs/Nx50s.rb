@@ -222,7 +222,8 @@ class Nx50s
                     CoreDataTx::delete(nx50["uuid"])
                 end
             },
-            "rt"       => rt
+            "rt"       => rt,
+            "unixtime" => nx50["unixtime"]
         }
     end
 
@@ -236,8 +237,17 @@ class Nx50s
 
         items1 = items0
                     .select{|ns16| ns16["rt"] < 1 }
+                    
+        items1a = items1
+                    .select{|ns16| ns16["rt"] == 0 }
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
+        items1b = items1
+                    .select{|ns16| ns16["rt"] > 0 }
                     .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
                     .reverse
+
+        items1 = items1b + items1a
 
         items2 = items0
                     .select{|ns16| ns16["rt"] >= 1 }
