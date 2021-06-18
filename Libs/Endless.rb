@@ -85,7 +85,7 @@ class Endless
             
             puts "targetRT: #{endless["targetRT"]}"
 
-            puts "access | <datecode> | update description / update target rt | new item | detach running | completed | exit".yellow
+            puts "access | <datecode> | update description / update target rt | new item | detach running | exit | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

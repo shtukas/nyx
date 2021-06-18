@@ -324,6 +324,7 @@ class Work
     # Work::ns16s()
     def self.ns16s()
         return [] if !Work::workIsActive()
+        return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
         rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
         ratio = rt.to_f/Work::targetRT()
         work = {

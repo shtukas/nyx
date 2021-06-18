@@ -161,7 +161,7 @@ class Nx50s
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | completed | exit".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
