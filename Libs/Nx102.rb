@@ -78,6 +78,11 @@ class Nx102
             puts "opening file '#{payload}'"
             nhash, extension = payload.split("|")
             filepath = "/Users/pascal/Desktop/#{nhash}#{extension}"
+            if File.exists?(filepath) then
+                puts "Cannot export [#{contentType}, #{payload}] at '#{filepath}' because file is already on Desktop"
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
             blob = BinaryBlobsService::getBlobOrNull(nhash)
             File.open(filepath, "w"){|f| f.write(blob) }
             puts "I have exported the file at '#{filepath}'"
@@ -88,6 +93,13 @@ class Nx102
             puts "opening aion point '#{payload}'"
             nhash = payload
             targetReconstructionFolderpath = "/Users/pascal/Desktop"
+            object = AionCore::getAionObjectByHash(El1zabeth.new(), nhash)
+            location = "#{targetReconstructionFolderpath}/#{object["name"]}"
+            if File.exists?(location) then
+                puts "Cannot export [#{contentType}, #{payload}] at '#{location}' because file is already on Desktop"
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
             AionCore::exportHashAtFolder(El1zabeth.new(), nhash, targetReconstructionFolderpath)
             puts "Export completed"
             return nil
