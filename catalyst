@@ -154,12 +154,18 @@ processItems = lambda {|items|
         nx50["schema"]      = "Nx50"
         nx50["unixtime"]    = Time.new.to_f
 
+        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+        if description == "" then
+            return "ns:loop"
+        end
+
+        nx50["description"] = description
+
         coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
         return nil if coordinates.nil?
 
-        nx50["description"] = coordinates[0]
-        nx50["contentType"] = coordinates[1]
-        nx50["payload"]     = coordinates[2]
+        nx50["contentType"] = coordinates[0]
+        nx50["payload"]     = coordinates[1]
 
         CoreDataTx::commit(nx50)
 

@@ -13,11 +13,17 @@ nx50["uuid"]        = uuid
 nx50["schema"]      = "Nx50"
 nx50["unixtime"]    = Time.new.to_f
 
-coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
-return nil if coordinates.nil?
+description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+if description == "" then
+    exit
+end
 
-nx50["description"] = coordinates[0]
-nx50["contentType"] = coordinates[1]
-nx50["payload"]     = coordinates[2]
+nx50["contentType"] = description
+
+coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+exit if coordinates.nil?
+
+nx50["contentType"] = coordinates[0]
+nx50["payload"]     = coordinates[1]
 
 CoreDataTx::commit(nx50)

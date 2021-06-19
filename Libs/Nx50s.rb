@@ -91,18 +91,25 @@ class Nx50s
                 end
             end
 
+            if Interpreting::match("edit description", command) then
+                description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+                if description.size > 0 then
+                    nx50["description"] = description
+                    CoreDataTx::commit(nx50)
+                end
+            end
+
             if Interpreting::match("edit", command) then
                 coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
                 if coordinates then
-                    nx50["description"] = coordinates[0]
-                    nx50["contentType"] = coordinates[1]
-                    nx50["payload"]     = coordinates[2]
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
                     CoreDataTx::commit(nx50)
                 end
             end
 
             if Interpreting::match("transmute", command) then
-                Nx102::transmute(nx50["description"], nx50["contentType"], nx50["payload"])
+                Nx102::transmute(nx50["contentType"], nx50["payload"])
             end
 
             if Interpreting::match("destroy", command) then

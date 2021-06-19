@@ -16,12 +16,18 @@ class Nx31s
         return nil if unixtime.nil?
         date = Time.at(unixtime).to_s[0, 10]
 
+        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+        if description == "" then
+            return nil
+        end
+
+        nx31["description"] = description
+
         coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
         return nil if coordinates.nil?
 
-        nx31["description"] = coordinates[0]
-        nx31["contentType"] = coordinates[1]
-        nx31["payload"]     = coordinates[2]
+        nx31["contentType"] = coordinates[0]
+        nx31["payload"]     = coordinates[1]
 
         nx31["date"]        = date
 

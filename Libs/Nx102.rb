@@ -3,13 +3,8 @@
 
 class Nx102
 
-    # Nx102::interactivelyIssueNewCoordinates3OrNull(): nil or coordinates = [description, contentType, payload]
+    # Nx102::interactivelyIssueNewCoordinates3OrNull(): nil or coordinates = [contentType, payload]
     def self.interactivelyIssueNewCoordinates3OrNull()
-
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
-        if description == "" then
-            return nil
-        end  
 
         contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 
@@ -54,7 +49,7 @@ class Nx102
             payload = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
         end
 
-        [description, contentType, payload]
+        [contentType, payload]
     end
 
     # Nx102::access(contentType, payload): nil or coordinates = [contentType, payload]
@@ -132,48 +127,35 @@ class Nx102
         raise "[error: f3394206-b2de-45e8-a18d-bbd7610f9ad9]"
     end
 
-    # Nx102::edit(description, contentType, payload): nil or coordinates = [description, contentType, payload]
-    def self.edit(description, contentType, payload)
+    # Nx102::edit(contentType, payload): nil or coordinates = [contentType, payload]
+    def self.edit(contentType, payload)
 
         if contentType == "Line" then
-            description= LucilleCore::askQuestionAnswerAsString("line: ")
-            return nil if description == ""
-            return [description, contentType, payload]
+            # Line does not carry data per se, the content is the description 
+            return
         end
-        if contentType == "Url" then
-            input = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if input != "" then
-                description = input
-            end  
-            input = LucilleCore::askQuestionAnswerAsString("url: ")
+        if contentType == "Url" then  
+            input = LucilleCore::askQuestionAnswerAsString("url (empty for not changing): ")
             if input != "" then
                 payload = input
             end
-            return [description, contentType, payload]
+            return [contentType, payload]
         end
         if contentType == "Text" then
-            input = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if input != "" then
-                description = input
-            end 
             nhash = payload
             text1 = BinaryBlobsService::getBlobOrNull(nhash)
             text2 = Utils::editTextSynchronously(text1)
             payload = BinaryBlobsService::putBlob(text2)
-            return [description, contentType, payload]
+            return [contentType, payload]
         end
-        if contentType == "ClickableType" then
-            input = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if input != "" then
-                description = input
-            end  
+        if contentType == "ClickableType" then 
             filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
             f1 = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
             if File.exists?(f1) then
                 nhash = BinaryBlobsService::putBlob(IO.read(f1)) # bad choice, this file could be large
                 dottedExtension = File.extname(filenameOnTheDesktop)
                 payload = "#{nhash}|#{dottedExtension}"
-                return [description, contentType, payload]
+                return [contentType, payload]
             else
                 puts "Could not find file: #{f1}"
                 LucilleCore::pressEnterToContinue()
@@ -182,16 +164,12 @@ class Nx102
             return nil
         end
         if contentType == "AionPoint" then
-            input = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if input != "" then
-                description = input
-            end 
             locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop) (empty to abort): ")
             if locationNameOnTheDesktop.size > 0 then
                 location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
                 if File.exists?(location) then
                     payload = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-                    return [description, contentType, payload]
+                    return [contentType, payload]
                 else
                     puts "Could not find file: #{filepath}"
                     LucilleCore::pressEnterToContinue()
@@ -203,8 +181,8 @@ class Nx102
         raise "[error: 8f50078a-e5aa-4cce-8c82-04cef8518939]"
     end
 
-    # Nx102::transmute(description, contentType, payload)
-    def self.transmute(description, contentType, payload)
+    # Nx102::transmute(contentType, payload)
+    def self.transmute(contentType, payload)
         puts "Nx102::transmute is not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
