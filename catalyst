@@ -43,7 +43,7 @@ processItems = lambda {|items|
     status = Anniversaries::dailyBriefingIfNotDoneToday()
     return "ns:loop" if status
 
-    vspaceleft = Utils::screenHeight()-5
+    vspaceleft = Utils::screenHeight()-6
 
     puts ""
 
@@ -54,6 +54,8 @@ processItems = lambda {|items|
         puts announce
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
+
+    puts "Nx50s #{CoreDataTx::getObjectsBySchema("Nx50").size} items".yellow
 
     puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | work on/off | ns17s | exit".yellow
     if !items.empty? then
