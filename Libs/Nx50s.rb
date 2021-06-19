@@ -201,7 +201,7 @@ class Nx50s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                 break
             end
 
