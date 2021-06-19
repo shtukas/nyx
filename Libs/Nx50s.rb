@@ -60,22 +60,22 @@ class Nx50s
         end
     end
 
-    # Nx50s::landing(quark)
-    def self.landing(quark)
+    # Nx50s::landing(nx50)
+    def self.landing(nx50)
         loop {
 
             system("clear")
 
-            puts Nx50s::toString(quark)
+            puts Nx50s::toString(nx50)
 
-            puts "uuid: #{quark["uuid"]}"
-            puts "coordinates: #{quark["contentType"]}, #{quark["payload"]}"
+            puts "uuid: #{nx50["uuid"]}"
+            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}"
 
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(quark["uuid"])
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}"
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(quark["uuid"])}"
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}"
 
             puts "access (partial edit) | edit | transmute | destroy"
 
@@ -83,30 +83,30 @@ class Nx50s
             break if command == ""
 
             if Interpreting::match("access", command) then
-                coordinates = Nx102::access(quark["contentType"], quark["payload"])
+                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
                 if coordinates then
-                    quark["contentType"] = coordinates[0]
-                    quark["payload"]     = coordinates[1]
-                    CoreDataTx::commit(quark)
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
                 end
             end
 
             if Interpreting::match("edit", command) then
-                coordinates = Nx102::edit(quark["description"], quark["contentType"], quark["payload"])
+                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
                 if coordinates then
-                    quark["description"] = coordinates[0]
-                    quark["contentType"] = coordinates[1]
-                    quark["payload"]     = coordinates[2]
-                    CoreDataTx::commit(quark)
+                    nx50["description"] = coordinates[0]
+                    nx50["contentType"] = coordinates[1]
+                    nx50["payload"]     = coordinates[2]
+                    CoreDataTx::commit(nx50)
                 end
             end
 
             if Interpreting::match("transmute", command) then
-                Nx102::transmute(quark["description"], quark["contentType"], quark["payload"])
+                Nx102::transmute(nx50["description"], nx50["contentType"], nx50["payload"])
             end
 
             if Interpreting::match("destroy", command) then
-                CoreDataTx::delete(quark["uuid"])
+                Nx50s::complete(nx50)
                 break
             end
         }
@@ -117,6 +117,13 @@ class Nx50s
     # Nx50s::toString(nx50)
     def self.toString(nx50)
         "[nx50] #{nx50["description"]}"
+    end
+
+    # Nx50s::complete(nx50)
+    def self.complete(nx50)
+        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx50s::toString(nx50)}") }
+        Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+        CoreDataTx::delete(nx50["uuid"])
     end
 
     # Nx50s::access(nx50)
@@ -192,8 +199,7 @@ class Nx50s
             end
 
             if Interpreting::match("completed", command) then
-                Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
-                CoreDataTx::delete(nx50["uuid"])
+                Nx50s::complete(nx50)
                 break
             end
         }
@@ -219,7 +225,7 @@ class Nx50s
             "access"   => lambda{ Nx50s::access(nx50) },
             "done"     => lambda{
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx50s::toString(nx50)}' ? ", true) then
-                    CoreDataTx::delete(nx50["uuid"])
+                    Nx50s::complete(nx50)
                 end
             },
             "rt"       => rt,
