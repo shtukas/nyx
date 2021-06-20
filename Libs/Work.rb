@@ -3,27 +3,7 @@
 
 # -----------------------------------------------------------------------
 
-
-=begin
-
-WorkItem {
-    uuid                : String         # _objectId_
-    schema              : "workitem"     # _schema_
-    unixtime            : Float          # _unixtime_
-    description         : String         # _description_
-
-    "workItemType"      : String         # _payload1_ # "General" | "PR" | "RotaItem"
-    "trelloLink"        : String or null # _payload2_
-    "prLink"            : String or null # _payload3_
-    "gitBranch"         : String or null # _payload4_
-}
-
-=end
-
-$Work_WorkFolderPath = Utils::locationByUniqueStringOrNull("328ed6bd-29c8")
-$Work_ArchivesFolderPath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
-
-if $Work_ArchivesFolderPath.nil? then
+if Utils::locationByUniqueStringOrNull("328ed6bd-29c8").nil? then
     puts "[error: d48c4aa9-8af2] Could not locate the Work folder"
     exit
 end
@@ -173,7 +153,9 @@ class Work
         else
             folderpath2 = folderpath
         end
-        FileUtils.mv(folderpath2, $Work_ArchivesFolderPath)
+        archiveFolderpath = Utils::locationByUniqueStringOrNull("6badde29-8a3d")
+        raise "648cad3a-fd54-4a73-bc12-a9054985e961" if archiveFolderpath.nil?
+        FileUtils.mv(folderpath2, archiveFolderpath)
     end
 
     # Work::done(workitem)
@@ -313,7 +295,6 @@ class Work
         thr.exit
 
         BankExtended::closeNxBall(nxball, true)
-
     end
 
     # Work::targetRT()
@@ -325,6 +306,38 @@ class Work
     def self.ns16s()
         return [] if !Work::workIsActive()
         return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
+
+        LucilleCore::locationsAtFolder(Utils::locationByUniqueStringOrNull("328ed6bd-29c8") || (raise "76913a23-2053-4370-a3b5-171ee1961ae2"))
+            .each{|workItemLocation|
+                next if !File.directory?(workItemLocation)
+                filepath = "#{workItemLocation}/.NxC144FB7A"
+                if !File.exists?(filepath) then
+                    puts "Making a new WorkItem for location '#{workItemLocation}'"
+                    LucilleCore::pressEnterToContinue()
+
+                    uuid = SecureRandom.uuid
+
+                    description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                    next if description == ""
+
+                    workItemType = Work::selectAWorkItemTypeOrNull()
+                    return if workItemType.nil?
+
+                    workitem = {}
+                    workitem["uuid"]              = uuid
+                    workitem["schema"]            = "workitem"
+                    workitem["unixtime"]          = Time.new.to_i
+                    workitem["description"]       = description
+                    workitem["workItemType"]      = workItemType
+                    workitem["trelloLink"]        = nil
+                    workitem["prLink"]            = nil
+                    workitem["gitBranch"]         = nil
+
+                    CoreDataTx::commit(workitem)
+                    Work::writeNxC144FB7A(workItemLocation, uuid)
+                end
+            }
+
         rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
         ratio = rt.to_f/Work::targetRT()
         work = {
