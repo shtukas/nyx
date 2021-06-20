@@ -133,7 +133,7 @@ processItems = lambda {|items|
     end
 
     if Interpreting::match("new endless", command) then
-        Endless::interactivelyCreateNew()
+        Endless::interactivelyCreateNewOrNull()
         return "ns:loop"
     end
 
@@ -149,26 +149,10 @@ processItems = lambda {|items|
     end
 
    if Interpreting::match("new todo", command) then
-        nx50 = {}
-        nx50["uuid"]        = SecureRandom.uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
-        if description == "" then
-            return "ns:loop"
+        nx50 = Nx50s::interactivelyCreateNewOrNull()
+        if nx50 then
+            puts JSON.pretty_generate(nx50)
         end
-
-        nx50["description"] = description
-
-        coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
-        return nil if coordinates.nil?
-
-        nx50["contentType"] = coordinates[0]
-        nx50["payload"]     = coordinates[1]
-
-        CoreDataTx::commit(nx50)
-
         return "ns:loop"
     end
 

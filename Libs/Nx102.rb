@@ -1,10 +1,15 @@
 
 # encoding: UTF-8
 
+=begin
+The master copy of this class is in Catalyst.
+The copy in Nyx is not exactly the same as the name of Elizabeth is not the same.
+=end
+
 class Nx102
 
-    # Nx102::interactivelyIssueNewCoordinates3OrNull(): nil or coordinates = [contentType, payload]
-    def self.interactivelyIssueNewCoordinates3OrNull()
+    # Nx102::interactivelyIssueNewCoordinatesOrNull(): nil or coordinates = [contentType, payload]
+    def self.interactivelyIssueNewCoordinatesOrNull()
 
         contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 

@@ -217,6 +217,7 @@ class CoreDataTx
 
     # CoreDataTx::commit(object)
     def self.commit(object)
+        object = object.clone
         object = CoreDataTx::modelObjectToStorable(object)
         CoreDataTx::insertRecord(object["uuid"], object["schema"], object["unixtime"], object["description"], object["payload1"], object["payload2"], object["payload3"], object["payload4"], object["payload5"])
     end

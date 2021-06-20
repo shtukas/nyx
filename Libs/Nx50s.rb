@@ -1,19 +1,5 @@
 # encoding: UTF-8
 
-=begin
-
-Nx50s doesn't use NS16s, and use NS15s instead
-
-NS15 {
-    "uuid"     : String # used by DoNotShowUntil
-    "announce" : String
-    "access"   : Lambda or nil # optional
-    "done"     : Lambda or nil # optional
-    "[]"       : Lambda or nil # optional
-}
-
-=end
-
 class Nx50s
 
     # Nx50s::importURLAsNewURLNx50(url)
@@ -29,6 +15,7 @@ class Nx50s
         nx50["payload"]     = url
 
         CoreDataTx::commit(nx50)
+        nil
     end
 
     # Nx50s::importLocationAsNewAionPointNx50(location)
@@ -44,6 +31,34 @@ class Nx50s
         nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
 
         CoreDataTx::commit(nx50)
+        nil
+    end
+
+    # Nx50s::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+        if description == "" then
+            return nil
+        end
+
+        nx50["description"] = description
+
+        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
+        return nil if coordinates.nil?
+
+        nx50["contentType"] = coordinates[0]
+        nx50["payload"]     = coordinates[1]
+
+        CoreDataTx::commit(nx50)
+
+        nx50
     end
 
     # --------------------------------------------------

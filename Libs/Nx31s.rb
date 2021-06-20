@@ -23,7 +23,7 @@ class Nx31s
 
         nx31["description"] = description
 
-        coordinates = Nx102::interactivelyIssueNewCoordinates3OrNull()
+        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
         return nil if coordinates.nil?
 
         nx31["contentType"] = coordinates[0]

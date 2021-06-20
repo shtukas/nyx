@@ -14,8 +14,8 @@ class Endless
         "[endless] (rt: #{"%4.2f" % rt} of #{"%3.1f" % targetRT}) #{endless["description"]}"
     end
 
-    # Endless::interactivelyCreateNew()
-    def self.interactivelyCreateNew()
+    # Endless::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
 
         uuid = SecureRandom.uuid
 
@@ -39,6 +39,7 @@ class Endless
         endless["targetRT"]    = targetRT
 
         CoreDataTx::commit(endless)
+        endless
     end
 
     # Endless::access(endless)
