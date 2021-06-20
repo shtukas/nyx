@@ -83,16 +83,16 @@ class Nx50s
 
             puts Nx50s::toString(nx50)
 
-            puts "uuid: #{nx50["uuid"]}"
-            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}"
+            puts "uuid: #{nx50["uuid"]}".yellow
+            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
 
             unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
             if unixtime then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}"
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}"
+            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
-            puts "access (partial edit) | edit | transmute | destroy"
+            puts "access (partial edit) | edit | transmute | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -124,7 +124,12 @@ class Nx50s
             end
 
             if Interpreting::match("transmute", command) then
-                Nx102::transmute(nx50["contentType"], nx50["payload"])
+                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
             end
 
             if Interpreting::match("destroy", command) then
@@ -138,7 +143,7 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{nx50["description"]}"
+        "[nx50] [#{nx50["contentType"]}] #{nx50["description"]}"
     end
 
     # Nx50s::complete(nx50)
@@ -190,7 +195,7 @@ class Nx50s
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed | >nyx".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -222,6 +227,20 @@ class Nx50s
 
             if Interpreting::match("completed", command) then
                 Nx50s::complete(nx50)
+                break
+            end
+
+            if Interpreting::match(">nyx", command) then
+                puts "Moving Nx50 to Nyx"
+                puts JSON.pretty_generate(nx50)
+                if nx50["contentType"] == "Line" then
+                    puts "Interestingly, I don't know how to migrate a Line 🤔 (If you insist, feel free to write the code for that)"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                # See x-catalyst-nyx-bridge in Nyx
+                puts "I do not know what to do with '#{nx50["contentType"]}'"
+                LucilleCore::pressEnterToContinue()
                 break
             end
         }

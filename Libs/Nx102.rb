@@ -200,7 +200,7 @@ class Nx102
 
     # Nx102::transmute(contentType, payload)
     def self.transmute(contentType, payload)
-        puts "Nx102::transmute is not implemented yet"
-        LucilleCore::pressEnterToContinue()
+        # Transmute is not going to attempt to "transform" the content. We are simply issuing a new pair...
+        Nx102::interactivelyIssueNewCoordinatesOrNull()
     end
 end

@@ -5,7 +5,7 @@ Endless (CoreDataTx) {
     unixtime            : Float          # _unixtime_
     description         : String         # _description_
 
-    "targetRT"          : Float  # _payload2_
+    "targetRT"          : Float          # _payload2_
 
     "contentType"       : contentType    # _payload3_
     "payload"           : payload        # _payload4_
