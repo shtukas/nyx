@@ -357,7 +357,7 @@ class Work
                     "done"     => lambda { Work::done(workitem) }
                 }
             }
-        [work] + items.reverse # The items are coming in the default CoreDataX default unixtime order
+        [work] + items # The items are coming in the default CoreDataX default unixtime order
     end
 
     # Work::ns17s()

@@ -55,7 +55,7 @@ processItems = lambda {|items|
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
 
-    puts "Nx50s #{CoreDataTx::getObjectsBySchema("Nx50").size} items".yellow
+    puts "Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
 
     puts "listing: new wave / ondate / calendar item / todo / work item / endless | ondates | anniversaries | calendar | waves | endlesss | work | work on/off | ns17s | exit".yellow
     if !items.empty? then
