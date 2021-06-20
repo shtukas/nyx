@@ -4,7 +4,7 @@ If the number of elements is less than 30, then a thread takes 20 random Quarks 
 
 Nx50 (same as Quark) (CoreDataTx) {
     uuid             : String   # _objectId_
-    schema           : "quark"  # _schema_
+    schema           : "Nx50"   # _schema_
     unixtime         : Float    # _unixtime_
     description      : String   # _description_
 

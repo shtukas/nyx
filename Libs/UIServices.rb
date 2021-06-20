@@ -18,7 +18,7 @@ class UIServices
             Calendar::ns16s(),
             Nx31s::ns16s(),
             Waves::ns16sHighPriority(),
-            UIServices::ns17sToNS16s(Work::ns17s() + Endless::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
+            UIServices::ns17sToNS16s(Work::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
         ]
             .flatten
             .compact

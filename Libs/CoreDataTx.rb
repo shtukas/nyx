@@ -77,12 +77,6 @@ class CoreDataTx
             object["gitBranch"]         = object["payload4"]
         end
 
-        if object["schema"] == "endless" then
-            object["targetRT"]    = object["payload2"].to_f
-            object["contentType"] = object["payload3"]
-            object["payload"]     = object["payload4"]
-        end
-
         if object["schema"] == "Nx31" then
             object["contentType"]     = object["payload1"]
             object["payload"]         = object["payload2"]
@@ -149,15 +143,6 @@ class CoreDataTx
             hasBeenTransformed = true
         end
 
-        if object["schema"] == "endless" then
-            object["payload1"] = nil
-            object["payload2"] = object["targetRT"]
-            object["payload3"] = object["contentType"]
-            object["payload4"] = object["payload"]
-            object["payload5"] = nil
-            hasBeenTransformed = true
-        end
-
         if object["schema"] == "Nx31" then
             object["payload1"] = object["contentType"]
             object["payload2"] = object["payload"]
@@ -210,7 +195,6 @@ class CoreDataTx
             "quark",
             "Nx50",
             "workitem",
-            "endless",
             "Nx31",
         ]
     end

@@ -335,7 +335,7 @@ class Nx50s
         [
             {
                 "ratio" => ratio,
-                "ns16s" => Nx50s::ns16sOrdered().first(6)
+                "ns16s" => Nx50s::ns16sOrdered()
             }
         ]
     end
