@@ -70,6 +70,7 @@ processItems = lambda {|items|
         item = items[0]
         return "ns:loop" if item.nil? 
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+        puts "Hidden until: #{Time.at(unixtime).to_s}"
         return "ns:loop"
     end
 
