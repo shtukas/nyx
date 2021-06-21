@@ -357,7 +357,7 @@ class Work
                     "done"     => lambda { Work::done(workitem) }
                 }
             }
-        [work] + items # The items are coming in the default CoreDataX default unixtime order
+        [work] + items.reverse # The items are coming in the default CoreDataX default unixtime order
     end
 
     # Work::ns17s()
@@ -379,12 +379,12 @@ class Work
         "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % Work::targetRT()}) Work"
     end
 
-    # Work::main()
-    def self.main()
+    # Work::workItemsDive()
+    def self.workItemsDive()
         loop {
             system("clear")
 
-            puts "[work] (focus)"
+            puts "[work]"
 
             workitems = CoreDataTx::getObjectsBySchema("workitem")
 
@@ -406,6 +406,26 @@ class Work
 
             if Interpreting::match("new item", command) then
                 Work::interactvelyIssueNewItem()
+            end
+        }
+    end
+
+    # Work::main()
+    def self.main()
+        loop {
+            puts "[Work]"
+            options = [
+                "start work as running detached",
+                "work items dive"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "start work as running detached" then
+                DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+                return
+            end
+            if option == "work items dive" then
+                Work::workItemsDive()
             end
         }
     end

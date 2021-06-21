@@ -202,8 +202,6 @@ processItems = lambda {|items|
         LucilleCore::pressEnterToContinue()
     end
 
-
-
     # -- top -----------------------------------------------------------------------------
 
     if Interpreting::match("[]", command) then
