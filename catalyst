@@ -57,7 +57,7 @@ processItems = lambda {|items|
 
     puts "Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
 
-    puts "listing: new wave / ondate / calendar item / todo / work item | ondates | anniversaries | calendar | waves | work | work on/off | ns17s | exit".yellow
+    puts "listing: new float / wave / ondate / calendar item / todo / work item | ondates | anniversaries | calendar | waves | work | work on/off | ns17s | exit".yellow
     if !items.empty? then
         puts "top    : .. (access top) | select / expose / start / done (<n>) | [] (Priority.txt) | <datecode> | done".yellow
     end
@@ -130,6 +130,12 @@ processItems = lambda {|items|
         return "ns:loop" if item.nil?
         return "ns:loop" if item["done"].nil?
         item["done"].call()
+        return "ns:loop"
+    end
+
+    if Interpreting::match("new float", command) then
+        float = NxFloat::interactivelyCreateNewOrNull()
+        puts JSON.pretty_generate(float)
         return "ns:loop"
     end
 

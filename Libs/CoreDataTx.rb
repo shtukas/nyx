@@ -84,6 +84,11 @@ class CoreDataTx
             object["date"]            = object["payload3"]
         end
 
+        if object["schema"] == "NxFloat" then
+            object["contentType"]               = object["payload1"]
+            object["payload"]                   = object["payload2"]
+        end
+
         object.delete("payload1")
         object.delete("payload2")
         object.delete("payload3")
@@ -153,6 +158,15 @@ class CoreDataTx
             hasBeenTransformed = true
         end
 
+        if object["schema"] == "NxFloat" then
+            object["payload1"] = object["contentType"]
+            object["payload2"] = object["payload"]
+            object["payload3"] = nil
+            object["payload4"] = nil
+            object["payload5"] = nil
+            hasBeenTransformed = true
+        end
+
         if !hasBeenTransformed then
             raise "f542f249-77db-4d4c-a984-3efa14e62fa1: #{object}"
         end
@@ -197,6 +211,7 @@ class CoreDataTx
             "Nx50",
             "workitem",
             "Nx31",
+            "NxFloat",
         ]
     end
 
