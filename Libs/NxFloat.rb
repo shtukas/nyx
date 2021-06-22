@@ -59,7 +59,7 @@ class NxFloat
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
 
-            puts "access (partial edit) | edit description | edit contents | transmute | destroy".yellow
+            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -102,6 +102,11 @@ class NxFloat
             if Interpreting::match("destroy", command) then
                 NxFloat::complete(float)
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
+                return "ns:loop"
             end
         }
     end
@@ -178,7 +183,7 @@ class NxFloat
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed | >nyx".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed | >nyx  | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -225,6 +230,10 @@ class NxFloat
                 puts "I do not know what to do with '#{float["contentType"]}'"
                 LucilleCore::pressEnterToContinue()
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
 

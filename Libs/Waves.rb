@@ -117,7 +117,7 @@ class Waves
 
     # Waves::performDone(wave)
     def self.performDone(wave)
-        puts "doning: #{Waves::toString(wave)}"
+        puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         CoreDataTx::commit(wave)
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
@@ -211,7 +211,7 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -260,6 +260,10 @@ class Waves
                     CoreDataTx::delete(wave["uuid"])
                     break
                 end
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end

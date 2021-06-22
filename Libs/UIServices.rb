@@ -40,4 +40,82 @@ class UIServices
             break if status == "ns:exit"
         }
     end
+
+    # UIServices::operationalInterface()
+    def self.operationalInterface()
+        loop {
+            puts "listing: new float / wave / ondate / calendar item / todo / work item | ondates | anniversaries | calendar | waves | work | work on/off | ns17s".yellow
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+        
+            return if command == ""
+
+            if Interpreting::match("new float", command) then
+                float = NxFloat::interactivelyCreateNewOrNull()
+                puts JSON.pretty_generate(float)
+            end
+
+            if Interpreting::match("new wave", command) then
+                Waves::issueNewWaveInteractivelyOrNull()
+            end
+
+            if Interpreting::match("new ondate", command) then
+                nx31 = Nx31s::interactivelyIssueNewOrNull()
+                puts JSON.pretty_generate(nx31)
+            end
+
+            if Interpreting::match("new calendar item", command) then
+                Calendar::interactivelyIssueNewCalendarItem()
+            end
+
+            if Interpreting::match("new todo", command) then
+                nx50 = Nx50s::interactivelyCreateNewOrNull()
+                if nx50 then
+                    puts JSON.pretty_generate(nx50)
+                end
+            end
+
+            if Interpreting::match("new todo priority", command) then
+                nx50 = Nx50s::interactivelyCreateNewOrNull()
+                if nx50 then
+                    puts JSON.pretty_generate(nx50)
+                else
+                    exit
+                end
+                nx50["unixtime"] = ([Time.new.to_i] + CoreDataTx::getObjectsBySchema("Nx50").map{|n| n["unixtime"] }).min - 1
+                CoreDataTx::commit(nx50)
+            end
+
+            if Interpreting::match("new work item", command) then
+                Work::interactvelyIssueNewItem()
+            end
+
+            if Interpreting::match("ondates", command) then
+                Nx31s::main()
+            end
+
+            if Interpreting::match("anniversaries", command) then
+                Anniversaries::main()
+            end
+
+            if Interpreting::match("calendar", command) then
+                Calendar::main()
+            end
+
+            if Interpreting::match("waves", command) then
+                Waves::main()
+            end
+
+            if Interpreting::match("work", command) then
+                Work::main()
+            end
+
+            if Interpreting::match("work on", command) then
+                KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "on")
+            end
+
+            if Interpreting::match("work off", command) then
+                KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "off")
+            end
+        }
+    end
 end

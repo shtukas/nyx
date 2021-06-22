@@ -44,7 +44,7 @@ class Priority1
                     puts IO.read(filepath).strip.lines.first(10).join().strip.green
                     puts ""
 
-                    puts "open | <datecode> | [] | (empty) # default # exit".yellow
+                    puts "open | <datecode> | [] | (empty) # default # exit | ''".yellow
 
                     command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -63,8 +63,8 @@ class Priority1
                         Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest)
                     end
                     
-                    if Interpreting::match("", command) then
-                        break
+                    if Interpreting::match("''", command) then
+                        UIServices::operationalInterface()
                     end
                 }
 

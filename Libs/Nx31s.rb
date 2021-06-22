@@ -65,7 +65,7 @@ class Nx31s
 
             puts "running: #{Nx31s::toString(nx31)}".green
 
-            puts "access | <datecode> | detach running | done | (empty) # default # exit".yellow
+            puts "access | <datecode> | detach running | done | (empty) # default # exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -95,6 +95,10 @@ class Nx31s
                 Nx102::postAccessCleanUp(nx31["contentType"], nx31["payload"])
                 CoreDataTx::delete(nx31["uuid"])
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end
@@ -134,7 +138,7 @@ class Nx31s
                 puts "[#{indx}] #{Nx31s::toString(nx31)}"
             }
 
-            puts "<item index> | (empty) # exit".yellow
+            puts "<item index> | (empty) # exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -144,6 +148,10 @@ class Nx31s
                 nx31 = nx31s[indx]
                 next if nx31.nil?
                 Nx31s::runNx31(nx31)
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end

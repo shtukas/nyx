@@ -182,7 +182,7 @@ class Anniversaries
 
             puts Anniversaries::toString(anniversary).green
 
-            puts "update start date | destroy"
+            puts "update start date | destroy | ''"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -197,6 +197,10 @@ class Anniversaries
             if Interpreting::match("destroy", command) then
                 CoreDataTx::delete(anniversary["uuid"])
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end
@@ -217,7 +221,7 @@ class Anniversaries
         loop {
             puts "Anniversaries (main)"
 
-            puts "dive (into anniversaries) | make (new anniversary)".yellow
+            puts "dive (into anniversaries) | make (new anniversary) | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -229,6 +233,10 @@ class Anniversaries
             if Interpreting::match("make", command) then
                 Anniversaries::interactivelyIssueNewAnniversaryOrNull()
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end

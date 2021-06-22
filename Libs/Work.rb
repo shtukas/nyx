@@ -110,7 +110,7 @@ class Work
         end
 
         if workItemType == "RotaItem" then
-            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]}#{Work::sanitiseDescriptionForFilename(description)}"
+            folderpath = "#{Utils::locationByUniqueStringOrNull("328ed6bd-29c8")}/#{Time.new.to_s[0, 10]} #{Work::sanitiseDescriptionForFilename(description)}"
             FileUtils.mkdir(folderpath)
             Work::writeNxC144FB7A(folderpath, uuid)
             FileUtils.touch("#{folderpath}/01-README.txt")
@@ -233,7 +233,7 @@ class Work
             puts "pr link            : #{workitem["prLink"]}"
             puts "git branch         : #{workitem["gitBranch"]}"
 
-            puts "access | edit description | set trello link | pr link | <datecode> | exit | completed".yellow
+            puts "access | edit description | set trello link | pr link | <datecode> | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -289,6 +289,10 @@ class Work
             if Interpreting::match("completed", command) then
                 Work::done(workitem)
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
 
@@ -392,7 +396,7 @@ class Work
                 puts "[#{indx.to_s.ljust(2)}] #{Work::toString(workitem)}"
             }
 
-            puts "<item index> | new item | exit".yellow
+            puts "<item index> | new item | exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -406,6 +410,10 @@ class Work
 
             if Interpreting::match("new item", command) then
                 Work::interactvelyIssueNewItem()
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end

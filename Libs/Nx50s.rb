@@ -103,7 +103,7 @@ class Nx50s
             puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
             puts "targetTimeCommitmentInHoursPerWeek: #{nx50["targetTimeCommitmentInHoursPerWeek"]}"
 
-            puts "access (partial edit) | edit description | edit contents | update time commitment | transmute | destroy".yellow
+            puts "access (partial edit) | edit description | edit contents | update time commitment | transmute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -154,6 +154,10 @@ class Nx50s
             if Interpreting::match("destroy", command) then
                 Nx50s::complete(nx50)
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
     end
@@ -230,7 +234,7 @@ class Nx50s
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed | >nyx".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed | >nyx | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -277,6 +281,10 @@ class Nx50s
                 puts "I do not know what to do with '#{nx50["contentType"]}'"
                 LucilleCore::pressEnterToContinue()
                 break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
             end
         }
 

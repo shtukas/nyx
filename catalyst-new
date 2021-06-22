@@ -6,44 +6,5 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-puts "new wave / ondate / calendar item / todo / todo priority / work item"
-
-command = LucilleCore::askQuestionAnswerAsString("> ")
-
-if Interpreting::match("new wave", command) then
-    Waves::issueNewWaveInteractivelyOrNull()
-end
-
-if Interpreting::match("new ondate", command) then
-    nx31 = Nx31s::interactivelyIssueNewOrNull()
-    puts JSON.pretty_generate(nx31)
-end
-
-if Interpreting::match("new calendar item", command) then
-    Calendar::interactivelyIssueNewCalendarItem()
-end
-
-if Interpreting::match("new todo", command) then
-    nx50 = Nx50s::interactivelyCreateNewOrNull()
-    if nx50 then
-        puts JSON.pretty_generate(nx50)
-    end
-end
-
-if Interpreting::match("new todo priority", command) then
-    nx50 = Nx50s::interactivelyCreateNewOrNull()
-    if nx50 then
-        puts JSON.pretty_generate(nx50)
-    else
-        exit
-    end
-    nx50["unixtime"] = ([Time.new.to_i] + CoreDataTx::getObjectsBySchema("Nx50").map{|n| n["unixtime"] }).min - 1
-    CoreDataTx::commit(nx50)
-end
-
-if Interpreting::match("new work item", command) then
-    Work::interactvelyIssueNewItem()
-    return "ns:loop"
-end
-
+UIServices::operationalInterface()
 
