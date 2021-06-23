@@ -74,7 +74,7 @@ class NxFloat
             end
 
             if Interpreting::match("edit description", command) then
-                description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+                description = Utils::editTextSynchronously(float["description"])
                 if description.size > 0 then
                     float["description"] = description
                     CoreDataTx::commit(float)
@@ -199,7 +199,7 @@ class NxFloat
                 if coordinates then
                     float["contentType"] = coordinates[0]
                     float["payload"]     = coordinates[1]
-                    ProjectItems::commit(float)
+                    CoreDataTx::commit(float)
                 end
                 next
             end

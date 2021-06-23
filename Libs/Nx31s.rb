@@ -81,7 +81,7 @@ class Nx31s
                 if coordinates then
                     nx31["contentType"] = coordinates[0]
                     nx31["payload"]     = coordinates[1]
-                    ProjectItems::commit(nx31)
+                    CoreDataTx::commit(nx31)
                 end
                 next
             end

@@ -120,7 +120,7 @@ class Nx50s
             end
 
             if Interpreting::match("edit description", command) then
-                description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+                description = Utils::editTextSynchronously(nx50["description"])
                 if description.size > 0 then
                     nx50["description"] = description
                     CoreDataTx::commit(nx50)
@@ -252,7 +252,7 @@ class Nx50s
                 if coordinates then
                     nx50["contentType"] = coordinates[0]
                     nx50["payload"]     = coordinates[1]
-                    ProjectItems::commit(nx50)
+                    CoreDataTx::commit(nx50)
                 end
                 next
             end
