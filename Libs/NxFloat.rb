@@ -183,7 +183,7 @@ class NxFloat
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed | >nyx  | ''".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -215,20 +215,6 @@ class NxFloat
 
             if Interpreting::match("completed", command) then
                 NxFloat::complete(float)
-                break
-            end
-
-            if Interpreting::match(">nyx", command) then
-                puts "Moving Nx50 to Nyx"
-                puts JSON.pretty_generate(float)
-                if float["contentType"] == "Line" then
-                    puts "Interestingly, I don't know how to migrate a Line 🤔 (If you insist, feel free to write the code for that)"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                # See x-catalyst-nyx-bridge in Nyx
-                puts "I do not know what to do with '#{float["contentType"]}'"
-                LucilleCore::pressEnterToContinue()
                 break
             end
 

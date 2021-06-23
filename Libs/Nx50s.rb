@@ -69,7 +69,9 @@ class Nx50s
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
-        w = nx50["targetTimeCommitmentInHoursPerWeek"] ? " (#{nx50["targetTimeCommitmentInHoursPerWeek"]} hours/week)" : ""
+        target = nx50["targetTimeCommitmentInHoursPerWeek"]
+        rt = target.to_f/7
+        w = nx50["targetTimeCommitmentInHoursPerWeek"] ? " (#{target} hours/week, #{rt.round(2)})" : ""
         "[#{nx50["contentType"]}] #{nx50["description"]}#{w}"
     end
 
@@ -101,7 +103,7 @@ class Nx50s
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
             puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-            puts "targetTimeCommitmentInHoursPerWeek: #{nx50["targetTimeCommitmentInHoursPerWeek"]}"
+            puts "targetTimeCommitmentInHoursPerWeek: #{nx50["targetTimeCommitmentInHoursPerWeek"]}".yellow
 
             puts "access (partial edit) | edit description | edit contents | update time commitment | transmute | destroy | ''".yellow
 
@@ -234,7 +236,7 @@ class Nx50s
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed | >nyx | ''".yellow
+            puts "access | landing | <datecode> | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -266,20 +268,6 @@ class Nx50s
 
             if Interpreting::match("completed", command) then
                 Nx50s::complete(nx50)
-                break
-            end
-
-            if Interpreting::match(">nyx", command) then
-                puts "Moving Nx50 to Nyx"
-                puts JSON.pretty_generate(nx50)
-                if nx50["contentType"] == "Line" then
-                    puts "Interestingly, I don't know how to migrate a Line 🤔 (If you insist, feel free to write the code for that)"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                # See x-catalyst-nyx-bridge in Nyx
-                puts "I do not know what to do with '#{nx50["contentType"]}'"
-                LucilleCore::pressEnterToContinue()
                 break
             end
 

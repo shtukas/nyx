@@ -44,7 +44,7 @@ class UIServices
     # UIServices::operationalInterface()
     def self.operationalInterface()
         loop {
-            puts "listing: new float / wave / ondate / calendar item / todo / work item | ondates | anniversaries | calendar | waves | work | work on/off | ns17s".yellow
+            puts "listing: new float / wave / ondate / calendar item / todo / work item | ondates | anniversaries | calendar | waves | work | work on/off | ns17s | >nyx".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
         
             return if command == ""
@@ -115,6 +115,10 @@ class UIServices
 
             if Interpreting::match("work off", command) then
                 KeyValueStore::set(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}", "off")
+            end
+
+            if Interpreting::match(">nyx", command) then
+                system("/Users/pascal/Galaxy/Software/Nyx/x-make-new")
             end
         }
     end

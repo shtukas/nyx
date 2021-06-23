@@ -211,7 +211,7 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | destroy | ''".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -253,6 +253,14 @@ class Waves
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
                 CoreDataTx::commit(wave)
+            end
+
+            if Interpreting::match("set low priority", command) then
+                Waves::setLowPriority(wave)
+            end
+
+            if Interpreting::match("set high priority", command) then
+                Waves::setHighPriority(wave)
             end
 
             if Interpreting::match("destroy", command) then
