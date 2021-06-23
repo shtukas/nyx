@@ -252,4 +252,14 @@ class NxFloat
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                 .map{|float| NxFloat::toNS16(float) }
     end
+
+    # NxFloat::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("NxFloat").map{|item|
+            {
+                "announce" => NxFloat::toString(item),
+                "lambda"   => lambda { NxFloat::access(item) }
+            }
+        }
+    end
 end

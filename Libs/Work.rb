@@ -14,16 +14,6 @@ class Work
 
     # -- Utils ------------------------------------------------
 
-    # Work::workIsActive()
-    def self.workIsActive()
-        activityFlag = KeyValueStore::getOrNull(nil, "0daf738e-b46d-4e3c-932c-4eef58bb0467:#{Utils::today()}")
-        return true if (activityFlag and activityFlag == "on")
-        return false if (activityFlag and activityFlag == "off")
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        ratio = rt.to_f/Work::targetRT()
-        ratio < 1
-    end
-
     # Work::writeNxC144FB7A(folderpath, uuid)
     def self.writeNxC144FB7A(folderpath, uuid)
         filepath = "#{folderpath}/.NxC144FB7A"
@@ -308,7 +298,6 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if !Work::workIsActive()
         return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
 
         LucilleCore::locationsAtFolder(Utils::locationByUniqueStringOrNull("328ed6bd-29c8") || (raise "76913a23-2053-4370-a3b5-171ee1961ae2"))
@@ -435,6 +424,16 @@ class Work
             if option == "work items dive" then
                 Work::workItemsDive()
             end
+        }
+    end
+
+    # Work::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("workitem").map{|item|
+            {
+                "announce" => Work::toString(item),
+                "lambda"   => lambda { Work::accessItem(item) }
+            }
         }
     end
 end

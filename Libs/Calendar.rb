@@ -69,6 +69,18 @@ class Calendar
         item["date"] <= Time.new.to_s[0, 10]
     end
 
+    # Calendar::access(item)
+    def self.access(item)
+        puts Calendar::toString(item)
+        if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
+        end
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            Calendar::moveToArchives(item)
+        end
+    end
+
     # Calendar::ns16s()
     def self.ns16s()
         Calendar::items()
@@ -81,14 +93,7 @@ class Calendar
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "access"   => lambda {
-                        puts Calendar::toString(item)
-                        if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
-                            system("open '#{folderpath}'")
-                            LucilleCore::pressEnterToContinue()
-                        end
-                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                            Calendar::moveToArchives(item)
-                        end
+                        Calendar::access(item)
                     },
                     "done"     => lambda {
                         Calendar::moveToArchives(item)
@@ -103,6 +108,16 @@ class Calendar
     def self.main()
         puts "Calendar::main() has not been implemented yet"
         LucilleCore::pressEnterToContinue()
+    end
+
+    # Calendar::nx19s()
+    def self.nx19s()
+        Calendar::items().map{|item|
+            {
+                "announce" => Calendar::toString(item),
+                "lambda"   => lambda { Calendar::access(item) }
+            }
+        }
     end
 end
 

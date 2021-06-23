@@ -41,8 +41,8 @@ class Nx31s
         "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
 
-    # Nx31s::runNx31(nx31)
-    def self.runNx31(nx31)
+    # Nx31s::access(nx31)
+    def self.access(nx31)
 
         uuid = nx31["uuid"]
 
@@ -108,7 +108,7 @@ class Nx31s
         {
             "uuid"     => nx31["uuid"],
             "announce" => Nx31s::toString(nx31),
-            "access"   => lambda{ Nx31s::runNx31(nx31) },
+            "access"   => lambda{ Nx31s::access(nx31) },
             "done"     => lambda{
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
                     CoreDataTx::delete(nx31["uuid"])
@@ -147,12 +147,22 @@ class Nx31s
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 nx31 = nx31s[indx]
                 next if nx31.nil?
-                Nx31s::runNx31(nx31)
+                Nx31s::access(nx31)
             end
 
             if Interpreting::match("''", command) then
                 UIServices::operationalInterface()
             end
+        }
+    end
+
+    # Nx31s::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("Nx31").map{|item|
+            {
+                "announce" => Nx31s::toString(item),
+                "lambda"   => lambda { Nx31s::access(item) }
+            }
         }
     end
 end

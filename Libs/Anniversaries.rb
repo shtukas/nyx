@@ -240,4 +240,14 @@ class Anniversaries
             end
         }
     end
+
+    # Anniversaries::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("anniversary").map{|item|
+            {
+                "announce" => Anniversaries::toString(item),
+                "lambda"   => lambda { Anniversaries::landing(item) }
+            }
+        }
+    end
 end

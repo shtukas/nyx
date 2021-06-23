@@ -1,0 +1,4 @@
+Nx19 (search item) {
+    "announce" : String
+    "lambda"   : Lambda: () -> () # Performs landing on the selected element
+}

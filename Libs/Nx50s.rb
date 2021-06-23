@@ -372,4 +372,14 @@ class Nx50s
         ratio = rt.to_f/Nx50s::targetForNS17()
         "(ratio: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) Nx50s"
     end
+
+    # Nx50s::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("Nx50").map{|item|
+            {
+                "announce" => Nx50s::toString(item),
+                "lambda"   => lambda { Nx50s::access(item) }
+            }
+        }
+    end
 end

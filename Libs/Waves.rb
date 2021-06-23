@@ -399,4 +399,13 @@ class Waves
         "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % 1}) Waves"
     end
 
+    # Waves::nx19s()
+    def self.nx19s()
+        CoreDataTx::getObjectsBySchema("wave").map{|item|
+            {
+                "announce" => Waves::toString(item),
+                "lambda"   => lambda { Waves::access(item) }
+            }
+        }
+    end
 end
