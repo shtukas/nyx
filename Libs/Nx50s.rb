@@ -320,33 +320,25 @@ class Nx50s
     def self.ns16sOrdered()
         # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
 
-        items0 = CoreDataTx::getObjectsBySchema("Nx50")
+        items = CoreDataTx::getObjectsBySchema("Nx50")
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .map{|nx50| Nx50s::toNS16(nx50) }
-
-        items1 = items0
-                    .select{|ns16| ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
-                    
-        items1a = items1
-                    .select{|ns16| ns16["rt"] == 0 }
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-
-        items1b = items1
-                    .select{|ns16| ns16["rt"] > 0 }
                     .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-                    .reverse
 
-        items1 = items1b + items1a
+        items1 = items
+                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
 
-        items2 = items0
-                    .select{|ns16| ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
+        items2 = items
+                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
                     .map{|ns15|
                         ns15["announce"] = ns15["announce"].red
                         ns15
                     }
-                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-        items1.take(3) + items2 + items1.drop(3)
+        items3 = items
+                    .select{|ns16| ns16["rt"] == 0 }
+
+        items1 + items2 + items3
     end
 
     # Nx50s::todayTimeCompletionRatio()

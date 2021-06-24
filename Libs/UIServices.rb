@@ -43,7 +43,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / work item | ondates | floats | anniversaries | calendar | waves | work | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | search | ns17s | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
