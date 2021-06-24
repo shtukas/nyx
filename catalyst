@@ -43,10 +43,12 @@ processItems = lambda {|items|
     status = Anniversaries::dailyBriefingIfNotDoneToday()
     return "ns:loop" if status
 
-    vspaceleft = Utils::screenHeight()-8
+    vspaceleft = Utils::screenHeight()-9
+
+    puts ""
 
     CoreDataTx::getObjectsBySchema("NxFloat").each{|float|
-        puts "float #{float["description"]}"
+        puts "☀️  #{float["description"]}"
         vspaceleft = vspaceleft - Utils::verticalSize(float["description"])
     }
 
@@ -71,7 +73,7 @@ processItems = lambda {|items|
     puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
 
     if !items.empty? then
-        puts "top : .. | select (<n>) | done (<n>) | <datecode> | [] (Priority.txt) | floats | '' | exit".yellow
+        puts "top : .. | select (<n>) | done (<n>) | <datecode> | [] (Priority.txt) | ,, (floats) | '' (extended menu) | exit".yellow
     end
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -136,6 +138,10 @@ processItems = lambda {|items|
     if Interpreting::match("''", command) then
         UIServices::operationalInterface()
         return "ns:loop"
+    end
+
+    if Interpreting::match(",,", command) then
+        NxFloat::main()
     end
 
     if Interpreting::match("floats", command) then

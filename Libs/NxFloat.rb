@@ -43,101 +43,9 @@ class NxFloat
         CoreDataTx::delete(float["uuid"])
     end
 
-    # NxFloat::landing(float)
-    def self.landing(float)
-        loop {
-
-            system("clear")
-
-            puts NxFloat::toString(float)
-
-            puts "uuid: #{float["uuid"]}".yellow
-            puts "coordinates: #{float["contentType"]}, #{float["payload"]}".yellow
-
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(float["uuid"])
-            if unixtime then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
-            end
-
-            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-
-            if Interpreting::match("access", command) then
-                coordinates = Nx102::access(float["contentType"], float["payload"])
-                if coordinates then
-                    float["contentType"] = coordinates[0]
-                    float["payload"]     = coordinates[1]
-                    CoreDataTx::commit(float)
-                end
-            end
-
-            if Interpreting::match("edit description", command) then
-                description = Utils::editTextSynchronously(float["description"])
-                if description.size > 0 then
-                    float["description"] = description
-                    CoreDataTx::commit(float)
-                end
-            end
-
-            if Interpreting::match("edit contents", command) then
-                coordinates = Nx102::edit(float["description"], float["contentType"], float["payload"])
-                if coordinates then
-                    float["contentType"] = coordinates[0]
-                    float["payload"]     = coordinates[1]
-                    CoreDataTx::commit(float)
-                end
-            end
-
-            if Interpreting::match("transmute", command) then
-                coordinates = Nx102::transmute(float["contentType"], float["payload"])
-                if coordinates then
-                    float["contentType"] = coordinates[0]
-                    float["payload"]     = coordinates[1]
-                    CoreDataTx::commit(float)
-                end
-            end
-
-            if Interpreting::match("destroy", command) then
-                NxFloat::complete(float)
-                break
-            end
-
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-                return "ns:loop"
-            end
-        }
-    end
-
     # NxFloat::selectOneFloatOrNull()
     def self.selectOneFloatOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("float", CoreDataTx::getObjectsBySchema("NxFloat"), lambda { |float| NxFloat::toString(float) })
-    end
-
-    # NxFloat::main()
-    def self.main()
-        loop {
-            puts "NxFloat (main)"
-            options = [
-                "new float",
-                "floats dive"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "new float" then
-                new float
-            end
-            if option == "floats dive" then
-                loop {
-                    system("clear")
-                    float = NxFloat::selectOneFloatOrNull()
-                    return if float.nil?
-                    NxFloat::landing(float)
-                }
-            end
-        }
     end
 
     # --------------------------------------------------
@@ -184,16 +92,11 @@ class NxFloat
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)}".green
 
-            puts "access | landing | <datecode> | detach running | exit | completed | ''".yellow
+            puts "access | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(float["uuid"], unixtime)
-                break
-            end
 
             if Interpreting::match("access", command) then
                 coordinates = Nx102::access(float["contentType"], float["payload"])
@@ -205,8 +108,30 @@ class NxFloat
                 next
             end
 
-            if Interpreting::match("landing", command) then
-                NxFloat::landing(float)
+            if Interpreting::match("edit description", command) then
+                description = Utils::editTextSynchronously(float["description"])
+                if description.size > 0 then
+                    float["description"] = description
+                    CoreDataTx::commit(float)
+                end
+            end
+
+            if Interpreting::match("edit contents", command) then
+                coordinates = Nx102::edit(float["description"], float["contentType"], float["payload"])
+                if coordinates then
+                    float["contentType"] = coordinates[0]
+                    float["payload"]     = coordinates[1]
+                    CoreDataTx::commit(float)
+                end
+            end
+
+            if Interpreting::match("transmute", command) then
+                coordinates = Nx102::transmute(float["contentType"], float["payload"])
+                if coordinates then
+                    float["contentType"] = coordinates[0]
+                    float["payload"]     = coordinates[1]
+                    CoreDataTx::commit(float)
+                end
             end
 
             if Interpreting::match("detach running", command) then
@@ -231,27 +156,29 @@ class NxFloat
         Nx102::postAccessCleanUp(float["contentType"], float["payload"])
     end
 
-    # NxFloat::toNS16(float)
-    def self.toNS16(float)
-        uuid = float["uuid"]
-
-        {
-            "uuid"     => uuid,
-            "announce" => "[floa] [#{float["contentType"]}] #{float["description"]}",
-            "access"   => lambda{ NxFloat::access(float) },
-            "done"     => lambda{
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxFloat::toString(float)}' ? ", true) then
-                    NxFloat::complete(float)
-                end
-            }
+    # NxFloat::main()
+    def self.main()
+        loop {
+            system('clear')
+            puts "NxFloat (main)"
+            options = [
+                "new float",
+                "floats dive"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "new float" then
+                new float
+            end
+            if option == "floats dive" then
+                loop {
+                    system("clear")
+                    float = NxFloat::selectOneFloatOrNull()
+                    return if float.nil?
+                    NxFloat::access(float)
+                }
+            end
         }
-    end
-
-    # NxFloat::ns16s()
-    def self.ns16s()
-        CoreDataTx::getObjectsBySchema("NxFloat")
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                .map{|float| NxFloat::toNS16(float) }
     end
 
     # NxFloat::nx19s()
