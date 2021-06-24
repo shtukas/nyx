@@ -10,8 +10,6 @@ Nx50 (same as Quark) (CoreDataTx) {
 
     contentType      : String   # _payload1_
     payload          : String   # _payload2_
-
-    targetTimeCommitmentInHoursPerWeek : null or Float # _payload3_ # use for longer running items
 }
 
 - contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"

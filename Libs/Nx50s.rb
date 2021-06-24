@@ -13,7 +13,6 @@ class Nx50s
         nx50["description"] = url
         nx50["contentType"] = "Url"
         nx50["payload"]     = url
-        nx50["targetTimeCommitmentInHoursPerWeek"] = nil
 
         CoreDataTx::commit(nx50)
         nil
@@ -30,7 +29,6 @@ class Nx50s
         nx50["description"] = File.basename(location) 
         nx50["contentType"] = "AionPoint"
         nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-        nx50["targetTimeCommitmentInHoursPerWeek"] = nil
 
         CoreDataTx::commit(nx50)
         nil
@@ -58,8 +56,6 @@ class Nx50s
         nx50["contentType"] = coordinates[0]
         nx50["payload"]     = coordinates[1]
 
-        nx50["targetTimeCommitmentInHoursPerWeek"] = nil
-
         CoreDataTx::commit(nx50)
 
         nx50
@@ -69,10 +65,7 @@ class Nx50s
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
-        target = nx50["targetTimeCommitmentInHoursPerWeek"]
-        rt = target.to_f/7
-        w = nx50["targetTimeCommitmentInHoursPerWeek"] ? " (#{target} hours/week, #{rt.round(2)})" : ""
-        "[#{nx50["contentType"]}] #{nx50["description"]}#{w}"
+        "[#{nx50["contentType"]}] #{nx50["description"]}"
     end
 
     # Nx50s::toString(nx50)
@@ -103,9 +96,8 @@ class Nx50s
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
             puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-            puts "targetTimeCommitmentInHoursPerWeek: #{nx50["targetTimeCommitmentInHoursPerWeek"]}".yellow
 
-            puts "access (partial edit) | edit description | edit contents | update time commitment | transmute | destroy | ''".yellow
+            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -135,14 +127,6 @@ class Nx50s
                     CoreDataTx::commit(nx50)
                 end
             end
-
-            if Interpreting::match("update time commitment", command) then
-                value = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week (empty for abort): ")
-                next if value == ""
-                nx50["targetTimeCommitmentInHoursPerWeek"] = value.to_f
-                CoreDataTx::commit(nx50)
-            end
-
 
             if Interpreting::match("transmute", command) then
                 coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
@@ -308,10 +292,8 @@ class Nx50s
 
     # Nx50s::redRecoveryTime(nx50)
     def self.redRecoveryTime(nx50)
-        if nx50["targetTimeCommitmentInHoursPerWeek"] then
-            return nx50["targetTimeCommitmentInHoursPerWeek"].to_f/7
-        end
-        1
+        isHeavy = (Bank::valueOverTimespan(nx50["uuid"], 86400*30) >= 3600*5) # More than 5 hours over the past month
+        isHeavy ? 2.to_f/7 : 1
     end
 
     # Nx50s::ns16sOrdered()
@@ -321,20 +303,48 @@ class Nx50s
         items = CoreDataTx::getObjectsBySchema("Nx50")
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .map{|nx50| Nx50s::toNS16(nx50) }
-                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-        items1 = items
-                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
+        hasStuffToDo = items.any?{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
 
-        items2 = items
-                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
-                    .map{|ns16|
-                        ns16["announce"] = ns16["announce"].red
-                        ns16
-                    }
+        if hasStuffToDo then
 
-        items3 = items
-                    .select{|ns16| ns16["rt"] == 0 }
+            items1 = items
+                        .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
+                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
+            items2 = items
+                        .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
+                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+                        .map{|ns16|
+                            ns16["announce"] = ns16["announce"].red
+                            ns16
+                        }
+
+            items3 = items
+                        .select{|ns16| ns16["rt"] == 0 }
+                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
+
+        else
+
+            items1 = items
+                        .select{|ns16| ns16["rt"] == 0 }
+                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
+                        .first(1)
+
+            items2 = items
+                        .select{|ns16| ns16["rt"] > 0 }
+                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+                        .map{|ns16|
+                            ns16["announce"] = ns16["announce"].red
+                            ns16
+                        }
+
+            items3 = items
+                        .select{|ns16| ns16["rt"] == 0 }
+                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
+                        .drop(1)
+
+        end
 
         items1 + items2 + items3
     end
