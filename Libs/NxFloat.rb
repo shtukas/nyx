@@ -111,32 +111,33 @@ class NxFloat
         }
     end
 
-    # NxFloat::maintenance()
-    def self.maintenance()
-        if CoreDataTx::getObjectsBySchema("NxFloat").size <= 30 then
-            CoreDataTx::getObjectsBySchema("quark")
-                .sample(20)
-                .each{|object|
-                    object["schema"] = "NxFloat"
-                    CoreDataTx::commit(object)
+    # NxFloat::selectOneFloatOrNull()
+    def self.selectOneFloatOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("float", CoreDataTx::getObjectsBySchema("NxFloat"), lambda { |float| NxFloat::toString(float) })
+    end
+
+    # NxFloat::main()
+    def self.main()
+        loop {
+            puts "NxFloat (main)"
+            options = [
+                "new float",
+                "floats dive"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "new float" then
+                new float
+            end
+            if option == "floats dive" then
+                loop {
+                    system("clear")
+                    float = NxFloat::selectOneFloatOrNull()
+                    return if float.nil?
+                    NxFloat::landing(float)
                 }
-        end
-    end
-
-    # NxFloat::getCompletionLogUnixtimes()
-    def self.getCompletionLogUnixtimes()
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt"
-        IO.read(filepath)
-            .lines
-            .map{|line| line.strip }
-            .select{|line| line.size > 0}
-            .map{|line| line.split("|")[1].to_i }
-    end
-
-    # NxFloat::completionLogSize(days)
-    def self.completionLogSize(days)
-        horizon = Time.new.to_i - days*86400
-        NxFloat::getCompletionLogUnixtimes().select{|unixtime| unixtime >= horizon }.size
+            end
+        }
     end
 
     # --------------------------------------------------

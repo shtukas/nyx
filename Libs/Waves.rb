@@ -3,31 +3,6 @@
 
 class Waves
 
-    # Waves::isLowPriority(wave)
-    def self.isLowPriority(wave)
-        return false if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
-        return false if ["sticky"].include?(wave["repeatType"])
-        # This returns a boolean or nil if not set.
-        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
-        return nil if value.nil?
-        value == "ns:103:true"
-    end
-
-    # Waves::isHighPriority(wave)
-    def self.isHighPriority(wave)
-        !Waves::isLowPriority(wave)
-    end
-
-    # Waves::setLowPriority(wave)
-    def self.setLowPriority(wave)
-        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:true")
-    end
-
-    # Waves::setHighPriority(wave)
-    def self.setHighPriority(wave)
-        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:false")
-    end
-
     # Waves::makeScheduleParametersInteractivelyOrNull() # [type, value]
     def self.makeScheduleParametersInteractivelyOrNull()
 
@@ -115,15 +90,6 @@ class Waves
         "#{wave["repeatType"]}: #{wave["repeatValue"]}"
     end
 
-    # Waves::performDone(wave)
-    def self.performDone(wave)
-        puts "done-ing: #{Waves::toString(wave)}"
-        wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        CoreDataTx::commit(wave)
-        unixtime = Waves::waveToDoNotShowUnixtime(wave)
-        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-    end
-
     # Waves::interactivelyMakeContentsOrNull() : [type, payload] 
     def self.interactivelyMakeContentsOrNull()
         types = ['line', 'url']
@@ -181,6 +147,8 @@ class Waves
         wave
     end
 
+    # -------------------------------------------------------------------------
+
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
@@ -190,6 +158,16 @@ class Waves
     # Waves::selectWaveOrNull()
     def self.selectWaveOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", CoreDataTx::getObjectsBySchema("wave").sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+    end
+
+    # Waves::performDone(wave)
+    def self.performDone(wave)
+        puts "done-ing: #{Waves::toString(wave)}"
+        wave["lastDoneDateTime"] = Time.now.utc.iso8601
+        CoreDataTx::commit(wave)
+        unixtime = Waves::waveToDoNotShowUnixtime(wave)
+        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+        Bank::put("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 1)
     end
 
     # Waves::landing(wave)
@@ -280,6 +258,8 @@ class Waves
     def self.main()
         loop {
             puts "Waves 🌊 (main)"
+            puts "Waves::dailyDoneCountAverage(): #{Waves::dailyDoneCountAverage()}"
+            puts "Waves::todayDoneCountRatio()  : #{Waves::todayDoneCountRatio()}"
             options = [
                 "new wave",
                 "waves dive"
@@ -291,7 +271,7 @@ class Waves
             end
             if option == "waves dive" then
                 loop {
-                    system("Waves Dive")
+                    system("clear")
                     wave = Waves::selectWaveOrNull()
                     return if wave.nil?
                     Waves::landing(wave)
@@ -309,20 +289,27 @@ class Waves
         if wave["contentType"] == "Line" then
 
         end
+
         if wave["contentType"] == "Url" then
             Utils::openUrlUsingSafari(wave["payload"])
         end
+
         puts Waves::toString(wave)
+
         command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing', 'detach running'] action : ")
-        if command == "done" then
-            Waves::performDone(wave)
-        end
+
         if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
             DoNotShowUntil::setUnixtime(uuid, unixtime)
         end
+
+        if command == "done" then
+            Waves::performDone(wave)
+        end
+
         if command == "landing" then
             Waves::landing(wave)
         end
+
         if command == "detach running" then
             DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
             Waves::performDone(wave)
@@ -331,8 +318,8 @@ class Waves
         BankExtended::closeNxBall(nxball, true)
     end
 
-    # Waves::ensureProritySettings()
-    def self.ensureProritySettings()
+    # Waves::ensurePrioritySettings()
+    def self.ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
             .each{|wave|
                 if Waves::isLowPriority(wave).nil? then
@@ -345,9 +332,38 @@ class Waves
             }
     end
 
+    # -------------------------------------------------------------------------
+
+    # Waves::isLowPriority(wave)
+    def self.isLowPriority(wave)
+        return false if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
+        return false if ["sticky"].include?(wave["repeatType"])
+        # This returns a boolean or nil if not set.
+        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
+        return nil if value.nil?
+        value == "ns:103:true"
+    end
+
+    # Waves::isHighPriority(wave)
+    def self.isHighPriority(wave)
+        !Waves::isLowPriority(wave)
+    end
+
+    # Waves::setLowPriority(wave)
+    def self.setLowPriority(wave)
+        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:true")
+    end
+
+    # Waves::setHighPriority(wave)
+    def self.setHighPriority(wave)
+        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:false")
+    end
+
+    # -------------------------------------------------------------------------
+
     # Waves::ns16sHighPriority()
     def self.ns16sHighPriority()
-        Waves::ensureProritySettings()
+        Waves::ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
             .select{|wave| Waves::isHighPriority(wave) }
             .map{|wave|
@@ -362,7 +378,7 @@ class Waves
 
     # Waves::ns16sLowPriority()
     def self.ns16sLowPriority()
-        Waves::ensureProritySettings()
+        Waves::ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
             .select{|wave| Waves::isLowPriority(wave) }
             .map{|wave|
@@ -375,28 +391,26 @@ class Waves
             }
     end
 
-    # Waves::targetForNS17()
-    def self.targetForNS17()
-        1
+    # Waves::dailyDoneCountAverage()
+    def self.dailyDoneCountAverage()
+        (
+            Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 86400*7)+1
+        ).to_f/7
+    end
+
+    # Waves::todayDoneCountRatio()
+    def self.todayDoneCountRatio()
+        Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today()).to_f/Waves::dailyDoneCountAverage()
     end
 
     # Waves::ns17sLowPriority()
     def self.ns17sLowPriority()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
-        ratio = rt.to_f/Waves::targetForNS17()
         [
             {
-                "ratio" => ratio,
+                "ratio" => Waves::todayDoneCountRatio(),
                 "ns16s" => Waves::ns16sLowPriority()
             }
         ]
-    end
-
-    # Waves::ns17sLowPriorityText()
-    def self.ns17sLowPriorityText()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
-        ratio = rt.to_f/Waves::targetForNS17()
-        "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % 1}) Waves"
     end
 
     # Waves::nx19s()

@@ -43,7 +43,7 @@ processItems = lambda {|items|
     status = Anniversaries::dailyBriefingIfNotDoneToday()
     return "ns:loop" if status
 
-    vspaceleft = Utils::screenHeight()-5
+    vspaceleft = Utils::screenHeight()-8
 
     puts ""
 
@@ -55,7 +55,15 @@ processItems = lambda {|items|
         vspaceleft = vspaceleft - Utils::verticalSize(announce)
     }
 
-    puts "Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
+    [
+        [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"],
+        [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)}"],
+        [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)}"]
+    ]
+        .sort{|x1, x2| x1[0]<=>x2[0] }
+        .each{|x| puts x[1].yellow }
+
+    puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
 
     if !items.empty? then
         puts "top : .. | select (<n>) | done (<n>) | <datecode> | [] (Priority.txt) | '' | exit".yellow

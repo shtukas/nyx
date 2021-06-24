@@ -291,9 +291,11 @@ class Work
         BankExtended::closeNxBall(nxball, true)
     end
 
-    # Work::targetRT()
-    def self.targetRT()
-        5
+    # --------------------------------------------------
+
+    # Work::todayTimeCompletionRatio()
+    def self.todayTimeCompletionRatio()
+        Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()).to_f/(5*3600)
     end
 
     # Work::ns16s()
@@ -331,16 +333,15 @@ class Work
                 end
             }
 
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        ratio = rt.to_f/Work::targetRT()
         work = {
             "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "announce" => "[#{"work".green}] (rt: #{"%4.2f" % rt} of #{"%3.1f" % Work::targetRT()}) 👩🏻‍💻",
+            "announce" => "[#{"work".green}] (ratio: #{"%4.2f" % Work::todayTimeCompletionRatio()}) 👩🏻‍💻",
             "access"   => lambda { 
                 DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
             },
             "done"     => lambda { }
         }
+
         items = CoreDataTx::getObjectsBySchema("workitem")
             .map{|workitem|
                 {
@@ -350,26 +351,18 @@ class Work
                     "done"     => lambda { Work::done(workitem) }
                 }
             }
+
         [work] + items.reverse # The items are coming in the default CoreDataX default unixtime order
     end
 
     # Work::ns17s()
     def self.ns17s()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        ratio = rt.to_f/Work::targetRT()
         [
             {
-                "ratio" => ratio,
+                "ratio" => Work::todayTimeCompletionRatio(),
                 "ns16s" => Work::ns16s()
             }
         ]
-    end
-
-    # Work::ns17text()
-    def self.ns17text()
-        rt = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        ratio = rt.to_f/Work::targetRT()
-        "(ratio: #{"%4.2f" % ratio} of #{"%3.1f" % Work::targetRT()}) Work"
     end
 
     # Work::workItemsDive()
