@@ -306,14 +306,12 @@ class Nx50s
         }
     end
 
-    # Nx50s::targetCommitmentInHoursPerWeek(nx50)
-    def self.targetCommitmentInHoursPerWeek(nx50)
-        nx50["targetTimeCommitmentInHoursPerWeek"] ? nx50["targetTimeCommitmentInHoursPerWeek"].to_f : 7
-    end
-
     # Nx50s::redRecoveryTime(nx50)
     def self.redRecoveryTime(nx50)
-        Nx50s::targetCommitmentInHoursPerWeek(nx50).to_f/7
+        if nx50["targetTimeCommitmentInHoursPerWeek"] then
+            return nx50["targetTimeCommitmentInHoursPerWeek"].to_f/7
+        end
+        1
     end
 
     # Nx50s::ns16sOrdered()
@@ -330,9 +328,9 @@ class Nx50s
 
         items2 = items
                     .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
-                    .map{|ns15|
-                        ns15["announce"] = ns15["announce"].red
-                        ns15
+                    .map{|ns16|
+                        ns16["announce"] = ns16["announce"].red
+                        ns16
                     }
 
         items3 = items
