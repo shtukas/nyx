@@ -302,6 +302,9 @@ class Work
     def self.ns16s()
         return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
 
+        isWorkTime = (9 <= Time.new.hour  and Time.new.hour < 17)
+        return [] if !isWorkTime
+
         LucilleCore::locationsAtFolder(Utils::locationByUniqueStringOrNull("328ed6bd-29c8") || (raise "76913a23-2053-4370-a3b5-171ee1961ae2"))
             .each{|workItemLocation|
                 next if !File.directory?(workItemLocation)
