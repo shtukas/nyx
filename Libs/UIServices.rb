@@ -161,7 +161,7 @@ class UIServices
             }
 
             CoreDataTx::getObjectsBySchema("NxFloat").each{|float|
-                puts " ☀️    [floa]        #{float["description"]}"
+                puts "      [floa] #{float["description"]}"
                 vspaceleft = vspaceleft - Utils::verticalSize(float["description"])
             }
 
