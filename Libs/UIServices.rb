@@ -42,7 +42,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | fl(+) | ondates | floats | anniversaries | calendar | waves | work | search | ns17s | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -87,8 +87,17 @@ class UIServices
             Work::interactvelyIssueNewItem()
         end
 
-        if Interpreting::match("floats", command) then
-            NxFloat::main()
+        if Interpreting::match("fl", command) then
+            loop {
+                system("clear")
+                float = NxFloat::selectOneFloatOrNull()
+                return if float.nil?
+                NxFloat::access(float)
+            }
+        end
+
+        if Interpreting::match("fl+", command) then
+            NxFloat::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondates", command) then
@@ -118,5 +127,151 @@ class UIServices
         if Interpreting::match(">nyx", command) then
             system("/Users/pascal/Galaxy/Software/Nyx/x-make-new")
         end
+    end
+
+    # UIServices::catalystMainInterface()
+    def self.catalystMainInterface()
+        getItems = lambda {
+            UIServices::ns16s()
+        }
+
+        processItems = lambda {|items|
+
+            accessItem = lambda { |item| 
+                return if item.nil? 
+                return if item["access"].nil?
+                item["access"].call()
+            }
+
+            system("clear")
+
+            status = Anniversaries::dailyBriefingIfNotDoneToday()
+            return "ns:loop" if status
+
+            vspaceleft = Utils::screenHeight()-9
+
+            puts ""
+
+            items.first(3).each_with_index{|item, indx|
+                indexStr   = "(#{"%3d" % indx})"
+                announce   = "#{indexStr} #{item["announce"]}"
+                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+
+            CoreDataTx::getObjectsBySchema("NxFloat").each{|float|
+                puts " ☀️    [floa]        #{float["description"]}"
+                vspaceleft = vspaceleft - Utils::verticalSize(float["description"])
+            }
+
+            items.drop(3).each_with_index{|item, indx|
+                indx = indx+3
+                indexStr   = "(#{"%3d" % indx})"
+                announce   = "#{indexStr} #{item["announce"]}"
+                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+
+            [
+                [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"],
+                [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (#{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, #{Waves::dailyDoneCountAverage()})"],
+                [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)}"]
+            ]
+                .sort{|x1, x2| x1[0]<=>x2[0] }
+                .each{|x| puts x[1].yellow }
+
+            puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
+
+            if !items.empty? then
+                puts "top : .. | select (<n>) | done (<n>) | <datecode> | [] (Priority.txt) | fl(+) | '' (extended menu) | exit".yellow
+            end
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            return "ns:loop" if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                item = items[0]
+                return "ns:loop" if item.nil? 
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                puts "Hidden until: #{Time.at(unixtime).to_s}"
+                return "ns:loop"
+            end
+
+            # -- listing -----------------------------------------------------------------------------
+
+            if Interpreting::match("..", command) then
+                accessItem.call(items[0])
+                return "ns:loop"
+            end
+
+            if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
+                accessItem.call(items[ordinal])
+                return "ns:loop"
+            end
+
+            if Interpreting::match("select *", command) then
+                _, ordinal = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                accessItem.call(items[ordinal])
+                return "ns:loop"
+            end
+
+            if Interpreting::match("done", command) then
+                item = items[0]
+                return "ns:loop" if item.nil? 
+                return "ns:loop" if item["done"].nil?
+                item["done"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("done *", command) then
+                _, ordinal = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                item = items[ordinal]
+                return "ns:loop" if item.nil?
+                return "ns:loop" if item["done"].nil?
+                item["done"].call()
+                return "ns:loop"
+            end
+
+            # -- top -----------------------------------------------------------------------------
+
+            if Interpreting::match("[]", command) then
+                item = items[0]
+                next if item.nil? 
+                next if item["[]"].nil?
+                item["[]"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("fl", command) then
+                loop {
+                    system("clear")
+                    float = NxFloat::selectOneFloatOrNull()
+                    return if float.nil?
+                    NxFloat::access(float)
+                }
+            end
+
+            if Interpreting::match("fl+", command) then
+                NxFloat::interactivelyCreateNewOrNull()
+            end
+
+            if Interpreting::match("exit", command) then
+                return "ns:exit"
+            end
+
+            "ns:loop"
+        }
+
+        UIServices::programmableListingDisplay(getItems, processItems)
     end
 end

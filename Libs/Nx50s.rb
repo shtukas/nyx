@@ -65,7 +65,7 @@ class Nx50s
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
-        "[#{nx50["contentType"]}] #{nx50["description"]}"
+        "[#{nx50["contentType"]}] #{nx50["description"]}#{(Nx50s::isHeavy(nx50) ? " (heavy)" : "")}"
     end
 
     # Nx50s::toString(nx50)
@@ -290,10 +290,14 @@ class Nx50s
         }
     end
 
+    # Nx50s::isHeavy(nx50)
+    def self.isHeavy(nx50)
+        (Bank::valueOverTimespan(nx50["uuid"], 86400*30) >= 3600*5) # More than 5 hours over the past month
+    end
+
     # Nx50s::redRecoveryTime(nx50)
     def self.redRecoveryTime(nx50)
-        isHeavy = (Bank::valueOverTimespan(nx50["uuid"], 86400*30) >= 3600*5) # More than 5 hours over the past month
-        isHeavy ? 2.to_f/7 : 1
+        Nx50s::isHeavy(nx50) ? 2.5.to_f/7 : 1 # Two and half hours per week
     end
 
     # Nx50s::ns16sOrdered()

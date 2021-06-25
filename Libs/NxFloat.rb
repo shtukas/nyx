@@ -156,31 +156,6 @@ class NxFloat
         Nx102::postAccessCleanUp(float["contentType"], float["payload"])
     end
 
-    # NxFloat::main()
-    def self.main()
-        loop {
-            system('clear')
-            puts "NxFloat (main)"
-            options = [
-                "new float",
-                "floats dive"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "new float" then
-                new float
-            end
-            if option == "floats dive" then
-                loop {
-                    system("clear")
-                    float = NxFloat::selectOneFloatOrNull()
-                    return if float.nil?
-                    NxFloat::access(float)
-                }
-            end
-        }
-    end
-
     # NxFloat::nx19s()
     def self.nx19s()
         CoreDataTx::getObjectsBySchema("NxFloat").map{|item|
