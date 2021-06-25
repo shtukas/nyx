@@ -185,7 +185,7 @@ class UIServices
             puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | <datecode> | [] (Priority.txt) | fl(+) | '' (extended menu) | exit".yellow
+                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | fl(+) | '' (extended menu) | exit".yellow
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -224,6 +224,14 @@ class UIServices
                 return "ns:loop" if item.nil? 
                 return "ns:loop" if item["done"].nil?
                 item["done"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("hide *", command) then
+                _, ordinal = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                item = items[ordinal]
+                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
                 return "ns:loop"
             end
 
