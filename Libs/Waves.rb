@@ -174,6 +174,8 @@ class Waves
     def self.landing(wave)
         loop {
 
+            system("clear")
+
             return if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil?
 
             uuid = wave["uuid"]
@@ -188,6 +190,7 @@ class Waves
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
+            puts "Low priority?: #{Waves::isLowPriority(wave)}"
 
             puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | destroy | ''".yellow
 
@@ -284,36 +287,47 @@ class Waves
     def self.access(wave)
         uuid = wave["uuid"]
         
+        accessContent = lambda{|wave|
+            if wave["contentType"] == "Line" then
+
+            end
+            if wave["contentType"] == "Url" then
+                Utils::openUrlUsingSafari(wave["payload"])
+            end
+        }
+
         nxball = BankExtended::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
 
-        if wave["contentType"] == "Line" then
+        accessContent.call(wave)
 
-        end
+        loop {
+            system("clear")
 
-        if wave["contentType"] == "Url" then
-            Utils::openUrlUsingSafari(wave["payload"])
-        end
+            puts Waves::toString(wave)
 
-        puts Waves::toString(wave)
+            command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'done', <datecode>, 'landing', 'detach running'] action : ")
 
-        command = LucilleCore::askQuestionAnswerAsString("> [actions: 'done', <datecode>, 'landing', 'detach running'] action : ")
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+            end
 
-        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-            DoNotShowUntil::setUnixtime(uuid, unixtime)
-        end
+            if command == "access" then
+                accessContent.call(wave)
+            end
 
-        if command == "done" then
-            Waves::performDone(wave)
-        end
+            if command == "done" then
+                Waves::performDone(wave)
+            end
 
-        if command == "landing" then
-            Waves::landing(wave)
-        end
+            if command == "landing" then
+                Waves::landing(wave)
+            end
 
-        if command == "detach running" then
-            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
-            Waves::performDone(wave)
-        end
+            if command == "detach running" then
+                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+                Waves::performDone(wave)
+            end
+        }
         
         BankExtended::closeNxBall(nxball, true)
     end
