@@ -264,7 +264,7 @@ class UIServices
                 loop {
                     system("clear")
                     float = NxFloat::selectOneFloatOrNull()
-                    return if float.nil?
+                    return "ns:loop" if float.nil?
                     NxFloat::access(float)
                 }
                 return "ns:loop"
