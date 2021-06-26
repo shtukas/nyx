@@ -308,49 +308,15 @@ class Nx50s
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .map{|nx50| Nx50s::toNS16(nx50) }
 
-        hasStuffToDo = items.any?{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
+        items1 = items
+                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
+                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-        if hasStuffToDo then
+        items2 = items
+                    .select{|ns16| ns16["rt"] == 0 }
+                    .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
 
-            items1 = items
-                        .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
-                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-            items2 = items
-                        .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
-                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-                        .map{|ns16|
-                            ns16["announce"] = ns16["announce"].red
-                            ns16
-                        }
-
-            items3 = items
-                        .select{|ns16| ns16["rt"] == 0 }
-                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
-
-        else
-
-            items1 = items
-                        .select{|ns16| ns16["rt"] == 0 }
-                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
-                        .first(1)
-
-            items2 = items
-                        .select{|ns16| ns16["rt"] > 0 }
-                        .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-                        .map{|ns16|
-                            ns16["announce"] = ns16["announce"].red
-                            ns16
-                        }
-
-            items3 = items
-                        .select{|ns16| ns16["rt"] == 0 }
-                        .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
-                        .drop(1)
-
-        end
-
-        items1 + items2 + items3
+        items1 + items2
     end
 
     # Nx50s::todayTimeCompletionRatio()
