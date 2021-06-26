@@ -156,12 +156,24 @@ class NxFloat
         Nx102::postAccessCleanUp(float["contentType"], float["payload"])
     end
 
+    # NxFloat::ns16s()
+    def self.ns16s()
+        CoreDataTx::getObjectsBySchema("NxFloat").map{|float|
+            {
+                "uuid"     => float["uuid"],
+                "announce" => NxFloat::toString(float).gsub("[float]", "[floa]"),
+                "access"   => lambda { NxFloat::access(float) },
+                "done"   => lambda { NxFloat::complete(float) }
+            }
+        }
+    end
+
     # NxFloat::nx19s()
     def self.nx19s()
-        CoreDataTx::getObjectsBySchema("NxFloat").map{|item|
+        CoreDataTx::getObjectsBySchema("NxFloat").map{|float|
             {
-                "announce" => NxFloat::toString(item),
-                "lambda"   => lambda { NxFloat::access(item) }
+                "announce" => NxFloat::toString(float),
+                "lambda"   => lambda { NxFloat::access(float) }
             }
         }
     end
