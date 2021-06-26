@@ -5,14 +5,14 @@
 
 class Attributes
 
-    # Bank::databaseFilepath()
+    # Attributes::databaseFilepath()
     def self.databaseFilepath()
         "#{Utils::catalystDataCenterFolderpath()}/attributes.sqlite3"
     end
 
-    # Bank::set(uuid, attributename, attributevalue)
+    # Attributes::set(uuid, attributename, attributevalue)
     def self.set(uuid, attributename, attributevalue)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db = SQLite3::Database.new(Attributes::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _attributes_ where _uuid_=? and _attributename_=?", [uuid, attributename]        
@@ -21,9 +21,9 @@ class Attributes
         nil
     end
 
-    # Bank::getOrNull(uuid, attributename)
+    # Attributes::getOrNull(uuid, attributename)
     def self.getOrNull(uuid, attributename)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db = SQLite3::Database.new(Attributes::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -35,8 +35,26 @@ class Attributes
         answer
     end
 
+    # Attributes::getAttributes(uuid)
+    def self.getAttributes(uuid)
+        db = SQLite3::Database.new(Attributes::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _attributes_ where _uuid_=?" , [uuid] ) do |row|
+            answer << {
+                "attributename"  => row["_attributename_"],
+                "attributevalue" => row["_attributevalue_"]
+            }
+        end
+        db.close
+        answer
+    end
+
+    # Attributes::getUUIDs(attributename, attributevalue)
     def self.getUUIDs(attributename, attributevalue)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
+        db = SQLite3::Database.new(Attributes::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

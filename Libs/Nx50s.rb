@@ -95,9 +95,10 @@ class Nx50s
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
-            puts "stdRecoveredDailyTimeInHours: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
+            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
+            puts "attributes: #{JSON.generate(Attributes::getAttributes(nx50["uuid"]))}".yellow
 
-            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
+            puts "access (partial edit) | edit description | edit contents | set attribute | transmute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -135,6 +136,14 @@ class Nx50s
                     nx50["payload"]     = coordinates[1]
                     CoreDataTx::commit(nx50)
                 end
+            end
+
+            if Interpreting::match("set attribute", command) then
+                attributename = LucilleCore::askQuestionAnswerAsString("attribute name (empty to abort): ")
+                next if attributename == ""
+                attributevalue = LucilleCore::askQuestionAnswerAsString("attribute value (empty to abort): ")
+                next if attributevalue == ""
+                Attributes::set(nx50["uuid"], attributename, attributevalue)
             end
 
             if Interpreting::match("destroy", command) then
@@ -267,9 +276,12 @@ class Nx50s
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
 
-    # Nx50s::toNS16(nx50)
-    def self.toNS16(nx50)
+    # Nx50s::ns16OrNull(nx50)
+    def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
+
+        shouldOnlyShowOnWeekdays = Attributes::getOrNull(uuid, "WeekdaysOnly")
+        return nil if (shouldOnlyShowOnWeekdays and !Utils::isWeekday())
 
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
@@ -306,7 +318,8 @@ class Nx50s
 
         items = CoreDataTx::getObjectsBySchema("Nx50")
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .map{|nx50| Nx50s::toNS16(nx50) }
+                    .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                    .compact
 
         items1 = items
                     .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }

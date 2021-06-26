@@ -133,6 +133,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Marble.rb"
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
+require_relative "Attributes.rb"
 
 require_relative "Bank.rb"
 require_relative "BinaryBlobsService.rb"
