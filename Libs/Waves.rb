@@ -191,8 +191,9 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
             puts "Low priority?: #{Waves::isLowPriority(wave)}"
+            puts "attributes: #{JSON.generate(Attributes::getAttributes(wave["uuid"]))}".yellow
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | destroy | ''".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | set attribute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -242,6 +243,14 @@ class Waves
 
             if Interpreting::match("set high priority", command) then
                 Waves::setHighPriority(wave)
+            end
+
+            if Interpreting::match("set attribute", command) then
+                attributename = LucilleCore::askQuestionAnswerAsString("attribute name (empty to abort): ")
+                next if attributename == ""
+                attributevalue = LucilleCore::askQuestionAnswerAsString("attribute value (empty to abort): ")
+                next if attributevalue == ""
+                Attributes::set(wave["uuid"], attributename, attributevalue)
             end
 
             if Interpreting::match("destroy", command) then
@@ -305,7 +314,9 @@ class Waves
 
             puts Waves::toString(wave)
 
-            command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'done', <datecode>, 'landing', 'detach running'] action : ")
+            command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'done', <datecode>, 'landing', 'detach running', 'exit'] action : ")
+
+            break if command == "exit"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -376,34 +387,38 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::ns16sHighPriority()
-    def self.ns16sHighPriority()
+    # Waves::toNS16OrNull(wave)
+    def self.toNS16OrNull(wave)
+        uuid = wave["uuid"]
+        shouldOnlyShowOnWeekdays = (Attributes::getOrNull(uuid, "WeekdaysOnly") == "true")
+        return nil if (shouldOnlyShowOnWeekdays and !Utils::isWeekday())
+        {
+            "uuid"     => uuid,
+            "announce" => Waves::toString(wave),
+            "access"   => lambda { Waves::access(wave) },
+            "done"     => lambda { Waves::performDone(wave) },
+            "wave"     => wave
+        }
+    end
+
+    # Waves::ns16s()
+    def self.ns16s()
         Waves::ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
-            .select{|wave| Waves::isHighPriority(wave) }
-            .map{|wave|
-                {
-                    "uuid"     => wave["uuid"],
-                    "announce" => Waves::toString(wave),
-                    "access"   => lambda { Waves::access(wave) },
-                    "done"     => lambda { Waves::performDone(wave) }
-                }
-            }
+            .map{|wave| Waves::toNS16OrNull(wave) }
+            .compact
+    end
+
+    # Waves::ns16sHighPriority()
+    def self.ns16sHighPriority()
+        Waves::ns16s()
+            .select{|ns16| Waves::isHighPriority(ns16["wave"]) }
     end
 
     # Waves::ns16sLowPriority()
     def self.ns16sLowPriority()
-        Waves::ensurePrioritySettings()
-        CoreDataTx::getObjectsBySchema("wave")
-            .select{|wave| Waves::isLowPriority(wave) }
-            .map{|wave|
-                {
-                    "uuid"     => wave["uuid"],
-                    "announce" => Waves::toString(wave),
-                    "access"   => lambda { Waves::access(wave) },
-                    "done"     => lambda { Waves::performDone(wave) }
-                }
-            }
+        Waves::ns16s()
+            .select{|ns16| Waves::isLowPriority(ns16["wave"]) }
     end
 
     # Waves::dailyDoneCountAverage()

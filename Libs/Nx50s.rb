@@ -280,7 +280,7 @@ class Nx50s
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
 
-        shouldOnlyShowOnWeekdays = Attributes::getOrNull(uuid, "WeekdaysOnly")
+        shouldOnlyShowOnWeekdays = (Attributes::getOrNull(uuid, "WeekdaysOnly") == "true")
         return nil if (shouldOnlyShowOnWeekdays and !Utils::isWeekday())
 
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
