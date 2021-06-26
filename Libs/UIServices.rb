@@ -141,7 +141,12 @@ class UIServices
             status = Anniversaries::dailyBriefingIfNotDoneToday()
             return "ns:loop" if status
 
-            vspaceleft = Utils::screenHeight()-8
+            showNumbers = KeyValueStore::flagIsTrue(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
+
+            vspaceleft = Utils::screenHeight()-4
+            if showNumbers then
+                vspaceleft = vspaceleft-4
+            end
 
             puts ""
 
@@ -153,18 +158,20 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            [
-                [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"],
-                [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (#{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, #{Waves::dailyDoneCountAverage()})"],
-                [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)}"]
-            ]
-                .sort{|x1, x2| x1[0]<=>x2[0] }
-                .each{|x| puts x[1].yellow }
+            if showNumbers then
+                [
+                    [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"],
+                    [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (#{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, #{Waves::dailyDoneCountAverage()})"],
+                    [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)}"]
+                ]
+                    .sort{|x1, x2| x1[0]<=>x2[0] }
+                    .each{|x| puts x[1].yellow }
 
-            puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
+                puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
+            end
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | '' (extended menu) | exit".yellow
+                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | '' (extended menu) |  n+/-| exit".yellow
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -236,6 +243,16 @@ class UIServices
 
             if Interpreting::match("''", command) then
                 UIServices::operationalInterface()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("n+", command) then
+                KeyValueStore::setFlagTrue(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
+                return "ns:loop"
+            end
+
+            if Interpreting::match("n-", command) then
+                KeyValueStore::setFlagFalse(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
                 return "ns:loop"
             end
 

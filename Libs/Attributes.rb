@@ -47,5 +47,4 @@ class Attributes
         db.close
         answer
     end
-
 end
