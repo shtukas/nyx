@@ -298,12 +298,17 @@ class Work
         Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()).to_f/(5*3600)
     end
 
+    # Work::isWorkTime()
+    def self.isWorkTime()
+        b1 = (9 <= Time.new.hour  and Time.new.hour < 17)
+        b2 = [1,2,3,4,5].include?(Time.new.wday)
+        b1 and b2
+    end
+
     # Work::ns16s()
     def self.ns16s()
         return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
-
-        isWorkTime = (9 <= Time.new.hour  and Time.new.hour < 17)
-        return [] if !isWorkTime
+        return [] if !Work::isWorkTime()
 
         LucilleCore::locationsAtFolder(Utils::locationByUniqueStringOrNull("328ed6bd-29c8") || (raise "76913a23-2053-4370-a3b5-171ee1961ae2"))
             .each{|workItemLocation|
