@@ -317,6 +317,7 @@ class Waves
 
             if command == "done" then
                 Waves::performDone(wave)
+                break
             end
 
             if command == "landing" then
