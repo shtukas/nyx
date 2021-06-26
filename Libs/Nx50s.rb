@@ -309,7 +309,9 @@ class Nx50s
 
     # Nx50s::redRecoveryTime(nx50)
     def self.redRecoveryTime(nx50)
-        Nx50s::isHeavy(nx50) ? 2.5.to_f/7 : 1 # Two and half hours per week
+        return 1 if Utils::isWeekend()
+        return 0.25 if Nx50s::isHeavy(nx50)
+        1 
     end
 
     # Nx50s::ns16sOrdered()
@@ -329,7 +331,11 @@ class Nx50s
                     .select{|ns16| ns16["rt"] == 0 }
                     .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
 
-        items1 + items2
+        items3 = items
+                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
+                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
+        items1 + items2 + items3
     end
 
     # Nx50s::todayTimeCompletionRatio()

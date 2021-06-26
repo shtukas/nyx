@@ -310,6 +310,9 @@ class Waves
         accessContent.call(wave)
 
         loop {
+
+            break if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil? # Could have been destroyed during landing
+
             system("clear")
 
             puts Waves::toString(wave)

@@ -188,6 +188,11 @@ class Utils
         ![6, 0].include?(Time.new.wday)
     end
 
+    # Utils::isWeekend()
+    def self.isWeekend()
+        !Utils::isWeekday()
+    end
+
     # Utils::getLocalTimeZone()
     def self.getLocalTimeZone()
         `date`.strip[-3 , 3]
