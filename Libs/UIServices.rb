@@ -267,10 +267,12 @@ class UIServices
                     return if float.nil?
                     NxFloat::access(float)
                 }
+                return "ns:loop"
             end
 
             if Interpreting::match("fl+", command) then
                 NxFloat::interactivelyCreateNewOrNull()
+                return "ns:loop"
             end
 
             if Interpreting::match("exit", command) then
