@@ -139,6 +139,11 @@ class BankExtended
         nil
     end
 
+    # BankExtended::runningTimeString(nxball)
+    def self.runningTimeString(nxball)
+        "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
+    end
+
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))

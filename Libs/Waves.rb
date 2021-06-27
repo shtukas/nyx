@@ -315,7 +315,7 @@ class Waves
 
             system("clear")
 
-            puts Waves::toString(wave)
+            puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})"
 
             command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'done', <datecode>, 'landing', 'detach running', 'exit'] action : ")
 

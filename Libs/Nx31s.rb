@@ -48,7 +48,7 @@ class Nx31s
 
         system("clear")
         
-        puts "running: #{Nx31s::toString(nx31)}".green
+        puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
 
         coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
         if coordinates then
@@ -63,7 +63,7 @@ class Nx31s
 
             system("clear")
 
-            puts "running: #{Nx31s::toString(nx31)}".green
+            puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
 
             puts "access | <datecode> | detach running | done | (empty) # default # exit | ''".yellow
 

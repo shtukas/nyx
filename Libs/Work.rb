@@ -217,7 +217,7 @@ class Work
 
             system("clear")
 
-            puts Work::toString(workitem).green
+            puts "#{Work::toString(workitem)} (#{BankExtended::runningTimeString(nxball)})".green
 
             puts "trello link        : #{workitem["trelloLink"]}"
             puts "pr link            : #{workitem["prLink"]}"

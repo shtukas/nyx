@@ -73,7 +73,7 @@ class NxFloat
 
         system("clear")
         
-        puts "running: #{NxFloat::toString(float)}".green
+        puts "running: #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
 
         coordinates = Nx102::access(float["contentType"], float["payload"])
         if coordinates then
@@ -90,7 +90,7 @@ class NxFloat
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)}".green
+            puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
 
             puts "access | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
 
