@@ -43,7 +43,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | w+/- | search | ns17s | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -113,6 +113,14 @@ class UIServices
             Work::main()
         end
 
+        if Interpreting::match("w+", command) then
+            KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:true")
+        end
+
+        if Interpreting::match("w-", command) then
+            KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:false")
+        end
+
         if Interpreting::match("search", command) then
             Search::search()
         end
@@ -138,14 +146,20 @@ class UIServices
 
             system("clear")
 
-            status = Anniversaries::dailyBriefingIfNotDoneToday()
-            return "ns:loop" if status
+            vspaceleft = Utils::screenHeight()-4
+
+            numbers = (lambda(){
+                [
+                    Work::shouldDisplayWork() ? [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"] : nil,
+                    [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (done today: #{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, weekly average: #{Waves::dailyDoneCountAverage()})"],
+                    [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)} (#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"]
+                ].compact
+            }).call()
 
             showNumbers = KeyValueStore::flagIsTrue(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
 
-            vspaceleft = Utils::screenHeight()-4
             if showNumbers then
-                vspaceleft = vspaceleft-4
+                vspaceleft = vspaceleft-numbers.size
             end
 
             puts ""
@@ -159,15 +173,9 @@ class UIServices
             }
 
             if showNumbers then
-                [
-                    [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"],
-                    [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (#{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, #{Waves::dailyDoneCountAverage()})"],
-                    [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)}"]
-                ]
+                numbers
                     .sort{|x1, x2| x1[0]<=>x2[0] }
                     .each{|x| puts x[1].yellow }
-
-                puts "- Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items; completion log: #{Nx50s::completionLogSize(1)}, #{Nx50s::completionLogSize(7)}, #{Nx50s::completionLogSize(30)}".yellow
             end
 
             if !items.empty? then

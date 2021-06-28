@@ -222,8 +222,9 @@ class Work
             puts "trello link        : #{workitem["trelloLink"]}"
             puts "pr link            : #{workitem["prLink"]}"
             puts "git branch         : #{workitem["gitBranch"]}"
+            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{workitem["uuid"]}")}".yellow
 
-            puts "access | edit description | set trello link | pr link | <datecode> | exit | completed | ''".yellow
+            puts "access | note: | edit description | set trello link | pr link | <datecode> | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -242,6 +243,12 @@ class Work
                     next
                 end
                 system("open '#{folderpath}'")
+                next
+            end
+
+            if Interpreting::match("note:", command) then
+                note = LucilleCore::askQuestionAnswerAsString("note: ")
+                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{workitem["uuid"]}", note)
                 next
             end
 
@@ -305,10 +312,18 @@ class Work
         b1 and b2
     end
 
+    # Work::shouldDisplayWork()
+    def self.shouldDisplayWork()
+        override = KeyValueStore::getOrNull(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}")
+        return true if (override == "ns:true")
+        return false if (override == "ns:false")
+        return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
+        Work::isWorkTime()
+    end
+
     # Work::ns16s()
     def self.ns16s()
-        return [] if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        return [] if !Work::isWorkTime()
+        return [] if !Work::shouldDisplayWork()
 
         LucilleCore::locationsAtFolder(Utils::locationByUniqueStringOrNull("328ed6bd-29c8") || (raise "76913a23-2053-4370-a3b5-171ee1961ae2"))
             .each{|workItemLocation|

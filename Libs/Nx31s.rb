@@ -49,6 +49,7 @@ class Nx31s
         system("clear")
         
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}")}".yellow
 
         coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
         if coordinates then
@@ -64,8 +65,9 @@ class Nx31s
             system("clear")
 
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}")}".yellow
 
-            puts "access | <datecode> | detach running | done | (empty) # default # exit | ''".yellow
+            puts "access | note: | <datecode> | detach running | done | (empty) # default # exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -74,6 +76,12 @@ class Nx31s
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
                 break
+            end
+
+            if Interpreting::match("note:", command) then
+                note = LucilleCore::askQuestionAnswerAsString("note: ")
+                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}", note)
+                next
             end
 
             if Interpreting::match("access", command) then

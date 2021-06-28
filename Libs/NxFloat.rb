@@ -74,6 +74,7 @@ class NxFloat
         system("clear")
         
         puts "running: #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}")}".yellow
 
         coordinates = Nx102::access(float["contentType"], float["payload"])
         if coordinates then
@@ -91,12 +92,19 @@ class NxFloat
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}")}".yellow
 
-            puts "access | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
+            puts "access | note: | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
+
+            if Interpreting::match("note:", command) then
+                note = LucilleCore::askQuestionAnswerAsString("note: ")
+                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}", note)
+                next
+            end
 
             if Interpreting::match("access", command) then
                 coordinates = Nx102::access(float["contentType"], float["payload"])

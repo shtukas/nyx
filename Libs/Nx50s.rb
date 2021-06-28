@@ -211,6 +211,7 @@ class Nx50s
         system("clear")
         
         puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}")}".yellow
 
         coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
         if coordinates then
@@ -228,16 +229,28 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}")}".yellow
 
-            puts "access | landing | <datecode> | detach running | exit | completed | ''".yellow
+            puts "access | note: | landing | <datecode> | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
 
+            if command == "++" then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
+
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(nx50["uuid"], unixtime)
                 break
+            end
+
+            if Interpreting::match("note:", command) then
+                note = LucilleCore::askQuestionAnswerAsString("note: ")
+                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}", note)
+                next
             end
 
             if Interpreting::match("access", command) then

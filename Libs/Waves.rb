@@ -149,6 +149,28 @@ class Waves
 
     # -------------------------------------------------------------------------
 
+    # Waves::storedPriority(wave)
+    def self.storedPriority(wave)
+        KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
+    end
+
+    # Waves::getPriorityOrNull(wave)
+    def self.getPriorityOrNull(wave)
+        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
+        return value if value
+        return "ns:low" if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
+        return "ns:low" if ["sticky"].include?(wave["repeatType"])
+        nil
+    end
+
+    # Waves::setPriority(wave, priority)
+    def self.setPriority(wave, priority)
+        raise "80910af2-794f-45a4-ad42-d3383894cb42:#{priority}" if !["ns:high", "ns:low"].include?(priority)
+        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", priority)
+    end
+
+    # -------------------------------------------------------------------------
+
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
@@ -190,7 +212,7 @@ class Waves
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
-            puts "Low priority?: #{Waves::isLowPriority(wave)}"
+            puts "priority: #{Waves::storedPriority(wave)}"
             puts "attributes: #{JSON.generate(Attributes::getAttributes(wave["uuid"]))}".yellow
 
             puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | set attribute | destroy | ''".yellow
@@ -238,11 +260,11 @@ class Waves
             end
 
             if Interpreting::match("set low priority", command) then
-                Waves::setLowPriority(wave)
+                Waves::setPriority(wave, "ns:low")
             end
 
             if Interpreting::match("set high priority", command) then
-                Waves::setHighPriority(wave)
+               Waves::setPriority(wave, "ns:high")
             end
 
             if Interpreting::match("set attribute", command) then
@@ -316,10 +338,16 @@ class Waves
             system("clear")
 
             puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})"
+            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{wave["uuid"]}")}".yellow
 
-            command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'done', <datecode>, 'landing', 'detach running', 'exit'] action : ")
+            command = LucilleCore::askQuestionAnswerAsString("> [actions: 'access', 'note:' , 'done', <datecode>, 'landing', 'detach running', 'exit'] action : ")
 
             break if command == "exit"
+
+            if command == "++" then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -327,6 +355,12 @@ class Waves
 
             if command == "access" then
                 accessContent.call(wave)
+            end
+
+            if command == "note:" then
+                note = LucilleCore::askQuestionAnswerAsString("note: ")
+                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{wave["uuid"]}", note)
+                next
             end
 
             if command == "done" then
@@ -351,41 +385,14 @@ class Waves
     def self.ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
             .each{|wave|
-                if Waves::isLowPriority(wave).nil? then
+                if Waves::getPriorityOrNull(wave).nil? then
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{Waves::toString(wave)}' is high priority ? ") then
-                        Waves::setHighPriority(wave)
+                        Waves::setPriority(wave, "ns:high")
                     else
-                        Waves::setLowPriority(wave)
+                        Waves::setPriority(wave, "ns:low")
                     end
                 end
             }
-    end
-
-    # -------------------------------------------------------------------------
-
-    # Waves::isLowPriority(wave)
-    def self.isLowPriority(wave)
-        return false if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
-        return false if ["sticky"].include?(wave["repeatType"])
-        # This returns a boolean or nil if not set.
-        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
-        return nil if value.nil?
-        value == "ns:103:true"
-    end
-
-    # Waves::isHighPriority(wave)
-    def self.isHighPriority(wave)
-        !Waves::isLowPriority(wave)
-    end
-
-    # Waves::setLowPriority(wave)
-    def self.setLowPriority(wave)
-        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:true")
-    end
-
-    # Waves::setHighPriority(wave)
-    def self.setHighPriority(wave)
-        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", "ns:103:false")
     end
 
     # -------------------------------------------------------------------------
@@ -415,13 +422,13 @@ class Waves
     # Waves::ns16sHighPriority()
     def self.ns16sHighPriority()
         Waves::ns16s()
-            .select{|ns16| Waves::isHighPriority(ns16["wave"]) }
+            .select{|ns16| Waves::getPriorityOrNull(ns16["wave"]) == "ns:high" }
     end
 
     # Waves::ns16sLowPriority()
     def self.ns16sLowPriority()
         Waves::ns16s()
-            .select{|ns16| Waves::isLowPriority(ns16["wave"]) }
+            .select{|ns16| Waves::getPriorityOrNull(ns16["wave"]) == "ns:low" }
     end
 
     # Waves::dailyDoneCountAverage()
