@@ -43,7 +43,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | w+/- | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | w+/-/0 | search | ns17s | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -119,6 +119,10 @@ class UIServices
 
         if Interpreting::match("w-", command) then
             KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:false")
+        end
+
+        if Interpreting::match("w0", command) then
+            KeyValueStore::destroy(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}")
         end
 
         if Interpreting::match("search", command) then
