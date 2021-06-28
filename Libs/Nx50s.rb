@@ -348,7 +348,7 @@ class Nx50s
                     .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
                     .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-        items1 + items2 + items3
+        items1 + items2.take(3) + items3
     end
 
     # Nx50s::todayTimeCompletionRatio()
