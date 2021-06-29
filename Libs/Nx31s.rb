@@ -46,6 +46,8 @@ class Nx31s
 
         uuid = nx31["uuid"]
 
+        nxball = BankExtended::makeNxBall([uuid])
+
         system("clear")
         
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
