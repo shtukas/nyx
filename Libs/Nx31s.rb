@@ -2,6 +2,14 @@
 
 class Nx31s
 
+    # Nx31s::interactivelySelectADateOrNull()
+    def self.interactivelySelectADateOrNull()
+        datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
+        unixtime = Utils::codeToUnixtimeOrNull(datecode)
+        return nil if unixtime.nil?
+        Time.at(unixtime).to_s[0, 10]
+    end
+
     # Nx31s::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
@@ -11,10 +19,8 @@ class Nx31s
         nx31["schema"]      = "Nx31"
         nx31["unixtime"]    = Time.new.to_f
 
-        datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
-        unixtime = Utils::codeToUnixtimeOrNull(datecode)
-        return nil if unixtime.nil?
-        date = Time.at(unixtime).to_s[0, 10]
+        date = Nx31s::interactivelySelectADateOrNull()
+        return nil if date.nil?
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
@@ -69,15 +75,23 @@ class Nx31s
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}")}".yellow
 
-            puts "access | note: | <datecode> | detach running | done | (empty) # default # exit | ''".yellow
+            puts "access | note: | <datecode> | update date | detach running | done | exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == ""
+            break if command == "exit"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
                 break
+            end
+
+            if Interpreting::match("update date", command) then
+                date = Nx31s::interactivelySelectADateOrNull()
+                next if date.nil?
+                nx31["date"] = date
+                CoreDataTx::commit(nx31)
+                next
             end
 
             if Interpreting::match("note:", command) then
