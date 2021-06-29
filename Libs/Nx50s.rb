@@ -65,7 +65,7 @@ class Nx50s
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
-        "[#{nx50["contentType"]}] #{nx50["description"]}#{(Nx50s::isHeavy(nx50) ? " (heavy)" : "")}"
+        "[#{nx50["contentType"]}] #{nx50["description"]}"
     end
 
     # Nx50s::toString(nx50)
@@ -79,104 +79,6 @@ class Nx50s
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
         CoreDataTx::delete(nx50["uuid"])
     end
-
-    # Nx50s::landing(nx50)
-    def self.landing(nx50)
-        loop {
-
-            system("clear")
-
-            puts Nx50s::toString(nx50)
-
-            puts "uuid: #{nx50["uuid"]}".yellow
-            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
-
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
-            if unixtime then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
-            end
-            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-
-            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-
-            if Interpreting::match("access", command) then
-                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("edit description", command) then
-                description = Utils::editTextSynchronously(nx50["description"])
-                if description.size > 0 then
-                    nx50["description"] = description
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("edit contents", command) then
-                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("transmute", command) then
-                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("destroy", command) then
-                Nx50s::complete(nx50)
-                break
-            end
-
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
-        }
-    end
-
-    # Nx50s::maintenance()
-    def self.maintenance()
-        if CoreDataTx::getObjectsBySchema("Nx50").size <= 30 then
-            CoreDataTx::getObjectsBySchema("quark")
-                .sample(20)
-                .each{|object|
-                    object["schema"] = "Nx50"
-                    CoreDataTx::commit(object)
-                }
-        end
-    end
-
-    # Nx50s::getCompletionLogUnixtimes()
-    def self.getCompletionLogUnixtimes()
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt"
-        IO.read(filepath)
-            .lines
-            .map{|line| line.strip }
-            .select{|line| line.size > 0}
-            .map{|line| line.split("|")[1].to_i }
-    end
-
-    # Nx50s::completionLogSize(days)
-    def self.completionLogSize(days)
-        horizon = Time.new.to_i - days*86400
-        Nx50s::getCompletionLogUnixtimes().select{|unixtime| unixtime >= horizon }.size
-    end
-
-    # --------------------------------------------------
 
     # Nx50s::access(nx50)
     def self.access(nx50)
@@ -280,6 +182,104 @@ class Nx50s
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
 
+    # Nx50s::landing(nx50)
+    def self.landing(nx50)
+        loop {
+
+            system("clear")
+
+            puts Nx50s::toString(nx50)
+
+            puts "uuid: #{nx50["uuid"]}".yellow
+            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
+
+            unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
+            if unixtime then
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
+            end
+            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
+
+            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == ""
+
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+            end
+
+            if Interpreting::match("edit description", command) then
+                description = Utils::editTextSynchronously(nx50["description"])
+                if description.size > 0 then
+                    nx50["description"] = description
+                    CoreDataTx::commit(nx50)
+                end
+            end
+
+            if Interpreting::match("edit contents", command) then
+                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+            end
+
+            if Interpreting::match("transmute", command) then
+                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+            end
+
+            if Interpreting::match("destroy", command) then
+                Nx50s::complete(nx50)
+                break
+            end
+
+            if Interpreting::match("''", command) then
+                UIServices::operationalInterface()
+            end
+        }
+    end
+
+    # Nx50s::maintenance()
+    def self.maintenance()
+        if CoreDataTx::getObjectsBySchema("Nx50").size <= 30 then
+            CoreDataTx::getObjectsBySchema("quark")
+                .sample(20)
+                .each{|object|
+                    object["schema"] = "Nx50"
+                    CoreDataTx::commit(object)
+                }
+        end
+    end
+
+    # Nx50s::getCompletionLogUnixtimes()
+    def self.getCompletionLogUnixtimes()
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt"
+        IO.read(filepath)
+            .lines
+            .map{|line| line.strip }
+            .select{|line| line.size > 0}
+            .map{|line| line.split("|")[1].to_i }
+    end
+
+    # Nx50s::completionLogSize(days)
+    def self.completionLogSize(days)
+        horizon = Time.new.to_i - days*86400
+        Nx50s::getCompletionLogUnixtimes().select{|unixtime| unixtime >= horizon }.size
+    end
+
+    # --------------------------------------------------
+
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
@@ -303,18 +303,6 @@ class Nx50s
         }
     end
 
-    # Nx50s::isHeavy(nx50)
-    def self.isHeavy(nx50)
-        (Bank::valueOverTimespan(nx50["uuid"], 86400*30) >= 3600*5) # More than 5 hours over the past month
-    end
-
-    # Nx50s::redRecoveryTime(nx50)
-    def self.redRecoveryTime(nx50)
-        return 1 if Utils::isWeekend()
-        return 0.25 if Nx50s::isHeavy(nx50)
-        1 
-    end
-
     # Nx50s::getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
     def self.getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
         nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
@@ -322,28 +310,25 @@ class Nx50s
         return nil if !DoNotShowUntil::isVisible(nx50["uuid"])
         ns16 = Nx50s::ns16OrNull(nx50)
         return nil if ns16.nil?
-        return nil if (ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]))
+        return nil if (ns16["rt"] >= 1)
         ns16
     end
 
     # Nx50s::ns16sVisibleBelowRedRTOrdered()
     def self.ns16sVisibleBelowRedRTOrdered()
-        # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .map{|nx50| Nx50s::ns16OrNull(nx50) }
+            .compact
+    end
 
-        items = CoreDataTx::getObjectsBySchema("Nx50")
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .map{|nx50| Nx50s::ns16OrNull(nx50) }
-                    .compact
-
-        items1 = items
-                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] < Nx50s::redRecoveryTime(ns16["nx50"]) }
-                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-        items2 = items
-                    .select{|ns16| ns16["rt"] == 0 }
-                    .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
-
-        items1 + items2.take(3)
+    # Nx50s::firstTriplet(index)
+    def self.firstTriplet(index)
+        items = Nx50s::ns16sVisibleBelowRedRTOrdered().drop(3*index).take(3)
+        if items.map{|ns16| ns16["rt"] }.inject(0, :+) > 2 then
+            return Nx50s::firstTriplet(index+1)
+        end
+        items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # Nx50s::todayTimeCompletionRatio()
@@ -356,7 +341,7 @@ class Nx50s
         [
             {
                 "ratio" => Nx50s::todayTimeCompletionRatio(),
-                "ns16s" => Nx50s::ns16sVisibleBelowRedRTOrdered()
+                "ns16s" => Nx50s::firstTriplet(0)
             }
         ]
     end
