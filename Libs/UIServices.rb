@@ -18,7 +18,6 @@ class UIServices
             Calendar::ns16s(),
             Nx31s::ns16s(),
             Waves::ns16sHighPriority(),
-            NxFloat::ns16s(),
             UIServices::ns17sToNS16s(Work::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
         ]
             .flatten
@@ -152,6 +151,19 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-4
 
+            ns16sfloats = NxFloat::ns16s()
+
+            if ns16sfloats.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                ns16sfloats.each_with_index{|item, indx|
+                    indexStr   = "(>#{"%2d" % indx})"
+                    announce   = "#{indexStr} #{item["announce"]}"
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                }
+            end
+
             numbers = (lambda(){
                 [
                     Work::shouldDisplayWork() ? [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"] : nil,
@@ -199,6 +211,11 @@ class UIServices
             end
 
             # -- listing -----------------------------------------------------------------------------
+
+            if command.start_with?('>') and (ordinal = Interpreting::readAsIntegerOrNull(command[1, 99])) then
+                accessItem.call(ns16sfloats[ordinal])
+                return "ns:loop"
+            end
 
             if Interpreting::match("..", command) then
                 accessItem.call(items[0])
