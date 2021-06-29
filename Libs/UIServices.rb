@@ -160,7 +160,7 @@ class UIServices
                 ns16sfloats.each_with_index{|item, indx|
                     indexStr   = "(>#{"%2d" % indx})"
                     announce   = "#{indexStr} #{item["announce"]}"
-                    puts announce
+                    puts announce.red
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
             end

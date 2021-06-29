@@ -325,7 +325,7 @@ class Nx50s
     # Nx50s::firstTriplet(index)
     def self.firstTriplet(index)
         items = Nx50s::ns16sVisibleBelowRedRTOrdered().drop(3*index).take(3)
-        if items.map{|ns16| ns16["rt"] }.inject(0, :+) > 2 then
+        if items.map{|ns16| ns16["rt"] }.inject(0, :+) > 2.to_f/(index+1) then
             return Nx50s::firstTriplet(index+1)
         end
         items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
