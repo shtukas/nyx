@@ -96,9 +96,8 @@ class Nx50s
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-            puts "attributes: #{JSON.generate(Attributes::getAttributes(nx50["uuid"]))}".yellow
 
-            puts "access (partial edit) | edit description | edit contents | set attribute | transmute | destroy | ''".yellow
+            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -136,14 +135,6 @@ class Nx50s
                     nx50["payload"]     = coordinates[1]
                     CoreDataTx::commit(nx50)
                 end
-            end
-
-            if Interpreting::match("set attribute", command) then
-                attributename = LucilleCore::askQuestionAnswerAsString("attribute name (empty to abort): ")
-                next if attributename == ""
-                attributevalue = LucilleCore::askQuestionAnswerAsString("attribute value (empty to abort): ")
-                next if attributevalue == ""
-                Attributes::set(nx50["uuid"], attributename, attributevalue)
             end
 
             if Interpreting::match("destroy", command) then
@@ -293,9 +284,6 @@ class Nx50s
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
 
-        shouldOnlyShowOnWeekdays = (Attributes::getOrNull(uuid, "WeekdaysOnly") == "true")
-        return nil if (shouldOnlyShowOnWeekdays and !Utils::isWeekday())
-
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
@@ -327,8 +315,19 @@ class Nx50s
         1 
     end
 
-    # Nx50s::ns16sOrdered()
-    def self.ns16sOrdered()
+    # Nx50s::getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
+    def self.getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
+        nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
+        return nil if nx50.nil?
+        return nil if !DoNotShowUntil::isVisible(nx50["uuid"])
+        ns16 = Nx50s::ns16OrNull(nx50)
+        return nil if ns16.nil?
+        return nil if (ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]))
+        ns16
+    end
+
+    # Nx50s::ns16sVisibleBelowRedRTOrdered()
+    def self.ns16sVisibleBelowRedRTOrdered()
         # Visible, less than one hour in the past day, highest stdRecoveredDailyTime first
 
         items = CoreDataTx::getObjectsBySchema("Nx50")
@@ -344,11 +343,7 @@ class Nx50s
                     .select{|ns16| ns16["rt"] == 0 }
                     .sort{|i1, i2| i1["nx50"]["unixtime"] <=> i2["nx50"]["unixtime"] }
 
-        items3 = items
-                    .select{|ns16| ns16["rt"] > 0 and ns16["rt"] >= Nx50s::redRecoveryTime(ns16["nx50"]) }
-                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-        items1 + items2.take(3) + items3
+        items1 + items2.take(3)
     end
 
     # Nx50s::todayTimeCompletionRatio()
@@ -361,7 +356,7 @@ class Nx50s
         [
             {
                 "ratio" => Nx50s::todayTimeCompletionRatio(),
-                "ns16s" => Nx50s::ns16sOrdered()
+                "ns16s" => Nx50s::ns16sVisibleBelowRedRTOrdered()
             }
         ]
     end

@@ -213,9 +213,8 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
             puts "priority: #{Waves::storedPriority(wave)}"
-            puts "attributes: #{JSON.generate(Attributes::getAttributes(wave["uuid"]))}".yellow
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | set attribute | destroy | ''".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -265,14 +264,6 @@ class Waves
 
             if Interpreting::match("set high priority", command) then
                Waves::setPriority(wave, "ns:high")
-            end
-
-            if Interpreting::match("set attribute", command) then
-                attributename = LucilleCore::askQuestionAnswerAsString("attribute name (empty to abort): ")
-                next if attributename == ""
-                attributevalue = LucilleCore::askQuestionAnswerAsString("attribute value (empty to abort): ")
-                next if attributevalue == ""
-                Attributes::set(wave["uuid"], attributename, attributevalue)
             end
 
             if Interpreting::match("destroy", command) then
@@ -400,8 +391,6 @@ class Waves
     # Waves::toNS16OrNull(wave)
     def self.toNS16OrNull(wave)
         uuid = wave["uuid"]
-        shouldOnlyShowOnWeekdays = (Attributes::getOrNull(uuid, "WeekdaysOnly") == "true")
-        return nil if (shouldOnlyShowOnWeekdays and !Utils::isWeekday())
         {
             "uuid"     => uuid,
             "announce" => Waves::toString(wave),
