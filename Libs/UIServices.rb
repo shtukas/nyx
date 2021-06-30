@@ -26,11 +26,6 @@ class UIServices
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
-    # UIServices::ns16sToTrace(ns16s)
-    def self.ns16sToTrace(ns16s)
-        ns16s.first(3).map{|item| item["uuid"] }.join(";")
-    end
-
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
     def self.programmableListingDisplay(getItems, processItems)
         loop {

@@ -157,7 +157,7 @@ class Waves
     # Waves::getPriorityOrNull(wave)
     def self.getPriorityOrNull(wave)
         value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
-        return value if value
+        return value if (value and ["ns:high", "ns:low"].include?(value))
         return "ns:low" if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
         return "ns:low" if ["sticky"].include?(wave["repeatType"])
         nil
@@ -402,7 +402,6 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
-        Waves::ensurePrioritySettings()
         CoreDataTx::getObjectsBySchema("wave")
             .map{|wave| Waves::toNS16OrNull(wave) }
             .compact
@@ -411,7 +410,10 @@ class Waves
     # Waves::ns16sHighPriority()
     def self.ns16sHighPriority()
         Waves::ns16s()
-            .select{|ns16| Waves::getPriorityOrNull(ns16["wave"]) == "ns:high" }
+            .select{|ns16| 
+                priority = Waves::getPriorityOrNull(ns16["wave"])
+                priority.nil? or (priority == "ns:high") 
+            }
     end
 
     # Waves::ns16sLowPriority()
