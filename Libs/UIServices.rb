@@ -18,7 +18,7 @@ class UIServices
             Calendar::ns16s(),
             Nx31s::ns16s(),
             Waves::ns16sHighPriority(),
-            [Nx50s::getVisibleBelowRedRTNS16ByUUIDOrNull("20210525-161532-646669")], # Guardian Jedi
+            [Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669")], # Guardian Jedi
             UIServices::ns17sToNS16s(Work::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
         ]
             .flatten

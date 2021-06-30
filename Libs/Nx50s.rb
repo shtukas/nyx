@@ -280,14 +280,20 @@ class Nx50s
 
     # --------------------------------------------------
 
-    # Nx50s::ns16OrNull(nx50)
-    def self.ns16OrNull(nx50)
+    # Nx50s::saturation(nx50)
+    def self.saturation(nx50)
+        # This function returns the recovery time after with the item is saturated
+        t1 = Bank::valueOverTimespan(nx50["uuid"], 86400*14)
+        tx = t1.to_f/(7*3600) # multiple of 7 hours over two weeks
+        Math.exp(-tx)
+    end
+
+    # Nx50s::ns16(nx50)
+    def self.ns16(nx50)
         uuid = nx50["uuid"]
-
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-
+        saturation = Nx50s::saturation(nx50)
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
-
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -297,35 +303,45 @@ class Nx50s
                     Nx50s::complete(nx50)
                 end
             },
-            "rt"       => rt,
-            "unixtime" => nx50["unixtime"],
-            "nx50"     => nx50
+            "unixtime"   => nx50["unixtime"],
+            "nx50"       => nx50,
+            "rt"         => rt,
+            "saturation" => saturation,
+            "isVisible"  => DoNotShowUntil::isVisible(uuid)
         }
     end
 
-    # Nx50s::getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
-    def self.getVisibleBelowRedRTNS16ByUUIDOrNull(uuid)
-        nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
-        return nil if nx50.nil?
-        return nil if !DoNotShowUntil::isVisible(nx50["uuid"])
-        ns16 = Nx50s::ns16OrNull(nx50)
-        return nil if ns16.nil?
-        return nil if (ns16["rt"] >= 1)
+    # Nx50s::operationalNS16OrNull(nx50)
+    def self.operationalNS16OrNull(nx50)
+        ns16 = Nx50s::ns16(nx50)
+        return nil if !ns16["isVisible"]
+        return nil if ns16["rt"] >= ns16["saturation"]
         ns16
     end
 
-    # Nx50s::ns16sVisibleBelowRedRTOrdered()
-    def self.ns16sVisibleBelowRedRTOrdered()
+    # Nx50s::getOperationalNS16ByUUIDOrNull(uuid)
+    def self.getOperationalNS16ByUUIDOrNull(uuid)
+        nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
+        return nil if nx50.nil?
+        Nx50s::operationalNS16OrNull(nx50)
+    end
+
+    # Nx50s::orderedOperationalNS16s()
+    def self.orderedOperationalNS16s()
         CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map{|nx50| Nx50s::ns16OrNull(nx50) }
+            .map{|nx50| Nx50s::operationalNS16OrNull(nx50) }
             .compact
     end
 
     # Nx50s::firstTriplet(index)
     def self.firstTriplet(index)
-        items = Nx50s::ns16sVisibleBelowRedRTOrdered().drop(3*index).take(3)
-        if items.map{|ns16| ns16["rt"] }.inject(0, :+) > 2.to_f/(index+1) then
+        groupIsSaturated = lambda {|items, saturationRatio|
+            rt = items.map{|item| item["rt"] }.inject(0, :+)
+            saturation = items.map{|item| item["saturation"] }.inject(0, :+)
+            rt >= saturationRatio * saturation
+        }
+        items = Nx50s::orderedOperationalNS16s().drop(3*index).take(3)
+        if groupIsSaturated.call(items, 2.to_f/(index+1)) then
             return Nx50s::firstTriplet(index+1)
         end
         items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
