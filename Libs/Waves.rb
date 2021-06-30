@@ -431,7 +431,7 @@ class Waves
 
     # Waves::todayDoneCountRatio()
     def self.todayDoneCountRatio()
-        Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today()).to_f/Waves::dailyDoneCountAverage()
+        Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today()).to_f/(1.2*Waves::dailyDoneCountAverage())
     end
 
     # Waves::ns17sLowPriority()
