@@ -2,6 +2,30 @@
 
 # ------------------------------------------------------------------------------------------
 
+class Fitness
+    # Fitness::fitnessNs17OrNull()
+    def self.fitnessNs17OrNull()
+        ratios = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ratios`)
+
+        ns16 = {
+            "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
+            "announce" => "fitness: #{ratios}",
+            "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness done") },
+            "done"     => lambda { }
+        }
+
+        {
+            "ratio" => ratios.min,
+            "ns16s" => [ ns16 ]
+        }
+    end
+
+    # Fitness::fitnessCompletionRatio()
+    def self.fitnessCompletionRatio()
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ratios`).min
+    end
+end
+
 class UIServices
 
     # UIServices::ns17sToNS16s(ns17s)
@@ -19,7 +43,11 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16sHighPriority(),
             [Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669")], # Guardian Jedi
-            UIServices::ns17sToNS16s(Work::ns17s() + Waves::ns17sLowPriority() + Nx50s::ns17s())
+            UIServices::ns17sToNS16s(
+                Work::ns17s() + 
+                Waves::ns17sLowPriority() + 
+                Nx50s::ns17s() + 
+                [Fitness::fitnessNs17OrNull()])
         ]
             .flatten
             .compact
@@ -162,6 +190,7 @@ class UIServices
 
             numbers = (lambda(){
                 [
+                    [Fitness::fitnessCompletionRatio(), "- Fitness                          : #{Fitness::fitnessCompletionRatio()}"],
                     Work::shouldDisplayWork() ? [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"] : nil,
                     [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (done today: #{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, weekly average: #{Waves::dailyDoneCountAverage()})"],
                     [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)} (#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"]
