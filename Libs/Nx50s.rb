@@ -34,6 +34,23 @@ class Nx50s
         nil
     end
 
+    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
+    def self.interactivelyDetermineNewItemUnixtimeOrNull()
+        system('clear')
+        puts "Select the belore item:"
+        items = CoreDataTx::getObjectsBySchema("Nx50")
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
+        return nil if item.nil?
+        loop {
+            return nil if items.size < 2
+            if items[0]["uuid"] == item["uuid"] then
+                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+            end
+            items.shift
+            next
+        }
+    end
+
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
@@ -55,6 +72,8 @@ class Nx50s
 
         nx50["contentType"] = coordinates[0]
         nx50["payload"]     = coordinates[1]
+
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
 
         CoreDataTx::commit(nx50)
 

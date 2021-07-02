@@ -67,7 +67,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / todo priority / work item | ondates | floats | anniversaries | calendar | waves | work | w+/-/0 | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / work item | ondates | floats | anniversaries | calendar | waves | work | w+/-/0 | search | ns17s | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -95,17 +95,6 @@ class UIServices
             if nx50 then
                 puts JSON.pretty_generate(nx50)
             end
-        end
-
-        if Interpreting::match("new todo priority", command) then
-            nx50 = Nx50s::interactivelyCreateNewOrNull()
-            if nx50 then
-                puts JSON.pretty_generate(nx50)
-            else
-                exit
-            end
-            nx50["unixtime"] = ([Time.new.to_i] + CoreDataTx::getObjectsBySchema("Nx50").map{|n| n["unixtime"] }).min - 1
-            CoreDataTx::commit(nx50)
         end
 
         if Interpreting::match("new work item", command) then
