@@ -158,7 +158,7 @@ require_relative "Nx102.rb"
 
 require_relative "NxFloat.rb"
 
-require_relative "Priority1.rb"
+require_relative "PriorityFile.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "Runner.rb"

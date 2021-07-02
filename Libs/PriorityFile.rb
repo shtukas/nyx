@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class Priority1
+class PriorityFile
 
-    # Priority1::applyNextTransformation(filepath, hash1)
+    # PriorityFile::applyNextTransformation(filepath, hash1)
     def self.applyNextTransformation(filepath, hash1)
         contents = IO.read(filepath)
         return if contents.strip == ""
@@ -12,20 +12,16 @@ class Priority1
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
-    # Priority1::ns16OrNull()
-    def self.ns16OrNull()
+    # PriorityFile::ns16OrNull(filepath)
+    def self.ns16OrNull(filepath)
 
-        filepath = "/Users/pascal/Desktop/Priority 1.txt"
-
-        raise "c2f47ddb-c278-4e03-b350-0a204040b224" if filepath.nil? # can happen because some of those filepath are unique string lookups
-        
         filename = File.basename(filepath)
         
         return nil if IO.read(filepath).strip == ""
 
         contents = IO.read(filepath)
 
-        announce = "\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+        announce = "#{filename}\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
         
         uuid = Digest::SHA1.hexdigest(contents.strip)
 
@@ -60,7 +56,7 @@ class Priority1
                     end
 
                     if Interpreting::match("[]", command) then
-                        Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest)
+                        PriorityFile::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest)
                     end
                     
                     if Interpreting::match("''", command) then
@@ -74,11 +70,11 @@ class Priority1
 
                 timespan = [timespan, 3600*2].min
 
-                puts "putting #{timespan} seconds to uuid: #{uuid}: todo filepath: #{filepath}"
-                Bank::put(uuid, timespan)
+                puts "putting #{timespan} seconds to file '#{filepath}'"
+                Bank::put(filepath, timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { Priority1::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) }
+            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) }
         }
     end
 end

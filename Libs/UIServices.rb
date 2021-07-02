@@ -37,7 +37,7 @@ class UIServices
     def self.ns16s()
         [
             DetachedRunning::ns16s(),
-            Priority1::ns16OrNull(),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority 1.txt"),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
@@ -220,7 +220,7 @@ class UIServices
             end
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | '' (extended menu) |  n+/-| exit".yellow
+                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | '' (extended menu) |  n+/- | exit".yellow
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
