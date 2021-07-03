@@ -5,10 +5,10 @@
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
-        ratios = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ratios`)
+        return [] if (`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness should-show`.strip != "true")
         ns16 = {
             "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
-            "announce" => "fitness: #{ratios}",
+            "announce" => "fitness",
             "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness done") },
             "done"     => lambda { }
         }
@@ -133,7 +133,11 @@ class UIServices
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
         getItems = lambda {
-            UIServices::ns16s()
+            ns16s = UIServices::ns16s()
+            if ns16s.size>0 and ns16s[0]["announce"]=="" then
+                ns16s.shift
+            end
+            ns16s
         }
 
         processItems = lambda {|items|

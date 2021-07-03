@@ -395,25 +395,32 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         is1 = Nx50s::firstTriplet(0)
-
         is1uuids = is1.map{|i| i["uuid"]}
 
+        empty = {
+            "uuid"     => SecureRandom.hex,
+            "announce" => "",
+            "access"   => nil,
+            "done"     => nil
+        }
+
         is2 = CoreDataTx::getObjectsBySchema("Nx50")
-                .select{|nx50| !is1uuids.include?(nx50["uuid"]) }
                 .map{|nx50| Nx50s::ns16(nx50) }
-                .map{|nx50|
-                    nx50["announce"] = nx50["announce"].yellow
-                    nx50
-                }
-                .map{|nx50|
-                    if !nx50["isVisible"] then
-                        nx50["uuid"] = SecureRandom.hex
-                        nx50["announce"] = nx50["announce"].blue
+                .map{|ns16|
+                    if is1uuids.include?(ns16["uuid"]) then
+                        ns16["announce"] = ns16["announce"].yellow
                     end
-                    nx50
+                    ns16
+                }
+                .map{|ns16|
+                    if !ns16["isVisible"] then
+                        ns16["uuid"] = SecureRandom.hex
+                        ns16["announce"] = ns16["announce"].blue
+                    end
+                    ns16
                 }
         
-        is1 + is2
+        [empty] + is1 + [empty] + is2
     end
 
     # Nx50s::nx19s()
