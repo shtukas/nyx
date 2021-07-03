@@ -355,6 +355,7 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
+        return [] if (Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5)
         CoreDataTx::getObjectsBySchema("wave")
             .map{|wave| Waves::toNS16OrNull(wave) }
             .compact
