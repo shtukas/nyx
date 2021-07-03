@@ -27,16 +27,15 @@ class UIServices
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
-            Waves::ns16sHighPriority(),
+            Waves::ns16s(),
             Fitness::ns16s(),
             Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
-            Waves::ns16sLowPriority(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
             Nx50s::ns16s()
         ]
             .flatten
             .compact
-            .select{|item| item["Nx534"] or DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)

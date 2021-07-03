@@ -149,28 +149,6 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::storedPriority(wave)
-    def self.storedPriority(wave)
-        KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
-    end
-
-    # Waves::getPriorityOrNull(wave)
-    def self.getPriorityOrNull(wave)
-        value = KeyValueStore::getOrNull(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}")
-        return value if (value and ["ns:high", "ns:low"].include?(value))
-        return "ns:low" if ["every-this-day-of-the-month", "every-this-day-of-the-week"].include?(wave["repeatType"])
-        return "ns:low" if ["sticky"].include?(wave["repeatType"])
-        nil
-    end
-
-    # Waves::setPriority(wave, priority)
-    def self.setPriority(wave, priority)
-        raise "80910af2-794f-45a4-ad42-d3383894cb42:#{priority}" if !["ns:high", "ns:low"].include?(priority)
-        KeyValueStore::set(nil, "bc068078-45c5-4d54-9a32-8288873b9a55:#{wave["uuid"]}", priority)
-    end
-
-    # -------------------------------------------------------------------------
-
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
@@ -212,9 +190,8 @@ class Waves
             else
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
-            puts "priority: #{Waves::storedPriority(wave)}"
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | set low/high priority | destroy | ''".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | destroy | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -256,14 +233,6 @@ class Waves
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
                 CoreDataTx::commit(wave)
-            end
-
-            if Interpreting::match("set low priority", command) then
-                Waves::setPriority(wave, "ns:low")
-            end
-
-            if Interpreting::match("set high priority", command) then
-               Waves::setPriority(wave, "ns:high")
             end
 
             if Interpreting::match("destroy", command) then
@@ -370,20 +339,6 @@ class Waves
         BankExtended::closeNxBall(nxball, true)
     end
 
-    # Waves::ensurePrioritySettings()
-    def self.ensurePrioritySettings()
-        CoreDataTx::getObjectsBySchema("wave")
-            .each{|wave|
-                if Waves::getPriorityOrNull(wave).nil? then
-                    if LucilleCore::askQuestionAnswerAsBoolean("'#{Waves::toString(wave)}' is high priority ? ") then
-                        Waves::setPriority(wave, "ns:high")
-                    else
-                        Waves::setPriority(wave, "ns:low")
-                    end
-                end
-            }
-    end
-
     # -------------------------------------------------------------------------
 
     # Waves::toNS16OrNull(wave)
@@ -403,21 +358,6 @@ class Waves
         CoreDataTx::getObjectsBySchema("wave")
             .map{|wave| Waves::toNS16OrNull(wave) }
             .compact
-    end
-
-    # Waves::ns16sHighPriority()
-    def self.ns16sHighPriority()
-        Waves::ns16s()
-            .select{|ns16| 
-                priority = Waves::getPriorityOrNull(ns16["wave"])
-                priority.nil? or (priority == "ns:high") 
-            }
-    end
-
-    # Waves::ns16sLowPriority()
-    def self.ns16sLowPriority()
-        Waves::ns16s()
-            .select{|ns16| Waves::getPriorityOrNull(ns16["wave"]) == "ns:low" }
     end
 
     # Waves::nx19s()

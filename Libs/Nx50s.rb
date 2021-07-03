@@ -396,23 +396,23 @@ class Nx50s
     def self.ns16s()
         is1 = Nx50s::firstTriplet(0)
 
-        ns16plus = lambda{|nx50|
-            uuid = nx50["uuid"]
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-            {
-                "uuid"     => uuid,
-                "announce" => "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".yellow,
-                "access"   => lambda{ Nx50s::access(nx50) },
-                "done"     => lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx50s::toString(nx50)}' ? ", true) then
-                        Nx50s::complete(nx50)
-                    end
-                },
-                "Nx534"    => true
-            }
-        }
+        is1uuids = is1.map{|i| i["uuid"]}
 
-        is2 = CoreDataTx::getObjectsBySchema("Nx50").first(50).map{|nx50| ns16plus.call(nx50) }
+        is2 = CoreDataTx::getObjectsBySchema("Nx50")
+                .select{|nx50| !is1uuids.include?(nx50["uuid"]) }
+                .map{|nx50| Nx50s::ns16(nx50) }
+                .map{|nx50|
+                    nx50["announce"] = nx50["announce"].yellow
+                    nx50
+                }
+                .map{|nx50|
+                    if !nx50["isVisible"] then
+                        nx50["uuid"] = SecureRandom.hex
+                        nx50["announce"] = nx50["announce"].blue
+                    end
+                    nx50
+                }
+        
         is1 + is2
     end
 
