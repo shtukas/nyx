@@ -40,7 +40,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     #puts "vienna: #{link}"
-    Nx50s::importURLAsNewURLNx50(link)
+    Nx50s::urlToNx50(link)
     viennaLinkFeeder.done(link)
     sleep 1
 }

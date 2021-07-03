@@ -5,4 +5,5 @@ NS16 {
     "access"   : Lambda or nil # optional
     "done"     : Lambda or nil # optional
     "[]"       : Lambda or nil # optional
+    ">>"       : Lambda or nil # optional
 }

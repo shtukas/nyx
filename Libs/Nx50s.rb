@@ -2,38 +2,6 @@
 
 class Nx50s
 
-    # Nx50s::importURLAsNewURLNx50(url)
-    def self.importURLAsNewURLNx50(url)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = url
-        nx50["contentType"] = "Url"
-        nx50["payload"]     = url
-
-        CoreDataTx::commit(nx50)
-        nil
-    end
-
-    # Nx50s::importLocationAsNewAionPointNx50(location)
-    def self.importLocationAsNewAionPointNx50(location)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = File.basename(location) 
-        nx50["contentType"] = "AionPoint"
-        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-
-        CoreDataTx::commit(nx50)
-        nil
-    end
-
     # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
     def self.interactivelyDetermineNewItemUnixtimeOrNull()
         system('clear')
@@ -49,6 +17,56 @@ class Nx50s
             items.shift
             next
         }
+    end
+
+    # Nx50s::urlToNx50(url)
+    def self.urlToNx50(url)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = url
+        nx50["contentType"] = "Url"
+        nx50["payload"]     = url
+
+        CoreDataTx::commit(nx50)
+        nil
+    end
+
+    # Nx50s::locationToNx50(location)
+    def self.locationToNx50(location)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = File.basename(location) 
+        nx50["contentType"] = "AionPoint"
+        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+
+        CoreDataTx::commit(nx50)
+        nil
+    end
+
+    # Nx50s::textToNx50Interactive(text)
+    def self.textToNx50Interactive(text)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = text.lines.first.strip
+        nx50["contentType"] = "Text"
+        nx50["payload"]     = BinaryBlobsService::putBlob(text)
+
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+
+        CoreDataTx::commit(nx50)
+        nil
     end
 
     # Nx50s::interactivelyCreateNewOrNull()
@@ -364,6 +382,14 @@ class Nx50s
             return Nx50s::firstTriplet(index+1)
         end
         items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+    end
+
+    # Nx50s::ns16s()
+    def self.ns16s()
+        is1 = Nx50s::firstTriplet(0)
+
+        is2 = []
+        is1 + is2
     end
 
     # Nx50s::nx19s()

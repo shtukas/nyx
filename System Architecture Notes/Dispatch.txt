@@ -1,6 +1,0 @@
-{
-    "type"    => "c95462ff: quark has been accessed"
-    "payload" => {
-        "filepath" => filepath
-    } 
-}

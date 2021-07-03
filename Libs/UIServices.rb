@@ -31,7 +31,7 @@ class UIServices
             Fitness::ns16s(),
             Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
             Waves::ns16sLowPriority(),
-            Nx50s::firstTriplet(0)
+            Nx50s::ns16s()
         ]
             .flatten
             .compact
@@ -154,7 +154,7 @@ class UIServices
                 puts ""
                 vspaceleft = vspaceleft - 1
                 ns16sfloats.each_with_index{|item, indx|
-                    indexStr   = "(>#{"%2d" % indx})"
+                    indexStr   = "(f:#{indx})"
                     announce   = "#{indexStr} #{item["announce"]}"
                     puts announce.red
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
@@ -191,7 +191,7 @@ class UIServices
 
             # -- listing -----------------------------------------------------------------------------
 
-            if command.start_with?('>') and (ordinal = Interpreting::readAsIntegerOrNull(command[1, 99])) then
+            if command.start_with?('f:') and (ordinal = Interpreting::readAsIntegerOrNull(command[2, 99])) then
                 accessItem.call(ns16sfloats[ordinal])
                 return "ns:loop"
             end
@@ -246,6 +246,14 @@ class UIServices
                 next if item.nil? 
                 next if item["[]"].nil?
                 item["[]"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match(">>", command) then
+                item = items[0]
+                next if item.nil? 
+                next if item[">>"].nil?
+                item[">>"].call()
                 return "ns:loop"
             end
 
