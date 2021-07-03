@@ -27,7 +27,6 @@ class UIServices
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
-            Fitness::ns16s(),
             Waves::ns16sHighPriority(),
             Fitness::ns16s(),
             Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
