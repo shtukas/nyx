@@ -132,10 +132,15 @@ class Nx31s
         {
             "uuid"     => nx31["uuid"],
             "announce" => Nx31s::toString(nx31),
-            "access"   => lambda{ Nx31s::access(nx31) },
-            "done"     => lambda{
+            "access"   => lambda { Nx31s::access(nx31) },
+            "done"     => lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
                     CoreDataTx::delete(nx31["uuid"])
+                end
+            },
+            ">>"       => lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("Recasting '#{Nx31s::toString(nx31)}' as Nx50", true) then
+                    Nx50s::nx31ToNx50Interactive(nx31)
                 end
             }
         }

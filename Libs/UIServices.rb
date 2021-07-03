@@ -35,7 +35,7 @@ class UIServices
         ]
             .flatten
             .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| item["Nx534"] or DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
@@ -243,16 +243,16 @@ class UIServices
 
             if Interpreting::match("[]", command) then
                 item = items[0]
-                next if item.nil? 
-                next if item["[]"].nil?
+                return "ns:loop" if item.nil? 
+                return "ns:loop" if item["[]"].nil?
                 item["[]"].call()
                 return "ns:loop"
             end
 
             if Interpreting::match(">>", command) then
                 item = items[0]
-                next if item.nil? 
-                next if item[">>"].nil?
+                return "ns:loop" if item.nil? 
+                return "ns:loop" if item[">>"].nil?
                 item[">>"].call()
                 return "ns:loop"
             end
