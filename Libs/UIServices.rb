@@ -22,7 +22,7 @@ class UIServices
     def self.ns16s()
         [
             DetachedRunning::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority 1.txt"),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
             Work::isWorkTime() ? PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Work.txt") : nil,
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -31,6 +31,7 @@ class UIServices
             Fitness::ns16s(),
             Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
             Waves::ns16sLowPriority(),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
             Nx50s::ns16s()
         ]
             .flatten
