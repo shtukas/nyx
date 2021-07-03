@@ -366,21 +366,6 @@ class Nx50s
         items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
-    # Nx50s::todayTimeCompletionRatio()
-    def self.todayTimeCompletionRatio()
-        Bank::valueAtDate("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Utils::today()).to_f/(3*3600)
-    end
-
-    # Nx50s::ns17s()
-    def self.ns17s()
-        [
-            {
-                "ratio" => Nx50s::todayTimeCompletionRatio(),
-                "ns16s" => Nx50s::firstTriplet(0)
-            }
-        ]
-    end
-
     # Nx50s::nx19s()
     def self.nx19s()
         CoreDataTx::getObjectsBySchema("Nx50").map{|item|

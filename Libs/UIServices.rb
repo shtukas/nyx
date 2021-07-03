@@ -3,35 +3,20 @@
 # ------------------------------------------------------------------------------------------
 
 class Fitness
-    # Fitness::fitnessNs17OrNull()
-    def self.fitnessNs17OrNull()
+    # Fitness::ns16s()
+    def self.ns16s()
         ratios = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ratios`)
-
         ns16 = {
             "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
             "announce" => "fitness: #{ratios}",
             "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness done") },
             "done"     => lambda { }
         }
-
-        {
-            "ratio" => ratios.min,
-            "ns16s" => [ ns16 ]
-        }
-    end
-
-    # Fitness::fitnessCompletionRatio()
-    def self.fitnessCompletionRatio()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ratios`).min
+        [ns16]
     end
 end
 
 class UIServices
-
-    # UIServices::ns17sToNS16s(ns17s)
-    def self.ns17sToNS16s(ns17s)
-        ns17s.sort{|i1, i2| i1["ratio"] <=> i2["ratio"] }.map{|item| item["ns16s"] }.flatten
-    end
 
     # UIServices::ns16s()
     def self.ns16s()
@@ -42,13 +27,12 @@ class UIServices
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
+            Fitness::ns16s(),
             Waves::ns16sHighPriority(),
-            [Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669")], # Guardian Jedi
-            UIServices::ns17sToNS16s(
-                Work::ns17s() + 
-                Waves::ns17sLowPriority() + 
-                Nx50s::ns17s() + 
-                [Fitness::fitnessNs17OrNull()])
+            Fitness::ns16s(),
+            Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
+            Waves::ns16sLowPriority(),
+            Nx50s::firstTriplet(0)
         ]
             .flatten
             .compact
@@ -163,7 +147,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-4
+            vspaceleft = Utils::screenHeight()-5
 
             ns16sfloats = NxFloat::ns16s()
 
@@ -178,21 +162,6 @@ class UIServices
                 }
             end
 
-            numbers = (lambda(){
-                [
-                    [Fitness::fitnessCompletionRatio(), "- Fitness                          : #{Fitness::fitnessCompletionRatio()}"],
-                    Work::shouldDisplayWork() ? [Work::todayTimeCompletionRatio(),  "- Work::todayTimeCompletionRatio() : #{Work::todayTimeCompletionRatio().round(2)}"] : nil,
-                    [Waves::todayDoneCountRatio(),      "- Waves::todayDoneCountRatio()     : #{Waves::todayDoneCountRatio().round(2)} (done today: #{Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today())}, weekly average: #{Waves::dailyDoneCountAverage()})"],
-                    [Nx50s::todayTimeCompletionRatio(), "- Nx50s::todayTimeCompletionRatio(): #{Nx50s::todayTimeCompletionRatio().round(2)} (#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"]
-                ].compact
-            }).call()
-
-            showNumbers = KeyValueStore::flagIsTrue(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
-
-            if showNumbers then
-                vspaceleft = vspaceleft-numbers.size
-            end
-
             puts ""
 
             items.each_with_index{|item, indx|
@@ -203,14 +172,10 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            if showNumbers then
-                numbers
-                    .sort{|x1, x2| x1[0]<=>x2[0] }
-                    .each{|x| puts x[1].yellow }
-            end
+            puts "(#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})".yellow
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] (Priority.txt) | '' (extended menu) |  n+/- | exit".yellow
+                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] | '' (extended menu) | exit".yellow
             end
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -287,16 +252,6 @@ class UIServices
 
             if Interpreting::match("''", command) then
                 UIServices::operationalInterface()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("n+", command) then
-                KeyValueStore::setFlagTrue(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
-                return "ns:loop"
-            end
-
-            if Interpreting::match("n-", command) then
-                KeyValueStore::setFlagFalse(nil, "a7eec665-84ec-4c5f-a37c-3db170788e13")
                 return "ns:loop"
             end
 

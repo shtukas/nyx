@@ -283,8 +283,6 @@ class Waves
     def self.main()
         loop {
             puts "Waves 🌊 (main)"
-            puts "Waves::dailyDoneCountAverage(): #{Waves::dailyDoneCountAverage()}"
-            puts "Waves::todayDoneCountRatio()  : #{Waves::todayDoneCountRatio()}"
             options = [
                 "new wave",
                 "waves dive"
@@ -420,28 +418,6 @@ class Waves
     def self.ns16sLowPriority()
         Waves::ns16s()
             .select{|ns16| Waves::getPriorityOrNull(ns16["wave"]) == "ns:low" }
-    end
-
-    # Waves::dailyDoneCountAverage()
-    def self.dailyDoneCountAverage()
-        (
-            Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 86400*7)+1
-        ).to_f/7
-    end
-
-    # Waves::todayDoneCountRatio()
-    def self.todayDoneCountRatio()
-        Bank::valueAtDate("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", Utils::today()).to_f/(1.2*Waves::dailyDoneCountAverage())
-    end
-
-    # Waves::ns17sLowPriority()
-    def self.ns17sLowPriority()
-        [
-            {
-                "ratio" => Waves::todayDoneCountRatio(),
-                "ns16s" => Waves::ns16sLowPriority()
-            }
-        ]
     end
 
     # Waves::nx19s()
