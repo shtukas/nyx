@@ -408,14 +408,14 @@ class Nx50s
                 .map{|nx50| Nx50s::ns16(nx50) }
                 .map{|ns16|
                     if is1uuids.include?(ns16["uuid"]) then
-                        ns16["announce"] = ns16["announce"].blue
+                        ns16["announce"] = ns16["announce"].green
                     end
                     ns16
                 }
                 .map{|ns16|
                     if !ns16["isVisible"] then
                         ns16["uuid"] = SecureRandom.hex
-                        ns16["announce"] = ns16["announce"].yellow
+                        ns16["announce"] = ns16["announce"].blue
                     end
                     ns16
                 }

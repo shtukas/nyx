@@ -29,7 +29,7 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16s(),
             Fitness::ns16s(),
-            Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
+            Work::isWorkTime() ? Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669") : nil, # Guardian Jedi
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
             Nx50s::ns16s()
         ]
