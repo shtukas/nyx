@@ -353,9 +353,16 @@ class Waves
         }
     end
 
+    # Waves::circuitBreaker()
+    def self.circuitBreaker()
+        return false if (Time.new.hour < 7)
+        return false if (Time.new.hour >= 18)
+        Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5
+    end
+
     # Waves::ns16s()
     def self.ns16s()
-        return [] if (Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5)
+        return [] if Waves::circuitBreaker()
         CoreDataTx::getObjectsBySchema("wave")
             .map{|wave| Waves::toNS16OrNull(wave) }
             .compact
