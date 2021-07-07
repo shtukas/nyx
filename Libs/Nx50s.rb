@@ -371,8 +371,8 @@ class Nx50s
         Nx50s::operationalNS16OrNull(nx50)
     end
 
-    # Nx50s::orderedOperationalNS16s()
-    def self.orderedOperationalNS16s()
+    # Nx50s::ns16s()
+    def self.ns16s()
         CoreDataTx::getObjectsBySchema("Nx50")
             .map{|nx50| Nx50s::operationalNS16OrNull(nx50) }
             .compact
@@ -380,35 +380,23 @@ class Nx50s
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
-    # Nx50s::ns16s()
-    def self.ns16s()
-        is1 = Nx50s::orderedOperationalNS16s()
-        is1uuids = is1.map{|i| i["uuid"]}
-
-        empty = {
-            "uuid"     => SecureRandom.hex,
-            "announce" => "",
-            "access"   => nil,
-            "done"     => nil
-        }
-
-        is2 = CoreDataTx::getObjectsBySchema("Nx50")
-                .map{|nx50| Nx50s::ns16(nx50) }
-                .map{|ns16|
-                    if is1uuids.include?(ns16["uuid"]) then
-                        ns16["announce"] = ns16["announce"].green
-                    end
-                    ns16
-                }
-                .map{|ns16|
-                    if !ns16["isVisible"] then
-                        ns16["uuid"] = SecureRandom.hex
-                        ns16["announce"] = ns16["announce"].blue
-                    end
-                    ns16
-                }
-        
-        is1 + [empty] + is2
+    # Nx50s::ns16sExtended()
+    def self.ns16sExtended()
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .map{|nx50| Nx50s::ns16(nx50) }
+            .map{|ns16|
+                if ns16["rt"] >= ns16["saturation"] then
+                    ns16["announce"] = "#{ns16["announce"]} [saturated]"
+                end
+                ns16
+            }
+            .map{|ns16|
+                if !ns16["isVisible"] then
+                    ns16["announce"] = "#{ns16["announce"]} [hidden until #{Time.at(DoNotShowUntil::getUnixtimeOrNull(ns16["uuid"])).to_s}]"
+                    ns16["uuid"] = SecureRandom.hex
+                end
+                ns16
+            }
     end
 
     # Nx50s::nx19s()

@@ -51,7 +51,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / work item | ondates | floats | anniversaries | calendar | waves |  work-start, work-not-today, work-reset | search | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo | ondates | floats | anniversaries | calendar | waves | nx50s | work-start, work-not-today, work-reset | search | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -81,10 +81,6 @@ class UIServices
             end
         end
 
-        if Interpreting::match("new work item", command) then
-            Work::interactvelyIssueNewItem()
-        end
-
         if Interpreting::match("floats", command) then
             puts "floats is not implemented"
             LucilleCore::pressEnterToContinue()
@@ -104,6 +100,12 @@ class UIServices
 
         if Interpreting::match("waves", command) then
             Waves::main()
+        end
+
+        if Interpreting::match("nx50s", command) then
+            ns16 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", Nx50s::ns16sExtended(), lambda {|ns50| ns50["announce"] })
+            return if ns16.nil?
+            ns16["access"].call()
         end
 
         if Interpreting::match("work-start", command) then
