@@ -23,7 +23,6 @@ class UIServices
         [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
-            Work::isWorkTime() ? PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Work.txt") : nil,
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
