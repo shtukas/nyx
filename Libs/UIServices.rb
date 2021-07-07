@@ -9,7 +9,7 @@ class Fitness
         ns16 = {
             "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
             "announce" => "fitness",
-            "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness done") },
+            "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing") },
             "done"     => lambda { }
         }
         [ns16]

@@ -7,7 +7,7 @@ class Work
 
     # Work::isWorkTime()
     def self.isWorkTime()
-        b1 = (9 <= Time.new.hour  and Time.new.hour < 17)
+        b1 = (8 <= Time.new.hour  and Time.new.hour < 17)
         b2 = [1,2,3,4,5].include?(Time.new.wday)
         b1 and b2
     end
