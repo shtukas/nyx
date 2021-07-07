@@ -10,8 +10,7 @@ class Search
         Nx31s::nx19s() + 
         Nx50s::nx19s() +
         NxFloat::nx19s() +
-        Waves::nx19s() +
-        Work::nx19s()
+        Waves::nx19s()
     end
 
     # Search::search()

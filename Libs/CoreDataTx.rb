@@ -70,13 +70,6 @@ class CoreDataTx
             object["payload"]                   = object["payload2"]
         end
 
-        if object["schema"] == "workitem" then
-            object["workItemType"]      = object["payload1"]
-            object["trelloLink"]        = object["payload2"]
-            object["prLink"]            = object["payload3"]
-            object["gitBranch"]         = object["payload4"]
-        end
-
         if object["schema"] == "Nx31" then
             object["contentType"]     = object["payload1"]
             object["payload"]         = object["payload2"]
@@ -135,15 +128,6 @@ class CoreDataTx
             object["payload2"] = object["payload"]
             object["payload3"] = nil
             object["payload4"] = nil
-            object["payload5"] = nil
-            hasBeenTransformed = true
-        end
-
-        if object["schema"] == "workitem" then
-            object["payload1"] = object["workItemType"]
-            object["payload2"] = object["trelloLink"]
-            object["payload3"] = object["prLink"]
-            object["payload4"] = object["gitBranch"]
             object["payload5"] = nil
             hasBeenTransformed = true
         end
@@ -208,7 +192,6 @@ class CoreDataTx
             "wave",
             "quark",
             "Nx50",
-            "workitem",
             "Nx31",
             "NxFloat",
         ]

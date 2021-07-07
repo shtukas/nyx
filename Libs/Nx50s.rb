@@ -376,25 +376,13 @@ class Nx50s
         CoreDataTx::getObjectsBySchema("Nx50")
             .map{|nx50| Nx50s::operationalNS16OrNull(nx50) }
             .compact
-    end
-
-    # Nx50s::firstTriplet(index)
-    def self.firstTriplet(index)
-        groupIsSaturated = lambda {|items, saturationRatio|
-            rt = items.map{|item| item["rt"] }.inject(0, :+)
-            saturation = items.map{|item| item["saturation"] }.inject(0, :+)
-            rt >= saturationRatio * saturation
-        }
-        items = Nx50s::orderedOperationalNS16s().drop(3*index).take(3)
-        if groupIsSaturated.call(items, 2.to_f/(index+1)) then
-            return Nx50s::firstTriplet(index+1)
-        end
-        items.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+            .first(3)
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # Nx50s::ns16s()
     def self.ns16s()
-        is1 = Nx50s::firstTriplet(0)
+        is1 = Nx50s::orderedOperationalNS16s()
         is1uuids = is1.map{|i| i["uuid"]}
 
         empty = {
@@ -420,7 +408,7 @@ class Nx50s
                     ns16
                 }
         
-        [empty] + is1 + [empty] + is2
+        is1 + [empty] + is2
     end
 
     # Nx50s::nx19s()

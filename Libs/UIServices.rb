@@ -30,6 +30,7 @@ class UIServices
             Waves::ns16s(),
             Fitness::ns16s(),
             Work::isWorkTime() ? Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669") : nil, # Guardian Jedi
+            Work::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
             Nx50s::ns16s()
         ]
@@ -50,7 +51,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo / work item | ondates | floats | anniversaries | calendar | waves | work | w+/-/0 | search | ns17s | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / todo / work item | ondates | floats | anniversaries | calendar | waves |  work-start, work-not-today, work-reset | search | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -105,19 +106,15 @@ class UIServices
             Waves::main()
         end
 
-        if Interpreting::match("work", command) then
-            Work::main()
+        if Interpreting::match("work-start", command) then
+            DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
         end
 
-        if Interpreting::match("w+", command) then
-            KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:true")
-        end
-
-        if Interpreting::match("w-", command) then
+        if Interpreting::match("work-not-today", command) then
             KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:false")
         end
 
-        if Interpreting::match("w0", command) then
+        if Interpreting::match("work-reset", command) then
             KeyValueStore::destroy(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}")
         end
 
