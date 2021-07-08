@@ -15,8 +15,6 @@ def imports()
     }
 
     system("#{File.dirname(__FILE__)}/../../vienna-import")
-
-    Nx50s::maintenance()
 end
 
 Thread.new {

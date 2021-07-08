@@ -409,3 +409,10 @@ class Nx50s
         }
     end
 end
+
+Thread.new {
+    loop {
+        sleep 3600
+        Nx50s::maintenance()
+    }
+}

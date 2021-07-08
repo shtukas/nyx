@@ -30,6 +30,13 @@ class Work
         !Work::getStartUnixtimeOrNull().nil?
     end
 
+    # Work::runningString()
+    def self.runningString()
+        return "" if !Work::isRunning()
+        value = (Time.new.to_i - Work::getStartUnixtimeOrNull()).to_f/3600
+        "(running for #{value.round(2)}) hours"
+    end
+
     # ---------------------------------------------------------------------------
 
     # Work::isWorkTime()
@@ -64,7 +71,7 @@ class Work
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         if Work::isRunning() then
             [
-                "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) (running) 👩🏻‍💻",
+                "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻",
                 "\n",
                 Work::addLeftPadding(IO.read("/Users/pascal/Desktop/Priority Work.txt")).green
             ].join()
@@ -88,8 +95,7 @@ class Work
                 },
                 "done"     => lambda {
                     if Work::isRunning() then
-                        startUnixtime = Work::getStartUnixtimeOrNull()
-                        timespan = [Time.new.to_i - startUnixtime, 3600*2].min
+                        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
                         puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
                         Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
                         Work::stop()
@@ -99,3 +105,14 @@ class Work
         ]
     end
 end
+
+
+Thread.new {
+    loop {
+        sleep 120
+        next if !Work::isRunning()
+        if (Time.new.to_f - Work::getStartUnixtimeOrNull()) > 3600 then
+            Utils::onScreenNotification("Catalyst", "[work] overrunning")
+        end
+    }
+}
