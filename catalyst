@@ -6,21 +6,10 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-def imports()
-    LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Inbox").each{|location|
-        #puts location
-        Nx50s::locationToNx50(location)
-        LucilleCore::removeFileSystemLocation(location)
-        sleep 1
-    }
-
-    system("#{File.dirname(__FILE__)}/../../vienna-import")
-end
-
 Thread.new {
     loop {
         sleep 300
-        imports()
+        system("#{File.dirname(__FILE__)}/../../vienna-import")
     }
 }
 

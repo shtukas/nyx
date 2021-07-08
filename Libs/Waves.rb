@@ -355,8 +355,6 @@ class Waves
 
     # Waves::circuitBreaker()
     def self.circuitBreaker()
-        return false if (Time.new.hour < 7)
-        return false if (Time.new.hour >= 18)
         Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5
     end
 
