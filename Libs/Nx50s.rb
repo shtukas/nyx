@@ -373,11 +373,18 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+
+        rtForComparizon = lambda {|rt|
+            # We do this to prevent zero elements to keep taking the focus
+            return 0.25 if rt < 0.1
+            rt
+        }
+
         CoreDataTx::getObjectsBySchema("Nx50")
             .map{|nx50| Nx50s::operationalNS16OrNull(nx50) }
             .compact
             .first(3)
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+            .sort{|i1, i2| rtForComparizon.call(i1["rt"]) <=> rtForComparizon.call(i2["rt"]) }
     end
 
     # Nx50s::ns16sExtended()
