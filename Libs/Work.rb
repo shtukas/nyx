@@ -42,6 +42,7 @@ class Work
     # Work::isWorkTime()
     def self.isWorkTime()
         return false if Time.new.hour < 9
+        return false if Time.new.hour >= 21
         [1,2,3,4,5].include?(Time.new.wday)
     end
 
