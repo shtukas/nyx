@@ -48,11 +48,14 @@ class Work
 
     # Work::citcuitBreaker()
     def self.citcuitBreaker()
-        Bank::valueOverTimespan("WORK-E4A9-4BCD-9824-1EEC4D648408", 3600*4) > 3600*3
+        b1 = Bank::valueOverTimespan("WORK-E4A9-4BCD-9824-1EEC4D648408", 3600*4) > 3600*3
+        b2 = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > 7
+        b1 or b2
     end
 
     # Work::shouldDisplayWork()
     def self.shouldDisplayWork()
+        return true if Work::isRunning()
         return false if (KeyValueStore::getOrNull(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}") == "ns:false")
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
         return false if Work::citcuitBreaker()
