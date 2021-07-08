@@ -2,12 +2,10 @@
 
 class PriorityFile
 
-    # PriorityFile::applyNextTransformation(filepath, hash1)
-    def self.applyNextTransformation(filepath, hash1)
+    # PriorityFile::applyNextTransformation(filepath)
+    def self.applyNextTransformation(filepath)
         contents = IO.read(filepath)
         return if contents.strip == ""
-        hash2 = Digest::SHA1.file(filepath).hexdigest
-        return if hash1 != hash2
         contents = SectionsType0141::applyNextTransformationToText(contents)
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
@@ -56,7 +54,7 @@ class PriorityFile
                     end
 
                     if Interpreting::match("[]", command) then
-                        PriorityFile::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest)
+                        PriorityFile::applyNextTransformation(filepath)
                     end
                     
                     if Interpreting::match("''", command) then
@@ -74,7 +72,7 @@ class PriorityFile
                 Bank::put(filepath, timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath, Digest::SHA1.file(filepath).hexdigest) },
+            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) },
             ">>"       => lambda { 
                 sections = SectionsType0141::contentToSections(contents)
                 text = sections.first.strip

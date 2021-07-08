@@ -66,6 +66,11 @@ class Work
 
     # ---------------------------------------------------------------------------
 
+    # Work::priorityWorkFilepath()
+    def self.priorityWorkFilepath()
+        "/Users/pascal/Desktop/Priority Work.txt"
+    end
+
     # Work::announce()
     def self.announce()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
@@ -73,7 +78,7 @@ class Work
             [
                 "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻",
                 "\n",
-                Work::addLeftPadding(IO.read("/Users/pascal/Desktop/Priority Work.txt")).green
+                Work::addLeftPadding(IO.read(Work::priorityWorkFilepath())).green
             ].join()
         else
             "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) 👩🏻‍💻"
@@ -99,6 +104,11 @@ class Work
                         puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
                         Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
                         Work::stop()
+                    end
+                },
+                "[]"       => lambda {
+                    if Work::isRunning() then
+                        PriorityFile::applyNextTransformation(Work::priorityWorkFilepath())
                     end
                 }
             }
