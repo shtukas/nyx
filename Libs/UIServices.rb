@@ -51,7 +51,7 @@ class UIServices
 
     # UIServices::operationalInterface()
     def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / todo | ondates | floats | anniversaries | calendar | waves | nx50s | work-start, work-not-today, work-reset | search | >nyx".yellow
+        puts "new float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx".yellow
         command = LucilleCore::askQuestionAnswerAsString("> ")
     
         return if command == ""
@@ -74,7 +74,7 @@ class UIServices
             Calendar::interactivelyIssueNewCalendarItem()
         end
 
-        if Interpreting::match("new todo", command) then
+        if Interpreting::match("new Nx50", command) then
             nx50 = Nx50s::interactivelyCreateNewOrNull()
             if nx50 then
                 puts JSON.pretty_generate(nx50)
@@ -102,7 +102,7 @@ class UIServices
             Waves::main()
         end
 
-        if Interpreting::match("nx50s", command) then
+        if Interpreting::match("Nx50s", command) then
             ns16 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", Nx50s::ns16sExtended(), lambda {|ns50| ns50["announce"] })
             return if ns16.nil?
             ns16["access"].call()
@@ -251,15 +251,7 @@ class UIServices
                 item["[]"].call()
                 return "ns:loop"
             end
-
-            if Interpreting::match(">>", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item[">>"].nil?
-                item[">>"].call()
-                return "ns:loop"
-            end
-
+            
             if Interpreting::match("''", command) then
                 UIServices::operationalInterface()
                 return "ns:loop"

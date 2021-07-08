@@ -57,7 +57,7 @@ class Nx31s
         system("clear")
         
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}")}".yellow
+        puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
         if coordinates then
@@ -73,9 +73,9 @@ class Nx31s
             system("clear")
 
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}")}".yellow
+            puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "access | note: | <datecode> | update date | detach running | done | exit | ''".yellow
+            puts "access | todo: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -94,9 +94,14 @@ class Nx31s
                 next
             end
 
-            if Interpreting::match("note:", command) then
-                note = LucilleCore::askQuestionAnswerAsString("note: ")
-                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx31["uuid"]}", note)
+            if Interpreting::match("todo:", command) then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx31["uuid"]) || "")
+                StructuredTodoTexts::setNote(nx31["uuid"], note)
+                next
+            end
+
+            if command == "[]" then
+                StructuredTodoTexts::applyT(nx31["uuid"])
                 next
             end
 
@@ -121,6 +126,13 @@ class Nx31s
                 break
             end
 
+            if Interpreting::match("transfert", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Recasting '#{Nx31s::toString(nx31)}' as Nx50", true) then
+                    Nx50s::nx31ToNx50Interactive(nx31)
+                end
+                break
+            end
+
             if Interpreting::match("''", command) then
                 UIServices::operationalInterface()
             end
@@ -136,11 +148,6 @@ class Nx31s
             "done"     => lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
                     CoreDataTx::delete(nx31["uuid"])
-                end
-            },
-            ">>"       => lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("Recasting '#{Nx31s::toString(nx31)}' as Nx50", true) then
-                    Nx50s::nx31ToNx50Interactive(nx31)
                 end
             }
         }

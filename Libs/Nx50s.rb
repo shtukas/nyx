@@ -149,7 +149,7 @@ class Nx50s
         system("clear")
         
         puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}")}".yellow
+        puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
         coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
         if coordinates then
@@ -167,9 +167,9 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}")}".yellow
+            puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
-            puts "access | note: | landing | <datecode> | detach running | exit | completed | ''".yellow
+            puts "access | todo: | [] | landing | <datecode> | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -185,9 +185,14 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("note:", command) then
-                note = LucilleCore::askQuestionAnswerAsString("note: ")
-                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{nx50["uuid"]}", note)
+            if Interpreting::match("todo:", command) then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
+                StructuredTodoTexts::setNote(nx50["uuid"], note)
+                next
+            end
+
+            if command == "[]" then
+                StructuredTodoTexts::applyT(nx50["uuid"])
                 next
             end
 
@@ -348,6 +353,7 @@ class Nx50s
                     Nx50s::complete(nx50)
                 end
             },
+            "[]"         => lambda { StructuredTodoTexts::applyT(nx50["uuid"]) },
             "unixtime"   => nx50["unixtime"],
             "nx50"       => nx50,
             "rt"         => rt,

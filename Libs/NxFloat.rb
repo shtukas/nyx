@@ -74,7 +74,7 @@ class NxFloat
         system("clear")
         
         puts "running: #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}")}".yellow
+        puts "todo: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
         coordinates = Nx102::access(float["contentType"], float["payload"])
         if coordinates then
@@ -92,17 +92,22 @@ class NxFloat
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note: #{KeyValueStore::getOrNull(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}")}".yellow
+            puts "todo: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
-            puts "access | note: | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
+            puts "access | todo: | [] | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
 
-            if Interpreting::match("note:", command) then
-                note = LucilleCore::askQuestionAnswerAsString("note: ")
-                KeyValueStore::set(nil, "b8b66f79-d776-425c-a00c-d0d1e60d865a:#{float["uuid"]}", note)
+            if Interpreting::match("todo:", command) then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(float["uuid"]) || "")
+                StructuredTodoTexts::setNote(float["uuid"], note)
+                next
+            end
+
+            if command == "[]" then
+                StructuredTodoTexts::applyT(float["uuid"])
                 next
             end
 
@@ -171,7 +176,7 @@ class NxFloat
                 "uuid"     => float["uuid"],
                 "announce" => NxFloat::toString(float).gsub("[float]", "[floa]"),
                 "access"   => lambda { NxFloat::access(float) },
-                "done"   => lambda { NxFloat::complete(float) }
+                "done"     => lambda { NxFloat::complete(float) }
             }
         }
     end

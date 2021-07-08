@@ -72,20 +72,7 @@ class PriorityFile
                 Bank::put(filepath, timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) },
-            ">>"       => lambda { 
-                sections = SectionsType0141::contentToSections(contents)
-                text = sections.first.strip
-                puts "recasting section:"
-                puts text.green
-                status = LucilleCore::askQuestionAnswerAsBoolean("as todo item? ", true)
-                if status then
-                    Nx50s::textToNx50Interactive(text)
-                    sections.shift
-                    contents = sections.map{|section| section.strip }.join("\n\n")
-                    File.open(filepath, "w"){|f| f.puts(contents)}
-                end
-            }
+            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) }
         }
     end
 end
