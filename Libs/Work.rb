@@ -41,9 +41,8 @@ class Work
 
     # Work::isWorkTime()
     def self.isWorkTime()
-        b1 = (8 <= Time.new.hour  and Time.new.hour < 17)
-        b2 = [1,2,3,4,5].include?(Time.new.wday)
-        b1 and b2
+        return false if Time.new.hour < 9
+        [1,2,3,4,5].include?(Time.new.wday)
     end
 
     # Work::citcuitBreaker()
@@ -62,9 +61,9 @@ class Work
         Work::isWorkTime()
     end
 
-    # Work::addLeftPadding(text)
-    def self.addLeftPadding(text)
-        text.lines.map{|line| "        #{line}" }.join()
+    # Work::formatPriorityFile(text)
+    def self.formatPriorityFile(text)
+        text.lines.first(5).map{|line| "        #{line}" }.join()
     end
 
     # ---------------------------------------------------------------------------
@@ -81,7 +80,7 @@ class Work
             [
                 "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻",
                 "\n",
-                Work::addLeftPadding(IO.read(Work::priorityWorkFilepath())).green
+                Work::formatPriorityFile(IO.read(Work::priorityWorkFilepath())).green
             ].join()
         else
             "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) 👩🏻‍💻"
