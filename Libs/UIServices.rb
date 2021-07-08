@@ -22,6 +22,7 @@ class UIServices
     def self.ns16s()
         [
             DetachedRunning::ns16s(),
+            Nx60Queue::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
