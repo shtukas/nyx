@@ -44,6 +44,8 @@ class Nx60Queue
     def self.access(location)
         loop {
 
+            system("clear")
+
             break if !File.exist?(location)
 
             if location.include?("'") then

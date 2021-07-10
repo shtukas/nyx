@@ -5,10 +5,11 @@
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
-        return [] if (`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness should-show`.strip != "true")
+        status = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness status`)
+        return [] if !status[0]
         ns16 = {
             "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
-            "announce" => "fitness",
+            "announce" => "fitness: #{status}",
             "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing") },
             "done"     => lambda { }
         }
@@ -159,7 +160,7 @@ class UIServices
                 ns16sfloats.each_with_index{|item, indx|
                     indexStr   = "(f:#{indx})"
                     announce   = "#{indexStr} #{item["announce"]}"
-                    puts announce.red
+                    puts announce.green
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
             end
@@ -174,7 +175,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "(#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})".yellow
+            puts "Nx50s (#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})".yellow
 
             if !items.empty? then
                 puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] | '' (extended menu) | exit".yellow

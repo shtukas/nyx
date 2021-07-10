@@ -309,6 +309,7 @@ class Waves
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
             end
 
             if command == "access" then
@@ -360,6 +361,7 @@ class Waves
 
     # Waves::circuitBreaker()
     def self.circuitBreaker()
+        return false if Time.new.wday == 6
         Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5
     end
 
