@@ -95,6 +95,7 @@ class NxFloat
             puts "todo: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
             puts "access | todo: | [] | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -157,9 +158,7 @@ class NxFloat
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
 
         thr.exit

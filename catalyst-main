@@ -6,5 +6,7 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-UIServices::operationalInterface()
+puts UIServices::mainMenuCommands().yellow
+command = LucilleCore::askQuestionAnswerAsString("> ")
+UIServices::mainMenuInterpreter(command)
 

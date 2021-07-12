@@ -50,13 +50,13 @@ class UIServices
         }
     end
 
-    # UIServices::operationalInterface()
-    def self.operationalInterface()
-        puts "new float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx".yellow
-        command = LucilleCore::askQuestionAnswerAsString("> ")
-    
-        return if command == ""
+    # UIServices::mainMenuCommands()
+    def self.mainMenuCommands()
+        "new float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx"
+    end
 
+    # UIServices::mainMenuInterpreter(command)
+    def self.mainMenuInterpreter(command)
         if Interpreting::match("new float", command) then
             float = NxFloat::interactivelyCreateNewOrNull()
             puts JSON.pretty_generate(float)
@@ -150,7 +150,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-5
+            vspaceleft = Utils::screenHeight()-6
 
             ns16sfloats = NxFloat::ns16s()
 
@@ -180,6 +180,7 @@ class UIServices
             if !items.empty? then
                 puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] | '' (extended menu) | exit".yellow
             end
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -252,15 +253,12 @@ class UIServices
                 item["[]"].call()
                 return "ns:loop"
             end
-            
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-                return "ns:loop"
-            end
 
             if Interpreting::match("exit", command) then
                 return "ns:exit"
             end
+
+            UIServices::mainMenuInterpreter(command)
 
             "ns:loop"
         }

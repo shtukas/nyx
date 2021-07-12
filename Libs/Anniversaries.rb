@@ -172,7 +172,8 @@ class Anniversaries
 
             puts Anniversaries::toString(anniversary).green
 
-            puts "update start date | destroy | ''"
+            puts "update start date | destroy | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -189,9 +190,7 @@ class Anniversaries
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 
@@ -212,6 +211,8 @@ class Anniversaries
             puts "Anniversaries (main)"
 
             puts "dive (into anniversaries) | make (new anniversary) | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
+
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -225,9 +226,7 @@ class Anniversaries
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 

@@ -192,6 +192,7 @@ class Waves
             end
 
             puts "<datecode> | done | update description | recast contents | recast schedule | destroy | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -242,9 +243,7 @@ class Waves
                 end
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 

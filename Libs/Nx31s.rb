@@ -76,6 +76,7 @@ class Nx31s
             puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
             puts "access | todo: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -133,9 +134,7 @@ class Nx31s
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 
@@ -175,6 +174,7 @@ class Nx31s
             }
 
             puts "<item index> | (empty) # exit | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -186,9 +186,7 @@ class Nx31s
                 Nx31s::access(nx31)
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 

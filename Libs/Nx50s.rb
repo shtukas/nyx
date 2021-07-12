@@ -170,6 +170,7 @@ class Nx50s
             puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
             puts "access | todo: | [] | landing | <datecode> | detach running | exit | completed | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -220,9 +221,7 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
 
         thr.exit
@@ -250,6 +249,7 @@ class Nx50s
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
             puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -294,9 +294,7 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("''", command) then
-                UIServices::operationalInterface()
-            end
+            UIServices::mainMenuInterpreter(command)
         }
     end
 

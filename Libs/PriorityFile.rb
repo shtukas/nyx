@@ -39,6 +39,7 @@ class PriorityFile
                     puts ""
 
                     puts "open | <datecode> | [] | (empty) # default # exit | ''".yellow
+                    puts UIServices::mainMenuCommands().yellow
 
                     command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -57,9 +58,7 @@ class PriorityFile
                         PriorityFile::applyNextTransformation(filepath)
                     end
                     
-                    if Interpreting::match("''", command) then
-                        UIServices::operationalInterface()
-                    end
+                    UIServices::mainMenuInterpreter(command)
                 }
 
                 timespan = Time.new.to_f - startUnixtime
