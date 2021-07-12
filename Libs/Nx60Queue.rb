@@ -4,12 +4,12 @@ class Nx60Queue
 
     # Nx60Queue::repositoryFolderpath()
     def self.repositoryFolderpath()
-        "/Users/pascal/Desktop"
+        "/Users/pascal/Desktop/Nx60-Inbox"
     end
 
     # Nx60Queue::locations()
     def self.locations()
-        LucilleCore::locationsAtFolder(Nx60Queue::repositoryFolderpath()) - IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Nx60Queue-ExclusionFilenames.txt").lines.map{|line| "/Users/pascal/Desktop/#{line.strip}" }
+        LucilleCore::locationsAtFolder(Nx60Queue::repositoryFolderpath())
     end
 
     # Nx60Queue::getDescriptionOrNull(location)
@@ -61,34 +61,13 @@ class Nx60Queue
                 system("open '#{location}'")
             end
 
-            puts "done | hide60 (hide for 1 hour) | hide18 (hide until 18) | hide09 (hide until tomorrow 9am) | >nx50s (move to nx50) | exit".yellow
+            puts "done | >nx50s (move to nx50) | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
         
             break if command == "exit"
 
             if Interpreting::match("done", command) then
                 LucilleCore::removeFileSystemLocation(location)
-                break
-            end
-
-            if Interpreting::match("hide60", command) then
-                unixtime = Time.new.to_i+3600
-                DoNotShowUntil::setUnixtime(location, unixtime)
-                Nx60Queue::ensureDescription(location)
-                break
-            end
-
-            if Interpreting::match("hide18", command) then
-                unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 3600*8
-                DoNotShowUntil::setUnixtime(location, unixtime)
-                Nx60Queue::ensureDescription(location)
-                break
-            end
-
-            if Interpreting::match("hide09", command) then
-                unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + 3600*9
-                DoNotShowUntil::setUnixtime(location, unixtime)
-                Nx60Queue::ensureDescription(location)
                 break
             end
 
@@ -104,8 +83,9 @@ class Nx60Queue
     # Nx60Queue::ns16s()
     def self.ns16s()
         Nx60Queue::locations().map{|location|
+            uuid = "#{location}:#{Utils::today()}" # this disable DoNotShowUntil beyond the current day. 
             {
-                "uuid"     => location,
+                "uuid"     => uuid,
                 "announce" => Nx60Queue::announce(location),
                 "access"   => lambda { Nx60Queue::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) }
