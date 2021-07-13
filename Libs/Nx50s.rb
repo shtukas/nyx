@@ -361,19 +361,21 @@ class Nx50s
         }
     end
 
-    # Nx50s::operationalNS16OrNull(nx50)
-    def self.operationalNS16OrNull(nx50)
-        ns16 = Nx50s::ns16(nx50)
-        return nil if !ns16["isVisible"]
-        return nil if ns16["rt"] >= ns16["saturation"]
-        ns16
+    # Nx50s::shouldShowNS16(ns16)
+    def self.shouldShowNS16(ns16)
+        return false if !ns16["isVisible"]
+        return false if ns16["rt"] >= ns16["saturation"]
+        true
     end
 
     # Nx50s::getOperationalNS16ByUUIDOrNull(uuid)
     def self.getOperationalNS16ByUUIDOrNull(uuid)
         nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
         return nil if nx50.nil?
-        Nx50s::operationalNS16OrNull(nx50)
+        ns16 = Nx50s::ns16(nx50)
+        return nil if !ns16["isVisible"]
+        return nil if ns16["rt"] >= ns16["saturation"]
+        ns16
     end
 
     # Nx50s::ns16s()
@@ -386,8 +388,8 @@ class Nx50s
         }
 
         CoreDataTx::getObjectsBySchema("Nx50")
-            .map{|nx50| Nx50s::operationalNS16OrNull(nx50) }
-            .compact
+            .map{|nx50| Nx50s::ns16(nx50) }
+            .select{|ns16| Nx50s::shouldShowNS16(ns16) }
             .first(3)
             .sort{|i1, i2| rtForComparizon.call(i1["rt"]) <=> rtForComparizon.call(i2["rt"]) }
     end
