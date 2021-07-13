@@ -338,6 +338,7 @@ class Waves
             if command == "detach running" then
                 DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
                 Waves::performDone(wave)
+                break
             end
         }
         
