@@ -43,6 +43,9 @@ class Nx60Queue
 
     # Nx60Queue::access(location)
     def self.access(location)
+
+        startUnixtime = Time.new.to_i
+
         loop {
 
             system("clear")
@@ -89,6 +92,12 @@ class Nx60Queue
         if File.exists?(location) and Nx60Queue::getDescriptionOrNull(location).nil? then
             Nx60Queue::ensureDescription(location)
         end
+
+        endUnixtime = Time.new.to_i
+        timespan = endUnixtime - startUnixtime
+        timespan = [timespan, 3600*2].min
+
+        Bank::put("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", timespan)
     end
 
     # Nx60Queue::ns16s()
