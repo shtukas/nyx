@@ -129,7 +129,7 @@ class Nx31s
 
             if Interpreting::match("transfert", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Recasting '#{Nx31s::toString(nx31)}' as Nx50", true) then
-                    Nx50s::nx31ToNx50Interactive(nx31)
+                    Nx50s::transmuteToNx50UsingNx31Interactive(nx31)
                 end
                 break
             end

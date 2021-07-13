@@ -2,81 +2,6 @@
 
 class Nx50s
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
-    def self.interactivelyDetermineNewItemUnixtimeOrNull()
-        system('clear')
-        puts "Select the belore item:"
-        items = CoreDataTx::getObjectsBySchema("Nx50")
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
-        return nil if item.nil?
-        loop {
-            return nil if items.size < 2
-            if items[0]["uuid"] == item["uuid"] then
-                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-            end
-            items.shift
-            next
-        }
-    end
-
-    # Nx50s::urlToNx50(url)
-    def self.urlToNx50(url)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = url
-        nx50["contentType"] = "Url"
-        nx50["payload"]     = url
-
-        CoreDataTx::commit(nx50)
-        nil
-    end
-
-    # Nx50s::locationToNx50(location)
-    def self.locationToNx50(location)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = File.basename(location) 
-        nx50["contentType"] = "AionPoint"
-        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-
-        CoreDataTx::commit(nx50)
-        nil
-    end
-
-    # Nx50s::nx31ToNx50Interactive(nx31)
-    def self.nx31ToNx50Interactive(nx31)
-        nx31["schema"] = "Nx50"
-        nx31["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || nx31["unixtime"])
-        CoreDataTx::commit(nx31)
-        nil
-    end
-
-    # Nx50s::textToNx50Interactive(text)
-    def self.textToNx50Interactive(text)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = text.lines.first.strip
-        nx50["contentType"] = "Text"
-        nx50["payload"]     = BinaryBlobsService::putBlob(text)
-
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-
-        CoreDataTx::commit(nx50)
-        nil
-    end
-
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
@@ -104,6 +29,82 @@ class Nx50s
         CoreDataTx::commit(nx50)
 
         nx50
+    end
+
+    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
+    def self.interactivelyDetermineNewItemUnixtimeOrNull()
+        system('clear')
+        puts "Select the belore item:"
+        items = CoreDataTx::getObjectsBySchema("Nx50")
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
+        return nil if item.nil?
+        loop {
+            return nil if items.size < 2
+            if items[0]["uuid"] == item["uuid"] then
+                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+            end
+            items.shift
+            next
+        }
+    end
+
+    # Nx50s::issueNx50UsingURL(url)
+    def self.issueNx50UsingURL(url)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = url
+        nx50["contentType"] = "Url"
+        nx50["payload"]     = url
+
+        CoreDataTx::commit(nx50)
+        CoreDataTx::getObjectByIdOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingLocation(location)
+    def self.issueNx50UsingLocation(location)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = File.basename(location) 
+        nx50["contentType"] = "AionPoint"
+        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+
+        CoreDataTx::commit(nx50)
+        CoreDataTx::getObjectByIdOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingTextInteractive(text)
+    def self.issueNx50UsingTextInteractive(text)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = text.lines.first.strip
+        nx50["contentType"] = "Text"
+        nx50["payload"]     = BinaryBlobsService::putBlob(text)
+
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+
+        CoreDataTx::commit(nx50)
+        CoreDataTx::getObjectByIdOrNull(uuid)
+    end
+
+    # Nx50s::transmuteToNx50UsingNx31Interactive(nx31)
+    def self.transmuteToNx50UsingNx31Interactive(nx31)
+        nx50 = nx31.clone
+        nx50["schema"] = "Nx50"
+        nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || nx31["unixtime"])
+        CoreDataTx::commit(nx50)
+        CoreDataTx::getObjectByIdOrNull(nx50["uuid"])
     end
 
     # --------------------------------------------------

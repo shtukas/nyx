@@ -61,7 +61,7 @@ class Nx60Queue
                 system("open '#{location}'")
             end
 
-            puts "done | >nx50s (move to nx50) | exit".yellow
+            puts "done | open | >nx50s (move to nx50) | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
         
             break if command == "exit"
@@ -71,10 +71,16 @@ class Nx60Queue
                 break
             end
 
+            if Interpreting::match("open", command) then
+                system("open '#{location}'")
+                break
+            end
+
             if Interpreting::match(">nx50s", command) then
-                unixtime = Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + 3600*9
-                DoNotShowUntil::setUnixtime(location, unixtime)
-                Nx60Queue::ensureDescription(location)
+                nx50 = Nx50s::issueNx50UsingLocation(location)
+                nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+                CoreDataTx::commit(nx50)
+                LucilleCore::removeFileSystemLocation(location)
                 break
             end
         }
