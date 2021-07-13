@@ -14,6 +14,7 @@ class Nx60Queue
 
     # Nx60Queue::getDescriptionOrNull(location)
     def self.getDescriptionOrNull(location)
+        return nil if !File.exists?(location)
         KeyValueStore::getOrNull(nil, "ca23acc1-6596-4e8e-b9e7-714ae3c7b0f8:#{location}")
     end
 
@@ -84,6 +85,10 @@ class Nx60Queue
                 break
             end
         }
+
+        if File.exists?(location) and Nx60Queue::getDescriptionOrNull(location).nil? then
+            Nx60Queue::ensureDescription(location)
+        end
     end
 
     # Nx60Queue::ns16s()
