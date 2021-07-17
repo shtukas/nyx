@@ -55,13 +55,6 @@ class NxAsteroid
         end
         db.close
         answer
-            .reduce([]){|selected, item|
-                if selected.none?{|obj| obj["uuid"] == item["uuid"] } then
-                    selected + [item]
-                else
-                    selected
-                end
-            }
     end
 
     # ----------------------------------------------------------------------
