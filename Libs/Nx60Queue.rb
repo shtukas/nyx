@@ -44,6 +44,8 @@ class Nx60Queue
     # Nx60Queue::access(location)
     def self.access(location)
 
+        uuid = "#{location}:#{Utils::today()}"
+
         startUnixtime = Time.new.to_i
 
         loop {
@@ -51,6 +53,8 @@ class Nx60Queue
             system("clear")
 
             break if !File.exist?(location)
+
+            puts location.yellow
 
             if location.include?("'") then
                 puts "Looking at: #{location}"
@@ -65,7 +69,7 @@ class Nx60Queue
                 system("open '#{location}'")
             end
 
-            puts "done | open | >nx50s (move to nx50) | exit".yellow
+            puts "done | open | <datecode> | >nx50s (move to nx50) | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
         
             break if command == "exit"
@@ -77,6 +81,16 @@ class Nx60Queue
 
             if Interpreting::match("open", command) then
                 system("open '#{location}'")
+                break
+            end
+
+            if command == "++" then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
             end
 

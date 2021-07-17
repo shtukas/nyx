@@ -31,21 +31,38 @@ class Nx50s
         nx50
     end
 
+    # Nx50s::minusOneUnixtime()
+    def self.minusOneUnixtime()
+        items = CoreDataTx::getObjectsBySchema("Nx50")
+        return Time.new.to_i if items.empty?
+        items.map{|item| item["unixtime"] }.min - 1
+    end
+
     # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
     def self.interactivelyDetermineNewItemUnixtimeOrNull()
-        system('clear')
-        puts "Select the belore item:"
-        items = CoreDataTx::getObjectsBySchema("Nx50")
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
-        return nil if item.nil?
-        loop {
-            return nil if items.size < 2
-            if items[0]["uuid"] == item["uuid"] then
-                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-            end
-            items.shift
-            next
-        }
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["minus 1", "other", "last"])
+        return nil if type.nil?
+        if type == "minus 1" then
+            return Nx50s::minusOneUnixtime()
+        end
+        if type == "other" then
+            system('clear')
+            puts "Select the before item:"
+            items = CoreDataTx::getObjectsBySchema("Nx50")
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
+            return nil if item.nil?
+            loop {
+                return nil if items.size < 2
+                if items[0]["uuid"] == item["uuid"] then
+                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+                end
+                items.shift
+                next
+            }
+        end
+        if type == "last" then
+            return Time.new.to_i
+        end
     end
 
     # Nx50s::issueNx50UsingURL(url)
@@ -183,7 +200,7 @@ class Nx50s
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(nx50["uuid"], unixtime)
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
             end
 
@@ -329,8 +346,8 @@ class Nx50s
 
     # --------------------------------------------------
 
-    # Nx50s::saturation(nx50)
-    def self.saturation(nx50)
+    # Nx50s::saturationRT(nx50)
+    def self.saturationRT(nx50)
         # This function returns the recovery time after with the item is saturated
         t1 = Bank::valueOverTimespan(nx50["uuid"], 86400*14)
         tx = t1.to_f/(7*3600) # multiple of 7 hours over two weeks
@@ -341,7 +358,7 @@ class Nx50s
     def self.ns16(nx50)
         uuid = nx50["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        saturation = Nx50s::saturation(nx50)
+        saturation = Nx50s::saturationRT(nx50)
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,

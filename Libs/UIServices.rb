@@ -5,7 +5,7 @@
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
-        status = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness status`)
+        status = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness should-show`)
         return [] if !status[0]
         ns16 = {
             "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
@@ -150,7 +150,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-7
+            vspaceleft = Utils::screenHeight()-6
 
             ns16sfloats = NxFloat::ns16s()
 
@@ -175,8 +175,11 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            puts "RTs: waves: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}, queue: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}".yellow
-            puts "Nx50s (#{CoreDataTx::getObjectsBySchema("Nx50").size} items; done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})".yellow
+            puts [
+                "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}) ",
+                "(queue: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}) ",
+                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)}) "
+            ].join().yellow
 
             if !items.empty? then
                 puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] | '' (extended menu) | exit".yellow
