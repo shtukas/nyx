@@ -31,10 +31,9 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        items1 = UIServices::priorityNS16s()
 
         items2 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", "[]"))
-        items2 = UIServices::nonPriorityNS16s().reduce(items2){|present, incoming|
+        items2 = UIServices::secondaryNS16s().reduce(items2){|present, incoming|
             NS16sOperator::replaceOrPutAtTheEnd(present, incoming)
         }
         # Note one thing that we somehow need to ensure is that all elements in items2 are fresh, meaning have been actually replaced to carry the right lambdas
@@ -42,7 +41,7 @@ class NS16sOperator
         items2 = items2.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }  
         KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(NS16sOperator::rotate(items2)))
 
-        items1 + items2
+        UIServices::priorityNS16s() + items2 + Nx50s::ns16s()
     end
 end
 
@@ -60,8 +59,8 @@ class UIServices
             .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
     end
 
-    # UIServices::nonPriorityNS16s()
-    def self.nonPriorityNS16s()
+    # UIServices::secondaryNS16s()
+    def self.secondaryNS16s()
         [
             Nx60Queue::ns16s(),
             Anniversaries::ns16s(),
@@ -69,8 +68,7 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16s(),
             Fitness::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
-            Nx50s::ns16s()
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt")
         ]
             .flatten
             .compact
@@ -79,7 +77,7 @@ class UIServices
 
     # UIServices::ns16s()
     def self.ns16s()
-        UIServices::priorityNS16s() + UIServices::nonPriorityNS16s()
+        UIServices::priorityNS16s() + UIServices::secondaryNS16s() + Nx50s::ns16s()
     end
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
