@@ -295,9 +295,9 @@ class Waves
             system("clear")
 
             puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})"
-            puts "todo: #{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
+            puts "note: #{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
-            command = LucilleCore::askQuestionAnswerAsString("> [actions: access, todo:, [], done, <datecode>, landing, detach running, exit] action : ")
+            command = LucilleCore::askQuestionAnswerAsString("> [actions: access, note:, [], done, <datecode>, landing, detach running, exit] action : ")
 
             break if command == "exit"
 
@@ -315,7 +315,7 @@ class Waves
                 accessContent.call(wave)
             end
 
-            if command == "todo:" then
+            if command == "note:" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
                 StructuredTodoTexts::setNote(wave["uuid"], note)
                 next

@@ -57,7 +57,7 @@ class Nx31s
         system("clear")
         
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+        puts "note: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
         if coordinates then
@@ -73,9 +73,9 @@ class Nx31s
             system("clear")
 
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "todo: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+            puts "note: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "access | todo: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
+            puts "access | note: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -95,7 +95,7 @@ class Nx31s
                 next
             end
 
-            if Interpreting::match("todo:", command) then
+            if Interpreting::match("note:", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx31["uuid"]) || "")
                 StructuredTodoTexts::setNote(nx31["uuid"], note)
                 next

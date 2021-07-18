@@ -17,14 +17,47 @@ class Fitness
     end
 end
 
+class NS16sOperator
+
+    # NS16sOperator::replaceOrPutAtTheEnd(objs, obj)
+    def self.replaceOrPutAtTheEnd(objs, obj)
+        objs.take_while{|o| o["uuid"] != obj["uuid"] } + [obj] + objs.drop_while{|o| o["uuid"] != obj["uuid"] }.drop(1)
+    end
+
+    # NS16sOperator::ns16s()
+    def self.ns16s()
+        items1 = UIServices::priorityNS16s()
+
+        items2 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", "[]"))
+        items2 = UIServices::nonPriorityNS16s().reduce(items2){|present, incoming|
+            NS16sOperator::replaceOrPutAtTheEnd(present, incoming)
+        }
+        # Note one thing that we somehow need to ensure is that all elements in items2 are fresh, meaning have been actually replaced to carry the right lambdas
+        items2 = items2.select{|item| item["access"].class.to_s != "String" }
+        items2 = items2.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }  
+        KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(items2))
+
+        items1 + items2
+    end
+end
+
 class UIServices
 
-    # UIServices::ns16s()
-    def self.ns16s()
+    # UIServices::priorityNS16s()
+    def self.priorityNS16s()
         [
             DetachedRunning::ns16s(),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt")
+        ]
+            .flatten
+            .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
+    end
+
+    # UIServices::nonPriorityNS16s()
+    def self.nonPriorityNS16s()
+        [
             Nx60Queue::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
@@ -38,6 +71,11 @@ class UIServices
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+    end
+
+    # UIServices::ns16s()
+    def self.ns16s()
+        UIServices::priorityNS16s() + UIServices::nonPriorityNS16s()
     end
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
@@ -132,12 +170,16 @@ class UIServices
 
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
-        getItems = lambda {
+        getItems1 = lambda {
             ns16s = UIServices::ns16s()
             if ns16s.size>0 and ns16s[0]["announce"]=="" then
                 ns16s.shift
             end
             ns16s
+        }
+
+        getItems2 = lambda {
+            NS16sOperator::ns16s()
         }
 
         processItems = lambda {|items|
@@ -267,6 +309,6 @@ class UIServices
             "ns:loop"
         }
 
-        UIServices::programmableListingDisplay(getItems, processItems)
+        UIServices::programmableListingDisplay(getItems2, processItems)
     end
 end

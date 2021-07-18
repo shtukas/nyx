@@ -74,7 +74,7 @@ class NxFloat
         system("clear")
         
         puts "running: #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "todo: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
+        puts "note: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
         coordinates = Nx102::access(float["contentType"], float["payload"])
         if coordinates then
@@ -92,16 +92,16 @@ class NxFloat
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "todo: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
+            puts "note: #{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
-            puts "access | todo: | [] | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
+            puts "access | note: | [] | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
 
-            if Interpreting::match("todo:", command) then
+            if Interpreting::match("note:", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(float["uuid"]) || "")
                 StructuredTodoTexts::setNote(float["uuid"], note)
                 next
