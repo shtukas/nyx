@@ -24,6 +24,11 @@ class NS16sOperator
         objs.take_while{|o| o["uuid"] != obj["uuid"] } + [obj] + objs.drop_while{|o| o["uuid"] != obj["uuid"] }.drop(1)
     end
 
+    # NS16sOperator::rotate(items)
+    def self.rotate(items)
+        items.drop(1) + items.take(1)
+    end
+
     # NS16sOperator::ns16s()
     def self.ns16s()
         items1 = UIServices::priorityNS16s()
@@ -35,7 +40,7 @@ class NS16sOperator
         # Note one thing that we somehow need to ensure is that all elements in items2 are fresh, meaning have been actually replaced to carry the right lambdas
         items2 = items2.select{|item| item["access"].class.to_s != "String" }
         items2 = items2.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }  
-        KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(items2))
+        KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(NS16sOperator::rotate(items2)))
 
         items1 + items2
     end
@@ -47,7 +52,8 @@ class UIServices
     def self.priorityNS16s()
         [
             DetachedRunning::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt")
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
+            Work::ns16s(),
         ]
             .flatten
             .compact
@@ -63,8 +69,6 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16s(),
             Fitness::ns16s(),
-            Work::isWorkTime() ? Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669") : nil, # Guardian Jedi
-            Work::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
             Nx50s::ns16s()
         ]
