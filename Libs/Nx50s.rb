@@ -167,7 +167,7 @@ class Nx50s
         system("clear")
         
         puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "note: #{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
+        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
         coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
         if coordinates then
@@ -185,7 +185,7 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note: #{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
             puts "access | note: | [] | landing | <datecode> | detach running | exit | completed | ''".yellow
             puts UIServices::mainMenuCommands().yellow

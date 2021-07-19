@@ -57,7 +57,7 @@ class Nx31s
         system("clear")
         
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "note: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
         if coordinates then
@@ -73,7 +73,7 @@ class Nx31s
             system("clear")
 
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note: #{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
             puts "access | note: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
             puts UIServices::mainMenuCommands().yellow

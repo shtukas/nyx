@@ -295,7 +295,7 @@ class Waves
             system("clear")
 
             puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})"
-            puts "note: #{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
             command = LucilleCore::askQuestionAnswerAsString("> [actions: access, note:, [], done, <datecode>, landing, detach running, exit] action : ")
 
