@@ -167,7 +167,7 @@ class Nx50s
         system("clear")
         
         puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts KeyValueStore::getOrNull(nil, "172EB21E-FD80:#{uuid}")
+        puts "schedule: #{nx50["schedule"]}"
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
         coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
@@ -186,6 +186,7 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "schedule: #{nx50["schedule"]}"
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
             puts "access | note: | [] | landing | <datecode> | detach running | exit | completed | ''".yellow
@@ -260,14 +261,14 @@ class Nx50s
 
             puts "uuid: #{nx50["uuid"]}".yellow
             puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
-
+            puts "schedule: #{nx50["schedule"]}"
             unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
             if unixtime then
                 puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
             end
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
-            puts "access (partial edit) | edit description | edit contents | transmute | destroy | ''".yellow
+            puts "access (partial edit) | edit description | edit contents | edit schedule | transmute | destroy | ''".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -297,6 +298,11 @@ class Nx50s
                     nx50["payload"]     = coordinates[1]
                     CoreDataTx::commit(nx50)
                 end
+            end
+
+            if Interpreting::match("edit schedule", command) then
+                nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
+                CoreDataTx::commit(nx50)
             end
 
             if Interpreting::match("transmute", command) then
@@ -384,15 +390,26 @@ class Nx50s
         return false if !ns16["isVisible"]
 
         nx50 = ns16["nx50"]
-        uuid = nx50["uuid"]
-        behaviourOverride = KeyValueStore::getOrNull(nil, "172EB21E-FD80:#{uuid}")
 
-        if behaviourOverride and behaviourOverride.start_with?("5E21") then
-            rtTarget = behaviourOverride[5, 99].to_f
-            return ns16["rt"] < rtTarget
+        if nx50["schedule"]["type"] == "indefinite-daily-commitment" then
+            if nx50["schedule"]["exclusionDays"] and nx50["schedule"]["exclusionDays"].include?(Time.new.wday) then
+                return false
+            end
+            return (Bank::valueAtDate(nx50["uuid"], Utils::today()) < nx50["schedule"]["hours"]*3600)
         end
 
-        ns16["rt"] < ns16["saturation"]
+        if nx50["schedule"]["type"] == "indefinite-weekly-commitment" then
+            doneTimeInSeconds = Utils::datesSinceLastSaturday()
+                                    .map{|date| Bank::valueAtDate(nx50["uuid"], date)}
+                                    .inject(0, :+)
+            return (doneTimeInSeconds < nx50["schedule"]["hours"]*3600)
+        end
+
+        if nx50["schedule"]["type"] == "regular" then
+            return ns16["rt"] < ns16["saturation"]
+        end
+
+        raise "[error: 47e04a3d-5f18-493e-a8ec-3bebda4d430f] #{ns16}"
     end
 
     # Nx50s::getOperationalNS16ByUUIDOrNull(uuid)
@@ -405,8 +422,8 @@ class Nx50s
         ns16
     end
 
-    # Nx50s::ns16s()
-    def self.ns16s()
+    # Nx50s::ns16sOfScheduleTypes(types)
+    def self.ns16sOfScheduleTypes(types)
 
         rtForComparizon = lambda {|rt|
             # We do this to prevent zero elements to keep taking the focus
@@ -415,6 +432,7 @@ class Nx50s
         }
 
         CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|nx50| types.include?(nx50["schedule"]["type"]) }
             .map{|nx50| Nx50s::ns16(nx50) }
             .select{|ns16| Nx50s::shouldShowNS16(ns16) }
             .first(3)

@@ -207,6 +207,20 @@ class Utils
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00 #{timezone}").to_time.to_i
     end
 
+    # Utils::datesSinceLastSaturday()
+    def self.datesSinceLastSaturday()
+        dateIsSaturday = lambda{|date| Date.parse(date).to_time.wday == 6}
+        (0..6)
+            .map{|i| Utils::nDaysInTheFuture(-i) }
+            .reduce([]){|days, day|
+                if days.none?{|d| dateIsSaturday.call(d) } then
+                    days + [day]
+                else
+                    days
+                end
+            }
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

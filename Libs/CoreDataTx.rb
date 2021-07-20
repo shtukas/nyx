@@ -68,6 +68,21 @@ class CoreDataTx
         if object["schema"] == "Nx50" then
             object["contentType"]               = object["payload1"]
             object["payload"]                   = object["payload2"]
+            object["schedule"]                  = object["payload3"]
+            if object["schedule"].nil? or object["schedule"] == "" then
+                object["schedule"] = {
+                    "type" => "regular"
+                }
+            else
+                begin
+                    object["schedule"] = JSON.parse(object["schedule"])
+                    object["schedule"]["type"] # this will raise an exception if we were deadling with garbage data that managed to be deserialised
+                rescue
+                    object["schedule"] = {
+                        "type" => "regular"
+                    }
+                end
+            end
         end
 
         if object["schema"] == "Nx31" then
@@ -126,7 +141,7 @@ class CoreDataTx
         if object["schema"] == "Nx50" then
             object["payload1"] = object["contentType"]
             object["payload2"] = object["payload"]
-            object["payload3"] = nil
+            object["payload3"] = JSON.generate(object["schedule"])
             object["payload4"] = nil
             object["payload5"] = nil
             hasBeenTransformed = true

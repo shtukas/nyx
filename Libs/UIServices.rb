@@ -41,7 +41,7 @@ class NS16sOperator
         items2 = items2.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }  
         KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(NS16sOperator::rotate(items2)))
 
-        UIServices::priorityNS16s() + items2 + Nx50s::ns16s()
+        UIServices::priorityNS16s() + items2 + Nx50s::ns16sOfScheduleTypes(["regular"])
     end
 end
 
@@ -68,16 +68,12 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16s(),
             Fitness::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt")
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
+            Nx50s::ns16sOfScheduleTypes(["indefinite-daily-commitment", "indefinite-weekly-commitment"])
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-    end
-
-    # UIServices::ns16s()
-    def self.ns16s()
-        UIServices::priorityNS16s() + UIServices::secondaryNS16s() + Nx50s::ns16s()
     end
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
@@ -173,7 +169,7 @@ class UIServices
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
         getItems1 = lambda {
-            ns16s = UIServices::ns16s()
+            ns16s = NS16sOperator::ns16s()
             if ns16s.size>0 and ns16s[0]["announce"]=="" then
                 ns16s.shift
             end
