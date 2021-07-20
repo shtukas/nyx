@@ -167,6 +167,7 @@ class Nx50s
         system("clear")
         
         puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts KeyValueStore::getOrNull(nil, "172EB21E-FD80:#{uuid}")
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
 
         coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
@@ -381,8 +382,17 @@ class Nx50s
     # Nx50s::shouldShowNS16(ns16)
     def self.shouldShowNS16(ns16)
         return false if !ns16["isVisible"]
-        return false if ns16["rt"] >= ns16["saturation"]
-        true
+
+        nx50 = ns16["nx50"]
+        uuid = nx50["uuid"]
+        behaviourOverride = KeyValueStore::getOrNull(nil, "172EB21E-FD80:#{uuid}")
+
+        if behaviourOverride and behaviourOverride.start_with?("5E21") then
+            rtTarget = behaviourOverride[5, 99].to_f
+            return ns16["rt"] < rtTarget
+        end
+
+        ns16["rt"] < ns16["saturation"]
     end
 
     # Nx50s::getOperationalNS16ByUUIDOrNull(uuid)

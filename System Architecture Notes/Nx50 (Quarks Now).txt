@@ -21,3 +21,11 @@ Nx50 (same as Quark) (CoreDataTx) {
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
 
+
+The scheduling of Nx50s is a bit complex and relies on recovery times, but we can override the default by issuing 
+
+Xcache/set: "172EB21E-FD80:#{uuid}", value
+
+where value:
+    "C337E066-5E21:#{RT commitment per day}" # stays up until we reach that target
+
