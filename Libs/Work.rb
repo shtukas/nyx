@@ -14,6 +14,10 @@ class Work
 
     # Work::stop()
     def self.stop()
+        return if !Work::isRunning()
+        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
+        puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
+        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
         KeyValueStore::destroy(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b")
     end
 
@@ -98,17 +102,10 @@ class Work
                 "uuid"     => uuid,
                 "announce" => Work::announce(),
                 "access"   => lambda { 
-                    if !Work::isRunning() then
-                        Work::start()
-                    end
+                    Work::isRunning() ? Work::stop() : Work::start()
                 },
                 "done"     => lambda {
-                    if Work::isRunning() then
-                        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
-                        puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
-                        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
-                        Work::stop()
-                    end
+                    Work::stop()
                 },
                 "[]"       => lambda {
                     if Work::isRunning() then
