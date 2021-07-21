@@ -172,7 +172,7 @@ class Anniversaries
 
             puts Anniversaries::toString(anniversary).green
 
-            puts "update start date | destroy | ''".yellow
+            puts "update start date | destroy".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -210,7 +210,7 @@ class Anniversaries
         loop {
             puts "Anniversaries (main)"
 
-            puts "dive (into anniversaries) | make (new anniversary) | ''".yellow
+            puts "dive (into anniversaries) | make (new anniversary)".yellow
             puts UIServices::mainMenuCommands().yellow
 
 

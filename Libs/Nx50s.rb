@@ -165,31 +165,28 @@ class Nx50s
         }
 
         system("clear")
-        
-        puts "running: #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "schedule: #{nx50["schedule"]}"
-        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
-
-        coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
-        if coordinates then
-            nx50["contentType"] = coordinates[0]
-            nx50["payload"]     = coordinates[1]
-            CoreDataTx::commit(nx50)
-        end
 
         loop {
 
-            return if CoreDataTx::getObjectByIdOrNull(nx50["uuid"]).nil?
+            return if CoreDataTx::getObjectByIdOrNull(uuid).nil?
 
             system("clear")
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "schedule: #{nx50["schedule"]}"
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx50["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
+            puts "uuid: #{uuid}".yellow
+            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
+            puts "schedule: #{nx50["schedule"]}".yellow
+            if (unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)) then
+                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
+            end
+            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
-            puts "access | note: | [] | landing | <datecode> | detach running | exit | completed | ''".yellow
+            puts ""
+            puts "access | note: | [] | landing | <datecode> | detach running | exit | completed".yellow
+            puts "edit description | edit contents | edit schedule | transmute | destroy".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -208,12 +205,12 @@ class Nx50s
 
             if Interpreting::match("note:", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
-                StructuredTodoTexts::setNote(nx50["uuid"], note)
+                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 
             if command == "[]" then
-                StructuredTodoTexts::applyT(nx50["uuid"])
+                StructuredTodoTexts::applyT(uuid)
                 next
             end
 
@@ -227,16 +224,62 @@ class Nx50s
                 next
             end
 
-            if Interpreting::match("landing", command) then
-                Nx50s::landing(nx50)
-            end
-
             if Interpreting::match("detach running", command) then
                 DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                 break
             end
 
             if Interpreting::match("completed", command) then
+                Nx50s::complete(nx50)
+                break
+            end
+
+            if Interpreting::match("access", command) then
+                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+                next
+            end
+
+            if Interpreting::match("edit description", command) then
+                description = Utils::editTextSynchronously(nx50["description"])
+                if description.size > 0 then
+                    nx50["description"] = description
+                    CoreDataTx::commit(nx50)
+                end
+                next
+            end
+
+            if Interpreting::match("edit contents", command) then
+                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+                next
+            end
+
+            if Interpreting::match("edit schedule", command) then
+                nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
+                CoreDataTx::commit(nx50)
+                next
+            end
+
+            if Interpreting::match("transmute", command) then
+                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
+                if coordinates then
+                    nx50["contentType"] = coordinates[0]
+                    nx50["payload"]     = coordinates[1]
+                    CoreDataTx::commit(nx50)
+                end
+                next
+            end
+
+            if Interpreting::match("destroy", command) then
                 Nx50s::complete(nx50)
                 break
             end
@@ -250,79 +293,7 @@ class Nx50s
 
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
-
-    # Nx50s::landing(nx50)
-    def self.landing(nx50)
-        loop {
-
-            system("clear")
-
-            puts Nx50s::toString(nx50)
-
-            puts "uuid: #{nx50["uuid"]}".yellow
-            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
-            puts "schedule: #{nx50["schedule"]}"
-            unixtime = DoNotShowUntil::getUnixtimeOrNull(nx50["uuid"])
-            if unixtime then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
-            end
-            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-
-            puts "access (partial edit) | edit description | edit contents | edit schedule | transmute | destroy | ''".yellow
-            puts UIServices::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-
-            if Interpreting::match("access", command) then
-                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("edit description", command) then
-                description = Utils::editTextSynchronously(nx50["description"])
-                if description.size > 0 then
-                    nx50["description"] = description
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("edit contents", command) then
-                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("edit schedule", command) then
-                nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
-                CoreDataTx::commit(nx50)
-            end
-
-            if Interpreting::match("transmute", command) then
-                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-            end
-
-            if Interpreting::match("destroy", command) then
-                Nx50s::complete(nx50)
-                break
-            end
-
-            UIServices::mainMenuInterpreter(command)
-        }
-    end
-
+    
     # Nx50s::maintenance()
     def self.maintenance()
         if CoreDataTx::getObjectsBySchema("Nx50").size <= 30 then

@@ -75,7 +75,7 @@ class Nx31s
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "access | note: | [] | <datecode> | update date | detach running | done | transfert | exit | ''".yellow
+            puts "access | note: | [] | <datecode> | update date | detach running | done | transfert | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -173,7 +173,7 @@ class Nx31s
                 puts "[#{indx}] #{Nx31s::toString(nx31)}"
             }
 
-            puts "<item index> | (empty) # exit | ''".yellow
+            puts "<item index> | (empty) # exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")

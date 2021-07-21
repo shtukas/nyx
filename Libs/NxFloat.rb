@@ -94,7 +94,7 @@ class NxFloat
             puts "running: (#{"%.3f" % rt}) #{NxFloat::toString(float)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(float["uuid"])}".green
 
-            puts "access | note: | [] | edit description | edit contents | transmute | detach running | exit | completed | ''".yellow
+            puts "access | note: | [] | edit description | edit contents | transmute | detach running | exit | completed".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")

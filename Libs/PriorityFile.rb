@@ -38,7 +38,7 @@ class PriorityFile
                     puts IO.read(filepath).strip.lines.first(10).join().strip.green
                     puts ""
 
-                    puts "open | <datecode> | [] | (empty) # default # exit | ''".yellow
+                    puts "open | <datecode> | [] | (empty) # default # exit".yellow
                     puts UIServices::mainMenuCommands().yellow
 
                     command = LucilleCore::askQuestionAnswerAsString("> ")

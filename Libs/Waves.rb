@@ -191,7 +191,7 @@ class Waves
                 puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
             end
 
-            puts "<datecode> | done | update description | recast contents | recast schedule | destroy | ''".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
