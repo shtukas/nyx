@@ -46,7 +46,16 @@ class Nx60Queue
 
         uuid = "#{location}:#{Utils::today()}"
 
-        startUnixtime = Time.new.to_i
+        nxball = BankExtended::makeNxBall([uuid, "Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                end
+            }
+        }
 
         loop {
 
@@ -107,11 +116,9 @@ class Nx60Queue
             Nx60Queue::ensureDescription(location)
         end
 
-        endUnixtime = Time.new.to_i
-        timespan = endUnixtime - startUnixtime
-        timespan = [timespan, 3600*2].min
+        thr.exit
 
-        Bank::put("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", timespan)
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Nx60Queue::ns16s()
