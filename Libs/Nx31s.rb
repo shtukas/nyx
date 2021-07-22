@@ -148,7 +148,8 @@ class Nx31s
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
                     CoreDataTx::delete(nx31["uuid"])
                 end
-            }
+            },
+            "metric"   => 0
         }
     end
 

@@ -129,7 +129,8 @@ class Nx60Queue
                 "uuid"     => uuid,
                 "announce" => Nx60Queue::announce(location),
                 "access"   => lambda { Nx60Queue::access(location) },
-                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) }
+                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
+                "metric"   => 0
             }
         }
     end

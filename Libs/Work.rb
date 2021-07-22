@@ -50,12 +50,17 @@ class Work
         [1,2,3,4,5].include?(Time.new.wday)
     end
 
+    # Work::targetRT()
+    def self.targetRT()
+        6
+    end
+
     # Work::shouldDisplayWork()
     def self.shouldDisplayWork()
         return true if Work::isRunning()
         return false if (KeyValueStore::getOrNull(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}") == "ns:false")
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > 6)
+        return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > Work::targetRT())
         Work::isWorkTime()
     end
 
@@ -103,7 +108,8 @@ class Work
                     if Work::isRunning() then
                         PriorityFile::applyNextTransformation(Work::priorityWorkFilepath())
                     end
-                }
+                },
+                "metric"   => BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").to_f/Work::targetRT()
             }
         ]
     end
