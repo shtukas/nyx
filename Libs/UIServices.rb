@@ -33,7 +33,7 @@ class NS16sOperator
             Waves::ns16s(),
             Fitness::ns16s(),
             Work::ns16s(),
-            Nx50s::ns16sFirstThreeOperational(),
+            Nx50s::ns16s("primary"),
         ]
             .flatten
             .compact
@@ -46,16 +46,12 @@ class NS16sOperator
             }
             .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
 
-        items3 = [
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
-            Nx50s::ns16sNextThreeOperational() # already ordered
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        return (items1 + items2) if (items1 + items2).size>0
 
-        items1 + items2 + items3
+
+        Nx50s::ns16s("secondary").sort{|n1, n2| n1["metric"] <=> n2["metric"] }
     end
+
 end
 
 class UIServices

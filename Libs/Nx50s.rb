@@ -384,24 +384,72 @@ class Nx50s
         ns16
     end
 
-    # Nx50s::ns16sFirstThreeOperational()
-    def self.ns16sFirstThreeOperational()
+    # Nx50s::ns16sIndefinite()
+    def self.ns16sIndefinite()
         CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
-            .first(3)
+            .select{|nx50| nx50["schedule"]["type"] != "regular" }
             .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
             .compact
     end
 
-    # Nx50s::ns16sNextThreeOperational()
-    def self.ns16sNextThreeOperational()
+    # Nx50s::ns16sRegularPrimaryThreeOfTheDay()
+    def self.ns16sRegularPrimaryThreeOfTheDay()
+        liveFirstThreeUUIDs = lambda {
+            CoreDataTx::getObjectsBySchema("Nx50")
+                .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
+                .first(3)
+                .map{|nx50| nx50["uuid"] }
+        }
+
+        dayFirstThreeUUIDs = lambda {
+            today = Utils::today()
+            location = "6d5e7249-5a6d-4c08-8b8f-4dfafcc0113f:#{today}"
+            uuids = KeyValueStore::getOrNull(nil, location)
+            if uuids.nil? then
+                uuids = liveFirstThreeUUIDs.call()
+                KeyValueStore::set(nil, location, JSON.generate(uuids))
+            else
+                uuids = JSON.parse(uuids)
+            end
+            uuids
+        }
+
+        threeUUIDs = dayFirstThreeUUIDs.call()
+
         CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
-            .drop(3)
+            .select{|nx50| threeUUIDs.include?(nx50["uuid"]) }
             .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
             .compact
-            .first(3)
-            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
+    end
+
+    # Nx50s::ns16sRegularSecondary()
+    def self.ns16sRegularSecondary()
+        items = CoreDataTx::getObjectsBySchema("Nx50")
+                    .select{|nx50| nx50["schedule"]["type"] == "regular" }
+                    .select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) > 0 } # active within the past week
+                    .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+                    .compact
+
+        if items.size > 0 then
+            return items
+        end
+
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|nx50| nx50["schedule"]["type"] == "regular" }
+            .select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) == 0 }
+            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+            .compact
+    end
+
+    # Nx50s::ns16s(domain)
+    def self.ns16s(domain)
+        if domain == "primary" then
+            return Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay()
+        end
+        if domain == "secondary" then
+            return Nx50s::ns16sRegularSecondary()
+        end
+        raise "error: 760751d1-e896-4038-9925-ec979987a812"
     end
 
     # Nx50s::ns16sExtended()
