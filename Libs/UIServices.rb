@@ -46,7 +46,7 @@ class NS16sOperator
             }
             .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
 
-        return (items1 + items2) if (items1 + items2).size>0
+        return (items1+items2) if (items1+items2).size>0
 
 
         Nx50s::ns16s("secondary").sort{|n1, n2| n1["metric"] <=> n2["metric"] }
