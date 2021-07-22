@@ -5,41 +5,27 @@
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
-        status = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness should-show`)
-        return [] if !status[0]
-        ns16 = {
-            "uuid"     => "9d70d5fd-a48c-45f4-a573-a8e357490a97",
-            "announce" => "fitness: #{status}",
-            "access"   => lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing") },
-            "done"     => lambda { }
+        ns16s = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`)
+        ns16s.map{|ns16|
+            ns16["access"] = lambda { system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing") }
+            ns16
         }
-        [ns16]
     end
 end
 
 class NS16sOperator
 
-    # NS16sOperator::replaceOrPutAtTheEnd(objs, obj)
-    def self.replaceOrPutAtTheEnd(objs, obj)
-        objs.take_while{|o| o["uuid"] != obj["uuid"] } + [obj] + objs.drop_while{|o| o["uuid"] != obj["uuid"] }.drop(1)
-    end
-
-    # NS16sOperator::rotate(items)
-    def self.rotate(items)
-        items.drop(1) + items.take(1)
-    end
-
     # NS16sOperator::ns16s()
     def self.ns16s()
 
-        items2 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", "[]"))
-        items2 = UIServices::secondaryNS16s().reduce(items2){|present, incoming|
-            NS16sOperator::replaceOrPutAtTheEnd(present, incoming)
-        }
-        # Note one thing that we somehow need to ensure is that all elements in items2 are fresh, meaning have been actually replaced to carry the right lambdas
-        items2 = items2.select{|item| item["access"].class.to_s != "String" }
-        items2 = items2.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }  
-        KeyValueStore::set(nil, "ad4508cf-d3c6-4bfd-b64f-45fd0b86c2b6", JSON.generate(NS16sOperator::rotate(items2)))
+        items2 = UIServices::secondaryNS16s()
+                    .map {|ns16|
+                        if ns16["metric"].nil? then
+                            ns16["metric"] = 0.5
+                        end
+                        ns16
+                    }
+                    .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
 
         UIServices::priorityNS16s() + items2 + UIServices::terniaryNS16s()
     end
@@ -52,7 +38,6 @@ class UIServices
         [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
-            Work::ns16s(),
         ]
             .flatten
             .compact
@@ -68,6 +53,7 @@ class UIServices
             Nx31s::ns16s(),
             Waves::ns16s(),
             Fitness::ns16s(),
+            Work::ns16s(),
             Nx50s::ns16sOfScheduleTypes(["indefinite-daily-commitment", "indefinite-weekly-commitment"]),
         ]
             .flatten
@@ -219,7 +205,7 @@ class UIServices
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
-                announce   = "#{indexStr} #{item["announce"]}"
+                announce   = "#{indexStr}#{item["metric"] ? " (#{"%3.2f" % item["metric"]})".red : ""} #{item["announce"]}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
