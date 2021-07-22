@@ -17,36 +17,15 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-
-        items2 = UIServices::secondaryNS16s()
-                    .map {|ns16|
-                        if ns16["metric"].nil? then
-                            ns16["metric"] = 0.5
-                        end
-                        ns16
-                    }
-                    .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
-
-        UIServices::priorityNS16s() + items2 + UIServices::terniaryNS16s()
-    end
-end
-
-class UIServices
-
-    # UIServices::priorityNS16s()
-    def self.priorityNS16s()
-        [
+        items1 = [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
-    end
 
-    # UIServices::secondaryNS16s()
-    def self.secondaryNS16s()
-        [
+        items2 = [
             Nx60Queue::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -54,23 +33,32 @@ class UIServices
             Waves::ns16s(),
             Fitness::ns16s(),
             Work::ns16s(),
-            Nx50s::ns16sOfScheduleTypes(["indefinite-daily-commitment", "indefinite-weekly-commitment"]),
+            Nx50s::ns16sFirstThreeOperational(),
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-    end
+            .map {|ns16|
+                if ns16["metric"].nil? then
+                    ns16["metric"] = 0.5
+                end
+                ns16
+            }
+            .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
 
-    # UIServices::terniaryNS16s()
-    def self.terniaryNS16s()
-        [
+        items3 = [
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Evening.txt"),
-            Nx50s::ns16sOfScheduleTypes(["regular"])
+            Nx50s::ns16sNextThreeOperational() # already ordered
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+        items1 + items2 + items3
     end
+end
+
+class UIServices
 
     # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
     def self.programmableListingDisplay(getItems, processItems)

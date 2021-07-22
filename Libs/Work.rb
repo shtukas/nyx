@@ -90,7 +90,6 @@ class Work
         return [] if !Work::shouldDisplayWork()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
-            Nx50s::getOperationalNS16ByUUIDOrNull("20210525-161532-646669"), # Guardian Jedi
             {
                 "uuid"     => uuid,
                 "announce" => Work::announce(),
@@ -106,7 +105,7 @@ class Work
                     end
                 }
             }
-        ].compact
+        ]
     end
 end
 

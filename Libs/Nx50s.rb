@@ -332,6 +332,31 @@ class Nx50s
         Math.exp(-tx)
     end
 
+    # Nx50s::metric(nx50)
+    def self.metric(nx50)
+        if nx50["schedule"]["type"] == "indefinite-daily-commitment" then
+            if nx50["schedule"]["exclusionDays"] and nx50["schedule"]["exclusionDays"].include?(Time.new.wday) then
+                return 1
+            end
+            return Bank::valueAtDate(nx50["uuid"], Utils::today()).to_f/(nx50["schedule"]["hours"]*3600)
+        end
+
+        if nx50["schedule"]["type"] == "indefinite-weekly-commitment" then
+            doneTimeInSeconds = Utils::datesSinceLastSaturday()
+                                    .map{|date| Bank::valueAtDate(nx50["uuid"], date)}
+                                    .inject(0, :+)
+            return doneTimeInSeconds.to_f/(nx50["schedule"]["hours"]*3600)
+        end
+
+        if nx50["schedule"]["type"] == "regular" then
+            rt = BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])
+            saturation = Nx50s::saturationRT(nx50)
+            return rt.to_f/saturation
+        end
+
+        raise "[error: 47e04a3d-5f18-493e-a8ec-3bebda4d430f] #{ns16}"
+    end
+
     # Nx50s::ns16(nx50)
     def self.ns16(nx50)
         uuid = nx50["uuid"]
@@ -348,66 +373,35 @@ class Nx50s
                 end
             },
             "[]"         => lambda { StructuredTodoTexts::applyT(nx50["uuid"]) },
-            "unixtime"   => nx50["unixtime"],
-            "nx50"       => nx50,
-            "rt"         => rt,
-            "saturation" => saturation,
-            "isVisible"  => DoNotShowUntil::isVisible(uuid)
+            "metric"     => Nx50s::metric(nx50)
         }
     end
 
-    # Nx50s::shouldShowNS16(ns16)
-    def self.shouldShowNS16(ns16)
-        return false if !ns16["isVisible"]
-
-        nx50 = ns16["nx50"]
-
-        if nx50["schedule"]["type"] == "indefinite-daily-commitment" then
-            if nx50["schedule"]["exclusionDays"] and nx50["schedule"]["exclusionDays"].include?(Time.new.wday) then
-                return false
-            end
-            return (Bank::valueAtDate(nx50["uuid"], Utils::today()) < nx50["schedule"]["hours"]*3600)
-        end
-
-        if nx50["schedule"]["type"] == "indefinite-weekly-commitment" then
-            doneTimeInSeconds = Utils::datesSinceLastSaturday()
-                                    .map{|date| Bank::valueAtDate(nx50["uuid"], date)}
-                                    .inject(0, :+)
-            return (doneTimeInSeconds < nx50["schedule"]["hours"]*3600)
-        end
-
-        if nx50["schedule"]["type"] == "regular" then
-            return ns16["rt"] < ns16["saturation"]
-        end
-
-        raise "[error: 47e04a3d-5f18-493e-a8ec-3bebda4d430f] #{ns16}"
-    end
-
-    # Nx50s::getOperationalNS16ByUUIDOrNull(uuid)
-    def self.getOperationalNS16ByUUIDOrNull(uuid)
-        nx50 = CoreDataTx::getObjectByIdOrNull(uuid)
-        return nil if nx50.nil?
-        ns16 = Nx50s::ns16(nx50)
-        return nil if !ns16["isVisible"]
-        return nil if ns16["rt"] >= ns16["saturation"]
+    # Nx50s::ns16EchoOrOperationalNull(ns16)
+    def self.ns16EchoOrOperationalNull(ns16)
+        return nil if !DoNotShowUntil::isVisible(ns16["uuid"])
+        return nil if ns16["metric"] >= 1
         ns16
     end
 
-    # Nx50s::ns16sOfScheduleTypes(types)
-    def self.ns16sOfScheduleTypes(types)
-
-        rtForComparizon = lambda {|rt|
-            # We do this to prevent zero elements to keep taking the focus
-            return 0.25 if rt < 0.1
-            rt
-        }
-
+    # Nx50s::ns16sFirstThreeOperational()
+    def self.ns16sFirstThreeOperational()
         CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| types.include?(nx50["schedule"]["type"]) }
-            .map{|nx50| Nx50s::ns16(nx50) }
-            .select{|ns16| Nx50s::shouldShowNS16(ns16) }
+            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
             .first(3)
-            .sort{|i1, i2| rtForComparizon.call(i1["rt"]) <=> rtForComparizon.call(i2["rt"]) }
+            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+            .compact
+    end
+
+    # Nx50s::ns16sNextThreeOperational()
+    def self.ns16sNextThreeOperational()
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
+            .drop(3)
+            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+            .compact
+            .first(3)
+            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
     end
 
     # Nx50s::ns16sExtended()
