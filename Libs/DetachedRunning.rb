@@ -68,7 +68,8 @@ class DetachedRunning
                         DetachedRunning::done(item)
                     end
                 },
-                "done"     => lambda { DetachedRunning::done(item) }
+                "done"     => lambda { DetachedRunning::done(item) },
+                "metric"   => -1
             }
         }
     end

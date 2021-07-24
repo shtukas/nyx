@@ -149,7 +149,7 @@ class Nx31s
                     CoreDataTx::delete(nx31["uuid"])
                 end
             },
-            "metric"   => 0
+            "metric"   => 0.5
         }
     end
 

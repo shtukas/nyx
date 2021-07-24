@@ -13,6 +13,36 @@ class Fitness
     end
 end
 
+class Todo
+
+    # Todo::ns16s()
+    def self.ns16s()
+        BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
+            .sort{|n1, n2| n1["ordinal"] <=> n2["ordinal"] }
+            .map{|todo|
+                {
+                    "uuid"     => todo["uuid"],
+                    "announce" => "[todo] (#{"%.3f" % todo["ordinal"]}) #{todo["description"]}".green,
+                    "access"   => lambda {
+                        if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
+                            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
+                        end
+                        newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (empty for nothing): ")
+                        return if  newordinal == ""
+                        newordinal = newordinal.to_f
+                        todo["ordinal"] = newordinal
+                        BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
+                    },
+                    "done"     => lambda {
+                        BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
+                    },
+                    "metric"   => 0.5
+                }
+
+            }
+    end
+end
+
 class NS16sOperator
 
     # NS16sOperator::ns16s()
@@ -20,12 +50,6 @@ class NS16sOperator
         items1 = [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"])}
-
-        items2 = [
             Nx60Queue::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -33,53 +57,14 @@ class NS16sOperator
             Waves::ns16s(),
             Fitness::ns16s(),
             Work::ns16s(),
-            Nx50s::ns16s("primary"),
+            Nx50s::ns16s(),
+            Todo::ns16s(),
+            NxFloat::ns16s(),
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .map {|ns16|
-                if ns16["metric"].nil? then
-                    ns16["metric"] = 0.5
-                end
-                ns16
-            }
             .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
-
-        items = items1+items2
-
-        if items.empty? then
-            items = Nx50s::ns16s("secondary")
-                        .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
-        end
-
-        items3 = BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
-                    .sort{|n1, n2| n1["ordinal"] <=> n2["ordinal"] }
-                    .map{|todo|
-                        {
-                            "uuid"     => todo["uuid"],
-                            "announce" => "[todo] (#{"%.3f" % todo["ordinal"]}) #{todo["description"]}".green,
-                            "access"   => lambda {
-                                if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
-                                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
-                                end
-                                newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (empty for nothing): ")
-                                return if  newordinal == ""
-                                newordinal = newordinal.to_f
-                                todo["ordinal"] = newordinal
-                                BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
-                            },
-                            "done"     => lambda {
-                                BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
-                            }
-                        }
-
-                    }
-
-
-        items4 = NxFloat::ns16s()
-
-        items.take(3)+items3+items4+items.drop(3)
     end
 
 end

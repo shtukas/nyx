@@ -14,13 +14,13 @@ class PriorityFile
     def self.ns16OrNull(filepath)
 
         filename = File.basename(filepath)
-        
+
         return nil if IO.read(filepath).strip == ""
 
         contents = IO.read(filepath)
 
         announce = "#{filename}\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
-        
+
         uuid = Digest::SHA1.hexdigest(contents.strip)
 
         {
@@ -71,7 +71,8 @@ class PriorityFile
                 Bank::put(filepath, timespan)
             },
             "done"     => lambda { },
-            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) }
+            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) },
+            "metric"   => -1
         }
     end
 end

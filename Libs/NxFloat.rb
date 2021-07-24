@@ -175,7 +175,8 @@ class NxFloat
                 "uuid"     => float["uuid"],
                 "announce" => NxFloat::toString(float).gsub("[float]", "[floa]"),
                 "access"   => lambda { NxFloat::access(float) },
-                "done"     => lambda { NxFloat::complete(float) }
+                "done"     => lambda { NxFloat::complete(float) },
+                "metric"   => 0.5
             }
         }
     end

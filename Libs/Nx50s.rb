@@ -185,7 +185,7 @@ class Nx50s
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
             puts ""
-            puts "access | note: | [] | landing | <datecode> | detach running | exit | completed".yellow
+            puts "access | note: | [] | <datecode> | detach running | exit | completed".yellow
             puts "edit description | edit contents | edit schedule | transmute | destroy".yellow
             puts UIServices::mainMenuCommands().yellow
 
@@ -441,15 +441,11 @@ class Nx50s
             .compact
     end
 
-    # Nx50s::ns16s(domain)
-    def self.ns16s(domain)
-        if domain == "primary" then
-            return Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay()
-        end
-        if domain == "secondary" then
-            return Nx50s::ns16sRegularSecondary()
-        end
-        raise "error: 760751d1-e896-4038-9925-ec979987a812"
+    # Nx50s::ns16s()
+    def self.ns16s()
+        ns16s = Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay()
+        return ns16s if ns16s.size > 0
+        Nx50s::ns16sRegularSecondary()
     end
 
     # Nx50s::ns16sExtended()

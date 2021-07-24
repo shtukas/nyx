@@ -130,7 +130,7 @@ class Nx60Queue
                 "announce" => Nx60Queue::announce(location),
                 "access"   => lambda { Nx60Queue::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "metric"   => 0
+                "metric"   => 0.2
             }
         }
     end
