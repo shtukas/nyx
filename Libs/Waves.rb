@@ -252,12 +252,12 @@ class Waves
         loop {
             puts "Waves 🌊 (main)"
             options = [
-                "new wave",
+                "wave",
                 "waves dive"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
-            if option == "new wave" then
+            if option == "wave" then
                 Waves::issueNewWaveInteractivelyOrNull()
             end
             if option == "waves dive" then

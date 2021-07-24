@@ -55,17 +55,22 @@ class NS16sOperator
 
         items3 = BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
                     .sort{|n1, n2| n1["ordinal"] <=> n2["ordinal"] }
-                    .map{|nx56|
+                    .map{|todo|
                         {
-                            "uuid"     => nx56["uuid"],
-                            "announce" => "[ordi] (#{"%.3f" % nx56["ordinal"]}) #{nx56["description"]}".green,
+                            "uuid"     => todo["uuid"],
+                            "announce" => "[todo] (#{"%.3f" % todo["ordinal"]}) #{todo["description"]}".green,
                             "access"   => lambda {
-                                if LucilleCore::askQuestionAnswerAsBoolean("done '#{nx56["description"]}' ? ") then
-                                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", nx56["uuid"])
+                                if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
+                                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                                 end
+                                newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (empty for nothing): ")
+                                return if  newordinal == ""
+                                newordinal = newordinal.to_f
+                                todo["ordinal"] = newordinal
+                                BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
                             },
                             "done"     => lambda {
-                                BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", nx56["uuid"])
+                                BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                             }
                         }
 
@@ -93,12 +98,13 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "new ordinal / float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx"
+        "todo | float | wave | ondate | calendar item | Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start | work-not-today | work-reset | search | >nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
-        if Interpreting::match("new ordinal", command) then
+
+        if Interpreting::match("todo", command) then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
             if ordinal == '' then
@@ -106,33 +112,33 @@ class UIServices
             else
                 ordinal = ordinal.to_f
             end
-            object = {
+            todo = {
                 "uuid"        => SecureRandom.uuid,
                 "description" => description,
                 "ordinal"     => ordinal
             }
-            BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", object["uuid"], object)
+            BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
         end
 
-        if Interpreting::match("new float", command) then
+        if Interpreting::match("float", command) then
             float = NxFloat::interactivelyCreateNewOrNull()
             puts JSON.pretty_generate(float)
         end
 
-        if Interpreting::match("new wave", command) then
+        if Interpreting::match("wave", command) then
             Waves::issueNewWaveInteractivelyOrNull()
         end
 
-        if Interpreting::match("new ondate", command) then
+        if Interpreting::match("ondate", command) then
             nx31 = Nx31s::interactivelyIssueNewOrNull()
             puts JSON.pretty_generate(nx31)
         end
 
-        if Interpreting::match("new calendar item", command) then
+        if Interpreting::match("calendar item", command) then
             Calendar::interactivelyIssueNewCalendarItem()
         end
 
-        if Interpreting::match("new Nx50", command) then
+        if Interpreting::match("Nx50", command) then
             nx50 = Nx50s::interactivelyCreateNewOrNull()
             if nx50 then
                 puts JSON.pretty_generate(nx50)
