@@ -18,20 +18,14 @@ class Todo
     # Todo::ns16s()
     def self.ns16s()
         BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
-            .sort{|n1, n2| n1["ordinal"] <=> n2["ordinal"] }
             .map{|todo|
                 {
                     "uuid"     => todo["uuid"],
-                    "announce" => "[todo] (#{"%.3f" % todo["ordinal"]}) #{todo["description"]}".green,
+                    "announce" => "[todo] #{todo["description"]}".green,
                     "access"   => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                         end
-                        newordinal = LucilleCore::askQuestionAnswerAsString("new ordinal (empty for nothing): ")
-                        return if  newordinal == ""
-                        newordinal = newordinal.to_f
-                        todo["ordinal"] = newordinal
-                        BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
                     },
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
@@ -91,16 +85,9 @@ class UIServices
 
         if Interpreting::match("todo", command) then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
-            if ordinal == '' then
-                ordinal = ([1] + BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2").map{|n| n["ordinal"] }).max + 1
-            else
-                ordinal = ordinal.to_f
-            end
             todo = {
                 "uuid"        => SecureRandom.uuid,
-                "description" => description,
-                "ordinal"     => ordinal
+                "description" => description
             }
             BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
         end
@@ -238,11 +225,6 @@ class UIServices
             end
 
             # -- listing -----------------------------------------------------------------------------
-
-            if command.start_with?('f:') and (ordinal = Interpreting::readAsIntegerOrNull(command[2, 99])) then
-                accessItem.call(ns16sfloats[ordinal])
-                return "ns:loop"
-            end
 
             if Interpreting::match("..", command) then
                 accessItem.call(items[0])
