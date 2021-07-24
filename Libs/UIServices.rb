@@ -21,7 +21,7 @@ class Todo
             .map{|todo|
                 {
                     "uuid"     => todo["uuid"],
-                    "announce" => "[todo] #{todo["description"]}".green,
+                    "announce" => "[todo] #{todo["description"]}",
                     "access"   => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
