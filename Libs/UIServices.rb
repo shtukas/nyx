@@ -46,10 +46,35 @@ class NS16sOperator
             }
             .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
 
-        return (items1+items2) if (items1+items2).size>0
+        items = items1+items2
+
+        if items.empty? then
+            items = Nx50s::ns16s("secondary")
+                        .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
+        end
+
+        items3 = BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
+                    .sort{|n1, n2| n1["ordinal"] <=> n2["ordinal"] }
+                    .map{|nx56|
+                        {
+                            "uuid"     => nx56["uuid"],
+                            "announce" => "[ordi] (#{"%.3f" % nx56["ordinal"]}) #{nx56["description"]}".green,
+                            "access"   => lambda {
+                                if LucilleCore::askQuestionAnswerAsBoolean("done '#{nx56["description"]}' ? ") then
+                                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", nx56["uuid"])
+                                end
+                            },
+                            "done"     => lambda {
+                                BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", nx56["uuid"])
+                            }
+                        }
+
+                    }
 
 
-        Nx50s::ns16s("secondary").sort{|n1, n2| n1["metric"] <=> n2["metric"] }
+        items4 = NxFloat::ns16s()
+
+        items.take(3)+items3+items4+items.drop(3)
     end
 
 end
@@ -68,11 +93,27 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "new float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx"
+        "new ordinal / float / wave / ondate / calendar item / Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start, work-not-today, work-reset | search | >nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
+        if Interpreting::match("new ordinal", command) then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
+            if ordinal == '' then
+                ordinal = ([1] + BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2").map{|n| n["ordinal"] }).max + 1
+            else
+                ordinal = ordinal.to_f
+            end
+            object = {
+                "uuid"        => SecureRandom.uuid,
+                "description" => description,
+                "ordinal"     => ordinal
+            }
+            BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", object["uuid"], object)
+        end
+
         if Interpreting::match("new float", command) then
             float = NxFloat::interactivelyCreateNewOrNull()
             puts JSON.pretty_generate(float)
@@ -172,19 +213,6 @@ class UIServices
 
             vspaceleft = Utils::screenHeight()-6
 
-            ns16sfloats = NxFloat::ns16s()
-
-            if ns16sfloats.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
-                ns16sfloats.each_with_index{|item, indx|
-                    indexStr   = "(f:#{indx})"
-                    announce   = "#{indexStr} #{item["announce"]}"
-                    puts announce.green
-                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
-                }
-            end
-
             puts ""
 
             items.each_with_index{|item, indx|
@@ -202,7 +230,7 @@ class UIServices
             ].join().yellow
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | [] | '' (extended menu) | exit".yellow
+                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 

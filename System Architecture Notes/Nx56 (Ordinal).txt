@@ -1,0 +1,6 @@
+
+Nx56 {
+    "uuid"        => String,
+    "description" => String,
+    "ordinal"     => Float
+}
