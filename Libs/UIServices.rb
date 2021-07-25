@@ -61,7 +61,7 @@ class TodoLines
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                     },
-                    "metric"   => 0.5 + MetricUtils::unixtimeToMetricShiftIncreasing(todo["unixtime"])
+                    "metric"   => 0.35 + MetricUtils::unixtimeToMetricShiftIncreasing(todo["unixtime"])
                 }
 
             }
@@ -197,7 +197,7 @@ class TodoInbox
                 "announce" => TodoInbox::announce(location),
                 "access"   => lambda { TodoInbox::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "metric"   => 0.25 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s)
+                "metric"   => 0.35 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s)
             }
         }
     end
