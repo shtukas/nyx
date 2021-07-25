@@ -4,7 +4,7 @@ class Nx60Queue
 
     # Nx60Queue::repositoryFolderpath()
     def self.repositoryFolderpath()
-        "/Users/pascal/Desktop/Nx60-Inbox"
+        "/Users/pascal/Desktop/Inbox"
     end
 
     # Nx60Queue::locations()
@@ -130,7 +130,7 @@ class Nx60Queue
                 "announce" => Nx60Queue::announce(location),
                 "access"   => lambda { Nx60Queue::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "metric"   => 0.2
+                "metric"   => 0.25 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s)
             }
         }
     end

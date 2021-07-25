@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-class Nx31s
+class Nx31s # OnDate
 
     # Nx31s::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
@@ -149,7 +149,7 @@ class Nx31s
                     CoreDataTx::delete(nx31["uuid"])
                 end
             },
-            "metric"   => 0.5
+            "metric"   => 0.1 + MetricUtils::dateToMetricShiftIncreasing(nx31["date"])
         }
     end
 

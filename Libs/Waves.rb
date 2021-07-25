@@ -347,8 +347,8 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::toNS16OrNull(wave)
-    def self.toNS16OrNull(wave)
+    # Waves::toNS16(wave)
+    def self.toNS16(wave)
         uuid = wave["uuid"]
         {
             "uuid"     => uuid,
@@ -356,22 +356,14 @@ class Waves
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
             "wave"     => wave,
-            "metric"   => 0.25
+            "metric"   => 0.25 + MetricUtils::unixtimeToMetricShiftIncreasing(DoNotShowUntil::getUnixtimeOrNull(uuid) || 0)
         }
-    end
-
-    # Waves::circuitBreaker()
-    def self.circuitBreaker()
-        return false if Time.new.wday == 6
-        return false if Time.new.hour >= 18
-        Bank::valueOverTimespan("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 3600) >= 5
     end
 
     # Waves::ns16s()
     def self.ns16s()
-        return [] if Waves::circuitBreaker()
         CoreDataTx::getObjectsBySchema("wave")
-            .map{|wave| Waves::toNS16OrNull(wave) }
+            .map{|wave| Waves::toNS16(wave) }
             .compact
     end
 

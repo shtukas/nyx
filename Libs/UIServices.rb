@@ -2,6 +2,26 @@
 
 # ------------------------------------------------------------------------------------------
 
+class MetricUtils
+
+    # MetricUtils::unixtimeToMetricShiftIncreasing(unixtime)
+    def self.unixtimeToMetricShiftIncreasing(unixtime)
+        0.01*Math.exp(-(Time.new.to_i-unixtime).to_f/86400)
+    end
+
+    # MetricUtils::datetimeToMetricShiftIncreasing(datetime)
+    def self.datetimeToMetricShiftIncreasing(datetime)
+        unixtime = DateTime.parse(datetime).to_time.to_i
+        MetricUtils::unixtimeToMetricShiftIncreasing(unixtime)
+    end
+
+    # MetricUtils::dateToMetricShiftIncreasing(date)
+    def self.dateToMetricShiftIncreasing(date)
+        datetime = "#{date} 00:00:00 #{Utils::getLocalTimeZone()}"
+        MetricUtils::datetimeToMetricShiftIncreasing(datetime)
+    end
+end
+
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
@@ -30,7 +50,7 @@ class Todo
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                     },
-                    "metric"   => 0.5
+                    "metric"   => 0.5 + MetricUtils::unixtimeToMetricShiftIncreasing(todo["unixtime"])
                 }
 
             }
@@ -87,6 +107,7 @@ class UIServices
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             todo = {
                 "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
                 "description" => description
             }
             BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
