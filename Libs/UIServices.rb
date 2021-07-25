@@ -33,9 +33,9 @@ class Fitness
     end
 end
 
-class Todo
+class TodoLines
 
-    # Todo::ns16s()
+    # TodoLines::ns16s()
     def self.ns16s()
         BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
             .map{|todo|
@@ -43,9 +43,20 @@ class Todo
                     "uuid"     => todo["uuid"],
                     "announce" => "[todo] #{todo["description"]}",
                     "access"   => lambda {
+                        nxball = BankExtended::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+                        thr = Thread.new {
+                            loop {
+                                sleep 60
+                                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                                end
+                            }
+                        }
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{todo["description"]}' ? ") then
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                         end
+                        thr.exit
+                        BankExtended::closeNxBall(nxball, true)
                     },
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
@@ -57,6 +68,141 @@ class Todo
     end
 end
 
+class TodoInbox
+
+    # TodoInbox::repositoryFolderpath()
+    def self.repositoryFolderpath()
+        "/Users/pascal/Desktop/Inbox"
+    end
+
+    # TodoInbox::locations()
+    def self.locations()
+        LucilleCore::locationsAtFolder(TodoInbox::repositoryFolderpath())
+    end
+
+    # TodoInbox::getDescriptionOrNull(location)
+    def self.getDescriptionOrNull(location)
+        return nil if !File.exists?(location)
+        KeyValueStore::getOrNull(nil, "ca23acc1-6596-4e8e-b9e7-714ae3c7b0f8:#{location}")
+    end
+
+    # TodoInbox::setDescription(location, description)
+    def self.setDescription(location, description)
+        KeyValueStore::set(nil, "ca23acc1-6596-4e8e-b9e7-714ae3c7b0f8:#{location}", description)
+    end
+
+    # TodoInbox::announce(location)
+    def self.announce(location)
+        description = TodoInbox::getDescriptionOrNull(location)
+        if description then
+            "[todo] #{description}"
+        else
+            "[todo] #{File.basename(location)}"
+        end
+    end
+
+    # TodoInbox::ensureDescription(location)
+    def self.ensureDescription(location)
+        if TodoInbox::getDescriptionOrNull(location).nil? then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            TodoInbox::setDescription(location, description)
+        end
+    end
+
+    # TodoInbox::access(location)
+    def self.access(location)
+
+        uuid = "#{location}:#{Utils::today()}"
+
+        nxball = BankExtended::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        loop {
+
+            system("clear")
+
+            break if !File.exist?(location)
+
+            puts location.yellow
+
+            if location.include?("'") then
+                puts "Looking at: #{location}"
+                if LucilleCore::askQuestionAnswerAsBoolean("remove quote ? ", true) then
+                    location2 = location.gsub("'", "-")
+                    FileUtils.mv(location, location2)
+                    location = location2
+                end
+            end
+
+            if !location.include?("'") then
+                system("open '#{location}'")
+            end
+
+            puts "done | open | <datecode> | >nx50s (move to nx50) | exit".yellow
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+        
+            break if command == "exit"
+
+            if Interpreting::match("done", command) then
+                LucilleCore::removeFileSystemLocation(location)
+                break
+            end
+
+            if Interpreting::match("open", command) then
+                system("open '#{location}'")
+                break
+            end
+
+            if command == "++" then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
+            if Interpreting::match(">nx50s", command) then
+                nx50 = Nx50s::issueNx50UsingLocation(location)
+                nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+                CoreDataTx::commit(nx50)
+                LucilleCore::removeFileSystemLocation(location)
+                break
+            end
+        }
+
+        if File.exists?(location) and TodoInbox::getDescriptionOrNull(location).nil? then
+            TodoInbox::ensureDescription(location)
+        end
+
+        thr.exit
+
+        BankExtended::closeNxBall(nxball, true)
+    end
+
+    # TodoInbox::ns16s()
+    def self.ns16s()
+        TodoInbox::locations().map{|location|
+            {
+                "uuid"     => "#{location}:#{Utils::today()}",
+                "announce" => TodoInbox::announce(location),
+                "access"   => lambda { TodoInbox::access(location) },
+                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
+                "metric"   => 0.25 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s)
+            }
+        }
+    end
+end
+
 class NS16sOperator
 
     # NS16sOperator::ns16s()
@@ -64,7 +210,7 @@ class NS16sOperator
         items1 = [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
-            Nx60Queue::ns16s(),
+            TodoInbox::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Nx31s::ns16s(),
@@ -72,7 +218,7 @@ class NS16sOperator
             Fitness::ns16s(),
             Work::ns16s(),
             Nx50s::ns16s(),
-            Todo::ns16s(),
+            TodoLines::ns16s(),
             NxFloat::ns16s(),
         ]
             .flatten
@@ -224,7 +370,7 @@ class UIServices
 
             puts [
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}) ",
-                "(queue: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}) ",
+                "(todos: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}) ",
                 "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)}) "
             ].join().yellow
 

@@ -154,7 +154,6 @@ require_relative "GalaxyFinder.rb"
 
 require_relative "Nx31s.rb"
 require_relative "Nx50s.rb"
-require_relative "Nx60Queue.rb"
 require_relative "Nx102.rb"
 
 require_relative "NxFloat.rb"
