@@ -94,6 +94,8 @@ class Work
     def self.ns16s()
         return [] if !Work::shouldDisplayWork()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
+        metric = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").to_f/Work::targetRT()
+        metric = Work::isRunning() ? -1 : metric
         [
             {
                 "uuid"     => uuid,
@@ -109,7 +111,7 @@ class Work
                         PriorityFile::applyNextTransformation(Work::priorityWorkFilepath())
                     end
                 },
-                "metric"   => BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").to_f/Work::targetRT()
+                "metric"   => metric
             }
         ]
     end
