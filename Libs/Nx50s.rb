@@ -373,7 +373,8 @@ class Nx50s
                 end
             },
             "[]"         => lambda { StructuredTodoTexts::applyT(nx50["uuid"]) },
-            "metric"     => Nx50s::metric(nx50)
+            "metric"     => Nx50s::metric(nx50),
+            "domainuuid" => Domains::defaul()["uuid"]
         }
     end
 

@@ -61,7 +61,8 @@ class TodoLines
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"])
                     },
-                    "metric"   => 0.35 + MetricUtils::unixtimeToMetricShiftIncreasing(todo["unixtime"])
+                    "metric"   => 0.35 + MetricUtils::unixtimeToMetricShiftIncreasing(todo["unixtime"]),
+                    "domainuuid" => nil
                 }
 
             }
@@ -193,11 +194,12 @@ class TodoInbox
     def self.ns16s()
         TodoInbox::locations().map{|location|
             {
-                "uuid"     => "#{location}:#{Utils::today()}",
-                "announce" => TodoInbox::announce(location),
-                "access"   => lambda { TodoInbox::access(location) },
-                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "metric"   => 0.35 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s)
+                "uuid"       => "#{location}:#{Utils::today()}",
+                "announce"   => TodoInbox::announce(location),
+                "access"     => lambda { TodoInbox::access(location) },
+                "done"       => lambda { LucilleCore::removeFileSystemLocation(location) },
+                "metric"     => 0.35 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s),
+                "domainuuid" => nil
             }
         }
     end
@@ -205,8 +207,9 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::ns16s()
-    def self.ns16s()
+    # NS16sOperator::ns16s(domainuuid)
+    def self.ns16s(domainuuid)
+
         items1 = [
             DetachedRunning::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
@@ -223,6 +226,7 @@ class NS16sOperator
         ]
             .flatten
             .compact
+            .select{|item| item["domainuuid"].nil? or (item["domainuuid"] == domainuuid) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
     end
@@ -335,7 +339,7 @@ class UIServices
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
         getItems1 = lambda {
-            ns16s = NS16sOperator::ns16s()
+            ns16s = NS16sOperator::ns16s(Domains::getCurrentDomain()["uuid"])
             if ns16s.size>0 and ns16s[0]["announce"]=="" then
                 ns16s.shift
             end
@@ -343,7 +347,7 @@ class UIServices
         }
 
         getItems2 = lambda {
-            NS16sOperator::ns16s()
+            NS16sOperator::ns16s(Domains::getCurrentDomain()["uuid"])
         }
 
         processItems = lambda {|items|
@@ -356,9 +360,14 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-6
+            vspaceleft = Utils::screenHeight()-7
 
             puts ""
+            vspaceleft = vspaceleft - 1
+
+            puts "(#{Domains::getCurrentDomain()["name"]})".green
+            puts ""
+            vspaceleft = vspaceleft - 1
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
@@ -367,6 +376,8 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
+
+            puts ""
 
             puts [
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}) ",

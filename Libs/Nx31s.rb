@@ -149,7 +149,8 @@ class Nx31s # OnDate
                     CoreDataTx::delete(nx31["uuid"])
                 end
             },
-            "metric"   => 0.1 + MetricUtils::dateToMetricShiftIncreasing(nx31["date"])
+            "metric"     => 0.1 + MetricUtils::dateToMetricShiftIncreasing(nx31["date"]),
+            "domainuuid" => nil
         }
     end
 

@@ -2,6 +2,9 @@
 
 class Domains
 
+    # ------------------------------------------------------------
+    # Domains 
+
     # Domains::defaul()
     def self.defaul()
         {
@@ -10,20 +13,17 @@ class Domains
         }
     end
 
-    # Domains::domains()
-    def self.domains()
-        [
-            Domains::defaul(),
-            {
-                "uuid" => "d414c908-06c3-4959-a762-cc83a9bc6711",
-                "name" => "work"
-            }
-        ]
+    # Domains::workDomain()
+    def self.workDomain()
+        {
+            "uuid" => "d414c908-06c3-4959-a762-cc83a9bc6711",
+            "name" => "work"
+        }
     end
 
-    # Domains::selectDomainOrNull()
-    def self.selectDomainOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", Domains::domains(), lambda{|domain| domain["name"] })
+    # Domains::domains()
+    def self.domains()
+        [ Domains::defaul(), Domains::workDomain() ]
     end
 
     # Domains::getDomainByUUIDOrNull(uuid)
@@ -31,13 +31,28 @@ class Domains
         Domains::domains().select{|domain| domain["uuid"] == uuid }.first
     end
 
-    # Domains::getDomainForId(id)
-    def self.getDomainForId(id)
-        domainuuid = KeyValueStore::getOrNull(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{id}")
-        if domainuuid.nil? then
-            Domains::defaul()
-        else
-            Domains::getDomainByUUIDOrNull(domainuuid) || Domains::defaul()
-        end
+    # ------------------------------------------------------------
+    # Mapping
+
+    # Domains::getDomainForItem(itemid)
+    def self.getDomainForItem(itemid)
+        domainuuid = KeyValueStore::getOrNull(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}")
+        Domains::getDomainByUUIDOrNull(domainuuid) || Domains::defaul()
+    end
+
+    # ------------------------------------------------------------
+    # Interactions
+
+    # Domains::selectDomainOrNull()
+    def self.selectDomainOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", Domains::domains(), lambda{|domain| domain["name"] })
+    end
+
+    # ------------------------------------------------------------
+    # Operations
+
+    # Domains::getCurrentDomain()
+    def self.getCurrentDomain()
+        Work::shouldDisplayWork() ? Domains::workDomain() : Domains::defaul()
     end
 end

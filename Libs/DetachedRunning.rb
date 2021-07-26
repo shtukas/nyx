@@ -68,8 +68,9 @@ class DetachedRunning
                         DetachedRunning::done(item)
                     end
                 },
-                "done"     => lambda { DetachedRunning::done(item) },
-                "metric"   => -1
+                "done"       => lambda { DetachedRunning::done(item) },
+                "metric"     => -1,
+                "domainuuid" => nil
             }
         }
     end

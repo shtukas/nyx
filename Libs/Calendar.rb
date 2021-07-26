@@ -98,7 +98,8 @@ class Calendar
                     "done"     => lambda {
                         Calendar::moveToArchives(item)
                     },
-                    "metric"   => 0
+                    "metric"     => 0,
+                    "domainuuid" => Domains::defaul()["uuid"]
                 }
             }
     end

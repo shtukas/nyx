@@ -111,7 +111,8 @@ class Work
                         PriorityFile::applyNextTransformation(Work::priorityWorkFilepath())
                     end
                 },
-                "metric"   => metric
+                "metric"   => metric,
+                "domainuuid" => Work::isRunning() ? nil : "d414c908-06c3-4959-a762-cc83a9bc6711"
             }
         ]
     end

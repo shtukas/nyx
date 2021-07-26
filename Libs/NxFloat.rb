@@ -176,7 +176,8 @@ class NxFloat
                 "announce" => NxFloat::toString(float).gsub("[float]", "[floa]"),
                 "access"   => lambda { NxFloat::access(float) },
                 "done"     => lambda { NxFloat::complete(float) },
-                "metric"   => 0.5
+                "metric"   => 0.5,
+                "domainuuid" => nil
             }
         }
     end
