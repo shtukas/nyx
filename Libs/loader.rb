@@ -142,6 +142,7 @@ require_relative "CoreDataTx.rb"
 
 require_relative "DetachedRunning.rb"
 require_relative "Dispatch.rb"
+require_relative "Domains.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
