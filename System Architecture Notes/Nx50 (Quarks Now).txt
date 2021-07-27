@@ -42,3 +42,34 @@ Nx50Schedule
     "type" : "regular" # First come first served, in pack of three, smallest RT first, 
                        # Default value for those without a schedule, backwards compatibility
 }
+
+
+# -----------------------------------
+Saturation Simulation
+
+times = []
+
+def averageOverThePastNDays(times, n)
+    times.last(n).inject(0, :+).to_f/n
+end
+
+def computeRecoveryTime(times)
+    (1..7).map{|n| averageOverThePastNDays(times, n) }.max
+end
+
+def saturationRT(times)
+    timeInHours = times.last(14).inject(0, :+)
+    tx = timeInHours.to_f/10 # multiple of 10 hours over two weeks
+    Math.exp(-tx)
+end
+
+(0..100).each {|i|
+    saturation = saturationRT(times)
+    times << saturation
+    rt = computeRecoveryTime(times)
+    puts "saturation: #{saturation.round(2)}, rt: #{rt.round(2)}"
+    sleep 1
+}
+
+The above code was to convince myself that the value of the exponential wasn't too badly chosen. Interestingly the daily saturation converges to 0.5 :)
+

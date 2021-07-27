@@ -284,7 +284,7 @@ class Waves
             end
         }
 
-        nxball = BankExtended::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
 
         accessContent.call(wave)
 
@@ -342,7 +342,7 @@ class Waves
             end
         }
         
-        BankExtended::closeNxBall(nxball, true)
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # -------------------------------------------------------------------------

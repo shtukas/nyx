@@ -52,7 +52,7 @@ class Nx31s # OnDate
 
         uuid = nx31["uuid"]
 
-        nxball = BankExtended::makeNxBall([uuid])
+        nxball = NxBalls::makeNxBall([uuid])
 
         system("clear")
         

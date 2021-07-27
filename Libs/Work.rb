@@ -39,14 +39,14 @@ class Work
 
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
 
-        nxball = BankExtended::makeNxBall(["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+        nxball = NxBalls::makeNxBall(["WORK-E4A9-4BCD-9824-1EEC4D648408"])
 
         thr = Thread.new {
             loop {
                 sleep 60
 
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
@@ -63,6 +63,7 @@ class Work
 
 
             puts "note | [] | <datecode> | detach running | exit".yellow
+            puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == "exit"
@@ -92,11 +93,13 @@ class Work
                 DetachedRunning::issueNew2("(work)", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
                 break
             end
+
+            UIServices::mainMenuInterpreter(command)
         }
 
         thr.exit
 
-        BankExtended::closeNxBall(nxball, true)
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # Work::ns16s()

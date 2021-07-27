@@ -11,12 +11,12 @@ class InboxLines
                     "uuid"     => "#{Utils::today()}:#{item["uuid"]}",
                     "announce" => "[inbx] line: #{item["description"]}",
                     "access"   => lambda {
-                        nxball = BankExtended::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+                        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
                         thr = Thread.new {
                             loop {
                                 sleep 60
                                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                                    nxball = NxBalls::upgradeNxBall(nxball, false)
                                 end
                             }
                         }
@@ -35,7 +35,7 @@ class InboxLines
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                         end
                         thr.exit
-                        BankExtended::closeNxBall(nxball, true)
+                        NxBalls::closeNxBall(nxball, true)
                     },
                     "done"   => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
@@ -69,13 +69,13 @@ class InboxFiles
 
         uuid = "#{location}:#{Utils::today()}"
 
-        nxball = BankExtended::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
 
         thr = Thread.new {
             loop {
                 sleep 60
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
@@ -112,7 +112,7 @@ class InboxFiles
 
         thr.exit
 
-        BankExtended::closeNxBall(nxball, true)
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # InboxFiles::ns16s()

@@ -189,14 +189,14 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        nxball = BankExtended::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
 
         thr = Thread.new {
             loop {
                 sleep 60
 
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
@@ -216,17 +216,19 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
+
+            puts ""
+
             puts "uuid: #{uuid}".yellow
             puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
             puts "domain: #{Domains::getDomainForItemOrNull(nx50["uuid"])}".yellow
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
-
             puts "schedule: #{nx50["schedule"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-            
+
             puts ""
-            puts "edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
-            puts "access | note | [] | <datecode> | detach running | exit | completed".yellow
+
+            puts "access | note | [] | <datecode> | detach running | exit | completed | edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -343,7 +345,7 @@ class Nx50s
 
         thr.exit
 
-        BankExtended::closeNxBall(nxball, true)
+        NxBalls::closeNxBall(nxball, true)
 
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
@@ -383,7 +385,7 @@ class Nx50s
     def self.saturationRT(nx50)
         # This function returns the recovery time after with the item is saturated
         t1 = Bank::valueOverTimespan(nx50["uuid"], 86400*14)
-        tx = t1.to_f/(7*3600) # multiple of 7 hours over two weeks
+        tx = t1.to_f/(10*3600) # multiple of 10 hours over two weeks
         Math.exp(-tx)
     end
 

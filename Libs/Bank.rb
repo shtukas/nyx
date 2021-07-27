@@ -95,50 +95,6 @@ end
 
 class BankExtended
 
-    # BankExtended::makeNxBall(accounts)
-    def self.makeNxBall(accounts)
-        start = Time.new.to_f
-        nxball = {
-            "versionId"      => SecureRandom.hex,
-            "startUnixtime"  => start,
-            "cursorUnixtime" => start,
-            "bankAccounts"   => accounts
-        }
-        #puts "make, returning"
-        #puts JSON.pretty_generate(nxball)
-        nxball
-    end
-
-    # BankExtended::upgradeNxBall(nxball, verbose)
-    def self.upgradeNxBall(nxball, verbose)
-        #puts "upgrade, receiving"
-        #puts JSON.pretty_generate(nxball)
-        timespan = Time.new.to_f - nxball["cursorUnixtime"]
-        timespan = [timespan, 3600*2].min
-        nxball["bankAccounts"].each{|account|
-            puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
-            Bank::put(account, timespan)
-        }
-        nxball["cursorUnixtime"] = Time.new.to_i
-        nxball["versionId"] = SecureRandom.hex
-        #puts "upgrade, returning"
-        #puts JSON.pretty_generate(nxball)
-        nxball
-    end
-
-    # BankExtended::closeNxBall(nxball, verbose)
-    def self.closeNxBall(nxball, verbose)
-        #puts "close, receiving"
-        #puts JSON.pretty_generate(nxball)
-        timespan = Time.new.to_f - nxball["cursorUnixtime"]
-        timespan = [timespan, 3600*2].min
-        nxball["bankAccounts"].each{|account|
-            puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
-            Bank::put(account, timespan)
-        }
-        nil
-    end
-
     # BankExtended::runningTimeString(nxball)
     def self.runningTimeString(nxball)
         "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
@@ -161,5 +117,53 @@ class BankExtended
     # BankExtended::stdRecoveredDailyTimeInHours(setuuid)
     def self.stdRecoveredDailyTimeInHours(setuuid)
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
+    end
+end
+
+
+class NxBalls
+
+    # NxBalls::makeNxBall(accounts)
+    def self.makeNxBall(accounts)
+        start = Time.new.to_f
+        nxball = {
+            "versionId"      => SecureRandom.hex,
+            "startUnixtime"  => start,
+            "cursorUnixtime" => start,
+            "bankAccounts"   => accounts
+        }
+        #puts "make, returning"
+        #puts JSON.pretty_generate(nxball)
+        nxball
+    end
+
+    # NxBalls::upgradeNxBall(nxball, verbose)
+    def self.upgradeNxBall(nxball, verbose)
+        #puts "upgrade, receiving"
+        #puts JSON.pretty_generate(nxball)
+        timespan = Time.new.to_f - nxball["cursorUnixtime"]
+        timespan = [timespan, 3600*2].min
+        nxball["bankAccounts"].each{|account|
+            puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
+            Bank::put(account, timespan)
+        }
+        nxball["cursorUnixtime"] = Time.new.to_i
+        nxball["versionId"] = SecureRandom.hex
+        #puts "upgrade, returning"
+        #puts JSON.pretty_generate(nxball)
+        nxball
+    end
+
+    # NxBalls::closeNxBall(nxball, verbose)
+    def self.closeNxBall(nxball, verbose)
+        #puts "close, receiving"
+        #puts JSON.pretty_generate(nxball)
+        timespan = Time.new.to_f - nxball["cursorUnixtime"]
+        timespan = [timespan, 3600*2].min
+        nxball["bankAccounts"].each{|account|
+            puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
+            Bank::put(account, timespan)
+        }
+        nil
     end
 end
