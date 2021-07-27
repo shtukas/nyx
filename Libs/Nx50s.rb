@@ -488,7 +488,6 @@ class Nx50s
 
         (Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay() + Nx50s::ns16sRegularSecondary())
             .select{|ns16| !ns16["isSaturated"] }
-            .first(3)
     end
 
     # Nx50s::ns16sExtended()
