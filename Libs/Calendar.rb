@@ -99,7 +99,7 @@ class Calendar
                         Calendar::moveToArchives(item)
                     },
                     "metric"     => 0,
-                    "domainuuid" => Domains::defaul()["uuid"]
+                    "domainuuid" => nil
                 }
             }
     end

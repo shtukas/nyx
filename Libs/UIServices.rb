@@ -222,7 +222,6 @@ class NS16sOperator
             Work::ns16s(),
             Nx50s::ns16s(),
             TodoLines::ns16s(),
-            NxFloat::ns16s(),
         ]
             .flatten
             .compact
@@ -247,7 +246,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "todo | float | wave | ondate | calendar item | Nx50 | floats | waves | ondates | calendar | Nx50s | anniversaries | work-start | work-not-today | work-reset | search | >nyx"
+        "todo | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | work-start | work-not-today | work-reset | search | >nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -261,11 +260,6 @@ class UIServices
                 "description" => description
             }
             BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", todo["uuid"], todo)
-        end
-
-        if Interpreting::match("float", command) then
-            float = NxFloat::interactivelyCreateNewOrNull()
-            puts JSON.pretty_generate(float)
         end
 
         if Interpreting::match("wave", command) then

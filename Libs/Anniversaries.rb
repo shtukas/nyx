@@ -152,7 +152,7 @@ class Anniversaries
                         CoreDataTx::commit(anniversary)
                     },
                     "metric" => 0,
-                    "domainuuid" => Domains::defaul()["uuid"]
+                    "domainuuid" => nil
                 }
             }
     end
