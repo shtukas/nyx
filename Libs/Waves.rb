@@ -170,83 +170,6 @@ class Waves
         Bank::put("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 1)
     end
 
-    # Waves::landing(wave)
-    def self.landing(wave)
-        loop {
-
-            system("clear")
-
-            return if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil?
-
-            uuid = wave["uuid"]
-
-            puts Waves::toString(wave)
-            puts "uuid: #{wave["uuid"]}"
-
-            puts "schedule: #{Waves::scheduleString(wave)}"
-            puts "last done: #{wave["lastDoneDateTime"]}"
-            if DoNotShowUntil::isVisible(wave["uuid"]) then
-                puts "active"
-            else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
-            end
-
-            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
-            puts UIServices::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("done", command) then
-                Waves::performDone(wave)
-            end
-
-            if Interpreting::match("update description", command) then
-                wave["description"] = Utils::editTextSynchronously(wave["description"])
-                Waves::performDone(wave)
-            end
-
-            if Interpreting::match("recast contents", command) then
-                contents = Waves::interactivelyMakeContentsOrNull()
-                next if contents.nil?
-                if contents[0] == "Line" then
-                    wave["description"] = contents[1]
-                    wave["contentType"] = contents[0]
-                    wave["payload"]     = ""
-                end
-                if contents[0] == "Url" then
-                    wave["description"] = contents[1]
-                    wave["contentType"] = contents[0]
-                    wave["payload"]     = contents[1]
-                end
-                CoreDataTx::commit(wave)
-            end
-
-            if Interpreting::match("recast schedule", command) then
-                schedule = Waves::makeScheduleParametersInteractivelyOrNull()
-                return if schedule.nil?
-                wave["repeatType"] = schedule[0]
-                wave["repeatValue"] = schedule[1]
-                CoreDataTx::commit(wave)
-            end
-
-            if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    CoreDataTx::delete(wave["uuid"])
-                    break
-                end
-            end
-
-            UIServices::mainMenuInterpreter(command)
-        }
-    end
-
     # Waves::main()
     def self.main()
         loop {
@@ -265,7 +188,7 @@ class Waves
                     system("clear")
                     wave = Waves::selectWaveOrNull()
                     return if wave.nil?
-                    Waves::landing(wave)
+                    Waves::access(wave)
                 }
             end
         }
@@ -289,17 +212,59 @@ class Waves
         accessContent.call(wave)
 
         loop {
-
-            break if CoreDataTx::getObjectByIdOrNull(wave["uuid"]).nil? # Could have been destroyed during landing
-
             system("clear")
 
-            puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})"
+            puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
-            command = LucilleCore::askQuestionAnswerAsString("> [actions: access, note:, [], done, <datecode>, landing, detach running, exit] action : ")
+            puts ""
+
+            puts "uuid: #{wave["uuid"]}".yellow
+            puts "schedule: #{Waves::scheduleString(wave)}".yellow
+            puts "last done: #{wave["lastDoneDateTime"]}".yellow
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
+
+            puts ""
+
+            puts "access | note | [] | done | <datecode> | detach running | exit".yellow
+            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
+            puts UIServices::mainMenuCommands().yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
+
+            if Interpreting::match("update description", command) then
+                wave["description"] = Utils::editTextSynchronously(wave["description"])
+                Waves::performDone(wave)
+                next
+            end
+
+            if Interpreting::match("recast contents", command) then
+                contents = Waves::interactivelyMakeContentsOrNull()
+                next if contents.nil?
+                if contents[0] == "Line" then
+                    wave["description"] = contents[1]
+                    wave["contentType"] = contents[0]
+                    wave["payload"]     = ""
+                end
+                if contents[0] == "Url" then
+                    wave["description"] = contents[1]
+                    wave["contentType"] = contents[0]
+                    wave["payload"]     = contents[1]
+                end
+                CoreDataTx::commit(wave)
+                next
+            end
+
+            if Interpreting::match("recast schedule", command) then
+                schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+                return if schedule.nil?
+                wave["repeatType"] = schedule[0]
+                wave["repeatValue"] = schedule[1]
+                CoreDataTx::commit(wave)
+                next
+            end
 
             if command == "++" then
                 DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
@@ -311,8 +276,13 @@ class Waves
                 break
             end
 
+            if Interpreting::match("done", command) then
+                Waves::performDone(wave)
+            end
+
             if command == "access" then
                 accessContent.call(wave)
+                next
             end
 
             if command == "note" then
@@ -331,15 +301,20 @@ class Waves
                 break
             end
 
-            if command == "landing" then
-                Waves::landing(wave)
-            end
-
             if command == "detach running" then
                 DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
                 Waves::performDone(wave)
                 break
             end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
+                    CoreDataTx::delete(wave["uuid"])
+                    break
+                end
+            end
+
+            UIServices::mainMenuInterpreter(command)
         }
         
         NxBalls::closeNxBall(nxball, true)
