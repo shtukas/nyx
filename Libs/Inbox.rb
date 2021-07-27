@@ -44,6 +44,7 @@ class InboxLines
                     "isInboxText"          => true,
                     "dispatch-uuid"        => item["uuid"],
                     "dispatch-description" => item["description"],
+                    "inbox-unixtime"       => item["unixtime"]
                 }
 
             }
@@ -125,7 +126,18 @@ class InboxFiles
                 "isInbox"              => true,
                 "isInboxFile"          => true,
                 "dispatch-location"    => location,
+                "inbox-unixtime"       => File.mtime(location).to_time.to_i
             }
         }
+    end
+end
+
+
+class Inbox
+
+    # Inbox::ns16s()
+    def self.ns16s()
+        (InboxLines::ns16s() + InboxFiles::ns16s())
+            .sort{|i1, i2| i1["inbox-unixtime"] <=> i2["inbox-unixtime"] }
     end
 end

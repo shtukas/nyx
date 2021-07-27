@@ -24,9 +24,8 @@ class NS16sOperator
             Fitness::ns16s(),
             Nx31s::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            InboxLines::ns16s(),
-            InboxFiles::ns16s(),
             Waves::ns16s(),
+            Inbox::ns16s(),
             Work::ns16s(),
             Nx50s::ns16s(),
 
@@ -43,14 +42,14 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >nyx"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
 
-        if Interpreting::match("inbox", command) then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+        if command.start_with?("inbox: ") then
+            description = command[6, command.size].strip
             item = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,

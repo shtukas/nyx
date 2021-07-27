@@ -1,5 +1,5 @@
 
-Nx56 {
+InboxLine {
     "uuid"        => String,
     "unixtime"    => Float
     "description" => String
