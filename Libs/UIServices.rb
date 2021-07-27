@@ -33,7 +33,7 @@ class NS16sOperator
             .flatten
             .compact
             .select{|item| item["domain"].nil? or (item["domain"]["uuid"] == domain["uuid"]) }
-            .select{|item| item["isRunning"] or DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
 end

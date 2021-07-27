@@ -76,22 +76,66 @@ class Work
         end
     end
 
+    # Work::access()
+    def self.access()
+
+        uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
+
+        Work::start()
+
+        loop {
+            system("clear")
+            puts Work::announce().green
+            puts "StructuredTodoText:".green
+            puts (StructuredTodoTexts::getNoteOrNull(uuid) || "").green
+
+
+            puts "note: | [] | <datecode> | detach running | exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            break if command == "exit"
+
+            if Interpreting::match("note:", command) then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(uuid) || "")
+                StructuredTodoTexts::setNote(uuid, note)
+                next
+            end
+
+            if command == "[]" then
+                StructuredTodoTexts::applyT(uuid)
+                next
+            end
+
+            if command == "++" then
+                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
+                break
+            end
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+                break
+            end
+        }
+
+        Work::stop()
+    end
+
     # Work::ns16s()
     def self.ns16s()
         return [] if (!Work::workShouldBeRunning() and !Work::isRunning())
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
             {
-                "uuid"     => uuid,
-                "announce" => Work::announce(),
-                "access"   => lambda { 
-                    Work::isRunning() ? Work::stop() : Work::start()
-                },
-                "done"     => lambda {
-                    Work::stop()
-                },
-                "domain"    => Domains::workDomain(),
-                "isRunning" => Work::isRunning()
+                "uuid"      => uuid,
+                "announce"  => Work::announce(),
+                "access"    => lambda { Work::access() },
+                "done"      => lambda { Work::stop() },
+                "domain"    => Domains::workDomain()
             }
         ]
     end
