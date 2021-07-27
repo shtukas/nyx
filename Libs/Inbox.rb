@@ -24,6 +24,7 @@ class InboxLines
                         system("clear")
 
                         puts "[inbox] line: #{item["description"]}".green
+                        puts "Started at: #{Time.new.to_s}".yellow
 
                         LucilleCore::pressEnterToContinue()
 

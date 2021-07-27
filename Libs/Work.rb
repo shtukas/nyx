@@ -7,43 +7,6 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::getStartUnixtimeOrNull()
-    def self.getStartUnixtimeOrNull()
-        # This indicates whether the item is running or not
-        unixtime = KeyValueStore::getOrNull(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b")
-        return nil if unixtime.nil?
-        unixtime.to_f
-    end
-
-    # Work::isRunning()
-    def self.isRunning()
-        !Work::getStartUnixtimeOrNull().nil?
-    end
-
-    # Work::start()
-    def self.start()
-        return if Work::isRunning()
-        KeyValueStore::set(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b", Time.new.to_i)
-    end
-
-    # Work::stop()
-    def self.stop()
-        return if !Work::isRunning()
-        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
-        puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
-        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
-        KeyValueStore::destroy(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b")
-    end
-
-    # Work::runningString()
-    def self.runningString()
-        return "" if !Work::isRunning()
-        value = (Time.new.to_i - Work::getStartUnixtimeOrNull()).to_f/3600
-        "(running for #{value.round(2)}) hours"
-    end
-
-    # ---------------------------------------------------------------------------
-
     # Work::targetRT()
     def self.targetRT()
         6
@@ -66,14 +29,9 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::announce()
-    def self.announce()
-        uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
-        if Work::isRunning() then
-            "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻"
-        else
-            "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) 👩🏻‍💻"
-        end
+    # Work::toString()
+    def self.toString()
+        "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")}) 👩🏻‍💻"
     end
 
     # Work::access()
@@ -81,11 +39,25 @@ class Work
 
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
 
-        Work::start()
+        nxball = BankExtended::makeNxBall(["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = BankExtended::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
+                end
+            }
+        }
 
         loop {
             system("clear")
-            puts Work::announce().green
+            puts Work::toString().green
             puts "StructuredTodoText:".green
             puts (StructuredTodoTexts::getNoteOrNull(uuid) || "").green
 
@@ -122,19 +94,21 @@ class Work
             end
         }
 
-        Work::stop()
+        thr.exit
+
+        BankExtended::closeNxBall(nxball, true)
     end
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if (!Work::workShouldBeRunning() and !Work::isRunning())
+        return [] if !Work::workShouldBeRunning()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
             {
                 "uuid"      => uuid,
-                "announce"  => Work::announce(),
+                "announce"  => Work::toString(),
                 "access"    => lambda { Work::access() },
-                "done"      => lambda { Work::stop() },
+                "done"      => nil,
                 "domain"    => Domains::workDomain()
             }
         ]
@@ -145,19 +119,8 @@ class Work
         [
             {
                 "announce" => "work",
-                "lambda"   => lambda { Work::isRunning() ? Work::stop() : Work::start() }
+                "lambda"   => lambda { Work::access() }
             }
         ]
     end
 end
-
-
-Thread.new {
-    loop {
-        sleep 120
-        next if !Work::isRunning()
-        if (Time.new.to_f - Work::getStartUnixtimeOrNull()) > 3600 then
-            Utils::onScreenNotification("Catalyst", "work overrunning")
-        end
-    }
-}
