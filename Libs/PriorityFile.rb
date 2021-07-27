@@ -70,9 +70,9 @@ class PriorityFile
                 puts "putting #{timespan} seconds to file '#{filepath}'"
                 Bank::put(filepath, timespan)
             },
-            "done"     => lambda { },
-            "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "domainuuid" => nil
+            "done"   => lambda { },
+            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
+            "domain" => nil
         }
     end
 end

@@ -34,15 +34,22 @@ class Domains
     # ------------------------------------------------------------
     # Mapping
 
-    # Domains::getDomainForItem(itemid)
-    def self.getDomainForItem(itemid)
-        domainuuid = KeyValueStore::getOrNull(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}")
-        Domains::getDomainByUUIDOrNull(domainuuid) || Domains::defaul()
+    # Domains::getDomainUUIDForItemOrNull(itemid)
+    def self.getDomainUUIDForItemOrNull(itemid)
+        KeyValueStore::getOrNull(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}")
     end
 
-    # Domains::setDomainForItem(itemid, domainuuid)
-    def self.setDomainForItem(itemid, domainuuid)
-        KeyValueStore::set(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}", domainuuid)
+    # Domains::getDomainForItemOrNull(itemid)
+    def self.getDomainForItemOrNull(itemid)
+        domainuuid = Domains::getDomainUUIDForItemOrNull(itemid)
+        return nil if domainuuid.nil?
+        Domains::getDomainByUUIDOrNull(domainuuid)
+    end
+
+    # Domains::setDomainForItem(itemid, domain)
+    def self.setDomainForItem(itemid, domain)
+        return if domain.nil?
+        KeyValueStore::set(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}", domain["uuid"])
     end
 
     # ------------------------------------------------------------

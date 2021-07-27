@@ -8,7 +8,7 @@ class InboxLines
         BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
             .map{|item|
                 {
-                    "uuid"     => SecureRandom.hex, # Inbox items can't be DoNotDisplayUntil'ed
+                    "uuid"     => "#{Utils::today()}:#{item["uuid"]}",
                     "announce" => "[inbx] line: #{item["description"]}",
                     "access"   => lambda {
                         nxball = BankExtended::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
@@ -23,28 +23,27 @@ class InboxLines
 
                         system("clear")
 
-                        puts "[inbox] #{item["description"]}".green
+                        puts "[inbox] line: #{item["description"]}".green
 
                         LucilleCore::pressEnterToContinue()
 
                         if LucilleCore::askQuestionAnswerAsBoolean("done '#{item["description"]}' ? ") then
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                         else
-                            nx50 = Nx50s::issueNx50UsingTextInteractive(item["description"])
-                            domain = Domains::selectDomainOrNull()
-                            if domain then
-                                Domains::setDomainForItem(nx50["uuid"], domain["uuid"])
-                            end
-                            nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-                            CoreDataTx::commit(nx50)
+                            Nx50s::issueNx50UsingTextInteractive(item["description"])
+                            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                         end
                         thr.exit
                         BankExtended::closeNxBall(nxball, true)
                     },
-                    "done"     => lambda {
+                    "done"   => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                     },
-                    "domainuuid" => nil
+                    "domain"               => nil,
+                    "isInbox"              => true,
+                    "isInboxText"          => true,
+                    "dispatch-uuid"        => item["uuid"],
+                    "dispatch-description" => item["description"],
                 }
 
             }
@@ -85,7 +84,7 @@ class InboxFiles
 
         system("clear")
 
-        puts "[inbox] #{location}".green
+        puts "[inbox] file: #{location}".green
 
         if location.include?("'") then
             puts "Looking at: #{location}"
@@ -105,13 +104,7 @@ class InboxFiles
         if LucilleCore::askQuestionAnswerAsBoolean("done? : ") then
             LucilleCore::removeFileSystemLocation(location)
         else
-            nx50 = Nx50s::issueNx50UsingLocation(location)
-            domain = Domains::selectDomainOrNull()
-            if domain then
-                Domains::setDomainForItem(nx50["uuid"], domain["uuid"])
-            end
-            nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-            CoreDataTx::commit(nx50)
+            Nx50s::issueNx50UsingLocationInteractive(location)
             LucilleCore::removeFileSystemLocation(location)
         end
 
@@ -124,11 +117,14 @@ class InboxFiles
     def self.ns16s()
         InboxFiles::locations().map{|location|
             {
-                "uuid"       => SecureRandom.hex, # Inbox items can't be DoNotDisplayUntil'ed
-                "announce"   => "[inbx] file: #{File.basename(location)}",
-                "access"     => lambda { InboxFiles::access(location) },
-                "done"       => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "domainuuid" => nil
+                "uuid"     => "#{Utils::today()}:#{location}",
+                "announce" => "[inbx] file: #{File.basename(location)}",
+                "access"   => lambda { InboxFiles::access(location) },
+                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
+                "domain"   => nil,
+                "isInbox"              => true,
+                "isInboxFile"          => true,
+                "dispatch-location"    => location,
             }
         }
     end

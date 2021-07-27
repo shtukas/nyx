@@ -15,8 +15,8 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::ns16s(domainuuid)
-    def self.ns16s(domainuuid)
+    # NS16sOperator::ns16s(domain)
+    def self.ns16s(domain)
 
         items1 = [
             DetachedRunning::ns16s(),
@@ -34,23 +34,13 @@ class NS16sOperator
         ]
             .flatten
             .compact
-            .select{|item| item["domainuuid"].nil? or (item["domainuuid"] == domainuuid) }
+            .select{|item| item["domain"].nil? or (item["domain"]["uuid"] == domain["uuid"]) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
 end
 
 class UIServices
-
-    # UIServices::programmableListingDisplay(getItems: Lambda: () -> Array[NS16], processItems: Lambda: Array[NS16] -> Status)
-    def self.programmableListingDisplay(getItems, processItems)
-        loop {
-            items = getItems.call()
-            status = processItems.call(items)
-            raise "error: 2681e316-4a5b-447f-a822-1820355fb0e5" if !["ns:loop", "ns:exit"].include?(status)
-            break if status == "ns:exit"
-        }
-    end
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
@@ -141,16 +131,16 @@ class UIServices
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
 
-        getItems2 = lambda {
-            NS16sOperator::ns16s(Domains::getCurrentDomain()["uuid"])
+        getNS16s = lambda {
+            NS16sOperator::ns16s(Domains::getCurrentDomain())
         }
 
-        processItems = lambda {|items|
+        processNS16s = lambda {|ns16s|
 
-            accessItem = lambda { |item| 
-                return if item.nil? 
-                return if item["access"].nil?
-                item["access"].call()
+            accessItem = lambda { |ns16| 
+                return if ns16.nil? 
+                return if ns16["access"].nil?
+                ns16["access"].call()
             }
 
             system("clear")
@@ -160,27 +150,43 @@ class UIServices
             puts ""
             vspaceleft = vspaceleft - 1
 
-            puts "(#{Domains::getCurrentDomain()["name"]})".green
-            puts ""
+            indx15 = -1
+
+            ns16s
+                .select{|ns16| ns16["domain"].nil? }
+                .first(10)
+                .each{|ns16|
+                    indx15 = indx15 + 1
+                    indexStr   = "(#{"%3d" % indx15})"
+                    announce   = "#{indexStr} #{ns16["announce"]}"
+                    break if ((indx15 > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                }
+
+            puts "(#{Domains::getCurrentDomain()})".green
             vspaceleft = vspaceleft - 1
 
-            items.each_with_index{|item, indx|
-                indexStr   = "(#{"%3d" % indx})"
-                announce   = "#{indexStr} #{item["announce"]}"
-                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
+            ns16s
+                .select{|ns16| !ns16["domain"].nil? }
+                .each{|ns16|
+                    indx15 = indx15 + 1
+                    indexStr   = "(#{"%3d" % indx15})"
+                    announce   = "#{indexStr} #{ns16["announce"]}"
+                    break if ((indx15 > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                }
 
             puts ""
 
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}) ",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}) ",
-                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)}) "
+                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} ns16s, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)}) "
             ].join().yellow
 
-            if !items.empty? then
+            if !ns16s.empty? then
                 puts "top : .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
@@ -194,74 +200,88 @@ class UIServices
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
-                accessItem.call(items[0])
+                accessItem.call(ns16s[0])
                 return "ns:loop"
             end
 
             if Interpreting::match("[]", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item["[]"].nil?
-                item["[]"].call()
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil? 
+                return "ns:loop" if ns16["[]"].nil?
+                ns16["[]"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("expose", command) then
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil? 
+                puts JSON.pretty_generate(ns16)
+                LucilleCore::pressEnterToContinue()
                 return "ns:loop"
             end
 
             if Interpreting::match("done", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item["done"].nil?
-                item["done"].call()
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil? 
+                return "ns:loop" if ns16["done"].nil?
+                ns16["done"].call()
                 return "ns:loop"
             end
 
-            if Interpreting::match("domain", command) then
-                item = items[0]
-                return "ns:loop" if item.nil?
-                domain = Domains::selectDomainOrNull()
-                if domain then
-                    Domains::setDomainForItem(item["uuid"], domain["uuid"])
+            if Interpreting::match("dispatch", command) then
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil?
+                return if !ns16["isInbox"]
+                if ns16["isInboxText"] then
+                    Nx50s::issueNx50UsingTextInteractive(ns16["dispatch-description"])
+                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", ns16["dispatch-uuid"])
+                end
+                if ns16["isInboxFile"] then
+                    location = ns16["dispatch-location"]
+                    Nx50s::issueNx50UsingLocationInteractive(location)
+                    LucilleCore::removeFileSystemLocation(location)
                 end
                 return "ns:loop"
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil? 
+                DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
                 puts "Hidden until: #{Time.at(unixtime).to_s}"
                 return "ns:loop"
             end
 
             if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
-                accessItem.call(items[ordinal])
+                accessItem.call(ns16s[ordinal])
                 return "ns:loop"
             end
 
             if Interpreting::match("select *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                accessItem.call(items[ordinal])
+                accessItem.call(ns16s[ordinal])
                 return "ns:loop"
             end
 
             if Interpreting::match("done *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                item = items[ordinal]
-                return "ns:loop" if item.nil?
-                return "ns:loop" if item["done"].nil?
-                item["done"].call()
+                ns16 = ns16s[ordinal]
+                return "ns:loop" if ns16.nil?
+                return "ns:loop" if ns16["done"].nil?
+                ns16["done"].call()
                 return "ns:loop"
             end
 
             if Interpreting::match("hide * *", command) then
                 _, ordinal, datecode = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
-                item = items[ordinal]
-                return "ns:loop" if item.nil?
+                ns16 = ns16s[ordinal]
+                return "ns:loop" if ns16.nil?
                 unixtime = Utils::codeToUnixtimeOrNull(datecode)
                 return "ns:loop" if unixtime.nil?
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
                 return "ns:loop"
             end
 
@@ -274,6 +294,11 @@ class UIServices
             "ns:loop"
         }
 
-        UIServices::programmableListingDisplay(getItems2, processItems)
+        loop {
+            ns16s = getNS16s.call()
+            status = processNS16s.call(ns16s)
+            raise "error: 2681e316-4a5b-447f-a822-1820355fb0e5" if !["ns:loop", "ns:exit"].include?(status)
+            break if status == "ns:exit"
+        }
     end
 end

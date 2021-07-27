@@ -149,7 +149,7 @@ class Nx31s # OnDate
                     CoreDataTx::delete(nx31["uuid"])
                 end
             },
-            "domainuuid" => nil
+            "domain"   => nil
         }
     end
 

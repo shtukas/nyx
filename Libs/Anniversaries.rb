@@ -151,7 +151,7 @@ class Anniversaries
                         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
                         CoreDataTx::commit(anniversary)
                     },
-                    "domainuuid" => nil
+                    "domain" => nil
                 }
             }
     end

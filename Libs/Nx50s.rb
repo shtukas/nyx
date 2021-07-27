@@ -24,7 +24,10 @@ class Nx50s
         nx50["contentType"] = coordinates[0]
         nx50["payload"]     = coordinates[1]
 
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+        domain = Domains::selectDomainOrNull()
+        Domains::setDomainForItem(uuid, domain)
+
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
 
         CoreDataTx::commit(nx50)
 
@@ -38,8 +41,20 @@ class Nx50s
         items.map{|item| item["unixtime"] }.min - 1
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
-    def self.interactivelyDetermineNewItemUnixtimeOrNull()
+    # Nx50s::getObjectsByDomain(domain | null)
+    def self.getObjectsByDomain(domain)
+        if domain.nil? then
+            return CoreDataTx::getObjectsBySchema("Nx50")
+        end
+        CoreDataTx::getObjectsBySchema("Nx50")
+            .select{|item| 
+                dx = Domains::getDomainForItemOrNull(item["uuid"])
+                dx and (dx["uuid"] == domain["uuid"])
+            }
+    end
+
+    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain = nil)
+    def self.interactivelyDetermineNewItemUnixtimeOrNull(domain = nil)
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["minus 1", "other", "last"])
         return nil if type.nil?
         if type == "minus 1" then
@@ -48,7 +63,8 @@ class Nx50s
         if type == "other" then
             system('clear')
             puts "Select the before item:"
-            items = CoreDataTx::getObjectsBySchema("Nx50")
+            items = Nx50s::getObjectsByDomain(domain)
+            return Time.new.to_i if items.empty?
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
             return nil if item.nil?
             loop {
@@ -97,6 +113,27 @@ class Nx50s
         CoreDataTx::getObjectByIdOrNull(uuid)
     end
 
+    # Nx50s::issueNx50UsingLocationInteractive(location)
+    def self.issueNx50UsingLocationInteractive(location)
+        uuid = SecureRandom.uuid
+
+        nx50 = {}
+        nx50["uuid"]        = uuid
+        nx50["schema"]      = "Nx50"
+        nx50["unixtime"]    = Time.new.to_f
+        nx50["description"] = File.basename(location) 
+        nx50["contentType"] = "AionPoint"
+        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+
+        domain = Domains::selectDomainOrNull()
+        Domains::setDomainForItem(uuid, domain)
+        
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
+
+        CoreDataTx::commit(nx50)
+        CoreDataTx::getObjectByIdOrNull(uuid)
+    end
+
     # Nx50s::issueNx50UsingTextInteractive(text)
     def self.issueNx50UsingTextInteractive(text)
         uuid = SecureRandom.uuid
@@ -109,7 +146,10 @@ class Nx50s
         nx50["contentType"] = "Text"
         nx50["payload"]     = BinaryBlobsService::putBlob(text)
 
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+        domain = Domains::selectDomainOrNull()
+        Domains::setDomainForItem(uuid, domain)
+        
+        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
 
         CoreDataTx::commit(nx50)
         CoreDataTx::getObjectByIdOrNull(uuid)
@@ -125,6 +165,7 @@ class Nx50s
     end
 
     # --------------------------------------------------
+    # Operations
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
@@ -175,18 +216,20 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
             puts "uuid: #{uuid}".yellow
             puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
+            puts "domain: #{Domains::getDomainForItemOrNull(nx50["uuid"])}".yellow
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
+
             puts "schedule: #{nx50["schedule"]}".yellow
-            if (unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)) then
-                puts "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow
-            end
+            u1 = DoNotShowUntil::getUnixtimeOrNull(uuid)
+            puts u1 ? "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow : "DoNotDisplayUntil: (visible)".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
 
             puts ""
+            puts "edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
             puts "access | note: | [] | <datecode> | detach running | exit | completed".yellow
-            puts "edit description | edit contents | edit schedule | transmute | destroy".yellow
+
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -253,6 +296,12 @@ class Nx50s
                 next
             end
 
+            if Interpreting::match("edit domain", command) then
+                domain = Domains::selectDomainOrNull()
+                Domains::setDomainForItem(nx50["uuid"], domain)
+                next
+            end
+
             if Interpreting::match("edit contents", command) then
                 coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
                 if coordinates then
@@ -260,6 +309,13 @@ class Nx50s
                     nx50["payload"]     = coordinates[1]
                     CoreDataTx::commit(nx50)
                 end
+                next
+            end
+
+            if Interpreting::match("edit unixtime", command) then
+                domain = Domains::getDomainForItemOrNull(nx50["uuid"])
+                nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
+                CoreDataTx::commit(nx50)
                 next
             end
 
@@ -323,6 +379,7 @@ class Nx50s
     end
 
     # --------------------------------------------------
+    # nx16s
 
     # Nx50s::saturationRT(nx50)
     def self.saturationRT(nx50)
@@ -337,6 +394,7 @@ class Nx50s
         uuid = nx50["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         saturation = Nx50s::saturationRT(nx50)
+        isSaturated = rt > saturation
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
@@ -347,40 +405,39 @@ class Nx50s
                     Nx50s::complete(nx50)
                 end
             },
-            "[]"         => lambda { StructuredTodoTexts::applyT(nx50["uuid"]) },
-            "domainuuid" => Domains::defaul()["uuid"]
+            "[]"          => lambda { StructuredTodoTexts::applyT(uuid) },
+            "domain"      => Domains::getDomainForItemOrNull(uuid),
+            "rt"          => rt,
+            "saturation"  => saturation,
+            "isSaturated" => isSaturated,
+            "isVisible"   => DoNotShowUntil::isVisible(uuid)
         }
-    end
-
-    # Nx50s::ns16EchoOrOperationalNull(ns16)
-    def self.ns16EchoOrOperationalNull(ns16)
-        return nil if !DoNotShowUntil::isVisible(ns16["uuid"])
-        ns16
     end
 
     # Nx50s::ns16sIndefinite()
     def self.ns16sIndefinite()
         CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| nx50["schedule"]["type"] != "regular" }
-            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+            .select{|nx50| (nx50["schedule"]["type"] == "indefinite-daily-commitment") or (nx50["schedule"]["type"] == "indefinite-weekly-commitment") }
+            .map{|nx50| Nx50s::ns16(nx50) }
             .compact
     end
 
     # Nx50s::ns16sRegularPrimaryThreeOfTheDay()
     def self.ns16sRegularPrimaryThreeOfTheDay()
-        liveFirstThreeUUIDs = lambda {
+        liveFirstThree = lambda {
             CoreDataTx::getObjectsBySchema("Nx50")
+                .select{|nx50| nx50["schedule"]["type"] == "regular" }
                 .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
                 .first(3)
                 .map{|nx50| nx50["uuid"] }
         }
 
-        dayFirstThreeUUIDs = lambda {
+        three = lambda {
             today = Utils::today()
             location = "6d5e7249-5a6d-4c08-8b8f-4dfafcc0113f:#{today}"
             uuids = KeyValueStore::getOrNull(nil, location)
             if uuids.nil? then
-                uuids = liveFirstThreeUUIDs.call()
+                uuids = liveFirstThree.call()
                 KeyValueStore::set(nil, location, JSON.generate(uuids))
             else
                 uuids = JSON.parse(uuids)
@@ -388,30 +445,38 @@ class Nx50s
             uuids
         }
 
-        threeUUIDs = dayFirstThreeUUIDs.call()
-
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| threeUUIDs.include?(nx50["uuid"]) }
-            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+        three.call()
+            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
             .compact
+            .map{|nx50| Nx50s::ns16(nx50) }
     end
 
     # Nx50s::ns16sRegularSecondary()
     def self.ns16sRegularSecondary()
-        items = CoreDataTx::getObjectsBySchema("Nx50")
+        three = lambda {
+            today = Utils::today()
+            location = "6d5e7249-5a6d-4c08-8b8f-4dfafcc0113f:#{today}"
+            uuids = KeyValueStore::getOrNull(nil, location)
+            if uuids.nil? then
+                uuids = liveFirstThree.call()
+                KeyValueStore::set(nil, location, JSON.generate(uuids))
+            else
+                uuids = JSON.parse(uuids)
+            end
+            uuids
+        }
+
+        three = three.call()
+
+        nx50s = CoreDataTx::getObjectsBySchema("Nx50")
                     .select{|nx50| nx50["schedule"]["type"] == "regular" }
-                    .select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) > 0 } # active within the past week
-                    .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
-                    .compact
+                    .select{|nx50| !three.include?(nx50["uuid"]) }
 
-        if items.size > 0 then
-            return items
-        end
+        items1 = nx50s.select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) > 0 } # active within the past week
+        items2 = nx50s.select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) == 0 }
 
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| nx50["schedule"]["type"] == "regular" }
-            .select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) == 0 }
-            .map{|nx50| Nx50s::ns16EchoOrOperationalNull(Nx50s::ns16(nx50)) }
+        (items1 + items2)
+            .map{|nx50| Nx50s::ns16(nx50) }
             .compact
     end
 
@@ -421,9 +486,8 @@ class Nx50s
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        ns16s = Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay()
-        return ns16s if ns16s.size > 0
-        Nx50s::ns16sRegularSecondary()
+        (Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay() + Nx50s::ns16sRegularSecondary())
+            .select{|ns16| !ns16["isSaturated"] }
     end
 
     # Nx50s::ns16sExtended()
@@ -444,6 +508,8 @@ class Nx50s
                 ns16
             }
     end
+
+    # --------------------------------------------------
 
     # Nx50s::nx19s()
     def self.nx19s()

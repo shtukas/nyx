@@ -98,7 +98,7 @@ class Calendar
                     "done"     => lambda {
                         Calendar::moveToArchives(item)
                     },
-                    "domainuuid" => nil
+                    "domain" => nil
                 }
             }
     end

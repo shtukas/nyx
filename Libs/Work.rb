@@ -95,7 +95,7 @@ class Work
                 "done"     => lambda {
                     Work::stop()
                 },
-                "domainuuid" => Work::isRunning() ? nil : "d414c908-06c3-4959-a762-cc83a9bc6711"
+                "domain"   => Work::isRunning() ? nil : Domains::workDomain()
             }
         ]
     end
