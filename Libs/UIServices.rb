@@ -24,7 +24,7 @@ class NS16sOperator
             Calendar::ns16s(),
             Fitness::ns16s(),
             Nx31s::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
             InboxLines::ns16s(),
             InboxFiles::ns16s(),
             Waves::ns16s(),
