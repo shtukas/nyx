@@ -181,7 +181,7 @@ class UIServices
             ].join().yellow
 
             if !items.empty? then
-                puts "top : .. | select (<n>) | done (<n>) | hide <n> | <datecode> | exit".yellow
+                puts "top : .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 
@@ -189,18 +189,46 @@ class UIServices
 
             return "ns:loop" if command == ""
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                puts "Hidden until: #{Time.at(unixtime).to_s}"
-                return "ns:loop"
-            end
+
 
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
                 accessItem.call(items[0])
+                return "ns:loop"
+            end
+
+            if Interpreting::match("[]", command) then
+                item = items[0]
+                return "ns:loop" if item.nil? 
+                return "ns:loop" if item["[]"].nil?
+                item["[]"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("done", command) then
+                item = items[0]
+                return "ns:loop" if item.nil? 
+                return "ns:loop" if item["done"].nil?
+                item["done"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("domain", command) then
+                item = items[0]
+                return "ns:loop" if item.nil?
+                domain = Domains::selectDomainOrNull()
+                if domain then
+                    Domains::setDomainForItem(item["uuid"], domain["uuid"])
+                end
+                return "ns:loop"
+            end
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                item = items[0]
+                return "ns:loop" if item.nil? 
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                puts "Hidden until: #{Time.at(unixtime).to_s}"
                 return "ns:loop"
             end
 
@@ -216,22 +244,6 @@ class UIServices
                 return "ns:loop"
             end
 
-            if Interpreting::match("done", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item["done"].nil?
-                item["done"].call()
-                return "ns:loop"
-            end
-
-            if Interpreting::match("hide *", command) then
-                _, ordinal = Interpreting::tokenizer(command)
-                ordinal = ordinal.to_i
-                item = items[ordinal]
-                DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_i+3600)
-                return "ns:loop"
-            end
-
             if Interpreting::match("done *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
@@ -242,13 +254,14 @@ class UIServices
                 return "ns:loop"
             end
 
-            # -- top -----------------------------------------------------------------------------
-
-            if Interpreting::match("[]", command) then
-                item = items[0]
-                return "ns:loop" if item.nil? 
-                return "ns:loop" if item["[]"].nil?
-                item["[]"].call()
+            if Interpreting::match("hide * *", command) then
+                _, ordinal, datecode = Interpreting::tokenizer(command)
+                ordinal = ordinal.to_i
+                item = items[ordinal]
+                return "ns:loop" if item.nil?
+                unixtime = Utils::codeToUnixtimeOrNull(datecode)
+                return "ns:loop" if unixtime.nil?
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return "ns:loop"
             end
 
