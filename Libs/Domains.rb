@@ -40,6 +40,11 @@ class Domains
         Domains::getDomainByUUIDOrNull(domainuuid) || Domains::defaul()
     end
 
+    # Domains::setDomainForItem(itemid, domainuuid)
+    def self.setDomainForItem(itemid, domainuuid)
+        KeyValueStore::set(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}", domainuuid)
+    end
+
     # ------------------------------------------------------------
     # Interactions
 

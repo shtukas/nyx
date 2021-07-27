@@ -20,16 +20,17 @@ class NS16sOperator
 
         items1 = [
             DetachedRunning::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
-            InboxFiles::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
-            Nx31s::ns16s(),
-            Waves::ns16s(),
             Fitness::ns16s(),
+            Nx31s::ns16s(),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority Now.txt"),
+            InboxLines::ns16s(),
+            InboxFiles::ns16s(),
+            Waves::ns16s(),
             Work::ns16s(),
             Nx50s::ns16s(),
-            InboxLines::ns16s(),
+
         ]
             .flatten
             .compact
