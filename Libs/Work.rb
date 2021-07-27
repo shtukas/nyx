@@ -49,9 +49,8 @@ class Work
         6
     end
 
-    # Work::workIsRunningOrShouldBe()
-    def self.workIsRunningOrShouldBe()
-        return true if Work::isRunning()
+    # Work::workShouldBeRunning()
+    def self.workShouldBeRunning()
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
         return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > Work::targetRT())
         return false if [0, 6].include?(Time.new.wday)
@@ -79,7 +78,7 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if !Work::workIsRunningOrShouldBe()
+        return [] if (!Work::workShouldBeRunning() and !Work::isRunning())
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
             {

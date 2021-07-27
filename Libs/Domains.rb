@@ -65,6 +65,6 @@ class Domains
 
     # Domains::getCurrentDomain()
     def self.getCurrentDomain()
-        Work::workIsRunningOrShouldBe() ? Domains::workDomain() : Domains::defaul()
+        Work::workShouldBeRunning() ? Domains::workDomain() : Domains::defaul()
     end
 end

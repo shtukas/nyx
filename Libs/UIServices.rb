@@ -132,15 +132,12 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-7
+            vspaceleft = Utils::screenHeight()-8
 
             puts ""
             vspaceleft = vspaceleft - 1
 
             indx15 = -1
-
-            puts "(#{Domains::getCurrentDomain()["name"]})".green
-            vspaceleft = vspaceleft - 1
 
             ns16s
                 .each_with_index{|ns16, indx|
@@ -153,6 +150,7 @@ class UIServices
 
             puts ""
 
+            puts "(#{Domains::getCurrentDomain()["name"]})".green
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
