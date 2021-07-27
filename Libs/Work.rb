@@ -49,8 +49,8 @@ class Work
         6
     end
 
-    # Work::decideIsWorkMode()
-    def self.decideIsWorkMode()
+    # Work::workIsRunningOrShouldBe()
+    def self.workIsRunningOrShouldBe()
         return true if Work::isRunning()
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
         return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > Work::targetRT())
@@ -79,7 +79,7 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if !Work::decideIsWorkMode()
+        return [] if !Work::workIsRunningOrShouldBe()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
             {
@@ -91,7 +91,18 @@ class Work
                 "done"     => lambda {
                     Work::stop()
                 },
-                "domain"   => Work::isRunning() ? nil : Domains::workDomain()
+                "domain"    => Domains::workDomain(),
+                "isRunning" => Work::isRunning()
+            }
+        ]
+    end
+
+    # Work::nx19s()
+    def self.nx19s()
+        [
+            {
+                "announce" => "work",
+                "lambda"   => lambda { Work::isRunning() ? Work::stop() : Work::start() }
             }
         ]
     end
@@ -103,7 +114,7 @@ Thread.new {
         sleep 120
         next if !Work::isRunning()
         if (Time.new.to_f - Work::getStartUnixtimeOrNull()) > 3600 then
-            Utils::onScreenNotification("Catalyst", "[work] overrunning")
+            Utils::onScreenNotification("Catalyst", "work overrunning")
         end
     }
 }

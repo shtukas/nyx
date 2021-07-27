@@ -17,8 +17,7 @@ class NS16sOperator
 
     # NS16sOperator::ns16s(domain)
     def self.ns16s(domain)
-
-        items1 = [
+        [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -35,7 +34,7 @@ class NS16sOperator
             .flatten
             .compact
             .select{|item| item["domain"].nil? or (item["domain"]["uuid"] == domain["uuid"]) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| item["isRunning"] or DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
 end
