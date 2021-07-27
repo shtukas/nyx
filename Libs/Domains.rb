@@ -9,7 +9,7 @@ class Domains
     def self.defaul()
         {
             "uuid" => "8310e938-9c61-4e1c-b122-b3d9fecd7a86",
-            "name" => "default"
+            "name" => "alexandra"
         }
     end
 
@@ -65,6 +65,6 @@ class Domains
 
     # Domains::getCurrentDomain()
     def self.getCurrentDomain()
-        Work::shouldDisplayWork() ? Domains::workDomain() : Domains::defaul()
+        Work::decideIsWorkMode() ? Domains::workDomain() : Domains::defaul()
     end
 end

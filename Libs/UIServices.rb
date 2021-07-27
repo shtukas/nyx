@@ -44,7 +44,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | work-start | work-not-today | work-reset | search | >nyx"
+        "inbox | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -107,18 +107,6 @@ class UIServices
             ns16["access"].call()
         end
 
-        if Interpreting::match("work-start", command) then
-            DetachedRunning::issueNew2("Work", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
-        end
-
-        if Interpreting::match("work-not-today", command) then
-            KeyValueStore::set(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}", "ns:false")
-        end
-
-        if Interpreting::match("work-reset", command) then
-            KeyValueStore::destroy(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}")
-        end
-
         if Interpreting::match("search", command) then
             Search::search()
         end
@@ -152,28 +140,14 @@ class UIServices
 
             indx15 = -1
 
-            ns16s
-                .select{|ns16| ns16["domain"].nil? }
-                .first(10)
-                .each{|ns16|
-                    indx15 = indx15 + 1
-                    indexStr   = "(#{"%3d" % indx15})"
-                    announce   = "#{indexStr} #{ns16["announce"]}"
-                    break if ((indx15 > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                    puts announce
-                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
-                }
-
-            puts "(#{Domains::getCurrentDomain()})".green
+            puts "(#{Domains::getCurrentDomain()["name"]})".green
             vspaceleft = vspaceleft - 1
 
             ns16s
-                .select{|ns16| !ns16["domain"].nil? }
-                .each{|ns16|
-                    indx15 = indx15 + 1
-                    indexStr   = "(#{"%3d" % indx15})"
+                .each_with_index{|ns16, indx|
+                    indexStr   = "(#{"%3d" % indx})"
                     announce   = "#{indexStr} #{ns16["announce"]}"
-                    break if ((indx15 > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                    break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
@@ -181,21 +155,20 @@ class UIServices
             puts ""
 
             puts [
-                "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)}) ",
-                "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}) ",
-                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} ns16s, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)}) "
-            ].join().yellow
+                "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
+                "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
+                "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})",
+                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} ns16s, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
+            ].join(" ").yellow
 
             if !ns16s.empty? then
-                puts "top : .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
+                puts "top : .. | [] (Priority.txt) | done | dispatch | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             return "ns:loop" if command == ""
-
-
 
             # -- listing -----------------------------------------------------------------------------
 
@@ -225,6 +198,14 @@ class UIServices
                 return "ns:loop" if ns16.nil? 
                 return "ns:loop" if ns16["done"].nil?
                 ns16["done"].call()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("domain", command) then
+                ns16 = ns16s[0]
+                return "ns:loop" if ns16.nil?
+                domain = Domains::selectDomainOrNull()
+                Domains::setDomainForItem(ns16["uuid"], domain)
                 return "ns:loop"
             end
 

@@ -222,10 +222,8 @@ class Nx50s
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
             puts "schedule: #{nx50["schedule"]}".yellow
-            u1 = DoNotShowUntil::getUnixtimeOrNull(uuid)
-            puts u1 ? "DoNotDisplayUntil: #{Time.at(unixtime).to_s}".yellow : "DoNotDisplayUntil: (visible)".yellow
-            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])}".yellow
-
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
+            
             puts ""
             puts "edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
             puts "access | note: | [] | <datecode> | detach running | exit | completed".yellow
@@ -488,6 +486,7 @@ class Nx50s
 
         (Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay() + Nx50s::ns16sRegularSecondary())
             .select{|ns16| !ns16["isSaturated"] }
+            .first(3)
     end
 
     # Nx50s::ns16sExtended()

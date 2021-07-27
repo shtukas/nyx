@@ -7,20 +7,6 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::start()
-    def self.start()
-        KeyValueStore::set(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b", Time.new.to_i)
-    end
-
-    # Work::stop()
-    def self.stop()
-        return if !Work::isRunning()
-        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
-        puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
-        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
-        KeyValueStore::destroy(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b")
-    end
-
     # Work::getStartUnixtimeOrNull()
     def self.getStartUnixtimeOrNull()
         # This indicates whether the item is running or not
@@ -34,6 +20,21 @@ class Work
         !Work::getStartUnixtimeOrNull().nil?
     end
 
+    # Work::start()
+    def self.start()
+        return if Work::isRunning()
+        KeyValueStore::set(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b", Time.new.to_i)
+    end
+
+    # Work::stop()
+    def self.stop()
+        return if !Work::isRunning()
+        timespan = [Time.new.to_i - Work::getStartUnixtimeOrNull(), 3600*2].min
+        puts "Adding #{timespan} seconds to Work ( WORK-E4A9-4BCD-9824-1EEC4D648408 )"
+        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
+        KeyValueStore::destroy(nil, "0f4bd119-714d-442a-bf23-1e29b92e8c1b")
+    end
+
     # Work::runningString()
     def self.runningString()
         return "" if !Work::isRunning()
@@ -43,25 +44,20 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::isWorkTime()
-    def self.isWorkTime()
-        return false if Time.new.hour < 9
-        return false if Time.new.hour >= 17
-        [1,2,3,4,5].include?(Time.new.wday)
-    end
-
     # Work::targetRT()
     def self.targetRT()
         6
     end
 
-    # Work::shouldDisplayWork()
-    def self.shouldDisplayWork()
+    # Work::decideIsWorkMode()
+    def self.decideIsWorkMode()
         return true if Work::isRunning()
-        return false if (KeyValueStore::getOrNull(nil, "ce621184-51d7-456a-8ad1-20e7d9acb350:#{Utils::today()}") == "ns:false")
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
         return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > Work::targetRT())
-        Work::isWorkTime()
+        return false if [0, 6].include?(Time.new.wday)
+        return false if Time.new.hour < 9
+        return false if Time.new.hour >= 17
+        true
     end
 
     # Work::formatPriorityFile(text)
@@ -83,7 +79,7 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if !Work::shouldDisplayWork()
+        return [] if !Work::decideIsWorkMode()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         [
             {

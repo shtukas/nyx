@@ -36,6 +36,13 @@ class DoNotShowUntil
         unixtime.to_i
     end
 
+    # DoNotShowUntil::getDateTimeOrNull(uid)
+    def self.getDateTimeOrNull(uid)
+        unixtime = DoNotShowUntil::getUnixtimeOrNull(uid)
+        return nil if unixtime.nil?
+        Time.at(unixtime).utc.iso8601
+    end
+
     # DoNotShowUntil::isVisible(uid)
     def self.isVisible(uid)
         unixtime = DoNotShowUntil::getUnixtimeOrNull(uid)

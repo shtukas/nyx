@@ -355,7 +355,8 @@ class Waves
             "announce" => Waves::toString(wave),
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
-            "wave"     => wave
+            "wave"     => wave,
+            "domain"   => Domains::getDomainForItemOrNull(uuid)
         }
     end
 
