@@ -332,31 +332,6 @@ class Nx50s
         Math.exp(-tx)
     end
 
-    # Nx50s::m_etric(nx50)
-    def self.m_etric(nx50)
-        if nx50["schedule"]["type"] == "indefinite-daily-commitment" then
-            if nx50["schedule"]["exclusionDays"] and nx50["schedule"]["exclusionDays"].include?(Time.new.wday) then
-                return 1
-            end
-            return Bank::valueAtDate(nx50["uuid"], Utils::today()).to_f/(nx50["schedule"]["hours"]*3600)
-        end
-
-        if nx50["schedule"]["type"] == "indefinite-weekly-commitment" then
-            doneTimeInSeconds = Utils::datesSinceLastSaturday()
-                                    .map{|date| Bank::valueAtDate(nx50["uuid"], date)}
-                                    .inject(0, :+)
-            return doneTimeInSeconds.to_f/(nx50["schedule"]["hours"]*3600)
-        end
-
-        if nx50["schedule"]["type"] == "regular" then
-            rt = BankExtended::stdRecoveredDailyTimeInHours(nx50["uuid"])
-            saturation = Nx50s::saturationRT(nx50)
-            return rt.to_f/saturation
-        end
-
-        raise "[error: 47e04a3d-5f18-493e-a8ec-3bebda4d430f] #{ns16}"
-    end
-
     # Nx50s::ns16(nx50)
     def self.ns16(nx50)
         uuid = nx50["uuid"]
@@ -442,6 +417,10 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
+            Nx50s::issueNx50UsingLocation(location)
+        }
+
         ns16s = Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay()
         return ns16s if ns16s.size > 0
         Nx50s::ns16sRegularSecondary()

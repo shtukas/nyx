@@ -140,13 +140,6 @@ class UIServices
 
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
-        getItems1 = lambda {
-            ns16s = NS16sOperator::ns16s(Domains::getCurrentDomain()["uuid"])
-            if ns16s.size>0 and ns16s[0]["announce"]=="" then
-                ns16s.shift
-            end
-            ns16s
-        }
 
         getItems2 = lambda {
             NS16sOperator::ns16s(Domains::getCurrentDomain()["uuid"])
