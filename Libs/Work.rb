@@ -90,12 +90,12 @@ class Work
             puts (StructuredTodoTexts::getNoteOrNull(uuid) || "").green
 
 
-            puts "note: | [] | <datecode> | detach running | exit".yellow
+            puts "note | [] | <datecode> | detach running | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == "exit"
 
-            if Interpreting::match("note:", command) then
+            if Interpreting::match("note", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(uuid) || "")
                 StructuredTodoTexts::setNote(uuid, note)
                 next

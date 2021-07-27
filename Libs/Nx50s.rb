@@ -226,7 +226,7 @@ class Nx50s
             
             puts ""
             puts "edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
-            puts "access | note: | [] | <datecode> | detach running | exit | completed".yellow
+            puts "access | note | [] | <datecode> | detach running | exit | completed".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -244,7 +244,7 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("note:", command) then
+            if Interpreting::match("note", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
                 StructuredTodoTexts::setNote(uuid, note)
                 next

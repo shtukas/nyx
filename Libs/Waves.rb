@@ -315,7 +315,7 @@ class Waves
                 accessContent.call(wave)
             end
 
-            if command == "note:" then
+            if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
                 StructuredTodoTexts::setNote(wave["uuid"], note)
                 next
