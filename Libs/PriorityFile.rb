@@ -72,7 +72,6 @@ class PriorityFile
             },
             "done"     => lambda { },
             "[]"       => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "metric"     => -1,
             "domainuuid" => nil
         }
     end

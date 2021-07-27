@@ -355,8 +355,7 @@ class Waves
             "announce" => Waves::toString(wave),
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
-            "wave"     => wave,
-            "metric"   => 0.25 + MetricUtils::unixtimeToMetricShiftIncreasing(DoNotShowUntil::getUnixtimeOrNull(uuid) || 0)
+            "wave"     => wave
         }
     end
 

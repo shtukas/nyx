@@ -2,26 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-class MetricUtils
-
-    # MetricUtils::unixtimeToMetricShiftIncreasing(unixtime)
-    def self.unixtimeToMetricShiftIncreasing(unixtime)
-        0.01*Math.exp(-(Time.new.to_i-unixtime).to_f/86400)
-    end
-
-    # MetricUtils::datetimeToMetricShiftIncreasing(datetime)
-    def self.datetimeToMetricShiftIncreasing(datetime)
-        unixtime = DateTime.parse(datetime).to_time.to_i
-        MetricUtils::unixtimeToMetricShiftIncreasing(unixtime)
-    end
-
-    # MetricUtils::dateToMetricShiftIncreasing(date)
-    def self.dateToMetricShiftIncreasing(date)
-        datetime = "#{date} 00:00:00 #{Utils::getLocalTimeZone()}"
-        MetricUtils::datetimeToMetricShiftIncreasing(datetime)
-    end
-end
-
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()
@@ -61,7 +41,6 @@ class InboxLines
                     "done"     => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                     },
-                    "metric"   => 0.35 + MetricUtils::unixtimeToMetricShiftIncreasing(item["unixtime"]),
                     "domainuuid" => nil
                 }
 
@@ -198,7 +177,6 @@ class InboxFiles
                 "announce"   => InboxFiles::announce(location),
                 "access"     => lambda { InboxFiles::access(location) },
                 "done"       => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "metric"     => 0.35 + MetricUtils::datetimeToMetricShiftIncreasing(File.mtime(location).to_s),
                 "domainuuid" => nil
             }
         }
@@ -227,7 +205,6 @@ class NS16sOperator
             .compact
             .select{|item| item["domainuuid"].nil? or (item["domainuuid"] == domainuuid) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .sort{|n1, n2| n1["metric"] <=> n2["metric"] }
     end
 
 end
@@ -365,7 +342,7 @@ class UIServices
 
             items.each_with_index{|item, indx|
                 indexStr   = "(#{"%3d" % indx})"
-                announce   = "#{indexStr}#{item["metric"] ? " (#{"%3.2f" % item["metric"]})".red : ""} #{item["announce"]}"
+                announce   = "#{indexStr} #{item["announce"]}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)

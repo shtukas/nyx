@@ -332,8 +332,8 @@ class Nx50s
         Math.exp(-tx)
     end
 
-    # Nx50s::metric(nx50)
-    def self.metric(nx50)
+    # Nx50s::m_etric(nx50)
+    def self.m_etric(nx50)
         if nx50["schedule"]["type"] == "indefinite-daily-commitment" then
             if nx50["schedule"]["exclusionDays"] and nx50["schedule"]["exclusionDays"].include?(Time.new.wday) then
                 return 1
@@ -373,7 +373,6 @@ class Nx50s
                 end
             },
             "[]"         => lambda { StructuredTodoTexts::applyT(nx50["uuid"]) },
-            "metric"     => Nx50s::metric(nx50),
             "domainuuid" => Domains::defaul()["uuid"]
         }
     end
@@ -381,7 +380,6 @@ class Nx50s
     # Nx50s::ns16EchoOrOperationalNull(ns16)
     def self.ns16EchoOrOperationalNull(ns16)
         return nil if !DoNotShowUntil::isVisible(ns16["uuid"])
-        return nil if ns16["metric"] >= 1
         ns16
     end
 
