@@ -71,20 +71,11 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::priorityWorkFilepath()
-    def self.priorityWorkFilepath()
-        "/Users/pascal/Desktop/Priority Work.txt"
-    end
-
     # Work::announce()
     def self.announce()
         uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
         if Work::isRunning() then
-            [
-                "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻",
-                "\n",
-                Work::formatPriorityFile(IO.read(Work::priorityWorkFilepath())).green
-            ].join()
+            "[#{"work".green}] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) #{Work::runningString()} 👩🏻‍💻"
         else
             "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours(uuid)}) 👩🏻‍💻"
         end
@@ -103,11 +94,6 @@ class Work
                 },
                 "done"     => lambda {
                     Work::stop()
-                },
-                "[]"       => lambda {
-                    if Work::isRunning() then
-                        PriorityFile::applyNextTransformation(Work::priorityWorkFilepath())
-                    end
                 },
                 "domainuuid" => Work::isRunning() ? nil : "d414c908-06c3-4959-a762-cc83a9bc6711"
             }
