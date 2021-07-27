@@ -149,6 +149,7 @@ require_relative "DoNotShowUntil.rb"
 
 require_relative "El1zabeth.rb"
 
+require_relative "Inbox.rb"
 require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
