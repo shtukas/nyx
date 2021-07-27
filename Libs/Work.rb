@@ -117,7 +117,7 @@ class Work
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
+                DetachedRunning::issueNew2("(work)", Time.new.to_i, ["WORK-E4A9-4BCD-9824-1EEC4D648408"])
                 break
             end
         }
