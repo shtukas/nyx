@@ -10,7 +10,6 @@ Nx50 (same as Quark) (CoreDataTx) {
 
     contentType      : String       # _payload1_
     payload          : String       # _payload2_
-    schedule         : Nx50Schedule # _payload3_ # We store the serialised version
 }
 
 - contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
@@ -21,28 +20,6 @@ Nx50 (same as Quark) (CoreDataTx) {
     "Text"            -> String # reference to a blob
     "ClickableType"   -> <nhash>|<dottedExtension>
     "AionPoint"       -> <nhash>
-
-Nx50Schedule
-{
-    "type"          : "indefinite-daily-commitment"  # We count the hours of the current day
-    "hours"         : Float
-    "exclusionDays" : null or Array[Int]
-}
-{
-    "type"          : "indefinite-daily-commitment",
-    "hours"         : 1,
-    "exclusionDays" : null
-}
-{
-    "type"  : "indefinite-weekly-commitment" # We count the hours of the current week, starting on Saturday
-                                             # to be able to do them over the week end 
-    "hours" : Float
-}
-{
-    "type" : "regular" # First come first served, in pack of three, smallest RT first, 
-                       # Default value for those without a schedule, backwards compatibility
-}
-
 
 # -----------------------------------
 Saturation Simulation

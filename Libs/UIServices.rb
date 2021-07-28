@@ -27,7 +27,7 @@ class NS16sOperator
             Waves::ns16s(),
             Inbox::ns16s(),
             Work::ns16s(),
-            Nx50s::ns16s(),
+            Nx50s::ns16s(domain),
 
         ]
             .flatten
@@ -100,9 +100,9 @@ class UIServices
         end
 
         if Interpreting::match("Nx50s", command) then
-            ns16 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", Nx50s::ns16sExtended(), lambda {|ns50| ns50["announce"] })
-            return if ns16.nil?
-            ns16["access"].call()
+            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", CoreDataTx::getObjectsBySchema("Nx50"), lambda {|nx50| Nx50s::toString(nx50) })
+            return if nx50.nil?
+            Nx50s::access(nx50)
         end
 
         if Interpreting::match("search", command) then

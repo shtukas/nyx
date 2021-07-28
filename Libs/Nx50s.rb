@@ -381,6 +381,16 @@ class Nx50s
     # --------------------------------------------------
     # nx16s
 
+    # Nx50s::hoursOverThePast21Days(nx50)
+    def self.hoursOverThePast21Days(nx50)
+        Bank::valueOverTimespan(nx50["uuid"], 86400*21).to_f/3600
+    end
+
+    # Nx50s::hoursDoneSinceLastSaturday(nx50)
+    def self.hoursDoneSinceLastSaturday(nx50)
+        Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(uuid, date)}.inject(0, :+).to_f/3600
+    end
+
     # Nx50s::saturationRT(nx50)
     def self.saturationRT(nx50)
         # This function returns the recovery time after with the item is saturated
@@ -389,12 +399,13 @@ class Nx50s
         Math.exp(-tx)
     end
 
-    # Nx50s::ns16(nx50)
-    def self.ns16(nx50)
+    # Nx50s::ns16OrNull(nx50)
+    def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
+        return nil if !DoNotShowUntil::isVisible(uuid)
+        return nil if (Nx50s::hoursOverThePast21Days(nx50) > 10 and Nx50s::hoursDoneSinceLastSaturday(nx50) > 2)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        saturation = Nx50s::saturationRT(nx50)
-        isSaturated = rt > saturation
+        return nil if rt > Nx50s::saturationRT(nx50)
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
@@ -405,108 +416,41 @@ class Nx50s
                     Nx50s::complete(nx50)
                 end
             },
-            "[]"          => lambda { StructuredTodoTexts::applyT(uuid) },
-            "domain"      => Domains::getDomainForItemOrNull(uuid),
-            "rt"          => rt,
-            "saturation"  => saturation,
-            "isSaturated" => isSaturated,
-            "isVisible"   => DoNotShowUntil::isVisible(uuid)
+            "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
+            "domain"  => Domains::getDomainForItemOrNull(uuid),
+            "rt"      => rt
         }
     end
 
-    # Nx50s::ns16sIndefinite()
-    def self.ns16sIndefinite()
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| (nx50["schedule"]["type"] == "indefinite-daily-commitment") or (nx50["schedule"]["type"] == "indefinite-weekly-commitment") }
-            .map{|nx50| Nx50s::ns16(nx50) }
-            .compact
-    end
-
-    # Nx50s::ns16sRegularPrimaryThreeOfTheDay()
-    def self.ns16sRegularPrimaryThreeOfTheDay()
-        liveFirstThree = lambda {
-            CoreDataTx::getObjectsBySchema("Nx50")
-                .select{|nx50| nx50["schedule"]["type"] == "regular" }
-                .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
-                .first(3)
-                .map{|nx50| nx50["uuid"] }
-        }
-
-        three = lambda {
-            today = Utils::today()
-            location = "6d5e7249-5a6d-4c08-8b8f-4dfafcc0113f:#{today}"
-            uuids = KeyValueStore::getOrNull(nil, location)
-            if uuids.nil? then
-                uuids = liveFirstThree.call()
-                KeyValueStore::set(nil, location, JSON.generate(uuids))
-            else
-                uuids = JSON.parse(uuids)
-            end
-            uuids
-        }
-
-        three.call()
-            .map{|uuid| CoreDataTx::getObjectByIdOrNull(uuid) }
-            .compact
-            .map{|nx50| Nx50s::ns16(nx50) }
-    end
-
-    # Nx50s::ns16sRegularSecondary()
-    def self.ns16sRegularSecondary()
-        three = lambda {
-            today = Utils::today()
-            location = "6d5e7249-5a6d-4c08-8b8f-4dfafcc0113f:#{today}"
-            uuids = KeyValueStore::getOrNull(nil, location)
-            if uuids.nil? then
-                uuids = liveFirstThree.call()
-                KeyValueStore::set(nil, location, JSON.generate(uuids))
-            else
-                uuids = JSON.parse(uuids)
-            end
-            uuids
-        }
-
-        three = three.call()
-
-        nx50s = CoreDataTx::getObjectsBySchema("Nx50")
-                    .select{|nx50| nx50["schedule"]["type"] == "regular" }
-                    .select{|nx50| !three.include?(nx50["uuid"]) }
-
-        items1 = nx50s.select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) > 0 } # active within the past week
-        items2 = nx50s.select{|nx50| Bank::valueOverTimespan(nx50["uuid"], 86400*7) == 0 }
-
-        (items1 + items2)
-            .map{|nx50| Nx50s::ns16(nx50) }
-            .compact
-    end
-
-    # Nx50s::ns16s()
-    def self.ns16s()
+    # Nx50s::ns16s(domain = nil)
+    def self.ns16s(domain = nil)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        (Nx50s::ns16sIndefinite() + Nx50s::ns16sRegularPrimaryThreeOfTheDay() + Nx50s::ns16sRegularSecondary())
-            .select{|ns16| !ns16["isSaturated"] }
-    end
+        rtForComparison = lambda{|rt|
+            (rt == 0) ? 0.4 : rt
+        }
 
-    # Nx50s::ns16sExtended()
-    def self.ns16sExtended()
         CoreDataTx::getObjectsBySchema("Nx50")
-            .map{|nx50| Nx50s::ns16(nx50) }
-            .map{|ns16|
-                if ns16["rt"] >= ns16["saturation"] then
-                    ns16["announce"] = "#{ns16["announce"]} [saturated]"
-                end
-                ns16
+            .select{|nx50| 
+                dx = Domains::getDomainForItemOrNull(nx50["uuid"])
+                domain.nil? or dx.nil? or (dx["uuid"] == domain["uuid"])
             }
-            .map{|ns16|
-                if !ns16["isVisible"] then
-                    ns16["announce"] = "#{ns16["announce"]} [hidden until #{Time.at(DoNotShowUntil::getUnixtimeOrNull(ns16["uuid"])).to_s}]"
-                    ns16["uuid"] = SecureRandom.hex
+            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
+            .reduce([]){|ns16s, nx50|
+                if ns16s.size < 3 then
+                    ns16 = Nx50s::ns16OrNull(nx50)
+                    if ns16 then
+                        ns16s + [ns16]
+                    else
+                        ns16s
+                    end
+                else
+                    ns16s
                 end
-                ns16
             }
+            .sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) }
     end
 
     # --------------------------------------------------
