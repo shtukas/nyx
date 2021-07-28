@@ -226,8 +226,8 @@ class Waves
 
             puts ""
 
+            puts "<datecode> | done | update description | recast contents | recast schedule | domain | destroy".yellow
             puts "access | note | [] | done | <datecode> | detach running | exit".yellow
-            puts "<datecode> | done | update description | recast contents | recast schedule | destroy".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -263,6 +263,12 @@ class Waves
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
                 CoreDataTx::commit(wave)
+                next
+            end
+
+            if Interpreting::match("domain", command) then
+                domain = Domains::selectDomainOrNull()
+                Domains::setDomainForItem(wave["uuid"], domain)
                 next
             end
 
