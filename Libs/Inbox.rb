@@ -3,6 +3,44 @@
 
 class InboxLines
 
+    # InboxLines::access(item)
+    def self.access(item)
+        uuid = "#{Utils::today()}:#{item["uuid"]}"
+
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        system("clear")
+
+        puts "[inbox] line: #{item["description"]}".green
+        puts "Started at: #{Time.new.to_s}".yellow
+
+        puts ""
+
+        puts "done | dispatch | (empty) exit ".yellow
+
+        command = LucilleCore::askQuestionAnswerAsString("> ")
+
+        if command == "done" then
+            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
+        end
+
+        if command == "dispatch" then
+            Nx50s::issueNx50UsingTextInteractive(item["description"])
+            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
+        end
+
+        thr.exit
+        NxBalls::closeNxBall(nxball, true)
+    end
+
     # InboxLines::ns16s()
     def self.ns16s()
         BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
@@ -11,44 +49,10 @@ class InboxLines
                 {
                     "uuid"     => uuid,
                     "announce" => "[inbx] line: #{item["description"]}",
-                    "access"   => lambda {
-                        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
-                        thr = Thread.new {
-                            loop {
-                                sleep 60
-                                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                                end
-                            }
-                        }
-
-                        system("clear")
-
-                        puts "[inbox] line: #{item["description"]}".green
-                        puts "Started at: #{Time.new.to_s}".yellow
-
-                        puts ""
-
-                        puts "done | (empty) exit ".yellow
-
-                        command = LucilleCore::askQuestionAnswerAsString("> ")
-
-                        if command == "done" then
-                            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
-                        end
-
-                        thr.exit
-                        NxBalls::closeNxBall(nxball, true)
-                    },
-                    "done"   => lambda {
-                        BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
-                    },
-                    "domain"               => Domains::getDomainForItemOrNull(uuid),
-                    "isInbox"              => true,
-                    "isInboxText"          => true,
-                    "dispatch-uuid"        => item["uuid"],
-                    "dispatch-description" => item["description"],
-                    "inbox-unixtime"       => item["unixtime"]
+                    "access"   => lambda { InboxLines::access(item) },
+                    "done"     => lambda { BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"]) },
+                    "domain"   => Domains::getDomainForItemOrNull(uuid),
+                    "inbox-unixtime" => item["unixtime"]
                 }
 
             }
@@ -106,11 +110,16 @@ class InboxFiles
 
         puts ""
 
-        puts "done | (empty) exit ".yellow
+        puts "done | dispatch | (empty) exit ".yellow
 
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
         if command == "done" then
+            LucilleCore::removeFileSystemLocation(location)
+        end
+
+        if command == "dispatch" then
+            Nx50s::issueNx50UsingLocationInteractive(location)
             LucilleCore::removeFileSystemLocation(location)
         end
 
@@ -129,10 +138,7 @@ class InboxFiles
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
                 "domain"   => Domains::getDomainForItemOrNull(uuid),
-                "isInbox"              => true,
-                "isInboxFile"          => true,
-                "dispatch-location"    => location,
-                "inbox-unixtime"       => File.mtime(location).to_time.to_i
+                "inbox-unixtime" => File.mtime(location).to_time.to_i
             }
         }
     end

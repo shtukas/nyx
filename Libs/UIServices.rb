@@ -166,7 +166,7 @@ class UIServices
             ].join(" ").yellow
 
             if !ns16s.empty? then
-                puts "top : .. | [] (Priority.txt) | done | dispatch | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
+                puts "top : .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 
@@ -210,22 +210,6 @@ class UIServices
                 return "ns:loop" if ns16.nil?
                 domain = Domains::selectDomainOrNull()
                 Domains::setDomainForItem(ns16["uuid"], domain)
-                return "ns:loop"
-            end
-
-            if Interpreting::match("dispatch", command) then
-                ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil?
-                return if !ns16["isInbox"]
-                if ns16["isInboxText"] then
-                    Nx50s::issueNx50UsingTextInteractive(ns16["dispatch-description"])
-                    BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", ns16["dispatch-uuid"])
-                end
-                if ns16["isInboxFile"] then
-                    location = ns16["dispatch-location"]
-                    Nx50s::issueNx50UsingLocationInteractive(location)
-                    LucilleCore::removeFileSystemLocation(location)
-                end
                 return "ns:loop"
             end
 
