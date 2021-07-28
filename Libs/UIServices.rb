@@ -17,7 +17,7 @@ class NS16sOperator
 
     # NS16sOperator::ns16s(domain)
     def self.ns16s(domain)
-        [
+        ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -34,6 +34,14 @@ class NS16sOperator
             .compact
             .select{|item| item["domain"].nil? or (item["domain"]["uuid"] == domain["uuid"]) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+
+        # If it exists we maintain isRunningWorkC7DB is second position
+        if ns16s.size >= 2 and ns16s[0]["isRunningWorkC7DB"] then
+            ns16s = [ns16s[1]] + [ns16s[0]] + ns16s.drop(2) 
+        end
+
+        ns16s
     end
 
 end
@@ -42,7 +50,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >nyx"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -109,8 +117,8 @@ class UIServices
             Search::search()
         end
 
-        if Interpreting::match(">nyx", command) then
-            system("/Users/pascal/Galaxy/Software/Nyx/x-make-new")
+        if Interpreting::match("nyx-make", command) then
+            system("/Users/pascal/Galaxy/Software/Nyx/x-lucille-maker")
         end
     end
 

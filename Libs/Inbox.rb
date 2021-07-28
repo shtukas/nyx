@@ -7,8 +7,9 @@ class InboxLines
     def self.ns16s()
         BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
             .map{|item|
+                uuid = "#{Utils::today()}:#{item["uuid"]}"
                 {
-                    "uuid"     => "#{Utils::today()}:#{item["uuid"]}",
+                    "uuid"     => uuid,
                     "announce" => "[inbx] line: #{item["description"]}",
                     "access"   => lambda {
                         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
@@ -26,21 +27,23 @@ class InboxLines
                         puts "[inbox] line: #{item["description"]}".green
                         puts "Started at: #{Time.new.to_s}".yellow
 
-                        LucilleCore::pressEnterToContinue()
+                        puts ""
 
-                        if LucilleCore::askQuestionAnswerAsBoolean("done '#{item["description"]}' ? ") then
-                            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
-                        else
-                            Nx50s::issueNx50UsingTextInteractive(item["description"])
+                        puts "done | (empty) exit ".yellow
+
+                        command = LucilleCore::askQuestionAnswerAsString("> ")
+
+                        if command == "done" then
                             BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                         end
+
                         thr.exit
                         NxBalls::closeNxBall(nxball, true)
                     },
                     "done"   => lambda {
                         BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
                     },
-                    "domain"               => nil,
+                    "domain"               => Domains::getDomainForItemOrNull(uuid),
                     "isInbox"              => true,
                     "isInboxText"          => true,
                     "dispatch-uuid"        => item["uuid"],
@@ -101,12 +104,13 @@ class InboxFiles
             system("open '#{location}'")
         end
 
-        LucilleCore::pressEnterToContinue()
+        puts ""
 
-        if LucilleCore::askQuestionAnswerAsBoolean("done? : ") then
-            LucilleCore::removeFileSystemLocation(location)
-        else
-            Nx50s::issueNx50UsingLocationInteractive(location)
+        puts "done | (empty) exit ".yellow
+
+        command = LucilleCore::askQuestionAnswerAsString("> ")
+
+        if command == "done" then
             LucilleCore::removeFileSystemLocation(location)
         end
 
@@ -118,12 +122,13 @@ class InboxFiles
     # InboxFiles::ns16s()
     def self.ns16s()
         InboxFiles::locations().map{|location|
+            uuid = "#{Utils::today()}:#{location}"
             {
-                "uuid"     => "#{Utils::today()}:#{location}",
+                "uuid"     => uuid,
                 "announce" => "[inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "domain"   => nil,
+                "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "isInbox"              => true,
                 "isInboxFile"          => true,
                 "dispatch-location"    => location,

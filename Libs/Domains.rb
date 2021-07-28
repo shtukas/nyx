@@ -5,8 +5,8 @@ class Domains
     # ------------------------------------------------------------
     # Domains 
 
-    # Domains::defaul()
-    def self.defaul()
+    # Domains::default()
+    def self.default()
         {
             "uuid" => "8310e938-9c61-4e1c-b122-b3d9fecd7a86",
             "name" => "alexandra"
@@ -23,7 +23,7 @@ class Domains
 
     # Domains::domains()
     def self.domains()
-        [ Domains::defaul(), Domains::workDomain() ]
+        [ Domains::default(), Domains::workDomain() ]
     end
 
     # Domains::getDomainByUUIDOrNull(uuid)
@@ -65,6 +65,6 @@ class Domains
 
     # Domains::getCurrentDomain()
     def self.getCurrentDomain()
-        Work::workShouldBeRunning() ? Domains::workDomain() : Domains::defaul()
+        Work::isRunning() ? Domains::workDomain() : Domains::default()
     end
 end
