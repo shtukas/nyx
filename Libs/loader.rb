@@ -146,6 +146,7 @@ require_relative "Domains.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
+require_relative "DrivesBackups.rb"
 
 require_relative "El1zabeth.rb"
 

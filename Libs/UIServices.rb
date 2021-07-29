@@ -26,6 +26,7 @@ class NS16sOperator
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
             Waves::ns16s(),
             Inbox::ns16s(),
+            DrivesBackups::ns16s(),
             Work::ns16s(),
             Nx50s::ns16s(domain),
 
