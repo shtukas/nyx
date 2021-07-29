@@ -44,7 +44,6 @@ class NS16sOperator
 
         ns16s
     end
-
 end
 
 class UIServices
@@ -64,6 +63,7 @@ class UIServices
                 "unixtime"    => Time.new.to_i,
                 "description" => description
             }
+            puts JSON.pretty_generate(item)
             BTreeSets::set(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"], item)
         end
 
