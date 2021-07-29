@@ -77,7 +77,7 @@ class Work
             puts (StructuredTodoTexts::getNoteOrNull(uuid) || "").green
 
 
-            puts "note | [] | <datecode> | stop | exit".yellow
+            puts "note | [] | <datecode> | start | stop | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -102,6 +102,11 @@ class Work
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
+            end
+
+            if Interpreting::match("start", command) then
+                Work::start()
+                next
             end
 
             if Interpreting::match("stop", command) then
