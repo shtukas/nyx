@@ -152,7 +152,7 @@ class Waves
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] (#{Waves::scheduleString(wave)}) [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
+        "#{Domains::domainPrefix(wave["uuid"])} [wave] (#{Waves::scheduleString(wave)}) [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
     end
 
     # Waves::selectWaveOrNull()
@@ -167,7 +167,6 @@ class Waves
         CoreDataTx::commit(wave)
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-        Bank::put("WAVES-DONE-IMPACT-8F82-BFB47E4541A2", 1)
     end
 
     # Waves::main()
@@ -207,7 +206,7 @@ class Waves
             end
         }
 
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::getDomainUUIDForItemOrNull(wave["uuid"])].compact)
 
         accessContent.call(wave)
 
@@ -215,6 +214,15 @@ class Waves
             system("clear")
 
             puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})".green
+
+            if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
+                domain = Domains::selectDomainOrNull()
+                if domain then
+                    nxball["bankAccounts"] << domain["uuid"]
+                    Domains::setDomainForItem(uuid, domain)
+                end
+            end
+
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
             puts ""
@@ -337,13 +345,22 @@ class Waves
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
             "wave"     => wave,
-            "domain"   => Domains::getDomainForItemOrNull(uuid)
+            "domain"   => Domains::getItemDomainByIdOrNull(uuid)
         }
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
+    # Waves::ns16s(domainOpt)
+    def self.ns16s(domainOpt)
+        isSelectedForNS16 = lambda{|wave, domainOpt|
+            if domainOpt then
+                itemdomain = Domains::getItemDomainByIdOrNull(wave["uuid"])
+                return (itemdomain.nil? or (itemdomain["uuid"] == domainOpt["uuid"]))
+            end
+            true
+        }
+
         CoreDataTx::getObjectsBySchema("wave")
+            .select{|wave| isSelectedForNS16.call(wave, domainOpt) }
             .map{|wave| Waves::toNS16(wave) }
             .compact
     end

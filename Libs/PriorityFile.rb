@@ -21,7 +21,7 @@ class PriorityFile
 
         announce = "#{filename}\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
 
-        uuid = Digest::SHA1.hexdigest(contents.strip)
+        uuid = "#{filepath}:#{Utils::today()}"
 
         {
             "uuid"      => uuid,

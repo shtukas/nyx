@@ -15,8 +15,53 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::ns16s(domain)
-    def self.ns16s(domain)
+    # NS16sOperator::queueStorageLocation()
+    def self.queueStorageLocation()
+        "b8cd313d-44f3-4ab1-a226-ac9de1babc0b:#{Utils::today()}"
+    end
+
+    # NS16sOperator::rotateQueue()
+    def self.rotateQueue()
+        queue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
+        queue = (queue.drop(1) + [queue.first]).compact
+        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(queue))
+    end
+
+    # NS16sOperator::flushFromQueue(uuid)
+    def self.flushFromQueue(uuid)
+        queue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
+        
+        queue = queue.map{|ns16|
+            if ns16["uuid"] == uuid then
+                nil
+            else
+                ns16
+            end
+        }.compact
+
+        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(queue))
+    end
+
+    # NS16sOperator::upgrade(ns16s, ns16)
+    def self.upgrade(ns16s, ns16)
+        if ns16s.any?{|i| i["uuid"] == ns16["uuid"] } then
+            ns16s.map{|i|
+                if i["uuid"] == ns16["uuid"] then
+                    ns16
+                else
+                    i
+                end
+            }
+        else
+            ns16s + [ns16]
+        end
+    end
+
+    # NS16sOperator::ns16s()
+    def self.ns16s()
+
+        domainOpt = Work::shouldBeRunning() ? (Time.new.hour < 18 ? Domains::workDomain() : nil) : Domains::alexandra()
+
         ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -24,23 +69,31 @@ class NS16sOperator
             Fitness::ns16s(),
             Nx31s::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            Waves::ns16s(),
+            Waves::ns16s(domainOpt),
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
             Work::ns16s(),
-            Nx50s::ns16s(domain),
+            Nx50s::ns16s(domainOpt),
 
         ]
             .flatten
             .compact
-            .select{|item| item["domain"].nil? or (item["domain"]["uuid"] == domain["uuid"]) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
+        ns16sPreviousQueue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
+        
+        ns16s = ns16s
+            .reduce(ns16sPreviousQueue){|w, ns16|
+                NS16sOperator::upgrade(w, ns16)
+            }
+            .select{|ns16| ns16["announce"] } # We detect the one that have not been replaced by the fact that their announce is nil
 
-        # If it exists we maintain isRunningWorkC7DB is second position
-        if ns16s.size >= 2 and ns16s[0]["isRunningWorkC7DB"] then
-            ns16s = [ns16s[1]] + [ns16s[0]] + ns16s.drop(2) 
-        end
+        ns16sNewQueue = ns16s.map{|ns16|
+            ns16 = ns16.clone
+            ns16.delete("announce")
+            ns16
+        }
+        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(ns16sNewQueue))
 
         ns16s
     end
@@ -127,7 +180,7 @@ class UIServices
     def self.catalystMainInterface()
 
         getNS16s = lambda {
-            NS16sOperator::ns16s(Domains::getCurrentDomain())
+            NS16sOperator::ns16s()
         }
 
         processNS16s = lambda {|ns16s|
@@ -140,10 +193,9 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-8
+            vspaceleft = Utils::screenHeight()-10
 
             puts ""
-            vspaceleft = vspaceleft - 1
 
             indx15 = -1
 
@@ -158,16 +210,22 @@ class UIServices
 
             puts ""
 
-            puts "(#{Domains::getCurrentDomain()["name"]})".green
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-                "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})",
-                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)}, #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
+                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
+                "(Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
             ].join(" ").yellow
 
+            puts Domains::domains()
+                    .map{|domain| "(#{domain["name"]}, rt: #{BankExtended::stdRecoveredDailyTimeInHours(domain["uuid"]).round(2)})" }
+                    .join(" ")
+                    .yellow
+
+            puts ""
+
             if !ns16s.empty? then
-                puts "top : .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | exit".yellow
+                puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose | rotate | exit".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 
@@ -195,6 +253,11 @@ class UIServices
                 return "ns:loop" if ns16.nil? 
                 puts JSON.pretty_generate(ns16)
                 LucilleCore::pressEnterToContinue()
+                return "ns:loop"
+            end
+
+            if Interpreting::match("rotate", command) then
+                NS16sOperator::rotateQueue()
                 return "ns:loop"
             end
 

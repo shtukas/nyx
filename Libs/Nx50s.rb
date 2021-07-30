@@ -48,7 +48,7 @@ class Nx50s
         end
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| 
-                dx = Domains::getDomainForItemOrNull(item["uuid"])
+                dx = Domains::getItemDomainByIdOrNull(item["uuid"])
                 dx and (dx["uuid"] == domain["uuid"])
             }
     end
@@ -174,7 +174,7 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{Nx50s::toStringCore(nx50)}"
+        "#{Domains::domainPrefix(nx50["uuid"])} [nx50] #{Nx50s::toStringCore(nx50)}"
     end
 
     # Nx50s::complete(nx50)
@@ -189,7 +189,7 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
 
         thr = Thread.new {
             loop {
@@ -216,13 +216,22 @@ class Nx50s
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+
+            if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
+                domain = Domains::selectDomainOrNull()
+                if domain then
+                    nxball["bankAccounts"] << domain["uuid"]
+                    Domains::setDomainForItem(uuid, domain)
+                end
+            end
+
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
             puts ""
 
             puts "uuid: #{uuid}".yellow
             puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
-            puts "domain: #{Domains::getDomainForItemOrNull(nx50["uuid"])}".yellow
+            puts "domain: #{Domains::getItemDomainByIdOrNull(nx50["uuid"])}".yellow
             puts "schedule: #{nx50["schedule"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
@@ -313,7 +322,7 @@ class Nx50s
             end
 
             if Interpreting::match("edit unixtime", command) then
-                domain = Domains::getDomainForItemOrNull(nx50["uuid"])
+                domain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
                 nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
                 CoreDataTx::commit(nx50)
                 next
@@ -348,6 +357,8 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
 
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+
+        NS16sOperator::flushFromQueue(uuid)
     end
     
     # Nx50s::maintenance()
@@ -406,7 +417,7 @@ class Nx50s
         return nil if (Nx50s::hoursOverThePast21Days(nx50) > 10 and Nx50s::hoursDoneSinceLastSaturday(nx50) > 2)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > Nx50s::saturationRT(nx50)
-        announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
+        announce = "#{Domains::domainPrefix(uuid)} [nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -417,39 +428,36 @@ class Nx50s
                 end
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "domain"  => Domains::getDomainForItemOrNull(uuid),
+            "domain"  => Domains::getItemDomainByIdOrNull(uuid),
             "rt"      => rt
         }
     end
 
-    # Nx50s::ns16s(domain = nil)
-    def self.ns16s(domain = nil)
+    # Nx50s::ns16s(domainOpt)
+    def self.ns16s(domainOpt)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
             Nx50s::issueNx50UsingLocation(location)
+        }
+
+        isSelectedForNS16 = lambda{|nx50, domainOpt|
+            if domainOpt then
+                itemdomain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
+                return (itemdomain.nil? or (itemdomain["uuid"] == domainOpt["uuid"]))
+            end
+            true
         }
 
         rtForComparison = lambda{|rt|
             (rt == 0) ? 0.4 : rt
         }
 
-        CoreDataTx::getObjectsBySchema("Nx50")
-            .select{|nx50| 
-                dx = Domains::getDomainForItemOrNull(nx50["uuid"])
-                domain.nil? or dx.nil? or (dx["uuid"] == domain["uuid"])
-            }
-            .select{|nx50| DoNotShowUntil::isVisible(nx50["uuid"]) }
-            .reduce([]){|ns16s, nx50|
-                if ns16s.size < 3 then
-                    ns16 = Nx50s::ns16OrNull(nx50)
-                    if ns16 then
-                        ns16s + [ns16]
-                    else
-                        ns16s
-                    end
-                else
-                    ns16s
-                end
-            }
+        ns16s = CoreDataTx::getObjectsBySchema("Nx50")
+                    .select{|nx50| isSelectedForNS16.call(nx50, domainOpt) }
+                    .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                    .compact
+
+        ns16s
+            .first(3)
             .sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) }
     end
 

@@ -7,7 +7,7 @@ class InboxLines
     def self.access(item)
         uuid = "#{Utils::today()}:#{item["uuid"]}"
 
-        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
             loop {
                 sleep 60
@@ -21,6 +21,13 @@ class InboxLines
 
         puts "[inbox] line: #{item["description"]}".green
         puts "Started at: #{Time.new.to_s}".yellow
+
+        if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
+            domain = Domains::selectDomainOrNull()
+            if domain then
+                nxball["bankAccounts"] << domain["uuid"]
+            end
+        end
 
         puts ""
 
@@ -51,7 +58,7 @@ class InboxLines
                     "announce" => "[inbx] line: #{item["description"]}",
                     "access"   => lambda { InboxLines::access(item) },
                     "done"     => lambda { BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"]) },
-                    "domain"   => Domains::getDomainForItemOrNull(uuid),
+                    "domain"   => Domains::getItemDomainByIdOrNull(uuid),
                     "inbox-unixtime" => item["unixtime"]
                 }
 
@@ -76,7 +83,7 @@ class InboxFiles
 
         uuid = "#{location}:#{Utils::today()}"
 
-        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
 
         thr = Thread.new {
             loop {
@@ -108,6 +115,13 @@ class InboxFiles
             system("open '#{location}'")
         end
 
+        if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
+            domain = Domains::selectDomainOrNull()
+            if domain then
+                nxball["bankAccounts"] << domain["uuid"]
+            end
+        end
+
         puts ""
 
         puts "done | dispatch | (empty) exit ".yellow
@@ -137,7 +151,7 @@ class InboxFiles
                 "announce" => "[inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "domain"   => Domains::getDomainForItemOrNull(uuid),
+                "domain"   => Domains::getItemDomainByIdOrNull(uuid),
                 "inbox-unixtime" => File.mtime(location).to_time.to_i
             }
         }

@@ -44,7 +44,7 @@ class Nx31s # OnDate
 
     # Nx31s::toString(nx31)
     def self.toString(nx31)
-        "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
+        "#{Domains::domainPrefix(nx31["uuid"])} [ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
 
     # Nx31s::access(nx31)
@@ -52,7 +52,7 @@ class Nx31s # OnDate
 
         uuid = nx31["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid])
+        nxball = NxBalls::makeNxBall([uuid, Domains::getDomainUUIDForItemOrNull(uuid)].compact)
 
         system("clear")
         
@@ -136,6 +136,8 @@ class Nx31s # OnDate
 
             UIServices::mainMenuInterpreter(command)
         }
+
+        NS16sOperator::flushFromQueue(uuid)
     end
 
     # Nx31s::nx31ToNS16(nx31)

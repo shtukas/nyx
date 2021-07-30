@@ -7,42 +7,13 @@ class Work
 
     # ---------------------------------------------------------------------------
 
-    # Work::getStartUnixtimeOrNull()
-    def self.getStartUnixtimeOrNull()
-        unixtime = KeyValueStore::getOrNull(nil, "843d19ab-4c64-4186-a455-b09e441e13a7")
-        return nil if unixtime.nil?
-        unixtime.to_i
-    end
-
-    # Work::isRunning()
-    def self.isRunning()
-        !Work::getStartUnixtimeOrNull().nil?
-    end
-
-    # Work::start()
-    def self.start()
-        return if Work::isRunning()
-        KeyValueStore::set(nil, "843d19ab-4c64-4186-a455-b09e441e13a7", Time.new.to_f)
-    end
-
-    # Work::stop()
-    def self.stop()
-        return if !Work::isRunning()
-        unixtime = Work::getStartUnixtimeOrNull()
-        return if unixtime.nil? # that condition never becomes true after the previous line.
-        timespan = [ Time.new.to_f - unixtime, 3600*2 ].min
-        puts "Adding #{timespan} seconds to WORK-E4A9-4BCD-9824-1EEC4D648408"
-        Bank::put("WORK-E4A9-4BCD-9824-1EEC4D648408", timespan)
-        KeyValueStore::destroy(nil, "843d19ab-4c64-4186-a455-b09e441e13a7")
-    end
-
-    # Work::workShouldBeRunning()
-    def self.workShouldBeRunning()
+    # Work::shouldBeRunning()
+    def self.shouldBeRunning()
         return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        return false if (BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") > Work::targetRT())
+        return false if (BankExtended::stdRecoveredDailyTimeInHours(Domains::workDomain()["uuid"]) > Work::targetRT())
         return false if [0, 6].include?(Time.new.wday)
         return false if Time.new.hour < 9
-        return false if Time.new.hour >= 17
+        return false if Time.new.hour >= 21
         true
     end
 
@@ -53,44 +24,41 @@ class Work
         6
     end
 
-    # Work::formatPriorityFile(text)
-    def self.formatPriorityFile(text)
-        text.lines.first(5).map{|line| "        #{line}" }.join()
-    end
-
     # ---------------------------------------------------------------------------
 
-    # Work::toString()
-    def self.toString()
-        "[work] (rt: #{"%4.2f" % BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408")}) 👩🏻‍💻"
-    end
+    # Work::itemAccess(location)
+    def self.itemAccess(location)
 
-    # Work::access()
-    def self.access()
+        uuid = Digest::SHA1.hexdigest("7f62221b-6b85-47ef-bd5d-72bd17e21fc4:#{location}")
 
-        uuid = "WORK-E4A9-4BCD-9824-1EEC4D648408"
+        nxball = NxBalls::makeNxBall([uuid, "WORK-E4A9-4BCD-9824-1EEC4D648408", Domains::workDomain()["uuid"]])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Work item running for more than an hour")
+                end
+            }
+        }
 
         loop {
             system("clear")
-            puts Work::toString().green
-            puts "StructuredTodoText:".green
-            puts (StructuredTodoTexts::getNoteOrNull(uuid) || "").green
+            puts "[work item] #{location}".green
 
-
-            puts "note | [] | <datecode> | start | stop | exit".yellow
+            puts "access | <datecode> | detach running | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == "exit"
 
-            if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(uuid) || "")
-                StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(uuid)
+            if command == "access" then
+                system("open '#{location}'")
                 next
             end
 
@@ -99,51 +67,33 @@ class Work
                 break
             end
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("start", command) then
-                Work::start()
-                next
-            end
-
-            if Interpreting::match("stop", command) then
-                Work::stop()
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2("[work item] #{location}", Time.new.to_i, [uuid, "WORK-E4A9-4BCD-9824-1EEC4D648408", Domains::workDomain()["uuid"]])
                 break
             end
 
             UIServices::mainMenuInterpreter(command)
         }
+
+        thr.exit
+
+        NxBalls::closeNxBall(nxball, true)
+
+        NS16sOperator::flushFromQueue(uuid)
     end
 
     # Work::ns16s()
     def self.ns16s()
-        objects = []
-
-        if Work::workShouldBeRunning() and !Work::isRunning() then
-            objects << {
-                "uuid"      => "7fa74573-7b04-46c7-9253-4f6358f03529",
-                "announce"  => "> outstanding work ; activate to start",
-                "access"    => lambda { Work::start() },
+        folderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
+        LucilleCore::locationsAtFolder(folderpath).map{|location|
+            {
+                "uuid"      => Digest::SHA1.hexdigest("7f62221b-6b85-47ef-bd5d-72bd17e21fc4:#{location}"),
+                "announce"  => "[#{"work".yellow}] #{File.basename(location)}",
+                "access"    => lambda { Work::itemAccess(location) },
                 "done"      => nil,
-                "domain"    => nil
+                "domain"    => Domains::workDomain()
             }
-        end
-
-        if Work::isRunning() then
-            objects << {
-                "uuid"     => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-                "announce" => "#{Work::toString()} (running: )".green,
-                "access"   => lambda { Work::access() },
-                "done"     => nil,
-                "domain"   => Domains::workDomain(),
-                "isRunningWorkC7DB" => true
-            }
-        end
-
-        objects
+        }
     end
 
     # Work::nx19s()
@@ -156,13 +106,3 @@ class Work
         ]
     end
 end
-
-Thread.new {
-    loop {
-        sleep 120
-
-        if (Time.new.to_i - (Work::getStartUnixtimeOrNull() || Time.new.to_i)) >= 3600 then
-            Utils::onScreenNotification("Catalyst", "Work running for more than an hour")
-        end
-    }
-}
