@@ -9,7 +9,7 @@ require_relative "Libs/loader.rb"
 Thread.new {
     loop {
         sleep 300
-        system("#{File.dirname(__FILE__)}/../../vienna-import")
+        system("#{File.dirname(__FILE__)}/vienna-import")
     }
 }
 
