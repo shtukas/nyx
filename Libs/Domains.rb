@@ -67,6 +67,6 @@ class Domains
     def self.domainPrefix(itemuuid)
         domain = Domains::getItemDomainByIdOrNull(itemuuid)
         return "[    ]" if domain.nil?
-        "[#{domain["name"][0, 4]}]".yellow
+        "[#{domain["name"][0, 4].yellow}]"
     end
 end
