@@ -13,8 +13,6 @@ class NxEntity
         return entity if entity
         entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
         return entity if entity
-        entity = NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
-        return entity if entity
         nil
     end
 
@@ -31,9 +29,6 @@ class NxEntity
         end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::toString(entity)
-        end
-        if entity["entityType"] == "NxTimelinePoint" then
-            return NxTimelinePoint::toString(entity)
         end
         raise "1f4f2950-acf2-4136-ba09-7a180338393f"
     end
@@ -52,9 +47,6 @@ class NxEntity
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::landing(entity)
         end
-        if entity["entityType"] == "NxTimelinePoint" then
-            return NxTimelinePoint::landing(entity)
-        end
         raise "252103a9-c5f5-4206-92d7-c01fc91f8a06"
     end
 
@@ -63,8 +55,7 @@ class NxEntity
         NxUniqueString::nx27s() +
         NxNode::nx10s() +
         NxAsteroid::nx45s() +
-        NxDirectory2::directories() +
-        NxTimelinePoint::points()
+        NxDirectory2::directories()
     end
 
     # NxEntity::selectExistingEntityOrNull()
@@ -95,9 +86,6 @@ class NxEntity
         end
         if type == "NxDirectory2" then
             return NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
-        end
-        if type == "timeline point" then
-            return NxTimelinePoint::interactivelyCreateNewPointOrNull()
         end
         raise "1902268c-f5e3-45fb-bcf5-573f4c14f160"
     end

@@ -30,26 +30,6 @@ class Fsck
         if object["entityType"] == "NxDirectory2" then
             return true
         end
-        if object["entityType"] == "NxTimelinePoint" then
-            if object["contentType"] == "Line" then
-                return true
-            end
-            if object["contentType"] == "Url" then
-                return true
-            end
-            if object["contentType"] == "Text" then
-                return !BinaryBlobsService::getBlobOrNull(object["payload"]).nil?
-            end
-            if object["contentType"] == "ClickableType" then
-                nhash, extension = object["payload"].split("|")
-                return !BinaryBlobsService::getBlobOrNull(nhash).nil?
-            end
-            if object["contentType"] == "AionPoint" then
-                nhash, extension = object["payload"].split("|")
-                return AionFsck::structureCheckAionHash(Elizabeth.new(), nhash)
-            end
-            raise "e880acc3-7da6-44e2-b163-79730f1ad121: #{object}"
-        end
         raise "cd97f89c-5fad-4b21-a365-65a0ad9228a9: #{object}"
     end
 

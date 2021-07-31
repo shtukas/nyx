@@ -7,8 +7,10 @@ class NxNodeTypes
     def self.nodeTypes()
         [
             "NxPure",
+            "NxPersonalDiary",
             "NxPersonalCalendar",
             "NxPersonalEvent",
+            "NxTravelAndEntertainmentDocuments",
             "NxPublicEvent",
             "NxInformation",
             "NxExplanation",

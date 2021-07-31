@@ -12,8 +12,10 @@ Nx10 (Node)
 }
 
 NxNodeType: "NxPure"             | # Default for backward compatibility
+            "NxPersonalDiary"    |
             "NxPersonalCalendar" |
             "NxPersonalEvent"    |
+            "NxTravelAndEntertainmentDocuments" | 
             "NxPublicEvent"      |
             "NxInformation"      |
             "NxExplanation"      |

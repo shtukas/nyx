@@ -8,8 +8,7 @@ class Search
         NxAsteroid::nx19s() +
         NxUniqueString::nx19s() +
         NxNode::nx19s() +
-        NxDirectory2::nx19s() +
-        NxTimelinePoint::nx19s()
+        NxDirectory2::nx19s()
     end
 
     # Search::mx19Landing(mx19)
@@ -32,10 +31,6 @@ class Search
         end
         if mx19["type"] == "NxDirectoryElement" then
             NxDirectoryElement::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxTimelinePoint" then
-            NxTimelinePoint::landing(mx19["payload"])
             return
         end
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
