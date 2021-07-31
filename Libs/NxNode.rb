@@ -153,7 +153,8 @@ class NxNode
             system("clear")
 
             puts NxNode::toString(nx10).green
-            puts "Node type: #{nx10["nodeType"]}"
+            puts "uuid: #{nx10["uuid"]}".yellow
+            puts "node type: #{nx10["nodeType"]}".yellow
             puts ""
 
             entities = Links::entities(nx10["uuid"])

@@ -8,7 +8,7 @@ require_relative "Libs/loader.rb"
 
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "entity data types listing and dive", "entity classification types listing and dive", "generate unique-string", "fsck"]
+        operations = ["search", "insert new entity", "data pointers listing and dive", "node types listing and dive", "generate unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
@@ -19,7 +19,7 @@ def mainLoop()
             exit if entity.nil?
             NxEntity::landing(entity)
         end
-        if operation == "entity data types listing and dive" then
+        if operation == "data pointers listing and dive" then
             loop {
                 types = ["NxAsteroid", "NxDirectory2", "NxUniqueString"]
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
@@ -35,14 +35,12 @@ def mainLoop()
                 end
             }
         end
-        if operation == "entity classification types listing and dive" then
+        if operation == "node types listing and dive" then
             loop {
-                types = ["NxNode"]
-                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
-                break if type.nil?
-                if type == "NxNode" then
-                    NxEntity::entitiesDive(NxNode::nx10s())
-                end
+                nodeType = NxNodeTypes::selectNodeTypeOrNull()
+                break if nodeType.nil?
+                nodes = NxNode::nx10s().select{|node| node["nodeType"] == nodeType }
+                NxEntity::entitiesDive(nodes)
             }
         end
         if operation == "generate unique-string" then
