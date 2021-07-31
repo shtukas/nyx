@@ -8,7 +8,7 @@ require_relative "Libs/loader.rb"
 
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "entity types listing and dive", "generate unique-string", "fsck"]
+        operations = ["search", "insert new entity", "entity data types listing and dive", "entity classification types listing and dive", "generate unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
@@ -19,9 +19,9 @@ def mainLoop()
             exit if entity.nil?
             NxEntity::landing(entity)
         end
-        if operation == "entity types listing and dive" then
+        if operation == "entity data types listing and dive" then
             loop {
-                types = ["NxAsteroid", "NxDirectory2", "NxEvent", "NxListing", "NxNode", "NxTag", "NxTimelinePoint", "NxUniqueString"]
+                types = ["NxAsteroid", "NxDirectory2", "NxEvent", "NxTimelinePoint", "NxUniqueString"]
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
                 break if type.nil?
                 if type == "NxAsteroid" then
@@ -33,6 +33,19 @@ def mainLoop()
                 if type == "NxEvent" then
                     NxEntity::entitiesDive(NxEvent::events())
                 end
+                if type == "NxTimelinePoint" then
+                    NxEntity::entitiesDive(NxTimelinePoint::points())
+                end
+                if type == "NxUniqueString" then
+                    NxEntity::entitiesDive(NxUniqueString::nx27s())
+                end
+            }
+        end
+        if operation == "entity classification types listing and dive" then
+            loop {
+                types = ["NxListing", "NxNode", "NxTag"]
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
+                break if type.nil?
                 if type == "NxListing" then
                     NxEntity::entitiesDive(NxListing::nxListings())
                 end
@@ -41,12 +54,6 @@ def mainLoop()
                 end
                 if type == "NxTag" then
                     NxEntity::entitiesDive(NxTag::nxTags())
-                end
-                if type == "NxTimelinePoint" then
-                    NxEntity::entitiesDive(NxTimelinePoint::points())
-                end
-                if type == "NxUniqueString" then
-                    NxEntity::entitiesDive(NxUniqueString::nx27s())
                 end
             }
         end
