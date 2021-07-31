@@ -11,7 +11,7 @@ class Search
         NxDirectory2::nx19s() +
         NxTag::nx19s() +
         NxListing::nx19s() +
-        NxEvent::nx19s() +
+        NxPersonalEvent::nx19s() +
         NxTimelinePoint::nx19s()
     end
 
@@ -37,8 +37,8 @@ class Search
             NxListing::landing(mx19["payload"])
             return
         end
-        if mx19["type"] == "NxEvent" then
-            NxEvent::landing(mx19["payload"])
+        if mx19["type"] == "NxPersonalEvent" then
+            NxPersonalEvent::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxDirectory2" then

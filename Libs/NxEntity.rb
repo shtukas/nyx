@@ -15,7 +15,7 @@ class NxEntity
         return entity if entity
         entity = NxListing::getListingByIdOrNull(uuid)
         return entity if entity
-        entity = NxEvent::getNxEventByIdOrNull(uuid)
+        entity = NxPersonalEvent::getNxEventByIdOrNull(uuid)
         return entity if entity
         entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
         return entity if entity
@@ -41,8 +41,8 @@ class NxEntity
         if entity["entityType"] == "NxListing" then
             return NxListing::toString(entity)
         end
-        if entity["entityType"] == "NxEvent" then
-            return NxEvent::toString(entity)
+        if entity["entityType"] == "NxPersonalEvent" then
+            return NxPersonalEvent::toString(entity)
         end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::toString(entity)
@@ -70,8 +70,8 @@ class NxEntity
         if entity["entityType"] == "NxListing" then
             return NxListing::landing(entity)
         end
-        if entity["entityType"] == "NxEvent" then
-            return NxEvent::landing(entity)
+        if entity["entityType"] == "NxPersonalEvent" then
+            return NxPersonalEvent::landing(entity)
         end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::landing(entity)
@@ -89,7 +89,7 @@ class NxEntity
         NxAsteroid::nx45s() + 
         NxTag::nxTags() + 
         NxListing::nxListings() + 
-        NxEvent::events() + 
+        NxPersonalEvent::events() + 
         NxDirectory2::directories() +
         NxTimelinePoint::points()
     end
@@ -130,7 +130,7 @@ class NxEntity
             return NxListing::interactivelyCreateNewNxListingOrNull()
         end
         if type == "event" then
-            return NxEvent::interactivelyCreateNewNxEventOrNull()
+            return NxPersonalEvent::interactivelyCreateNewNxEventOrNull()
         end
         if type == "timeline point" then
             return NxTimelinePoint::interactivelyCreateNewPointOrNull()

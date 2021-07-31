@@ -21,7 +21,7 @@ def mainLoop()
         end
         if operation == "entity data types listing and dive" then
             loop {
-                types = ["NxAsteroid", "NxDirectory2", "NxEvent", "NxTimelinePoint", "NxUniqueString"]
+                types = ["NxAsteroid", "NxDirectory2", "NxPersonalEvent", "NxTimelinePoint", "NxUniqueString"]
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
                 break if type.nil?
                 if type == "NxAsteroid" then
@@ -30,8 +30,8 @@ def mainLoop()
                 if type == "NxDirectory2" then
                     NxEntity::entitiesDive(NxDirectory2::directories())
                 end
-                if type == "NxEvent" then
-                    NxEntity::entitiesDive(NxEvent::events())
+                if type == "NxPersonalEvent" then
+                    NxEntity::entitiesDive(NxPersonalEvent::events())
                 end
                 if type == "NxTimelinePoint" then
                     NxEntity::entitiesDive(NxTimelinePoint::points())

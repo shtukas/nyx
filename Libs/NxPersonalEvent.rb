@@ -1,34 +1,34 @@
 
 # encoding: UTF-8
 
-class NxEvent
+class NxPersonalEvent
 
-    # NxEvent::databaseFilepath()
+    # NxPersonalEvent::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/events.sqlite3"
     end
 
-    # NxEvent::createNewEvent(uuid, datetime, date, description)
+    # NxPersonalEvent::createNewEvent(uuid, datetime, date, description)
     def self.createNewEvent(uuid, datetime, date, description)
-        db = SQLite3::Database.new(NxEvent::databaseFilepath())
+        db = SQLite3::Database.new(NxPersonalEvent::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _events1_ (_uuid_, _datetime_, _date_, _description_) values (?,?,?,?)", [uuid, datetime, date, description]
         db.close
     end
 
-    # NxEvent::destroyEvent(uuid)
+    # NxPersonalEvent::destroyEvent(uuid)
     def self.destroyEvent(uuid)
-        db = SQLite3::Database.new(NxEvent::databaseFilepath())
+        db = SQLite3::Database.new(NxPersonalEvent::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _events1_ where _uuid_=?", [uuid]
         db.close
     end
 
-    # NxEvent::getNxEventByIdOrNull(id): null or NxEvent
+    # NxPersonalEvent::getNxEventByIdOrNull(id): null or NxEvent
     def self.getNxEventByIdOrNull(id)
-        db = SQLite3::Database.new(NxEvent::databaseFilepath())
+        db = SQLite3::Database.new(NxPersonalEvent::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -36,7 +36,7 @@ class NxEvent
         db.execute( "select * from _events1_ where _uuid_=?" , [id] ) do |row|
             answer = {
                 "uuid"        => row["_uuid_"],
-                "entityType"  => "NxEvent",
+                "entityType"  => "NxPersonalEvent",
                 "datetime"    => row["_datetime_"],
                 "date"        => row["_date_"],
                 "description" => row["_description_"],
@@ -46,29 +46,29 @@ class NxEvent
         answer
     end
 
-    # NxEvent::interactivelyCreateNewNxEventOrNull()
+    # NxPersonalEvent::interactivelyCreateNewNxEventOrNull()
     def self.interactivelyCreateNewNxEventOrNull()
         uuid = SecureRandom.uuid
         date = LucilleCore::askQuestionAnswerAsString("date (empty to abort): ")
         return nil if date == ""
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        NxEvent::createNewEvent(uuid, Time.new.utc.iso8601, date, description)
-        NxEvent::getNxEventByIdOrNull(uuid)
+        NxPersonalEvent::createNewEvent(uuid, Time.new.utc.iso8601, date, description)
+        NxPersonalEvent::getNxEventByIdOrNull(uuid)
     end
 
-    # NxEvent::updateDescription(uuid, description)
+    # NxPersonalEvent::updateDescription(uuid, description)
     def self.updateDescription(uuid, description)
-        db = SQLite3::Database.new(NxEvent::databaseFilepath())
+        db = SQLite3::Database.new(NxPersonalEvent::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "update _events1_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
-    # NxEvent::events(): Array[NxEvent]
+    # NxPersonalEvent::events(): Array[NxEvent]
     def self.events()
-        db = SQLite3::Database.new(NxEvent::databaseFilepath())
+        db = SQLite3::Database.new(NxPersonalEvent::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -88,31 +88,31 @@ class NxEvent
 
     # ----------------------------------------------------------------------
 
-    # NxEvent::toString(event)
+    # NxPersonalEvent::toString(event)
     def self.toString(event)
         "[event] #{event["description"]}"
     end
 
-    # NxEvent::selectOneNxEventOrNull()
+    # NxPersonalEvent::selectOneNxEventOrNull()
     def self.selectOneNxEventOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxEvent::events(), lambda{|event| event["description"] })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxPersonalEvent::events(), lambda{|event| event["description"] })
     end
 
-    # NxEvent::architectOneNxEventOrNull()
+    # NxPersonalEvent::architectOneNxEventOrNull()
     def self.architectOneNxEventOrNull()
-        event = NxEvent::selectOneNxEventOrNull()
+        event = NxPersonalEvent::selectOneNxEventOrNull()
         return event if event
-        NxEvent::interactivelyCreateNewNxEventOrNull()
+        NxPersonalEvent::interactivelyCreateNewNxEventOrNull()
     end
 
-    # NxEvent::landing(event)
+    # NxPersonalEvent::landing(event)
     def self.landing(event)
         loop {
-            event = NxEvent::getNxEventByIdOrNull(event["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            event = NxPersonalEvent::getNxEventByIdOrNull(event["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if event.nil?
             system("clear")
 
-            puts NxEvent::toString(event).gsub("[event]", "[evnt]").green
+            puts NxPersonalEvent::toString(event).gsub("[event]", "[evnt]").green
 
             entities = Links::entities(event["uuid"])
 
@@ -156,13 +156,13 @@ class NxEvent
         }
     end
 
-    # NxEvent::nx19s()
+    # NxPersonalEvent::nx19s()
     def self.nx19s()
-        NxEvent::events().map{|event|
+        NxPersonalEvent::events().map{|event|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{NxEvent::toString(event)}",
-                "type"     => "NxEvent",
+                "announce" => "#{volatileuuid} #{NxPersonalEvent::toString(event)}",
+                "type"     => "NxPersonalEvent",
                 "payload"  => event
             }
         }
