@@ -8,7 +8,7 @@ require_relative "Libs/loader.rb"
 
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "timelime", "unique-string", "fsck"]
+        operations = ["search", "insert new entity", "entity types listing and dive", "generate unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
@@ -19,12 +19,38 @@ def mainLoop()
             exit if entity.nil?
             NxEntity::landing(entity)
         end
-        if operation == "timelime" then
-            point = NxTimelinePoint::selectOnePointOrNull()
-            exit if point.nil?
-            NxTimelinePoint::landing(point)
+        if operation == "entity types listing and dive" then
+            loop {
+                types = ["NxAsteroid", "NxDirectory2", "NxEvent", "NxListing", "NxNode", "NxTag", "NxTimelinePoint", "NxUniqueString"]
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
+                break if type.nil?
+                if type == "NxAsteroid" then
+                    NxEntity::entitiesDive(NxAsteroid::nx45s())
+                end
+                if type == "NxDirectory2" then
+                    NxEntity::entitiesDive(NxDirectory2::directories())
+                end
+                if type == "NxEvent" then
+                    NxEntity::entitiesDive(NxEvent::events())
+                end
+                if type == "NxListing" then
+                    NxEntity::entitiesDive(NxListing::nxListings())
+                end
+                if type == "NxNode" then
+                    NxEntity::entitiesDive(NxNode::nx10s())
+                end
+                if type == "NxTag" then
+                    NxEntity::entitiesDive(NxTag::nxTags())
+                end
+                if type == "NxTimelinePoint" then
+                    NxEntity::entitiesDive(NxTimelinePoint::points())
+                end
+                if type == "NxUniqueString" then
+                    NxEntity::entitiesDive(NxUniqueString::nx27s())
+                end
+            }
         end
-        if operation == "unique-string" then
+        if operation == "generate unique-string" then
             puts SecureRandom.hex(6)
             LucilleCore::pressEnterToContinue()
         end
@@ -34,5 +60,4 @@ def mainLoop()
     }
 end
 
-Search::searchLoop()
 mainLoop()

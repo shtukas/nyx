@@ -157,6 +157,17 @@ class NxEntity
         end
     end
 
+    # NxEntity::entitiesDive(entities)
+    def self.entitiesDive(entities)
+        loop {
+            entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity:", entities, lambda{|entity| NxEntity::toString(entity) })
+            break if entity.nil?
+            NxEntity::landing(entity)
+        }
+    end
+
+    # -- links -----------------------------------------------
+
     # NxEntity::linkToOtherArchitectured(entity)
     def self.linkToOtherArchitectured(entity)
         other = NxEntity::architectEntityOrNull()

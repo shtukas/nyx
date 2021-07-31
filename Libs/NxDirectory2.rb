@@ -29,7 +29,7 @@ NxDirectoryElement
 class NxDirectoryElement
     # NxDirectoryElement::landing(element)
     def self.landing(element)
-        parent = NxDirectory2::getNxDirectory2ByIdOrNull(element["parentuuid"])
+        parent = NxDirectory2::directoryIdToNxDirectory2OrNull(element["parentuuid"])
         if parent.nil? then
             puts "Attempting to display NxDirectoryElement #{element}, could not find parent directory (uuid: #{uuid})"
             LucilleCore::pressEnterToContinue()
@@ -112,27 +112,12 @@ class NxDirectory2
         directoryIds.map{|id| NxDirectory2::directoryIdToNxDirectory2OrNull(id) }.compact
     end
 
-    # NxDirectory2::getNxDirectory2ByIdOrNull(id): null or NxDirectory2
-    def self.getNxDirectory2ByIdOrNull(id)
-        db = SQLite3::Database.new(NxDirectory2::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        directoryId = nil
-        db.execute( "select * from _directories_" , [] ) do |row|
-            directoryId = row["_directoryId_"]
-        end
-        db.close
-        return nil if directoryId.nil?
-        NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
-    end
-
     # NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
     def self.interactivelyRegisterNewNxDirectoryOrNull()
         directoryId = LucilleCore::askQuestionAnswerAsString("directoryId (empty to abort): ")
         return nil if directoryId == ""
         NxDirectory2::register(directoryId)
-        NxDirectory2::getNxDirectory2ByIdOrNull(directoryId)
+        NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
     end
 
     # ----------------------------------------------------------------------
@@ -150,7 +135,7 @@ class NxDirectory2
     # NxDirectory2::landing(directory)
     def self.landing(directory)
         loop {
-            directory = NxDirectory2::getNxDirectory2ByIdOrNull(directory["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            directory = NxDirectory2::directoryIdToNxDirectory2OrNull(directory["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if directory.nil?
             system("clear")
 
@@ -158,6 +143,12 @@ class NxDirectory2
 
             puts "uuid: #{directory["uuid"]}"
             puts "directory: #{directory["location"]}"
+
+            puts ""
+            
+            directory["locationnames"].each{|locationname|
+                puts "- #{locationname}"
+            }
 
             puts ""
 
