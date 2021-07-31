@@ -43,17 +43,11 @@ def mainLoop()
         end
         if operation == "entity classification types listing and dive" then
             loop {
-                types = ["NxListing", "NxNode", "NxTag"]
+                types = ["NxNode"]
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
                 break if type.nil?
-                if type == "NxListing" then
-                    NxEntity::entitiesDive(NxListing::nxListings())
-                end
                 if type == "NxNode" then
                     NxEntity::entitiesDive(NxNode::nx10s())
-                end
-                if type == "NxTag" then
-                    NxEntity::entitiesDive(NxTag::nxTags())
                 end
             }
         end

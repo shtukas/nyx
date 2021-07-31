@@ -27,12 +27,6 @@ class Fsck
         if object["entityType"] == "Nx10" then
             return true
         end
-        if object["entityType"] == "NxTag" then
-            return true
-        end
-        if object["entityType"] == "NxListing" then
-            return true
-        end
         if object["entityType"] == "NxPersonalEvent" then
             return true
         end

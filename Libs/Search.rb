@@ -9,8 +9,6 @@ class Search
         NxUniqueString::nx19s() +
         NxNode::nx19s() +
         NxDirectory2::nx19s() +
-        NxTag::nx19s() +
-        NxListing::nx19s() +
         NxPersonalEvent::nx19s() +
         NxTimelinePoint::nx19s()
     end
@@ -27,14 +25,6 @@ class Search
         end
         if mx19["type"] == "Nx10" then
             NxNode::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxTag" then
-            NxTag::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxListing" then
-            NxListing::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxPersonalEvent" then

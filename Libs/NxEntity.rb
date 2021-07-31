@@ -11,10 +11,6 @@ class NxEntity
         return entity if entity
         entity = NxAsteroid::getAsteroidByUUIDOrNull(uuid)
         return entity if entity
-        entity = NxTag::getTagByIdOrNull(uuid)
-        return entity if entity
-        entity = NxListing::getListingByIdOrNull(uuid)
-        return entity if entity
         entity = NxPersonalEvent::getNxEventByIdOrNull(uuid)
         return entity if entity
         entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
@@ -34,12 +30,6 @@ class NxEntity
         end
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::toString(entity)
-        end
-        if entity["entityType"] == "NxTag" then
-            return NxTag::toString(entity)
-        end
-        if entity["entityType"] == "NxListing" then
-            return NxListing::toString(entity)
         end
         if entity["entityType"] == "NxPersonalEvent" then
             return NxPersonalEvent::toString(entity)
@@ -64,12 +54,6 @@ class NxEntity
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::landing(entity)
         end
-        if entity["entityType"] == "NxTag" then
-            return NxTag::landing(entity)
-        end
-        if entity["entityType"] == "NxListing" then
-            return NxListing::landing(entity)
-        end
         if entity["entityType"] == "NxPersonalEvent" then
             return NxPersonalEvent::landing(entity)
         end
@@ -84,12 +68,10 @@ class NxEntity
 
     # NxEntity::entities()
     def self.entities()
-        NxUniqueString::nx27s() + 
-        NxNode::nx10s() + 
-        NxAsteroid::nx45s() + 
-        NxTag::nxTags() + 
-        NxListing::nxListings() + 
-        NxPersonalEvent::events() + 
+        NxUniqueString::nx27s() +
+        NxNode::nx10s() +
+        NxAsteroid::nx45s() +
+        NxPersonalEvent::events() +
         NxDirectory2::directories() +
         NxTimelinePoint::points()
     end
@@ -122,12 +104,6 @@ class NxEntity
         end
         if type == "NxDirectory2" then
             return NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
-        end
-        if type == "tag" then
-            return NxTag::interactivelyCreateNewNxTagOrNull()
-        end
-        if type == "listing" then
-            return NxListing::interactivelyCreateNewNxListingOrNull()
         end
         if type == "event" then
             return NxPersonalEvent::interactivelyCreateNewNxEventOrNull()

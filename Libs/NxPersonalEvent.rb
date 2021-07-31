@@ -75,7 +75,7 @@ class NxPersonalEvent
         answer = []
         db.execute( "select * from _events1_" , [] ) do |row|
             answer << {
-                "entityType"  => "NxListing",
+                "entityType"  => "NxPersonalEvent",
                 "uuid"        => row["_uuid_"],
                 "datetime"    => row["_datetime_"],
                 "date"        => row["_date_"],

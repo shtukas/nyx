@@ -90,8 +90,6 @@ require_relative "Nx102.rb"
 
 require_relative "NxEntity.rb"
 require_relative "NxPersonalEvent.rb"
-require_relative "NxListing.rb"
-require_relative "NxTag.rb"
 require_relative "NxTimelinePoint.rb"
 
 require_relative "NxDirectory2.rb"

@@ -85,14 +85,15 @@ class NxDirectory2
             puts "the directory #{directoryId} cannot be found in Galaxy, let's get rid of the record in Nyx"
             LucilleCore::pressEnterToContinue()
             NxDirectory2::delete(directoryId)
+            Links::deleteReferencesToUUID(directoryId)
             return nil
         end
         description = File.basename(location)
         elements = Dir.entries(location).select{|filename| filename[0, 1] != "." }
         {
-            "uuid"        => directoryId,
-            "entityType"  => "NxDirectory2",
-            "datetime"    => Time.new.utc.iso8601,
+            "uuid"          => directoryId,
+            "entityType"    => "NxDirectory2",
+            "datetime"      => Time.new.utc.iso8601,
             "description"   => description,
             "locationnames" => elements
         }

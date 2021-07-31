@@ -30,6 +30,16 @@ class Links
         db.close
     end
 
+    # Links::deleteReferencesToUUID(uuid)
+    def self.deleteReferencesToUUID(uuid)
+        db = SQLite3::Database.new(Links::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _links_ where _uuid1_=?", [uuid]
+        db.execute "delete from _links_ where _uuid2_=?", [uuid]
+        db.close
+    end
+
     # Links::uuids(uuid)
     def self.uuids(uuid)
         db = SQLite3::Database.new(Links::databaseFilepath())
