@@ -78,12 +78,12 @@ class Work
         thr.exit
 
         NxBalls::closeNxBall(nxball, true)
-
-        NS16sOperator::flushFromQueue(uuid)
     end
 
-    # Work::ns16s()
-    def self.ns16s()
+    # Work::ns16s(domain)
+    def self.ns16s(domain)
+        return [] if (domain["uuid"] != Domains::workDomain()["uuid"])
+
         folderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
         LucilleCore::locationsAtFolder(folderpath).map{|location|
             {

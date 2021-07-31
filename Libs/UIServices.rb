@@ -15,53 +15,20 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::queueStorageLocation()
-    def self.queueStorageLocation()
-        "b8cd313d-44f3-4ab1-a226-ac9de1babc0b:#{Utils::today()}"
-    end
-
-    # NS16sOperator::rotateQueue()
-    def self.rotateQueue()
-        queue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
-        queue = (queue.drop(1) + [queue.first]).compact
-        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(queue))
-    end
-
-    # NS16sOperator::flushFromQueue(uuid)
-    def self.flushFromQueue(uuid)
-        queue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
-        
-        queue = queue.map{|ns16|
-            if ns16["uuid"] == uuid then
-                nil
-            else
-                ns16
+    # NS16sOperator::domain()
+    def self.domain()
+        data = KeyValueStore::getOrNull(nil, "16826a70-3a04-4829-88a1-dbe50b100625")
+        if data then
+            data = JSON.parse(data)
+            if (Time.new.to_i - data[0]) < 3600 then
+                return data[1]
             end
-        }.compact
-
-        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(queue))
-    end
-
-    # NS16sOperator::upgrade(ns16s, ns16)
-    def self.upgrade(ns16s, ns16)
-        if ns16s.any?{|i| i["uuid"] == ns16["uuid"] } then
-            ns16s.map{|i|
-                if i["uuid"] == ns16["uuid"] then
-                    ns16
-                else
-                    i
-                end
-            }
-        else
-            ns16s + [ns16]
         end
+        Work::shouldBeRunning() ? Domains::workDomain() : Domains::alexandra()
     end
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-
-        domainOpt = Work::shouldBeRunning() ? (Time.new.hour < 18 ? Domains::workDomain() : nil) : Domains::alexandra()
-
         ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -69,33 +36,18 @@ class NS16sOperator
             Fitness::ns16s(),
             Nx31s::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            Waves::ns16s(domainOpt),
+            Waves::ns16s(domain),
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
-            Work::ns16s(),
-            Nx50s::ns16s(domainOpt),
+            Work::ns16s(domain),
+            Nx50s::ns16s(domain),
 
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
 
-        ns16sPreviousQueue = JSON.parse(KeyValueStore::getOrDefaultValue(nil, NS16sOperator::queueStorageLocation(), "[]"))
-        
-        ns16s = ns16s
-            .reduce(ns16sPreviousQueue){|w, ns16|
-                NS16sOperator::upgrade(w, ns16)
-            }
-            .select{|ns16| ns16["announce"] } # We detect the one that have not been replaced by the fact that their announce is nil
-
-        ns16sNewQueue = ns16s.map{|ns16|
-            ns16 = ns16.clone
-            ns16.delete("announce")
-            ns16
-        }
-        KeyValueStore::set(nil, NS16sOperator::queueStorageLocation(), JSON.generate(ns16sNewQueue))
-
-        ns16s
+        return ns16s
     end
 end
 
@@ -193,7 +145,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-10
+            vspaceleft = Utils::screenHeight()-9
 
             puts ""
 
@@ -225,113 +177,97 @@ class UIServices
             puts ""
 
             if !ns16s.empty? then
-                puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose | rotate | exit".yellow
+                puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose | override".yellow
             end
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            return "ns:loop" if command == ""
+            return if command == ""
 
             # -- listing -----------------------------------------------------------------------------
 
             if Interpreting::match("..", command) then
                 accessItem.call(ns16s[0])
-                return "ns:loop"
             end
 
             if Interpreting::match("[]", command) then
                 ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil? 
-                return "ns:loop" if ns16["[]"].nil?
+                return if ns16.nil? 
+                return if ns16["[]"].nil?
                 ns16["[]"].call()
-                return "ns:loop"
             end
 
             if Interpreting::match("expose", command) then
                 ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil? 
+                return if ns16.nil? 
                 puts JSON.pretty_generate(ns16)
                 LucilleCore::pressEnterToContinue()
-                return "ns:loop"
             end
 
-            if Interpreting::match("rotate", command) then
-                NS16sOperator::rotateQueue()
-                return "ns:loop"
+            if Interpreting::match("override", command) then
+                domain = Domains::selectDomainOrNull()
+                return if domain.nil?
+                KeyValueStore::set(nil, "16826a70-3a04-4829-88a1-dbe50b100625", JSON.generate([Time.new.to_i, domain]))
             end
 
             if Interpreting::match("done", command) then
                 ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil? 
-                return "ns:loop" if ns16["done"].nil?
+                return if ns16.nil? 
+                return if ns16["done"].nil?
                 ns16["done"].call()
-                return "ns:loop"
+
             end
 
             if Interpreting::match("domain", command) then
                 ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil?
+                return if ns16.nil?
                 domain = Domains::selectDomainOrNull()
+                return if domain.nil?
                 Domains::setDomainForItem(ns16["uuid"], domain)
-                return "ns:loop"
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 ns16 = ns16s[0]
-                return "ns:loop" if ns16.nil? 
+                return if ns16.nil? 
                 DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
                 puts "Hidden until: #{Time.at(unixtime).to_s}"
-                return "ns:loop"
             end
 
             if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
                 accessItem.call(ns16s[ordinal])
-                return "ns:loop"
             end
 
             if Interpreting::match("select *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
                 accessItem.call(ns16s[ordinal])
-                return "ns:loop"
             end
 
             if Interpreting::match("done *", command) then
                 _, ordinal = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
                 ns16 = ns16s[ordinal]
-                return "ns:loop" if ns16.nil?
-                return "ns:loop" if ns16["done"].nil?
+                return if ns16.nil?
+                return if ns16["done"].nil?
                 ns16["done"].call()
-                return "ns:loop"
             end
 
             if Interpreting::match("hide * *", command) then
                 _, ordinal, datecode = Interpreting::tokenizer(command)
                 ordinal = ordinal.to_i
                 ns16 = ns16s[ordinal]
-                return "ns:loop" if ns16.nil?
+                return if ns16.nil?
                 unixtime = Utils::codeToUnixtimeOrNull(datecode)
-                return "ns:loop" if unixtime.nil?
+                return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
-                return "ns:loop"
-            end
-
-            if Interpreting::match("exit", command) then
-                return "ns:exit"
             end
 
             UIServices::mainMenuInterpreter(command)
-
-            "ns:loop"
         }
 
         loop {
-            ns16s = getNS16s.call()
-            status = processNS16s.call(ns16s)
-            raise "error: 2681e316-4a5b-447f-a822-1820355fb0e5" if !["ns:loop", "ns:exit"].include?(status)
-            break if status == "ns:exit"
+            processNS16s.call(getNS16s.call())
         }
     end
 end

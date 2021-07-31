@@ -292,6 +292,7 @@ class Waves
 
             if Interpreting::match("done", command) then
                 Waves::performDone(wave)
+                break
             end
 
             if command == "access" then
@@ -349,18 +350,16 @@ class Waves
         }
     end
 
-    # Waves::ns16s(domainOpt)
-    def self.ns16s(domainOpt)
-        isSelectedForNS16 = lambda{|wave, domainOpt|
-            if domainOpt then
-                itemdomain = Domains::getItemDomainByIdOrNull(wave["uuid"])
-                return (itemdomain.nil? or (itemdomain["uuid"] == domainOpt["uuid"]))
-            end
-            true
+    # Waves::ns16s(domain)
+    def self.ns16s(domain)
+        isSelectedForNS16 = lambda{|wave, domain|
+            itemdomain = Domains::getItemDomainByIdOrNull(wave["uuid"])
+            return true if itemdomain.nil?
+            itemdomain["uuid"] == domain["uuid"]
         }
 
         CoreDataTx::getObjectsBySchema("wave")
-            .select{|wave| isSelectedForNS16.call(wave, domainOpt) }
+            .select{|wave| isSelectedForNS16.call(wave, domain) }
             .map{|wave| Waves::toNS16(wave) }
             .compact
     end

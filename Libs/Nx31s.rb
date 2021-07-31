@@ -136,8 +136,6 @@ class Nx31s # OnDate
 
             UIServices::mainMenuInterpreter(command)
         }
-
-        NS16sOperator::flushFromQueue(uuid)
     end
 
     # Nx31s::nx31ToNS16(nx31)

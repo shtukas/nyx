@@ -357,8 +357,6 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
 
         Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
-
-        NS16sOperator::flushFromQueue(uuid)
     end
     
     # Nx50s::maintenance()
@@ -433,32 +431,49 @@ class Nx50s
         }
     end
 
-    # Nx50s::ns16s(domainOpt)
-    def self.ns16s(domainOpt)
+    # Nx50s::ns16s(domain)
+    def self.ns16s(domain)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        isSelectedForNS16 = lambda{|nx50, domainOpt|
-            if domainOpt then
+        if domain["uuid"] == Domains::alexandra()["uuid"] then
+            rtForComparison = lambda{|rt|
+                (rt == 0) ? 0.4 : rt
+            }
+
+            isSelectedForNS16 = lambda{|nx50, domain|
                 itemdomain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
-                return (itemdomain.nil? or (itemdomain["uuid"] == domainOpt["uuid"]))
-            end
-            true
-        }
+                return true if itemdomain.nil?
+                itemdomain["uuid"] == domain["uuid"]
+            }
 
-        rtForComparison = lambda{|rt|
-            (rt == 0) ? 0.4 : rt
-        }
+            ns16s = CoreDataTx::getObjectsBySchema("Nx50")
+                        .select{|nx50| isSelectedForNS16.call(nx50, domain) }
+                        .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                        .compact
 
-        ns16s = CoreDataTx::getObjectsBySchema("Nx50")
-                    .select{|nx50| isSelectedForNS16.call(nx50, domainOpt) }
-                    .map{|nx50| Nx50s::ns16OrNull(nx50) }
-                    .compact
+            ns16s.first(3).sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) } + ns16s.drop(3)
 
-        ns16s
-            .first(3)
-            .sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) }
+            return ns16s
+        end
+
+        if domain["uuid"] == Domains::workDomain()["uuid"] then
+            isSelectedForNS16 = lambda{|nx50, domain|
+                itemdomain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
+                return false if itemdomain.nil?
+                itemdomain["uuid"] == domain["uuid"]
+            }
+
+            ns16s = CoreDataTx::getObjectsBySchema("Nx50")
+                        .select{|nx50| isSelectedForNS16.call(nx50, domain) }
+                        .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                        .compact
+
+            return ns16s
+        end
+
+        raise "[error: 61a6fdff-dd2d-48b3-a7c0-bba0c26a7a9e]"
     end
 
     # --------------------------------------------------
