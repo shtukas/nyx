@@ -1,6 +1,118 @@
 
 # encoding: UTF-8
 
+=begin
+    Nx59 {
+        "prefix"  : String | null,
+        "primary" : String
+        "nyxId"   : String | null
+    }
+=end
+
+class AsteroidsFileNames
+
+    # ----------------------------------------------------
+    # The master version of this class is in Asteriods-Ops
+    # ----------------------------------------------------
+
+    # AsteroidsFileNames::alphaNumeric()
+    def self.alphaNumeric()
+        ("a".."z").to_a + ("0".."9").to_a
+    end
+
+    # AsteroidsFileNames::characterIsAlphaNumeric(x)
+    def self.characterIsAlphaNumeric(x)
+        AsteroidsFileNames::alphaNumeric().include?(x.downcase)
+    end
+
+    # AsteroidsFileNames::characterIsNyxIdChar(x)
+    def self.characterIsNyxIdChar(x)
+        (x == "-") or AsteroidsFileNames::characterIsAlphaNumeric(x)
+    end
+
+    # AsteroidsFileNames::extractNyxIdOrNull(str)
+    def self.extractNyxIdOrNull(str)
+        loop {
+            return nil if str == "" 
+            if str[0, 5] == "Ax16-" then
+                break
+            end
+            str = str[1, str.length]
+        }
+
+        # At this point str is "Ax16-..."
+
+        str = str[5, str.length]
+
+        nyxId = ""
+
+        loop {
+            break if str == "" 
+            break if !AsteroidsFileNames::characterIsNyxIdChar(str[0, 1])
+            nyxId = nyxId + str[0, 1]
+            str = str[1, str.length]
+        }
+
+        return nil if nyxId == ""
+
+        nyxId
+    end
+
+    # AsteroidsFileNames::extractPrefixOrNull(str)
+    def self.extractPrefixOrNull(str)
+        if str.match(/^\d\d\d\d-\d\d-\d\d/) then
+            return str[0, 10]
+        end
+        if str.match(/^\d\d\d\d-\d\d/) then
+            return str[0, 7]
+        end
+        if str.match(/^\d\d\d\d/) then
+            return str[0, 4]
+        end
+        if str.match(/^\d\d\d/) then
+            return str[0, 3]
+        end
+        if str.match(/^\d\d/) then
+            return str[0, 2]
+        end
+        nil
+    end
+
+    # AsteroidsFileNames::filenameToNx59(filename)
+    def self.filenameToNx59(filename)
+        nyxId = AsteroidsFileNames::extractNyxIdOrNull(filename)
+        if nyxId.nil? then
+            return {
+                "prefix"  => nil,
+                "primary" => filename,
+                "nyxId"   => nil
+            }
+        end
+        filename = filename
+                    .gsub("(Ax16-#{nyxId})", "")
+                    .gsub("[Ax16-#{nyxId}]", "")
+                    .gsub("Ax16-#{nyxId}", "")
+                    .strip
+
+        prefix = AsteroidsFileNames::extractPrefixOrNull(filename)
+
+        if prefix then
+            filename = filename.gsub(prefix, "").strip
+        end
+
+        {
+            "prefix"  => prefix,
+            "primary" => filename,
+            "nyxId"   => nyxId
+        }
+    end
+
+    # AsteroidsFileNames::filenameToTracable(filename)
+    def self.filenameToTracable(filename)
+        AsteroidsFileNames::filenameToNx59(filename)["primary"]
+    end
+end
+
 class NxAsteroid
 
     # NxAsteroid::databaseFilepath()
@@ -159,7 +271,8 @@ class NxAsteroid
         location = nx45["location"]
         description = 
             if File.exists?(location) then
-                File.basename(location)
+                 nx59 = AsteroidsFileNames::filenameToNx59(File.basename(location))
+                 nx59["primary"]
             else
                 "file not found for asteroid #{nx45["uuid"]}"
             end
