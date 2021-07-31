@@ -11,8 +11,6 @@ class NxEntity
         return entity if entity
         entity = NxAsteroid::getAsteroidByUUIDOrNull(uuid)
         return entity if entity
-        entity = NxPersonalEvent::getNxEventByIdOrNull(uuid)
-        return entity if entity
         entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
         return entity if entity
         entity = NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
@@ -30,9 +28,6 @@ class NxEntity
         end
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::toString(entity)
-        end
-        if entity["entityType"] == "NxPersonalEvent" then
-            return NxPersonalEvent::toString(entity)
         end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::toString(entity)
@@ -54,9 +49,6 @@ class NxEntity
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::landing(entity)
         end
-        if entity["entityType"] == "NxPersonalEvent" then
-            return NxPersonalEvent::landing(entity)
-        end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::landing(entity)
         end
@@ -71,7 +63,6 @@ class NxEntity
         NxUniqueString::nx27s() +
         NxNode::nx10s() +
         NxAsteroid::nx45s() +
-        NxPersonalEvent::events() +
         NxDirectory2::directories() +
         NxTimelinePoint::points()
     end
@@ -85,7 +76,7 @@ class NxEntity
 
     # NxEntity::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "NxDirectory2", "tag", "listing", "event", "timeline point"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "NxDirectory2"])
         return nil if type.nil?
         if type == "url" then
             return NxAsteroid::interactivelyCreateNewUrlOrNull()
@@ -104,9 +95,6 @@ class NxEntity
         end
         if type == "NxDirectory2" then
             return NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
-        end
-        if type == "event" then
-            return NxPersonalEvent::interactivelyCreateNewNxEventOrNull()
         end
         if type == "timeline point" then
             return NxTimelinePoint::interactivelyCreateNewPointOrNull()
