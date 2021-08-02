@@ -32,19 +32,28 @@ class InboxLines
 
         puts ""
 
-        puts "done | dispatch | (empty) exit ".yellow
+        loop {
 
-        command = LucilleCore::askQuestionAnswerAsString("> ")
+            itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
 
-        if command == "done" then
-            FileUtils.rm(filepath)
-        end
+            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::domain()["uuid"]))
 
-        if command == "dispatch" then
-            description = Axion::getDescriptionOrNull(axionId)
-            Nx50s::issueNx50UsingTextInteractive(description)
-            FileUtils.rm(filepath)
-        end
+            puts "done | dispatch".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            if command == "done" then
+                FileUtils.rm(filepath)
+                break
+            end
+
+            if command == "dispatch" then
+                description = Axion::getDescriptionOrNull(axionId)
+                nx50 = Nx50s::issueNx50UsingTextInteractive(description)
+                FileUtils.rm(filepath)
+                break
+            end
+        }
 
         thr.exit
         NxBalls::closeNxBall(nxball, true)
@@ -146,18 +155,27 @@ class InboxFiles
 
         puts ""
 
-        puts "done | dispatch | (empty) exit ".yellow
+        loop {
 
-        command = LucilleCore::askQuestionAnswerAsString("> ")
+            itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
 
-        if command == "done" then
-            LucilleCore::removeFileSystemLocation(location)
-        end
+            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::domain()["uuid"]))
 
-        if command == "dispatch" then
-            Nx50s::issueNx50UsingLocationInteractive(location)
-            LucilleCore::removeFileSystemLocation(location)
-        end
+            puts "done | dispatch".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            if command == "done" then
+                LucilleCore::removeFileSystemLocation(location)
+                break
+            end
+
+            if command == "dispatch" then
+                Nx50s::issueNx50UsingLocationInteractive(location)
+                LucilleCore::removeFileSystemLocation(location)
+                break
+            end
+        }
 
         thr.exit
 
@@ -170,7 +188,7 @@ class InboxFiles
             uuid = "#{Utils::today()}:#{location}"
             {
                 "uuid"     => uuid,
-                "announce" => "[inbx] file: #{File.basename(location)}",
+                "announce" => "#{Domains::domainPrefix(uuid)} [inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
                 "domain"   => Domains::getItemDomainByIdOrNull(uuid),

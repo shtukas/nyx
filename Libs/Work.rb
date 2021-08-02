@@ -9,12 +9,7 @@ class Work
 
     # Work::shouldBeRunning()
     def self.shouldBeRunning()
-        return false if !DoNotShowUntil::isVisible("WORK-E4A9-4BCD-9824-1EEC4D648408")
-        return false if (BankExtended::stdRecoveredDailyTimeInHours(Domains::workDomain()["uuid"]) > Work::targetRT())
-        return false if [0, 6].include?(Time.new.wday)
-        return false if Time.new.hour < 9
-        return false if Time.new.hour >= 21
-        true
+        (1..5).include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 17
     end
 
     # ---------------------------------------------------------------------------
@@ -88,7 +83,7 @@ class Work
         LucilleCore::locationsAtFolder(folderpath).map{|location|
             {
                 "uuid"      => Digest::SHA1.hexdigest("7f62221b-6b85-47ef-bd5d-72bd17e21fc4:#{location}"),
-                "announce"  => "[#{"work".yellow}] #{File.basename(location)}",
+                "announce"  => "[#{"work".yellow}] [fold] #{File.basename(location)}",
                 "access"    => lambda { Work::itemAccess(location) },
                 "done"      => nil,
                 "domain"    => Domains::workDomain()

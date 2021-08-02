@@ -139,7 +139,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-9
+            vspaceleft = Utils::screenHeight()-11
 
             puts ""
 
@@ -171,9 +171,13 @@ class UIServices
             puts ""
 
             if !ns16s.empty? then
-                puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose | override".yellow
+                puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose".yellow
             end
+
             puts UIServices::mainMenuCommands().yellow
+            puts "domain overide".yellow
+
+            puts ""
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -197,12 +201,6 @@ class UIServices
                 return if ns16.nil? 
                 puts JSON.pretty_generate(ns16)
                 LucilleCore::pressEnterToContinue()
-            end
-
-            if Interpreting::match("override", command) then
-                domain = Domains::selectDomainOrNull()
-                return if domain.nil?
-                KeyValueStore::set(nil, "16826a70-3a04-4829-88a1-dbe50b100625", JSON.generate([Time.new.to_i, domain]))
             end
 
             if Interpreting::match("done", command) then
@@ -255,6 +253,12 @@ class UIServices
                 unixtime = Utils::codeToUnixtimeOrNull(datecode)
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
+            end
+
+            if Interpreting::match("domain override", command) then
+                domain = Domains::selectDomainOrNull()
+                return if domain.nil?
+                KeyValueStore::set(nil, "16826a70-3a04-4829-88a1-dbe50b100625", JSON.generate([Time.new.to_i, domain]))
             end
 
             UIServices::mainMenuInterpreter(command)
