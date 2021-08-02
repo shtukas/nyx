@@ -55,7 +55,7 @@ class InboxLines
         InboxLines::axionFilepaths().map{|filepath|
             axionId = Axion::getAxionIdFromFilename(File.basename(filepath))
             uuid = axionId
-            announce = "[inbx] line: #{Axion::getDescriptionOrNull(axionId)}"
+            announce = "#{Domains::domainPrefix(uuid)} [inbx] line: #{Axion::getDescriptionOrNull(axionId)}"
             {
                 "uuid"     => uuid,
                 "announce" => announce,
