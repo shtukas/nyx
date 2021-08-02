@@ -201,9 +201,10 @@ end
 
 class Inbox
 
-    # Inbox::ns16s()
-    def self.ns16s()
+    # Inbox::ns16s(domain)
+    def self.ns16s(domain)
         (InboxLines::ns16s() + InboxFiles::ns16s())
             .sort{|i1, i2| i1["inbox-unixtime"] <=> i2["inbox-unixtime"] }
+            .select{|ns16| ns16["domain"].nil? or ns16["domain"]["uuid"] == domain["uuid"] }
     end
 end

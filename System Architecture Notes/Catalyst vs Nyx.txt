@@ -1,6 +1,6 @@
 Catalyst versus Nyx. Diffferent approaches to data management.
 
-(This file exists in two versions, one in Catalyst, one in Nyx)
+(This file exists in two versions, one in Catalyst, one in Nyx. The Nyx version is the master.)
 
 Catalyst's approach is to keep eveything in one database table. Somehow, after a long detour using other schemes, the long direct descendent of the basic line oriented todo list. The only noticable feature of the list is the diffence between repeat items (anniversaries and waves) versus one time items (todos, quarks, calendar items).
 
