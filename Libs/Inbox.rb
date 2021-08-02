@@ -76,6 +76,10 @@ class InboxLines
         contentType = "line"
         payload = nil
         Axion::initiateNewAxionFile("/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-Axion-Files", filenamePrefix, axionId, filenameDescription, description, contentType, payload)
+
+        domain = Domains::selectDomainOrNull()
+        uuid = axionId # The axionId is the ns16 uuid
+        Domains::setDomainForItem(uuid, domain)
     end
 
     # InboxLines::axionFilepaths()
