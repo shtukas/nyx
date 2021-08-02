@@ -3,9 +3,10 @@
 
 class InboxLines
 
-    # InboxLines::access(item)
-    def self.access(item)
-        uuid = "#{Utils::today()}:#{item["uuid"]}"
+    # InboxLines::access(filepath)
+    def self.access(filepath)
+        axionId = Axion::getAxionIdFromFilename(File.basename(filepath))
+        uuid = axionId
 
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
@@ -19,7 +20,7 @@ class InboxLines
 
         system("clear")
 
-        puts "[inbox] line: #{item["description"]}".green
+        puts "[inbox] line: #{Axion::getDescriptionOrNull(axionId)}".green
         puts "Started at: #{Time.new.to_s}".yellow
 
         if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
@@ -36,12 +37,13 @@ class InboxLines
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
         if command == "done" then
-            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
+            FileUtils.rm(filepath)
         end
 
         if command == "dispatch" then
-            Nx50s::issueNx50UsingTextInteractive(item["description"])
-            BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"])
+            description = Axion::getDescriptionOrNull(axionId)
+            Nx50s::issueNx50UsingTextInteractive(description)
+            FileUtils.rm(filepath)
         end
 
         thr.exit
@@ -50,19 +52,35 @@ class InboxLines
 
     # InboxLines::ns16s()
     def self.ns16s()
-        BTreeSets::values(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2")
-            .map{|item|
-                uuid = "#{Utils::today()}:#{item["uuid"]}"
-                {
-                    "uuid"     => uuid,
-                    "announce" => "[inbx] line: #{item["description"]}",
-                    "access"   => lambda { InboxLines::access(item) },
-                    "done"     => lambda { BTreeSets::destroy(nil, "e1a10102-9e16-4ae9-af66-1a72bae89df2", item["uuid"]) },
-                    "domain"   => Domains::getItemDomainByIdOrNull(uuid),
-                    "inbox-unixtime" => item["unixtime"]
-                }
-
+        InboxLines::axionFilepaths().map{|filepath|
+            axionId = Axion::getAxionIdFromFilename(File.basename(filepath))
+            uuid = axionId
+            announce = "[inbx] line: #{Axion::getDescriptionOrNull(axionId)}"
+            {
+                "uuid"     => uuid,
+                "announce" => announce,
+                "access"   => lambda { InboxLines::access(filepath) },
+                "done"     => lambda { FileUtils.rm(filepath) },
+                "domain"   => Domains::getItemDomainByIdOrNull(uuid),
+                "inbox-unixtime" => Axion::getCreationTimeOrNull(axionId)
             }
+        }
+    end
+
+    # InboxLines::issueNewLine(line)
+    def self.issueNewLine(line)
+        filenamePrefix = nil
+        axionId = Axion::generateAxionId()
+        filenameDescription = nil
+        description = line
+        contentType = "line"
+        payload = nil
+        Axion::initiateNewAxionFile("/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-Axion-Files", filenamePrefix, axionId, filenameDescription, description, contentType, payload)
+    end
+
+    # InboxLines::axionFilepaths()
+    def self.axionFilepaths()
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-Axion-Files")
     end
 end
 
