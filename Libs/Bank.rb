@@ -158,10 +158,10 @@ class NxBalls
     def self.closeNxBall(nxball, verbose)
         #puts "close, receiving"
         #puts JSON.pretty_generate(nxball)
+        puts "#{Time.new.to_s} Running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours" if verbose
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|
-            puts "#{Time.new.to_s} Running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours" if verbose
             puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
