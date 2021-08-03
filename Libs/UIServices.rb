@@ -15,8 +15,8 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::domain()
-    def self.domain()
+    # NS16sOperator::currentDomain()
+    def self.currentDomain()
         data = KeyValueStore::getOrNull(nil, "16826a70-3a04-4829-88a1-dbe50b100625")
         if data then
             data = JSON.parse(data)
@@ -25,10 +25,14 @@ class NS16sOperator
             end
         end
         Work::shouldBeRunning() ? Domains::workDomain() : Domains::alexandra()
+        Domains::workDomain()
     end
 
     # NS16sOperator::ns16s()
     def self.ns16s()
+
+        domain = NS16sOperator::currentDomain()
+
         ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),

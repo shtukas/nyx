@@ -59,7 +59,7 @@ class InboxLines
 
             itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
 
-            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::domain()["uuid"]))
+            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::currentDomain()["uuid"]))
 
             puts "done | dispatch".yellow
 
@@ -215,7 +215,7 @@ class InboxFiles
 
             itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
 
-            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::domain()["uuid"]))
+            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::currentDomain()["uuid"]))
 
             puts "done | dispatch".yellow
 
