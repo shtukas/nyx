@@ -3,10 +3,33 @@
 
 class InboxLines
 
-    # InboxLines::access(filepath)
-    def self.access(filepath)
-        axionId = Axion::getAxionIdFromFilename(File.basename(filepath))
-        uuid = axionId
+    # InboxLines::getRecordByUUIDOrNull(uuid)
+    def self.getRecordByUUIDOrNull(uuid)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _axion_ where _uuid_=?" , [uuid] ) do |row|
+            answer = {
+                "uuid"             => row["_uuid_"],
+                "creationTime"     => row["_creationTime_"],
+                "operationalTime"  => row["_operationalTime_"],
+                "nxType"           => row["_nxType_"],
+                "nxTypeParameters" => row["_nxTypeParameters_"],
+                "nxContentType"    => row["_nxContentType_"],
+                "nxContentPayload" => row["_nxContentPayload_"]
+            }
+        end
+        db.close
+        answer
+    end
+
+    # InboxLines::access(record)
+    def self.access(record)
+
+        uuid = record["uuid"]
+        line = record["nxContentPayload"]
 
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
@@ -20,7 +43,7 @@ class InboxLines
 
         system("clear")
 
-        puts "[inbox] line: #{Axion::getDescriptionOrNull(axionId)}".green
+        puts "[inbox] line: #{line}".green
         puts "Started at: #{Time.new.to_s}".yellow
 
         if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
@@ -43,14 +66,13 @@ class InboxLines
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                FileUtils.rm(filepath)
+                InboxLines::destroy(uuid)
                 break
             end
 
             if command == "dispatch" then
-                description = Axion::getDescriptionOrNull(axionId)
-                nx50 = Nx50s::issueNx50UsingTextInteractive(description)
-                FileUtils.rm(filepath)
+                nx50 = Nx50s::issueNx50UsingTextInteractive(line)
+                InboxLines::destroy(uuid)
                 break
             end
         }
@@ -59,42 +81,76 @@ class InboxLines
         NxBalls::closeNxBall(nxball, true)
     end
 
+    # InboxLines::issueNewLine(line)
+    def self.issueNewLine(line)
+        uuid = SecureRandom.uuid
+        creationTime = Time.new.to_f
+        operationalTime = Time.new.utc.iso8601
+        nxType = "NxCatalystInbox"
+        nxTypeParameters = nil
+        nxContentType = "line"
+        nxContentPayload = line
+
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "insert into _axion_ (_uuid_, _creationTime_, _operationalTime_, _nxType_, _nxTypeParameters_, _nxContentType_, _nxContentPayload_) values (?,?,?,?,?,?,?)", [uuid, creationTime, operationalTime, nxType, nxTypeParameters, nxContentType, nxContentPayload]
+        db.commit 
+        db.close
+    end
+
+    # InboxLines::getRecords()
+    def self.getRecords()
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _axion_ where _nxType_=? and _nxContentType_=? order by _creationTime_" , ["NxCatalystInbox", "line"] ) do |row|
+            answer << {
+                "uuid"             => row["_uuid_"],
+                "creationTime"     => row["_creationTime_"],
+                "operationalTime"  => row["_operationalTime_"],
+                "nxType"           => row["_nxType_"],
+                "nxTypeParameters" => row["_nxTypeParameters_"],
+                "nxContentType"    => row["_nxContentType_"],
+                "nxContentPayload" => row["_nxContentPayload_"]
+            }
+        end
+        db.close
+        answer
+    end
+
+    # InboxLines::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _axion_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+    end
+
     # InboxLines::ns16s()
     def self.ns16s()
-        InboxLines::axionFilepaths().map{|filepath|
-            axionId = Axion::getAxionIdFromFilename(File.basename(filepath))
-            uuid = axionId
-            announce = "#{Domains::domainPrefix(uuid)} [inbx] line: #{Axion::getDescriptionOrNull(axionId)}"
+        InboxLines::getRecords().map{|record|
+            uuid = record["uuid"]
+            line = record["nxContentPayload"]
+            unixtime = record["creationTime"]
+            announce = "#{Domains::domainPrefix(uuid)} [inbx] line: #{line}"
             {
                 "uuid"     => uuid,
                 "announce" => announce,
-                "access"   => lambda { InboxLines::access(filepath) },
-                "done"     => lambda { FileUtils.rm(filepath) },
+                "access"   => lambda { InboxLines::access(record) },
+                "done"     => lambda { InboxLines::destroy(uuid) },
                 "domain"   => Domains::getItemDomainByIdOrNull(uuid),
-                "inbox-unixtime" => Axion::getCreationTimeOrNull(axionId)
+                "inbox-unixtime" => unixtime
             }
         }
     end
 
-    # InboxLines::issueNewLine(line)
-    def self.issueNewLine(line)
-        filenamePrefix = nil
-        axionId = Axion::generateAxionId()
-        filenameDescription = nil
-        description = line
-        contentType = "line"
-        payload = nil
-        Axion::initiateNewAxionFile("/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-Axion-Files", filenamePrefix, axionId, filenameDescription, description, contentType, payload)
-
-        domain = Domains::selectDomainOrNull()
-        uuid = axionId # The axionId is the ns16 uuid
-        Domains::setDomainForItem(uuid, domain)
-    end
-
-    # InboxLines::axionFilepaths()
-    def self.axionFilepaths()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Inbox-Axion-Files")
-    end
 end
 
 class InboxFiles
