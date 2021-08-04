@@ -12,13 +12,11 @@ class InboxLines
         answer = nil
         db.execute( "select * from _axion_ where _uuid_=?" , [uuid] ) do |row|
             answer = {
-                "uuid"             => row["_uuid_"],
-                "creationTime"     => row["_creationTime_"],
-                "operationalTime"  => row["_operationalTime_"],
-                "nxType"           => row["_nxType_"],
-                "nxTypeParameters" => row["_nxTypeParameters_"],
-                "nxContentType"    => row["_nxContentType_"],
-                "nxContentPayload" => row["_nxContentPayload_"]
+                "uuid"            => row["_uuid_"],
+                "creationTime"    => row["_creationTime_"],
+                "operationalTime" => row["_operationalTime_"],
+                "contentType"     => row["_contentType_"],
+                "contentPayload"  => row["_contentPayload_"]
             }
         end
         db.close
@@ -29,7 +27,7 @@ class InboxLines
     def self.access(record)
 
         uuid = record["uuid"]
-        line = record["nxContentPayload"]
+        line = record["contentPayload"]
 
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
@@ -90,16 +88,14 @@ class InboxLines
         uuid = SecureRandom.uuid
         creationTime = Time.new.to_f
         operationalTime = Time.new.utc.iso8601
-        nxType = "NxCatalystInbox"
-        nxTypeParameters = nil
-        nxContentType = "line"
-        nxContentPayload = line
+        contentType = "line"
+        contentPayload = line
 
         db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
-        db.execute "insert into _axion_ (_uuid_, _creationTime_, _operationalTime_, _nxType_, _nxTypeParameters_, _nxContentType_, _nxContentPayload_) values (?,?,?,?,?,?,?)", [uuid, creationTime, operationalTime, nxType, nxTypeParameters, nxContentType, nxContentPayload]
+        db.execute "insert into _axion_ (_uuid_, _creationTime_, _operationalTime_, _contentType_, _contentPayload_) values (?,?,?,?,?)", [uuid, creationTime, operationalTime, contentType, contentPayload]
         db.commit 
         db.close
 
@@ -114,15 +110,13 @@ class InboxLines
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _axion_ where _nxType_=? and _nxContentType_=? order by _creationTime_" , ["NxCatalystInbox", "line"] ) do |row|
+        db.execute( "select * from _axion_ order by _creationTime_" , [] ) do |row|
             answer << {
-                "uuid"             => row["_uuid_"],
-                "creationTime"     => row["_creationTime_"],
-                "operationalTime"  => row["_operationalTime_"],
-                "nxType"           => row["_nxType_"],
-                "nxTypeParameters" => row["_nxTypeParameters_"],
-                "nxContentType"    => row["_nxContentType_"],
-                "nxContentPayload" => row["_nxContentPayload_"]
+                "uuid"            => row["_uuid_"],
+                "creationTime"    => row["_creationTime_"],
+                "operationalTime" => row["_operationalTime_"],
+                "contentType"     => row["_contentType_"],
+                "contentPayload"  => row["_contentPayload_"]
             }
         end
         db.close
@@ -144,7 +138,7 @@ class InboxLines
     def self.ns16s()
         InboxLines::getRecords().map{|record|
             uuid = record["uuid"]
-            line = record["nxContentPayload"]
+            line = record["contentPayload"]
             unixtime = record["creationTime"]
             announce = "#{Domains::domainPrefix(uuid)} [inbx] line: #{line}"
             {
