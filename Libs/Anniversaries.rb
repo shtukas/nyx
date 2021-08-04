@@ -1,4 +1,23 @@
 
+=begin
+
+{
+    "uuid"         => String
+    "unixtime"     => Float
+    "description"  => String
+    "catalystType" => "anniversary"
+
+    "payload1" : "YYYY-MM-DD"                     # startdate
+    "payload2" : "weekly" | "monthly" | "yearly"  # repeatType
+    "payload3" : "YYYY-MM-DD"                     # lastCelebrationDate
+
+    "startdate"           : payload1
+    "repeatType"          : payload2
+    "lastCelebrationDate" : payload3
+}
+
+=end
+
 class Anniversaries
 
     # Anniversaries::dateIsCorrect(date)

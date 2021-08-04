@@ -1,6 +1,21 @@
 
 # encoding: UTF-8
 
+=begin
+
+{
+    "uuid"         => String
+    "unixtime"     => Float
+    "description"  => String
+    "catalystType" => "inbox"
+
+    "payload1" :
+    "payload2" :
+    "payload3" :
+}
+
+=end
+
 class InboxLines
 
     # InboxLines::inboxLines()

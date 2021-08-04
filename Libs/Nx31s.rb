@@ -1,6 +1,36 @@
 # encoding: UTF-8
 
+=begin
+
+{
+    "uuid"         => String
+    "unixtime"     => Float
+    "description"  => String
+    "catalystType" => "Nx31"
+
+    "payload1" : "YYYY-MM-DD"
+    "payload2" :
+    "payload3" :
+
+    "date" : payload1
+}
+
+=end
+
 class Nx31s # OnDate
+
+    # Nx31s::databaseItemToNx31(item)
+    def self.databaseItemToNx31(item)
+        item["date"] = item["payload1"]
+        item
+    end
+
+    # Nx31s::nx31s()
+    def self.nx31s()
+        CatalystDatabase::getItemsByCatalystType("Nx31").map{|item|
+            Nx31s::databaseItemToNx31(item)
+        }
+    end
 
     # Nx31s::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
@@ -14,32 +44,27 @@ class Nx31s # OnDate
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
 
-        nx31 = {}
-        nx31["uuid"]        = uuid
-        nx31["schema"]      = "Nx31"
-        nx31["unixtime"]    = Time.new.to_f
-
-        date = Nx31s::interactivelySelectADateOrNull()
-        return nil if date.nil?
+        unixtime     = Time.new.to_f
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
             return nil
         end
 
-        nx31["description"] = description
+        catalystType = "Nx31"
 
-        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
-        return nil if coordinates.nil?
+        date = Nx31s::interactivelySelectADateOrNull()
+        return nil if date.nil?
 
-        nx31["contentType"] = coordinates[0]
-        nx31["payload"]     = coordinates[1]
+        payload1     = date
+        payload2     = nil 
+        payload3     = nil
+        
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
-        nx31["date"]        = date
-
-        CoreDataTx::commit(nx31)
-
-        nx31
+        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
+        return nil if item.nil?
+        Nx31s::databaseItemToNx31(item)
     end
 
     # Nx31s::toString(nx31)
@@ -59,13 +84,6 @@ class Nx31s # OnDate
         puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-        coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
-        if coordinates then
-            nx31["contentType"] = coordinates[0]
-            nx31["payload"]     = coordinates[1]
-            CoreDataTx::commit(nx31)
-        end
-
         loop {
 
             return if CoreDataTx::getObjectByIdOrNull(nx31["uuid"]).nil?
@@ -75,7 +93,7 @@ class Nx31s # OnDate
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "access | note | [] | <datecode> | update date | detach running | done | transfert | exit".yellow
+            puts "note | [] | <datecode> | update date | detach running | done | transfert | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -103,16 +121,6 @@ class Nx31s # OnDate
 
             if command == "[]" then
                 StructuredTodoTexts::applyT(nx31["uuid"])
-                next
-            end
-
-            if Interpreting::match("access", command) then
-                coordinates = Nx102::access(nx31["contentType"], nx31["payload"])
-                if coordinates then
-                    nx31["contentType"] = coordinates[0]
-                    nx31["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx31)
-                end
                 next
             end
 
@@ -155,7 +163,7 @@ class Nx31s # OnDate
 
     # Nx31s::ns16s()
     def self.ns16s()
-        CoreDataTx::getObjectsBySchema("Nx31")
+        Nx31s::nx31s()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }

@@ -7,7 +7,8 @@ sqlite> create table _catalyst_ (_uuid_ text, _unixtime_ real, _description_ tex
 -----------------------------------------------------------------------------
 CatalystType     PayLoad1         Payload2          Payload3
 "anniversary"    startdate [1]    repeatType [2]    lastCelebrationDate
-"inbox"          axionuuid [3]
+"inbox"
+"Nx31"           date      [1]
 
 [1] "YYYY-MM-DD"
 [2] "weekly" | "monthly" | "yearly"
