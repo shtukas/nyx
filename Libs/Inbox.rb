@@ -98,6 +98,9 @@ class InboxLines
         db.execute "insert into _axion_ (_uuid_, _creationTime_, _operationalTime_, _nxType_, _nxTypeParameters_, _nxContentType_, _nxContentPayload_) values (?,?,?,?,?,?,?)", [uuid, creationTime, operationalTime, nxType, nxTypeParameters, nxContentType, nxContentPayload]
         db.commit 
         db.close
+
+        domain = Domains::selectDomainOrNull()
+        Domains::setDomainForItem(uuid, domain)
     end
 
     # InboxLines::getRecords()
