@@ -178,7 +178,7 @@ class Waves
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "#{Domains::domainPrefix(wave["uuid"])} [wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
+        "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::selectWaveOrNull()
@@ -232,7 +232,7 @@ class Waves
             end
         }
 
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::getDomainUUIDForItemOrNull(wave["uuid"])].compact)
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
 
         accessContent.call(wave)
 
@@ -240,14 +240,6 @@ class Waves
             system("clear")
 
             puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})".green
-
-            if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
-                domain = Domains::selectDomainOrNull()
-                if domain then
-                    nxball["bankAccounts"] << domain["uuid"]
-                    Domains::setDomainForItem(uuid, domain)
-                end
-            end
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
@@ -300,12 +292,6 @@ class Waves
                 next
             end
 
-            if Interpreting::match("domain", command) then
-                domain = Domains::selectDomainOrNull()
-                Domains::setDomainForItem(wave["uuid"], domain)
-                next
-            end
-
             if command == "++" then
                 DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
                 break
@@ -343,7 +329,7 @@ class Waves
             end
 
             if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
+                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
                 Waves::performDone(wave)
                 break
             end
@@ -371,8 +357,7 @@ class Waves
             "announce" => Waves::toString(wave),
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
-            "wave"     => wave,
-            "domain"   => Domains::getDomainForItemOrNull(uuid)
+            "wave"     => wave
         }
     end
 

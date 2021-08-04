@@ -15,18 +15,6 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::currentDomain()
-    def self.currentDomain()
-        data = KeyValueStore::getOrNull(nil, "16826a70-3a04-4829-88a1-dbe50b100625")
-        if data then
-            data = JSON.parse(data)
-            if (Time.new.to_i - data[0]) < 3600 then
-                return data[1]
-            end
-        end
-        Work::shouldBeRunning() ? Domains::workDomain() : Domains::alexandra()
-    end
-
     # NS16sOperator::ns16s()
     def self.ns16s()
         ns16s = [
@@ -39,9 +27,7 @@ class NS16sOperator
             Waves::ns16s(),
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
-            Work::ns16s(),
-            Nx50s::ns16s(),
-
+            Work::shouldBeTheFocus() ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s(),
         ]
             .flatten
             .compact
@@ -158,10 +144,7 @@ class UIServices
                 "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
             ].join(" ").yellow
 
-            puts Domains::domains()
-                    .map{|domain| "(#{domain["name"]}, rt: #{BankExtended::stdRecoveredDailyTimeInHours(domain["uuid"]).round(2)})" }
-                    .join(" ")
-                    .yellow
+            puts "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})".yellow
 
             puts ""
 
@@ -206,14 +189,6 @@ class UIServices
 
             end
 
-            if Interpreting::match("domain", command) then
-                ns16 = ns16s[0]
-                return if ns16.nil?
-                domain = Domains::selectDomainOrNull()
-                return if domain.nil?
-                Domains::setDomainForItem(ns16["uuid"], domain)
-            end
-
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 ns16 = ns16s[0]
                 return if ns16.nil? 
@@ -248,12 +223,6 @@ class UIServices
                 unixtime = Utils::codeToUnixtimeOrNull(datecode)
                 return if unixtime.nil?
                 DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
-            end
-
-            if Interpreting::match("domain override", command) then
-                domain = Domains::selectDomainOrNull()
-                return if domain.nil?
-                KeyValueStore::set(nil, "16826a70-3a04-4829-88a1-dbe50b100625", JSON.generate([Time.new.to_i, domain]))
             end
 
             UIServices::mainMenuInterpreter(command)

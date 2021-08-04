@@ -29,7 +29,7 @@ class InboxLines
         uuid = item["uuid"]
         description = item["description"]
 
-        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
         thr = Thread.new {
             loop {
                 sleep 60
@@ -44,21 +44,9 @@ class InboxLines
         puts "[inbox] #{description}".green
         puts "Started at: #{Time.new.to_s}".yellow
 
-        if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
-            domain = Domains::selectDomainOrNull()
-            if domain then
-                Domains::setDomainForItem(uuid, domain)
-                nxball["bankAccounts"] << domain["uuid"]
-            end
-        end
-
         puts ""
 
         loop {
-
-            itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
-
-            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::currentDomain()["uuid"]))
 
             puts "done | dispatch".yellow
 
@@ -70,10 +58,7 @@ class InboxLines
             end
 
             if command == "dispatch" then
-                nx50 = Nx50s::issueNx50UsingInboxTextInteractive(description, Domains::getDomainForItemOrNull(uuid))
-                if Domains::getDomainUUIDForItemOrNull(nx50["uuid"]) == Domains::workDomain()["uuid"] then
-                    WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(nx50["uuid"], Nx50s::toString(nx50))
-                end
+                Nx50s::issueNx50UsingInboxTextInteractive(description)
                 CatalystDatabase::delete(uuid)
                 break
             end
@@ -92,23 +77,19 @@ class InboxLines
         payload2     = nil 
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
-        domain = Domains::selectDomainOrNull()
-        Domains::setDomainForItem(uuid, domain)
     end
 
     # InboxLines::ns16s()
     def self.ns16s()
         CatalystDatabase::getItemsByCatalystType("inbox").map{|item|
             uuid = item["uuid"]
-            announce = "#{Domains::domainPrefix(uuid)} [inbx] #{item["description"]}"
+            announce = "[inbx] #{item["description"]}"
             unixtime = item["unixtime"]
             {
                 "uuid"     => uuid,
                 "announce" => announce,
                 "access"   => lambda { InboxLines::access(item) },
                 "done"     => lambda { CatalystDatabase::delete(uuid) },
-                "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => unixtime
             }
         }
@@ -133,7 +114,7 @@ class InboxFiles
 
         uuid = "#{location}:#{Utils::today()}"
 
-        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
 
         thr = Thread.new {
             loop {
@@ -165,21 +146,9 @@ class InboxFiles
             system("open '#{location}'")
         end
 
-        if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
-            domain = Domains::selectDomainOrNull()
-            if domain then
-                Domains::setDomainForItem(uuid, domain)
-                nxball["bankAccounts"] << domain["uuid"]
-            end
-        end
-
         puts ""
 
         loop {
-
-            itemdomainuuid = Domains::getDomainUUIDForItemOrNull(uuid)
-
-            break if (!itemdomainuuid.nil? and (itemdomainuuid != NS16sOperator::currentDomain()["uuid"]))
 
             puts "done | dispatch".yellow
 
@@ -191,10 +160,7 @@ class InboxFiles
             end
 
             if command == "dispatch" then
-                nx50 = Nx50s::issueNx50UsingInboxLocationInteractive(location, Domains::getDomainForItemOrNull(uuid))
-                if Domains::getDomainUUIDForItemOrNull(nx50["uuid"]) == Domains::workDomain()["uuid"] then
-                    WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(nx50["uuid"], Nx50s::toString(nx50))
-                end
+                Nx50s::issueNx50UsingInboxLocationInteractive(location)
                 LucilleCore::removeFileSystemLocation(location)
                 break
             end
@@ -211,10 +177,9 @@ class InboxFiles
             uuid = "#{Utils::today()}:#{location}"
             {
                 "uuid"     => uuid,
-                "announce" => "#{Domains::domainPrefix(uuid)} [inbx] file: #{File.basename(location)}",
+                "announce" => "[inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => File.mtime(location).to_time.to_i
             }
         }

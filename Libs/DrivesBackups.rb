@@ -23,8 +23,7 @@ class DrivesBackups
             .map{|instruction|
                 {
                     "uuid"       => instruction["uuid"],
-                    "announce"   => instruction["description"],
-                    "domain"     => Domains::alexandra()
+                    "announce"   => instruction["description"]
                 }
             }
     end

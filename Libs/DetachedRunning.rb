@@ -68,8 +68,7 @@ class DetachedRunning
                         DetachedRunning::done(item)
                     end
                 },
-                "done"     => lambda { DetachedRunning::done(item) },
-                "domain"   => nil
+                "done"     => lambda { DetachedRunning::done(item) }
             }
         }
     end

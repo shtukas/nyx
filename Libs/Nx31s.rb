@@ -88,7 +88,7 @@ class Nx31s # OnDate
 
     # Nx31s::toString(nx31)
     def self.toString(nx31)
-        "#{Domains::domainPrefix(nx31["uuid"])} [ondt] (#{nx31["date"]}) #{nx31["description"]}"
+        "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
 
     # Nx31s::access(nx31)
@@ -96,7 +96,7 @@ class Nx31s # OnDate
 
         uuid = nx31["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, Domains::getDomainUUIDForItemOrNull(uuid)].compact)
+        nxball = NxBalls::makeNxBall([uuid])
 
         system("clear")
         
@@ -170,8 +170,7 @@ class Nx31s # OnDate
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
                     CatalystDatabase::delete(nx31["uuid"])
                 end
-            },
-            "domain"   => nil
+            }
         }
     end
 

@@ -71,8 +71,7 @@ class PriorityFile
                 Bank::put(filepath, timespan)
             },
             "done"   => lambda { },
-            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "domain" => nil
+            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) }
         }
     end
 end
