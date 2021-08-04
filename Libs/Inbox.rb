@@ -49,6 +49,7 @@ class InboxLines
         if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
             domain = Domains::selectDomainOrNull()
             if domain then
+                Domains::setDomainForItem(uuid, domain)
                 nxball["bankAccounts"] << domain["uuid"]
             end
         end
@@ -208,6 +209,7 @@ class InboxFiles
         if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
             domain = Domains::selectDomainOrNull()
             if domain then
+                Domains::setDomainForItem(uuid, domain)
                 nxball["bankAccounts"] << domain["uuid"]
             end
         end
