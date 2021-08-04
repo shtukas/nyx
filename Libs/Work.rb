@@ -1,7 +1,52 @@
 
 # encoding: UTF-8
 
-# -----------------------------------------------------------------------
+class WorkOrdering
+
+    # WorkOrdering::decideOrdinal(description)
+    def self.decideOrdinal(description)
+        system("clear")
+        # We need to
+        # 1. Get all the ns16s valid for the current domain
+        # 2. Filter on those which have an ordinal
+        # 3. Sort them
+        # 4. Present them
+        # 5. Extract a new value
+        NS16sOperator::getVisibleNS16sForDomain(Domains::workDomain())
+            .select{|ns16| !WorkOrdering::getItemOrdinalOrNull(ns16["uuid"]).nil? }
+            .sort{|n1, n2| WorkOrdering::getItemOrdinalOrNull(n1["uuid"]) <=> WorkOrdering::getItemOrdinalOrNull(n2["uuid"]) }
+            .each{|ns16|
+                puts "(#{"%7.3f" % WorkOrdering::getItemOrdinalOrNull(ns16["uuid"])}) #{ns16["announce"]}"
+            }
+        puts ""
+        puts description.green
+        puts ""
+        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+    end
+
+    # WorkOrdering::getItemOrdinalOrNull(uuid)
+    def self.getItemOrdinalOrNull(uuid)
+        ordinal = KeyValueStore::getOrNull(nil, "dd380456-685a-4302-8dd6-7467a17bbc6b:#{uuid}")
+        return nil if ordinal.nil?
+        ordinal.to_f
+    end
+
+    # WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(uuid, description)
+    def self.getItemOrdinalPossiblyInteractivelyDecided(uuid, description)
+        ordinal = WorkOrdering::getItemOrdinalOrNull(uuid)
+        return ordinal if ordinal
+        ordinal = WorkOrdering::decideOrdinal(description)
+        KeyValueStore::set(nil, "dd380456-685a-4302-8dd6-7467a17bbc6b:#{uuid}", ordinal)
+        ordinal
+    end
+
+    # WorkOrdering::ordinalString(uuid)
+    def self.ordinalString(uuid)
+        ordinal = WorkOrdering::getItemOrdinalOrNull(uuid)
+        return "" if ordinal.nil?
+        "(#{"%7.3f" % ordinal})"
+    end
+end
 
 class Work
 
