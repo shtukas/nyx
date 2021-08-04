@@ -151,7 +151,7 @@ class Nx31s # OnDate
             end
 
             if Interpreting::match("done", command) then
-                Axion::postAccessCleanUp(nx31["contentType"], nx31["payload"])
+                Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
                 CatalystDatabase::delete(nx31["uuid"])
                 break
             end

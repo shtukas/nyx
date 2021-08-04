@@ -267,7 +267,7 @@ class Nx50s
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx50s::toString(nx50)}") }
-        Axion::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
         CatalystDatabase::delete(nx50["uuid"])
     end
 
@@ -319,7 +319,7 @@ class Nx50s
             puts ""
 
             puts "uuid: #{uuid}".yellow
-            puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
+            puts "coordinates: #{nx50["contentType"]}, #{nx50["contentPayload"]}".yellow
             puts "domain: #{Domains::getDomainForItemOrNull(nx50["uuid"])}".yellow
             puts "schedule: #{nx50["schedule"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -357,7 +357,7 @@ class Nx50s
 
             if Interpreting::match("access", command) then
                 update = nil
-                Axion::access(nx50["contentType"], nx50["payload"], update)
+                Axion::access(nx50["contentType"], nx50["contentPayload"], update)
                 next
             end
 
@@ -387,7 +387,7 @@ class Nx50s
 
             if Interpreting::match("update contents", command) then
                 update = nil
-                Axion::edit(nx50["contentType"], nx50["payload"], update)
+                Axion::edit(nx50["contentType"], nx50["contentPayload"], update)
                 next
             end
 
@@ -421,7 +421,7 @@ class Nx50s
 
         NxBalls::closeNxBall(nxball, true)
 
-        Axion::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
     end
     
     # Nx50s::maintenance()
