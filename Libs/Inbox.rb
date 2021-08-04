@@ -71,7 +71,7 @@ class InboxLines
             end
 
             if command == "dispatch" then
-                nx50 = Nx50s::issueNx50UsingTextInteractive(line)
+                Nx50s::issueNx50UsingInboxTextInteractive(line, Domains::getDomainForItemOrNull(uuid))
                 InboxLines::destroy(uuid)
                 break
             end
@@ -148,7 +148,7 @@ class InboxLines
                 "announce" => announce,
                 "access"   => lambda { InboxLines::access(record) },
                 "done"     => lambda { InboxLines::destroy(uuid) },
-                "domain"   => Domains::getItemDomainByIdOrNull(uuid),
+                "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => unixtime
             }
         }
@@ -230,7 +230,7 @@ class InboxFiles
             end
 
             if command == "dispatch" then
-                Nx50s::issueNx50UsingLocationInteractive(location)
+                Nx50s::issueNx50UsingInboxLocationInteractive(location, Domains::getDomainForItemOrNull(uuid))
                 LucilleCore::removeFileSystemLocation(location)
                 break
             end
@@ -250,7 +250,7 @@ class InboxFiles
                 "announce" => "#{Domains::domainPrefix(uuid)} [inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
                 "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
-                "domain"   => Domains::getItemDomainByIdOrNull(uuid),
+                "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => File.mtime(location).to_time.to_i
             }
         }

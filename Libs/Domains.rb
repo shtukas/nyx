@@ -39,8 +39,8 @@ class Domains
         KeyValueStore::getOrNull(nil, "30ce4dfe-c6d8-4362-a123-2e6d8996d44d:#{itemid}")
     end
 
-    # Domains::getItemDomainByIdOrNull(itemid)
-    def self.getItemDomainByIdOrNull(itemid)
+    # Domains::getDomainForItemOrNull(itemid)
+    def self.getDomainForItemOrNull(itemid)
         domainuuid = Domains::getDomainUUIDForItemOrNull(itemid)
         return nil if domainuuid.nil?
         Domains::getDomainByUUIDOrNull(domainuuid)
@@ -65,7 +65,7 @@ class Domains
 
     # Domains::domainPrefix(itemuuid)
     def self.domainPrefix(itemuuid)
-        domain = Domains::getItemDomainByIdOrNull(itemuuid)
+        domain = Domains::getDomainForItemOrNull(itemuuid)
         return "[    ]" if domain.nil?
         "[#{domain["name"][0, 4].yellow}]"
     end

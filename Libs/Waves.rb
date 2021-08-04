@@ -346,14 +346,14 @@ class Waves
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
             "wave"     => wave,
-            "domain"   => Domains::getItemDomainByIdOrNull(uuid)
+            "domain"   => Domains::getDomainForItemOrNull(uuid)
         }
     end
 
     # Waves::ns16s(domain)
     def self.ns16s(domain)
         isSelectedForNS16 = lambda{|wave, domain|
-            itemdomain = Domains::getItemDomainByIdOrNull(wave["uuid"])
+            itemdomain = Domains::getDomainForItemOrNull(wave["uuid"])
             return true if itemdomain.nil?
             itemdomain["uuid"] == domain["uuid"]
         }

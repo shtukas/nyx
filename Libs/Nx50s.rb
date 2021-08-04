@@ -48,7 +48,7 @@ class Nx50s
         end
         CoreDataTx::getObjectsBySchema("Nx50")
             .select{|item| 
-                dx = Domains::getItemDomainByIdOrNull(item["uuid"])
+                dx = Domains::getDomainForItemOrNull(item["uuid"])
                 dx and (dx["uuid"] == domain["uuid"])
             }
     end
@@ -113,8 +113,8 @@ class Nx50s
         CoreDataTx::getObjectByIdOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingLocationInteractive(location)
-    def self.issueNx50UsingLocationInteractive(location)
+    # Nx50s::issueNx50UsingInboxLocationInteractive(location, domain)
+    def self.issueNx50UsingInboxLocationInteractive(location, domain)
         uuid = SecureRandom.uuid
 
         nx50 = {}
@@ -125,7 +125,9 @@ class Nx50s
         nx50["contentType"] = "AionPoint"
         nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
 
-        domain = Domains::selectDomainOrNull()
+        if domain.nil? then
+            domain = Domains::selectDomainOrNull()
+        end
         Domains::setDomainForItem(uuid, domain)
         
         nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
@@ -134,8 +136,8 @@ class Nx50s
         CoreDataTx::getObjectByIdOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingTextInteractive(text)
-    def self.issueNx50UsingTextInteractive(text)
+    # Nx50s::issueNx50UsingInboxTextInteractive(text, domain)
+    def self.issueNx50UsingInboxTextInteractive(text, domain)
         uuid = SecureRandom.uuid
 
         nx50 = {}
@@ -146,7 +148,9 @@ class Nx50s
         nx50["contentType"] = "Text"
         nx50["payload"]     = BinaryBlobsService::putBlob(text)
 
-        domain = Domains::selectDomainOrNull()
+        if domain.nil? then
+            domain = Domains::selectDomainOrNull()
+        end
         Domains::setDomainForItem(uuid, domain)
         
         nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
@@ -231,7 +235,7 @@ class Nx50s
 
             puts "uuid: #{uuid}".yellow
             puts "coordinates: #{nx50["contentType"]}, #{nx50["payload"]}".yellow
-            puts "domain: #{Domains::getItemDomainByIdOrNull(nx50["uuid"])}".yellow
+            puts "domain: #{Domains::getDomainForItemOrNull(nx50["uuid"])}".yellow
             puts "schedule: #{nx50["schedule"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
@@ -322,7 +326,7 @@ class Nx50s
             end
 
             if Interpreting::match("edit unixtime", command) then
-                domain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
+                domain = Domains::getDomainForItemOrNull(nx50["uuid"])
                 nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
                 CoreDataTx::commit(nx50)
                 next
@@ -426,7 +430,7 @@ class Nx50s
                 end
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "domain"  => Domains::getItemDomainByIdOrNull(uuid),
+            "domain"  => Domains::getDomainForItemOrNull(uuid),
             "rt"      => rt
         }
     end
@@ -443,7 +447,7 @@ class Nx50s
             }
 
             isSelectedForNS16 = lambda{|nx50, domain|
-                itemdomain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
+                itemdomain = Domains::getDomainForItemOrNull(nx50["uuid"])
                 return true if itemdomain.nil?
                 itemdomain["uuid"] == domain["uuid"]
             }
@@ -460,7 +464,7 @@ class Nx50s
 
         if domain["uuid"] == Domains::workDomain()["uuid"] then
             isSelectedForNS16 = lambda{|nx50, domain|
-                itemdomain = Domains::getItemDomainByIdOrNull(nx50["uuid"])
+                itemdomain = Domains::getDomainForItemOrNull(nx50["uuid"])
                 return false if itemdomain.nil?
                 itemdomain["uuid"] == domain["uuid"]
             }
