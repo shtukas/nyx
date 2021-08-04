@@ -3,31 +3,16 @@
 
 class InboxLines
 
-    # InboxLines::getRecordByUUIDOrNull(uuid)
-    def self.getRecordByUUIDOrNull(uuid)
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute( "select * from _axion_ where _uuid_=?" , [uuid] ) do |row|
-            answer = {
-                "uuid"            => row["_uuid_"],
-                "creationTime"    => row["_creationTime_"],
-                "operationalTime" => row["_operationalTime_"],
-                "contentType"     => row["_contentType_"],
-                "contentPayload"  => row["_contentPayload_"]
-            }
-        end
-        db.close
-        answer
+    # InboxLines::inboxLines()
+    def self.inboxLines()
+        CatalystDatabase::getItemsByCatalystType("inbox")
     end
 
-    # InboxLines::access(record)
-    def self.access(record)
+    # InboxLines::access(item)
+    def self.access(item)
 
-        uuid = record["uuid"]
-        line = record["contentPayload"]
+        uuid = item["uuid"]
+        line = item["contentPayload"]
 
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
@@ -83,44 +68,18 @@ class InboxLines
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # InboxLines::issueNewLine(line)
-    def self.issueNewLine(line)
-        uuid = SecureRandom.uuid
-        creationTime = Time.new.to_f
-        operationalTime = Time.new.utc.iso8601
-        contentType = "line"
-        contentPayload = line
-
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "insert into _axion_ (_uuid_, _creationTime_, _operationalTime_, _contentType_, _contentPayload_) values (?,?,?,?,?)", [uuid, creationTime, operationalTime, contentType, contentPayload]
-        db.commit 
-        db.close
+    # InboxLines::issueNewLine(description)
+    def self.issueNewLine(description)
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        catalystType = "inbox"
+        payload1     = nil
+        payload2     = nil 
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
         domain = Domains::selectDomainOrNull()
         Domains::setDomainForItem(uuid, domain)
-    end
-
-    # InboxLines::getRecords()
-    def self.getRecords()
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _axion_ order by _creationTime_" , [] ) do |row|
-            answer << {
-                "uuid"            => row["_uuid_"],
-                "creationTime"    => row["_creationTime_"],
-                "operationalTime" => row["_operationalTime_"],
-                "contentType"     => row["_contentType_"],
-                "contentPayload"  => row["_contentPayload_"]
-            }
-        end
-        db.close
-        answer
     end
 
     # InboxLines::destroy(uuid)
@@ -136,15 +95,14 @@ class InboxLines
 
     # InboxLines::ns16s()
     def self.ns16s()
-        InboxLines::getRecords().map{|record|
-            uuid = record["uuid"]
-            line = record["contentPayload"]
-            unixtime = record["creationTime"]
-            announce = "#{Domains::domainPrefix(uuid)} [inbx] line: #{line}"
+        CatalystDatabase::getItemsByCatalystType("inbox").map{|item|
+            uuid = item["uuid"]
+            announce = "#{Domains::domainPrefix(uuid)} [inbx] #{item["description"]}"
+            unixtime = item["unixtime"]
             {
                 "uuid"     => uuid,
                 "announce" => announce,
-                "access"   => lambda { InboxLines::access(record) },
+                "access"   => lambda { InboxLines::access(item) },
                 "done"     => lambda { InboxLines::destroy(uuid) },
                 "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => unixtime

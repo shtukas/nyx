@@ -8,8 +8,8 @@ class CatalystDatabase
         "#{Utils::catalystDataCenterFolderpath()}/catalyst.sqlite3"
     end
 
-    # CatalystDatabase::insertRecord(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
-    def self.insertRecord(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+    # CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+    def self.insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
         db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -20,8 +20,8 @@ class CatalystDatabase
         db.close
     end
 
-    # CatalystDatabase::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
+    # CatalystDatabase::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
         db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -42,8 +42,8 @@ class CatalystDatabase
         answer
     end
 
-    # CatalystDatabase::getObjectsByCatalystType(type)
-    def self.getObjectsByCatalystType(type)
+    # CatalystDatabase::getItemsByCatalystType(type)
+    def self.getItemsByCatalystType(type)
         db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -63,7 +63,6 @@ class CatalystDatabase
         db.close
         answer
     end
-
 
     # CatalystDatabase::delete(uuid)
     def self.delete(uuid)

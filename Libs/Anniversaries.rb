@@ -96,12 +96,12 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        CatalystDatabase::getObjectsByCatalystType("anniversary").map{|record| Anniversaries::databaseRecordToAnniversary(record) }
+        CatalystDatabase::getItemsByCatalystType("anniversary").map{|record| Anniversaries::databaseRecordToAnniversary(record) }
     end
 
     # Anniversaries::commitAnniversaryToDisk(anniversary)
     def self.commitAnniversaryToDisk(anniversary)
-        CatalystDatabase::insertRecord(
+        CatalystDatabase::insertItem(
             anniversary["uuid"], 
             anniversary["unixtime"], 
             anniversary["description"], 
@@ -145,9 +145,9 @@ class Anniversaries
         payload2 = repeatType
         payload3 = lastCelebrationDate
 
-        CatalystDatabase::insertRecord(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
-        record = CatalystDatabase::getObjectByUUIDOrNull(uuid)
+        record = CatalystDatabase::getItemByUUIDOrNull(uuid)
         Anniversaries::databaseRecordToAnniversary(record)
     end
 
