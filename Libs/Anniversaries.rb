@@ -127,7 +127,9 @@ class Anniversaries
             "anniversary", 
             anniversary["startdate"], 
             anniversary["repeatType"], 
-            anniversary["lastCelebrationDate"]
+            anniversary["lastCelebrationDate"],
+            nil,
+            nil
         )
     end
 
@@ -164,7 +166,7 @@ class Anniversaries
         payload2 = repeatType
         payload3 = lastCelebrationDate
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         record = CatalystDatabase::getItemByUUIDOrNull(uuid)
         Anniversaries::databaseRecordToAnniversary(record)

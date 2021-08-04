@@ -25,6 +25,13 @@ class Nx31s # OnDate
         item
     end
 
+    # Nx31s::getNx31ByUUIDOrNull(uuid)
+    def self.getNx31ByUUIDOrNull(uuid)
+        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
+        return nil if item.nil?
+        Nx31s::databaseItemToNx31(item)
+    end
+
     # Nx31s::nx31s()
     def self.nx31s()
         CatalystDatabase::getItemsByCatalystType("Nx31").map{|item|
@@ -38,6 +45,20 @@ class Nx31s # OnDate
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
         return nil if unixtime.nil?
         Time.at(unixtime).to_s[0, 10]
+    end
+
+    # Nx31s::commitNx31ToDisk(nx31)
+    def self.commitNx31ToDisk(nx31)
+        uuid         = nx31["uuid"]
+        unixtime     = nx31["unixtime"]
+        description  = nx31["description"]
+        catalystType = "Nx31"
+        payload1     = nx31["date"]
+        payload2     = nil 
+        payload3     = nil
+        payload4     = nil 
+        payload5     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
     end
 
     # Nx31s::interactivelyIssueNewOrNull()
@@ -60,11 +81,9 @@ class Nx31s # OnDate
         payload2     = nil 
         payload3     = nil
         
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
-        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        return nil if item.nil?
-        Nx31s::databaseItemToNx31(item)
+        Nx31s::getNx31ByUUIDOrNull(uuid)
     end
 
     # Nx31s::toString(nx31)
@@ -86,7 +105,9 @@ class Nx31s # OnDate
 
         loop {
 
-            return if CoreDataTx::getObjectByIdOrNull(nx31["uuid"]).nil?
+            nx31 = Nx31s::getNx31ByUUIDOrNull(nx31["uuid"])
+
+            return if nx31.nil?
 
             system("clear")
 
@@ -109,7 +130,7 @@ class Nx31s # OnDate
                 date = Nx31s::interactivelySelectADateOrNull()
                 next if date.nil?
                 nx31["date"] = date
-                CoreDataTx::commit(nx31)
+                Nx31s::commitNx31ToDisk(nx31)
                 next
             end
 

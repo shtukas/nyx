@@ -91,7 +91,7 @@ class InboxLines
         payload1     = nil
         payload2     = nil 
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         domain = Domains::selectDomainOrNull()
         Domains::setDomainForItem(uuid, domain)

@@ -90,6 +90,20 @@ class Nx50s
         }
     end
 
+    # Nx31s::commitNx50ToDisk(nx50)
+    def self.commitNx50ToDisk(nx50)
+        uuid         = nx50["uuid"]
+        unixtime     = nx50["unixtime"]
+        description  = nx50["description"]
+        catalystType = "Nx50"
+        payload1     = nx50["contentType"]
+        payload2     = nx50["contentPayload"]
+        payload3     = nil
+        payload4     = nil 
+        payload5     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
+    end
+
     # Nx50s::getNx50ByUUIDOrNull(uuid)
     def self.getNx50ByUUIDOrNull(uuid)
         item = CatalystDatabase::getItemByUUIDOrNull(uuid)
@@ -117,7 +131,7 @@ class Nx50s
         payload1     = coordinates ? coordinates["contentType"] : nil
         payload2     = coordinates ? coordinates["contentPayload"] : nil
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -178,7 +192,7 @@ class Nx50s
         payload1     = "url"
         payload2     = url
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -192,7 +206,7 @@ class Nx50s
         payload1     = "aion-point"
         payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -206,7 +220,7 @@ class Nx50s
         payload1     = "aion-point"
         payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         if domain.nil? then
             domain = Domains::selectDomainOrNull()
@@ -225,7 +239,7 @@ class Nx50s
         payload1     = "text"
         payload2     = AxionBinaryBlobsService::putBlob(text)
         payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         if domain.nil? then
             domain = Domains::selectDomainOrNull()
@@ -380,13 +394,13 @@ class Nx50s
             if Interpreting::match("update unixtime", command) then
                 domain = Domains::getDomainForItemOrNull(nx50["uuid"])
                 nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
-                CoreDataTx::commit(nx50)
+                Nx31s::commitNx50ToDisk(nx50)
                 next
             end
 
             if Interpreting::match("update schedule", command) then
                 nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
-                CoreDataTx::commit(nx50)
+                Nx31s::commitNx50ToDisk(nx50)
                 next
             end
 

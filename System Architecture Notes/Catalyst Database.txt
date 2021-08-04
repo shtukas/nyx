@@ -2,7 +2,7 @@
 The Catalyst Database contains catalyst objects, behavioral objects. Some types of catalyst records points to items in the Axion database.
 
 catalyst.sqlite3
-sqlite> create table _catalyst_ (_uuid_ text, _unixtime_ real, _description_ text, _catalystType_ text, _payload1_ text, _payload2_ text, _payload3_ text);
+sqlite> create table _catalyst_ (_uuid_ text, _unixtime_ real, _description_ text, _catalystType_ text, _payload1_ text, _payload2_ text, _payload3_ text, _payload4_ text, _payload5_ text);
 
 Item {
     "uuid"         : String
@@ -12,15 +12,18 @@ Item {
     "payload1"     : String
     "payload2"     : String
     "payload3"     : String
+    "payload4"     : String
+    "payload5"     : String
 }
 
 -----------------------------------------------------------------------------
-CatalystType     PayLoad1                Payload2                  Payload3
+CatalystType     PayLoad1                Payload2                  Payload3                Payload4           Payload5
 "anniversary"    startdate [1]           repeatType [2]            lastCelebrationDate
 "inbox"
 "Nx31"           date      [1]
 "quark" [4]      contentType | null      contentPayload | null
 "Nx50"  [4]      contentType | null      contentPayload | null
+"wave"  [5]      contentType | null      contentPayload | null     repeatType [6]          repeatValue [6]    lastDoneDateTime
 
 [1] "YYYY-MM-DD"
 
@@ -29,7 +32,6 @@ CatalystType     PayLoad1                Payload2                  Payload3
 [3] If null / empty it means that the entire payload was the catalyst description
 
 [4] Quark and Nx50 uses the Axion contentType / contentPayload pairs
-
     contentType        contentPayload
     "line"             String # !! This pair is not used, we just use the description
     "url"              String
@@ -37,3 +39,24 @@ CatalystType     PayLoad1                Payload2                  Payload3
     "aion-point"       String # Root Named Hash
     "unique-string"    String
     "clickable"        String # <nhash>|<dottedExtension>
+
+[5] wave uses a subset of the Axion contentType / contentPayload pairs
+    contentType        contentPayload
+    "line"             String # !! This pair is not used, we just use the description
+    "url"              String
+
+[6] repeatType                       repeatValue
+
+    'every-n-hours'                  Float
+
+    'every-n-days'                   Float
+
+    'every-this-day-of-the-week'     'sunday'    |
+                                     'monday'    |
+                                     'tuesday'   |
+                                     'wednesday' |
+                                     'thursday'  |
+                                     'friday'    |
+                                     'saturday'
+
+    'every-this-day-of-the-month'    String, length 2, Day Number

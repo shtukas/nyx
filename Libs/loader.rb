@@ -139,7 +139,6 @@ require_relative "BinaryBlobsService.rb"
 
 require_relative "Calendar.rb"
 require_relative "CatalystDatabase.rb"
-require_relative "CoreDataTx.rb"
 
 require_relative "DetachedRunning.rb"
 require_relative "Dispatch.rb"
