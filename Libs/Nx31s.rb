@@ -93,7 +93,7 @@ class Nx31s # OnDate
             puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "note | [] | <datecode> | update date | detach running | done | transfert | exit".yellow
+            puts "note | [] | <datecode> | update date | detach running | done | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -130,15 +130,8 @@ class Nx31s # OnDate
             end
 
             if Interpreting::match("done", command) then
-                Nx102::postAccessCleanUp(nx31["contentType"], nx31["payload"])
-                CoreDataTx::delete(nx31["uuid"])
-                break
-            end
-
-            if Interpreting::match("transfert", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Recasting '#{Nx31s::toString(nx31)}' as Nx50", true) then
-                    Nx50s::transmuteToNx50UsingNx31Interactive(nx31)
-                end
+                Axion::postAccessCleanUp(nx31["contentType"], nx31["payload"])
+                CatalystDatabase::delete(nx31["uuid"])
                 break
             end
 
@@ -154,7 +147,7 @@ class Nx31s # OnDate
             "access"   => lambda { Nx31s::access(nx31) },
             "done"     => lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
-                    CoreDataTx::delete(nx31["uuid"])
+                    CatalystDatabase::delete(nx31["uuid"])
                 end
             },
             "domain"   => nil
@@ -175,8 +168,8 @@ class Nx31s # OnDate
         loop {
             system("clear")
 
-            nx31s = CoreDataTx::getObjectsBySchema("Nx31")
-                .sort{|i1, i2| i1["date"] <=> i2["date"] }
+            nx31s = Nx31s::nx31s()
+                        .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
             nx31s.each_with_index{|nx31, indx| 
                 puts "[#{indx}] #{Nx31s::toString(nx31)}"
@@ -201,7 +194,7 @@ class Nx31s # OnDate
 
     # Nx31s::nx19s()
     def self.nx19s()
-        CoreDataTx::getObjectsBySchema("Nx31").map{|item|
+        Nx31s::nx31s().map{|item|
             {
                 "announce" => Nx31s::toString(item),
                 "lambda"   => lambda { Nx31s::access(item) }

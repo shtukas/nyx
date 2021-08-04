@@ -20,6 +20,17 @@ class CatalystDatabase
         db.close
     end
 
+    # CatalystDatabase::updateDescription(uuid, description)
+    def self.updateDescription(uuid, description)
+        db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "update _catalyst_ set _description_=? where _uuid_=?", [description, uuid]
+        db.commit 
+        db.close
+    end
+
     # CatalystDatabase::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
@@ -74,5 +85,4 @@ class CatalystDatabase
         db.commit 
         db.close
     end
-
 end

@@ -117,7 +117,7 @@ class UIServices
         end
 
         if Interpreting::match("Nx50s", command) then
-            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", CoreDataTx::getObjectsBySchema("Nx50"), lambda {|nx50| Nx50s::toString(nx50) })
+            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", Nx50s::nx50s(), lambda {|nx50| Nx50s::toString(nx50) })
             return if nx50.nil?
             Nx50s::access(nx50)
         end
@@ -175,7 +175,7 @@ class UIServices
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
                 "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
-                "(Nx50s: #{CoreDataTx::getObjectsBySchema("Nx50").size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
+                "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
             ].join(" ").yellow
 
             puts Domains::domains()

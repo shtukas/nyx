@@ -4,12 +4,36 @@ The Catalyst Database contains catalyst objects, behavioral objects. Some types 
 catalyst.sqlite3
 sqlite> create table _catalyst_ (_uuid_ text, _unixtime_ real, _description_ text, _catalystType_ text, _payload1_ text, _payload2_ text, _payload3_ text);
 
+Item {
+    "uuid"         : String
+    "unixtime"     : Float
+    "description"  : String
+    "catalystType" : "anniversary" | "inbox" | "Nx31" | "quark" | "Nx50"
+    "payload1"     : String
+    "payload2"     : String
+    "payload3"     : String
+}
+
 -----------------------------------------------------------------------------
-CatalystType     PayLoad1         Payload2          Payload3
-"anniversary"    startdate [1]    repeatType [2]    lastCelebrationDate
+CatalystType     PayLoad1                Payload2                  Payload3
+"anniversary"    startdate [1]           repeatType [2]            lastCelebrationDate
 "inbox"
 "Nx31"           date      [1]
+"quark" [4]      contentType | null      contentPayload | null
+"Nx50"  [4]      contentType | null      contentPayload | null
 
 [1] "YYYY-MM-DD"
+
 [2] "weekly" | "monthly" | "yearly"
+
 [3] If null / empty it means that the entire payload was the catalyst description
+
+[4] Quark and Nx50 uses the Axion contentType / contentPayload pairs
+
+    contentType        contentPayload
+    "line"             String # !! This pair is not used, we just use the description
+    "url"              String
+    "text"             String
+    "aion-point"       String # Root Named Hash
+    "unique-string"    String
+    "clickable"        String # <nhash>|<dottedExtension>

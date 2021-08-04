@@ -1,42 +1,130 @@
 # encoding: UTF-8
 
+=begin
+
+{
+    "uuid"         => String
+    "unixtime"     => Float
+    "description"  => String
+    "catalystType" => "Nx31"
+
+    "payload1" : String | null
+    "payload2" : String | null
+    "payload3" :
+
+    "contentType"    : payload1
+    "contentPayload" : payload2
+}
+
+=end
+
+=begin
+# -----------------------------------
+Saturation Simulation
+
+times = []
+
+def averageOverThePastNDays(times, n)
+    times.last(n).inject(0, :+).to_f/n
+end
+
+def computeRecoveryTime(times)
+    (1..7).map{|n| averageOverThePastNDays(times, n) }.max
+end
+
+def saturationRT(times)
+    timeInHours = times.last(14).inject(0, :+)
+    tx = timeInHours.to_f/10 # multiple of 10 hours over two weeks
+    Math.exp(-tx)
+end
+
+(0..100).each {|i|
+    saturation = saturationRT(times)
+    times << saturation
+    rt = computeRecoveryTime(times)
+    puts "saturation: #{saturation.round(2)}, rt: #{rt.round(2)}"
+    sleep 1
+}
+
+The above code was to convince myself that the value of the exponential wasn't too badly chosen. Interestingly the daily saturation converges to 0.5 :)
+=end
+
 class Nx50s
+
+=begin
+
+{
+    "uuid"         => String
+    "unixtime"     => Float
+    "description"  => String
+    "catalystType" => "quark" | "Nx50"
+
+    "payload1" : String # contentType
+    "payload2" : String # contentPayload
+    "payload3" : nil
+
+    "contentType"    : payload1
+    "contentPayload" : payload2
+}
+
+=end
+
+    # Nx50s::databaseItemToNx50(item)
+    def self.databaseItemToNx50(item)
+        item["contentType"]    = item["payload1"]
+        item["contentPayload"] = item["payload2"]
+        item
+    end
+
+    # Nx50s::nx50s()
+    def self.nx50s()
+        CatalystDatabase::getItemsByCatalystType("Nx50").map{|item|
+            Nx50s::databaseItemToNx50(item)
+        }
+    end
+
+    # Nx50s::quarks()
+    def self.quarks()
+        CatalystDatabase::getItemsByCatalystType("quark").map{|item|
+            Nx50s::databaseItemToNx50(item)
+        }
+    end
+
+    # Nx50s::getNx50ByUUIDOrNull(uuid)
+    def self.getNx50ByUUIDOrNull(uuid)
+        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
+        return nil if item.nil?
+        Nx50s::databaseItemToNx50(item)
+    end
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
             return nil
         end
 
-        nx50["description"] = description
-
-        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
-        return nil if coordinates.nil?
-
-        nx50["contentType"] = coordinates[0]
-        nx50["payload"]     = coordinates[1]
+        coordinates = Axion::interactivelyIssueNewCoordinatesOrNullNoLine()
 
         domain = Domains::selectDomainOrNull()
         Domains::setDomainForItem(uuid, domain)
 
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
+        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
 
-        CoreDataTx::commit(nx50)
+        catalystType = "Nx50"
+        payload1     = coordinates ? coordinates["contentType"] : nil
+        payload2     = coordinates ? coordinates["contentPayload"] : nil
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
-        nx50
+        Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::minusOneUnixtime()
     def self.minusOneUnixtime()
-        items = CoreDataTx::getObjectsBySchema("Nx50")
+        items = Nx50s::nx50s()
         return Time.new.to_i if items.empty?
         items.map{|item| item["unixtime"] }.min - 1
     end
@@ -44,9 +132,9 @@ class Nx50s
     # Nx50s::getObjectsByDomain(domain | null)
     def self.getObjectsByDomain(domain)
         if domain.nil? then
-            return CoreDataTx::getObjectsBySchema("Nx50")
+            return Nx50s::nx50s()
         end
-        CoreDataTx::getObjectsBySchema("Nx50")
+        Nx50s::nx50s()
             .select{|item| 
                 dx = Domains::getDomainForItemOrNull(item["uuid"])
                 dx and (dx["uuid"] == domain["uuid"])
@@ -83,90 +171,68 @@ class Nx50s
 
     # Nx50s::issueNx50UsingURL(url)
     def self.issueNx50UsingURL(url)
-        uuid = SecureRandom.uuid
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        description  = url
+        catalystType = "Nx50"
+        payload1     = "url"
+        payload2     = url
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = url
-        nx50["contentType"] = "Url"
-        nx50["payload"]     = url
-
-        CoreDataTx::commit(nx50)
-        CoreDataTx::getObjectByIdOrNull(uuid)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingLocation(location)
     def self.issueNx50UsingLocation(location)
-        uuid = SecureRandom.uuid
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        description  = File.basename(location) 
+        catalystType = "Nx50"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = File.basename(location) 
-        nx50["contentType"] = "AionPoint"
-        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
-
-        CoreDataTx::commit(nx50)
-        CoreDataTx::getObjectByIdOrNull(uuid)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingInboxLocationInteractive(location, domain)
     def self.issueNx50UsingInboxLocationInteractive(location, domain)
-        uuid = SecureRandom.uuid
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = description
-        nx50["contentType"] = "AionPoint"
-        nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
+        uuid         = SecureRandom.uuid
+        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
+        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        catalystType = "Nx50"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
         if domain.nil? then
             domain = Domains::selectDomainOrNull()
         end
         Domains::setDomainForItem(uuid, domain)
-        
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
 
-        CoreDataTx::commit(nx50)
-        CoreDataTx::getObjectByIdOrNull(uuid)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingInboxTextInteractive(text, domain)
     def self.issueNx50UsingInboxTextInteractive(text, domain)
-        uuid = SecureRandom.uuid
-
-        nx50 = {}
-        nx50["uuid"]        = uuid
-        nx50["schema"]      = "Nx50"
-        nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = text.lines.first.strip
-        nx50["contentType"] = "Text"
-        nx50["payload"]     = BinaryBlobsService::putBlob(text)
+        uuid         = SecureRandom.uuid
+        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
+        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        catalystType = "Nx50"
+        payload1     = "text"
+        payload2     = AxionBinaryBlobsService::putBlob(text)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
 
         if domain.nil? then
             domain = Domains::selectDomainOrNull()
         end
         Domains::setDomainForItem(uuid, domain)
-        
-        nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
 
-        CoreDataTx::commit(nx50)
-        CoreDataTx::getObjectByIdOrNull(uuid)
-    end
-
-    # Nx50s::transmuteToNx50UsingNx31Interactive(nx31)
-    def self.transmuteToNx50UsingNx31Interactive(nx31)
-        nx50 = nx31.clone
-        nx50["schema"] = "Nx50"
-        nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || nx31["unixtime"])
-        CoreDataTx::commit(nx50)
-        CoreDataTx::getObjectByIdOrNull(nx50["uuid"])
+        Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -174,7 +240,9 @@ class Nx50s
 
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
-        "[#{nx50["contentType"]}] #{nx50["description"]}"
+        contentType = nx50["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{nx50["contentType"]})" : ""
+        "#{nx50["description"]}#{str1}"
     end
 
     # Nx50s::toString(nx50)
@@ -185,8 +253,8 @@ class Nx50s
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx50s::toString(nx50)}") }
-        Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
-        CoreDataTx::delete(nx50["uuid"])
+        Axion::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+        CatalystDatabase::delete(nx50["uuid"])
     end
 
     # Nx50s::access(nx50)
@@ -214,7 +282,9 @@ class Nx50s
 
         loop {
 
-            return if CoreDataTx::getObjectByIdOrNull(uuid).nil?
+            nx50 = Nx50s::getNx50ByUUIDOrNull(uuid)
+
+            return if nx50.nil?
 
             system("clear")
 
@@ -242,7 +312,7 @@ class Nx50s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | exit | completed | edit description | edit domain | edit contents | edit unixtime | edit schedule | ordinal | transmute | destroy".yellow
+            puts "access | note | [] | <datecode> | detach running | exit | completed | update description | update domain | update contents | update unixtime | update schedule | ordinal | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -272,12 +342,8 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
+                update = nil
+                Axion::access(nx50["contentType"], nx50["payload"], update)
                 next
             end
 
@@ -291,39 +357,34 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("edit description", command) then
+            if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx50["description"])
                 if description.size > 0 then
-                    nx50["description"] = description
-                    CoreDataTx::commit(nx50)
+                    CatalystDatabase::updateDescription(nx50["uuid"], description)
                 end
                 next
             end
 
-            if Interpreting::match("edit domain", command) then
+            if Interpreting::match("update domain", command) then
                 domain = Domains::selectDomainOrNull()
                 Domains::setDomainForItem(nx50["uuid"], domain)
                 next
             end
 
-            if Interpreting::match("edit contents", command) then
-                coordinates = Nx102::edit(nx50["description"], nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
+            if Interpreting::match("update contents", command) then
+                update = nil
+                Axion::edit(nx50["contentType"], nx50["payload"], update)
                 next
             end
 
-            if Interpreting::match("edit unixtime", command) then
+            if Interpreting::match("update unixtime", command) then
                 domain = Domains::getDomainForItemOrNull(nx50["uuid"])
                 nx50["unixtime"]    = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull(domain) || Time.new.to_f)
                 CoreDataTx::commit(nx50)
                 next
             end
 
-            if Interpreting::match("edit schedule", command) then
+            if Interpreting::match("update schedule", command) then
                 nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
                 CoreDataTx::commit(nx50)
                 next
@@ -332,16 +393,6 @@ class Nx50s
             if Interpreting::match("ordinal", command) then
                 WorkOrdering::resetOrdinal(nx50["uuid"], Nx50s::toString(nx50))
                 break
-            end
-
-            if Interpreting::match("transmute", command) then
-                coordinates = Nx102::transmute(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-                next
             end
 
             if Interpreting::match("destroy", command) then
@@ -356,17 +407,22 @@ class Nx50s
 
         NxBalls::closeNxBall(nxball, true)
 
-        Nx102::postAccessCleanUp(nx50["contentType"], nx50["payload"])
+        Axion::postAccessCleanUp(nx50["contentType"], nx50["payload"])
     end
     
     # Nx50s::maintenance()
     def self.maintenance()
-        if CoreDataTx::getObjectsBySchema("Nx50").size <= 30 then
-            CoreDataTx::getObjectsBySchema("quark")
+        if Nx50s::nx50s().size <= 30 then
+            Nx50s::quarks()
                 .sample(20)
-                .each{|object|
-                    object["schema"] = "Nx50"
-                    CoreDataTx::commit(object)
+                .each{|item|
+                    db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
+                    db.busy_timeout = 117
+                    db.busy_handler { |count| true }
+                    db.transaction 
+                    db.execute "update _catalyst_ set _catalystType_=? where _uuid_=?", ["Nx50", item["uuid"]]
+                    db.commit 
+                    db.close
                 }
         end
     end
@@ -448,7 +504,7 @@ class Nx50s
                 itemdomain["uuid"] == domain["uuid"]
             }
 
-            ns16s = CoreDataTx::getObjectsBySchema("Nx50")
+            ns16s = Nx50s::nx50s()
                         .select{|nx50| isSelectedForNS16.call(nx50, domain) }
                         .map{|nx50| Nx50s::ns16OrNull(nx50) }
                         .compact
@@ -465,7 +521,7 @@ class Nx50s
                 itemdomain["uuid"] == domain["uuid"]
             }
 
-            ns16s = CoreDataTx::getObjectsBySchema("Nx50")
+            ns16s = Nx50s::nx50s()
                         .select{|nx50| isSelectedForNS16.call(nx50, domain) }
                         .map{|nx50| Nx50s::ns16OrNull(nx50) }
                         .compact
@@ -480,7 +536,7 @@ class Nx50s
 
     # Nx50s::nx19s()
     def self.nx19s()
-        CoreDataTx::getObjectsBySchema("Nx50").map{|item|
+        Nx50s::nx50s().map{|item|
             {
                 "announce" => Nx50s::toString(item),
                 "lambda"   => lambda { Nx50s::access(item) }

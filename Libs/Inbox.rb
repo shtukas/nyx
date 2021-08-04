@@ -27,7 +27,7 @@ class InboxLines
     def self.access(item)
 
         uuid = item["uuid"]
-        line = item["contentPayload"]
+        description = item["description"]
 
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243", Domains::getDomainUUIDForItemOrNull(uuid)].compact)
         thr = Thread.new {
@@ -41,7 +41,7 @@ class InboxLines
 
         system("clear")
 
-        puts "[inbox] line: #{line}".green
+        puts "[inbox] #{description}".green
         puts "Started at: #{Time.new.to_s}".yellow
 
         if Domains::getDomainUUIDForItemOrNull(uuid).nil? then
@@ -65,16 +65,16 @@ class InboxLines
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                InboxLines::destroy(uuid)
+                CatalystDatabase::delete(uuid)
                 break
             end
 
             if command == "dispatch" then
-                nx50 = Nx50s::issueNx50UsingInboxTextInteractive(line, Domains::getDomainForItemOrNull(uuid))
+                nx50 = Nx50s::issueNx50UsingInboxTextInteractive(description, Domains::getDomainForItemOrNull(uuid))
                 if Domains::getDomainUUIDForItemOrNull(nx50["uuid"]) == Domains::workDomain()["uuid"] then
                     WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(nx50["uuid"], Nx50s::toString(nx50))
                 end
-                InboxLines::destroy(uuid)
+                CatalystDatabase::delete(uuid)
                 break
             end
         }
@@ -97,17 +97,6 @@ class InboxLines
         Domains::setDomainForItem(uuid, domain)
     end
 
-    # InboxLines::destroy(uuid)
-    def self.destroy(uuid)
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Axion/axion.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _axion_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
-    end
-
     # InboxLines::ns16s()
     def self.ns16s()
         CatalystDatabase::getItemsByCatalystType("inbox").map{|item|
@@ -118,7 +107,7 @@ class InboxLines
                 "uuid"     => uuid,
                 "announce" => announce,
                 "access"   => lambda { InboxLines::access(item) },
-                "done"     => lambda { InboxLines::destroy(uuid) },
+                "done"     => lambda { CatalystDatabase::delete(uuid) },
                 "domain"   => Domains::getDomainForItemOrNull(uuid),
                 "inbox-unixtime" => unixtime
             }

@@ -152,7 +152,7 @@ class Waves
     # Waves::toString(wave)
     def self.toString(wave)
         ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "#{Domains::domainPrefix(wave["uuid"])} [wave] (#{Waves::scheduleString(wave)}) [#{wave["contentType"].downcase}] #{wave["description"]} (#{ago})"
+        "#{Domains::domainPrefix(wave["uuid"])} [wave] #{wave["description"]} (#{wave["contentType"].downcase}) (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::selectWaveOrNull()
