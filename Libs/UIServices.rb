@@ -64,7 +64,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries |search | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)

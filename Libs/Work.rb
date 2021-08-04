@@ -40,6 +40,12 @@ class WorkOrdering
         ordinal
     end
 
+    # WorkOrdering::resetOrdinal(uuid, description)
+    def self.resetOrdinal(uuid, description)
+        ordinal = WorkOrdering::decideOrdinal(description)
+        KeyValueStore::set(nil, "dd380456-685a-4302-8dd6-7467a17bbc6b:#{uuid}", ordinal)
+    end
+
     # WorkOrdering::ordinalString(uuid)
     def self.ordinalString(uuid)
         ordinal = WorkOrdering::getItemOrdinalOrNull(uuid)

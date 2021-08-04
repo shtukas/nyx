@@ -116,12 +116,13 @@ class Nx50s
     # Nx50s::issueNx50UsingInboxLocationInteractive(location, domain)
     def self.issueNx50UsingInboxLocationInteractive(location, domain)
         uuid = SecureRandom.uuid
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
 
         nx50 = {}
         nx50["uuid"]        = uuid
         nx50["schema"]      = "Nx50"
         nx50["unixtime"]    = Time.new.to_f
-        nx50["description"] = File.basename(location) 
+        nx50["description"] = description
         nx50["contentType"] = "AionPoint"
         nx50["payload"]     = AionCore::commitLocationReturnHash(El1zabeth.new(), location)
 
@@ -241,7 +242,7 @@ class Nx50s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | exit | completed | edit description | edit domain | edit contents | edit unixtime | edit schedule | transmute | destroy".yellow
+            puts "access | note | [] | <datecode> | detach running | exit | completed | edit description | edit domain | edit contents | edit unixtime | edit schedule | ordinal | transmute | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -290,16 +291,6 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("access", command) then
-                coordinates = Nx102::access(nx50["contentType"], nx50["payload"])
-                if coordinates then
-                    nx50["contentType"] = coordinates[0]
-                    nx50["payload"]     = coordinates[1]
-                    CoreDataTx::commit(nx50)
-                end
-                next
-            end
-
             if Interpreting::match("edit description", command) then
                 description = Utils::editTextSynchronously(nx50["description"])
                 if description.size > 0 then
@@ -336,6 +327,11 @@ class Nx50s
                 nx50["schedule"] = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(nx50["schedule"])))
                 CoreDataTx::commit(nx50)
                 next
+            end
+
+            if Interpreting::match("ordinal", command) then
+                WorkOrdering::resetOrdinal(nx50["uuid"], Nx50s::toString(nx50))
+                break
             end
 
             if Interpreting::match("transmute", command) then
