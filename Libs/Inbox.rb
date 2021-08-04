@@ -72,7 +72,10 @@ class InboxLines
             end
 
             if command == "dispatch" then
-                Nx50s::issueNx50UsingInboxTextInteractive(line, Domains::getDomainForItemOrNull(uuid))
+                nx50 = Nx50s::issueNx50UsingInboxTextInteractive(line, Domains::getDomainForItemOrNull(uuid))
+                if Domains::getDomainUUIDForItemOrNull(nx50["uuid"]) == Domains::workDomain()["uuid"] then
+                    WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(nx50["uuid"], Nx50s::toString(nx50))
+                end
                 InboxLines::destroy(uuid)
                 break
             end
@@ -232,7 +235,10 @@ class InboxFiles
             end
 
             if command == "dispatch" then
-                Nx50s::issueNx50UsingInboxLocationInteractive(location, Domains::getDomainForItemOrNull(uuid))
+                nx50 = Nx50s::issueNx50UsingInboxLocationInteractive(location, Domains::getDomainForItemOrNull(uuid))
+                if Domains::getDomainUUIDForItemOrNull(nx50["uuid"]) == Domains::workDomain()["uuid"] then
+                    WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(nx50["uuid"], Nx50s::toString(nx50))
+                end
                 LucilleCore::removeFileSystemLocation(location)
                 break
             end
