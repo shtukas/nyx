@@ -46,12 +46,6 @@ class CoreDataTx
             "payload5"    => row["_payload5_"],
         }
 
-        if object["schema"] == "anniversary" then
-            object["startdate"]           = object["payload1"]
-            object["repeatType"]          = object["payload2"]
-            object["lastCelebrationDate"] = object["payload3"]
-        end
-
         if object["schema"] == "wave" then
             object["repeatType"]       = object["payload1"]
             object["repeatValue"]      = object["payload2"]
@@ -90,15 +84,6 @@ class CoreDataTx
         raise "04d8079d-e804-48af-9a12-25cdec657112: #{object}" if !CoreDataTx::supportedSchemas().include?(object["schema"])
 
         hasBeenTransformed = false
-
-        if object["schema"] == "anniversary" then
-            object["payload1"] = object["startdate"]
-            object["payload2"] = object["repeatType"]
-            object["payload3"] = object["lastCelebrationDate"]
-            object["payload4"] = nil
-            object["payload5"] = nil
-            hasBeenTransformed = true
-        end
 
         if object["schema"] == "wave" then
             object["payload1"] = object["repeatType"]
@@ -173,7 +158,6 @@ class CoreDataTx
     # CoreDataTx::supportedSchemas()
     def self.supportedSchemas()
         [
-            "anniversary",
             "wave",
             "quark",
             "Nx50",

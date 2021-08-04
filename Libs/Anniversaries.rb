@@ -81,43 +81,74 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::interactivelyIssueNewAnniversaryOrNull()
-    def self.interactivelyIssueNewAnniversaryOrNull()
+    # Anniversaries::databaseRecordToAnniversary(record)
+    def self.databaseRecordToAnniversary(record)
+        return nil if record.nil?
+        anniversary = record.clone
+        anniversary["startdate"]           = record["payload1"]
+        anniversary["repeatType"]          = record["payload2"]
+        anniversary["lastCelebrationDate"] = record["payload3"]
+        anniversary.delete("payload1")
+        anniversary.delete("payload2")
+        anniversary.delete("payload3")
+        anniversary
+    end
+
+    # Anniversaries::anniversaries()
+    def self.anniversaries()
+        CatalystDatabase::getObjectsByCatalystType("anniversary").map{|record| Anniversaries::databaseRecordToAnniversary(record) }
+    end
+
+    # Anniversaries::commitAnniversaryToDisk(anniversary)
+    def self.commitAnniversaryToDisk(anniversary)
+        CatalystDatabase::insertRecord(
+            anniversary["uuid"], 
+            anniversary["unixtime"], 
+            anniversary["description"], 
+            "anniversary", 
+            anniversary["startdate"], 
+            anniversary["repeatType"], 
+            anniversary["lastCelebrationDate"]
+        )
+    end
+
+    # Anniversaries::issueNewAnniversaryOrNullInteractively()
+    def self.issueNewAnniversaryOrNullInteractively()
 
         uuid = SecureRandom.uuid
 
-        anniversary = {}
-        anniversary["uuid"] = uuid
-        anniversary["schema"] = "anniversary"
-        anniversary["unixtime"] = Time.new.to_i
+        unixtime = Time.new.to_i
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
             return nil
         end
-        anniversary["description"] = description
+
+        catalystType = "anniversary"
 
         startdate = LucilleCore::askQuestionAnswerAsString("startdate (empty to abort): ")
         if startdate == "" then
             return nil
         end
-        anniversary["startdate"] = startdate
 
         repeatType = LucilleCore::selectEntityFromListOfEntitiesOrNull("repeat type", ["weekly", "monthly", "yearly"])
         if repeatType.nil? then
             return nil
         end
-        anniversary["repeatType"] = repeatType
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
             lastCelebrationDate = Utils::today()
         end
-        anniversary["lastCelebrationDate"] = lastCelebrationDate
 
-        CoreDataTx::commit(anniversary)
+        payload1 = startdate
+        payload2 = repeatType
+        payload3 = lastCelebrationDate
 
-        anniversary
+        CatalystDatabase::insertRecord(uuid, unixtime, description, catalystType, payload1, payload2, payload3)
+
+        record = CatalystDatabase::getObjectByUUIDOrNull(uuid)
+        Anniversaries::databaseRecordToAnniversary(record)
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
@@ -133,7 +164,7 @@ class Anniversaries
 
     # Anniversaries::ns16s()
     def self.ns16s()
-        CoreDataTx::getObjectsBySchema("anniversary")
+        Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
                 {
@@ -143,13 +174,13 @@ class Anniversaries
                         puts Anniversaries::toString(anniversary).green
                         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
                             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                            CoreDataTx::commit(anniversary)
+                            Anniversaries::commitAnniversaryToDisk(anniversary)
                         end
                     },
                     "done"   => lambda {
                         puts Anniversaries::toString(anniversary).green
                         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                        CoreDataTx::commit(anniversary)
+                        Anniversaries::commitAnniversaryToDisk(anniversary)
                     },
                     "domain" => nil
                 }
@@ -159,7 +190,7 @@ class Anniversaries
     # Anniversaries::dailyBriefing()
     def self.dailyBriefing()
         puts "Anniversaries daily briefing:"
-        CoreDataTx::getObjectsBySchema("anniversary")
+        Anniversaries::anniversaries()
             .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             .each{|anniversary|
                 puts Anniversaries::toString(anniversary)
@@ -183,11 +214,11 @@ class Anniversaries
                 startdate = Utils::editTextSynchronously(anniversary["startdate"])
                 return if startdate == ""
                 anniversary["startdate"] = startdate
-                CoreDataTx::commit(anniversary)
+                Anniversaries::commitAnniversaryToDisk(anniversary)
             end
 
             if Interpreting::match("destroy", command) then
-                CoreDataTx::delete(anniversary["uuid"])
+                CatalystDatabase::delete(anniversary["uuid"])
                 break
             end
 
@@ -198,7 +229,7 @@ class Anniversaries
     # Anniversaries::anniversariesDive()
     def self.anniversariesDive()
         loop {
-            anniversaries = CoreDataTx::getObjectsBySchema("anniversary")
+            anniversaries = Anniversaries::anniversaries()
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?
@@ -223,7 +254,7 @@ class Anniversaries
             end
 
             if Interpreting::match("make", command) then
-                Anniversaries::interactivelyIssueNewAnniversaryOrNull()
+                Anniversaries::issueNewAnniversaryOrNullInteractively()
                 break
             end
 
@@ -233,7 +264,7 @@ class Anniversaries
 
     # Anniversaries::nx19s()
     def self.nx19s()
-        CoreDataTx::getObjectsBySchema("anniversary").map{|item|
+        Anniversaries::anniversaries().map{|item|
             {
                 "announce" => Anniversaries::toString(item),
                 "lambda"   => lambda { Anniversaries::landing(item) }
