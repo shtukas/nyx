@@ -501,49 +501,21 @@ class Nx50s
         }
     end
 
-    # Nx50s::ns16s(domain)
-    def self.ns16s(domain)
+    # Nx50s::ns16s()
+    def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        if domain["uuid"] == Domains::alexandra()["uuid"] then
-            rtForComparison = lambda{|rt|
-                (rt == 0) ? 0.4 : rt
-            }
+        rtForComparison = lambda{|rt|
+            (rt == 0) ? 0.4 : rt
+        }
 
-            isSelectedForNS16 = lambda{|nx50, domain|
-                itemdomain = Domains::getDomainForItemOrNull(nx50["uuid"])
-                return true if itemdomain.nil?
-                itemdomain["uuid"] == domain["uuid"]
-            }
+        ns16s = Nx50s::nx50s()
+                    .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                    .compact
 
-            ns16s = Nx50s::nx50s()
-                        .select{|nx50| isSelectedForNS16.call(nx50, domain) }
-                        .map{|nx50| Nx50s::ns16OrNull(nx50) }
-                        .compact
-
-            ns16s.first(3).sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) } + ns16s.drop(3)
-
-            return ns16s
-        end
-
-        if domain["uuid"] == Domains::workDomain()["uuid"] then
-            isSelectedForNS16 = lambda{|nx50, domain|
-                itemdomain = Domains::getDomainForItemOrNull(nx50["uuid"])
-                return false if itemdomain.nil?
-                itemdomain["uuid"] == domain["uuid"]
-            }
-
-            ns16s = Nx50s::nx50s()
-                        .select{|nx50| isSelectedForNS16.call(nx50, domain) }
-                        .map{|nx50| Nx50s::ns16OrNull(nx50) }
-                        .compact
-
-            return ns16s
-        end
-
-        raise "[error: 61a6fdff-dd2d-48b3-a7c0-bba0c26a7a9e]"
+        ns16s.first(3).sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) } + ns16s.drop(3)
     end
 
     # --------------------------------------------------

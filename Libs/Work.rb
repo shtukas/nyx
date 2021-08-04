@@ -6,13 +6,7 @@ class WorkOrdering
     # WorkOrdering::decideOrdinal(description)
     def self.decideOrdinal(description)
         system("clear")
-        # We need to
-        # 1. Get all the ns16s valid for the current domain
-        # 2. Filter on those which have an ordinal
-        # 3. Sort them
-        # 4. Present them
-        # 5. Extract a new value
-        NS16sOperator::getVisibleNS16sForDomain(Domains::workDomain())
+        []
             .select{|ns16| !WorkOrdering::getItemOrdinalOrNull(ns16["uuid"]).nil? }
             .sort{|n1, n2| WorkOrdering::getItemOrdinalOrNull(n1["uuid"]) <=> WorkOrdering::getItemOrdinalOrNull(n2["uuid"]) }
             .each{|ns16|
@@ -126,10 +120,8 @@ class Work
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Work::ns16s(domain)
-    def self.ns16s(domain)
-        return [] if (domain["uuid"] != Domains::workDomain()["uuid"])
-
+    # Work::ns16s()
+    def self.ns16s()
         folderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
         LucilleCore::locationsAtFolder(folderpath).map{|location|
             {

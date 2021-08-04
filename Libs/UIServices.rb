@@ -27,8 +27,8 @@ class NS16sOperator
         Work::shouldBeRunning() ? Domains::workDomain() : Domains::alexandra()
     end
 
-    # NS16sOperator::getVisibleNS16sForDomain(domain)
-    def self.getVisibleNS16sForDomain(domain)
+    # NS16sOperator::ns16s()
+    def self.ns16s()
         ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -36,27 +36,16 @@ class NS16sOperator
             Fitness::ns16s(),
             Nx31s::ns16s(),
             PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            Waves::ns16s(domain),
-            Inbox::ns16s(domain),
+            Waves::ns16s(),
+            Inbox::ns16s(),
             DrivesBackups::ns16s(),
-            Work::ns16s(domain),
-            Nx50s::ns16s(domain),
+            Work::ns16s(),
+            Nx50s::ns16s(),
 
         ]
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-    end
-
-    # NS16sOperator::ns16s(domain)
-    def self.ns16s(domain)
-        ns16s = NS16sOperator::getVisibleNS16sForDomain(domain)
-
-        if domain["uuid"] == Domains::workDomain()["uuid"]  then
-            return ns16s.sort{|n1, n2| WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(n1["uuid"], n1["announce"]) <=> WorkOrdering::getItemOrdinalPossiblyInteractivelyDecided(n2["uuid"], n2["announce"]) }
-        end
-
-        return ns16s
     end
 end
 
@@ -134,11 +123,11 @@ class UIServices
     # UIServices::catalystMainInterface()
     def self.catalystMainInterface()
 
-        getNS16s = lambda {|domain|
-            NS16sOperator::ns16s(domain)
+        getNS16s = lambda {
+            NS16sOperator::ns16s()
         }
 
-        processNS16s = lambda {|ns16s, domain|
+        processNS16s = lambda {|ns16s|
 
             accessItem = lambda { |ns16| 
                 return if ns16.nil? 
@@ -152,18 +141,9 @@ class UIServices
 
             puts ""
 
-            ns16ToString = lambda{|ns16, indx, domain|
-                if domain["uuid"] == Domains::workDomain()["uuid"] then
-                    indexStr = "(#{"%3d" % indx})"
-                    return "#{indexStr} #{WorkOrdering::ordinalString(ns16["uuid"])} #{ns16["announce"]}"
-                end
-                indexStr = "(#{"%3d" % indx})"
-                "#{indexStr} #{ns16["announce"]}"
-            }
-
             ns16s
                 .each_with_index{|ns16, indx|
-                    announce = ns16ToString.call(ns16, indx, domain)
+                    announce = "(#{"%3d" % indx}) #{ns16["announce"]}"
                     break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
@@ -280,8 +260,7 @@ class UIServices
         }
 
         loop {
-            domain = NS16sOperator::currentDomain()
-            processNS16s.call(getNS16s.call(domain), domain)
+            processNS16s.call(getNS16s.call())
         }
     end
 end

@@ -376,16 +376,9 @@ class Waves
         }
     end
 
-    # Waves::ns16s(domain)
-    def self.ns16s(domain)
-        isSelectedForNS16 = lambda{|wave, domain|
-            itemdomain = Domains::getDomainForItemOrNull(wave["uuid"])
-            return true if itemdomain.nil?
-            itemdomain["uuid"] == domain["uuid"]
-        }
-
+    # Waves::ns16s()
+    def self.ns16s()
         Waves::waves()
-            .select{|wave| isSelectedForNS16.call(wave, domain) }
             .map{|wave| Waves::toNS16(wave) }
             .compact
     end
