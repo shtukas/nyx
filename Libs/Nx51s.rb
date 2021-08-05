@@ -258,7 +258,7 @@ class Nx51s
     def self.ns16(nx51)
         uuid = nx51["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        announce = "[nx51] (#{"%4.2f" % rt}) #{Nx51s::toStringCore(nx51)}"
+        announce = "[nx51] (#{"%4.2f" % rt}) #{Nx51s::toStringCore(nx51)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
