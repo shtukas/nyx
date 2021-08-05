@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-class NxNodeTypes
+class NodeTaxonomy
 
-    # NxNodeTypes::nodeTypes()
-    def self.nodeTypes()
+    # NodeTaxonomy::taxonomys()
+    def self.taxonomys()
         [
-            "NxPure",
+            "NxUndefined",
             "NxPersonalDiary",
             "NxPersonalCalendar",
             "NxPersonalEvent",
@@ -18,9 +18,9 @@ class NxNodeTypes
         ]
     end
 
-    # NxNodeTypes::selectNodeTypeOrNull()
-    def self.selectNodeTypeOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node type:", NxNodeTypes::nodeTypes())
+    # NodeTaxonomy::selectNodeTaxonomyOrNull()
+    def self.selectNodeTaxonomyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("node taxonomy:", NodeTaxonomy::taxonomys())
     end
 end
 
@@ -31,12 +31,12 @@ class NxNode
         "#{Config::nyxFolderPath()}/nx10s.sqlite3"
     end
 
-    # NxNode::insertNewNx10(uuid, datetime, description, nodeType)
-    def self.insertNewNx10(uuid, datetime, description, nodeType)
+    # NxNode::insertNewNx10(uuid, datetime, description, taxonomy)
+    def self.insertNewNx10(uuid, datetime, description, taxonomy)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx10s_ (_uuid_, _datetime_, _description_, _nodeType_) values (?,?,?,?)", [uuid, datetime, description, nodeType]
+        db.execute "insert into _nx10s_ (_uuid_, _datetime_, _description_, _taxonomy_) values (?,?,?,?)", [uuid, datetime, description, taxonomy]
         db.close
     end
 
@@ -62,10 +62,10 @@ class NxNode
                 "entityType"  => "Nx10",
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
-                "nodeType"    => row["_nodeType_"],
+                "taxonomy"    => row["_taxonomy_"],
             }
-            if !NxNodeTypes::nodeTypes().include?(obj["nodeType"]) then
-                obj["nodeType"] = "NxPure"
+            if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
+                obj["taxonomy"] = "NxUndefined"
             end
             answer = obj
         end
@@ -78,9 +78,9 @@ class NxNode
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        nodeType = NxNodeTypes::selectNodeTypeOrNull()
-        return if nodeType.nil?
-        NxNode::insertNewNx10(uuid, Time.new.utc.iso8601, description, nodeType)
+        taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
+        return if taxonomy.nil?
+        NxNode::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy)
         NxNode::getNx10ByIdOrNull(uuid)
     end
 
@@ -93,12 +93,12 @@ class NxNode
         db.close
     end
 
-    # NxNode::updateNodeType(uuid, nodeType)
-    def self.updateNodeType(uuid, nodeType)
+    # NxNode::updateNodeTaxonomy(uuid, taxonomy)
+    def self.updateNodeTaxonomy(uuid, taxonomy)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "update _nx10s_ set _nodeType_=? where _uuid_=?", [nodeType, uuid]
+        db.execute "update _nx10s_ set _taxonomy_=? where _uuid_=?", [taxonomy, uuid]
         db.close
     end
 
@@ -115,10 +115,10 @@ class NxNode
                 "entityType"  => "Nx10",
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
-                "nodeType"    => row["_nodeType_"],
+                "taxonomy"    => row["_taxonomy_"],
             }
-            if !NxNodeTypes::nodeTypes().include?(obj["nodeType"]) then
-                obj["nodeType"] = "NxPure"
+            if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
+                obj["taxonomy"] = "NxUndefined"
             end
             answer << obj
         end
@@ -154,7 +154,7 @@ class NxNode
 
             puts NxNode::toString(nx10).green
             puts "uuid: #{nx10["uuid"]}".yellow
-            puts "node type: #{nx10["nodeType"]}".yellow
+            puts "node taxonomy: #{nx10["taxonomy"]}".yellow
             puts ""
 
             entities = Links::entities(nx10["uuid"])
@@ -165,7 +165,7 @@ class NxNode
 
             puts ""
 
-            puts "update description | update node type | connect | disconnect | destroy".yellow
+            puts "update description | update node taxonomy | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -183,10 +183,10 @@ class NxNode
                 NxNode::updateDescription(nx10["uuid"], description)
             end
 
-            if Interpreting::match("update node type", command) then
-                nodeType = NxNodeTypes::selectNodeTypeOrNull()
-                return if nodeType.nil?
-                NxNode::updateNodeType(nx10["uuid"], nodeType)
+            if Interpreting::match("update node taxonomy", command) then
+                taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
+                return if taxonomy.nil?
+                NxNode::updateNodeTaxonomy(nx10["uuid"], taxonomy)
             end
 
             if Interpreting::match("connect", command) then

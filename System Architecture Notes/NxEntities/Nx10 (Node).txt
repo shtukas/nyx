@@ -1,5 +1,5 @@
 
-CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text, _nodeType_);
+CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text, _taxonomy_);
 nx10s.sqlite3
 
 Nx10 (Node)
@@ -8,15 +8,15 @@ Nx10 (Node)
     "entityType"   : "Nx10"
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
-    "nodeType"     : (NxNodeType)
+    "taxonomy"     : (taxonomy)
 }
 
-NxNodeType: "NxPure"             | # Default for backward compatibility
-            "NxPersonalDiary"    |
-            "NxPersonalCalendar" |
-            "NxPersonalEvent"    |
-            "NxTravelAndEntertainmentDocuments" | 
-            "NxPublicEvent"      |
-            "NxInformation"      |
-            "NxExplanation"      |
-            "NxFunny"
+taxonomy: "NxUndefined"        | # Default for backward compatibility
+          "NxPersonalDiary"    |
+          "NxPersonalCalendar" |
+          "NxPersonalEvent"    |
+          "NxTravelAndEntertainmentDocuments" |
+          "NxPublicEvent"      |
+          "NxInformation"      |
+          "NxExplanation"      |
+          "NxFunny"
