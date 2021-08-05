@@ -1,5 +1,5 @@
 
-CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text, _taxonomy_);
+CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text, _taxonomy_ text, _axionuuid_ text);
 nx10s.sqlite3
 
 Nx10 (Node)
@@ -9,6 +9,7 @@ Nx10 (Node)
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
     "taxonomy"     : (taxonomy)
+    "axionuuid"    : String | nil # uuid of an Axion record
 }
 
 taxonomy: "NxUndefined"        | # Default for backward compatibility

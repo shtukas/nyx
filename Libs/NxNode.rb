@@ -31,12 +31,12 @@ class NxNode
         "#{Config::nyxFolderPath()}/nx10s.sqlite3"
     end
 
-    # NxNode::insertNewNx10(uuid, datetime, description, taxonomy)
-    def self.insertNewNx10(uuid, datetime, description, taxonomy)
+    # NxNode::insertNewNx10(uuid, datetime, description, taxonomy, axionuuid)
+    def self.insertNewNx10(uuid, datetime, description, taxonomy, axionuuid)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx10s_ (_uuid_, _datetime_, _description_, _taxonomy_) values (?,?,?,?)", [uuid, datetime, description, taxonomy]
+        db.execute "insert into _nx10s_ (_uuid_, _datetime_, _description_, _taxonomy_, _axionuuid_) values (?,?,?,?,?)", [uuid, datetime, description, taxonomy, axionuuid]
         db.close
     end
 
@@ -63,6 +63,7 @@ class NxNode
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
                 "taxonomy"    => row["_taxonomy_"],
+                "axionuuid"   => row["_axionuuid_"]
             }
             if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
                 obj["taxonomy"] = "NxUndefined"
@@ -80,7 +81,7 @@ class NxNode
         return nil if description == ""
         taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
         return if taxonomy.nil?
-        NxNode::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy)
+        NxNode::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy, nil)
         NxNode::getNx10ByIdOrNull(uuid)
     end
 
@@ -102,6 +103,15 @@ class NxNode
         db.close
     end
 
+    # NxNode::updateNodeAxionUUID(uuid, axionuuid)
+    def self.updateNodeTaxonomy(uuid, axionuuid)
+        db = SQLite3::Database.new(NxNode::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _nx10s_ set _axionuuid_=? where _uuid_=?", [axionuuid, uuid]
+        db.close
+    end
+
     # NxNode::nx10s(): Array[Nx10]
     def self.nx10s()
         db = SQLite3::Database.new(NxNode::databaseFilepath())
@@ -116,6 +126,7 @@ class NxNode
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
                 "taxonomy"    => row["_taxonomy_"],
+                "axionuuid"   => row["_axionuuid_"]
             }
             if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
                 obj["taxonomy"] = "NxUndefined"
