@@ -27,7 +27,7 @@ class NS16sOperator
             Waves::ns16s(),
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
-            Work::shouldBeTheFocus() ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s(),
+            Work::shouldBeTheFocus() ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s() + Nx51s::ns16s(),
         ]
             .flatten
             .compact
