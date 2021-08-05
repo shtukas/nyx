@@ -17,6 +17,8 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
+        f = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") < BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+
         ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -27,7 +29,7 @@ class NS16sOperator
             Waves::ns16s(),
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
-            Work::shouldBeTheFocus() ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s() + Nx51s::ns16s(),
+            f ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s() + Nx51s::ns16s(),
         ]
             .flatten
             .compact
@@ -123,7 +125,7 @@ class UIServices
 
             system("clear")
 
-            vspaceleft = Utils::screenHeight()-11
+            vspaceleft = Utils::screenHeight()-9
 
             puts ""
 
@@ -140,13 +142,10 @@ class UIServices
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
+                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})",
                 "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
                 "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
             ].join(" ").yellow
-
-            puts "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})".yellow
-
-            puts ""
 
             if !ns16s.empty? then
                 puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose".yellow
