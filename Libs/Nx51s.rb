@@ -130,7 +130,7 @@ class Nx51s
 
         uuid = nx51["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, "WORK-E4A9-4BCD-9824-1EEC4D648408"])
+        nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
 
         thr = Thread.new {
             loop {
@@ -206,7 +206,7 @@ class Nx51s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx51s::toString(nx51), Time.new.to_i, [uuid, "WORK-E4A9-4BCD-9824-1EEC4D648408"])
+                DetachedRunning::issueNew2(Nx51s::toString(nx51), Time.new.to_i, [uuid, Work::bankaccount()])
                 break
             end
 

@@ -17,7 +17,7 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        f = BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408") < BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+        f = Work::recoveryTime() < BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
 
         ns16s = [
             DetachedRunning::ns16s(),
@@ -41,7 +41,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries |search | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | start-work | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -103,6 +103,10 @@ class UIServices
             Search::search()
         end
 
+        if Interpreting::match("start-work", command) then
+            Work::issueRunningItem()
+        end
+
         if Interpreting::match("nyx-make", command) then
             system("/Users/pascal/Galaxy/Software/Nyx/x-lucille-maker")
         end
@@ -142,7 +146,7 @@ class UIServices
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WORK-E4A9-4BCD-9824-1EEC4D648408").round(2)})",
+                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
                 "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
                 "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})"
             ].join(" ").yellow
