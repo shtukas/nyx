@@ -29,8 +29,22 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::issueRunningItem()
-    def self.issueRunningItem()
-        DetachedRunning::issueNew2("(work)", Time.new.to_i, [Work::bankaccount()])
+    # Work::isInTimeInterval(x, n1, n2)
+    def self.isInTimeInterval(x, n1, n2)
+        (x >= n1) and (x < n2)
+    end
+
+    # Work::shouldBeWorking()
+    def self.shouldBeWorking()
+
+        isInTimeInterval = lambda{|x, n1, n2|
+            (x >= n1) and (x < n2)
+        }
+
+        noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", "0").to_f
+        return false if Time.new.to_i < noWorkUntilUnixtime
+
+        return false if [0, 6].include?(Time.new.wday)
+        isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 17)
     end
 end

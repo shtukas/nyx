@@ -17,23 +17,34 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        f = Work::recoveryTime() < BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
-
-        ns16s = [
-            DetachedRunning::ns16s(),
-            Anniversaries::ns16s(),
-            Calendar::ns16s(),
-            Fitness::ns16s(),
-            Nx31s::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            Waves::ns16s(),
-            Inbox::ns16s(),
-            DrivesBackups::ns16s(),
-            f ? Nx51s::ns16s() + Nx50s::ns16s() : Nx50s::ns16s() + Nx51s::ns16s(),
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        if Work::shouldBeWorking() then
+            [
+                DetachedRunning::ns16s(),
+                Calendar::ns16s(),
+                Nx31s::ns16s(),
+                PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
+                Nx51s::ns16s(),
+            ]
+                .flatten
+                .compact
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        else
+            [
+                DetachedRunning::ns16s(),
+                Anniversaries::ns16s(),
+                Calendar::ns16s(),
+                Fitness::ns16s(),
+                Nx31s::ns16s(),
+                PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
+                Waves::ns16s(),
+                Inbox::ns16s(),
+                DrivesBackups::ns16s(),
+                Nx50s::ns16s(),
+            ]
+                .flatten
+                .compact
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        end
     end
 end
 
@@ -41,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | start-work | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | no work until | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -103,8 +114,9 @@ class UIServices
             Search::search()
         end
 
-        if Interpreting::match("start-work", command) then
-            Work::issueRunningItem()
+        if Interpreting::match("no work until", command) then
+            n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
+            KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
         end
 
         if Interpreting::match("nyx-make", command) then
@@ -146,9 +158,9 @@ class UIServices
             puts [
                 "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
                 "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
                 "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
                 "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})",
+                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
                 "(Quarks: #{Nx50s::quarks().size} items)"
             ].join(" ").yellow
 

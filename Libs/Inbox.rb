@@ -58,9 +58,18 @@ class InboxLines
             end
 
             if command == "dispatch" then
-                Nx50s::issueNx50UsingInboxTextInteractive(description)
-                CatalystDatabase::delete(uuid)
-                break
+                domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
+                return if domain.nil?
+                if domain == "Nx50s" then
+                    Nx50s::issueNx50UsingInboxTextInteractive(description)
+                    CatalystDatabase::delete(uuid)
+                    break
+                end
+                if domain == "Nx51s" then
+                    Nx51s::issueNx51UsingInboxTextInteractive(description)
+                    CatalystDatabase::delete(uuid)
+                    break
+                end
             end
         }
 

@@ -88,6 +88,30 @@ class Nx51s
         items.map{|item| item["unixtime"] }.min - 1
     end
 
+    # Nx51s::interactivelyDetermineNewItemOrdinal()
+    def self.interactivelyDetermineNewItemOrdinal()
+        system('clear')
+        items = Nx51s::nx51s()
+        return 1 if items.empty?
+        items.each{|item|
+            puts "- #{Nx51s::toString(item)}"
+        }
+        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+    end
+
+    # Nx51s::issueNx51UsingInboxTextInteractive(text)
+    def self.issueNx51UsingInboxTextInteractive(text)
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        catalystType = "Nx51"
+        payload1     = "text"
+        payload2     = AxionBinaryBlobsService::putBlob(text)
+        payload3     = Nx51s::interactivelyDetermineNewItemOrdinal()
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx51s::getNx51ByUUIDOrNull(uuid)
+    end
+
     # --------------------------------------------------
     # Operations
 
