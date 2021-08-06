@@ -52,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | anniversaries | search | work on | work off | work off until | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | work ops | search | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -112,21 +112,16 @@ class UIServices
             Nx50s::access(nx50)
         end
 
+        if Interpreting::match("Nx51 ops", command) then
+            Nx51s::operations()
+        end
+
+        if Interpreting::match("work ops", command) then
+            Work::operations()
+        end
+
         if Interpreting::match("search", command) then
             Search::search()
-        end
-
-        if Interpreting::match("work on", command) then
-            KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
-        end
-
-        if Interpreting::match("work off", command) then
-            KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
-        end
-
-        if Interpreting::match("work off until", command) then
-            n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
-            KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
         end
 
         if Interpreting::match("nyx-make", command) then

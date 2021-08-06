@@ -134,6 +134,11 @@ class Nx51s
         CatalystDatabase::delete(nx51["uuid"])
     end
 
+    # Nx51s::getNextOrdinal()
+    def self.getNextOrdinal()
+        (([1]+Nx51s::nx51s().map{|nx51| nx51["ordinal"] }).max + 1).floor
+    end
+
     # Nx51s::decideOrdinal(description)
     def self.decideOrdinal(description)
         system("clear")
@@ -146,7 +151,18 @@ class Nx51s
                 puts "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}"
             }
         puts ""
-        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for last position): ")
+        if ordinal == "" then
+            Nx51s::getNextOrdinal()
+        else
+            ordinal.to_f
+        end
+    end
+
+    # Nx51s::selectOneNx51OrNull()
+    def self.selectOneNx51OrNull()
+        nx51s = Nx51s::nx51s().sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}" })
     end
 
     # Nx51s::access(nx51)
@@ -312,6 +328,28 @@ class Nx51s
                 "announce" => Nx51s::toString(item),
                 "lambda"   => lambda { Nx51s::access(item) }
             }
+        }
+    end
+
+    # Nx51s::operations()
+    def self.operations()
+        loop {
+            puts "Nx51 Ops: (select item and) update ordinal".yellow
+            print "> (empty to exit) "
+            command = STDIN.gets().strip
+            break if command == ""
+            if command == "update ordinal" then
+                nx51 = Nx51s::selectOneNx51OrNull()
+                next if nx51.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for last position): ")
+                if ordinal != "" then
+                    ordinal = ordinal.to_f
+                else
+                    ordinal = Nx51s::getNextOrdinal()
+                end
+                nx51["ordinal"] = ordinal
+                Nx51s::commitNx51ToDisk(nx51)
+            end
         }
     end
 end

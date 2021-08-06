@@ -52,4 +52,24 @@ class Work
         return false if [0, 6].include?(Time.new.wday)
         isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 17)
     end
+
+    # Work::operations()
+    def self.operations()
+        loop {
+            puts "work ops: work on | work off | work off until".yellow
+            print "> (empty to exit) "
+            command = STDIN.gets().strip
+            break if command == ""
+            if command == "work on" then
+                KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+            end
+            if command == "work off" then
+                KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+            end
+            if command == "work off until" then
+                n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
+                KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
+            end
+        }
+    end
 end
