@@ -401,7 +401,9 @@ class Nx50s
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
-        return nil if (Nx50s::hoursOverThePast21Days(nx50) > 10 and Nx50s::hoursDoneSinceLastSaturday(nx50) > 5)
+        hs1 = Nx50s::hoursDoneSinceLastSaturday(nx50)
+        hs2 = Nx50s::hoursOverThePast21Days(nx50)
+        return nil if (hs1 > 5 or hs2 > 10)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > 1
         announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
@@ -415,7 +417,9 @@ class Nx50s
                 end
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "rt"      => rt
+            "rt"      => rt,
+            "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
+            "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
         }
     end
 
@@ -425,11 +429,7 @@ class Nx50s
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        rtForComparison = lambda{|rt|
-            (rt == 0) ? 0.4 : rt
-        }
-
-        ns16s = Nx50s::nx50s().reduce([]){|ns16s, nx50|
+        Nx50s::nx50s().reduce([]){|ns16s, nx50|
             if ns16s.size < 3 then
                 ns16 = Nx50s::ns16OrNull(nx50)
                 if ns16 then
@@ -438,8 +438,6 @@ class Nx50s
             end
             ns16s
         }
-
-        ns16s.sort{|n1, n2| rtForComparison.call(n1["rt"]) <=> rtForComparison.call(n2["rt"]) }
     end
 
     # --------------------------------------------------
