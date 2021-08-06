@@ -1,0 +1,15 @@
+
+NyxEntity (common attributes)
+    - uuid       : String
+    - entityType : String
+    - datetime   : DateTime Iso 8601 UTC Zulu
+
+    - taxonomy   : (EntityTaxonomy) # present only in NxNode, NxDataCarrier, NxUniqueString
+
+NyxEntity is currently implemented by 
+    NxNode
+    NxAsteroid     (Nx45)
+    NxDataCarrier  (Nx10)
+    NxDirectory2
+    NxUniqueString (Nx27)
+

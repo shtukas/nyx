@@ -8,6 +8,6 @@ require_relative "Libs/loader.rb"
 
 exit if ARGV[0].nil?
 entityId = ARGV[0]
-entity = NxEntitiesgetEntityByIdOrNull(entityId)
+entity = NyxEntities::getEntityByIdOrNull(entityId)
 exit if entity.nil?
-NxEntitieslanding(entity)
+NyxEntities::landing(entity)

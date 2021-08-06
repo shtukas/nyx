@@ -8,12 +8,12 @@ class NxUniqueString
         "#{Config::nyxFolderPath()}/nx27s.sqlite3"
     end
 
-    # NxUniqueString::insertNewNx27(uuid, datetime, description, uniquestring)
-    def self.insertNewNx27(uuid, datetime, description, uniquestring)
+    # NxUniqueString::insertNewNx27(uuid, datetime, description, uniquestring, taxonomy)
+    def self.insertNewNx27(uuid, datetime, description, uniquestring, taxonomy)
         db = SQLite3::Database.new(NxUniqueString::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _description_, _payload1_) values (?,?,?,?)", [uuid, datetime, description, uniquestring]
+        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _description_, _uniquestring_, _taxonomy_) values (?,?,?,?,?)", [uuid, datetime, description, uniquestring, taxonomy]
         db.close
     end
 
@@ -33,7 +33,8 @@ class NxUniqueString
             "entityType"   => "Nx27",
             "datetime"     => row["_datetime_"],
             "description"  => row["_description_"],
-            "uniquestring" => row["_payload1_"],
+            "uniquestring" => row["_uniquestring_"],
+            "taxonomy"     => row["_taxonomy_"],
         }
     end
 
@@ -58,7 +59,8 @@ class NxUniqueString
         return nil if description == ""
         uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
         return nil if uniquestring == ""
-        NxUniqueString::insertNewNx27(uuid, Time.new.utc.iso8601, description, uniquestring)
+        taxonomy = EntityTaxonomy::selectEntityTaxonomyUseDefaultIfNull()
+        NxUniqueString::insertNewNx27(uuid, Time.new.utc.iso8601, description, uniquestring, taxonomy)
         NxUniqueString::getNx27ByIdOrNull(uuid)
     end
 
@@ -90,7 +92,7 @@ class NxUniqueString
         db = SQLite3::Database.new(NxUniqueString::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "update _nx27s_ set _payload1_=? where _uuid_=?", [payload1, uuid]
+        db.execute "update _nx27s_ set _uniquestring_=? where _uuid_=?", [payload1, uuid]
         db.close
     end
 
@@ -135,17 +137,18 @@ class NxUniqueString
             system("clear")
 
             puts NxUniqueString::toString(nx27).green
+            puts "taxonomy: #{nx27["taxonomy"]}".yellow
             puts ""
 
             entities = Links::entities(nx27["uuid"])
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}" }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NyxEntities::toString(entity)}" }
 
             puts ""
 
-            puts "access | edit | update description | connect | disconnect | destroy".yellow
+            puts "access | update description | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -154,7 +157,7 @@ class NxUniqueString
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = entities[indx]
                 next if entity.nil?
-                NxEntitieslanding(entity)
+                NyxEntities::landing(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -172,11 +175,11 @@ class NxUniqueString
             end
 
             if Interpreting::match("connect", command) then
-                NxEntitieslinkToOtherArchitectured(nx27)
+                NyxEntitieslinkToOtherArchitectured(nx27)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntitiesunlinkFromOther(nx27)
+                NyxEntitiesunlinkFromOther(nx27)
             end
 
             if Interpreting::match("destroy", command) then

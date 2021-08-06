@@ -6,6 +6,6 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-entity = NxEntitiesinteractivelyCreateNewEntityOrNull()
+entity = NyxEntities::interactivelyCreateNewEntityOrNull()
 exit if entity.nil?
-NxEntitieslanding(entity)
+NyxEntities::landing(entity)

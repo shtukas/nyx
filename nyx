@@ -8,39 +8,23 @@ require_relative "Libs/loader.rb"
 
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "data sources listing and dive", "node taxonomy listing and dive", "generate unique-string", "fsck"]
+        operations = ["search", "insert new entity", "taxonomy listing and dive", "generate unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
             Search::searchLoop()
         end
         if operation == "insert new entity" then
-            entity = NxEntitiesinteractivelyCreateNewEntityOrNull()
+            entity = NyxEntities::interactivelyCreateNewEntityOrNull()
             exit if entity.nil?
-            NxEntitieslanding(entity)
+            NyxEntities::landing(entity)
         end
-        if operation == "data sources listing and dive" then
+        if operation == "taxonomy listing and dive" then
             loop {
-                types = ["NxAsteroid", "NxDirectory2", "NxUniqueString"]
-                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
-                break if type.nil?
-                if type == "NxAsteroid" then
-                    NxEntitiesentitiesDive(NxAsteroid::nx45s())
-                end
-                if type == "NxDirectory2" then
-                    NxEntitiesentitiesDive(NxDirectory2::directories())
-                end
-                if type == "NxUniqueString" then
-                    NxEntitiesentitiesDive(NxUniqueString::nx27s())
-                end
-            }
-        end
-        if operation == "node taxonomy listing and dive" then
-            loop {
-                taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
+                taxonomy = EntityTaxonomy::selectEntityTaxonomyOrNull()
                 break if taxonomy.nil?
-                nodes = NxNode::nx10s().select{|node| node["taxonomy"] == taxonomy }
-                NxEntitiesentitiesDive(nodes)
+                nodes = NxDataCarrier::nx10s().select{|node| node["taxonomy"] and (node["taxonomy"] == taxonomy)}
+                NyxEntities::entitiesDive(nodes)
             }
         end
         if operation == "generate unique-string" then

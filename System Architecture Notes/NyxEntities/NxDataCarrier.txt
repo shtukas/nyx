@@ -1,0 +1,14 @@
+
+CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text, _taxonomy_ text, _contentType_ text, _contentPayload_ text);
+nx10s.sqlite3
+
+NxDataCarrier
+{
+    "uuid"            : String
+    "entityType"      : "Nx10"
+    "datetime"        : DateTime Iso 8601 UTC Zulu
+    "description"     : String
+    "taxonomy"        : (EntityTaxonomy)
+    "contentType"     : String
+    "contentPayload"  : String
+}

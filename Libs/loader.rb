@@ -69,6 +69,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
+require "/Users/pascal/Galaxy/Software/Axion/Axion.rb"
+
 # ------------------------------------------------------------
 
 require_relative "BinaryBlobsService.rb"
@@ -76,6 +78,7 @@ require_relative "BinaryBlobsService.rb"
 require_relative "Config.rb"
 
 require_relative "Elizabeth.rb"
+require_relative "EntityTaxonomy.rb"
 
 require_relative "Fsck.rb"
 
@@ -83,13 +86,12 @@ require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"
 
-require_relative "NxNode.rb"
+require_relative "NxDataCarrier.rb"
 require_relative "NxUniqueString.rb"
 require_relative "NxAsteroid.rb"
-
-require_relative "NxEntities.rb"
-
+require_relative "NyxEntities.rb"
 require_relative "NxDirectory2.rb"
+require_relative "NxNode.rb"
 
 require_relative "Links.rb"
 

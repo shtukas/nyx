@@ -1,0 +1,15 @@
+
+nxnodes.sqlite
+CREATE TABLE _nxnodes_ (_uuid_ text, _datetime_ text, _denomination_ text);
+
+
+NxNodes are anchors of the Nyx network. They carry concept, people and entity names.
+
+NxNode
+{
+    "uuid"         : String
+    "entityType"   : "NxNode"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "taxonomy"     : "TxNode"
+    "denomination" : String
+}

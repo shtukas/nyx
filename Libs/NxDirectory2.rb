@@ -113,14 +113,6 @@ class NxDirectory2
         directoryIds.map{|id| NxDirectory2::directoryIdToNxDirectory2OrNull(id) }.compact
     end
 
-    # NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
-    def self.interactivelyRegisterNewNxDirectoryOrNull()
-        directoryId = LucilleCore::askQuestionAnswerAsString("directoryId (empty to abort): ")
-        return nil if directoryId == ""
-        NxDirectory2::register(directoryId)
-        NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
-    end
-
     # ----------------------------------------------------------------------
 
     # NxDirectory2::toString(object)
@@ -159,7 +151,7 @@ class NxDirectory2
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each_with_index{|entity, indx| 
                     connected << entity
-                    puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}"
+                    puts "[#{indx}] [linked] #{NyxEntities::toString(entity)}"
                 }
 
             puts ""
@@ -173,7 +165,7 @@ class NxDirectory2
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = connected[indx]
                 next if entity.nil?
-                NxEntitieslanding(entity)
+                NyxEntities::landing(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -187,11 +179,11 @@ class NxDirectory2
             end
 
             if Interpreting::match("connect", command) then
-                NxEntitieslinkToOtherArchitectured(directory)
+                NyxEntitieslinkToOtherArchitectured(directory)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntitiesunlinkFromOther(directory)
+                NyxEntitiesunlinkFromOther(directory)
             end
 
             if Interpreting::match("destroy", command) then

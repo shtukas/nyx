@@ -1,182 +1,121 @@
 
 # encoding: UTF-8
 
-class NodeTaxonomy
-
-    # NodeTaxonomy::taxonomys()
-    def self.taxonomys()
-        [
-            "NxUndefined",
-            "NxPersonalDiary",
-            "NxPersonalCalendar",
-            "NxPersonalEvent",
-            "NxTravelAndEntertainmentDocuments",
-            "NxPublicEvent",
-            "NxInformation",
-            "NxExplanation",
-            "NxFunny"
-        ]
-    end
-
-    # NodeTaxonomy::selectNodeTaxonomyOrNull()
-    def self.selectNodeTaxonomyOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node taxonomy:", NodeTaxonomy::taxonomys())
-    end
-end
-
 class NxNode
 
     # NxNode::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::nyxFolderPath()}/nx10s.sqlite3"
+        "#{Config::nyxFolderPath()}/nxnodes.sqlite3"
     end
 
-    # NxNode::insertNewNx10(uuid, datetime, description, taxonomy, axionuuid)
-    def self.insertNewNx10(uuid, datetime, description, taxonomy, axionuuid)
+    # NxNode::insertNewNxNode(uuid, datetime, denomination)
+    def self.insertNewNxNode(uuid, datetime, denomination)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx10s_ (_uuid_, _datetime_, _description_, _taxonomy_, _axionuuid_) values (?,?,?,?,?)", [uuid, datetime, description, taxonomy, axionuuid]
+        db.execute "insert into _nxnodes_ (_uuid_, _datetime_, _denomination_) values (?,?,?)", [uuid, datetime, denomination]
         db.close
     end
 
-    # NxNode::destroyNx10(uuid)
-    def self.destroyNx10(uuid)
+    # NxNode::destroyNxNode(uuid)
+    def self.destroyNxNode(uuid)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "delete from _nx10s_ where _uuid_=?", [uuid]
+        db.execute "delete from _nxnodes_ where _uuid_=?", [uuid]
         db.close
     end
 
-    # NxNode::getNx10ByIdOrNull(id): null or Nx10
-    def self.getNx10ByIdOrNull(id)
+    # NxNode::tableHashRowToNxNode(row)
+    def self.tableHashRowToNxNode(row)
+        return {
+            "uuid"         => row["_uuid_"],
+            "entityType"   => "NxNode",
+            "datetime"     => row["_datetime_"],
+            "taxonomy"     => "TxNode",
+            "denomination" => row["_denomination_"],
+        }
+    end
+
+    # NxNode::getNxNodeByIdOrNull(uuid): null or NxNode
+    def self.getNxNodeByIdOrNull(uuid)
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute( "select * from _nx10s_ where _uuid_=?" , [id] ) do |row|
-            obj = {
-                "uuid"        => row["_uuid_"],
-                "entityType"  => "Nx10",
-                "datetime"    => row["_datetime_"],
-                "description" => row["_description_"],
-                "taxonomy"    => row["_taxonomy_"],
-                "axionuuid"   => row["_axionuuid_"]
-            }
-            if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
-                obj["taxonomy"] = "NxUndefined"
-            end
-            answer = obj
+        db.execute( "select * from _nxnodes_ where _uuid_=?" , [uuid] ) do |row|
+            answer = NxNode::tableHashRowToNxNode(row)
         end
         db.close
         answer
     end
 
-    # NxNode::interactivelyCreateNewNx10OrNull()
-    def self.interactivelyCreateNewNx10OrNull()
+    # NxNode::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
-        return if taxonomy.nil?
-        NxNode::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy, nil)
-        NxNode::getNx10ByIdOrNull(uuid)
+        denomination = LucilleCore::askQuestionAnswerAsString("denomination (empty to abort): ")
+        return nil if denomination == ""
+        NxNode::insertNewNxNode(uuid, Time.new.utc.iso8601, denomination)
+        NxNode::getNxNodeByIdOrNull(uuid)
     end
 
-    # NxNode::updateDescription(uuid, description)
-    def self.updateDescription(uuid, description)
-        db = SQLite3::Database.new(NxNode::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "update _nx10s_ set _description_=? where _uuid_=?", [description, uuid]
-        db.close
-    end
-
-    # NxNode::updateNodeTaxonomy(uuid, taxonomy)
-    def self.updateNodeTaxonomy(uuid, taxonomy)
-        db = SQLite3::Database.new(NxNode::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "update _nx10s_ set _taxonomy_=? where _uuid_=?", [taxonomy, uuid]
-        db.close
-    end
-
-    # NxNode::updateNodeAxionUUID(uuid, axionuuid)
-    def self.updateNodeTaxonomy(uuid, axionuuid)
-        db = SQLite3::Database.new(NxNode::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "update _nx10s_ set _axionuuid_=? where _uuid_=?", [axionuuid, uuid]
-        db.close
-    end
-
-    # NxNode::nx10s(): Array[Nx10]
-    def self.nx10s()
+    # NxNode::nxnodes(): Array[NxNode]
+    def self.nxnodes()
         db = SQLite3::Database.new(NxNode::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _nx10s_" , [] ) do |row|
-            obj = {
-                "uuid"        => row["_uuid_"],
-                "entityType"  => "Nx10",
-                "datetime"    => row["_datetime_"],
-                "description" => row["_description_"],
-                "taxonomy"    => row["_taxonomy_"],
-                "axionuuid"   => row["_axionuuid_"]
-            }
-            if !NodeTaxonomy::taxonomys().include?(obj["taxonomy"]) then
-                obj["taxonomy"] = "NxUndefined"
-            end
-            answer << obj
+        db.execute( "select * from _nxnodes_" , [] ) do |row|
+            answer << NxNode::tableHashRowToNxNode(row)
         end
         db.close
         answer
     end
 
+    # NxNode::updateDenomination(uuid, denomination)
+    def self.updateDenomination(uuid, denomination)
+        db = SQLite3::Database.new(NxNode::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _nxnodes_ set _denomination_=? where _uuid_=?", [denomination, uuid]
+        db.close
+    end
+
     # ----------------------------------------------------------------------
 
-    # NxNode::toString(nx10)
-    def self.toString(nx10)
-        "[node] #{nx10["description"]}"
+    # NxNode::toString(nxnode)
+    def self.toString(nxnode)
+        "[node] #{nxnode["denomination"]}"
     end
 
-    # NxNode::selectOneNx10OrNull()
-    def self.selectOneNx10OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxNode::nx10s(), lambda{|nx10| NxNode::toString(nx10) })
+    # NxNode::access(nxnode)
+    def self.access(nxnode)
+        puts NxNode::toString(nxnode)
+        LucilleCore::pressEnterToContinue()
     end
 
-    # NxNode::architectOneNx10OrNull()
-    def self.architectOneNx10OrNull()
-        nx10 = NxNode::selectOneNx10OrNull()
-        return nx10 if nx10
-        NxNode::interactivelyCreateNewNx10OrNull()
-    end
-
-    # NxNode::landing(nx10)
-    def self.landing(nx10)
+    # NxNode::landing(nxnode)
+    def self.landing(nxnode)
         loop {
-            nx10 = NxNode::getNx10ByIdOrNull(nx10["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if nx10.nil?
+            nxnode = NxNode::getNxNodeByIdOrNull(nxnode["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if nxnode.nil?
             system("clear")
 
-            puts NxNode::toString(nx10).green
-            puts "uuid: #{nx10["uuid"]}".yellow
-            puts "node taxonomy: #{nx10["taxonomy"]}".yellow
+            puts NxNode::toString(nxnode).green
+            puts "taxonomy: #{nxnode["taxonomy"]}".yellow
             puts ""
 
-            entities = Links::entities(nx10["uuid"])
+            entities = Links::entities(nxnode["uuid"])
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}" }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NyxEntities::toString(entity)}" }
 
             puts ""
 
-            puts "update description | update node taxonomy | connect | disconnect | destroy".yellow
+            puts "access | update denomination | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -185,32 +124,30 @@ class NxNode
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = entities[indx]
                 next if entity.nil?
-                NxEntitieslanding(entity)
+                NyxEntities::landing(entity)
             end
 
-            if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(nx10["description"]).strip
-                return if description == ""
-                NxNode::updateDescription(nx10["uuid"], description)
+            if Interpreting::match("access", command) then
+                NxNode::access(nxnode)
             end
 
-            if Interpreting::match("update node taxonomy", command) then
-                taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
-                return if taxonomy.nil?
-                NxNode::updateNodeTaxonomy(nx10["uuid"], taxonomy)
+            if Interpreting::match("update denomination", command) then
+                denomination = Utils::editTextSynchronously(nxnode["denomination"]).strip
+                return if denomination == ""
+                NxNode::updateDenomination(nxnode["uuid"], denomination)
             end
 
             if Interpreting::match("connect", command) then
-                NxEntitieslinkToOtherArchitectured(nx10)
+                NyxEntitieslinkToOtherArchitectured(nxnode)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntitiesunlinkFromOther(nx10)
+                NyxEntitiesunlinkFromOther(nxnode)
             end
 
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxNode::destroyNx10(nx10["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                    NxNode::destroyNxNode(nxnode["uuid"])
                 end
             end
         }
@@ -218,12 +155,12 @@ class NxNode
 
     # NxNode::nx19s()
     def self.nx19s()
-        NxNode::nx10s().map{|nx10|
+        NxNode::nxnodes().map{|nxnode|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{NxNode::toString(nx10)}",
-                "type"     => "Nx10",
-                "payload"  => nx10
+                "announce" => "#{volatileuuid} #{NxNode::toString(nxnode)}",
+                "type"     => "NxNode",
+                "payload"  => nxnode
             }
         }
     end

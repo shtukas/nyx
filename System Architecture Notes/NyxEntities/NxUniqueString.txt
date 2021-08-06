@@ -1,0 +1,13 @@
+
+sqlite> .schema
+CREATE TABLE _nx27s_ (_uuid_ text, _DoNotUse1_, _datetime_ text, _type_ text, _description_ text, _uniquestring_ text, colum _taxonomy_ text);
+
+Nx27 (Unique String Reference)
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "uniquestring" : String
+    "taxonomy"     : (EntityTaxonomy)
+}

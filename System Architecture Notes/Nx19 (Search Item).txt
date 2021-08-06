@@ -1,4 +1,4 @@
-Nx19
+Nx19 
 {
     "announce" : String
     "type"     : String
