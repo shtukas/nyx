@@ -24,10 +24,13 @@ class Search
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            nx19 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
-            next if nx19.nil?
-            system('clear')
-            nx19["lambda"].call()
+            loop {
+                system('clear')
+                nx19 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
+                break if nx19.nil?
+                system('clear')
+                nx19["lambda"].call()
+            }
         }
     end
 end
