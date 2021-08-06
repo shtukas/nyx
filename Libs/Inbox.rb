@@ -53,7 +53,9 @@ class InboxLines
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                CatalystDatabase::delete(uuid)
+                if LucilleCore::askQuestionAnswerAsBoolean("done: '#{description}' ? ", true) then
+                    CatalystDatabase::delete(uuid)
+                end
                 break
             end
 
@@ -164,7 +166,9 @@ class InboxFiles
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                LucilleCore::removeFileSystemLocation(location)
+                if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
+                    CatalystDatabase::delete(uuid)
+                end
                 break
             end
 
