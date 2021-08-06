@@ -102,7 +102,7 @@ class Nx50s
             return nil
         end
 
-        coordinates = Axion::interactivelyIssueNewCoordinatesOrNullNoLine()
+        coordinates = Axion::issueNx50UsingInboxLineInteractive()
 
         unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
 

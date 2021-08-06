@@ -68,7 +68,7 @@ class Nx51s
             return nil
         end
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNullNoLine()
+        coordinates  = Axion::issueNx50UsingInboxLineInteractive()
 
         ordinal      = Nx51s::decideOrdinal(description)
 
