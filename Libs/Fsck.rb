@@ -35,7 +35,7 @@ class Fsck
 
     # Fsck::fsckEntities()
     def self.fsckEntities()
-        NxEntity::entities().each{|entity|
+        NxEntitiesentities().each{|entity|
             puts "checking: uuid: #{entity["uuid"]}, #{entity["entityType"]}"
             status = Fsck::checkEntity(entity)
             if !status then

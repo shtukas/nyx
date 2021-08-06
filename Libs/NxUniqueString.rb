@@ -141,7 +141,7 @@ class NxUniqueString
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}" }
 
             puts ""
 
@@ -154,7 +154,7 @@ class NxUniqueString
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = entities[indx]
                 next if entity.nil?
-                NxEntity::landing(entity)
+                NxEntitieslanding(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -172,11 +172,11 @@ class NxUniqueString
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(nx27)
+                NxEntitieslinkToOtherArchitectured(nx27)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(nx27)
+                NxEntitiesunlinkFromOther(nx27)
             end
 
             if Interpreting::match("destroy", command) then

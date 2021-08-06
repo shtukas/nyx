@@ -15,9 +15,9 @@ def mainLoop()
             Search::searchLoop()
         end
         if operation == "insert new entity" then
-            entity = NxEntity::interactivelyCreateNewEntityOrNull()
+            entity = NxEntitiesinteractivelyCreateNewEntityOrNull()
             exit if entity.nil?
-            NxEntity::landing(entity)
+            NxEntitieslanding(entity)
         end
         if operation == "data sources listing and dive" then
             loop {
@@ -25,13 +25,13 @@ def mainLoop()
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", types)
                 break if type.nil?
                 if type == "NxAsteroid" then
-                    NxEntity::entitiesDive(NxAsteroid::nx45s())
+                    NxEntitiesentitiesDive(NxAsteroid::nx45s())
                 end
                 if type == "NxDirectory2" then
-                    NxEntity::entitiesDive(NxDirectory2::directories())
+                    NxEntitiesentitiesDive(NxDirectory2::directories())
                 end
                 if type == "NxUniqueString" then
-                    NxEntity::entitiesDive(NxUniqueString::nx27s())
+                    NxEntitiesentitiesDive(NxUniqueString::nx27s())
                 end
             }
         end
@@ -40,7 +40,7 @@ def mainLoop()
                 taxonomy = NodeTaxonomy::selectNodeTaxonomyOrNull()
                 break if taxonomy.nil?
                 nodes = NxNode::nx10s().select{|node| node["taxonomy"] == taxonomy }
-                NxEntity::entitiesDive(nodes)
+                NxEntitiesentitiesDive(nodes)
             }
         end
         if operation == "generate unique-string" then

@@ -60,7 +60,7 @@ class Links
     # Links::entities(uuid)
     def self.entities(uuid)
         Links::uuids(uuid)
-            .map{|uuid| NxEntity::getEntityByIdOrNull(uuid) }
+            .map{|uuid| NxEntitiesgetEntityByIdOrNull(uuid) }
             .compact
     end
 end

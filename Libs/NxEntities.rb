@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class NxEntity
+class NxEntities
 
-    # NxEntity::getEntityByIdOrNull(uuid)
+    # NxEntitiesgetEntityByIdOrNull(uuid)
     def self.getEntityByIdOrNull(uuid)
         entity = NxUniqueString::getNx27ByIdOrNull(uuid)
         return entity if entity
@@ -16,7 +16,7 @@ class NxEntity
         nil
     end
 
-    # NxEntity::toString(entity)
+    # NxEntitiestoString(entity)
     def self.toString(entity)
         if entity["entityType"] == "Nx27" then
             return NxUniqueString::toString(entity)
@@ -33,7 +33,7 @@ class NxEntity
         raise "1f4f2950-acf2-4136-ba09-7a180338393f"
     end
 
-    # NxEntity::landing(entity)
+    # NxEntitieslanding(entity)
     def self.landing(entity)
         if entity["entityType"] == "Nx27" then
             return NxUniqueString::landing(entity)
@@ -50,7 +50,7 @@ class NxEntity
         raise "252103a9-c5f5-4206-92d7-c01fc91f8a06"
     end
 
-    # NxEntity::entities()
+    # NxEntitiesentities()
     def self.entities()
         NxUniqueString::nx27s() +
         NxNode::nx10s() +
@@ -58,14 +58,14 @@ class NxEntity
         NxDirectory2::directories()
     end
 
-    # NxEntity::selectExistingEntityOrNull()
+    # NxEntitiesselectExistingEntityOrNull()
     def self.selectExistingEntityOrNull()
-        nx19 = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxEntity::entities(), lambda{|entity| NxEntity::toString(entity) })
+        nx19 = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxEntitiesentities(), lambda{|entity| NxEntitiestoString(entity) })
         return nil if nx19.nil?
         nx19
     end
 
-    # NxEntity::interactivelyCreateNewEntityOrNull()
+    # NxEntitiesinteractivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "NxDirectory2"])
         return nil if type.nil?
@@ -90,7 +90,7 @@ class NxEntity
         raise "1902268c-f5e3-45fb-bcf5-573f4c14f160"
     end
 
-    # NxEntity::architectEntityOrNull()
+    # NxEntitiesarchitectEntityOrNull()
     def self.architectEntityOrNull()
         operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -98,43 +98,43 @@ class NxEntity
         if operation == "existing || new" then
             puts "-> existing"
             sleep 1
-            entity = NxEntity::selectExistingEntityOrNull()
+            entity = NxEntitiesselectExistingEntityOrNull()
             return entity if entity
             puts "-> new"
             sleep 1
-            return NxEntity::interactivelyCreateNewEntityOrNull()
+            return NxEntitiesinteractivelyCreateNewEntityOrNull()
         end
         if operation == "new" then
-            return NxEntity::interactivelyCreateNewEntityOrNull()
+            return NxEntitiesinteractivelyCreateNewEntityOrNull()
         end
     end
 
-    # NxEntity::entitiesDive(entities)
+    # NxEntitiesentitiesDive(entities)
     def self.entitiesDive(entities)
         loop {
-            entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity:", entities, lambda{|entity| NxEntity::toString(entity) })
+            entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity:", entities, lambda{|entity| NxEntitiestoString(entity) })
             break if entity.nil?
-            NxEntity::landing(entity)
+            NxEntitieslanding(entity)
         }
     end
 
     # -- links -----------------------------------------------
 
-    # NxEntity::linkToOtherArchitectured(entity)
+    # NxEntitieslinkToOtherArchitectured(entity)
     def self.linkToOtherArchitectured(entity)
-        other = NxEntity::architectEntityOrNull()
+        other = NxEntitiesarchitectEntityOrNull()
         return if other.nil?
         Links::insert(entity["uuid"], other["uuid"])
     end
 
-    # NxEntity::linked(entity)
+    # NxEntitieslinked(entity)
     def self.linked(entity)
          Links::entities(entity["uuid"])
     end
 
-    # NxEntity::unlinkFromOther(entity)
+    # NxEntitiesunlinkFromOther(entity)
     def self.unlinkFromOther(entity)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NxEntity::linked(entity))
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NxEntitieslinked(entity))
         return if other.nil?
         Links::delete(entity["uuid"], other["uuid"])
     end

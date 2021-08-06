@@ -172,7 +172,7 @@ class NxNode
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}" }
 
             puts ""
 
@@ -185,7 +185,7 @@ class NxNode
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = entities[indx]
                 next if entity.nil?
-                NxEntity::landing(entity)
+                NxEntitieslanding(entity)
             end
 
             if Interpreting::match("update description", command) then
@@ -201,11 +201,11 @@ class NxNode
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(nx10)
+                NxEntitieslinkToOtherArchitectured(nx10)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(nx10)
+                NxEntitiesunlinkFromOther(nx10)
             end
 
             if Interpreting::match("destroy", command) then

@@ -87,7 +87,7 @@ require_relative "NxNode.rb"
 require_relative "NxUniqueString.rb"
 require_relative "NxAsteroid.rb"
 
-require_relative "NxEntity.rb"
+require_relative "NxEntities.rb"
 
 require_relative "NxDirectory2.rb"
 

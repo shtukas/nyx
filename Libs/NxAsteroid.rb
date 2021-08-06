@@ -299,7 +299,7 @@ class NxAsteroid
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}" }
 
             puts ""
 
@@ -312,7 +312,7 @@ class NxAsteroid
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = entities[indx]
                 next if entity.nil?
-                NxEntity::landing(entity)
+                NxEntitieslanding(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -326,11 +326,11 @@ class NxAsteroid
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(nx45)
+                NxEntitieslinkToOtherArchitectured(nx45)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(nx45)
+                NxEntitiesunlinkFromOther(nx45)
             end
         }
     end

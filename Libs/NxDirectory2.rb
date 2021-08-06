@@ -159,7 +159,7 @@ class NxDirectory2
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each_with_index{|entity, indx| 
                     connected << entity
-                    puts "[#{indx}] [linked] #{NxEntity::toString(entity)}"
+                    puts "[#{indx}] [linked] #{NxEntitiestoString(entity)}"
                 }
 
             puts ""
@@ -173,7 +173,7 @@ class NxDirectory2
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = connected[indx]
                 next if entity.nil?
-                NxEntity::landing(entity)
+                NxEntitieslanding(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -187,11 +187,11 @@ class NxDirectory2
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(directory)
+                NxEntitieslinkToOtherArchitectured(directory)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(directory)
+                NxEntitiesunlinkFromOther(directory)
             end
 
             if Interpreting::match("destroy", command) then
