@@ -25,7 +25,7 @@ class Nx51s
     def self.databaseItemToNx51(item)
         item["contentType"]    = item["payload1"]
         item["contentPayload"] = item["payload2"]
-        item["ordinal"]        = item["payload3"]
+        item["ordinal"]        = item["payload3"].to_f # 😬
         item
     end
 
@@ -105,9 +105,9 @@ class Nx51s
         unixtime     = Time.new.to_f
         description  = line
         catalystType = "Nx51"
-        payload1     = "line"
+        payload1     = nil
         payload2     = nil
-        payload3     = nil
+        payload3     = Nx51s::decideOrdinal(description)
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx51s::getNx51ByUUIDOrNull(uuid)
     end
@@ -167,7 +167,6 @@ class Nx51s
 
     # Nx51s::access(nx51)
     def self.access(nx51)
-
         uuid = nx51["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
@@ -336,10 +335,15 @@ class Nx51s
     # Nx51s::operations()
     def self.operations()
         loop {
-            puts "Nx51 Ops: (select item and) update ordinal".yellow
+            puts "Nx51 Ops: dive | (select item and) update ordinal".yellow
             print "> (empty to exit) "
             command = STDIN.gets().strip
             break if command == ""
+            if command == "dive" then
+                nx51 = Nx51s::selectOneNx51OrNull()
+                next if nx51.nil?
+                Nx51s::access(nx51)
+            end
             if command == "update ordinal" then
                 nx51 = Nx51s::selectOneNx51OrNull()
                 next if nx51.nil?

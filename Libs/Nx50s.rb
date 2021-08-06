@@ -197,7 +197,7 @@ class Nx50s
         unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
         description  = line
         catalystType = "Nx50"
-        payload1     = "line"
+        payload1     = nil
         payload2     = nil
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
