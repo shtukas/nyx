@@ -191,14 +191,14 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingInboxTextInteractive(text)
-    def self.issueNx50UsingInboxTextInteractive(text)
+    # Nx50s::issueNx50UsingInboxLineInteractive(line)
+    def self.issueNx50UsingInboxLineInteractive(line)
         uuid         = SecureRandom.uuid
         unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        description  = line
         catalystType = "Nx50"
-        payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(text)
+        payload1     = "line"
+        payload2     = nil
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::getNx50ByUUIDOrNull(uuid)

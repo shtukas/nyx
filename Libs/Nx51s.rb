@@ -99,15 +99,15 @@ class Nx51s
         LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
     end
 
-    # Nx51s::issueNx51UsingInboxTextInteractive(text)
-    def self.issueNx51UsingInboxTextInteractive(text)
+    # Nx51s::issueNx51UsingInboxLineInteractive(line)
+    def self.issueNx51UsingInboxLineInteractive(line)
         uuid         = SecureRandom.uuid
         unixtime     = Time.new.to_f
-        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        description  = line
         catalystType = "Nx51"
-        payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(text)
-        payload3     = Nx51s::interactivelyDetermineNewItemOrdinal()
+        payload1     = "line"
+        payload2     = nil
+        payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx51s::getNx51ByUUIDOrNull(uuid)
     end

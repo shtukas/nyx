@@ -61,12 +61,12 @@ class InboxLines
                 domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
                 return if domain.nil?
                 if domain == "Nx50s" then
-                    Nx50s::issueNx50UsingInboxTextInteractive(description)
+                    Nx50s::issueNx50UsingInboxLineInteractive(description)
                     CatalystDatabase::delete(uuid)
                     break
                 end
                 if domain == "Nx51s" then
-                    Nx51s::issueNx51UsingInboxTextInteractive(description)
+                    Nx51s::issueNx51UsingInboxLineInteractive(description)
                     CatalystDatabase::delete(uuid)
                     break
                 end
