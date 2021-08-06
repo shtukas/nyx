@@ -69,7 +69,9 @@ class UIServices
 
         if Interpreting::match("ondate", command) then
             nx31 = NxOnDate::interactivelyIssueNewOrNull()
-            puts JSON.pretty_generate(nx31)
+            if nx31 then
+                puts JSON.pretty_generate(nx31)
+            end
         end
 
         if Interpreting::match("calendar item", command) then
