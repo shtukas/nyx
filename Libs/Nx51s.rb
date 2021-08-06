@@ -1,24 +1,5 @@
 # encoding: UTF-8
 
-=begin
-
-{
-    "uuid"         => String
-    "unixtime"     => Float
-    "description"  => String
-    "catalystType" => "quark" | "Nx51"
-
-    "payload1" : String # contentType
-    "payload2" : String # contentPayload
-    "payload3" : Float  # ordinal
-
-    "contentType"    : payload1
-    "contentPayload" : payload2
-    "ordinal"        : payload3
-}
-
-=end
-
 class Nx51s
 
     # Nx51s::databaseItemToNx51(item)

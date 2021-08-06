@@ -1,54 +1,5 @@
 # encoding: UTF-8
 
-=begin
-
-{
-    "uuid"         => String
-    "unixtime"     => Float
-    "description"  => String
-    "catalystType" => "quark" | "Nx50"
-
-    "payload1" : String # contentType
-    "payload2" : String # contentPayload
-    "payload3" : nil
-
-    "contentType"    : payload1
-    "contentPayload" : payload2
-}
-
-=end
-
-=begin
-# -----------------------------------
-Saturation Simulation
-
-times = []
-
-def averageOverThePastNDays(times, n)
-    times.last(n).inject(0, :+).to_f/n
-end
-
-def computeRecoveryTime(times)
-    (1..7).map{|n| averageOverThePastNDays(times, n) }.max
-end
-
-def saturationRT(times)
-    timeInHours = times.last(14).inject(0, :+)
-    tx = timeInHours.to_f/10 # multiple of 10 hours over two weeks
-    Math.exp(-tx)
-end
-
-(0..100).each {|i|
-    saturation = saturationRT(times)
-    times << saturation
-    rt = computeRecoveryTime(times)
-    puts "saturation: #{saturation.round(2)}, rt: #{rt.round(2)}"
-    sleep 1
-}
-
-The above code was to convince myself that the value of the exponential wasn't too badly chosen. Interestingly the daily saturation converges to 0.5 :)
-=end
-
 class Nx50s
 
     # Nx50s::databaseItemToNx50(item)
@@ -61,13 +12,6 @@ class Nx50s
     # Nx50s::nx50s()
     def self.nx50s()
         CatalystDatabase::getItemsByCatalystType("Nx50").map{|item|
-            Nx50s::databaseItemToNx50(item)
-        }
-    end
-
-    # Nx50s::quarks()
-    def self.quarks()
-        CatalystDatabase::getItemsByCatalystType("quark").map{|item|
             Nx50s::databaseItemToNx50(item)
         }
     end
@@ -350,23 +294,6 @@ class Nx50s
 
         Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
     end
-    
-    # Nx50s::maintenance()
-    def self.maintenance()
-        if Nx50s::nx50s().size <= 30 then
-            Nx50s::quarks()
-                .sample(20)
-                .each{|item|
-                    db = SQLite3::Database.new(CatalystDatabase::databaseFilepath())
-                    db.busy_timeout = 117
-                    db.busy_handler { |count| true }
-                    db.transaction 
-                    db.execute "update _catalyst_ set _catalystType_=? where _uuid_=?", ["Nx50", item["uuid"]]
-                    db.commit 
-                    db.close
-                }
-        end
-    end
 
     # Nx50s::getCompletionLogUnixtimes()
     def self.getCompletionLogUnixtimes()
@@ -454,10 +381,3 @@ class Nx50s
         }
     end
 end
-
-Thread.new {
-    loop {
-        sleep 3600
-        Nx50s::maintenance()
-    }
-}
