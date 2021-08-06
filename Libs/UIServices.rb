@@ -169,12 +169,13 @@ class UIServices
                 "(Quarks: #{Nx50s::quarks().size} items)"
             ].join(" ").yellow
 
+            puts ""
+
             if !ns16s.empty? then
                 puts ".. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose".yellow
             end
 
             puts UIServices::mainMenuCommands().yellow
-            puts "domain overide".yellow
 
             puts ""
 
