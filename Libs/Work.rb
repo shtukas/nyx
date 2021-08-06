@@ -1,22 +1,5 @@
 # encoding: UTF-8
 
-=begin
-
-{
-    "uuid"         => String
-    "unixtime"     => Float
-    "description"  => String
-    "catalystType" => "Nx31"
-
-    "payload1" : "YYYY-MM-DD"
-    "payload2" :
-    "payload3" :
-
-    "date" : payload1
-}
-
-=end
-
 class Work
 
     # Work::bankaccount()

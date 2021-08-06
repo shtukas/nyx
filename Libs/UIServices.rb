@@ -21,7 +21,7 @@ class NS16sOperator
             [
                 DetachedRunning::ns16s(),
                 Calendar::ns16s(),
-                Nx31s::ns16s(),
+                NxOnDate::ns16s(),
                 PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
                 Nx51s::ns16s(),
             ]
@@ -34,7 +34,7 @@ class NS16sOperator
                 Anniversaries::ns16s(),
                 Calendar::ns16s(),
                 Fitness::ns16s(),
-                Nx31s::ns16s(),
+                NxOnDate::ns16s(),
                 PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
                 Waves::ns16s(),
                 Inbox::ns16s(),
@@ -68,7 +68,7 @@ class UIServices
         end
 
         if Interpreting::match("ondate", command) then
-            nx31 = Nx31s::interactivelyIssueNewOrNull()
+            nx31 = NxOnDate::interactivelyIssueNewOrNull()
             puts JSON.pretty_generate(nx31)
         end
 
@@ -91,7 +91,7 @@ class UIServices
         end
 
         if Interpreting::match("ondates", command) then
-            Nx31s::main()
+            NxOnDate::main()
         end
 
         if Interpreting::match("anniversaries", command) then

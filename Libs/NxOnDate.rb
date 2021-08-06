@@ -6,7 +6,7 @@
     "uuid"         => String
     "unixtime"     => Float
     "description"  => String
-    "catalystType" => "Nx31"
+    "catalystType" => "NxOnDate"
 
     "payload1" : "YYYY-MM-DD"
     "payload2" :
@@ -17,29 +17,29 @@
 
 =end
 
-class Nx31s # OnDate
+class NxOnDate # OnDate
 
-    # Nx31s::databaseItemToNx31(item)
-    def self.databaseItemToNx31(item)
+    # NxOnDate::databaseItemToNxOnDate(item)
+    def self.databaseItemToNxOnDate(item)
         item["date"] = item["payload1"]
         item
     end
 
-    # Nx31s::getNx31ByUUIDOrNull(uuid)
-    def self.getNx31ByUUIDOrNull(uuid)
+    # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
+    def self.getNxOnDateByUUIDOrNull(uuid)
         item = CatalystDatabase::getItemByUUIDOrNull(uuid)
         return nil if item.nil?
-        Nx31s::databaseItemToNx31(item)
+        NxOnDate::databaseItemToNxOnDate(item)
     end
 
-    # Nx31s::nx31s()
+    # NxOnDate::nx31s()
     def self.nx31s()
-        CatalystDatabase::getItemsByCatalystType("Nx31").map{|item|
-            Nx31s::databaseItemToNx31(item)
+        CatalystDatabase::getItemsByCatalystType("NxOnDate").map{|item|
+            NxOnDate::databaseItemToNxOnDate(item)
         }
     end
 
-    # Nx31s::interactivelySelectADateOrNull()
+    # NxOnDate::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
@@ -47,12 +47,12 @@ class Nx31s # OnDate
         Time.at(unixtime).to_s[0, 10]
     end
 
-    # Nx31s::commitNx31ToDisk(nx31)
-    def self.commitNx31ToDisk(nx31)
+    # NxOnDate::commitNxOnDateToDisk(nx31)
+    def self.commitNxOnDateToDisk(nx31)
         uuid         = nx31["uuid"]
         unixtime     = nx31["unixtime"]
         description  = nx31["description"]
-        catalystType = "Nx31"
+        catalystType = "NxOnDate"
         payload1     = nx31["date"]
         payload2     = nil 
         payload3     = nil
@@ -61,7 +61,7 @@ class Nx31s # OnDate
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
     end
 
-    # Nx31s::interactivelyIssueNewOrNull()
+    # NxOnDate::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
 
@@ -72,9 +72,9 @@ class Nx31s # OnDate
             return nil
         end
 
-        catalystType = "Nx31"
+        catalystType = "NxOnDate"
 
-        date = Nx31s::interactivelySelectADateOrNull()
+        date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
         payload1     = date
@@ -83,15 +83,15 @@ class Nx31s # OnDate
         
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
-        Nx31s::getNx31ByUUIDOrNull(uuid)
+        NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     end
 
-    # Nx31s::toString(nx31)
+    # NxOnDate::toString(nx31)
     def self.toString(nx31)
         "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
 
-    # Nx31s::access(nx31)
+    # NxOnDate::access(nx31)
     def self.access(nx31)
 
         uuid = nx31["uuid"]
@@ -100,18 +100,18 @@ class Nx31s # OnDate
 
         system("clear")
         
-        puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         loop {
 
-            nx31 = Nx31s::getNx31ByUUIDOrNull(nx31["uuid"])
+            nx31 = NxOnDate::getNxOnDateByUUIDOrNull(nx31["uuid"])
 
             return if nx31.nil?
 
             system("clear")
 
-            puts "running: #{Nx31s::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
             puts "note | [] | <datecode> | update date | detach running | done | exit".yellow
@@ -127,10 +127,10 @@ class Nx31s # OnDate
             end
 
             if Interpreting::match("update date", command) then
-                date = Nx31s::interactivelySelectADateOrNull()
+                date = NxOnDate::interactivelySelectADateOrNull()
                 next if date.nil?
                 nx31["date"] = date
-                Nx31s::commitNx31ToDisk(nx31)
+                NxOnDate::commitNxOnDateToDisk(nx31)
                 next
             end
 
@@ -146,7 +146,7 @@ class Nx31s # OnDate
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx31s::toString(nx31), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(NxOnDate::toString(nx31), Time.new.to_i, [uuid])
                 break
             end
 
@@ -160,39 +160,39 @@ class Nx31s # OnDate
         }
     end
 
-    # Nx31s::nx31ToNS16(nx31)
+    # NxOnDate::nx31ToNS16(nx31)
     def self.nx31ToNS16(nx31)
         {
             "uuid"     => nx31["uuid"],
-            "announce" => Nx31s::toString(nx31),
-            "access"   => lambda { Nx31s::access(nx31) },
+            "announce" => NxOnDate::toString(nx31),
+            "access"   => lambda { NxOnDate::access(nx31) },
             "done"     => lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx31s::toString(nx31)}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
                     CatalystDatabase::delete(nx31["uuid"])
                 end
             }
         }
     end
 
-    # Nx31s::ns16s()
+    # NxOnDate::ns16s()
     def self.ns16s()
-        Nx31s::nx31s()
+        NxOnDate::nx31s()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
-            .map{|nx31| Nx31s::nx31ToNS16(nx31) }
+            .map{|nx31| NxOnDate::nx31ToNS16(nx31) }
     end
 
-    # Nx31s::main()
+    # NxOnDate::main()
     def self.main()
         loop {
             system("clear")
 
-            nx31s = Nx31s::nx31s()
+            nx31s = NxOnDate::nx31s()
                         .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
             nx31s.each_with_index{|nx31, indx| 
-                puts "[#{indx}] #{Nx31s::toString(nx31)}"
+                puts "[#{indx}] #{NxOnDate::toString(nx31)}"
             }
 
             puts "<item index> | (empty) # exit".yellow
@@ -205,19 +205,19 @@ class Nx31s # OnDate
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 nx31 = nx31s[indx]
                 next if nx31.nil?
-                Nx31s::access(nx31)
+                NxOnDate::access(nx31)
             end
 
             UIServices::mainMenuInterpreter(command)
         }
     end
 
-    # Nx31s::nx19s()
+    # NxOnDate::nx19s()
     def self.nx19s()
-        Nx31s::nx31s().map{|item|
+        NxOnDate::nx31s().map{|item|
             {
-                "announce" => Nx31s::toString(item),
-                "lambda"   => lambda { Nx31s::access(item) }
+                "announce" => NxOnDate::toString(item),
+                "lambda"   => lambda { NxOnDate::access(item) }
             }
         }
     end

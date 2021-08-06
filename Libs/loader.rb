@@ -151,9 +151,9 @@ require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
 
-require_relative "Nx31s.rb"
 require_relative "Nx50s.rb"
 require_relative "Nx51s.rb"
+require_relative "NxOnDate.rb"
 
 require_relative "PriorityFile.rb"
 require_relative "ProgrammableBooleans.rb"
