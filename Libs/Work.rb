@@ -41,9 +41,14 @@ class Work
             (x >= n1) and (x < n2)
         }
 
+        # First check whether there is an explicit Yes override.
+        return true if KeyValueStore::flagIsTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+
+        # Check whether there is a timed No override
         noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
+        # Standard work hours
         return false if [0, 6].include?(Time.new.wday)
         isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 17)
     end

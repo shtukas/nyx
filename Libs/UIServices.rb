@@ -52,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | no work until | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | work on | work off | work off until | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -114,7 +114,15 @@ class UIServices
             Search::search()
         end
 
-        if Interpreting::match("no work until", command) then
+        if Interpreting::match("work on", command) then
+            KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+        end
+
+        if Interpreting::match("work off", command) then
+            KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+        end
+
+        if Interpreting::match("work off until", command) then
             n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
             KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
         end
