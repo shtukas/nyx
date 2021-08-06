@@ -135,7 +135,6 @@ require "/Users/pascal/Galaxy/Software/Axion/Axion.rb"
 require_relative "Anniversaries.rb"
 
 require_relative "Bank.rb"
-require_relative "BinaryBlobsService.rb"
 
 require_relative "Calendar.rb"
 require_relative "CatalystDatabase.rb"
@@ -146,8 +145,6 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DrivesBackups.rb"
-
-require_relative "El1zabeth.rb"
 
 require_relative "Inbox.rb"
 require_relative "Interpreting.rb"
