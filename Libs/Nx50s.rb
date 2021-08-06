@@ -429,15 +429,17 @@ class Nx50s
             Nx50s::issueNx50UsingLocation(location)
         }
 
-        Nx50s::nx50s().reduce([]){|ns16s, nx50|
-            if ns16s.size < 3 then
-                ns16 = Nx50s::ns16OrNull(nx50)
-                if ns16 then
-                    ns16s << ns16
+        Nx50s::nx50s()
+            .reduce([]){|ns16s, nx50|
+                if ns16s.size < 3 then
+                    ns16 = Nx50s::ns16OrNull(nx50)
+                    if ns16 then
+                        ns16s << ns16
+                    end
                 end
-            end
-            ns16s
-        }
+                ns16s
+            }
+            .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
     end
 
     # --------------------------------------------------

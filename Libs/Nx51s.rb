@@ -308,15 +308,19 @@ class Nx51s
                     Nx51s::complete(nx51)
                 end
             },
-            "[]"      => lambda { StructuredTodoTexts::applyT(uuid) }
+            "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
+            "rt"      => rt
         }
     end
 
     # Nx51s::ns16s()
     def self.ns16s()
-        Nx51s::nx51s()
-            .sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
-            .map{|nx51| Nx51s::ns16(nx51) }
+        ns16s = Nx51s::nx51s()
+                    .sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
+                    .map{|nx51| Nx51s::ns16(nx51) }
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+        ns16s.first(3).sort{|n1, n2| n1["rt"] <=> n2["rt"] } + ns16s.drop(3)
     end
 
     # --------------------------------------------------
