@@ -215,7 +215,7 @@ class Nx50s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | exit | completed | update description | update contents | update unixtime | destroy".yellow
+            puts "access | note | [] | <datecode> | detach running | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -241,6 +241,13 @@ class Nx50s
 
             if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
+                next
+            end
+
+            if command == "pursue" then
+                # We close the ball and issue a new one
+                NxBalls::closeNxBall(nxball, true)
+                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                 next
             end
 
