@@ -394,7 +394,7 @@ class Nx50s
 
     # Nx50s::hoursDoneSinceLastSaturday(nx50)
     def self.hoursDoneSinceLastSaturday(nx50)
-        Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(uuid, date)}.inject(0, :+).to_f/3600
+        Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(nx50["uuid"], date)}.inject(0, :+).to_f/3600
     end
 
     # Nx50s::ns16OrNull(nx50)
