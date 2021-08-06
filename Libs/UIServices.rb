@@ -52,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "inbox: <line> | wave | ondate | calendar item | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | work on | work off | work off until | nyx-make"
+        "inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | anniversaries | search | work on | work off | work off until | nyx-make"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -83,9 +83,11 @@ class UIServices
             end
         end
 
-        if Interpreting::match("floats", command) then
-            puts "floats is not implemented"
-            LucilleCore::pressEnterToContinue()
+        if Interpreting::match("Nx51", command) then
+            nx51 = Nx51s::interactivelyCreateNewOrNull()
+            if nx51 then
+                puts JSON.pretty_generate(nx51)
+            end
         end
 
         if Interpreting::match("ondates", command) then
