@@ -88,7 +88,6 @@ require_relative "Interpreting.rb"
 
 require_relative "NxDataCarrier.rb"
 require_relative "NxUniqueString.rb"
-require_relative "NxAsteroid.rb"
 require_relative "NyxEntities.rb"
 require_relative "NxDirectory3.rb"
 require_relative "NxNode.rb"

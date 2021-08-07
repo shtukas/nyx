@@ -1,7 +1,0 @@
-NxAsteroid
-{
-    "uuid"         : String
-    "entityType"   : "Nx45"
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "location"     : String
-}

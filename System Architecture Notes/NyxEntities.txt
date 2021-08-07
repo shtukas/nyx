@@ -8,8 +8,8 @@ NyxEntity (common attributes)
 
 NyxEntity is currently implemented by 
     NxNode
-    NxAsteroid     (Nx45)
     NxDataCarrier  (Nx10)
+    NxFSPoint
     NxDirectory3
     NxUniqueString (Nx27)
 

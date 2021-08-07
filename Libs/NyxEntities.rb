@@ -9,8 +9,6 @@ class NyxEntities
         return entity if entity
         entity = NxDataCarrier::getNx10ByIdOrNull(uuid)
         return entity if entity
-        entity = NxAsteroid::getAsteroidByUUIDOrNull(uuid)
-        return entity if entity
         entity = NxFSPoint::getItemByUUIDOrNull(uuid)
         return entity if entity
         entity = NxDirectory3::getItemByUUIDOrNull(uuid)
@@ -27,9 +25,6 @@ class NyxEntities
         end
         if entity["entityType"] == "Nx10" then
             return NxDataCarrier::toString(entity)
-        end
-        if entity["entityType"] == "Nx45" then
-            return NxAsteroid::toString(entity)
         end
         if entity["entityType"] == "NxFSPoint" then
             return NxFSPoint::toString(entity)
@@ -51,9 +46,6 @@ class NyxEntities
         if entity["entityType"] == "Nx10" then
             return NxDataCarrier::landing(entity)
         end
-        if entity["entityType"] == "Nx45" then
-            return NxAsteroid::landing(entity)
-        end
         if entity["entityType"] == "NxFSPoint" then
             return NxFSPoint::landing(entity)
         end
@@ -70,7 +62,6 @@ class NyxEntities
     def self.entities()
         NxUniqueString::nx27s() +
         NxDataCarrier::nx10s() +
-        NxAsteroid::asteroids() +
         NxDirectory3::directories() + 
         NxFSPoint::points() +
         NxNode::nxnodes()
