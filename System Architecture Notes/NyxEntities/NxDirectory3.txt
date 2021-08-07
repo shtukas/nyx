@@ -1,0 +1,28 @@
+
+NxDirectory3
+
+NxDirectory3s are directories that we index the elements of. They are defined by virtue of a tag present in their filename.
+
+The tag is NxD3. The Id is NxD3-<body> where body is an alpha numerical string of length 8 (first part of a uuid).
+
+A process scan Galaxy and finds those directories and register them in a sqlite3 table from where Nyx pick them up.
+
+NxDirectories3.sqlite3
+create table _items_ (_directoryId_ text, description text)
+
+NxDirectory3 {
+    "uuid"          : String # DirectoryId
+    "entityType"    : "NxDirectory3"
+    "datetime"      : DateTime Iso 8601 UTC Zulu
+    "description"   : String
+    "locationnames" : Array[String]
+}
+
+NxDirectory3Element
+{
+    "uuid"        : String
+    "entityType"  : "NxDirectory3Element"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "parentuuid"  : String # uuid of the parent directory
+    "description" : String
+}
