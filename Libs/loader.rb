@@ -128,11 +128,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
 =end
 
-require "/Users/pascal/Galaxy/Software/Axion/Axion.rb"
-
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
+require_relative "Axion.rb"
 
 require_relative "Bank.rb"
 
