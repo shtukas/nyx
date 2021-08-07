@@ -8,7 +8,6 @@ class Search
         NxAsteroid::nx19s() +
         NxUniqueString::nx19s() +
         NxDataCarrier::nx19s() +
-        NxDirectory2::nx19s() + 
         NxDirectory3::nx19s()
     end
 
@@ -24,10 +23,6 @@ class Search
         end
         if mx19["type"] == "Nx10" then
             NxDataCarrier::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxDirectory2" then
-            NxDirectory2::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxDirectory3" then

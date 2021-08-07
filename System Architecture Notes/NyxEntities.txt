@@ -10,6 +10,6 @@ NyxEntity is currently implemented by
     NxNode
     NxAsteroid     (Nx45)
     NxDataCarrier  (Nx10)
-    NxDirectory2
+    NxDirectory3
     NxUniqueString (Nx27)
 

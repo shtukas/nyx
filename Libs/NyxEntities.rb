@@ -11,7 +11,7 @@ class NyxEntities
         return entity if entity
         entity = NxAsteroid::getAsteroidByUUIDOrNull(uuid)
         return entity if entity
-        entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
+        entity = NxDirectory3::getItemByUUIDOrNull(uuid)
         return entity if entity
         entity = NxNode::getNxNodeByIdOrNull(uuid)
         return entity if entity
@@ -29,8 +29,8 @@ class NyxEntities
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::toString(entity)
         end
-        if entity["entityType"] == "NxDirectory2" then
-            return NxDirectory2::toString(entity)
+        if entity["entityType"] == "NxDirectory3" then
+            return NxDirectory3::toString(entity)
         end
         if entity["entityType"] == "NxNode" then
             return NxNode::toString(entity)
@@ -49,8 +49,8 @@ class NyxEntities
         if entity["entityType"] == "Nx45" then
             return NxAsteroid::landing(entity)
         end
-        if entity["entityType"] == "NxDirectory2" then
-            return NxDirectory2::landing(entity)
+        if entity["entityType"] == "NxDirectory3" then
+            return NxDirectory3::landing(entity)
         end
         if entity["entityType"] == "NxNode" then
             return NxNode::landing(entity)

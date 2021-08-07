@@ -87,6 +87,25 @@ class NxDirectory3
         answer
     end
 
+    # NxDirectory3::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
+        db = SQLite3::Database.new(NxDirectory3::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _items_ where _directoryId_=?" , [uuid] ) do |row|
+            answer = {
+                "uuid"        => row["_directoryId_"],
+                "entityType"  => "NxDirectory3",
+                "datetime"    => Time.new.utc.iso8601,
+                "description" => row["_description_"]
+            }
+        end
+        db.close
+        answer
+    end
+
     # NxDirectory3::getDx3ElementsLocationsFromDisk(directoryId)
     def self.getDx3ElementsLocationsFromDisk(directoryId)
         location = Utils::locationByUniqueStringOrNull(directoryId)

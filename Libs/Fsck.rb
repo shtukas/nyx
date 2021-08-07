@@ -27,7 +27,7 @@ class Fsck
         if object["entityType"] == "Nx10" then
             return true
         end
-        if object["entityType"] == "NxDirectory2" then
+        if object["entityType"] == "NxDirectory3" then
             return true
         end
         raise "cd97f89c-5fad-4b21-a365-65a0ad9228a9: #{object}"
