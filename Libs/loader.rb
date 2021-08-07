@@ -69,9 +69,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
-require "/Users/pascal/Galaxy/Software/Axion/Axion.rb"
-
 # ------------------------------------------------------------
+
+require_relative "Axion.rb"
 
 require_relative "BinaryBlobsService.rb"
 

@@ -39,7 +39,6 @@ class NxFSPoint
     # NxFSPoint::galaxyScanner()
     def self.galaxyScanner()
         Find.find("/Users/pascal/Galaxy") do |location|
-            next if !File.directory?(location)
             Find.prune if location.include?("node_modules")
             Find.prune if location.include?("theguardian-github-repositories-Lucille18")
             NxFSPoint::processLocation(location)
