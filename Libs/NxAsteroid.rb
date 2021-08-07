@@ -50,7 +50,7 @@ class NxAsteroid
 
     # NxAsteroid::toString(nx45)
     def self.toString(nx45)
-        "[asteroid] #{File.base(nx45["location"])}"
+        "[asteroid] #{File.basename(nx45["location"])}"
     end
 
     # NxAsteroid::landing(nx45)
