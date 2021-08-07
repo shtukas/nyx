@@ -122,21 +122,21 @@ class NyxEntities
 
     # -- links -----------------------------------------------
 
-    # NyxEntitieslinkToOtherArchitectured(entity)
+    # NyxEntities::linked(entity)
+    def self.linked(entity)
+         Links::entities(entity["uuid"])
+    end
+
+    # NyxEntities::linkToOtherArchitectured(entity)
     def self.linkToOtherArchitectured(entity)
         other = NyxEntities::architectEntityOrNull()
         return if other.nil?
         Links::insert(entity["uuid"], other["uuid"])
     end
 
-    # NyxEntitieslinked(entity)
-    def self.linked(entity)
-         Links::entities(entity["uuid"])
-    end
-
-    # NyxEntitiesunlinkFromOther(entity)
+    # NyxEntities::unlinkFromOther(entity)
     def self.unlinkFromOther(entity)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxEntitieslinked(entity))
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxEntities::linked(entity))
         return if other.nil?
         Links::delete(entity["uuid"], other["uuid"])
     end

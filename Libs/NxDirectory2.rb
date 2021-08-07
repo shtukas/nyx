@@ -179,11 +179,11 @@ class NxDirectory2
             end
 
             if Interpreting::match("connect", command) then
-                NyxEntitieslinkToOtherArchitectured(directory)
+                NyxEntities::linkToOtherArchitectured(directory)
             end
 
             if Interpreting::match("disconnect", command) then
-                NyxEntitiesunlinkFromOther(directory)
+                NyxEntities::unlinkFromOther(directory)
             end
 
             if Interpreting::match("destroy", command) then

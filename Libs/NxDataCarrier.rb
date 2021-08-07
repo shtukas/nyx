@@ -185,11 +185,11 @@ class NxDataCarrier
             end
 
             if Interpreting::match("connect", command) then
-                NyxEntitieslinkToOtherArchitectured(nx10)
+                NyxEntities::linkToOtherArchitectured(nx10)
             end
 
             if Interpreting::match("disconnect", command) then
-                NyxEntitiesunlinkFromOther(nx10)
+                NyxEntities::unlinkFromOther(nx10)
             end
 
             if Interpreting::match("destroy", command) then

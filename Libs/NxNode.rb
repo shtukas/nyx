@@ -138,11 +138,11 @@ class NxNode
             end
 
             if Interpreting::match("connect", command) then
-                NyxEntitieslinkToOtherArchitectured(nxnode)
+                NyxEntities::linkToOtherArchitectured(nxnode)
             end
 
             if Interpreting::match("disconnect", command) then
-                NyxEntitiesunlinkFromOther(nxnode)
+                NyxEntities::unlinkFromOther(nxnode)
             end
 
             if Interpreting::match("destroy", command) then

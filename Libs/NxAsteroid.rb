@@ -95,11 +95,11 @@ class NxAsteroid
             end
 
             if Interpreting::match("connect", command) then
-                NyxEntitieslinkToOtherArchitectured(nx45)
+                NyxEntities::linkToOtherArchitectured(nx45)
             end
 
             if Interpreting::match("disconnect", command) then
-                NyxEntitiesunlinkFromOther(nx45)
+                NyxEntities::unlinkFromOther(nx45)
             end
         }
     end

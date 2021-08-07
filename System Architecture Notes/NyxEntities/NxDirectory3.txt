@@ -8,14 +8,13 @@ The tag is NxD3. The Id is NxD3-<body> where body is an alpha numerical string o
 A process scan Galaxy and finds those directories and register them in a sqlite3 table from where Nyx pick them up.
 
 NxDirectories3.sqlite3
-create table _items_ (_directoryId_ text, description text)
+create table _items_ (_directoryId_ text, _registrationTime_ real, _description_ text)
 
 NxDirectory3 {
     "uuid"          : String # DirectoryId
     "entityType"    : "NxDirectory3"
     "datetime"      : DateTime Iso 8601 UTC Zulu
     "description"   : String
-    "locationnames" : Array[String]
 }
 
 NxDirectory3Element

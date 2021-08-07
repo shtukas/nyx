@@ -91,6 +91,7 @@ require_relative "NxUniqueString.rb"
 require_relative "NxAsteroid.rb"
 require_relative "NyxEntities.rb"
 require_relative "NxDirectory2.rb"
+require_relative "NxDirectory3.rb"
 require_relative "NxNode.rb"
 
 require_relative "Links.rb"

@@ -175,11 +175,11 @@ class NxUniqueString
             end
 
             if Interpreting::match("connect", command) then
-                NyxEntitieslinkToOtherArchitectured(nx27)
+                NyxEntities::linkToOtherArchitectured(nx27)
             end
 
             if Interpreting::match("disconnect", command) then
-                NyxEntitiesunlinkFromOther(nx27)
+                NyxEntities::unlinkFromOther(nx27)
             end
 
             if Interpreting::match("destroy", command) then
