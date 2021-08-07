@@ -53,9 +53,7 @@ class InboxLines
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                if LucilleCore::askQuestionAnswerAsBoolean("done: '#{description}' ? ", true) then
-                    CatalystDatabase::delete(uuid)
-                end
+                CatalystDatabase::delete(uuid)
                 break
             end
 
@@ -100,7 +98,11 @@ class InboxLines
                 "uuid"     => uuid,
                 "announce" => announce,
                 "access"   => lambda { InboxLines::access(item) },
-                "done"     => lambda { CatalystDatabase::delete(uuid) },
+                "done"     => lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
+                        CatalystDatabase::delete(uuid) 
+                    end
+                },
                 "inbox-unixtime" => unixtime
             }
         }
@@ -166,9 +168,7 @@ class InboxFiles
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "done" then
-                if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
-                    CatalystDatabase::delete(uuid)
-                end
+                LucilleCore::removeFileSystemLocation(location)
                 break
             end
 
@@ -192,7 +192,11 @@ class InboxFiles
                 "uuid"     => uuid,
                 "announce" => "[inbx] file: #{File.basename(location)}",
                 "access"   => lambda { InboxFiles::access(location) },
-                "done"     => lambda { LucilleCore::removeFileSystemLocation(location) },
+                "done"     => lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
+                        LucilleCore::removeFileSystemLocation(location)
+                    end
+                },
                 "inbox-unixtime" => File.mtime(location).to_time.to_i
             }
         }
