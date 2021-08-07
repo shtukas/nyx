@@ -3,6 +3,47 @@
 
 class NxDirectory3
 
+    # NxDirectory3::extractNxD3IdOrNull(str)
+    def self.extractNxD3IdOrNull(str)
+        position = str.index("NxD3")
+        return nil if position.nil?
+        str[position, 13]
+    end
+
+    # NxDirectory3::extractNxD3NamingOrNull(filename)
+    def self.extractNxD3NamingOrNull(filename)
+        id = NxDirectory3::extractNxD3IdOrNull(filename)
+        return nil if id.nil?
+        description = filename.gsub(id, "").strip
+        {
+            "id" => id,
+            "description" => description
+        }
+    end
+
+    # NxDirectory3::processLocation(folderpath)
+    def self.processLocation(folderpath)
+        naming = NxDirectory3::extractNxD3NamingOrNull(File.basename(folderpath))
+        return if naming.nil?
+        puts "Processing: #{folderpath}"
+        directoryId      = naming["id"]
+        registrationTime = Time.new.to_i
+        description      = naming["description"]
+        NxDirectory3::register(directoryId, registrationTime, description)
+    end
+
+    # NxDirectory3::galaxyScanner()
+    def self.galaxyScanner()
+        Find.find("/Users/pascal/Galaxy") do |location|
+            next if !File.directory?(location)
+            Find.prune if location.include?("node_modules")
+            Find.prune if location.include?("theguardian-github-repositories-Lucille18")
+            NxDirectory3::processLocation(location)
+        end
+    end
+
+    # -------------------------------------------------------------
+
     # NxDirectory3::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/NxDirectories3.sqlite3"
@@ -13,6 +54,7 @@ class NxDirectory3
         db = SQLite3::Database.new(NxDirectory3::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
+        db.execute "delete from _items_ where _directoryId_=?", [directoryId]
         db.execute "insert into _items_ (_directoryId_, _registrationTime_, _description_) values (?,?,?)", [directoryId, registrationTime, description]
         db.close
     end
