@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>net.alseyn.pascal.nyx-NxD3-scanner</string>
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>LC_CTYPE</key>
+            <string>en_US.UTF-8</string>
+        </dict> 
+        <key>Program</key>
+        <string>/Users/pascal/Galaxy/Software/Nyx/x-NxD3-scanner-d</string>
+		<key>Nice</key>
+		<integer>20</integer>
+		<key>RunAtLoad</key>
+		<true/>
+        <key>KeepAlive</key>
+        <true/> 
+    </dict>
+</plist>

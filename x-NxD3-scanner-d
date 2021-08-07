@@ -1,0 +1,39 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+
+def isOnPower()
+    `/Users/pascal/Galaxy/LucilleOS/Binaries/isOnPower`.strip == "true"
+end
+
+def log(message)
+    message = "[#{Time.new.utc.to_s}] #{message}"
+    folder = "/Users/pascal/Galaxy/DataBank/Nyx/NxDirectories3-Scanner-Log/#{Time.new.to_s[0, 4]}/#{Time.new.to_s[0, 7]}"
+    if !File.exists?(folder) then
+        FileUtils.mkpath(folder)
+    end
+    filepath = "#{folder}/#{Time.new.to_s[0, 10]}.txt"
+    File.open(filepath, "a"){|f| f.puts(message) }
+    puts message
+end
+
+log("starting daemon with pid: #{Process.pid}")
+
+loop {
+    if !isOnPower() then
+        sleep 120
+        next
+    else
+        log("Scanning for NxD3 directories")
+        NxDirectory3::galaxyScanner()
+        log("sleeping for an hour")
+        sleep 3600
+    end
+}
+
+
