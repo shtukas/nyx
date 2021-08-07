@@ -1,0 +1,15 @@
+
+NxFSPoint
+
+
+NxFSPoints are locations on the file systems that self register to Nyx. They use an Id system similar to the one used by NxDirectory3: NxP1-<body> with a body of length exactly 8. 
+
+NxFSPoint {
+    "uuid"        : String # We use the NxP1 identifier
+    "entityType"  : "NxFSPoint"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+}
+
+NxFSPoints.sqlite3
+create table _items_ (_pointId_ text, _registrationTime_ text, _description_ text);

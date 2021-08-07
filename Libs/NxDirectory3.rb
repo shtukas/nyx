@@ -14,7 +14,11 @@ class NxDirectory3
     def self.extractNxD3NamingOrNull(filename)
         id = NxDirectory3::extractNxD3IdOrNull(filename)
         return nil if id.nil?
-        description = filename.gsub(id, "").strip
+        description = filename
+            .gsub("(#{id})", "")
+            .gsub("[#{id}]", "")
+            .gsub(id, "")
+            .strip
         {
             "id" => id,
             "description" => description
@@ -174,12 +178,12 @@ class NxDirectory3
 
             if Interpreting::match("access", command) then
                 folderpath = Utils::locationByUniqueStringOrNull(directory["uuid"])
-                if folderpath then
-                    system("open '#{folderpath}'")
-                else
+                if folderpath.nil? then
                     puts "Interestingly I could not find the location for directory #{directory}"
                     LucilleCore::pressEnterToContinue()
+                    next
                 end
+                system("open '#{folderpath}'")
             end
 
             if Interpreting::match("connect", command) then
