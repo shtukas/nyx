@@ -61,7 +61,6 @@ class Nx50s
         packet["unixtime"] + 0.6 # We started with a difference of 2 + rand between two consecutive items.
     end
 
-
     # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
     def self.interactivelyDetermineNewItemUnixtimeOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "natural (default)"])
@@ -166,16 +165,11 @@ class Nx50s
     # --------------------------------------------------
     # Operations
 
-    # Nx50s::toStringCore(nx50)
-    def self.toStringCore(nx50)
-        contentType = nx50["contentType"]
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "#{nx50["description"]}#{str1}"
-    end
-
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{Nx50s::toStringCore(nx50)}"
+        contentType = nx50["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
+        "[nx50] #{nx50["description"]}#{str1}"
     end
 
     # Nx50s::complete(nx50)
@@ -354,7 +348,7 @@ class Nx50s
         return nil if (hs1 > 5 or hs2 > 10)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > 1
-        announce = "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toStringCore(nx50)}".gsub("(0.00)", "      ")
+        announce = "(#{"%4.2f" % rt}) #{Nx50s::toString(nx50)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
