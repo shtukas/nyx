@@ -169,7 +169,7 @@ class Nx50s
     # Nx50s::toStringCore(nx50)
     def self.toStringCore(nx50)
         contentType = nx50["contentType"]
-        str1 = (contentType and contentType.size > 0) ? " (#{nx50["contentType"]})" : ""
+        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "#{nx50["description"]}#{str1}"
     end
 
@@ -267,8 +267,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                update = nil
-                Axion::access(nx50["contentType"], nx50["contentPayload"], update)
+                Axion::access(nx50["contentType"], nx50["contentPayload"], nil)
                 next
             end
 

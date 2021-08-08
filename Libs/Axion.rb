@@ -240,6 +240,8 @@ class Axion
     # Axion::access(contentType, contentPayload, update: Lambda(contentType, contentPayload))
     def self.access(contentType, contentPayload, update)
 
+        return if contentType.nil?
+
         if contentType == "line" then
             return
         end

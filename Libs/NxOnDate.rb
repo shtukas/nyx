@@ -21,7 +21,9 @@ class NxOnDate # OnDate
 
     # NxOnDate::databaseItemToNxOnDate(item)
     def self.databaseItemToNxOnDate(item)
-        item["date"] = item["payload1"]
+        item["date"]           = item["payload1"]
+        item["contentType"]    = item["payload2"]
+        item["contentPayload"] = item["payload3"]
         item
     end
 
@@ -78,8 +80,11 @@ class NxOnDate # OnDate
         return nil if date.nil?
 
         payload1     = date
-        payload2     = nil 
-        payload3     = nil
+
+        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
+
+        payload2     = coordinates ? coordinates["contentType"] : nil
+        payload3     = coordinates ? coordinates["contentPayload"] : nil
         
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
@@ -88,6 +93,8 @@ class NxOnDate # OnDate
 
     # NxOnDate::toString(nx31)
     def self.toString(nx31)
+        contentType = nx31["contentType"]
+        tr1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
     end
 
@@ -101,6 +108,7 @@ class NxOnDate # OnDate
         system("clear")
         
         puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
+        puts "coordinates: #{nx31["contentType"]}, #{nx31["contentPayload"]}".yellow
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         loop {
@@ -114,7 +122,7 @@ class NxOnDate # OnDate
             puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "note | [] | <datecode> | update date | detach running | done | exit".yellow
+            puts "access | note | [] | <datecode> | update date | detach running | done | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -124,6 +132,11 @@ class NxOnDate # OnDate
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
                 break
+            end
+
+            if Interpreting::match("access", command) then
+                Axion::access(nx31["contentType"], nx31["contentPayload"], nil)
+                next
             end
 
             if Interpreting::match("update date", command) then
