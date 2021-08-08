@@ -6,7 +6,7 @@ class EntityTaxonomy
     # EntityTaxonomy::taxonomies()
     def self.taxonomies()
         [
-            "TxUndefined",
+            "TxUndefined",         # Default for backward compatibility
             "TxPersonalDiary",
             "TxPersonalCalendar",
             "TxPersonalEvent",
@@ -14,7 +14,9 @@ class EntityTaxonomy
             "TxPublicEvent",
             "TxInformation",
             "TxExplanation",
-            "TxFunny"
+            "TxFunny",
+            "TxInteresting",       # Subset of TxInformation
+            "TxMedia"
         ]
     end
 
