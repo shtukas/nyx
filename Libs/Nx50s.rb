@@ -37,6 +37,110 @@ class Nx50s
         Nx50s::databaseItemToNx50(item)
     end
 
+    # --------------------------------------------------
+
+    # Nx50s::nextNaturalInBetweenUnixtime()
+    def self.nextNaturalInBetweenUnixtime()
+        unixtimes = Nx50s::nx50s()
+                        .drop(10)
+                        .map{|nx50| nx50["unixtime"] }
+        packet = unixtimes
+            .zip(unixtimes.drop(1))
+            .select{|pair| pair[1] }
+            .map{|pair|
+                {
+                    "unixtime"   => pair[0],
+                    "difference" => pair[1] - pair[0]
+                }
+            }
+            .select{|packet|
+                packet["difference"] >= 1
+            }
+            .first
+        return Time.new.to_i if packet.nil?
+        packet["unixtime"] + 0.6 # We started with a difference of 2 + rand between two consecutive items.
+    end
+
+
+    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
+    def self.interactivelyDetermineNewItemUnixtimeOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "natural (default)"])
+        return Nx50s::nextNaturalInBetweenUnixtime() if type.nil?
+        if type == "select" then
+            system('clear')
+            puts "Select the before item:"
+            items = Nx50s::nx50s().first(50)
+            return Time.new.to_i if items.empty?
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
+            return nil if item.nil?
+            loop {
+                return nil if items.size < 2
+                if items[0]["uuid"] == item["uuid"] then
+                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+                end
+                items.shift
+                next
+            }
+        end
+        if type == "natural" then
+            return Nx50s::nextNaturalInBetweenUnixtime()
+        end
+    end
+
+    # Nx50s::viennaIssueNx50UsingURL(url)
+    def self.viennaIssueNx50UsingURL(url)
+        uuid         = SecureRandom.uuid
+        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        description  = url
+        catalystType = "Nx50"
+        payload1     = "url"
+        payload2     = url
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
+    def self.inboxFilePickupIssueNx50UsingLocation(location)
+        uuid         = SecureRandom.uuid
+        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        description  = File.basename(location) 
+        catalystType = "Nx50"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingInboxLineInteractive(line)
+    def self.issueNx50UsingInboxLineInteractive(line)
+        uuid         = SecureRandom.uuid
+        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+        description  = line
+        catalystType = "Nx50"
+        payload1     = nil
+        payload2     = nil
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingInboxLocationInteractive(location)
+    def self.issueNx50UsingInboxLocationInteractive(location)
+        uuid         = SecureRandom.uuid
+        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        catalystType = "Nx50"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
@@ -56,95 +160,6 @@ class Nx50s
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::minusOneUnixtime()
-    def self.minusOneUnixtime()
-        items = Nx50s::nx50s()
-        return Time.new.to_i if items.empty?
-        items.map{|item| item["unixtime"] }.min - 1
-    end
-
-    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
-    def self.interactivelyDetermineNewItemUnixtimeOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["minus 1", "other", "last"])
-        return nil if type.nil?
-        if type == "minus 1" then
-            return Nx50s::minusOneUnixtime()
-        end
-        if type == "other" then
-            system('clear')
-            puts "Select the before item:"
-            items = Nx50s::nx50s()
-            return Time.new.to_i if items.empty?
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
-            return nil if item.nil?
-            loop {
-                return nil if items.size < 2
-                if items[0]["uuid"] == item["uuid"] then
-                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-                end
-                items.shift
-                next
-            }
-        end
-        if type == "last" then
-            return Time.new.to_i
-        end
-    end
-
-    # Nx50s::issueNx50UsingURL(url)
-    def self.issueNx50UsingURL(url)
-        uuid         = SecureRandom.uuid
-        unixtime     = Time.new.to_f
-        description  = url
-        catalystType = "Nx50"
-        payload1     = "url"
-        payload2     = url
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingLocation(location)
-    def self.issueNx50UsingLocation(location)
-        uuid         = SecureRandom.uuid
-        unixtime     = Time.new.to_f
-        description  = File.basename(location) 
-        catalystType = "Nx50"
-        payload1     = "aion-point"
-        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingInboxLocationInteractive(location)
-    def self.issueNx50UsingInboxLocationInteractive(location)
-        uuid         = SecureRandom.uuid
-        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-        description  = LucilleCore::askQuestionAnswerAsString("description: ")
-        catalystType = "Nx50"
-        payload1     = "aion-point"
-        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingInboxLineInteractive(line)
-    def self.issueNx50UsingInboxLineInteractive(line)
-        uuid         = SecureRandom.uuid
-        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-        description  = line
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -360,7 +375,7 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
-            Nx50s::issueNx50UsingLocation(location)
+            Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
         }
 
         Nx50s::nx50s()

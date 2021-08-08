@@ -4,6 +4,23 @@
 
 #---------------------------------------------
 # THE MASTER VERSION OF THIS IS IN CATALYST
+
+=begin
+
+Axion provides the datablob interface and some content functions (creation/access/edition) for Catalyst and Nyx (but, for the moment, doesn't hold the contentType/contentPaylaod pairs)
+
+----------------------------------------------------------
+contentType        contentPayload
+"line"             String
+"url"              String
+"text"             String
+"aion-point"       String # Root Named Hash
+"unique-string"    String
+"clickable"        String # <nhash>|<dottedExtension>
+----------------------------------------------------------
+
+=end
+
 # --------------------------------------------
 
 require 'securerandom'
