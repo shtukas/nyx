@@ -224,7 +224,7 @@ class Nx50s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -262,6 +262,14 @@ class Nx50s
 
             if Interpreting::match("access", command) then
                 Axion::access(nx50["contentType"], nx50["contentPayload"], nil)
+                next
+            end
+
+            if Interpreting::match("pause", command) then
+                NxBalls::closeNxBall(nxball, true)
+                puts "Starting pause at #{Time.new.to_s}"
+                LucilleCore::pressEnterToContinue()
+                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                 next
             end
 
