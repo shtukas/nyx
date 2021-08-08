@@ -109,7 +109,11 @@ class UIServices
         end
 
         if Interpreting::match("Nx50s", command) then
-            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", Nx50s::nx50s(), lambda {|nx50| Nx50s::toString(nx50) })
+            nx50s = Nx50s::nx50s()
+            if LucilleCore::askQuestionAnswerAsBoolean("limit to 100 ? ", true) then
+                nx50s = nx50s.first(100)
+            end
+            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
             return if nx50.nil?
             Nx50s::access(nx50)
         end
