@@ -1,5 +1,70 @@
 # encoding: UTF-8
 
+=begin
+{
+    "type"       : "until-done" | "timespan"
+    "parameters" : 
+}
+{
+    "type"       : "until-done"
+    "parameters" : nil
+}
+{
+    "type"       : "timespan"
+    "parameters" : Float # daily commitment in hours 
+}
+=end
+
+class Nx51RunDirectives
+
+    # Nx51RunDirectives::getDirectiveOrNull(uuid)
+    def self.getDirectiveOrNull(uuid)
+        directive =  KeyValueStore::getOrNull(nil, "8e54d4fc-a675-44a8-af1a-b0c49d7508e8:#{uuid}")
+        return nil if directive.nil?
+        JSON.parse(directive)
+    end
+
+    # Nx51RunDirectives::directiveToString(directive)
+    def self.directiveToString(directive)
+        if directive["type"] == "until-done" then
+            return "(completed)"
+        end
+        if directive["type"] == "timespan" then
+            return "(span: #{directive["parameters"]})"
+        end
+    end
+
+    # Nx51RunDirectives::directiveToStringOrEmpty(uuid)
+    def self.directiveToStringOrEmpty(uuid)
+        directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
+        return "" if directive.nil?
+        " #{Nx51RunDirectives::directiveToString(directive)}"
+    end
+
+    # Nx51RunDirectives::setDirective(uuid, directive)
+    def self.setDirective(uuid, directive)
+        KeyValueStore::set(nil, "8e54d4fc-a675-44a8-af1a-b0c49d7508e8:#{uuid}", JSON.generate(directive))
+    end
+
+    # Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
+    def self.interactivelyBuildDirectiveOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["until-done", "timespan"])
+        return nil if type.nil?
+        if type == "until-done" then
+            return {
+                "type"       => "until-done",
+                "parameters" => nil
+            }
+        end
+        if type == "timespan" then
+            return {
+                "type"       => "timespan",
+                "parameters" => LucilleCore::askQuestionAnswerAsString("timespan in hours: ").to_f
+            }
+        end
+    end
+end
+
 class Nx51s
 
     # Nx51s::databaseItemToNx51(item)
@@ -15,6 +80,12 @@ class Nx51s
         CatalystDatabase::getItemsByCatalystType("Nx51").map{|item|
             Nx51s::databaseItemToNx51(item)
         }
+    end
+
+    # Nx51s::nx51sPerOrdinal()
+    def self.nx51sPerOrdinal()
+        Nx51s::nx51s()
+            .sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
     end
 
     # Nx51s::commitNx51ToDisk(nx51)
@@ -96,16 +167,12 @@ class Nx51s
     # --------------------------------------------------
     # Operations
 
-    # Nx51s::toStringCore(nx51)
-    def self.toStringCore(nx51)
-        contentType = nx51["contentType"]
-        str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
-        "(ord: #{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}#{str1}"
-    end
-
     # Nx51s::toString(nx51)
     def self.toString(nx51)
-        "[nx51] #{Nx51s::toStringCore(nx51)}"
+        uuid = nx51["uuid"]
+        contentType = nx51["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
+        "[nx51] (ord: #{"%6.3f" % nx51["ordinal"]})#{Nx51RunDirectives::directiveToStringOrEmpty(uuid).green} #{nx51["description"]}#{str1}"
     end
 
     # Nx51s::complete(nx51)
@@ -142,7 +209,7 @@ class Nx51s
 
     # Nx51s::selectOneNx51OrNull()
     def self.selectOneNx51OrNull()
-        nx51s = Nx51s::nx51s().sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
+        nx51s = Nx51s::nx51sPerOrdinal()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}" })
     end
 
@@ -282,11 +349,15 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
-    # Nx51s::ns16(nx51)
-    def self.ns16(nx51)
+    # Nx51s::ns16OrNull(nx51)
+    def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
+        directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        announce = "[nx51] (#{"%4.2f" % rt}) #{Nx51s::toStringCore(nx51)}".gsub("(0.00)", "      ")
+        if directive and (directive["type"] == "timespan") and (rt > directive["parameters"]) then
+            return nil
+        end
+        announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -303,9 +374,9 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        Nx51s::nx51s()
-            .sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
-            .map{|nx51| Nx51s::ns16(nx51) }
+        Nx51s::nx51sPerOrdinal()
+            .map{|nx51| Nx51s::ns16OrNull(nx51) }
+            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
@@ -347,4 +418,24 @@ class Nx51s
             end
         }
     end
+
+    # Nx51s::workMenuCommands()
+    def self.workMenuCommands()
+        "[work   ] set directives"
+    end
+
+    # Nx51s::workMenuInterpreter(command)
+    def self.workMenuInterpreter(command)
+        if Interpreting::match("set directives", command) then
+            loop {
+                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
+                break if nx51.nil?
+                directive = Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
+                next if directive.nil?
+                Nx51RunDirectives::setDirective(nx51["uuid"], directive)
+            }
+            return
+        end
+    end
+
 end

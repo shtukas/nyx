@@ -17,8 +17,8 @@ class Work
         (x >= n1) and (x < n2)
     end
 
-    # Work::shouldBeWorking()
-    def self.shouldBeWorking()
+    # Work::isWorkMode()
+    def self.isWorkMode()
 
         isInTimeInterval = lambda{|x, n1, n2|
             (x >= n1) and (x < n2)
