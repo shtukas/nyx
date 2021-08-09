@@ -122,7 +122,7 @@ class NxOnDate # OnDate
             puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "access | note | [] | <datecode> | update date | detach running | done | exit".yellow
+            puts "[item   ] access | note | [] | <datecode> | update date | detach running | done | exit".yellow
             puts UIServices::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")

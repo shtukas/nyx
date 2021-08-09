@@ -224,7 +224,7 @@ class Nx50s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
+            puts "[item   ] access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 

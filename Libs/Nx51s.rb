@@ -257,7 +257,7 @@ class Nx51s
 
             puts ""
 
-            puts "access | note | [] | <datecode> | detach running | pause |exit | completed | update description | update contents | update ordinal | destroy".yellow
+            puts "[item   ] access | note | [] | <datecode> | detach running | pause | pursue | exit | completed | update description | update contents | update ordinal | destroy".yellow
 
             puts UIServices::mainMenuCommands().yellow
 
@@ -296,6 +296,13 @@ class Nx51s
                 NxBalls::closeNxBall(nxball, true)
                 puts "Starting pause at #{Time.new.to_s}"
                 LucilleCore::pressEnterToContinue()
+                nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+                next
+            end
+
+            if command == "pursue" then
+                # We close the ball and issue a new one
+                NxBalls::closeNxBall(nxball, true)
                 nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
                 next
             end
