@@ -52,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | work ops | search | nyx-make"
+        "[general] inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | work ops | search | nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -130,8 +130,8 @@ class UIServices
             Search::search()
         end
 
-        if Interpreting::match("nyx-make", command) then
-            system("/Users/pascal/Galaxy/Software/Nyx/x-lucille-maker")
+        if Interpreting::match("nyx", command) then
+            system("/Users/pascal/Galaxy/Software/Nyx/nyx")
         end
     end
 
