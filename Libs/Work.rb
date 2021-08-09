@@ -45,13 +45,16 @@ class Work
             break if command == ""
             if command == "work on" then
                 KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+                break
             end
             if command == "work off" then
                 KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+                break
             end
             if command == "work off until" then
                 n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
                 KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
+                break
             end
         }
     end

@@ -24,13 +24,14 @@ class Nx51RunDirectives
         JSON.parse(directive)
     end
 
-    # Nx51RunDirectives::directiveToString(directive)
-    def self.directiveToString(directive)
+    # Nx51RunDirectives::directiveToString(uuid, directive)
+    def self.directiveToString(uuid, directive)
         if directive["type"] == "until-done" then
-            return "(completed)"
+            return "(until done)"
         end
         if directive["type"] == "timespan" then
-            return "(span: #{directive["parameters"]})"
+
+            return "(span: #{(100*Bank::valueAtDate(uuid, Utils::today()).to_f/3600).round(2)}% of #{directive["parameters"]} hour)"
         end
     end
 
@@ -38,7 +39,7 @@ class Nx51RunDirectives
     def self.directiveToStringOrEmpty(uuid)
         directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
         return "" if directive.nil?
-        " #{Nx51RunDirectives::directiveToString(directive)}"
+        " #{Nx51RunDirectives::directiveToString(uuid, directive)}"
     end
 
     # Nx51RunDirectives::setDirective(uuid, directive)
@@ -356,14 +357,19 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
+    # Nx51s::isDirectiveOverflow(uuid, directive)
+    def self.isDirectiveOverflow(uuid, directive)
+        return false if directive.nil?
+        return false if directive["type"] != "timespan"
+        Bank::valueAtDate(uuid, Utils::today()) > directive["parameters"]*3600
+    end
+
     # Nx51s::ns16OrNull(nx51)
     def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
         directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
+        return nil if Nx51s::isDirectiveOverflow(uuid, directive)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if directive and (directive["type"] == "timespan") and (rt > directive["parameters"]) then
-            return nil
-        end
         announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
