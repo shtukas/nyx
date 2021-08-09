@@ -431,34 +431,4 @@ class Nx51s
             end
         }
     end
-
-    # Nx51s::workMenuCommands()
-    def self.workMenuCommands()
-        "[work   ] set directives | set ordinals"
-    end
-
-    # Nx51s::workMenuInterpreter(command)
-    def self.workMenuInterpreter(command)
-        if Interpreting::match("set directives", command) then
-            loop {
-                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
-                break if nx51.nil?
-                directive = Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
-                next if directive.nil?
-                Nx51RunDirectives::setDirective(nx51["uuid"], directive)
-            }
-            return
-        end
-        if Interpreting::match("set ordinals", command) then
-            loop {
-                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
-                break if nx51.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                nx51["ordinal"] = ordinal
-                Nx51s::commitNx51ToDisk(nx51)
-            }
-            return
-        end
-    end
-
 end

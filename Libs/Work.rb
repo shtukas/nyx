@@ -36,26 +36,45 @@ class Work
         isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 17)
     end
 
-    # Work::operations()
-    def self.operations()
-        loop {
-            puts "work ops: work on | work off | work off until".yellow
-            print "> (empty to exit) "
-            command = STDIN.gets().strip
-            break if command == ""
-            if command == "work on" then
-                KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
-                break
-            end
-            if command == "work off" then
-                KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
-                break
-            end
-            if command == "work off until" then
-                n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
-                KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
-                break
-            end
-        }
+    # Work::workMenuCommands()
+    def self.workMenuCommands()
+        "[work   ] set directives | set ordinals | work on | work off | work off until"
+    end
+
+    # Work::workMenuInterpreter(command)
+    def self.workMenuInterpreter(command)
+        if Interpreting::match("set directives", command) then
+            loop {
+                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
+                break if nx51.nil?
+                directive = Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
+                next if directive.nil?
+                Nx51RunDirectives::setDirective(nx51["uuid"], directive)
+            }
+            return
+        end
+        if Interpreting::match("set ordinals", command) then
+            loop {
+                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
+                break if nx51.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                nx51["ordinal"] = ordinal
+                Nx51s::commitNx51ToDisk(nx51)
+            }
+            return
+        end
+        if command == "work on" then
+            KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+            return
+        end
+        if command == "work off" then
+            KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+            return
+        end
+        if command == "work off until" then
+            n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
+            KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
+            return
+        end
     end
 end

@@ -52,7 +52,7 @@ class UIServices
 
     # UIServices::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | work ops | search | nyx"
+        "[general] inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
     end
 
     # UIServices::mainMenuInterpreter(command)
@@ -122,10 +122,6 @@ class UIServices
             Nx51s::operations()
         end
 
-        if Interpreting::match("work ops", command) then
-            Work::operations()
-        end
-
         if Interpreting::match("search", command) then
             Search::search()
         end
@@ -176,7 +172,7 @@ class UIServices
             ].join(" ").yellow
 
             puts "[listing] .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose".yellow
-            puts Nx51s::workMenuCommands().yellow
+            puts Work::workMenuCommands().yellow
             puts UIServices::mainMenuCommands().yellow
 
             puts ""
@@ -251,7 +247,7 @@ class UIServices
 
             UIServices::mainMenuInterpreter(command)
 
-            Nx51s::workMenuInterpreter(command)
+            Work::workMenuInterpreter(command)
         }
 
         loop {
