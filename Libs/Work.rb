@@ -25,10 +25,11 @@ class Work
         }
 
         # First check whether there is an explicit Yes override.
-        return true if KeyValueStore::flagIsTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+        doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
+        return true if Time.new.to_i < doWorkUntilUnixtime
 
         # Check whether there is a timed No override
-        noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", "0").to_f
+        noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
         # Standard work hours
@@ -38,7 +39,7 @@ class Work
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] set directives | set ordinals | work on | work off | work off until"
+        "[work   ] set directives | set ordinals | work on until | work off until"
     end
 
     # Work::workMenuInterpreter(command)
@@ -63,17 +64,16 @@ class Work
             }
             return
         end
-        if command == "work on" then
-            KeyValueStore::setFlagTrue(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
-            return
-        end
-        if command == "work off" then
-            KeyValueStore::setFlagFalse(nil, "5749f425-f3d1-4bdc-9605-cda59eee09cd")
+        if command == "work on until" then
+            n = LucilleCore::askQuestionAnswerAsString("duration in hours: ").to_f
+            KeyValueStore::set(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", Time.new.to_i + n*3600)
+            KeyValueStore::destroy(nil, "workoff-feaf-44f6-8093-800d921ab6a7")
             return
         end
         if command == "work off until" then
             n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
-            KeyValueStore::set(nil, "a0ab6691-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
+            KeyValueStore::set(nil, "workoff-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
+            KeyValueStore::destroy(nil, "workon-f3d1-4bdc-9605-cda59eee09cd")
             return
         end
     end
