@@ -23,6 +23,7 @@ class NS16sOperator
                 Calendar::ns16s(),
                 NxOnDate::ns16s(),
                 PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
+                Inbox::ns16s(),
                 Nx51s::ns16s(),
             ]
                 .flatten
