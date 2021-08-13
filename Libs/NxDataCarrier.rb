@@ -37,7 +37,7 @@ class NxDataCarrier
             "contentType"    => row["_contentType_"],
             "contentPayload" => row["_contentPayload_"]
         }
-        if !EntityTaxonomy::taxonomies().include?(obj["taxonomy"]) then
+        if obj["taxonomy"].nil? or obj["taxonomy"].size == 0 then
             obj["taxonomy"] = "TxUndefined"
         end
         obj
@@ -65,12 +65,13 @@ class NxDataCarrier
         return nil if description == ""
 
         contentCoordinates = Axion::interactivelyIssueNewCoordinatesOrNull()
-        return nil if contentCoordinates.nil?
+        contentType = contentCoordinates ? contentCoordinates["contentType"] : nil
+        contentPayload = contentCoordinates ? contentCoordinates["contentPayload"] : nil
 
         taxonomy = EntityTaxonomy::selectEntityTaxonomyOrNull()
         return if taxonomy.nil?
 
-        NxDataCarrier::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy, contentCoordinates["contentType"], contentCoordinates["contentPayload"])
+        NxDataCarrier::insertNewNx10(uuid, Time.new.utc.iso8601, description, taxonomy, contentType, contentPayload)
         NxDataCarrier::getNx10ByIdOrNull(uuid)
     end
 
@@ -144,6 +145,8 @@ class NxDataCarrier
             puts NxDataCarrier::toString(nx10).green
             puts "uuid: #{nx10["uuid"]}".yellow
             puts "taxonomy: #{nx10["taxonomy"]}".yellow
+            puts "contentType: #{nx10["contentType"]}".yellow
+            puts "contentPayload: #{nx10["contentPayload"]}".yellow
             puts ""
 
             entities = Links::entities(nx10["uuid"])

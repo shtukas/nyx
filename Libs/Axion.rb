@@ -175,9 +175,13 @@ class Axion
     # Axion::interactivelyIssueNewCoordinatesOrNull(): nil or coordinates = {contentType, contentPayload}
     def self.interactivelyIssueNewCoordinatesOrNull()
 
-        contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["url", "text", "clickable", "aion-point"])
+        contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line (default)" ,"url", "text", "clickable", "aion-point"])
 
         if contentType.nil? then
+            return nil
+        end
+
+        if contentType == "line (default)" then
             return nil
         end
 
@@ -222,7 +226,12 @@ class Axion
 
     # Axion::access(contentType, contentPayload, update: Lambda(contentType, contentPayload))
     def self.access(contentType, contentPayload, update)
-
+        if contentType.nil? then
+            return
+        end
+        if contentType == "" then
+            return
+        end
         if contentType == "line" then
             return
         end
