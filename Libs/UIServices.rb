@@ -81,16 +81,17 @@ class UIServices
 
         if Interpreting::match("Nx50", command) then
             nx50 = Nx50s::interactivelyCreateNewOrNull()
-            if nx50 then
-                puts JSON.pretty_generate(nx50)
-            end
+            return if nx50.nil?
+            puts JSON.pretty_generate(nx50)
+            before = Nx50s::nx50s().take_while{|nx| nx["uuid"] != nx50["uuid"] }
+            puts "In position #{before.size}"
+            sleep 1
         end
 
         if Interpreting::match("Nx51", command) then
             nx51 = Nx51s::interactivelyCreateNewOrNull()
-            if nx51 then
-                puts JSON.pretty_generate(nx51)
-            end
+            return if nx51.nil? 
+            puts JSON.pretty_generate(nx51)
         end
 
         if Interpreting::match("ondates", command) then
