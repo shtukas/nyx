@@ -11,7 +11,7 @@ Axion provides the datablob interface and some content functions (creation/acces
 
 ----------------------------------------------------------
 contentType        contentPayload
-"line"             String
+Nothing            Nothing # This covers the "line" case. The understanding is that the client is managing its own description and see it as a content if Nothing
 "url"              String
 "text"             String
 "aion-point"       String # Root Named Hash
@@ -192,9 +192,13 @@ class Axion
     # Axion::interactivelyIssueNewCoordinatesOrNull(): nil or coordinates = {contentType, contentPayload}
     def self.interactivelyIssueNewCoordinatesOrNull()
 
-        contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["url", "text", "clickable", "aion-point"])
+        contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line (default)" ,"url", "text", "clickable", "aion-point"])
 
         if contentType.nil? then
+            return nil
+        end
+
+        if contentType == "line (default)" then
             return nil
         end
 
@@ -239,9 +243,12 @@ class Axion
 
     # Axion::access(contentType, contentPayload, update: Lambda(contentType, contentPayload))
     def self.access(contentType, contentPayload, update)
-
-        return if contentType.nil?
-
+        if contentType.nil? then
+            return
+        end
+        if contentType == "" then
+            return
+        end
         if contentType == "line" then
             return
         end

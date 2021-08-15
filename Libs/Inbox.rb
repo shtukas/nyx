@@ -173,8 +173,18 @@ class InboxFiles
             end
 
             if command == "dispatch" then
-                Nx50s::issueNx50UsingInboxLocationInteractive(location)
-                LucilleCore::removeFileSystemLocation(location)
+
+                domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
+                return if domain.nil?
+                if domain == "Nx50s" then
+                    Nx50s::issueNx50UsingInboxLocationInteractive(location)
+                    LucilleCore::removeFileSystemLocation(location)
+                    break
+                end
+                if domain == "Nx51s" then
+                    Nx51s::issueNx51UsingInboxLocationInteractive(location)
+                    break
+                end
                 break
             end
         }

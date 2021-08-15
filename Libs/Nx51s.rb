@@ -165,6 +165,19 @@ class Nx51s
         Nx51s::getNx51ByUUIDOrNull(uuid)
     end
 
+    # Nx51s::issueNx51UsingInboxLocationInteractive(location)
+    def self.issueNx51UsingInboxLocationInteractive(location)
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        description  = LucilleCore::askQuestionAnswerAsString("description: ")
+        catalystType = "Nx51"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = Nx51s::decideOrdinal(description)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx51s::getNx51ByUUIDOrNull(uuid)
+    end
+
     # --------------------------------------------------
     # Operations
 

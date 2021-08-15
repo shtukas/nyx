@@ -56,8 +56,8 @@ class NxOnDate # OnDate
         description  = nx31["description"]
         catalystType = "NxOnDate"
         payload1     = nx31["date"]
-        payload2     = nil 
-        payload3     = nil
+        payload2     = nx31["contentType"]
+        payload3     = nx31["contentPayload"]
         payload4     = nil 
         payload5     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
@@ -95,7 +95,7 @@ class NxOnDate # OnDate
     def self.toString(nx31)
         contentType = nx31["contentType"]
         tr1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[ondt] (#{nx31["date"]}) #{nx31["description"]}"
+        "[ondt] (#{nx31["date"]}) #{nx31["description"]}#{tr1}"
     end
 
     # NxOnDate::access(nx31)
