@@ -120,7 +120,7 @@ class NxDataCarrier
 
     # NxDataCarrier::toString(nx10)
     def self.toString(nx10)
-        "[node] #{nx10["description"]}"
+        "[data] #{nx10["description"]}"
     end
 
     # NxDataCarrier::selectOneNx10OrNull()
