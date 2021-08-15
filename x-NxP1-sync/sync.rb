@@ -97,8 +97,8 @@ class Points
         raise "3c047c0d-4017-49ba-9b28-851e70a61cb8: #{location}"
     end
 
-    # Points::upgrade(location1, location2)
-    def self.upgrade(location1, location2)
+    # Points::upgrade(location1, location2, isDaemon)
+    def self.upgrade(location1, location2, isDaemon)
         return if !File.exists?(location1)
         return if !File.exists?(location2)
 
@@ -108,14 +108,16 @@ class Points
         puts "      source (new) ; #{Points::computeTimeTraceOrNull(location2)} : #{location2}"
         puts "      target (old) ; #{Points::computeTimeTraceOrNull(location1)} : #{location1}"
 
-        LucilleCore::pressEnterToContinue()
+        if !isDaemon then
+            LucilleCore::pressEnterToContinue()
+        end
 
         LucilleCore::removeFileSystemLocation(location1)
         FileUtils.link_entry(location2, location1)
     end
 
-    # Points::processLocation(location)
-    def self.processLocation(location)
+    # Points::processLocation(location, isDaemon)
+    def self.processLocation(location, isDaemon)
         return if !File.exists?(location)
         naming = NamingUtils::extractNxP1NamingOrNull(File.basename(location))
         return if naming.nil?
@@ -138,24 +140,21 @@ class Points
             next if timeTrace2.nil?
             next if timeTrace1 == timeTrace2
             if timeTrace1 < timeTrace2 then
-                Points::upgrade(location1, location2) # location 1 is behind location 2
+                Points::upgrade(location1, location2, isDaemon) # location 1 is behind location 2
             end
             if timeTrace2 < timeTrace1 then
-                Points::upgrade(location2, location1)
+                Points::upgrade(location2, location1, isDaemon)
             end
         }
     end
 
-    # Points::processor()
-    def self.processor()
+    # Points::processor(isDaemon)
+    def self.processor(isDaemon)
         Find.find("/Users/pascal/Galaxy") do |location|
             Find.prune if location.include?("/Users/pascal/Galaxy/Software/Nyx")
             Find.prune if location.include?("node_modules")
             Find.prune if location.include?("theguardian-github-repositories-Lucille18")
-            Points::processLocation(location)
+            Points::processLocation(location, isDaemon)
         end
     end
-
-
-
 end

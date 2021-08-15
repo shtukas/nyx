@@ -1,0 +1,9 @@
+#!/usr/bin/ruby
+
+# encoding: utf-8
+
+require_relative "sync.rb"
+
+# -------------------------------------------------------
+
+Points::processor(false)

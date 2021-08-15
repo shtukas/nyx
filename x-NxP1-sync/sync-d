@@ -29,7 +29,7 @@ loop {
         next
     end
     log("Points::scanner")
-    Points::processor()
+    Points::processor(true)
     sleep 600
 }
 
