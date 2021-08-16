@@ -71,7 +71,8 @@ class PriorityFile
                 Bank::put(filepath, timespan)
             },
             "done"   => lambda { },
-            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) }
+            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
+            "metric" => 0
         }
     end
 end

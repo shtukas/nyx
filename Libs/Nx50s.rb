@@ -375,6 +375,7 @@ class Nx50s
             "rt"      => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
             "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
+            "metric"  => 0
         }
     end
 

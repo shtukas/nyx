@@ -23,7 +23,8 @@ class DrivesBackups
             .map{|instruction|
                 {
                     "uuid"       => instruction["uuid"],
-                    "announce"   => instruction["description"]
+                    "announce"   => instruction["description"],
+                    "metric"     => 0
                 }
             }
     end

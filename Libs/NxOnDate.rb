@@ -183,7 +183,8 @@ class NxOnDate # OnDate
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
                     CatalystDatabase::delete(nx31["uuid"])
                 end
-            }
+            },
+            "metric"   => 0
         }
     end
 

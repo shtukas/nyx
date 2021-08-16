@@ -398,7 +398,8 @@ class Nx51s
                 end
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "rt"      => rt
+            "rt"      => rt,
+            "metric"  => 0
         }
     end
 

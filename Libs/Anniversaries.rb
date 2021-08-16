@@ -202,7 +202,8 @@ class Anniversaries
                         puts Anniversaries::toString(anniversary).green
                         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
                         Anniversaries::commitAnniversaryToDisk(anniversary)
-                    }
+                    },
+                    "metric" => 0
                 }
             }
     end

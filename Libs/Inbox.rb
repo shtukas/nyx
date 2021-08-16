@@ -103,7 +103,8 @@ class InboxLines
                         CatalystDatabase::delete(uuid) 
                     end
                 },
-                "inbox-unixtime" => unixtime
+                "inbox-unixtime" => unixtime,
+                "metric"   => 0
             }
         }
     end
@@ -207,7 +208,8 @@ class InboxFiles
                         LucilleCore::removeFileSystemLocation(location)
                     end
                 },
-                "inbox-unixtime" => File.mtime(location).to_time.to_i
+                "inbox-unixtime" => File.mtime(location).to_time.to_i,
+                "metric"   => 0
             }
         }
     end
