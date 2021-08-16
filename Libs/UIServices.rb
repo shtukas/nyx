@@ -84,7 +84,7 @@ class UIServices
             return if nx50.nil?
             puts JSON.pretty_generate(nx50)
             before = Nx50s::nx50s().take_while{|nx| nx["uuid"] != nx50["uuid"] }
-            puts "In position #{before.size}"
+            puts "In position #{before.size+1}"
             sleep 1
         end
 
