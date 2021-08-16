@@ -206,6 +206,7 @@ class Anniversaries
                     "metric" => 0
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Anniversaries::dailyBriefing()

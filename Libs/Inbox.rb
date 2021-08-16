@@ -197,21 +197,23 @@ class InboxFiles
 
     # InboxFiles::ns16s()
     def self.ns16s()
-        InboxFiles::locations().map{|location|
-            uuid = "#{Utils::today()}:#{location}"
-            {
-                "uuid"     => uuid,
-                "announce" => "[inbx] file: #{File.basename(location)}",
-                "access"   => lambda { InboxFiles::access(location) },
-                "done"     => lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
-                        LucilleCore::removeFileSystemLocation(location)
-                    end
-                },
-                "inbox-unixtime" => File.mtime(location).to_time.to_i,
-                "metric"   => 0
+        InboxFiles::locations()
+            .map{|location|
+                uuid = "#{Utils::today()}:#{location}"
+                {
+                    "uuid"     => uuid,
+                    "announce" => "[inbx] file: #{File.basename(location)}",
+                    "access"   => lambda { InboxFiles::access(location) },
+                    "done"     => lambda { 
+                        if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
+                            LucilleCore::removeFileSystemLocation(location)
+                        end
+                    },
+                    "inbox-unixtime" => File.mtime(location).to_time.to_i,
+                    "metric"   => 0
+                }
             }
-        }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 end
 

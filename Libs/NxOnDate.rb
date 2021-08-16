@@ -195,6 +195,7 @@ class NxOnDate # OnDate
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
             .map{|nx31| NxOnDate::nx31ToNS16(nx31) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # NxOnDate::main()

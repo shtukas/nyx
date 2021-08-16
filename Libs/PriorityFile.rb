@@ -23,6 +23,8 @@ class PriorityFile
 
         uuid = "#{filepath}:#{Utils::today()}"
 
+        return nil if !DoNotShowUntil::isVisible(uuid)
+
         {
             "uuid"      => uuid,
             "announce"  => announce,

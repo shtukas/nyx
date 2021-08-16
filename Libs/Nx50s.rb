@@ -398,6 +398,7 @@ class Nx50s
             }
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
             .reverse
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # --------------------------------------------------

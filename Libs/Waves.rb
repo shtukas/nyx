@@ -367,6 +367,7 @@ class Waves
         Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Waves::nx19s()

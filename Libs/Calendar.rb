@@ -101,6 +101,7 @@ class Calendar
                     "metric"   => 0
                 }
             }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # -----------------------------------------------------

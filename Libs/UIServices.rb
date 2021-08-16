@@ -17,35 +17,22 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        if Work::isWorkMode() then
-            [
-                DetachedRunning::ns16s(),
-                Calendar::ns16s(),
-                NxOnDate::ns16s(),
-                PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-                Inbox::ns16s(),
-                Nx51s::ns16s(),
-            ]
-                .flatten
-                .compact
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        else
-            [
-                DetachedRunning::ns16s(),
-                Anniversaries::ns16s(),
-                Calendar::ns16s(),
-                Fitness::ns16s(),
-                NxOnDate::ns16s(),
-                PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-                Waves::ns16s(),
-                Inbox::ns16s(),
-                DrivesBackups::ns16s(),
-                Nx50s::ns16s(),
-            ]
-                .flatten
-                .compact
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        end
+        [
+            DetachedRunning::ns16s(),
+            Anniversaries::ns16s(),
+            Calendar::ns16s(),
+            Fitness::ns16s(),
+            NxOnDate::ns16s(),
+            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
+            Waves::ns16s(),
+            Inbox::ns16s(),
+            DrivesBackups::ns16s(),
+            Nx50s::ns16s(),
+            Nx51s::ns16s()
+        ]
+            .flatten
+            .compact
+            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
     end
 end
 
