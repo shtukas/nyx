@@ -399,16 +399,21 @@ class Nx51s
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
             "rt"      => rt,
-            "metric"  => 0
+            "metric"  => nil
         }
     end
 
     # Nx51s::ns16s()
     def self.ns16s()
-        Nx51s::nx51sPerOrdinal()
+        return [] if !Work::isWorkEnvelop()
+        rt = BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
+        return [] if rt > 6
+        base = 0.2 + 0.8*rt.to_f/6
+        ns16s = Nx51s::nx51sPerOrdinal()
             .map{|nx51| Nx51s::ns16OrNull(nx51) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        Metrics::lift1(ns16s, base)
     end
 
     # --------------------------------------------------

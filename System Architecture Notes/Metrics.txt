@@ -1,0 +1,7 @@
+
+
+ -2.0  : Priority File
+ -1.0  : detached running
+  0.0  : inbox, anniversaries, calendar
+  0.1  : waves 
+  0.2+ : Nx50s, Nx51s

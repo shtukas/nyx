@@ -19,7 +19,7 @@ class PriorityFile
 
         contents = IO.read(filepath)
 
-        announce = "#{filename}\n#{contents.strip.lines.first(10).map{|line| "      #{line}" }.join().green}"
+        announce = "#{filename}\n#{contents.strip.lines.first(10).join().green}"
 
         uuid = "#{filepath}:#{Utils::today()}"
 
@@ -74,7 +74,7 @@ class PriorityFile
             },
             "done"   => lambda { },
             "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "metric" => 0
+            "metric" => -2
         }
     end
 end

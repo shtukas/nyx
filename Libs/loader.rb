@@ -154,6 +154,8 @@ require_relative "Nx50s.rb"
 require_relative "Nx51s.rb"
 require_relative "NxOnDate.rb"
 
+require_relative "Metrics.rb"
+
 require_relative "PriorityFile.rb"
 require_relative "ProgrammableBooleans.rb"
 

@@ -1,8 +1,9 @@
 
 NS16 {
-    "uuid"       : String # used by DoNotShowUntil
+    "uuid"       : String   # used by DoNotShowUntil
     "announce"   : String
-    "metric"     : Float # 0 come first
+    "metric"     : Float    # 0 come first
+
     "access"     : Lambda or nil # optional
     "done"       : Lambda or nil # optional
     "[]"         : Lambda or nil # optional

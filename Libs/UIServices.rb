@@ -32,6 +32,7 @@ class NS16sOperator
         ]
             .flatten
             .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
     end
 end
@@ -143,7 +144,9 @@ class UIServices
 
             ns16s
                 .each_with_index{|ns16, indx|
-                    announce = "(#{"%3d" % indx}) #{ns16["announce"]}"
+                    metricStr = "(#{"%6.3f" % ns16["metric"]})".blue
+                    posStr = "(#{"%3d" % indx})"
+                    announce = "#{metricStr} #{posStr} #{ns16["announce"]}"
                     break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)

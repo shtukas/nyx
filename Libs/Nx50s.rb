@@ -375,7 +375,7 @@ class Nx50s
             "rt"      => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
             "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
-            "metric"  => 0
+            "metric"  => nil
         }
     end
 
@@ -386,7 +386,9 @@ class Nx50s
             LucilleCore::removeFileSystemLocation(location)
         }
 
-        Nx50s::nx50s()
+        base = 0.2 + 0.8*BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").to_f/3
+
+        ns16s = Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
                 if ns16s.size < 3 then
                     ns16 = Nx50s::ns16OrNull(nx50)
@@ -398,7 +400,8 @@ class Nx50s
             }
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
             .reverse
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+        Metrics::lift1(ns16s, base)
     end
 
     # --------------------------------------------------

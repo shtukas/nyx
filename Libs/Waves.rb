@@ -358,16 +358,17 @@ class Waves
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
             "wave"     => wave,
-            "metric"   => 0
+            "metric"   => nil
         }
     end
 
     # Waves::ns16s()
     def self.ns16s()
-        Waves::waves()
+        ns16s = Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        Metrics::lift1(ns16s, 0.1)
     end
 
     # Waves::nx19s()

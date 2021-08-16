@@ -17,8 +17,8 @@ class Work
         (x >= n1) and (x < n2)
     end
 
-    # Work::isWorkMode()
-    def self.isWorkMode()
+    # Work::isWorkEnvelop()
+    def self.isWorkEnvelop()
 
         isInTimeInterval = lambda{|x, n1, n2|
             (x >= n1) and (x < n2)
@@ -34,7 +34,7 @@ class Work
 
         # Standard work hours
         return false if [0, 6].include?(Time.new.wday)
-        isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 17)
+        isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 14, 20)
     end
 
     # Work::workMenuCommands()
