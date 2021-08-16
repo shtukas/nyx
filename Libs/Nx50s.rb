@@ -261,7 +261,12 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                Axion::access(nx50["contentType"], nx50["contentPayload"], nil)
+                update = lambda {|contentType, contentPayload|
+                    nx50["contentType"] = contentType
+                    nx50["contentPayload"] = contentPayload
+                    Nx50s::commitNx50ToDisk(nx50)
+                }
+                Axion::access(nx50["contentType"], nx50["contentPayload"], update)
                 next
             end
 
