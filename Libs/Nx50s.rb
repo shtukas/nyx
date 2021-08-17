@@ -192,8 +192,18 @@ class Nx50s
         CatalystDatabase::delete(nx50["uuid"])
     end
 
-    # Nx50s::access(nx50)
-    def self.access(nx50)
+    # Nx50s::accessContent(nx50)
+    def self.accessContent(nx50)
+        update = lambda {|contentType, contentPayload|
+            nx50["contentType"] = contentType
+            nx50["contentPayload"] = contentPayload
+            Nx50s::commitNx50ToDisk(nx50)
+        }
+        Axion::access(nx50["contentType"], nx50["contentPayload"], update)
+    end
+
+    # Nx50s::landing(nx50)
+    def self.landing(nx50)
 
         uuid = nx50["uuid"]
 
@@ -274,12 +284,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                update = lambda {|contentType, contentPayload|
-                    nx50["contentType"] = contentType
-                    nx50["contentPayload"] = contentPayload
-                    Nx50s::commitNx50ToDisk(nx50)
-                }
-                Axion::access(nx50["contentType"], nx50["contentPayload"], update)
+                Nx50s::accessContent(nx50)
                 next
             end
 
@@ -378,7 +383,7 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "access"   => lambda{ Nx50s::access(nx50) },
+            "access"   => lambda{ Nx50s::landing(nx50) },
             "done"     => lambda{
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx50s::toString(nx50)}' ? ", true) then
                     Nx50s::complete(nx50)
@@ -388,9 +393,35 @@ class Nx50s
             "rt"      => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
             "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
-            "metric"  => nil,
-            "commands" => ["access", "done"],
-            "interpreter" => nil
+            "metric"      => nil,
+            "commands"    => [">>", "landing", "done"],
+            "interpreter" => lambda {|command|
+                if command == ">>" then
+                    puts "Starting at #{Time.new.to_s}"
+                    nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                    Nx50s::accessContent(nx50)
+                    LucilleCore::pressEnterToContinue()
+                    options = ["exit (default)", "landing", "destroy"]
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                    NxBalls::closeNxBall(nxball, true)
+                    if option == "landing" then
+                        Nx50s::landing(nx50)
+                    end
+                    if option == "destroy" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                            Nx50s::complete(nx50)
+                        end
+                    end
+                end
+                if command == "landing" then
+                    Nx50s::landing(nx50)
+                end
+                if command == "done" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                        Nx50s::complete(nx50)
+                    end
+                end
+            }
         }
     end
 
@@ -425,7 +456,7 @@ class Nx50s
         Nx50s::nx50s().map{|item|
             {
                 "announce" => Nx50s::toString(item),
-                "lambda"   => lambda { Nx50s::access(item) }
+                "lambda"   => lambda { Nx50s::landing(item) }
             }
         }
     end

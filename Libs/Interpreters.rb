@@ -152,7 +152,7 @@ class Interpreters
             end
             nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
             return if nx50.nil?
-            Nx50s::access(nx50)
+            Nx50s::landing(nx50)
         end
 
         if Interpreting::match("Nx51 ops", command) then
