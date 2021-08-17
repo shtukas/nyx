@@ -59,21 +59,21 @@ class UIServices
 
             puts ""
 
+            commandStrWithPrefix = lambda{|ns16, indx|
+                return "" if indx != 0
+                return "" if ns16["commands"].nil?
+                return "" if ns16["commands"].empty?
+                " (commands: #{ns16["commands"].join(", ")})".yellow
+            }
+
             ns16s
                 .each_with_index{|ns16, indx|
                     metricStr = "(#{"%6.3f" % ns16["metric"]})".blue
                     posStr = "(#{"%3d" % indx})"
-                    announce = "#{metricStr} #{posStr} #{ns16["announce"]}"
+                    announce = "#{metricStr} #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
                     break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
-                    if indx == 0 then
-                        if ns16["commands"] and ns16["commands"].size > 0 then
-                            puts "commands: #{ns16["commands"].join(", ")}".yellow
-                            puts ""
-                            vspaceleft = vspaceleft - 2
-                        end
-                    end
                 }
 
             puts ""
