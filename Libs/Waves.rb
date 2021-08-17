@@ -217,28 +217,27 @@ class Waves
                     system("clear")
                     wave = Waves::selectWaveOrNull()
                     return if wave.nil?
-                    Waves::access(wave)
+                    Waves::landing(wave)
                 }
             end
         }
     end
 
-    # Waves::access(wave)
-    def self.access(wave)
-        uuid = wave["uuid"]
-        
-        accessContent = lambda{|wave|
-            if wave["contentType"] == "line" then
+    # Waves::accessContent(wave)
+    def self.accessContent(wave)
+        if wave["contentType"] == "line" then
 
-            end
-            if wave["contentType"] == "url" then
-                Utils::openUrlUsingSafari(wave["contentPayload"])
-            end
-        }
+        end
+        if wave["contentType"] == "url" then
+            Utils::openUrlUsingSafari(wave["contentPayload"])
+        end
+    end
+
+    # Waves::landing(wave)
+    def self.landing(wave)
+        uuid = wave["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
-
-        accessContent.call(wave)
 
         loop {
             system("clear")
@@ -256,8 +255,8 @@ class Waves
 
             puts ""
 
-            puts "[item   ] <datecode> | done | update description | recast contents | recast schedule | domain | destroy".yellow
-            puts "[item   ] access | note | [] | done | <datecode> | detach running | exit".yellow
+            puts "[item   ] access | note | [] | done | <datecode> | detach running | exit | update description | recast contents | recast schedule | destroy".yellow
+
             puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -312,7 +311,7 @@ class Waves
             end
 
             if command == "access" then
-                accessContent.call(wave)
+                Waves::accessContent(wave)
                 next
             end
 
@@ -357,14 +356,29 @@ class Waves
     def self.toNS16(wave)
         uuid = wave["uuid"]
         {
-            "uuid"     => uuid,
-            "announce" => Waves::toString(wave),
-            "access"   => lambda { Waves::access(wave) },
-            "done"     => lambda { Waves::performDone(wave) },
-            "wave"     => wave,
-            "metric"   => nil,
-            "commands"    => ["access", "done"],
-            "interpreter" => nil
+            "uuid"        => uuid,
+            "announce"    => Waves::toString(wave),
+            "access"      => lambda { Waves::landing(wave) },
+            "done"        => lambda { Waves::performDone(wave) },
+            "wave"        => wave,
+            "metric"      => nil,
+            "commands"    => [">>", "landing", "done"],
+            "interpreter" => lambda{|command|
+                if command == ">>" then
+                    puts "Starting at #{Time.new.to_s}"
+                    nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+                    Waves::accessContent(wave)
+                    LucilleCore::pressEnterToContinue()
+                    Waves::performDone(wave)
+                    NxBalls::closeNxBall(nxball, true)
+                end
+                if command == "landing" then
+                    Waves::landing(wave)
+                end
+                if command == "done" then
+                    Waves::performDone(wave)
+                end
+            }
         }
     end
 
@@ -383,7 +397,7 @@ class Waves
         Waves::waves().map{|item|
             {
                 "announce" => Waves::toString(item),
-                "lambda"   => lambda { Waves::access(item) }
+                "lambda"   => lambda { Waves::landing(item) }
             }
         }
     end
