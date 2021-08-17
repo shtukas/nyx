@@ -193,6 +193,8 @@ class Waves
         Waves::commitWaveToDisk(wave)
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+
+        Bank::put("waves-circuit-breaker-b72c", 1)
     end
 
     # Waves::main()
@@ -366,6 +368,7 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
+        return [] if Bank::valueOverTimespan("waves-circuit-breaker-b72c", 3600*2) >= 5
         ns16s = Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
