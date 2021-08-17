@@ -414,7 +414,6 @@ class Nx50s
                 ns16s
             }
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
-            .reverse
 
         Metrics::lift1(ns16s, base)
     end
