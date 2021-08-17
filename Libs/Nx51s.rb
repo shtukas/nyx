@@ -273,7 +273,7 @@ class Nx51s
 
             puts "[item   ] access | note | [] | <datecode> | detach running | pause | pursue | exit | completed | update description | update contents | update ordinal | destroy".yellow
 
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -361,7 +361,7 @@ class Nx51s
                 break
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
 
         thr.exit
@@ -399,7 +399,9 @@ class Nx51s
             },
             "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
             "rt"      => rt,
-            "metric"  => nil
+            "metric"  => nil,
+            "commands" => ["access", "done"],
+            "interpreter" => nil
         }
     end
 

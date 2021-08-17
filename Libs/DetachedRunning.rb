@@ -69,7 +69,9 @@ class DetachedRunning
                     end
                 },
                 "done"     => lambda { DetachedRunning::done(item) },
-                "metric"   => -1
+                "metric"   => -1,
+                "commands"    => ["done"],
+                "interpreter" => nil
             }
         }
     end

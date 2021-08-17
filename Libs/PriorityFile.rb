@@ -41,7 +41,7 @@ class PriorityFile
                     puts ""
 
                     puts "open | <datecode> | [] | (empty) # default # exit".yellow
-                    puts UIServices::mainMenuCommands().yellow
+                    puts Interpreters::mainMenuCommands().yellow
 
                     command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -60,7 +60,7 @@ class PriorityFile
                         PriorityFile::applyNextTransformation(filepath)
                     end
                     
-                    UIServices::mainMenuInterpreter(command)
+                    Interpreters::mainMenuInterpreter(command)
                 }
 
                 timespan = Time.new.to_f - startUnixtime
@@ -74,7 +74,9 @@ class PriorityFile
             },
             "done"   => lambda { },
             "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "metric" => -2
+            "metric" => -2,
+            "commands" => ["access", "[]"],
+            "interpreter" => nil
         }
     end
 end

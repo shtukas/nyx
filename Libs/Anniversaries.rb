@@ -203,7 +203,9 @@ class Anniversaries
                         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
                         Anniversaries::commitAnniversaryToDisk(anniversary)
                     },
-                    "metric" => 0
+                    "metric" => 0,
+                    "commands" => ["access", "done"],
+                    "interpreter" => nil
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -227,7 +229,7 @@ class Anniversaries
             puts Anniversaries::toString(anniversary).green
 
             puts "update start date | destroy".yellow
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -244,7 +246,7 @@ class Anniversaries
                 break
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
     end
 
@@ -265,7 +267,7 @@ class Anniversaries
             puts "Anniversaries (main)"
 
             puts "dive (into anniversaries) | make (new anniversary)".yellow
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -280,7 +282,7 @@ class Anniversaries
                 break
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
     end
 

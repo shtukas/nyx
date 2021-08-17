@@ -226,7 +226,7 @@ class Nx50s
 
             puts "[item   ] access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
 
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -313,7 +313,7 @@ class Nx50s
                 break
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
 
         thr.exit
@@ -375,7 +375,9 @@ class Nx50s
             "rt"      => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
             "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
-            "metric"  => nil
+            "metric"  => nil,
+            "commands" => ["access", "done"],
+            "interpreter" => nil
         }
     end
 

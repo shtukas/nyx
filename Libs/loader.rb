@@ -147,6 +147,7 @@ require_relative "DrivesBackups.rb"
 
 require_relative "Inbox.rb"
 require_relative "Interpreting.rb"
+require_relative "Interpreters.rb"
 
 require_relative "GalaxyFinder.rb"
 

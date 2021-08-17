@@ -1,11 +1,11 @@
 
 NS16 {
-    "uuid"       : String   # used by DoNotShowUntil
-    "announce"   : String
-    "metric"     : Float    # 0 come first
-
-    "access"     : Lambda or nil # optional
-    "done"       : Lambda or nil # optional
-    "[]"         : Lambda or nil # optional
-
+    "uuid"        : String   # used by DoNotShowUntil
+    "announce"    : String
+    "metric"      : Float    # 0 come first
+    "commands"    : Array[String] | nil
+    "interpreter" : Lambda(command: String): Boolean | nil # optional 
+                    return true if the command was matched 
+    "done"        : Lambda or nil # optional
+    "[]"          : Lambda or nil # optional
 }

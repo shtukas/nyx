@@ -104,7 +104,9 @@ class InboxLines
                     end
                 },
                 "inbox-unixtime" => unixtime,
-                "metric"   => 0
+                "metric"   => 0,
+                "commands" => ["access", "done"],
+                "interpreter" => nil
             }
         }
     end
@@ -184,6 +186,7 @@ class InboxFiles
                 end
                 if domain == "Nx51s" then
                     Nx51s::issueNx51UsingInboxLocationInteractive(location)
+                    LucilleCore::removeFileSystemLocation(location)
                     break
                 end
                 break

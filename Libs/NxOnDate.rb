@@ -123,7 +123,7 @@ class NxOnDate # OnDate
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
             puts "[item   ] access | note | [] | <datecode> | update date | detach running | done | exit".yellow
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -169,7 +169,7 @@ class NxOnDate # OnDate
                 break
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
     end
 
@@ -184,7 +184,9 @@ class NxOnDate # OnDate
                     CatalystDatabase::delete(nx31["uuid"])
                 end
             },
-            "metric"   => 0
+            "metric"   => 0,
+            "commands" => ["access", "done"],
+            "interpreter" => nil
         }
     end
 
@@ -211,7 +213,7 @@ class NxOnDate # OnDate
             }
 
             puts "<item index> | (empty) # exit".yellow
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -223,7 +225,7 @@ class NxOnDate # OnDate
                 NxOnDate::access(nx31)
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
     end
 

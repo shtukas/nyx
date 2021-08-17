@@ -254,7 +254,7 @@ class Waves
 
             puts "[item   ] <datecode> | done | update description | recast contents | recast schedule | domain | destroy".yellow
             puts "[item   ] access | note | [] | done | <datecode> | detach running | exit".yellow
-            puts UIServices::mainMenuCommands().yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -341,7 +341,7 @@ class Waves
                 end
             end
 
-            UIServices::mainMenuInterpreter(command)
+            Interpreters::mainMenuInterpreter(command)
         }
         
         NxBalls::closeNxBall(nxball, true)
@@ -358,7 +358,9 @@ class Waves
             "access"   => lambda { Waves::access(wave) },
             "done"     => lambda { Waves::performDone(wave) },
             "wave"     => wave,
-            "metric"   => nil
+            "metric"   => nil,
+            "commands"    => ["access", "done"],
+            "interpreter" => nil
         }
     end
 

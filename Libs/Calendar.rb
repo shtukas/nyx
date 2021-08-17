@@ -98,7 +98,9 @@ class Calendar
                     "done"     => lambda {
                         Calendar::moveToArchives(item)
                     },
-                    "metric"   => 0
+                    "metric"   => 0,
+                    "commands" => ["access", "done"],
+                    "interpreter" => nil
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
