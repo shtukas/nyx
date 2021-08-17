@@ -82,15 +82,21 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
 
+
+
         if command.start_with?("inbox: ") then
             line = command[6, command.size].strip
             InboxLines::issueNewLine(line)
+        end
+
+        if command == "inbox text" then
+            InboxText::issueNewText()
         end
 
         if Interpreting::match("wave", command) then

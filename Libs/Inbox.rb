@@ -103,14 +103,155 @@ class InboxLines
                         CatalystDatabase::delete(uuid) 
                     end
                 },
-                "inbox-unixtime" => unixtime,
+                "unixtime" => unixtime,
                 "metric"   => 0,
                 "commands" => ["access", "done"],
                 "interpreter" => nil
             }
         }
     end
+end
 
+=begin
+
+InboxTextItem {
+    "uuid"        => String
+    "index"       => Integer
+    "unixtime"    => Integer
+    "description" => String
+    "text"        => Float
+}
+
+=end
+
+class InboxText
+
+    # InboxText::getItemAtIndexOrNull(indx)
+    def self.getItemAtIndexOrNull(indx)
+        item = KeyValueStore::getOrNull(nil, "62f86cdb-0f43-4427-96c7-644cb26193c3:#{indx}")
+        return nil if item.nil?
+        JSON.parse(item)
+    end
+
+    # InboxText::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        KeyValueStore::set(nil, "62f86cdb-0f43-4427-96c7-644cb26193c3:#{item["index"]}", JSON.generate(item))
+    end
+
+    # InboxText::delete(indx)
+    def self.delete(indx)
+        KeyValueStore::destroy(nil, "62f86cdb-0f43-4427-96c7-644cb26193c3:#{indx}")
+    end
+
+    # InboxText::items()
+    def self.items()
+        (1..10).map{|indx| InboxText::getItemAtIndexOrNull(indx) }.compact
+    end
+
+    # InboxText::access(item)
+    def self.access(item)
+
+        uuid = item["uuid"]
+        description = item["description"]
+
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        loop {
+
+            system("clear")
+
+            puts ""
+
+            puts "Inbox Text -------------------"
+            puts description.green
+            puts item["text"].green
+            puts "------------------------------"
+
+            puts ""
+
+            puts "done | edit | dispatch".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            if command == "done" then
+                InboxText::delete(item["index"])
+                break
+            end
+
+            if command == "edit" then
+                item["text"] = Utils::editTextSynchronously(item["text"])
+                InboxText::commitItemToDisk(item)
+                next
+            end
+
+            if command == "dispatch" then
+                domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
+                return if domain.nil?
+                if domain == "Nx50s" then
+                    Nx50s::issueNx50UsingInboxText(item)
+                    InboxText::delete(item["index"])
+                    break
+                end
+                if domain == "Nx51s" then
+                    Nx51s::issueNx51UsingInboxText(item)
+                    InboxText::delete(item["index"])
+                    break
+                end
+            end
+        }
+
+        thr.exit
+        NxBalls::closeNxBall(nxball, true)
+    end
+
+    # InboxText::issueNewText()
+    def self.issueNewText()
+        indx = ((1..10).to_a - InboxText::items().map{|item| item["index"] }).first
+        if indx.nil? then
+            puts "Too many texts"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        item = {
+            "uuid"        => SecureRandom.hex,
+            "index"       => indx,
+            "unixtime"    => Time.new.to_i,
+            "description" => LucilleCore::askQuestionAnswerAsString("description: "),
+            "text"        => Utils::editTextSynchronously("")
+        }
+        InboxText::commitItemToDisk(item)
+    end
+
+    # InboxText::ns16s()
+    def self.ns16s()
+        InboxText::items().map{|item|
+            uuid = item["uuid"]
+            announce = "[inbx] (text) #{item["description"]}"
+            unixtime = item["unixtime"]
+            {
+                "uuid"     => uuid,
+                "announce" => announce,
+                "access"   => lambda { InboxText::access(item) },
+                "done"     => lambda { 
+                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
+                        InboxText::delete(item["index"]) 
+                    end
+                },
+                "unixtime" => unixtime,
+                "metric"   => 0,
+                "commands" => ["access", "done"],
+                "interpreter" => nil
+            }
+        }
+    end
 end
 
 class InboxFiles
@@ -212,7 +353,7 @@ class InboxFiles
                             LucilleCore::removeFileSystemLocation(location)
                         end
                     },
-                    "inbox-unixtime" => File.mtime(location).to_time.to_i,
+                    "unixtime" => File.mtime(location).to_time.to_i,
                     "metric"   => 0
                 }
             }
@@ -220,12 +361,11 @@ class InboxFiles
     end
 end
 
-
 class Inbox
 
     # Inbox::ns16s()
     def self.ns16s()
-        (InboxLines::ns16s() + InboxFiles::ns16s())
-            .sort{|i1, i2| i1["inbox-unixtime"] <=> i2["inbox-unixtime"] }
+        (InboxLines::ns16s() + InboxFiles::ns16s() + InboxText::ns16s() )
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end
