@@ -191,7 +191,9 @@ class Waves
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         Waves::commitWaveToDisk(wave)
+
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
+        puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
 
         Bank::put("waves-circuit-breaker-b72c", 1)
