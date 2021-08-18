@@ -352,6 +352,18 @@ class Waves
 
     # -------------------------------------------------------------------------
 
+    # Waves::arrows(wave)
+    def self.arrows(wave)
+        puts Waves::toString(wave)
+        uuid = wave["uuid"]
+        puts "Starting at #{Time.new.to_s}"
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        Waves::accessContent(wave)
+        LucilleCore::pressEnterToContinue()
+        Waves::performDone(wave)
+        NxBalls::closeNxBall(nxball, true)
+    end
+
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         uuid = wave["uuid"]
@@ -362,12 +374,7 @@ class Waves
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda{|command|
                 if command == ">>" then
-                    puts "Starting at #{Time.new.to_s}"
-                    nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
-                    Waves::accessContent(wave)
-                    LucilleCore::pressEnterToContinue()
-                    Waves::performDone(wave)
-                    NxBalls::closeNxBall(nxball, true)
+                    Waves::arrows(wave)
                 end
                 if command == "landing" then
                     Waves::landing(wave)
@@ -375,6 +382,9 @@ class Waves
                 if command == "done" then
                     Waves::performDone(wave)
                 end
+            },
+            "selected" => lambda {
+                Waves::arrows(wave)
             },
             "wave" => wave,
         }

@@ -48,6 +48,37 @@ class InboxLines
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
     end
 
+    # InboxLines::access(item)
+    def self.access(item)
+        uuid = item["uuid"]
+        puts "[inbox] #{description}".green
+        puts "Started at: #{Time.new.to_s}".yellow
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        LucilleCore::pressEnterToContinue()
+
+        thr.exit
+
+        options = ["done", "dispatch"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        NxBalls::closeNxBall(nxball, true)
+
+        if option == "done" then
+            CatalystDatabase::delete(uuid) 
+        end
+        if option == "dispatch" then
+            InboxLines::dispatch(item)
+        end
+    end
+
     # InboxLines::ns16s()
     def self.ns16s()
         CatalystDatabase::getItemsByCatalystType("inbox").map{|item|
@@ -62,32 +93,7 @@ class InboxLines
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
-                        puts "[inbox] #{description}".green
-                        puts "Started at: #{Time.new.to_s}".yellow
-                        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
-                        thr = Thread.new {
-                            loop {
-                                sleep 60
-                                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                                end
-                            }
-                        }
-
-                        LucilleCore::pressEnterToContinue()
-
-                        thr.exit
-
-                        options = ["done", "dispatch"]
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                        NxBalls::closeNxBall(nxball, true)
-
-                        if option == "done" then
-                            CatalystDatabase::delete(uuid) 
-                        end
-                        if option == "dispatch" then
-                            InboxLines::dispatch(item)
-                        end
+                        InboxLines::access(item)
                     end
                     if command == "done" then
                         if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
@@ -97,6 +103,9 @@ class InboxLines
                     if command == "dispatch" then
                         InboxLines::dispatch(item)
                     end
+                },
+                "selected" => lambda {
+                    InboxLines::access(item)
                 }
             }
         }
@@ -171,6 +180,50 @@ class InboxText
         InboxText::commitItemToDisk(item)
     end
 
+    # InboxText::access(item)
+    def self.access(item)
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        loop {
+            puts "Text -------------------------"
+            puts description.green
+            puts ""
+            puts item["text"].green
+            puts "------------------------------"
+
+            LucilleCore::pressEnterToContinue()
+
+            thr.exit
+
+            options = ["edit", "done", "dispatch"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            NxBalls::closeNxBall(nxball, true)
+
+            if option == "edit" then
+                item["text"] = Utils::editTextSynchronously(item["text"])
+                InboxText::commitItemToDisk(item)
+                next
+            end
+            if option == "done" then
+                InboxText::delete(item["index"])
+                break
+            end
+            if option == "dispatch" then
+                InboxText::dispatch(item)
+                break
+            end
+        }
+    end
+
     # InboxText::ns16s()
     def self.ns16s()
         InboxText::items().map{|item|
@@ -185,48 +238,7 @@ class InboxText
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
-
-                        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
-
-                        thr = Thread.new {
-                            loop {
-                                sleep 60
-                                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                                end
-                            }
-                        }
-
-                        loop {
-                            puts "Text -------------------------"
-                            puts description.green
-                            puts ""
-                            puts item["text"].green
-                            puts "------------------------------"
-
-                            LucilleCore::pressEnterToContinue()
-
-                            thr.exit
-
-                            options = ["edit", "done", "dispatch"]
-                            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                            NxBalls::closeNxBall(nxball, true)
-
-                            if option == "edit" then
-                                item["text"] = Utils::editTextSynchronously(item["text"])
-                                InboxText::commitItemToDisk(item)
-                                next
-                            end
-                            if option == "done" then
-                                InboxText::delete(item["index"])
-                                break
-                            end
-                            if option == "dispatch" then
-                                InboxText::dispatch(item)
-                                break
-                            end
-                        }
-
+                        InboxText::access(item)
                     end
                     if command == "done" then
                         if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
@@ -236,6 +248,9 @@ class InboxText
                     if command == "dispatch" then
                         InboxText::dispatch(item)
                     end
+                },
+                "selected" => lambda {
+                    InboxText::access(item)
                 }
             }
         }
@@ -268,6 +283,55 @@ class InboxFiles
         end
     end
 
+    # InboxFiles::access(location)
+    def self.access(location)
+        nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Inbox item running for more than an hour")
+                end
+            }
+        }
+
+        puts "[inbox] file: #{location}".green
+
+        if location.include?("'") then
+            puts "Looking at: #{location}"
+            if LucilleCore::askQuestionAnswerAsBoolean("remove quote ? ", true) then
+                location2 = location.gsub("'", "-")
+                FileUtils.mv(location, location2)
+                location = location2
+            end
+        end
+
+        if !location.include?("'") then
+            system("open '#{location}'")
+        end
+
+        LucilleCore::pressEnterToContinue()
+
+        thr.exit
+
+        options = ["done", "dispatch"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        NxBalls::closeNxBall(nxball, true)
+
+        if option == "done" then
+            LucilleCore::removeFileSystemLocation(location)
+        end
+
+        if option == "dispatch" then
+            InboxFiles::dispatch(location)
+        end
+    end
+
     # InboxFiles::ns16s()
     def self.ns16s()
         InboxFiles::locations()
@@ -281,52 +345,7 @@ class InboxFiles
                     "commands" => [">>", "done", "dispatch"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then
-
-                            nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
-
-                            thr = Thread.new {
-                                loop {
-                                    sleep 60
-                                    if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                                        nxball = NxBalls::upgradeNxBall(nxball, false)
-                                    end
-
-                                    if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                                        Utils::onScreenNotification("Catalyst", "Inbox item running for more than an hour")
-                                    end
-                                }
-                            }
-
-                            puts "[inbox] file: #{location}".green
-
-                            if location.include?("'") then
-                                puts "Looking at: #{location}"
-                                if LucilleCore::askQuestionAnswerAsBoolean("remove quote ? ", true) then
-                                    location2 = location.gsub("'", "-")
-                                    FileUtils.mv(location, location2)
-                                    location = location2
-                                end
-                            end
-
-                            if !location.include?("'") then
-                                system("open '#{location}'")
-                            end
-
-                            LucilleCore::pressEnterToContinue()
-
-                            thr.exit
-
-                            options = ["done", "dispatch"]
-                            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                            NxBalls::closeNxBall(nxball, true)
-
-                            if option == "done" then
-                                LucilleCore::removeFileSystemLocation(location)
-                            end
-
-                            if option == "dispatch" then
-                                InboxFiles::dispatch(location)
-                            end
+                            InboxFiles::access(location)
                         end
                         if command == "done" then
                             if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
@@ -336,6 +355,9 @@ class InboxFiles
                         if command == "dispatch" then
                             InboxFiles::dispatch(location)
                         end
+                    },
+                    "selected" => lambda {
+                        InboxFiles::access(location)
                     }
                 }
             }

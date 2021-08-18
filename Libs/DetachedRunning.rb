@@ -69,6 +69,11 @@ class DetachedRunning
                     if command == "done" then
                         DetachedRunning::done(item)
                     end
+                },
+                "selected" => lambda {
+                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{DetachedRunning::toString(item)}' ? ", true) then
+                        DetachedRunning::done(item)
+                    end
                 }
             }
         }

@@ -10,6 +10,51 @@ class PriorityFile
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
+    # PriorityFile::access(filepath)
+    def self.access(filepath)
+        startUnixtime = Time.new.to_f
+
+        system("open '#{filepath}'")
+
+        loop {
+            system("clear")
+
+            puts IO.read(filepath).strip.lines.first(10).join().strip.green
+            puts ""
+
+            puts "open | <datecode> | [] | (empty) # default # exit".yellow
+            puts Interpreters::mainMenuCommands().yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
+            if Interpreting::match("open", command) then
+                system("open '#{filepath}'")
+            end
+
+            if Interpreting::match("[]", command) then
+                PriorityFile::applyNextTransformation(filepath)
+            end
+            
+            Interpreters::mainMenuInterpreter(command)
+        }
+
+        timespan = Time.new.to_f - startUnixtime
+
+        puts "Time since start: #{timespan}"
+
+        timespan = [timespan, 3600*2].min
+
+        puts "putting #{timespan} seconds to file '#{filepath}'"
+        Bank::put(filepath, timespan)
+    end
+
     # PriorityFile::ns16OrNull(filepath)
     def self.ns16OrNull(filepath)
 
@@ -29,55 +74,20 @@ class PriorityFile
             "uuid"        => uuid,
             "announce"    => announce,
             "metric"      => -2,
-            "commands"    => ["access", "[]"],
+            "commands"    => [">>", "access", "[]"],
             "interpreter" => lambda{|command|
+                if command == ">>" then
+                    PriorityFile::access(filepath)
+                end
                 if command == "access" then
-
-                    startUnixtime = Time.new.to_f
-
-                    system("open '#{filepath}'")
-
-                    loop {
-                        system("clear")
-
-                        puts IO.read(filepath).strip.lines.first(10).join().strip.green
-                        puts ""
-
-                        puts "open | <datecode> | [] | (empty) # default # exit".yellow
-                        puts Interpreters::mainMenuCommands().yellow
-
-                        command = LucilleCore::askQuestionAnswerAsString("> ")
-
-                        break if command == ""
-
-                        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                            DoNotShowUntil::setUnixtime(uuid, unixtime)
-                            break
-                        end
-
-                        if Interpreting::match("open", command) then
-                            system("open '#{filepath}'")
-                        end
-
-                        if Interpreting::match("[]", command) then
-                            PriorityFile::applyNextTransformation(filepath)
-                        end
-                        
-                        Interpreters::mainMenuInterpreter(command)
-                    }
-
-                    timespan = Time.new.to_f - startUnixtime
-
-                    puts "Time since start: #{timespan}"
-
-                    timespan = [timespan, 3600*2].min
-
-                    puts "putting #{timespan} seconds to file '#{filepath}'"
-                    Bank::put(filepath, timespan)
+                    PriorityFile::access(filepath)
                 end
                 if command == "[]" then
                     PriorityFile::applyNextTransformation(filepath)
                 end
+            },
+            "selected" => lambda {
+                PriorityFile::access(filepath)
             }
         }
     end

@@ -98,12 +98,21 @@ class NxOnDate # OnDate
         "[ondt] (#{nx31["date"]}) #{nx31["description"]}#{tr1}"
     end
 
-    # NxOnDate::access(nx31)
-    def self.access(nx31)
+    # NxOnDate::landing(nx31)
+    def self.landing(nx31)
 
         uuid = nx31["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
 
         system("clear")
         
@@ -171,6 +180,39 @@ class NxOnDate # OnDate
 
             Interpreters::mainMenuInterpreter(command)
         }
+
+        thr.exit
+
+        Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
+
+        NxBalls::closeNxBall(nxball, true)
+    end
+
+    # NxOnDate::arrows(nx31)
+    def self.arrows(nx31)
+        uuid = nx31["uuid"]
+
+        nxball = NxBalls::makeNxBall([uuid])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
+        Axion::access(nx31["contentType"], nx31["contentPayload"], nil)
+
+        LucilleCore::pressEnterToContinue()
+
+        if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
+            CatalystDatabase::delete(nx31["uuid"])
+        end
+
+        Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # NxOnDate::nx31ToNS16(nx31)
@@ -179,16 +221,22 @@ class NxOnDate # OnDate
             "uuid"        => nx31["uuid"],
             "announce"    => NxOnDate::toString(nx31),
             "metric"      => 0,
-            "commands"    => ["access", "done"],
+            "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
-                if command == "access" then
-                    NxOnDate::access(nx31)
+                if command == ">>" then
+                    NxOnDate::arrows(nx31)
+                end
+                if command == "landing" then
+                    NxOnDate::landing(nx31)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
                         CatalystDatabase::delete(nx31["uuid"])
                     end
                 end
+            },
+            "selected" => lambda {
+                NxOnDate::landing(nx31)
             }
         }
     end
@@ -225,7 +273,7 @@ class NxOnDate # OnDate
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 nx31 = nx31s[indx]
                 next if nx31.nil?
-                NxOnDate::access(nx31)
+                NxOnDate::landing(nx31)
             end
 
             Interpreters::mainMenuInterpreter(command)
@@ -237,7 +285,7 @@ class NxOnDate # OnDate
         NxOnDate::nx31s().map{|item|
             {
                 "announce" => NxOnDate::toString(item),
-                "lambda"   => lambda { NxOnDate::access(item) }
+                "lambda"   => lambda { NxOnDate::landing(item) }
             }
         }
     end

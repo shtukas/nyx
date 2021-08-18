@@ -326,6 +326,54 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
+    # Nx51s::access(nx51)
+    def self.access(nx51)
+        uuid = nx51["uuid"]
+        puts "Starting at #{Time.new.to_s}"
+        nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+        Nx51s::accessContent(nx51)
+
+        note = StructuredTodoTexts::getNoteOrNull(uuid)
+        if note then
+            puts "Note ---------------------"
+            puts note.green
+            puts "--------------------------"
+        end
+
+        LucilleCore::pressEnterToContinue()
+        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
+
+        loop {
+            options = ["exit (default)", "[]", "landing", "destroy"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            NxBalls::closeNxBall(nxball, true)
+            if option.nil? then
+                break
+            end
+            if option == "exit (default)" then
+                break
+            end
+            if option == "[]" then
+                StructuredTodoTexts::applyT(uuid)
+                note = StructuredTodoTexts::getNoteOrNull(uuid)
+                if note then
+                    puts "Note ---------------------"
+                    puts note.green
+                    puts "--------------------------"
+                end
+            end
+            if option == "landing" then
+                Nx51s::landing(nx51)
+            end
+            if option == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
+                    Nx51s::complete(nx51)
+                    break
+                end
+            end
+        }
+    end
+
     # Nx51s::ns16OrNull(nx51)
     def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
@@ -338,52 +386,10 @@ class Nx51s
             "announce" => announce,
             "rt"       => rt,
             "metric"   => nil,
-            "commands"    => [">>", "access", "done"],
+            "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
-                    puts "Starting at #{Time.new.to_s}"
-                    nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
-                    Nx51s::accessContent(nx51)
-
-                    note = StructuredTodoTexts::getNoteOrNull(uuid)
-                    if note then
-                        puts "Note ---------------------"
-                        puts note.green
-                        puts "--------------------------"
-                    end
-
-                    LucilleCore::pressEnterToContinue()
-                    Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
-
-                    loop {
-                        options = ["exit (default)", "[]", "landing", "destroy"]
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                        NxBalls::closeNxBall(nxball, true)
-                        if option.nil? then
-                            break
-                        end
-                        if option == "exit (default)" then
-                            break
-                        end
-                        if option == "[]" then
-                            StructuredTodoTexts::applyT(uuid)
-                            note = StructuredTodoTexts::getNoteOrNull(uuid)
-                            if note then
-                                puts "Note ---------------------"
-                                puts note.green
-                                puts "--------------------------"
-                            end
-                        end
-                        if option == "landing" then
-                            Nx51s::landing(nx51)
-                        end
-                        if option == "destroy" then
-                            if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
-                                Nx51s::complete(nx51)
-                                break
-                            end
-                        end
-                    }
+                    Nx51s::access(nx51)
                 end
                 if command == "landing" then
                     Nx51s::landing(nx51)
@@ -393,6 +399,9 @@ class Nx51s
                         Nx51s::complete(nx51)
                     end
                 end
+            },
+            "selected" => lambda {
+                Nx51s::access(nx51)
             }
         }
     end

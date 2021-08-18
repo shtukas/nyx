@@ -370,6 +370,56 @@ class Nx50s
         Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(nx50["uuid"], date)}.inject(0, :+).to_f/3600
     end
 
+    # Nx50s::access(nx50)
+    def self.access(nx50)
+        uuid = nx50["uuid"]
+        puts "Starting at #{Time.new.to_s}"
+        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+        Nx50s::accessContent(nx50)
+
+        note = StructuredTodoTexts::getNoteOrNull(uuid)
+        if note then
+            puts "Note ---------------------"
+            puts note.green
+            puts "--------------------------"
+        end
+
+        LucilleCore::pressEnterToContinue()
+
+        loop {
+            options = ["exit (default)", "[]", "landing", "destroy"]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            NxBalls::closeNxBall(nxball, true)
+            if option.nil? then
+                break
+            end
+            if option == "exit (default)" then
+                break
+            end
+            if option == "[]" then
+                StructuredTodoTexts::applyT(uuid)
+                note = StructuredTodoTexts::getNoteOrNull(uuid)
+                if note then
+                    puts "Note ---------------------"
+                    puts note.green
+                    puts "--------------------------"
+                end
+                next
+            end
+            if option == "landing" then
+                Nx50s::landing(nx50)
+                next
+            end
+            if option == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                    Nx50s::complete(nx50)
+                    break
+                end
+                next
+            end
+        }
+    end
+
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
@@ -389,51 +439,7 @@ class Nx50s
             "commands"    => [">>", "[]", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
-                    puts "Starting at #{Time.new.to_s}"
-                    nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
-                    Nx50s::accessContent(nx50)
-
-                    note = StructuredTodoTexts::getNoteOrNull(uuid)
-                    if note then
-                        puts "Note ---------------------"
-                        puts note.green
-                        puts "--------------------------"
-                    end
-
-                    LucilleCore::pressEnterToContinue()
-
-                    loop {
-                        options = ["exit (default)", "[]", "landing", "destroy"]
-                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                        NxBalls::closeNxBall(nxball, true)
-                        if option.nil? then
-                            break
-                        end
-                        if option == "exit (default)" then
-                            break
-                        end
-                        if option == "[]" then
-                            StructuredTodoTexts::applyT(uuid)
-                            note = StructuredTodoTexts::getNoteOrNull(uuid)
-                            if note then
-                                puts "Note ---------------------"
-                                puts note.green
-                                puts "--------------------------"
-                            end
-                            next
-                        end
-                        if option == "landing" then
-                            Nx50s::landing(nx50)
-                            next
-                        end
-                        if option == "destroy" then
-                            if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                                Nx50s::complete(nx50)
-                                break
-                            end
-                            next
-                        end
-                    }
+                    Nx50s::access(nx50)
                 end
                 if command == "landing" then
                     Nx50s::landing(nx50)
@@ -443,6 +449,9 @@ class Nx50s
                         Nx50s::complete(nx50)
                     end
                 end
+            },
+            "selected" => lambda {
+                Nx50s::access(nx50)
             },
             "rt" => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",

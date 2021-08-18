@@ -7,9 +7,9 @@ class Fitness
     def self.ns16s()
         ns16s = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`)
         ns16s.map{|ns16|
-            ns16["commands"] = [".."]
+            ns16["commands"] = [">>"]
             ns16["interpreter"] = lambda {|command|
-                if command == ".." then
+                if command == ">>" then
                     system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
                 end
             }

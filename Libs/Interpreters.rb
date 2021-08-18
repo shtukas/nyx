@@ -11,15 +11,11 @@ class Interpreters
 
     # Interpreters::listingInterpreter(ns16s, command)
     def self.listingInterpreter(ns16s, command)
-        accessItem = lambda { |ns16| 
+        selected = lambda { |ns16| 
             return if ns16.nil? 
             return if ns16["access"].nil?
-            ns16["access"].call()
+            ns16["selected"].call()
         }
-
-        if Interpreting::match("..", command) then
-            accessItem.call(ns16s[0])
-        end
 
         if Interpreting::match("[]", command) then
             ns16 = ns16s[0]
@@ -51,13 +47,13 @@ class Interpreters
         end
 
         if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
-            accessItem.call(ns16s[ordinal])
+            selected.call(ns16s[ordinal])
         end
 
         if Interpreting::match("select *", command) then
             _, ordinal = Interpreting::tokenizer(command)
             ordinal = ordinal.to_i
-            accessItem.call(ns16s[ordinal])
+            selected.call(ns16s[ordinal])
         end
 
         if Interpreting::match("done *", command) then

@@ -71,6 +71,7 @@ class Calendar
 
     # Calendar::access(item)
     def self.access(item)
+        folderpath = item["folderpath"]
         puts Calendar::toString(item)
         if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
             system("open '#{folderpath}'")
@@ -93,14 +94,17 @@ class Calendar
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "metric"   => 0,
-                    "commands" => ["access", "done"],
+                    "commands" => [">>", "done"],
                     "interpreter" => lambda {|command|
-                        if command == "access" then
+                        if command == ">>" then
                             Calendar::access(item)
                         end
                         if command == "done" then
                             Calendar::moveToArchives(item)
                         end
+                    },
+                    "selected" => lambda {
+                        Calendar::access(item)
                     }
                 }
             }

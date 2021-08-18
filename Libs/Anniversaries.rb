@@ -183,6 +183,15 @@ class Anniversaries
         "[anniversary] [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
+    # Anniversaries::access(anniversary)
+    def self.access(anniversary)
+        puts Anniversaries::toString(anniversary).green
+        if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+            Anniversaries::commitAnniversaryToDisk(anniversary)
+        end
+    end
+
     # Anniversaries::ns16s()
     def self.ns16s()
         Anniversaries::anniversaries()
@@ -191,21 +200,20 @@ class Anniversaries
                 {
                     "uuid"     => anniversary["uuid"],
                     "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "metric" => 0,
-                    "commands" => ["access", "done"],
+                    "metric"   => 0,
+                    "commands" => [">>", "done"],
                     "interpreter" => lambda {|command|
-                        if command == "access" then
-                            puts Anniversaries::toString(anniversary).green
-                            if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-                                anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                                Anniversaries::commitAnniversaryToDisk(anniversary)
-                            end
+                        if command == ">>" then
+                            Anniversaries::access(anniversary)
                         end
                         if command == "done" then
                             puts Anniversaries::toString(anniversary).green
                             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
                             Anniversaries::commitAnniversaryToDisk(anniversary)
                         end
+                    },
+                    "selected" => lambda {
+                        Anniversaries::access(anniversary)
                     }
                 }
             }
