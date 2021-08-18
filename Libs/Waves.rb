@@ -380,9 +380,17 @@ class Waves
         }
     end
 
+    # Waves::circuitBreaker()
+    def self.circuitBreaker()
+        # Any day, including week-end, we circuit break betwen 9am and 7pm
+        return false if Time.new.hour < 9
+        return false if Time.new.hour >= 19
+        Bank::valueOverTimespan("waves-circuit-breaker-b72c", 3600*2) >= 5
+    end
+
     # Waves::ns16s()
     def self.ns16s()
-        return [] if Bank::valueOverTimespan("waves-circuit-breaker-b72c", 3600*2) >= 5
+        return [] if Waves::circuitBreaker()
         ns16s = Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
