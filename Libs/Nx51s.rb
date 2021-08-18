@@ -447,9 +447,8 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        return [] if !Work::isWorkEnvelop()
+        return [] if !Work::shouldDisplayWorkItems()
         rt = BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
-        return [] if rt > 6
         base = 0.2 + 0.8*rt.to_f/6
         ns16s = Nx51s::nx51sPerOrdinal()
             .map{|nx51| Nx51s::ns16OrNull(nx51) }

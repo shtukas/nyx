@@ -17,8 +17,8 @@ class Work
         (x >= n1) and (x < n2)
     end
 
-    # Work::isWorkEnvelop()
-    def self.isWorkEnvelop()
+    # Work::shouldDisplayWorkItems()
+    def self.shouldDisplayWorkItems()
 
         isInTimeInterval = lambda{|x, n1, n2|
             (x >= n1) and (x < n2)
@@ -34,6 +34,9 @@ class Work
 
         # Standard work hours
         return false if [0, 6].include?(Time.new.wday)
+
+        rt = BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
+        return false if rt > 6
 
         true
     end
