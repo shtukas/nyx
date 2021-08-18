@@ -6,6 +6,4 @@ NS16 {
     "commands"    : Array[String] | nil
     "interpreter" : Lambda(command: String): Boolean | nil # optional 
                     return true if the command was matched 
-    "done"        : Lambda or nil # optional
-    "[]"          : Lambda or nil # optional
 }

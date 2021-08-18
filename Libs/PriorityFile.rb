@@ -26,57 +26,59 @@ class PriorityFile
         return nil if !DoNotShowUntil::isVisible(uuid)
 
         {
-            "uuid"      => uuid,
-            "announce"  => announce,
-            "access"    => lambda {
+            "uuid"        => uuid,
+            "announce"    => announce,
+            "metric"      => -2,
+            "commands"    => ["access", "[]"],
+            "interpreter" => lambda{|command|
+                if command == "access" then
 
-                startUnixtime = Time.new.to_f
+                    startUnixtime = Time.new.to_f
 
-                system("open '#{filepath}'")
+                    system("open '#{filepath}'")
 
-                loop {
-                    system("clear")
+                    loop {
+                        system("clear")
 
-                    puts IO.read(filepath).strip.lines.first(10).join().strip.green
-                    puts ""
+                        puts IO.read(filepath).strip.lines.first(10).join().strip.green
+                        puts ""
 
-                    puts "open | <datecode> | [] | (empty) # default # exit".yellow
-                    puts Interpreters::mainMenuCommands().yellow
+                        puts "open | <datecode> | [] | (empty) # default # exit".yellow
+                        puts Interpreters::mainMenuCommands().yellow
 
-                    command = LucilleCore::askQuestionAnswerAsString("> ")
+                        command = LucilleCore::askQuestionAnswerAsString("> ")
 
-                    break if command == ""
+                        break if command == ""
 
-                    if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                        DoNotShowUntil::setUnixtime(uuid, unixtime)
-                        break
-                    end
+                        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                            DoNotShowUntil::setUnixtime(uuid, unixtime)
+                            break
+                        end
 
-                    if Interpreting::match("open", command) then
-                        system("open '#{filepath}'")
-                    end
+                        if Interpreting::match("open", command) then
+                            system("open '#{filepath}'")
+                        end
 
-                    if Interpreting::match("[]", command) then
-                        PriorityFile::applyNextTransformation(filepath)
-                    end
-                    
-                    Interpreters::mainMenuInterpreter(command)
-                }
+                        if Interpreting::match("[]", command) then
+                            PriorityFile::applyNextTransformation(filepath)
+                        end
+                        
+                        Interpreters::mainMenuInterpreter(command)
+                    }
 
-                timespan = Time.new.to_f - startUnixtime
+                    timespan = Time.new.to_f - startUnixtime
 
-                puts "Time since start: #{timespan}"
+                    puts "Time since start: #{timespan}"
 
-                timespan = [timespan, 3600*2].min
+                    timespan = [timespan, 3600*2].min
 
-                puts "putting #{timespan} seconds to file '#{filepath}'"
-                Bank::put(filepath, timespan)
-            },
-            "done"   => lambda { },
-            "[]"     => lambda { PriorityFile::applyNextTransformation(filepath) },
-            "metric" => -2,
-            "commands" => ["access", "[]"],
-            "interpreter" => nil
+                    puts "putting #{timespan} seconds to file '#{filepath}'"
+                    Bank::put(filepath, timespan)
+                end
+                if command == "[]" then
+                    PriorityFile::applyNextTransformation(filepath)
+                end
+            }
         }
     end
 end

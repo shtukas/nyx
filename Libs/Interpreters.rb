@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] .. | [] (Priority.txt) | done | domain | <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose"
+        "[listing] <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(ns16s, command)

@@ -191,21 +191,22 @@ class Anniversaries
                 {
                     "uuid"     => anniversary["uuid"],
                     "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "access"   => lambda {
-                        puts Anniversaries::toString(anniversary).green
-                        if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+                    "metric" => 0,
+                    "commands" => ["access", "done"],
+                    "interpreter" => lambda {|command|
+                        if command == "access" then
+                            puts Anniversaries::toString(anniversary).green
+                            if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
+                                anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+                                Anniversaries::commitAnniversaryToDisk(anniversary)
+                            end
+                        end
+                        if command == "done" then
+                            puts Anniversaries::toString(anniversary).green
                             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
                             Anniversaries::commitAnniversaryToDisk(anniversary)
                         end
-                    },
-                    "done"   => lambda {
-                        puts Anniversaries::toString(anniversary).green
-                        anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                        Anniversaries::commitAnniversaryToDisk(anniversary)
-                    },
-                    "metric" => 0,
-                    "commands" => ["access", "done"],
-                    "interpreter" => nil
+                    }
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

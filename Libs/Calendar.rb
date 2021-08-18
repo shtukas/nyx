@@ -92,15 +92,16 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
-                    "access"   => lambda {
-                        Calendar::access(item)
-                    },
-                    "done"     => lambda {
-                        Calendar::moveToArchives(item)
-                    },
                     "metric"   => 0,
                     "commands" => ["access", "done"],
-                    "interpreter" => nil
+                    "interpreter" => lambda {|command|
+                        if command == "access" then
+                            Calendar::access(item)
+                        end
+                        if command == "done" then
+                            Calendar::moveToArchives(item)
+                        end
+                    }
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

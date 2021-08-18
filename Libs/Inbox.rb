@@ -23,8 +23,8 @@ class InboxLines
         CatalystDatabase::getItemsByCatalystType("inbox")
     end
 
-    # InboxLines::access(item)
-    def self.access(item)
+    # InboxLines::landing(item)
+    def self.landing(item)
 
         uuid = item["uuid"]
         description = item["description"]
@@ -97,16 +97,19 @@ class InboxLines
             {
                 "uuid"     => uuid,
                 "announce" => announce,
-                "access"   => lambda { InboxLines::access(item) },
-                "done"     => lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
-                        CatalystDatabase::delete(uuid) 
-                    end
-                },
                 "unixtime" => unixtime,
                 "metric"   => 0,
-                "commands" => ["access", "done"],
-                "interpreter" => nil
+                "commands" => ["landing", "done"],
+                "interpreter" => lambda {|command|
+                    if command == "landing" then
+                        InboxLines::landing(item)
+                    end
+                    if command == "done" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
+                            CatalystDatabase::delete(uuid) 
+                        end
+                    end
+                }
             }
         }
     end
@@ -148,8 +151,8 @@ class InboxText
         (1..10).map{|indx| InboxText::getItemAtIndexOrNull(indx) }.compact
     end
 
-    # InboxText::access(item)
-    def self.access(item)
+    # InboxText::landing(item)
+    def self.landing(item)
 
         uuid = item["uuid"]
         description = item["description"]
@@ -239,16 +242,19 @@ class InboxText
             {
                 "uuid"     => uuid,
                 "announce" => announce,
-                "access"   => lambda { InboxText::access(item) },
-                "done"     => lambda { 
-                    if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
-                        InboxText::delete(item["index"]) 
-                    end
-                },
                 "unixtime" => unixtime,
                 "metric"   => 0,
                 "commands" => ["access", "done"],
-                "interpreter" => nil
+                "interpreter" => lambda {|command|
+                    if command == "access" then
+                        InboxText::landing(item)
+                    end
+                    if command == "done" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
+                            InboxText::delete(item["index"]) 
+                        end
+                    end
+                }
             }
         }
     end
@@ -266,8 +272,8 @@ class InboxFiles
         LucilleCore::locationsAtFolder(InboxFiles::repositoryFolderpath())
     end
 
-    # InboxFiles::access(location)
-    def self.access(location)
+    # InboxFiles::landing(location)
+    def self.landing(location)
 
         uuid = "#{location}:#{Utils::today()}"
 
@@ -347,14 +353,18 @@ class InboxFiles
                 {
                     "uuid"     => uuid,
                     "announce" => "[inbx] file: #{File.basename(location)}",
-                    "access"   => lambda { InboxFiles::access(location) },
-                    "done"     => lambda { 
-                        if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
-                            LucilleCore::removeFileSystemLocation(location)
-                        end
-                    },
                     "unixtime" => File.mtime(location).to_time.to_i,
-                    "metric"   => 0
+                    "metric"   => 0,
+                    "interpreter" => lambda {|command|
+                        if command == "access" then
+                            InboxFiles::landing(location)
+                        end
+                        if command == "done" then
+                            if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
+                                LucilleCore::removeFileSystemLocation(location)
+                            end
+                        end
+                    }
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

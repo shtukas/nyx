@@ -383,18 +383,8 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "access"   => lambda{ Nx50s::landing(nx50) },
-            "done"     => lambda{
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx50s::toString(nx50)}' ? ", true) then
-                    Nx50s::complete(nx50)
-                end
-            },
-            "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "rt"      => rt,
-            "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
-            "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours",
             "metric"      => nil,
-            "commands"    => [">>", "landing", "done"],
+            "commands"    => [">>", "[]", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
                     puts "Starting at #{Time.new.to_s}"
@@ -404,6 +394,9 @@ class Nx50s
                     options = ["exit (default)", "landing", "destroy"]
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                     NxBalls::closeNxBall(nxball, true)
+                    if option == "[]" then
+                        StructuredTodoTexts::applyT(uuid)
+                    end
                     if option == "landing" then
                         Nx50s::landing(nx50)
                     end
@@ -421,7 +414,10 @@ class Nx50s
                         Nx50s::complete(nx50)
                     end
                 end
-            }
+            },
+            "rt" => rt,
+            "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
+            "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours"
         }
     end
 

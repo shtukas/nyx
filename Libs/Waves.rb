@@ -358,9 +358,6 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "access"      => lambda { Waves::landing(wave) },
-            "done"        => lambda { Waves::performDone(wave) },
-            "wave"        => wave,
             "metric"      => nil,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda{|command|
@@ -378,7 +375,8 @@ class Waves
                 if command == "done" then
                     Waves::performDone(wave)
                 end
-            }
+            },
+            "wave" => wave,
         }
     end
 

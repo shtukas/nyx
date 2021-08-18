@@ -63,15 +63,13 @@ class DetachedRunning
             {
                 "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
-                "access"   => lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("stop ? : ") then
-                        DetachedRunning::done(item)
-                    end
-                },
-                "done"     => lambda { DetachedRunning::done(item) },
                 "metric"   => -1,
                 "commands"    => ["done"],
-                "interpreter" => nil
+                "interpreter" => lambda {|command|
+                    if command == "done" then
+                        DetachedRunning::done(item)
+                    end
+                }
             }
         }
     end

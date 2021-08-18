@@ -240,8 +240,18 @@ class Nx51s
         LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}" })
     end
 
-    # Nx51s::access(nx51)
-    def self.access(nx51)
+    # Nx51s::accessContent(nx51)
+    def self.accessContent(nx51)
+        update = lambda {|contentType, contentPayload|
+            nx51["contentType"] = contentType
+            nx51["contentPayload"] = contentPayload
+            Nx51s::commitNx51ToDisk(nx51)
+        }
+        Axion::access(nx51["contentType"], nx51["contentPayload"], update)
+    end
+
+    # Nx51s::landing(nx51)
+    def self.landing(nx51)
         uuid = nx51["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
@@ -314,12 +324,7 @@ class Nx51s
             end
 
             if Interpreting::match("access", command) then
-                update = lambda {|contentType, contentPayload|
-                    nx51["contentType"] = contentType
-                    nx51["contentPayload"] = contentPayload
-                    Nx51s::commitNx51ToDisk(nx51)
-                }
-                Axion::access(nx51["contentType"], nx51["contentPayload"], update)
+                Nx51s::accessContent(nx51)
                 next
             end
 
@@ -404,17 +409,39 @@ class Nx51s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "access"   => lambda{ Nx51s::access(nx51) },
-            "done"     => lambda{
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx51s::toString(nx51)}' ? ", true) then
-                    Nx51s::complete(nx51)
+            "rt"       => rt,
+            "metric"   => nil,
+            "commands"    => ["access", "done"],
+            "interpreter" => lambda {|command|
+                if command == ">>" then
+                    puts "Starting at #{Time.new.to_s}"
+                    nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+                    Nx51s::accessContent(nx51)
+                    LucilleCore::pressEnterToContinue()
+                    options = ["exit (default)", "landing", "destroy"]
+                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                    NxBalls::closeNxBall(nxball, true)
+                    if option == "[]" then
+                        StructuredTodoTexts::applyT(uuid)
+                    end
+                    if option == "landing" then
+                        Nx51s::landing(nx51)
+                    end
+                    if option == "destroy" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
+                            Nx51s::complete(nx51)
+                        end
+                    end
                 end
-            },
-            "[]"      => lambda { StructuredTodoTexts::applyT(uuid) },
-            "rt"      => rt,
-            "metric"  => nil,
-            "commands" => ["access", "done"],
-            "interpreter" => nil
+                if command == "landing" then
+                    Nx51s::landing(nx51)
+                end
+                if command == "done" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx51s::toString(nx51)}' ? ", true) then
+                        Nx51s::complete(nx51)
+                    end
+                end
+            }
         }
     end
 
@@ -438,7 +465,7 @@ class Nx51s
         Nx51s::nx51s().map{|item|
             {
                 "announce" => Nx51s::toString(item),
-                "lambda"   => lambda { Nx51s::access(item) }
+                "lambda"   => lambda { Nx51s::landing(item) }
             }
         }
     end
@@ -453,7 +480,7 @@ class Nx51s
             if command == "dive" then
                 nx51 = Nx51s::selectOneNx51OrNull()
                 next if nx51.nil?
-                Nx51s::access(nx51)
+                Nx51s::landing(nx51)
             end
             if command == "update ordinal" then
                 nx51 = Nx51s::selectOneNx51OrNull()

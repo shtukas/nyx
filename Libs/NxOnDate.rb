@@ -176,17 +176,20 @@ class NxOnDate # OnDate
     # NxOnDate::nx31ToNS16(nx31)
     def self.nx31ToNS16(nx31)
         {
-            "uuid"     => nx31["uuid"],
-            "announce" => NxOnDate::toString(nx31),
-            "access"   => lambda { NxOnDate::access(nx31) },
-            "done"     => lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
-                    CatalystDatabase::delete(nx31["uuid"])
+            "uuid"        => nx31["uuid"],
+            "announce"    => NxOnDate::toString(nx31),
+            "metric"      => 0,
+            "commands"    => ["access", "done"],
+            "interpreter" => lambda {|command|
+                if command == "access" then
+                    NxOnDate::access(nx31)
                 end
-            },
-            "metric"   => 0,
-            "commands" => ["access", "done"],
-            "interpreter" => nil
+                if command == "done" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
+                        CatalystDatabase::delete(nx31["uuid"])
+                    end
+                end
+            }
         }
     end
 
