@@ -379,7 +379,9 @@ class Nx50s
         return nil if (hs1 > 5 or hs2 > 10)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > 1
-        announce = "(#{"%4.2f" % rt}) #{Nx50s::toString(nx50)}".gsub("(0.00)", "      ")
+        note = StructuredTodoTexts::getNoteOrNull(uuid)
+        noteStr = note ? " [note]" : ""
+        announce = "(#{"%4.2f" % rt}) #{Nx50s::toString(nx50)}#{noteStr}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,

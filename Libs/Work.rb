@@ -34,7 +34,8 @@ class Work
 
         # Standard work hours
         return false if [0, 6].include?(Time.new.wday)
-        isInTimeInterval.call(Time.new.hour, 8, 12) or isInTimeInterval.call(Time.new.hour, 13, 17)
+
+        true
     end
 
     # Work::workMenuCommands()
