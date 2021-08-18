@@ -1,71 +1,5 @@
 # encoding: UTF-8
 
-=begin
-{
-    "type"       : "until-done" | "timespan"
-    "parameters" : 
-}
-{
-    "type"       : "until-done"
-    "parameters" : nil
-}
-{
-    "type"       : "timespan"
-    "parameters" : Float # daily commitment in hours 
-}
-=end
-
-class Nx51RunDirectives
-
-    # Nx51RunDirectives::getDirectiveOrNull(uuid)
-    def self.getDirectiveOrNull(uuid)
-        directive =  KeyValueStore::getOrNull(nil, "8e54d4fc-a675-44a8-af1a-b0c49d7508e8:#{uuid}")
-        return nil if directive.nil?
-        JSON.parse(directive)
-    end
-
-    # Nx51RunDirectives::directiveToString(uuid, directive)
-    def self.directiveToString(uuid, directive)
-        if directive["type"] == "until-done" then
-            return "(until done)"
-        end
-        if directive["type"] == "timespan" then
-
-            return "(span: #{(100*Bank::valueAtDate(uuid, Utils::today()).to_f/3600).round(2)}% of #{directive["parameters"]} hour)"
-        end
-    end
-
-    # Nx51RunDirectives::directiveToStringOrEmpty(uuid)
-    def self.directiveToStringOrEmpty(uuid)
-        directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
-        return "" if directive.nil?
-        " #{Nx51RunDirectives::directiveToString(uuid, directive)}"
-    end
-
-    # Nx51RunDirectives::setDirective(uuid, directive)
-    def self.setDirective(uuid, directive)
-        KeyValueStore::set(nil, "8e54d4fc-a675-44a8-af1a-b0c49d7508e8:#{uuid}", JSON.generate(directive))
-    end
-
-    # Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
-    def self.interactivelyBuildDirectiveOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["until-done", "timespan"])
-        return nil if type.nil?
-        if type == "until-done" then
-            return {
-                "type"       => "until-done",
-                "parameters" => nil
-            }
-        end
-        if type == "timespan" then
-            return {
-                "type"       => "timespan",
-                "parameters" => LucilleCore::askQuestionAnswerAsString("timespan in hours: ").to_f
-            }
-        end
-    end
-end
-
 class Nx51s
 
     # Nx51s::databaseItemToNx51(item)
@@ -199,7 +133,7 @@ class Nx51s
         uuid = nx51["uuid"]
         contentType = nx51["contentType"]
         str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
-        "[nx51] (ord: #{"%6.3f" % nx51["ordinal"]})#{Nx51RunDirectives::directiveToStringOrEmpty(uuid).green} #{nx51["description"]}#{str1}"
+        "[nx51] (ord: #{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}#{str1}"
     end
 
     # Nx51s::complete(nx51)
@@ -392,18 +326,9 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
-    # Nx51s::isDirectiveOverflow(uuid, directive)
-    def self.isDirectiveOverflow(uuid, directive)
-        return false if directive.nil?
-        return false if directive["type"] != "timespan"
-        Bank::valueAtDate(uuid, Utils::today()) > directive["parameters"]*3600
-    end
-
     # Nx51s::ns16OrNull(nx51)
     def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
-        directive = Nx51RunDirectives::getDirectiveOrNull(uuid)
-        return nil if Nx51s::isDirectiveOverflow(uuid, directive)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}".gsub("(0.00)", "      ")
         {

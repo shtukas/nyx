@@ -43,21 +43,11 @@ class Work
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] set directives | set ordinals | work on until | work off until"
+        "[work   ] set ordinals | work on until | work off until"
     end
 
     # Work::workMenuInterpreter(command)
     def self.workMenuInterpreter(command)
-        if Interpreting::match("set directives", command) then
-            loop {
-                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
-                break if nx51.nil?
-                directive = Nx51RunDirectives::interactivelyBuildDirectiveOrNull()
-                next if directive.nil?
-                Nx51RunDirectives::setDirective(nx51["uuid"], directive)
-            }
-            return
-        end
         if Interpreting::match("set ordinals", command) then
             loop {
                 nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
