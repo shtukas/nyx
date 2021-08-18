@@ -390,21 +390,41 @@ class Nx50s
                     puts "Starting at #{Time.new.to_s}"
                     nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                     Nx50s::accessContent(nx50)
+
+                    note = StructuredTodoTexts::getNoteOrNull(uuid)
+                    if note then
+                        puts "Note ---------------------"
+                        puts note.green
+                        puts "--------------------------"
+                    end
+
                     LucilleCore::pressEnterToContinue()
-                    options = ["exit (default)", "landing", "destroy"]
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                    NxBalls::closeNxBall(nxball, true)
-                    if option == "[]" then
-                        StructuredTodoTexts::applyT(uuid)
-                    end
-                    if option == "landing" then
-                        Nx50s::landing(nx50)
-                    end
-                    if option == "destroy" then
-                        if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                            Nx50s::complete(nx50)
+
+                    loop {
+                        options = ["exit (default)", "[]", "landing", "destroy"]
+                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                        NxBalls::closeNxBall(nxball, true)
+                        if option.nil? then
+                            break
                         end
-                    end
+                        if option == "exit" then
+                            break
+                        end
+                        if option == "[]" then
+                            StructuredTodoTexts::applyT(uuid)
+                            next
+                        end
+                        if option == "landing" then
+                            Nx50s::landing(nx50)
+                            next
+                        end
+                        if option == "destroy" then
+                            if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                                Nx50s::complete(nx50)
+                                break
+                            end
+                        end
+                    }
                 end
                 if command == "landing" then
                     Nx50s::landing(nx50)
@@ -441,6 +461,7 @@ class Nx50s
                 ns16s
             }
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
+            .reverse
 
         Metrics::lift1(ns16s, base)
     end
