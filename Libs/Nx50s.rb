@@ -409,11 +409,17 @@ class Nx50s
                         if option.nil? then
                             break
                         end
-                        if option == "exit" then
+                        if option == "exit (default)" then
                             break
                         end
                         if option == "[]" then
                             StructuredTodoTexts::applyT(uuid)
+                            note = StructuredTodoTexts::getNoteOrNull(uuid)
+                            if note then
+                                puts "Note ---------------------"
+                                puts note.green
+                                puts "--------------------------"
+                            end
                             next
                         end
                         if option == "landing" then
@@ -425,6 +431,7 @@ class Nx50s
                                 Nx50s::complete(nx50)
                                 break
                             end
+                            next
                         end
                     }
                 end

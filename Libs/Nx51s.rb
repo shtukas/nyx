@@ -330,33 +330,60 @@ class Nx51s
     def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}".gsub("(0.00)", "      ")
+        note = StructuredTodoTexts::getNoteOrNull(uuid)
+        noteStr = note ? " [note]" : ""
+        announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}#{noteStr}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
             "rt"       => rt,
             "metric"   => nil,
-            "commands"    => ["access", "done"],
+            "commands"    => [">>", "access", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
                     puts "Starting at #{Time.new.to_s}"
                     nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
                     Nx51s::accessContent(nx51)
+
+                    note = StructuredTodoTexts::getNoteOrNull(uuid)
+                    if note then
+                        puts "Note ---------------------"
+                        puts note.green
+                        puts "--------------------------"
+                    end
+
                     LucilleCore::pressEnterToContinue()
-                    options = ["exit (default)", "landing", "destroy"]
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                    NxBalls::closeNxBall(nxball, true)
-                    if option == "[]" then
-                        StructuredTodoTexts::applyT(uuid)
-                    end
-                    if option == "landing" then
-                        Nx51s::landing(nx51)
-                    end
-                    if option == "destroy" then
-                        if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
-                            Nx51s::complete(nx51)
+                    Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
+
+                    loop {
+                        options = ["exit (default)", "[]", "landing", "destroy"]
+                        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                        NxBalls::closeNxBall(nxball, true)
+                        if option.nil? then
+                            break
                         end
-                    end
+                        if option == "exit (default)" then
+                            break
+                        end
+                        if option == "[]" then
+                            StructuredTodoTexts::applyT(uuid)
+                            note = StructuredTodoTexts::getNoteOrNull(uuid)
+                            if note then
+                                puts "Note ---------------------"
+                                puts note.green
+                                puts "--------------------------"
+                            end
+                        end
+                        if option == "landing" then
+                            Nx51s::landing(nx51)
+                        end
+                        if option == "destroy" then
+                            if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
+                                Nx51s::complete(nx51)
+                                break
+                            end
+                        end
+                    }
                 end
                 if command == "landing" then
                     Nx51s::landing(nx51)
