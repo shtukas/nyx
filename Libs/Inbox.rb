@@ -51,6 +51,7 @@ class InboxLines
     # InboxLines::access(item)
     def self.access(item)
         uuid = item["uuid"]
+        description = item["description"]
         puts "[inbox] #{description}".green
         puts "Started at: #{Time.new.to_s}".yellow
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
