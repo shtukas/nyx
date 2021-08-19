@@ -22,7 +22,7 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        [
+        ns16s = [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -39,6 +39,8 @@ class NS16sOperator
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
+
+        ns16s.first(3) + NxFloats::ns16s() + ns16s.drop(3)
     end
 end
 

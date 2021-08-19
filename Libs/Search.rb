@@ -9,7 +9,9 @@ class Search
         Calendar::nx19s() +
         NxOnDate::nx19s() + 
         Nx50s::nx19s() +
-        Waves::nx19s()
+        Waves::nx19s() +
+        Nx51s::nx19s() + 
+        NxFloats::nx19s()
     end
 
     # Search::search()

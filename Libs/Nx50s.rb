@@ -436,7 +436,7 @@ class Nx50s
             "uuid"     => uuid,
             "announce" => announce,
             "metric"      => nil,
-            "commands"    => [">>", "[]", "landing", "done"],
+            "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
                     Nx50s::arrows(nx50)

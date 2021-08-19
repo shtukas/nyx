@@ -78,7 +78,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | wave | ondate | calendar item | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats |waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -93,6 +93,10 @@ class Interpreters
 
         if command == "inbox text" then
             InboxText::issueNewText()
+        end
+
+        if Interpreting::match("float", command) then
+            NxFloats::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("wave", command) then
@@ -139,6 +143,12 @@ class Interpreters
 
         if Interpreting::match("waves", command) then
             Waves::main()
+        end
+
+        if Interpreting::match("floats", command) then
+            nxfloat = LucilleCore::selectEntityFromListOfEntitiesOrNull("float", NxFloats::nxfloats(), lambda {|nxfloat| NxFloats::toString(nxfloat) })
+            return if nxfloat.nil?
+            NxFloats::landing(nxfloat)
         end
 
         if Interpreting::match("Nx50s", command) then
