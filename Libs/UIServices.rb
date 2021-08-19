@@ -99,6 +99,12 @@ class UIServices
 
             return if command == ""
 
+            if (i = Interpreting::readAsIntegerOrNull(command)) then
+                return if ns16s[i].nil?
+                ns16s[i]["selected"].call()
+                return
+            end
+
             if ns16s[0] then
                 if ns16s[0]["interpreter"] then
                     status = ns16s[0]["interpreter"].call(command)
