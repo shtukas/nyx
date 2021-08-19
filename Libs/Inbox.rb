@@ -48,8 +48,8 @@ class InboxLines
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
     end
 
-    # InboxLines::access(item)
-    def self.access(item)
+    # InboxLines::arrows(item)
+    def self.arrows(item)
         uuid = item["uuid"]
         description = item["description"]
         puts "[inbox] #{description}".green
@@ -94,7 +94,7 @@ class InboxLines
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
-                        InboxLines::access(item)
+                        InboxLines::arrows(item)
                     end
                     if command == "done" then
                         if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
@@ -106,7 +106,7 @@ class InboxLines
                     end
                 },
                 "selected" => lambda {
-                    InboxLines::access(item)
+                    InboxLines::arrows(item)
                 }
             }
         }
@@ -181,8 +181,8 @@ class InboxText
         InboxText::commitItemToDisk(item)
     end
 
-    # InboxText::access(item)
-    def self.access(item)
+    # InboxText::arrows(item)
+    def self.arrows(item)
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
 
         thr = Thread.new {
@@ -239,7 +239,7 @@ class InboxText
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
-                        InboxText::access(item)
+                        InboxText::arrows(item)
                     end
                     if command == "done" then
                         if LucilleCore::askQuestionAnswerAsBoolean("done: '#{announce}' ? ", true) then
@@ -251,7 +251,7 @@ class InboxText
                     end
                 },
                 "selected" => lambda {
-                    InboxText::access(item)
+                    InboxText::arrows(item)
                 }
             }
         }
@@ -284,8 +284,8 @@ class InboxFiles
         end
     end
 
-    # InboxFiles::access(location)
-    def self.access(location)
+    # InboxFiles::arrows(location)
+    def self.arrows(location)
         nxball = NxBalls::makeNxBall(["Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
 
         thr = Thread.new {
@@ -346,7 +346,7 @@ class InboxFiles
                     "commands" => [">>", "done", "dispatch"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then
-                            InboxFiles::access(location)
+                            InboxFiles::arrows(location)
                         end
                         if command == "done" then
                             if LucilleCore::askQuestionAnswerAsBoolean("done: '#{File.basename(location)}' ? ", true) then
@@ -358,7 +358,7 @@ class InboxFiles
                         end
                     },
                     "selected" => lambda {
-                        InboxFiles::access(location)
+                        InboxFiles::arrows(location)
                     }
                 }
             }

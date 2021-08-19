@@ -69,8 +69,8 @@ class Calendar
         item["date"] <= Time.new.to_s[0, 10]
     end
 
-    # Calendar::access(item)
-    def self.access(item)
+    # Calendar::arrows(item)
+    def self.arrows(item)
         folderpath = item["folderpath"]
         puts Calendar::toString(item)
         if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
@@ -97,14 +97,14 @@ class Calendar
                     "commands" => [">>", "done"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then
-                            Calendar::access(item)
+                            Calendar::arrows(item)
                         end
                         if command == "done" then
                             Calendar::moveToArchives(item)
                         end
                     },
                     "selected" => lambda {
-                        Calendar::access(item)
+                        Calendar::arrows(item)
                     }
                 }
             }
@@ -125,7 +125,7 @@ class Calendar
         Calendar::items().map{|item|
             {
                 "announce" => Calendar::toString(item),
-                "lambda"   => lambda { Calendar::access(item) }
+                "lambda"   => lambda { Calendar::arrows(item) }
             }
         }
     end

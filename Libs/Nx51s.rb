@@ -326,8 +326,9 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
-    # Nx51s::access(nx51)
-    def self.access(nx51)
+    # Nx51s::arrows(nx51)
+    def self.arrows(nx51)
+        puts Nx51s::toString(nx51)
         uuid = nx51["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
@@ -389,7 +390,7 @@ class Nx51s
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
-                    Nx51s::access(nx51)
+                    Nx51s::arrows(nx51)
                 end
                 if command == "landing" then
                     Nx51s::landing(nx51)
@@ -401,7 +402,7 @@ class Nx51s
                 end
             },
             "selected" => lambda {
-                Nx51s::access(nx51)
+                Nx51s::arrows(nx51)
             }
         }
     end

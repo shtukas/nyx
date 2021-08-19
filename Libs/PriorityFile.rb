@@ -10,8 +10,8 @@ class PriorityFile
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
-    # PriorityFile::access(filepath)
-    def self.access(filepath)
+    # PriorityFile::arrow(filepath)
+    def self.arrow(filepath)
         startUnixtime = Time.new.to_f
 
         system("open '#{filepath}'")
@@ -74,20 +74,17 @@ class PriorityFile
             "uuid"        => uuid,
             "announce"    => announce,
             "metric"      => -2,
-            "commands"    => [">>", "access", "[]"],
+            "commands"    => [">>", "[]"],
             "interpreter" => lambda{|command|
                 if command == ">>" then
-                    PriorityFile::access(filepath)
-                end
-                if command == "access" then
-                    PriorityFile::access(filepath)
+                    PriorityFile::arrow(filepath)
                 end
                 if command == "[]" then
                     PriorityFile::applyNextTransformation(filepath)
                 end
             },
             "selected" => lambda {
-                PriorityFile::access(filepath)
+                PriorityFile::arrow(filepath)
             }
         }
     end
