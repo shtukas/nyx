@@ -370,7 +370,8 @@ class Inbox
 
     # Inbox::ns16s()
     def self.ns16s()
-        (InboxLines::ns16s() + InboxFiles::ns16s() + InboxText::ns16s() )
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        ns16s = (InboxLines::ns16s() + InboxFiles::ns16s() + InboxText::ns16s() )
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        Metrics::lift1(ns16s, 0)
     end
 end
