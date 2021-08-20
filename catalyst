@@ -13,4 +13,6 @@ Thread.new {
     }
 }
 
-UIServices::catalystMainInterface()
+loop {
+    UIServices::mainView(NS16sOperator::ns16s())
+}

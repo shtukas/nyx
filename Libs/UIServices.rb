@@ -13,6 +13,9 @@ class Fitness
                     system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
                 end
             }
+            ns16["selected"] = lambda {
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
+            }
             ns16
         }
     end
@@ -46,81 +49,73 @@ end
 
 class UIServices
 
-    # UIServices::catalystMainInterface()
-    def self.catalystMainInterface()
+    # UIServices::mainView(ns16s)
+    def self.mainView(ns16s)
+        system("clear")
 
-        getNS16s = lambda {
-            NS16sOperator::ns16s()
+        vspaceleft = Utils::screenHeight()-10
+
+        puts ""
+
+        commandStrWithPrefix = lambda{|ns16, indx|
+            return "" if indx != 0
+            return "" if ns16["commands"].nil?
+            return "" if ns16["commands"].empty?
+            " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        processNS16s = lambda {|ns16s|
-
-            system("clear")
-
-            vspaceleft = Utils::screenHeight()-10
-
-            puts ""
-
-            commandStrWithPrefix = lambda{|ns16, indx|
-                return "" if indx != 0
-                return "" if ns16["commands"].nil?
-                return "" if ns16["commands"].empty?
-                " (commands: #{ns16["commands"].join(", ")})".yellow
+        ns16s
+            .each_with_index{|ns16, indx|
+                metricStr = "(#{"%6.3f" % ns16["metric"]})".blue
+                posStr = "(#{"%3d" % indx})"
+                announce = "#{metricStr} #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
+                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-            ns16s
-                .each_with_index{|ns16, indx|
-                    metricStr = "(#{"%6.3f" % ns16["metric"]})".blue
-                    posStr = "(#{"%3d" % indx})"
-                    announce = "#{metricStr} #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
-                    break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                    puts announce
-                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
-                }
+        puts ""
 
-            puts ""
+        puts Interpreters::listingCommands().yellow
+        puts Interpreters::mainMenuCommands().yellow
+        puts Work::workMenuCommands().yellow
 
-            puts Interpreters::listingCommands().yellow
-            puts Interpreters::mainMenuCommands().yellow
-            puts Work::workMenuCommands().yellow
+        puts ""
 
-            puts ""
+        puts [
+            "[info   ]",
+            "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
+            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
+            "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
+            "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})",
+            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})"
+        ].join(" ").yellow
 
-            puts [
-                "[info   ]",
-                "(inbox: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx60-69315F2A-BE92-4874-85F1-54F140E3B243").round(2)})",
-                "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-                "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)})",
-                "(Nx50s: #{Nx50s::nx50s().size} items, done: today: #{Nx50s::completionLogSize(1)}, week: #{Nx50s::completionLogSize(7)}, month: #{Nx50s::completionLogSize(30)})",
-                "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})"
-            ].join(" ").yellow
+        puts ""
 
-            puts ""
+        command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            command = LucilleCore::askQuestionAnswerAsString("> ")
+        return if command == ""
 
-            return if command == ""
+        if (i = Interpreting::readAsIntegerOrNull(command)) then
+            return if ns16s[i].nil?
+            ns16s[i]["selected"].call()
+            return
+        end
 
-            if (i = Interpreting::readAsIntegerOrNull(command)) then
-                return if ns16s[i].nil?
-                ns16s[i]["selected"].call()
-                return
+        if command == ".." then
+            command = ">>"
+        end
+
+        if ns16s[0] then
+            if ns16s[0]["interpreter"] then
+                status = ns16s[0]["interpreter"].call(command)
+                return if status
             end
+        end
 
-            if ns16s[0] then
-                if ns16s[0]["interpreter"] then
-                    status = ns16s[0]["interpreter"].call(command)
-                    return if status
-                end
-            end
-
-            Interpreters::listingInterpreter(ns16s, command)
-            Interpreters::mainMenuInterpreter(command)
-            Work::workMenuInterpreter(command)
-        }
-
-        loop {
-            processNS16s.call(getNS16s.call())
-        }
+        Interpreters::listingInterpreter(ns16s, command)
+        Interpreters::mainMenuInterpreter(command)
+        Work::workMenuInterpreter(command)
     end
 end

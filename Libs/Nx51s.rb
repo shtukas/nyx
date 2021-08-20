@@ -1,5 +1,45 @@
 # encoding: UTF-8
 
+class Nx51ItemCircuitBreaker
+
+    # Nx51ItemCircuitBreaker::getRTUpperBoundOrNull(uuid)
+    def self.getRTUpperBoundOrNull(uuid)
+        value = KeyValueStore::getOrNull(nil, "39ce201c-f757-4a39-b1b6-90e292ea77b6:#{uuid}")
+        return nil if value.nil?
+        value.to_f
+    end
+
+    # Nx51ItemCircuitBreaker::getRTUpperBoundOrDefault(uuid, default)
+    def self.getRTUpperBoundOrDefault(uuid, default)
+        Nx51ItemCircuitBreaker::getRTUpperBoundOrNull(uuid) || default
+    end
+
+    # Nx51ItemCircuitBreaker::set(uuid, value)
+    def self.set(uuid, value)
+        KeyValueStore::set(nil, "39ce201c-f757-4a39-b1b6-90e292ea77b6:#{uuid}", value)
+    end
+
+    # Nx51ItemCircuitBreaker::interactivelySetValue(nx51)
+    def self.interactivelySetValue(nx51)
+        value = LucilleCore::askQuestionAnswerAsString("RT upper bound for #{Nx51s::toString(nx51)} (empty for abort) : ")
+        return if value == ""
+        value = value.to_f
+        Nx51ItemCircuitBreaker::set(nx51["uuid"], value)
+    end
+
+    # Nx51ItemCircuitBreaker::isWithinBounds(ns16)
+    def self.isWithinBounds(ns16)
+        ns16["rt"] < Nx51ItemCircuitBreaker::getRTUpperBoundOrDefault(ns16["uuid"], 1)
+    end
+
+    # Nx51ItemCircuitBreaker::upperStr(nx51)
+    def self.upperStr(nx51)
+        bound = Nx51ItemCircuitBreaker::getRTUpperBoundOrDefault(nx51["uuid"], 1)
+        "(#{"%5.2f" % bound})"
+    end
+
+end
+
 class Nx51s
 
     # Nx51s::databaseItemToNx51(item)
@@ -133,7 +173,17 @@ class Nx51s
         uuid = nx51["uuid"]
         contentType = nx51["contentType"]
         str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
-        "[nx51] (ord: #{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}#{str1}"
+        upperStr = Nx51ItemCircuitBreaker::upperStr(nx51)
+        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{upperStr} #{nx51["description"]}#{str1}"
+    end
+
+    # Nx51s::toStringNS16(nx51, rt)
+    def self.toStringNS16(nx51, rt)
+        uuid = nx51["uuid"]
+        contentType = nx51["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
+        upperStr = Nx51ItemCircuitBreaker::upperStr(nx51)
+        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) (#{"%5.2f" % rt}) #{upperStr} #{nx51["description"]}#{str1}"
     end
 
     # Nx51s::complete(nx51)
@@ -216,7 +266,7 @@ class Nx51s
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: (#{"%.3f" % rt}) #{Nx51s::toString(nx51)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: #{Nx51s::toStringNS16(nx51, rt)} (#{BankExtended::runningTimeString(nxball)})".green
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
@@ -228,7 +278,7 @@ class Nx51s
 
             puts ""
 
-            puts "[item   ] access | note | [] | <datecode> | detach running | pause | pursue | exit | completed | update description | update contents | update ordinal | destroy".yellow
+            puts "[item   ] access | note | [] | <datecode> | detach running | pause | pursue | exit | completed | update description | update contents | update ordinal | update bound | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -308,6 +358,11 @@ class Nx51s
                 break
             end
 
+            if Interpreting::match("update bound", command) then
+                Nx51ItemCircuitBreaker::interactivelySetValue(nx51)
+                break
+            end
+
             if Interpreting::match("destroy", command) then
                 Nx51s::complete(nx51)
                 break
@@ -381,11 +436,12 @@ class Nx51s
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "(#{"%4.2f" % rt}) #{Nx51s::toString(nx51)}#{noteStr}".gsub("(0.00)", "      ")
+        announce = "#{Nx51s::toStringNS16(nx51, rt)}#{noteStr}"
+            .gsub("( 0.00)", "       ")
+            .gsub("( 1.00)", "       ")
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "rt"       => rt,
             "metric"   => nil,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
@@ -403,7 +459,8 @@ class Nx51s
             },
             "selected" => lambda {
                 Nx51s::arrows(nx51)
-            }
+            },
+            "rt" => rt
         }
     end
 
@@ -416,7 +473,8 @@ class Nx51s
             .map{|nx51| Nx51s::ns16OrNull(nx51) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        Metrics::lift1(ns16s, base)
+        ns16s1, ns16s2 = ns16s.partition{|ns16| Nx51ItemCircuitBreaker::isWithinBounds(ns16) }
+        Metrics::lift1(ns16s1 + ns16s2, base)
     end
 
     # --------------------------------------------------
