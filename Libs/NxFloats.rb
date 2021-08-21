@@ -313,6 +313,40 @@ class NxFloats
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
+    # NxFloats::main()
+    def self.main()
+        loop {
+            system("clear")
+            NxFloats::nxfloats().each_with_index{|nxfloat, indx|
+                puts "- (#{indx.to_s.rjust(2, " ")}) #{NxFloats::toString(nxfloat)}"
+            }
+            puts ""
+            puts "select | add | remove" 
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            if command == "" then
+                break
+            end
+            if command == "select" then
+                indx = LucilleCore::askQuestionAnswerAsString("index: ").to_f
+                nxfloat = NxFloats::nxfloats()[indx]
+                next if nxfloat.nil?
+                NxFloats::arrows(nxfloat)
+            end
+            if command == "add" then
+                NxFloats::interactivelyCreateNewOrNull()
+            end
+            if command == "remove" then
+                indx = LucilleCore::askQuestionAnswerAsString("index: ").to_f
+                nxfloat = NxFloats::nxfloats()[indx]
+                next if nxfloat.nil?
+                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
+                    NxFloats::destroy(nxfloat)
+                    break
+                end
+            end
+        }
+    end
+
     # --------------------------------------------------
 
     # NxFloats::nx19s()

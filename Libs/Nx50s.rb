@@ -185,6 +185,13 @@ class Nx50s
         "[nx50] #{nx50["description"]}#{str1}"
     end
 
+    # Nx50s::toStringNS16(nx50, rt)
+    def self.toStringNS16(nx50, rt)
+        contentType = nx50["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
+        "[nx50] (#{"%5.2f" % rt}) #{nx50["description"]}#{str1}"
+    end
+
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx50s::toString(nx50)}") }
@@ -431,7 +438,7 @@ class Nx50s
         return nil if rt > 1
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "(#{"%4.2f" % rt}) #{Nx50s::toString(nx50)}#{noteStr}".gsub("(0.00)", "      ")
+        announce = "#{Nx50s::toStringNS16(nx50, rt)}#{noteStr}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,

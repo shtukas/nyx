@@ -146,9 +146,7 @@ class Interpreters
         end
 
         if Interpreting::match("floats", command) then
-            nxfloat = LucilleCore::selectEntityFromListOfEntitiesOrNull("float", NxFloats::nxfloats(), lambda {|nxfloat| NxFloats::toString(nxfloat) })
-            return if nxfloat.nil?
-            NxFloats::landing(nxfloat)
+            NxFloats::main()
         end
 
         if Interpreting::match("Nx50s", command) then
