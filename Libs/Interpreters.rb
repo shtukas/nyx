@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] <datecode> | <n> | select <n> | done <n> | hide <n> <datecode> | expose"
+        "[listing] <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(ns16s, command)
@@ -31,14 +31,6 @@ class Interpreters
             LucilleCore::pressEnterToContinue()
         end
 
-        if Interpreting::match("done", command) then
-            ns16 = ns16s[0]
-            return if ns16.nil? 
-            return if ns16["done"].nil?
-            ns16["done"].call()
-
-        end
-
         if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
             ns16 = ns16s[0]
             return if ns16.nil? 
@@ -56,15 +48,6 @@ class Interpreters
             selected.call(ns16s[ordinal])
         end
 
-        if Interpreting::match("done *", command) then
-            _, ordinal = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            ns16 = ns16s[ordinal]
-            return if ns16.nil?
-            return if ns16["done"].nil?
-            ns16["done"].call()
-        end
-
         if Interpreting::match("hide * *", command) then
             _, ordinal, datecode = Interpreting::tokenizer(command)
             ordinal = ordinal.to_i
@@ -78,7 +61,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats |waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)

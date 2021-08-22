@@ -4,4 +4,4 @@
  -1.0  : detached running
   0.0  : inbox, anniversaries, calendar
   0.1  : waves 
-  0.2+ : Nx50s, Nx51s
+  0.2 or 0.4 : Nx50s, Nx51s # depending which is priority

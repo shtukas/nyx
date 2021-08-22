@@ -466,14 +466,17 @@ class Nx50s
         }
     end
 
+    # Nx50s::metricBase()
+    def self.metricBase()
+        Work::isPriorityWork() ? 0.4 : 0.2
+    end
+
     # Nx50s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
             Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-
-        base = 0.2 + 0.8*BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").to_f/3
 
         ns16s = Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
@@ -488,6 +491,7 @@ class Nx50s
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
             .reverse
 
+        base = Nx50s::metricBase()
         Metrics::lift1(ns16s, base)
     end
 

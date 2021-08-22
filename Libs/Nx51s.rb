@@ -464,17 +464,24 @@ class Nx51s
         }
     end
 
+    # Nx51s::metricBase()
+    def self.metricBase()
+        Work::isPriorityWork() ? 0.2 : 0.4
+    end
+
     # Nx51s::ns16s()
-    def self.ns16s()
-        return [] if !Work::shouldDisplayWorkItems()
-        rt = BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
-        base = 0.2 + 0.8*rt.to_f/6
+    def self.ns16s()    
         ns16s = Nx51s::nx51sPerOrdinal()
             .map{|nx51| Nx51s::ns16OrNull(nx51) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
         ns16s1, ns16s2 = ns16s.partition{|ns16| Nx51ItemCircuitBreaker::isWithinBounds(ns16) }
-        Metrics::lift1(ns16s1 + ns16s2, base)
+        base = Nx51s::metricBase()
+        ns16s = Metrics::lift1(ns16s1 + ns16s2, base)
+        if !Work::isPriorityWork() then
+            ns16s = ns16s.first(3)
+        end
+        ns16s
     end
 
     # --------------------------------------------------

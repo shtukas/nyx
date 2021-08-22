@@ -12,18 +12,8 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::isInTimeInterval(x, n1, n2)
-    def self.isInTimeInterval(x, n1, n2)
-        (x >= n1) and (x < n2)
-    end
-
-    # Work::shouldDisplayWorkItems()
-    def self.shouldDisplayWorkItems()
-
-        isInTimeInterval = lambda{|x, n1, n2|
-            (x >= n1) and (x < n2)
-        }
-
+    # Work::isPriorityWork()
+    def self.isPriorityWork()
         # First check whether there is an explicit Yes override.
         doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
         return true if Time.new.to_i < doWorkUntilUnixtime
@@ -32,13 +22,8 @@ class Work
         noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
-        # Standard work hours
-        return false if [0, 6].include?(Time.new.wday)
-
         rt = BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
-        return false if rt > 6
-
-        true
+        rt < 5
     end
 
     # Work::workMenuCommands()

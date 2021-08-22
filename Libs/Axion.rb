@@ -147,15 +147,19 @@ class AxionBinaryBlobsService
 end
 
 class AxionElizaBeth
+
     def commitBlob(blob)
         AxionBinaryBlobsService::putBlob(blob)
     end
+
     def filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
+
     def readBlobErrorIfNotFound(nhash)
         AxionBinaryBlobsService::getBlobOrNull(nhash)
     end
+
     def datablobCheck(nhash)
         begin
             readBlobErrorIfNotFound(nhash)
