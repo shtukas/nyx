@@ -374,4 +374,15 @@ class Inbox
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         Metrics::lift1(ns16s, 0)
     end
+
+    # Inbox::nx19s()
+    def self.nx19s()
+        Inbox::ns16s().map{|ns16|
+            {
+                "uuid"     => ns16["uuid"],
+                "announce" => ns16["announce"],
+                "lambda"   => lambda { ns16["selected"].call() }
+            }
+        }
+    end
 end

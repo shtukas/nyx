@@ -78,7 +78,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats |waves | ondates | calendar | Nx50s | Nx51 ops | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats |waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -159,8 +159,13 @@ class Interpreters
             Nx50s::landing(nx50)
         end
 
-        if Interpreting::match("Nx51 ops", command) then
-            Nx51s::operations()
+        if Interpreting::match("Nx51s", command) then
+            loop {
+                system("clear")
+                nx51 = Nx51s::selectOneNx51OrNull()
+                break if nx51.nil?
+                Nx51s::landing(nx51)
+            }
         end
 
         if Interpreting::match("search", command) then

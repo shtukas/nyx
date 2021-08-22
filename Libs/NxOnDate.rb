@@ -284,6 +284,7 @@ class NxOnDate # OnDate
     def self.nx19s()
         NxOnDate::nx31s().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => NxOnDate::toString(item),
                 "lambda"   => lambda { NxOnDate::landing(item) }
             }

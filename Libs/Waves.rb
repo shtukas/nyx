@@ -412,6 +412,7 @@ class Waves
     def self.nx19s()
         Waves::waves().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => Waves::toString(item),
                 "lambda"   => lambda { Waves::landing(item) }
             }

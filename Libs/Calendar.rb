@@ -124,6 +124,7 @@ class Calendar
     def self.nx19s()
         Calendar::items().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => Calendar::toString(item),
                 "lambda"   => lambda { Calendar::arrows(item) }
             }

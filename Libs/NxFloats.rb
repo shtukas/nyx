@@ -353,6 +353,7 @@ class NxFloats
     def self.nx19s()
         NxFloats::nxfloats().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => NxFloats::toString(item),
                 "lambda"   => lambda { NxFloats::landing(item) }
             }

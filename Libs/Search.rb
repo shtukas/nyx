@@ -11,7 +11,13 @@ class Search
         Nx50s::nx19s() +
         Waves::nx19s() +
         Nx51s::nx19s() + 
-        NxFloats::nx19s()
+        NxFloats::nx19s() +
+        Inbox::nx19s()
+    end
+
+    # Search::existingUUIDS()
+    def self.existingUUIDS()
+        Search::nx19s().map{|i| i["uuid"] }
     end
 
     # Search::search()
@@ -28,6 +34,8 @@ class Search
             end
             loop {
                 system('clear')
+                uuids = Search::existingUUIDS()
+                selected = selected.select{|nx19| uuids.include?(nx19["uuid"]) }
                 nx19 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
                 break if nx19.nil?
                 system('clear')

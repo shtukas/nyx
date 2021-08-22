@@ -497,6 +497,7 @@ class Nx50s
     def self.nx19s()
         Nx50s::nx50s().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => Nx50s::toString(item),
                 "lambda"   => lambda { Nx50s::landing(item) }
             }

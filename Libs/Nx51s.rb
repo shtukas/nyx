@@ -483,36 +483,10 @@ class Nx51s
     def self.nx19s()
         Nx51s::nx51s().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => Nx51s::toString(item),
                 "lambda"   => lambda { Nx51s::landing(item) }
             }
-        }
-    end
-
-    # Nx51s::operations()
-    def self.operations()
-        loop {
-            puts "Nx51 Ops: dive | (select item and) update ordinal".yellow
-            print "> (empty to exit) "
-            command = STDIN.gets().strip
-            break if command == ""
-            if command == "dive" then
-                nx51 = Nx51s::selectOneNx51OrNull()
-                next if nx51.nil?
-                Nx51s::landing(nx51)
-            end
-            if command == "update ordinal" then
-                nx51 = Nx51s::selectOneNx51OrNull()
-                next if nx51.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for last position): ")
-                if ordinal != "" then
-                    ordinal = ordinal.to_f
-                else
-                    ordinal = Nx51s::getNextOrdinal()
-                end
-                nx51["ordinal"] = ordinal
-                Nx51s::commitNx51ToDisk(nx51)
-            end
         }
     end
 end

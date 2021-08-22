@@ -299,6 +299,7 @@ class Anniversaries
     def self.nx19s()
         Anniversaries::anniversaries().map{|item|
             {
+                "uuid"     => item["uuid"],
                 "announce" => Anniversaries::toString(item),
                 "lambda"   => lambda { Anniversaries::landing(item) }
             }
