@@ -28,11 +28,18 @@ class Work
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] set ordinals | work on until | work off until"
+        "[work   ] start work item | work on until | work off until | set ordinals"
     end
 
     # Work::workMenuInterpreter(command)
     def self.workMenuInterpreter(command)
+        if command == "start work item" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            startUnixtime = Time.new.to_i
+            bankAccounts = [Work::bankaccount()]
+            DetachedRunning::issueNew2(description, startUnixtime, bankAccounts)
+            return
+        end
         if Interpreting::match("set ordinals", command) then
             loop {
                 nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
