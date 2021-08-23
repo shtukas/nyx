@@ -195,8 +195,6 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-
-        Bank::put("waves-circuit-breaker-b72c", 1)
     end
 
     # Waves::main()
@@ -390,22 +388,14 @@ class Waves
         }
     end
 
-    # Waves::circuitBreaker()
-    def self.circuitBreaker()
-        # Any day, including week-end, we circuit break betwen 9am and 7pm
-        return false if Time.new.hour < 9
-        return false if Time.new.hour >= 19
-        Bank::valueOverTimespan("waves-circuit-breaker-b72c", 3600*2) >= 5
-    end
-
     # Waves::ns16s()
     def self.ns16s()
-        return [] if Waves::circuitBreaker()
         ns16s = Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        Metrics::lift1(ns16s, 0.1)
+        base = Metrics::baseMetric2("WAVES-A81E-4726-9F17-B71CAD66D793", 1.5)
+        Metrics::lift1(ns16s, base)
     end
 
     # Waves::nx19s()

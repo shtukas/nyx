@@ -464,11 +464,6 @@ class Nx51s
         }
     end
 
-    # Nx51s::metricBase()
-    def self.metricBase()
-        Work::isPriorityWork() ? 0.2 : 0.4
-    end
-
     # Nx51s::ns16s()
     def self.ns16s()    
         ns16s = Nx51s::nx51sPerOrdinal()
@@ -476,7 +471,7 @@ class Nx51s
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
         ns16s1, ns16s2 = ns16s.partition{|ns16| Nx51ItemCircuitBreaker::isWithinBounds(ns16) }
-        base = Nx51s::metricBase()
+        base = Metrics::baseMetric2(Work::bankaccount(), 5)
         ns16s = Metrics::lift1(ns16s1 + ns16s2, base)
         if !Work::isPriorityWork() then
             ns16s = ns16s.first(3)

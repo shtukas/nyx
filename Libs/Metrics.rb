@@ -11,4 +11,15 @@ class Metrics
             ns16
         }
     end
+
+    # Metrics::baseMetric1(currentRT, targetRT)
+    def self.baseMetric1(currentRT, targetRT)
+        0.7 * (currentRT.to_f/targetRT)
+    end
+
+    # Metrics::baseMetric2(accountId, targetRT)
+    def self.baseMetric2(accountId, targetRT)
+        rt = BankExtended::stdRecoveredDailyTimeInHours(accountId)
+        Metrics::baseMetric1(rt, targetRT)
+    end
 end

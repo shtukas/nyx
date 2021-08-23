@@ -466,11 +466,6 @@ class Nx50s
         }
     end
 
-    # Nx50s::metricBase()
-    def self.metricBase()
-        Work::isPriorityWork() ? 0.4 : 0.2
-    end
-
     # Nx50s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
@@ -491,7 +486,7 @@ class Nx50s
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
             .reverse
 
-        base = Nx50s::metricBase()
+        base = Metrics::baseMetric2("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", 5)
         Metrics::lift1(ns16s, base)
     end
 
