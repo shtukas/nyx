@@ -9,19 +9,12 @@ class Interpreters
         "[listing] next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
     end
 
-    # Interpreters::listingInterpreter(ns16s, command)
+    # Interpreters::listingInterpreter(ns16s, command): Boolean # Indicate if was captured
     def self.listingInterpreter(ns16s, command)
         selected = lambda { |ns16| 
             return if ns16.nil?
             ns16["selected"].call()
         }
-
-        if Interpreting::match("[]", command) then
-            ns16 = ns16s[0]
-            return if ns16.nil? 
-            return if ns16["[]"].nil?
-            ns16["[]"].call()
-        end
 
         if Interpreting::match("expose", command) then
             ns16 = ns16s[0]
@@ -35,10 +28,6 @@ class Interpreters
             return if ns16.nil? 
             DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
             puts "Hidden until: #{Time.at(unixtime).to_s}"
-        end
-
-        if (ordinal = Interpreting::readAsIntegerOrNull(command)) then
-            selected.call(ns16s[ordinal])
         end
 
         if Interpreting::match("select *", command) then
@@ -65,8 +54,6 @@ class Interpreters
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
-
-
 
         if command.start_with?("inbox: ") then
             line = command[6, command.size].strip

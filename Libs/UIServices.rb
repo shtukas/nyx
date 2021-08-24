@@ -91,6 +91,7 @@ class UIServices
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             return if ns16s[i].nil?
             ns16s[i]["selected"].call()
+            TaskServer::removeFirstElement()
             return
         end
 
@@ -101,15 +102,13 @@ class UIServices
 
         if ns16s[0] then
             if ns16s[0]["interpreter"] then
-                status = ns16s[0]["interpreter"].call(command)
-                return if status
+                ns16s[0]["interpreter"].call(command)
+                TaskServer::removeFirstElement()
             end
         end
 
         Interpreters::listingInterpreter(ns16s, command)
         Interpreters::mainMenuInterpreter(command)
         Work::workMenuInterpreter(command)
-
-        TaskServer::removeFirstElement()
     end
 end
