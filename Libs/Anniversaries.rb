@@ -200,7 +200,6 @@ class Anniversaries
                 {
                     "uuid"     => anniversary["uuid"],
                     "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "metric"   => 0,
                     "commands" => [">>", "done"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then

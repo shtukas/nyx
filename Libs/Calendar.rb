@@ -84,7 +84,7 @@ class Calendar
 
     # Calendar::ns16s()
     def self.ns16s()
-        ns16s = Calendar::items()
+        Calendar::items()
             .select{|item| Calendar::itemIsForNS16s(item) }
             .map{|item|
                 folderpath = item["folderpath"]
@@ -93,7 +93,6 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
-                    "metric"   => 0,
                     "commands" => [">>", "done"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then
@@ -109,7 +108,6 @@ class Calendar
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        Metrics::lift1(ns16s, 0)
     end
 
     # -----------------------------------------------------

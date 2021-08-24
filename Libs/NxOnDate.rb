@@ -220,7 +220,6 @@ class NxOnDate # OnDate
         {
             "uuid"        => nx31["uuid"],
             "announce"    => NxOnDate::toString(nx31),
-            "metric"      => 0,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then

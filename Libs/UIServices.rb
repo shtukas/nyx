@@ -21,30 +21,6 @@ class Fitness
     end
 end
 
-class NS16sOperator
-
-    # NS16sOperator::ns16s()
-    def self.ns16s()
-        [
-            DetachedRunning::ns16s(),
-            Anniversaries::ns16s(),
-            Calendar::ns16s(),
-            Fitness::ns16s(),
-            NxOnDate::ns16s(),
-            PriorityFile::ns16OrNull("/Users/pascal/Desktop/Priority.txt"),
-            Waves::ns16s(),
-            Inbox::ns16s(),
-            DrivesBackups::ns16s(),
-            Nx50s::ns16s(),
-            Nx51s::ns16s()
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
-    end
-end
-
 class UIServices
 
     # UIServices::mainView(ns16s)
@@ -53,16 +29,22 @@ class UIServices
 
         vspaceleft = Utils::screenHeight()-11
 
-        puts ""
-
         nxfloats = NxFloats::nxfloats()
         if nxfloats.size > 0 then
+            puts ""
             nxfloats.each_with_index{|nxfloat, indx|
-                puts "- (#{indx.to_s.rjust(2, " ")}) #{NxFloats::toString(nxfloat)}"
+                puts "(#{indx.to_s.rjust(3, " ")}) #{NxFloats::toString(nxfloat).gsub("float", "floa").yellow}"
                 vspaceleft = vspaceleft - 1
             }
-            puts ""
             vspaceleft = vspaceleft - 1
+        end
+
+        priority = IO.read("/Users/pascal/Desktop/Priority.txt")
+        if priority.size > 0 then
+            puts ""
+            priority = priority.lines.first(10).join()
+            puts priority.green
+            vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
         end
 
         commandStrWithPrefix = lambda{|ns16, indx|
@@ -72,11 +54,12 @@ class UIServices
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
+        puts ""
+
         ns16s
             .each_with_index{|ns16, indx|
-                metricStr = "(#{"%6.3f" % ns16["metric"]})".blue
                 posStr = "(#{"%3d" % indx})"
-                announce = "#{metricStr} #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
+                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
@@ -126,5 +109,7 @@ class UIServices
         Interpreters::listingInterpreter(ns16s, command)
         Interpreters::mainMenuInterpreter(command)
         Work::workMenuInterpreter(command)
+
+        TaskServer::removeFirstElement()
     end
 end

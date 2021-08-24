@@ -444,7 +444,6 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "metric"      => nil,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
@@ -475,7 +474,7 @@ class Nx50s
             LucilleCore::removeFileSystemLocation(location)
         }
 
-        ns16s = Nx50s::nx50s()
+        Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
                 if ns16s.size < 3 then
                     ns16 = Nx50s::ns16OrNull(nx50)
@@ -487,9 +486,6 @@ class Nx50s
             }
             .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
             .reverse
-
-        base = Metrics::baseMetric2("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", 5)
-        Metrics::lift1(ns16s, base)
     end
 
     # --------------------------------------------------

@@ -445,7 +445,6 @@ class Nx51s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "metric"   => nil,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then
@@ -474,8 +473,7 @@ class Nx51s
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
         ns16s1, ns16s2 = ns16s.partition{|ns16| Nx51ItemCircuitBreaker::isWithinBounds(ns16) }
-        base = Metrics::baseMetric2(Work::bankaccount(), 5)
-        ns16s = Metrics::lift1(ns16s1 + ns16s2, base)
+        ns16s = ns16s1 + ns16s2
         if !Work::isPriorityWork() then
             ns16s = ns16s.first(3)
         end

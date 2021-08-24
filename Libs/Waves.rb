@@ -368,7 +368,6 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "metric"      => nil,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda{|command|
                 if command == ">>" then
@@ -390,12 +389,10 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
-        ns16s = Waves::waves()
+        Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        base = Metrics::baseMetric2("WAVES-A81E-4726-9F17-B71CAD66D793", 1.5)
-        Metrics::lift1(ns16s, base)
     end
 
     # Waves::nx19s()

@@ -2,7 +2,6 @@
 NS16 {
     "uuid"        : String   # used by DoNotShowUntil
     "announce"    : String
-    "metric"      : Float    # 0 come first
     "commands"    : Array[String] | nil
     "interpreter" : Lambda(command: String): Boolean | nil # optional 
                     return true if the command was matched

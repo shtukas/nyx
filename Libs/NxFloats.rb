@@ -284,7 +284,6 @@ class NxFloats
         {
             "uuid"     => uuid,
             "announce" => announce.green,
-            "metric"      => 0,
             "commands"    => [">>", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ">>" then

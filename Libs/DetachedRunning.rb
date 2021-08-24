@@ -63,8 +63,7 @@ class DetachedRunning
             {
                 "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
-                "metric"   => -1,
-                "commands"    => ["pause", "done"],
+                "commands" => ["pause", "done"],
                 "interpreter" => lambda {|command|
                     if command == "pause" then
                         puts "activating pause"

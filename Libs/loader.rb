@@ -157,8 +157,6 @@ require_relative "Nx50s.rb"
 require_relative "Nx51s.rb"
 require_relative "NxOnDate.rb"
 
-require_relative "Metrics.rb"
-
 require_relative "PriorityFile.rb"
 require_relative "ProgrammableBooleans.rb"
 
@@ -173,6 +171,8 @@ require_relative "Runner.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"
+
+require_relative "TaskServer.rb"
 
 require_relative "UIServices.rb"
 require_relative "Utils.rb"

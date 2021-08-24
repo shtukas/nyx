@@ -24,7 +24,6 @@ class DrivesBackups
                 {
                     "uuid"        => instruction["uuid"],
                     "announce"    => instruction["description"],
-                    "metric"      => 0,
                     "commands"    => nil,
                     "interpreter" => nil
                 }

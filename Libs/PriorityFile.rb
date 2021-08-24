@@ -73,7 +73,6 @@ class PriorityFile
         {
             "uuid"        => uuid,
             "announce"    => announce,
-            "metric"      => -2,
             "commands"    => [">>", "[]"],
             "interpreter" => lambda{|command|
                 if command == ">>" then

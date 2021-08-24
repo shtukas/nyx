@@ -90,7 +90,6 @@ class InboxLines
                 "uuid"     => uuid,
                 "announce" => announce,
                 "unixtime" => unixtime,
-                "metric"   => 0,
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
@@ -235,7 +234,6 @@ class InboxText
                 "uuid"     => uuid,
                 "announce" => announce,
                 "unixtime" => unixtime,
-                "metric"   => 0,
                 "commands" => [">>", "done", "dispatch"],
                 "interpreter" => lambda {|command|
                     if command == ">>" then
@@ -342,7 +340,6 @@ class InboxFiles
                     "uuid"     => uuid,
                     "announce" => "[inbx] file: #{File.basename(location)}",
                     "unixtime" => File.mtime(location).to_time.to_i,
-                    "metric"   => 0,
                     "commands" => [">>", "done", "dispatch"],
                     "interpreter" => lambda {|command|
                         if command == ">>" then
@@ -370,9 +367,8 @@ class Inbox
 
     # Inbox::ns16s()
     def self.ns16s()
-        ns16s = (InboxLines::ns16s() + InboxFiles::ns16s() + InboxText::ns16s() )
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        Metrics::lift1(ns16s, 0)
+        (InboxLines::ns16s() + InboxFiles::ns16s() + InboxText::ns16s() )
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # Inbox::nx19s()
