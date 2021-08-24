@@ -15,7 +15,6 @@ class NS16sOperator
             Inbox::ns16s(),
             DrivesBackups::ns16s(),
             Nx50s::ns16s(),
-            Nx51s::ns16s(),
             Nx25s::ns16s()
         ]
             .flatten
@@ -70,6 +69,6 @@ class TaskServer
                         .flatten
         elements = TaskServer::extends(elements, ns16s)
         TaskServer::setServerUUIDs(elements.map{|e| e["uuid"] })
-        DetachedRunning::ns16s() + elements
+        DetachedRunning::ns16s() + Nx51s::ns16s() + elements
     end
 end
