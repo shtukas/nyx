@@ -91,7 +91,6 @@ class UIServices
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             return if ns16s[i].nil?
             ns16s[i]["selected"].call()
-            TaskServer::removeFirstElement()
             return
         end
 
