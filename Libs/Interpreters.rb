@@ -6,14 +6,13 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
+        "[listing] next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(ns16s, command)
     def self.listingInterpreter(ns16s, command)
         selected = lambda { |ns16| 
-            return if ns16.nil? 
-            return if ns16["access"].nil?
+            return if ns16.nil?
             ns16["selected"].call()
         }
 

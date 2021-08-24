@@ -310,8 +310,8 @@ class Nx50s
         Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(nx50["uuid"], date)}.inject(0, :+).to_f/3600
     end
 
-    # Nx50s::arrows(nx50)
-    def self.arrows(nx50)
+    # Nx50s::selected(nx50)
+    def self.selected(nx50)
         uuid = nx50["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
@@ -377,10 +377,10 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => [">>", "landing", "done"],
+            "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
-                if command == ">>" then
-                    Nx50s::arrows(nx50)
+                if command == ".." then
+                    Nx50s::selected(nx50)
                 end
                 if command == "landing" then
                     Nx50s::landing(nx50)
@@ -392,7 +392,7 @@ class Nx50s
                 end
             },
             "selected" => lambda {
-                Nx50s::arrows(nx50)
+                Nx50s::selected(nx50)
             },
             "rt" => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",

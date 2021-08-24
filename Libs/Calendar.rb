@@ -69,8 +69,8 @@ class Calendar
         item["date"] <= Time.new.to_s[0, 10]
     end
 
-    # Calendar::arrows(item)
-    def self.arrows(item)
+    # Calendar::selected(item)
+    def self.selected(item)
         folderpath = item["folderpath"]
         puts Calendar::toString(item)
         if hasElementsInFolder and LucilleCore::askQuestionAnswerAsBoolean("access folder ? ") then
@@ -93,17 +93,17 @@ class Calendar
                 {
                     "uuid"     => uuid,
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
-                    "commands" => [">>", "done"],
+                    "commands" => ["..", "done"],
                     "interpreter" => lambda {|command|
-                        if command == ">>" then
-                            Calendar::arrows(item)
+                        if command == ".." then
+                            Calendar::selected(item)
                         end
                         if command == "done" then
                             Calendar::moveToArchives(item)
                         end
                     },
                     "selected" => lambda {
-                        Calendar::arrows(item)
+                        Calendar::selected(item)
                     }
                 }
             }
@@ -124,7 +124,7 @@ class Calendar
             {
                 "uuid"     => item["uuid"],
                 "announce" => Calendar::toString(item),
-                "lambda"   => lambda { Calendar::arrows(item) }
+                "lambda"   => lambda { Calendar::selected(item) }
             }
         }
     end

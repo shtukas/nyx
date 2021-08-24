@@ -138,13 +138,6 @@ class Nx25s
         "[nx25] #{nx25["description"]}#{str1}"
     end
 
-    # Nx25s::toStringNS16(nx25, rt)
-    def self.toStringNS16(nx25, rt)
-        contentType = nx25["contentType"]
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[nx25] (#{"%5.2f" % rt}) #{nx25["description"]}#{str1}"
-    end
-
     # Nx25s::complete(nx25)
     def self.complete(nx25)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx25s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx25s::toString(nx25)}") }
@@ -304,8 +297,8 @@ class Nx25s
     # --------------------------------------------------
     # nx16s
 
-    # Nx25s::arrows(nx25)
-    def self.arrows(nx25)
+    # Nx25s::selected(nx25)
+    def self.selected(nx25)
         uuid = nx25["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "Nx25s-DE6269A0-B816-4A86-9C8F-FBE332D044C3"])
@@ -362,14 +355,14 @@ class Nx25s
         return nil if !DoNotShowUntil::isVisible(uuid)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx25s::toStringNS16(nx25, rt)}#{noteStr}"
+        announce = "#{Nx25s::toString(nx25)}#{noteStr}"
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => [">>", "landing", "done"],
+            "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
-                if command == ">>" then
-                    Nx25s::arrows(nx25)
+                if command == ".." then
+                    Nx25s::selected(nx25)
                 end
                 if command == "landing" then
                     Nx25s::landing(nx25)
@@ -381,7 +374,7 @@ class Nx25s
                 end
             },
             "selected" => lambda {
-                Nx25s::arrows(nx25)
+                Nx25s::selected(nx25)
             }
         }
     end

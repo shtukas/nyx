@@ -350,8 +350,8 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::arrows(wave)
-    def self.arrows(wave)
+    # Waves::selected(wave)
+    def self.selected(wave)
         puts Waves::toString(wave)
         uuid = wave["uuid"]
         puts "Starting at #{Time.new.to_s}"
@@ -368,10 +368,10 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "commands"    => [">>", "landing", "done"],
+            "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda{|command|
-                if command == ">>" then
-                    Waves::arrows(wave)
+                if command == ".." then
+                    Waves::selected(wave)
                 end
                 if command == "landing" then
                     Waves::landing(wave)
@@ -381,7 +381,7 @@ class Waves
                 end
             },
             "selected" => lambda {
-                Waves::arrows(wave)
+                Waves::selected(wave)
             },
             "wave" => wave,
         }

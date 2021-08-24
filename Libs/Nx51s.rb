@@ -381,8 +381,8 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
-    # Nx51s::arrows(nx51)
-    def self.arrows(nx51)
+    # Nx51s::selected(nx51)
+    def self.selected(nx51)
         puts Nx51s::toString(nx51)
         uuid = nx51["uuid"]
         puts "Starting at #{Time.new.to_s}"
@@ -445,10 +445,10 @@ class Nx51s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => [">>", "landing", "done"],
+            "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
-                if command == ">>" then
-                    Nx51s::arrows(nx51)
+                if command == ".." then
+                    Nx51s::selected(nx51)
                 end
                 if command == "landing" then
                     Nx51s::landing(nx51)
@@ -460,24 +460,19 @@ class Nx51s
                 end
             },
             "selected" => lambda {
-                Nx51s::arrows(nx51)
+                Nx51s::selected(nx51)
             },
             "rt" => rt
         }
     end
 
     # Nx51s::ns16s()
-    def self.ns16s()    
-        ns16s = Nx51s::nx51sPerOrdinal()
+    def self.ns16s()
+        return [] if !Work::isPriorityWork()
+        Nx51s::nx51sPerOrdinal()
             .map{|nx51| Nx51s::ns16OrNull(nx51) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-        ns16s1, ns16s2 = ns16s.partition{|ns16| Nx51ItemCircuitBreaker::isWithinBounds(ns16) }
-        ns16s = ns16s1 + ns16s2
-        if !Work::isPriorityWork() then
-            ns16s = ns16s.first(3)
-        end
-        ns16s
     end
 
     # --------------------------------------------------

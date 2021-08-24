@@ -73,9 +73,9 @@ class PriorityFile
         {
             "uuid"        => uuid,
             "announce"    => announce,
-            "commands"    => [">>", "[]"],
+            "commands"    => ["..", "[]"],
             "interpreter" => lambda{|command|
-                if command == ">>" then
+                if command == ".." then
                     PriorityFile::arrow(filepath)
                 end
                 if command == "[]" then

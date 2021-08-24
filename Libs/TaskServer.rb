@@ -7,7 +7,6 @@ class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
         [
-            DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             Fitness::ns16s(),
@@ -71,6 +70,6 @@ class TaskServer
                         .flatten
         elements = TaskServer::extends(elements, ns16s)
         TaskServer::setServerUUIDs(elements.map{|e| e["uuid"] })
-        elements
+        DetachedRunning::ns16s() + elements
     end
 end
