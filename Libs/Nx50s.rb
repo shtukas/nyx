@@ -86,73 +86,6 @@ class Nx50s
         end
     end
 
-    # Nx50s::viennaIssueNx50UsingURL(url)
-    def self.viennaIssueNx50UsingURL(url)
-        uuid         = SecureRandom.uuid
-        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
-        description  = url
-        catalystType = "Nx50"
-        payload1     = "url"
-        payload2     = url
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
-    def self.inboxFilePickupIssueNx50UsingLocation(location)
-        uuid         = SecureRandom.uuid
-        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
-        description  = File.basename(location) 
-        catalystType = "Nx50"
-        payload1     = "aion-point"
-        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingInboxLineInteractive(line)
-    def self.issueNx50UsingInboxLineInteractive(line)
-        uuid         = SecureRandom.uuid
-        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-        description  = line
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingInboxText(inboxtext)
-    def self.issueNx50UsingInboxText(inboxtext)
-        uuid         = SecureRandom.uuid
-        unixtime     = Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
-        description  = inboxtext["description"]
-        catalystType = "Nx50"
-        payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(inboxtext["text"])
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueNx50UsingInboxLocationInteractive(location)
-    def self.issueNx50UsingInboxLocationInteractive(location)
-        uuid         = SecureRandom.uuid
-        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
-        description  = LucilleCore::askQuestionAnswerAsString("description: ")
-        catalystType = "Nx50"
-        payload1     = "aion-point"
-        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
@@ -469,11 +402,6 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
-            Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
-            LucilleCore::removeFileSystemLocation(location)
-        }
-
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
                 if ns16s.size < 3 then

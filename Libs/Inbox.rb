@@ -25,10 +25,10 @@ class InboxLines
 
     # InboxLines::dispatch(item)
     def self.dispatch(item)
-        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
+        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx25s", "Nx51s"])
         return if domain.nil?
-        if domain == "Nx50s" then
-            Nx50s::issueNx50UsingInboxLineInteractive(item["description"])
+        if domain == "Nx25s" then
+            Nx25s::issueNx25UsingInboxLineInteractive(item["description"])
             CatalystDatabase::delete(item["uuid"])
         end
         if domain == "Nx51s" then
@@ -153,7 +153,7 @@ class InboxText
         domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
         return if domain.nil?
         if domain == "Nx50s" then
-            Nx50s::issueNx50UsingInboxText(item)
+            Nx25s::issueNx25UsingInboxText(item)
             InboxText::delete(item["index"])
         end
         if domain == "Nx51s" then
@@ -272,8 +272,8 @@ class InboxFiles
     def self.dispatch(location)
         domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Nx50s", "Nx51s"])
         return if domain.nil?
-        if domain == "Nx50s" then
-            Nx50s::issueNx50UsingInboxLocationInteractive(location)
+        if domain == "Nx25s" then
+            Nx25s::issueNx25UsingInboxLocationInteractive(location)
             LucilleCore::removeFileSystemLocation(location)
         end
         if domain == "Nx51s" then

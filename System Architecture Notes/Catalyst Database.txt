@@ -21,6 +21,7 @@ CatalystType     PayLoad1                Payload2                  Payload3     
 "anniversary"    startdate [1]           repeatType [2]            lastCelebrationDate
 "inbox"
 "NxOnDate"       date      [1]           contentType    | null     contentPayload | null
+"Nx25"  [4]      contentType | null      contentPayload | null
 "Nx50"  [4]      contentType | null      contentPayload | null
 "wave"  [5]      contentType | null      contentPayload | null     repeatType [6]          repeatValue [6]    lastDoneDateTime
 "Nx51"  [4]      contentType | null      contentPayload | null     ordinal: Float
@@ -32,7 +33,7 @@ CatalystType     PayLoad1                Payload2                  Payload3     
 
 [3] If null / empty it means that the entire payload was the catalyst description
 
-[4] Quark, Nx50 and Nx51 (work) uses the Axion contentType / contentPayload pairs
+[4] Nx25, Nx50 and Nx51 (work) uses the Axion contentType / contentPayload pairs
     contentType        contentPayload
     "line"             String # !! This pair is not used, we just use the description
     "url"              String
