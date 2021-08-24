@@ -382,7 +382,7 @@ class Nx25s
     # Nx25s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
-            Nx50s::inboxFilePickupIssueNx50UsingLocation(location)
+            Nx25s::inboxFilePickupIssueNx25UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
 
