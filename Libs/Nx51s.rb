@@ -415,11 +415,14 @@ class Nx51s
                 if note then
                     puts "Note ---------------------"
                     puts note.green
-                    puts "--------------------------"
+                    puts "--------------------------" 
                 end
             end
             if option == "landing" then
                 Nx51s::landing(nx51)
+
+                # Could hve been destroyed
+                break if Nx51s::getNx51ByUUIDOrNull(nx51["uuid"]).nil?
             end
             if option == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then

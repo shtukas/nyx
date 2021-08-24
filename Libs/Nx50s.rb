@@ -415,7 +415,9 @@ class Nx50s
             end
             if option == "landing" then
                 Nx50s::landing(nx50)
-                next
+
+                # Could hve been destroyed
+                break if Nx50s::getNx50ByUUIDOrNull(nx50["uuid"]).nil?
             end
             if option == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
