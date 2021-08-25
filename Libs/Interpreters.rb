@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
+        "[listing] [] | next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(ns16s, command): Boolean # Indicate if was captured
@@ -15,6 +15,10 @@ class Interpreters
             return if ns16.nil?
             ns16["selected"].call()
         }
+
+        if Interpreting::match("[]", command) then
+            PriorityFile::applyNextTransformation("/Users/pascal/Desktop/Priority.txt")
+        end
 
         if Interpreting::match("expose", command) then
             ns16 = ns16s[0]

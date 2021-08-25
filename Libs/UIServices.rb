@@ -39,7 +39,7 @@ class UIServices
             vspaceleft = vspaceleft - 1
         end
 
-        priority = IO.read("/Users/pascal/Desktop/Priority.txt")
+        priority = IO.read("/Users/pascal/Desktop/Priority.txt").strip
         if priority.size > 0 then
             puts ""
             priority = priority.lines.first(10).join()
