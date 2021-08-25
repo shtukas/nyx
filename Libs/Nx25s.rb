@@ -139,7 +139,6 @@ class Nx25s
 
     # Nx25s::complete(nx25)
     def self.complete(nx25)
-        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx25s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx25s::toString(nx25)}") }
         Axion::postAccessCleanUp(nx25["contentType"], nx25["contentPayload"])
         CatalystDatabase::delete(nx25["uuid"])
     end

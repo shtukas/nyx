@@ -127,7 +127,6 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx50s::toString(nx50)}") }
         Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
         CatalystDatabase::delete(nx50["uuid"])
     end
@@ -279,22 +278,6 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
 
         Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
-    end
-
-    # Nx50s::getCompletionLogUnixtimes()
-    def self.getCompletionLogUnixtimes()
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s-Completion-Log.txt"
-        IO.read(filepath)
-            .lines
-            .map{|line| line.strip }
-            .select{|line| line.size > 0}
-            .map{|line| line.split("|")[1].to_i }
-    end
-
-    # Nx50s::completionLogSize(days)
-    def self.completionLogSize(days)
-        horizon = Time.new.to_i - days*86400
-        Nx50s::getCompletionLogUnixtimes().select{|unixtime| unixtime >= horizon }.size
     end
 
     # --------------------------------------------------

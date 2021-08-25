@@ -175,7 +175,6 @@ class Nx51s
 
     # Nx51s::complete(nx51)
     def self.complete(nx51)
-        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Nx51s-Completion-Log.txt", "a"){|f| f.puts("#{Time.new.to_s}|#{Time.new.to_i}|#{Nx51s::toString(nx51)}") }
         Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
         CatalystDatabase::delete(nx51["uuid"])
     end
