@@ -196,13 +196,6 @@ class Nx50s
         "[nx50] #{nx50["description"]}#{str1}"
     end
 
-    # Nx50s::toStringNS16(nx50, rt)
-    def self.toStringNS16(nx50, rt)
-        contentType = nx50["contentType"]
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[nx50] (#{"%5.2f" % rt}) #{nx50["description"]}#{str1}"
-    end
-
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
@@ -361,16 +354,6 @@ class Nx50s
     # --------------------------------------------------
     # nx16s
 
-    # Nx50s::hoursOverThePast21Days(nx50)
-    def self.hoursOverThePast21Days(nx50)
-        Bank::valueOverTimespan(nx50["uuid"], 86400*21).to_f/3600
-    end
-
-    # Nx50s::hoursDoneSinceLastSaturday(nx50)
-    def self.hoursDoneSinceLastSaturday(nx50)
-        Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(nx50["uuid"], date)}.inject(0, :+).to_f/3600
-    end
-
     # Nx50s::run(nx50)
     def self.run(nx50)
 
@@ -435,14 +418,11 @@ class Nx50s
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
-        hs1 = Nx50s::hoursDoneSinceLastSaturday(nx50)
-        hs2 = Nx50s::hoursOverThePast21Days(nx50)
-        return nil if (hs1 > 5 or hs2 > 10)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > 1
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx50s::toStringNS16(nx50, rt)}#{noteStr}".gsub("(0.00)", "      ")
+        announce = "#{Nx50s::toString(nx50)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -463,9 +443,7 @@ class Nx50s
             "run" => lambda {
                 Nx50s::run(nx50)
             },
-            "rt" => rt,
-            "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",
-            "overThePast21Days" => " #{(100*hs2.to_f/10).round(2)} % of 10 hours"
+            "rt" => rt
         }
     end
 
@@ -478,7 +456,7 @@ class Nx50s
 
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
-                if ns16s.size < 6 then
+                if ns16s.size < 5 then
                     ns16 = Nx50s::ns16OrNull(nx50)
                     if ns16 then
                         ns16s << ns16
@@ -486,6 +464,7 @@ class Nx50s
                 end
                 ns16s
             }
+            .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
     end
 
     # --------------------------------------------------

@@ -21,6 +21,27 @@ class Fitness
     end
 end
 
+class NS16sOperator
+
+    # NS16sOperator::ns16s()
+    def self.ns16s()
+        [
+            DetachedRunning::ns16s(),
+            Anniversaries::ns16s(),
+            Calendar::ns16s(),
+            NxOnDate::ns16s(),
+            Fitness::ns16s(),
+            Waves::ns16s(),
+            DrivesBackups::ns16s(),
+            Nx51s::ns16s(),
+            Nx50s::ns16s()
+        ]
+            .flatten
+            .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+    end
+end
+
 class UIServices
 
     # UIServices::mainView(ns16s)
@@ -93,15 +114,9 @@ class UIServices
             return
         end
 
-        if command == ">>" then
-            TaskServer::removeFirstElement()
-            return
-        end
-
         if ns16s[0] then
             if ns16s[0]["interpreter"] then
                 ns16s[0]["interpreter"].call(command)
-                TaskServer::removeFirstElement()
             end
         end
 

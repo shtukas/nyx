@@ -14,5 +14,5 @@ Thread.new {
 }
 
 loop {
-    UIServices::mainView(TaskServer::ns16s())
+    UIServices::mainView(NS16sOperator::ns16s())
 }
