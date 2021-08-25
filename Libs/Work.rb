@@ -22,6 +22,8 @@ class Work
         noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
+        return false if [12,13].include?(Time.new.hour) # Pause between 12 and 14 
+
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 5
     end
 

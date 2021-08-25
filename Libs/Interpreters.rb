@@ -61,13 +61,13 @@ class Interpreters
 
         if command.start_with?("inbox: ") then
             line = command[6, command.size].strip
-            Nx25s::issueNx25UsingInboxLineInteractive(line)
+            Nx50s::issueNx50UsingLine(line)
         end
 
         if command == "inbox text" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             text = Utils::editTextSynchronously("")
-            Nx25s::issueNx25UsingInboxText(description, text)
+            Nx50s::issueNx50UsingDescriptionAndText(description, text)
         end
 
         if Interpreting::match("float", command) then

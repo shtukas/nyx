@@ -76,7 +76,7 @@ class UIServices
         puts [
             "[info   ]",
             "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-            "(Nx25s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx25s-DE6269A0-B816-4A86-9C8F-FBE332D044C3").round(2)} ; #{Nx25s::nx25s().size} items)",
+            "(Nx25s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx25s-DE6269A0-B816-4A86-9C8F-FBE332D044C3").round(2)} ; #{Nx50s::nx50s().size} items)",
             "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
             "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
         ].join(" ").yellow

@@ -13,8 +13,7 @@ class NS16sOperator
             NxOnDate::ns16s(),
             Waves::ns16s(),
             DrivesBackups::ns16s(),
-            Nx50s::ns16s(),
-            Nx25s::ns16s()
+            Nx50s::ns16s()
         ]
             .flatten
             .compact

@@ -109,6 +109,84 @@ class Nx50s
     end
 
     # --------------------------------------------------
+    # Special Makers
+
+    # Nx50s::nextNaturalInBetweenUnixtime()
+    def self.nextNaturalInBetweenUnixtime()
+        unixtimes = Nx50s::nx50s()
+                        .drop(10)
+                        .map{|nx25| nx25["unixtime"] }
+        packet = unixtimes
+            .zip(unixtimes.drop(1))
+            .select{|pair| pair[1] }
+            .map{|pair|
+                {
+                    "unixtime"   => pair[0],
+                    "difference" => pair[1] - pair[0]
+                }
+            }
+            .select{|packet|
+                packet["difference"] >= 1
+            }
+            .first
+        return Time.new.to_i if packet.nil?
+        packet["unixtime"] + 0.6 # We started with a difference of 2 + rand between two consecutive items.
+    end
+
+    # Nx50s::issueNx50UsingLine(line)
+    def self.issueNx50UsingLine(line)
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        description  = line
+        catalystType = "Nx50"
+        payload1     = nil
+        payload2     = nil
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingDescriptionAndText(description, text)
+    def self.issueNx50UsingDescriptionAndText(description, text)
+        uuid         = SecureRandom.uuid
+        unixtime     = Time.new.to_f
+        catalystType = "Nx50"
+        payload1     = "text"
+        payload2     = AxionBinaryBlobsService::putBlob(text)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingURL(url)
+    def self.issueNx50UsingURL(url)
+        uuid         = SecureRandom.uuid
+        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        description  = url
+        catalystType = "Nx25"
+        payload1     = "url"
+        payload2     = url
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingLocation(location)
+    def self.issueNx50UsingLocation(location)
+        uuid         = SecureRandom.uuid
+        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        description  = File.basename(location) 
+        catalystType = "Nx25"
+        payload1     = "aion-point"
+        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
+        payload3     = nil
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # --------------------------------------------------
     # Operations
 
     # Nx50s::toString(nx50)
@@ -385,9 +463,14 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Inbox").each{|location|
+            Nx50s::issueNx50UsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
-                if ns16s.size < 3 then
+                if ns16s.size < 6 then
                     ns16 = Nx50s::ns16OrNull(nx50)
                     if ns16 then
                         ns16s << ns16
@@ -395,8 +478,6 @@ class Nx50s
                 end
                 ns16s
             }
-            .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
-            .reverse
     end
 
     # --------------------------------------------------
