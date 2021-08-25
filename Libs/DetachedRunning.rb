@@ -63,12 +63,16 @@ class DetachedRunning
             {
                 "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
                 "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
-                "commands" => ["pause", "done"],
+                "commands" => ["pause", "pursue", "done"],
                 "interpreter" => lambda {|command|
                     if command == "pause" then
                         puts "activating pause"
                         DetachedRunning::done(item)
                         LucilleCore::pressEnterToContinue("Press enter to restart")
+                        DetachedRunning::issueNew2(item["description"], Time.new.to_i, item["bankAccounts"])
+                    end
+                    if command == "pursue" then
+                        DetachedRunning::done(item)
                         DetachedRunning::issueNew2(item["description"], Time.new.to_i, item["bankAccounts"])
                     end
                     if command == "done" then
