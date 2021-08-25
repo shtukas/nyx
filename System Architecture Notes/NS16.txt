@@ -3,7 +3,7 @@ NS16 {
     "uuid"        : String   # used by DoNotShowUntil
     "announce"    : String
     "commands"    : Array[String] | nil
+    "run"         : Lambda() | nil # Default entry point when selected
     "interpreter" : Lambda(command: String): Boolean | nil # optional 
                     return true if the command was matched
-    "selected"    : Lambda() | nil # Default entry point when selected
 }

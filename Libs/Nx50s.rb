@@ -371,11 +371,15 @@ class Nx50s
         Utils::datesSinceLastSaturday().map{|date| Bank::valueAtDate(nx50["uuid"], date)}.inject(0, :+).to_f/3600
     end
 
-    # Nx50s::selected(nx50)
-    def self.selected(nx50)
+    # Nx50s::run(nx50)
+    def self.run(nx50)
+
+        puts Nx50s::toString(nx50)
+
         uuid = nx50["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+
         Nx50s::accessContent(nx50)
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -388,16 +392,16 @@ class Nx50s
         LucilleCore::pressEnterToContinue()
 
         loop {
-            options = ["exit (default)", "[]", "landing", "destroy"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            NxBalls::closeNxBall(nxball, true)
-            if option.nil? then
-                break
-            end
-            if option == "exit (default)" then
-                break
-            end
-            if option == "[]" then
+
+            puts "exit (default) | [] | landing | destroy"
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            break if command == "exit"
+
+            if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
                 note = StructuredTodoTexts::getNoteOrNull(uuid)
                 if note then
@@ -407,13 +411,13 @@ class Nx50s
                 end
                 next
             end
-            if option == "landing" then
-                Nx50s::landing(nx50)
 
-                # Could hve been destroyed
-                break if Nx50s::getNx50ByUUIDOrNull(nx50["uuid"]).nil?
+            if command == "landing" then
+                Nx50s::landing(nx50)
+                break if Nx50s::getNx50ByUUIDOrNull(nx50["uuid"]).nil? # Could have been destroyed
             end
-            if option == "destroy" then
+
+            if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
                     Nx50s::complete(nx50)
                     break
@@ -421,6 +425,10 @@ class Nx50s
                 next
             end
         }
+
+        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
+
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # Nx50s::ns16OrNull(nx50)
@@ -441,7 +449,7 @@ class Nx50s
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    Nx50s::selected(nx50)
+                    Nx50s::run(nx50)
                 end
                 if command == "landing" then
                     Nx50s::landing(nx50)
@@ -452,8 +460,8 @@ class Nx50s
                     end
                 end
             },
-            "selected" => lambda {
-                Nx50s::selected(nx50)
+            "run" => lambda {
+                Nx50s::run(nx50)
             },
             "rt" => rt,
             "sinceLastSaturday" => " #{(100*hs1.to_f/5).round(2)} % of 5 hours",

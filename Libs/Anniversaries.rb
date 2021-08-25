@@ -183,8 +183,8 @@ class Anniversaries
         "[anniversary] [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
-    # Anniversaries::selected(anniversary)
-    def self.selected(anniversary)
+    # Anniversaries::run(anniversary)
+    def self.run(anniversary)
         puts Anniversaries::toString(anniversary).green
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
@@ -203,7 +203,7 @@ class Anniversaries
                     "commands" => ["..", "done"],
                     "interpreter" => lambda {|command|
                         if command == ".." then
-                            Anniversaries::selected(anniversary)
+                            Anniversaries::run(anniversary)
                         end
                         if command == "done" then
                             puts Anniversaries::toString(anniversary).green
@@ -211,8 +211,8 @@ class Anniversaries
                             Anniversaries::commitAnniversaryToDisk(anniversary)
                         end
                     },
-                    "selected" => lambda {
-                        Anniversaries::selected(anniversary)
+                    "run" => lambda {
+                        Anniversaries::run(anniversary)
                     }
                 }
             }

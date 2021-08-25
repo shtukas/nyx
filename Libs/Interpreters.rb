@@ -13,7 +13,7 @@ class Interpreters
     def self.listingInterpreter(ns16s, command)
         selected = lambda { |ns16| 
             return if ns16.nil?
-            ns16["selected"].call()
+            ns16["run"].call()
         }
 
         if Interpreting::match("[]", command) then

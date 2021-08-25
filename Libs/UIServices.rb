@@ -13,7 +13,7 @@ class Fitness
                     system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
                 end
             }
-            ns16["selected"] = lambda {
+            ns16["run"] = lambda {
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
             }
             ns16
@@ -89,7 +89,7 @@ class UIServices
 
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             return if ns16s[i].nil?
-            ns16s[i]["selected"].call()
+            ns16s[i]["run"].call()
             return
         end
 

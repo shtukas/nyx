@@ -367,12 +367,15 @@ class Nx51s
     # --------------------------------------------------
     # nx16s
 
-    # Nx51s::selected(nx51)
-    def self.selected(nx51)
+    # Nx51s::run(nx51)
+    def self.run(nx51)
+
         puts Nx51s::toString(nx51)
+
         uuid = nx51["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+
         Nx51s::accessContent(nx51)
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -383,19 +386,18 @@ class Nx51s
         end
 
         LucilleCore::pressEnterToContinue()
-        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
-
+        
         loop {
-            options = ["exit (default)", "[]", "landing", "destroy"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            NxBalls::closeNxBall(nxball, true)
-            if option.nil? then
-                break
-            end
-            if option == "exit (default)" then
-                break
-            end
-            if option == "[]" then
+
+            puts "exit (default) | [] | landing | destroy"
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            break if command == "exit"
+
+            if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
                 note = StructuredTodoTexts::getNoteOrNull(uuid)
                 if note then
@@ -404,19 +406,23 @@ class Nx51s
                     puts "--------------------------" 
                 end
             end
-            if option == "landing" then
-                Nx51s::landing(nx51)
 
-                # Could hve been destroyed
-                break if Nx51s::getNx51ByUUIDOrNull(nx51["uuid"]).nil?
+            if command == "landing" then
+                Nx51s::landing(nx51)
+                break if Nx51s::getNx51ByUUIDOrNull(nx51["uuid"]).nil? # Could hve been destroyed
             end
-            if option == "destroy" then
+
+            if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
                     Nx51s::complete(nx51)
                     break
                 end
             end
         }
+
+        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
+
+        NxBalls::closeNxBall(nxball, true)
     end
 
     # Nx51s::ns16OrNull(nx51)
@@ -434,7 +440,7 @@ class Nx51s
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    Nx51s::selected(nx51)
+                    Nx51s::run(nx51)
                 end
                 if command == "landing" then
                     Nx51s::landing(nx51)
@@ -445,8 +451,8 @@ class Nx51s
                     end
                 end
             },
-            "selected" => lambda {
-                Nx51s::selected(nx51)
+            "run" => lambda {
+                Nx51s::run(nx51)
             },
             "rt" => rt
         }

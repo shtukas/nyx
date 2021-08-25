@@ -82,7 +82,7 @@ class PriorityFile
                     PriorityFile::applyNextTransformation(filepath)
                 end
             },
-            "selected" => lambda {
+            "run" => lambda {
                 PriorityFile::arrow(filepath)
             }
         }

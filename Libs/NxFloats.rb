@@ -223,8 +223,8 @@ class NxFloats
     # --------------------------------------------------
     # nx16s
 
-    # NxFloats::selected(nxfloat)
-    def self.selected(nxfloat)
+    # NxFloats::run(nxfloat)
+    def self.run(nxfloat)
         uuid = nxfloat["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "Nx60-69315F2A-BE92-4874-85F1-54F140E3B243"])
@@ -287,7 +287,7 @@ class NxFloats
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxFloats::selected(nxfloat)
+                    NxFloats::run(nxfloat)
                 end
                 if command == "landing" then
                     NxFloats::landing(nxfloat)
@@ -298,8 +298,8 @@ class NxFloats
                     end
                 end
             },
-            "selected" => lambda {
-                NxFloats::selected(nxfloat)
+            "run" => lambda {
+                NxFloats::run(nxfloat)
             },
             "rt" => rt
         }
@@ -329,7 +329,7 @@ class NxFloats
                 indx = LucilleCore::askQuestionAnswerAsString("index: ").to_f
                 nxfloat = NxFloats::nxfloats()[indx]
                 next if nxfloat.nil?
-                NxFloats::selected(nxfloat)
+                NxFloats::run(nxfloat)
             end
             if command == "add" then
                 NxFloats::interactivelyCreateNewOrNull()

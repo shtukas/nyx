@@ -188,8 +188,8 @@ class NxOnDate # OnDate
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # NxOnDate::selected(nx31)
-    def self.selected(nx31)
+    # NxOnDate::run(nx31)
+    def self.run(nx31)
         uuid = nx31["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid])
@@ -223,7 +223,7 @@ class NxOnDate # OnDate
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxOnDate::selected(nx31)
+                    NxOnDate::run(nx31)
                 end
                 if command == "landing" then
                     NxOnDate::landing(nx31)
@@ -234,7 +234,7 @@ class NxOnDate # OnDate
                     end
                 end
             },
-            "selected" => lambda {
+            "run" => lambda {
                 NxOnDate::landing(nx31)
             }
         }
