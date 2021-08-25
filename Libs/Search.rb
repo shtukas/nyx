@@ -12,7 +12,6 @@ class Search
         Waves::nx19s() +
         Nx51s::nx19s() + 
         NxFloats::nx19s() +
-        Inbox::nx19s() +
         Nx25s::nx19s()
     end
 

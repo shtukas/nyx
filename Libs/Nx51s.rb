@@ -152,19 +152,6 @@ class Nx51s
         Nx51s::getNx51ByUUIDOrNull(uuid)
     end
 
-    # Nx51s::issueNx51UsingInboxText(inboxtext)
-    def self.issueNx51UsingInboxText(inboxtext)
-        uuid         = SecureRandom.uuid
-        unixtime     = inboxtext["unixtime"]
-        description  = inboxtext["description"]
-        catalystType = "Nx51"
-        payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(inboxtext["text"])
-        payload3     = Nx51s::decideOrdinal(description)
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-        Nx51s::getNx51ByUUIDOrNull(uuid)
-    end
-
     # --------------------------------------------------
     # Operations
 

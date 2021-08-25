@@ -12,7 +12,6 @@ class NS16sOperator
             Fitness::ns16s(),
             NxOnDate::ns16s(),
             Waves::ns16s(),
-            Inbox::ns16s(),
             DrivesBackups::ns16s(),
             Nx50s::ns16s(),
             Nx25s::ns16s()

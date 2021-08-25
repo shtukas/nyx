@@ -102,14 +102,13 @@ class Nx25s
         Nx25s::getNx25ByUUIDOrNull(uuid)
     end
 
-    # Nx25s::issueNx25UsingInboxText(inboxtext)
-    def self.issueNx25UsingInboxText(inboxtext)
+    # Nx25s::issueNx25UsingInboxText(description, text)
+    def self.issueNx25UsingInboxText(description, text)
         uuid         = SecureRandom.uuid
         unixtime     = Time.new.to_f
-        description  = inboxtext["description"]
         catalystType = "Nx25"
         payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(inboxtext["text"])
+        payload2     = AxionBinaryBlobsService::putBlob(text)
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx25s::getNx25ByUUIDOrNull(uuid)
@@ -381,7 +380,7 @@ class Nx25s
 
     # Nx25s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx25s-Inbox").each{|location|
             Nx25s::inboxFilePickupIssueNx25UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
