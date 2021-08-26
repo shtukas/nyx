@@ -61,13 +61,15 @@ class Interpreters
 
         if command.start_with?("inbox: ") then
             line = command[6, command.size].strip
-            Nx50s::issueNx50UsingLine(line)
+            nx50 = Nx50s::issueNx50UsingLine(line)
+            puts JSON.pretty_generate(nx50)
         end
 
         if command == "inbox text" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             text = Utils::editTextSynchronously("")
-            Nx50s::issueNx50UsingDescriptionAndText(description, text)
+            nx50 = Nx50s::issueNx50UsingDescriptionAndText(description, text)
+            puts JSON.pretty_generate(nx50)
         end
 
         if Interpreting::match("float", command) then
