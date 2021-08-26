@@ -53,7 +53,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | Nx50 | Nx51 | floats | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | floats | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -104,12 +104,16 @@ class Interpreters
             puts JSON.pretty_generate(nx51)
         end
 
+        if Interpreting::match("anniversary", command) then
+            Anniversaries::issueNewAnniversaryOrNullInteractively()
+        end
+
         if Interpreting::match("ondates", command) then
             NxOnDate::main()
         end
 
         if Interpreting::match("anniversaries", command) then
-            Anniversaries::main()
+            Anniversaries::anniversariesDive()
         end
 
         if Interpreting::match("calendar", command) then

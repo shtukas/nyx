@@ -269,31 +269,6 @@ class Anniversaries
         }
     end
 
-    # Anniversaries::main()
-    def self.main()
-        loop {
-            puts "Anniversaries (main)"
-
-            puts "dive (into anniversaries) | make (new anniversary)".yellow
-            puts Interpreters::mainMenuCommands().yellow
-
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-
-            if Interpreting::match("dive", command) then
-                Anniversaries::anniversariesDive()
-            end
-
-            if Interpreting::match("make", command) then
-                Anniversaries::issueNewAnniversaryOrNullInteractively()
-                break
-            end
-
-            Interpreters::mainMenuInterpreter(command)
-        }
-    end
-
     # Anniversaries::nx19s()
     def self.nx19s()
         Anniversaries::anniversaries().map{|item|
