@@ -23,6 +23,7 @@ class Work
         return false if Time.new.to_i < noWorkUntilUnixtime
 
         return false if [6, 0].include?(Time.new.wday)
+        return false if Time.new.hour < 8
 
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
     end
