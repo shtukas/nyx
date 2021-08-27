@@ -22,10 +22,14 @@ class Work
         noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
-        return false if [6, 0].include?(Time.new.wday)
         return false if Time.new.hour < 8
 
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
+        if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+            return true if (Bank::valueAtDate(Work::bankaccount(), Utils::today()) < 3600*4)
+            BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
+        else
+            false
+        end
     end
 
     # Work::workMenuCommands()
