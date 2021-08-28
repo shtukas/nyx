@@ -353,6 +353,7 @@ class Axion
                 contentPayload = input
                 update.call(contentType, contentPayload)
             end
+            return
         end
         if contentType == "text" then
             nhash = contentPayload
@@ -360,6 +361,7 @@ class Axion
             text2 = AxionUtils::editTextSynchronously(text1)
             contentPayload = AxionBinaryBlobsService::putBlob(text2)
             update.call(contentType, contentPayload)
+            return
         end
         if contentType == "clickable" then 
             filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")

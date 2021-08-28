@@ -282,7 +282,11 @@ class Nx51s
             end
 
             if Interpreting::match("update contents", command) then
-                update = nil
+                update = lambda {|contentType, contentPayload|
+                    nx51["contentType"] =  contentType
+                    nx51["contentPayload"] = contentPayload
+                    Nx51s::commitNx51ToDisk(nx51)
+                }
                 Axion::edit(nx51["contentType"], nx51["contentPayload"], update)
                 next
             end
