@@ -38,53 +38,70 @@ class Nx50s
     end
 
     # --------------------------------------------------
+    # Next Gen
 
-    # Nx50s::nextNaturalInBetweenUnixtime()
-    def self.nextNaturalInBetweenUnixtime()
-        unixtimes = Nx50s::nx50s()
-                        .drop(10)
-                        .map{|nx50| nx50["unixtime"] }
-        packet = unixtimes
-            .zip(unixtimes.drop(1))
-            .select{|pair| pair[1] }
-            .map{|pair|
-                {
-                    "unixtime"   => pair[0],
-                    "difference" => pair[1] - pair[0]
-                }
-            }
-            .select{|packet|
-                packet["difference"] >= 1
-            }
-            .first
-        return Time.new.to_i if packet.nil?
-        packet["unixtime"] + 0.6 # We started with a difference of 2 + rand between two consecutive items.
+    # Nx50s::getNextGenUUIDS()
+    def self.getNextGenUUIDS()
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77113", "[]"))
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeOrNull()
-    def self.interactivelyDetermineNewItemUnixtimeOrNull()
+    # Nx50s::addToNextGenUUIDs(uuid)
+    def self.addToNextGenUUIDs(uuid)
+        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77113", "[]")) + [uuid]
+        uuids = uuids & Nx50s::nx50s().map{|i| i["uuid"] }
+        KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77113", JSON.generate(uuids))
+    end
+
+    # Nx50s::getNextGenUnixtime()
+    def self.getNextGenUnixtime()
+        nexGenUUIDs = Nx50s::getNextGenUUIDS()
+        nx50s = Nx50s::nx50s()
+        while nx50s.any?{|nx50| nexGenUUIDs.include?(nx50["uuid"]) } do
+            puts "+"
+            nx50s = nx50s.drop(1)
+        end
+        if nx50s.size < 2 then
+            return Time.new.to_f
+        end
+        (nx50s[0]["unixtime"] + nx50s[1]["unixtime"]).to_f/2
+    end
+
+    # Nx50s::interactivelyDetermineNewItemUnixtime()
+    def self.interactivelyDetermineNewItemUnixtime()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "natural (default)"])
-        return Nx50s::nextNaturalInBetweenUnixtime() if type.nil?
-        if type == "select" then
-            system('clear')
-            puts "Select the before item:"
-            items = Nx50s::nx50s().first(50)
-            return Time.new.to_i if items.empty?
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
-            return nil if item.nil?
-            loop {
-                return nil if items.size < 2
-                if items[0]["uuid"] == item["uuid"] then
-                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-                end
-                items.shift
-                next
-            }
+        if type.nil? then
+            return Nx50s::getNextGenUnixtime()
         end
         if type == "natural" then
-            return Nx50s::nextNaturalInBetweenUnixtime()
+            return Nx50s::getNextGenUnixtime()
         end
+        if type == "select" then
+            items = Nx50s::nx50s().first(50)
+            return Nx50s::getNextGenUnixtime() if items.size < 2
+            system('clear')
+            puts "Select the before item:"
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
+            if item.nil? then
+                return Time.new.to_f
+            end
+            while items.any?{|i| i["uuid"] == item["uuid"] } do
+                items = items.drop(1)
+            end
+            if items.size < 2 then
+                return Time.new.to_f
+            end
+            return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+        end
+        raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
+
+    # Nx50s::determineItemPositionOrNull(nx50)
+    def self.determineItemPositionOrNull(nx50)
+        Nx50s::nx50s().map{|i| i["uuid"] }.index(nx50["uuid"])
+    end
+
+    # --------------------------------------------------
+    # Makers
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
@@ -97,7 +114,7 @@ class Nx50s
 
         coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
 
-        unixtime     = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+        unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
 
         catalystType = "Nx50"
         payload1     = coordinates ? coordinates["contentType"] : nil
@@ -105,84 +122,63 @@ class Nx50s
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
+        Nx50s::addToNextGenUUIDs(uuid)
+
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # --------------------------------------------------
-    # Special Makers
-
-    # Nx50s::nextNaturalInBetweenUnixtime()
-    def self.nextNaturalInBetweenUnixtime()
-        unixtimes = Nx50s::nx50s()
-                        .drop(10)
-                        .map{|nx25| nx25["unixtime"] }
-        packet = unixtimes
-            .zip(unixtimes.drop(1))
-            .select{|pair| pair[1] }
-            .map{|pair|
-                {
-                    "unixtime"   => pair[0],
-                    "difference" => pair[1] - pair[0]
-                }
-            }
-            .select{|packet|
-                packet["difference"] >= 1
-            }
-            .first
-        return Time.new.to_i if packet.nil?
-        packet["unixtime"] + 0.6 # We started with a difference of 2 + rand between two consecutive items.
-    end
-
-    # Nx50s::issueNx50UsingLine(line)
-    def self.issueNx50UsingLine(line)
+    # Nx50s::issueNx50UsingLineInteractively(line)
+    def self.issueNx50UsingLineInteractively(line)
         uuid         = SecureRandom.uuid
-        unixtime     = Time.new.to_f
+        unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
         description  = line
         catalystType = "Nx50"
         payload1     = nil
         payload2     = nil
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingDescriptionAndText(description, text)
-    def self.issueNx50UsingDescriptionAndText(description, text)
+    # Nx50s::issueNx50UsingDescriptionAndTextInteractively(description, text)
+    def self.issueNx50UsingDescriptionAndTextInteractively(description, text)
         uuid         = SecureRandom.uuid
-        unixtime     = Time.new.to_f
+        unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
         catalystType = "Nx50"
         payload1     = "text"
         payload2     = AxionBinaryBlobsService::putBlob(text)
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingURL(url)
     def self.issueNx50UsingURL(url)
         uuid         = SecureRandom.uuid
-        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        unixtime     = Nx50s::getNextGenUnixtime()
         description  = url
-        catalystType = "Nx25"
+        catalystType = "Nx50"
         payload1     = "url"
         payload2     = url
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
+        Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingLocation(location)
     def self.issueNx50UsingLocation(location)
         uuid         = SecureRandom.uuid
-        unixtime     = Nx50s::nextNaturalInBetweenUnixtime()
+        unixtime     = Nx50s::getNextGenUnixtime()
         description  = File.basename(location) 
-        catalystType = "Nx25"
+        catalystType = "Nx50"
         payload1     = "aion-point"
         payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
+        Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -335,7 +331,7 @@ class Nx50s
             end
 
             if Interpreting::match("update unixtime", command) then
-                nx50["unixtime"] = (Nx50s::interactivelyDetermineNewItemUnixtimeOrNull() || Time.new.to_f)
+                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
                 Nx50s::commitNx50ToDisk(nx50)
                 next
             end

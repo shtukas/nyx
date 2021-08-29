@@ -61,15 +61,17 @@ class Interpreters
 
         if command.start_with?("inbox: ") then
             line = command[6, command.size].strip
-            nx50 = Nx50s::issueNx50UsingLine(line)
+            nx50 = Nx50s::issueNx50UsingLineInteractively(line)
             puts JSON.pretty_generate(nx50)
+            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
         end
 
         if command == "inbox text" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             text = Utils::editTextSynchronously("")
-            nx50 = Nx50s::issueNx50UsingDescriptionAndText(description, text)
+            nx50 = Nx50s::issueNx50UsingDescriptionAndTextInteractively(description, text)
             puts JSON.pretty_generate(nx50)
+            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
         end
 
         if Interpreting::match("float", command) then
@@ -95,9 +97,7 @@ class Interpreters
             nx50 = Nx50s::interactivelyCreateNewOrNull()
             return if nx50.nil?
             puts JSON.pretty_generate(nx50)
-            before = Nx50s::nx50s().take_while{|nx| nx["uuid"] != nx50["uuid"] }
-            puts "In position #{before.size+1}"
-            sleep 1
+            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
         end
 
         if Interpreting::match("Nx51", command) then

@@ -21,7 +21,6 @@ CatalystType     PayLoad1                Payload2                  Payload3     
 "anniversary"    startdate [1]           repeatType [2]            lastCelebrationDate
 "inbox"
 "NxOnDate"       date      [1]           contentType    | null     contentPayload | null
-"Nx25"  [4]      contentType | null      contentPayload | null
 "Nx50"  [4]      contentType | null      contentPayload | null
 "wave"  [5]      contentType | null      contentPayload | null     repeatType [6]          repeatValue [6]    lastDoneDateTime
 "Nx51"  [4]      contentType | null      contentPayload | null     ordinal: Float
