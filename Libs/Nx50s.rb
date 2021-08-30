@@ -57,7 +57,6 @@ class Nx50s
         nexGenUUIDs = Nx50s::getNextGenUUIDS()
         nx50s = Nx50s::nx50s()
         while nx50s.any?{|nx50| nexGenUUIDs.include?(nx50["uuid"]) } do
-            puts "+"
             nx50s = nx50s.drop(1)
         end
         if nx50s.size < 2 then
