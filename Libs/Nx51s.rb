@@ -319,9 +319,10 @@ class Nx51s
     # Nx51s::run(nx51)
     def self.run(nx51)
 
+        uuid = nx51["uuid"]
+
         puts Nx51s::toString(nx51)
 
-        uuid = nx51["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
 
@@ -338,7 +339,7 @@ class Nx51s
         
         loop {
 
-            puts "exit (default) | [] | landing | destroy"
+            puts "[] | detach running | pursue |  exit (default) | landing | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -354,6 +355,18 @@ class Nx51s
                     puts note.green
                     puts "--------------------------" 
                 end
+            end
+
+            if "detach running" == command then
+                DetachedRunning::issueNew2(Nx51s::toString(nx51), Time.new.to_i, [uuid, Work::bankaccount()])
+                break
+            end
+
+            if command == "pursue" then
+                # We close the ball and issue a new one
+                NxBalls::closeNxBall(nxball, true)
+                nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+                next
             end
 
             if command == "landing" then
