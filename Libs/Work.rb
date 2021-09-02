@@ -24,12 +24,11 @@ class Work
 
         return false if Time.new.hour < 8
 
-        if [1, 2, 3, 4, 5].include?(Time.new.wday) then
-            return true if (Bank::valueAtDate(Work::bankaccount(), Utils::today()) < 3600*4)
-            BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
-        else
-            false
-        end
+        return false if ![1, 2, 3, 4, 5].include?(Time.new.wday)
+
+        return true if (Bank::valueAtDate(Work::bankaccount(), Utils::today()) < 3600*4)
+
+        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
     end
 
     # Work::workMenuCommands()
