@@ -54,8 +54,9 @@ class UIServices
         if nxfloats.size > 0 then
             puts ""
             nxfloats.each_with_index{|nxfloat, indx|
-                puts "(#{indx.to_s.rjust(3, " ")}) #{NxFloats::toString(nxfloat).gsub("float", "floa").yellow}"
-                vspaceleft = vspaceleft - 1
+                line = "(#{indx.to_s.rjust(3, " ")}) #{NxFloats::toString(nxfloat).gsub("float", "floa").yellow}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
             vspaceleft = vspaceleft - 1
         end
