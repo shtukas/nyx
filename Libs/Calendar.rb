@@ -9,8 +9,7 @@ class Calendar
 
     # Calendar::pathToArchivesFolder()
     def self.pathToArchivesFolder()
-        l1 = Utils::locationByUniqueStringOrNull("1ae2cb8b267d")
-        raise "3b667517-365e-4d56-88af-7fba061b64f9" if l1.nil?
+        l1 = "/Users/pascal/Galaxy/Timeline"
         folderpath = "#{l1}/#{Time.new.strftime("%Y")}/Calendar (Catalyst)"
         raise "d1d363cb-1b34-4091-bd87-455c96ab16e2" if !File.exists?(folderpath) # This will happen first thing after midnight every year
         folderpath
