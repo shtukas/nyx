@@ -62,6 +62,7 @@ class UIServices
         end
 
         priority = IO.read("/Users/pascal/Desktop/Priority.txt").strip
+        priorityFileHash = Digest::SHA1.file("/Users/pascal/Desktop/Priority.txt").hexdigest
         if priority.size > 0 then
             puts ""
             priority = priority.lines.first(10).join()
@@ -120,7 +121,7 @@ class UIServices
             end
         end
 
-        Interpreters::listingInterpreter(ns16s, command)
+        Interpreters::listingInterpreter(ns16s, command, priorityFileHash)
         Interpreters::mainMenuInterpreter(command)
         Work::workMenuInterpreter(command)
     end

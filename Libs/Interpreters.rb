@@ -9,14 +9,15 @@ class Interpreters
         "[listing] [] | next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
     end
 
-    # Interpreters::listingInterpreter(ns16s, command): Boolean # Indicate if was captured
-    def self.listingInterpreter(ns16s, command)
+    # Interpreters::listingInterpreter(ns16s, command, priorityFileHash): Boolean # Indicate if was captured
+    def self.listingInterpreter(ns16s, command, priorityFileHash)
         selected = lambda { |ns16| 
             return if ns16.nil?
             ns16["run"].call()
         }
 
         if Interpreting::match("[]", command) then
+            return if (priorityFileHash != Digest::SHA1.file("/Users/pascal/Desktop/Priority.txt").hexdigest)
             PriorityFile::applyNextTransformation("/Users/pascal/Desktop/Priority.txt")
         end
 
