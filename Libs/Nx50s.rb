@@ -71,7 +71,7 @@ class Nx50s
         if type.nil? then
             return Nx50s::getNextGenUnixtime()
         end
-        if type == "natural" then
+        if type == "natural (default)" then
             return Nx50s::getNextGenUnixtime()
         end
         if type == "select" then
