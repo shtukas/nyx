@@ -439,6 +439,7 @@ class Waves
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .sort{|n1, n2|
                 Waves::ns16ToOrderingWeight(n1) <=> Waves::ns16ToOrderingWeight(n2)
             }

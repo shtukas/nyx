@@ -22,7 +22,6 @@ class Fitness
 end
 
 class NS16sOperator
-
     # NS16sOperator::ns16s()
     def self.ns16s()
         [
@@ -63,6 +62,62 @@ class ItemStore
     end
 end
 
+class InternetStatus
+
+    # InternetStatus::setInternetOn()
+    def self.setInternetOn()
+        KeyValueStore::destroy(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d")
+    end
+
+    # InternetStatus::setInternetOff()
+    def self.setInternetOff()
+        KeyValueStore::set(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d", "off")
+    end
+
+    # InternetStatus::internetIsActive()
+    def self.internetIsActive()
+        KeyValueStore::getOrNull(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d").nil?
+    end
+
+    # InternetStatus::markIdAsRequiringInternet(id)
+    def self.markIdAsRequiringInternet(id)
+        KeyValueStore::set(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}", "require")
+    end
+
+    # InternetStatus::trueIfElementRequiresInternet(id)
+    def self.trueIfElementRequiresInternet(id)
+        KeyValueStore::getOrNull(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
+    end
+
+    # InternetStatus::ns16ShouldShow(id)
+    def self.ns16ShouldShow(id)
+        InternetStatus::internetIsActive() or !InternetStatus::trueIfElementRequiresInternet(id)
+    end
+
+    # InternetStatus::putsInternetCommands()
+    def self.putsInternetCommands()
+        "[internt] set internet on | set internet off | requires internet"
+    end
+
+    # InternetStatus::interpreter(command, ns16s)
+    def self.interpreter(command, ns16s)
+
+        if Interpreting::match("set internet on", command) then
+            InternetStatus::setInternetOn()
+        end
+
+        if Interpreting::match("set internet off", command) then
+            InternetStatus::setInternetOff()
+        end
+
+        if Interpreting::match("requires internet", command) then
+            ns16 = ns16s.first
+            return if ns16.nil?
+            InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+        end
+    end
+end
+
 class UIServices
 
     # UIServices::mainView(ns16s)
@@ -71,7 +126,13 @@ class UIServices
 
         store = ItemStore.new()
 
-        vspaceleft = Utils::screenHeight()-11
+        vspaceleft = Utils::screenHeight()-12
+
+        if !InternetStatus::internetIsActive() then
+            puts ""
+            puts "INTERNET IS OFF".green
+            vspaceleft = vspaceleft - 2
+        end
 
         nxfloats = NxFloats::nxfloats()
         if nxfloats.size > 0 then
@@ -131,6 +192,7 @@ class UIServices
         puts Interpreters::listingCommands().yellow
         puts Interpreters::mainMenuCommands().yellow
         puts Work::workMenuCommands().yellow
+        puts InternetStatus::putsInternetCommands().yellow
 
         puts ""
 
@@ -173,5 +235,6 @@ class UIServices
         Interpreters::listingInterpreter(ns16s, command, priorityFileHash)
         Interpreters::mainMenuInterpreter(command)
         Work::workMenuInterpreter(command)
+        InternetStatus::interpreter(command, ns16s)
     end
 end
