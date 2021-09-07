@@ -22,6 +22,7 @@ class NxFloats
         LucilleCore::locationsAtFolder(NxFloats::repositoryFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
+            .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
     end
 
     # NxFloats::getNxFloatByUUIDOrNull(uuid)
@@ -317,40 +318,6 @@ class NxFloats
         NxFloats::nxfloats()
             .map{|nxfloat| NxFloats::ns16OrNull(nxfloat) }
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
-    end
-
-    # NxFloats::main()
-    def self.main()
-        loop {
-            system("clear")
-            NxFloats::nxfloats().each_with_index{|nxfloat, indx|
-                puts "- (#{indx.to_s.rjust(2, " ")}) #{NxFloats::toString(nxfloat)}"
-            }
-            puts ""
-            puts "select | add | remove" 
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            if command == "" then
-                break
-            end
-            if command == "select" then
-                indx = LucilleCore::askQuestionAnswerAsString("index: ").to_f
-                nxfloat = NxFloats::nxfloats()[indx]
-                next if nxfloat.nil?
-                NxFloats::run(nxfloat)
-            end
-            if command == "add" then
-                NxFloats::interactivelyCreateNewOrNull()
-            end
-            if command == "remove" then
-                indx = LucilleCore::askQuestionAnswerAsString("index: ").to_f
-                nxfloat = NxFloats::nxfloats()[indx]
-                next if nxfloat.nil?
-                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
-                    NxFloats::destroy(nxfloat)
-                    break
-                end
-            end
-        }
     end
 
     # --------------------------------------------------

@@ -42,19 +42,47 @@ class NS16sOperator
     end
 end
 
+class ItemStore
+    def initialize() # : Integer
+        @items = []
+        @defaultItem = nil
+    end
+    def register(item)
+        cursor = @items.size
+        @items << item
+        cursor 
+    end
+    def registerDefault(item)
+        @defaultItem = item
+    end
+    def get(indx)
+        @items[indx].clone
+    end
+    def getDefault()
+        @defaultItem.clone
+    end
+end
+
 class UIServices
 
     # UIServices::mainView(ns16s)
     def self.mainView(ns16s)
         system("clear")
 
+        store = ItemStore.new()
+
         vspaceleft = Utils::screenHeight()-11
 
         nxfloats = NxFloats::nxfloats()
         if nxfloats.size > 0 then
             puts ""
-            nxfloats.each_with_index{|nxfloat, indx|
-                line = "(#{indx.to_s.rjust(3, " ")}) #{NxFloats::toString(nxfloat).gsub("float", "floa").yellow}"
+            nxfloats
+            .map{|float|
+                float["run"] = lambda { NxFloats::landing(float)}
+                float
+            }
+            .each{|nxfloat|
+                line = "(#{store.register(nxfloat).to_s.rjust(3, " ")}) #{NxFloats::toString(nxfloat).gsub("float", "floa").yellow}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
@@ -70,8 +98,8 @@ class UIServices
             vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
         end
 
-        commandStrWithPrefix = lambda{|ns16, indx|
-            return "" if indx != 0
+        commandStrWithPrefix = lambda{|ns16, isDefaultItem|
+            return "" if !isDefaultItem
             return "" if ns16["commands"].nil?
             return "" if ns16["commands"].empty?
             " (commands: #{ns16["commands"].join(", ")})".yellow
@@ -79,13 +107,23 @@ class UIServices
 
         puts ""
 
+        if ns16s.size > 0 then
+            store.registerDefault(ns16s[0])
+        end
+
         ns16s
-            .each_with_index{|ns16, indx|
+            .each_with_index{|ns16|
+                indx = store.register(ns16)
+                isDefaultItem = ns16["uuid"] == (store.getDefault() ? store.getDefault()["uuid"] : "")
                 posStr = "(#{"%3d" % indx})"
-                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, indx)}"
+                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                if isDefaultItem then
+                    puts ""
+                    vspaceleft = vspaceleft - 1
+                end
             }
 
         puts ""
@@ -109,15 +147,21 @@ class UIServices
 
         return if command == ""
 
+        # We first interpret the command as an index and call "run"
+        # Or interpret it a command and run it by the default element interpreter.
+        # Otherwise we try a bunch of generic interpreters.
+
         if (i = Interpreting::readAsIntegerOrNull(command)) then
-            return if ns16s[i].nil?
-            ns16s[i]["run"].call()
+            item = store.get(i)
+            return if item.nil?
+            item["run"].call()
             return
         end
 
-        if ns16s[0] then
-            if ns16s[0]["interpreter"] then
-                ns16s[0]["interpreter"].call(command)
+        if store.getDefault() then
+            item = store.getDefault()
+            if item["interpreter"] then
+                item["interpreter"].call(command)
             end
         end
 

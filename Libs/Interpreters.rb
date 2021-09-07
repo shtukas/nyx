@@ -54,7 +54,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | floats | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -125,10 +125,6 @@ class Interpreters
 
         if Interpreting::match("waves", command) then
             Waves::main()
-        end
-
-        if Interpreting::match("floats", command) then
-            NxFloats::main()
         end
 
         if Interpreting::match("Nx50s", command) then
