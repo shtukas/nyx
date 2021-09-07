@@ -2,42 +2,46 @@
 
 class NxFloats
 
-    # NxFloats::databaseItemToNxFloat(item)
-    def self.databaseItemToNxFloat(item)
-        item["contentType"]    = item["payload1"]
-        item["contentPayload"] = item["payload2"]
-        item
+    # --------------------------------------------------
+    # IO
+
+    # NxFloats::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats"
+    end
+
+    # NxFloats::commitFloatToDisk(float)
+    def self.commitFloatToDisk(float)
+        filename = "#{float["uuid"]}.json"
+        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(float)) }
     end
 
     # NxFloats::nxfloats()
     def self.nxfloats()
-        CatalystDatabase::getItemsByCatalystType("NxFloat").map{|item|
-            NxFloats::databaseItemToNxFloat(item)
-        }
-    end
-
-    # NxFloats::commitNxFloatToDisk(nxfloat)
-    def self.commitNxFloatToDisk(nxfloat)
-        uuid         = nxfloat["uuid"]
-        unixtime     = nxfloat["unixtime"]
-        description  = nxfloat["description"]
-        catalystType = "NxFloat"
-        payload1     = nxfloat["contentType"]
-        payload2     = nxfloat["contentPayload"]
-        payload3     = nil
-        payload4     = nil 
-        payload5     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
+        LucilleCore::locationsAtFolder(NxFloats::repositoryFolderPath())
+            .select{|location| location[-5, 5] == ".json" }
+            .map{|location| JSON.parse(IO.read(location)) }
     end
 
     # NxFloats::getNxFloatByUUIDOrNull(uuid)
     def self.getNxFloatByUUIDOrNull(uuid)
-        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        return nil if item.nil?
-        NxFloats::databaseItemToNxFloat(item)
+        filename = "#{uuid}.json"
+        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NxFloats::destroy(item)
+    def self.destroy(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
+    # Making
 
     # NxFloats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
@@ -52,13 +56,22 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        catalystType = "NxFloat"
-        payload1     = coordinates ? coordinates["contentType"] : nil
-        payload2     = coordinates ? coordinates["contentPayload"] : nil
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        catalystType    = "NxFloat"
+        contentType     = coordinates ? coordinates["contentType"] : nil
+        contentPayload  = coordinates ? coordinates["contentPayload"] : nil
 
-        NxFloats::getNxFloatByUUIDOrNull(uuid)
+        float = {
+          "uuid"           => uuid,
+          "unixtime"       => unixtime,
+          "description"    => description,
+          "catalystType"   => "NxFloat",
+          "contentType"    => contentType,
+          "contentPayload" => contentPayload
+        }
+
+        NxFloats::commitFloatToDisk(float)
+
+        float
     end
 
     # --------------------------------------------------
@@ -71,18 +84,12 @@ class NxFloats
         "[float] #{nxfloat["description"]}#{str1}"
     end
 
-    # NxFloats::destroy(nxfloat)
-    def self.destroy(nxfloat)
-        Axion::postAccessCleanUp(nxfloat["contentType"], nxfloat["contentPayload"])
-        CatalystDatabase::delete(nxfloat["uuid"])
-    end
-
     # NxFloats::accessContent(nxfloat)
     def self.accessContent(nxfloat)
         update = lambda {|contentType, contentPayload|
             nxfloat["contentType"] = contentType
             nxfloat["contentPayload"] = contentPayload
-            NxFloats::commitNxFloatToDisk(nxfloat)
+            NxFloats::commitFloatToDisk(nxfloat)
         }
         Axion::access(nxfloat["contentType"], nxfloat["contentPayload"], update)
     end
@@ -193,15 +200,15 @@ class NxFloats
 
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nxfloat["description"])
-                if description.size > 0 then
-                    CatalystDatabase::updateDescription(nxfloat["uuid"], description)
-                end
+                next if description.size == 0
+                nxfloat["description"] = description
+                NxFloats::commitFloatToDisk(nxfloat)
                 next
             end
 
             if Interpreting::match("update contents", command) then
-                update = nil
-                Axion::edit(nxfloat["contentType"], nxfloat["contentPayload"], update)
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
                 next
             end
 

@@ -108,7 +108,7 @@ class Anniversaries
     # Anniversaries::anniversaries()
     def self.anniversaries()
         LucilleCore::locationsAtFolder(Anniversaries::repositoryFolderPath())
-            .select{|location| location[-4, 4] == ".json" }
+            .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
     end
 
@@ -245,7 +245,10 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                CatalystDatabase::delete(anniversary["uuid"])
+                filename = "#{anniversary["uuid"]}.json"
+                filepath = "#{Anniversaries::repositoryFolderPath()}/#{filename}"
+                break if !File.exists?(filepath)
+                FileUtils.rm(filepath)
                 break
             end
 

@@ -18,12 +18,9 @@ Item {
 
 -----------------------------------------------------------------------------
 CatalystType     PayLoad1                Payload2                  Payload3                Payload4           Payload5
-"inbox"
 "NxOnDate"       date      [1]           contentType    | null     contentPayload | null
-"Nx50"  [4]      contentType | null      contentPayload | null
-"wave"  [5]      contentType | null      contentPayload | null     repeatType [6]          repeatValue [6]    lastDoneDateTime
+"Nx50"  [4]      contentType | null      contentPayload | nulllastDoneDateTime
 "Nx51"  [4]      contentType | null      contentPayload | null     ordinal: Float
-"NxFloat"        contentType | null      contentPayload | null
 
 [1] "YYYY-MM-DD"
 
@@ -42,19 +39,3 @@ CatalystType     PayLoad1                Payload2                  Payload3     
     contentType        contentPayload
     "line"             String # !! This pair is not used, we just use the description
     "url"              String
-
-[6] repeatType                       repeatValue
-
-    'every-n-hours'                  Float
-
-    'every-n-days'                   Float
-
-    'every-this-day-of-the-week'     'sunday'    |
-                                     'monday'    |
-                                     'tuesday'   |
-                                     'wednesday' |
-                                     'thursday'  |
-                                     'friday'    |
-                                     'saturday'
-
-    'every-this-day-of-the-month'    String, length 2, Day Number

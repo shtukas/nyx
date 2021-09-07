@@ -3,38 +3,46 @@
 
 class Waves
 
-    # Waves::databaseItemToWave(item)
-    def self.databaseItemToWave(item)
-        item["contentType"]      = item["payload1"]
-        item["contentPayload"]   = item["payload2"]
-        item["repeatType"]       = item["payload3"]
-        item["repeatValue"]      = item["payload4"]
-        item["lastDoneDateTime"] = item["payload5"]
-        item
+    # --------------------------------------------------
+    # IO
+
+    # Waves::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves"
     end
 
-    # Waves::commitWaveToDisk(wave)
-    def self.commitWaveToDisk(wave)
-        uuid         = wave["uuid"]
-        unixtime     = wave["unixtime"]
-        description  = wave["description"]
-        catalystType = "wave"
-        payload1     = wave["contentType"]
-        payload2     = wave["contentPayload"]
-        payload3     = wave["repeatType"]
-        payload4     = wave["repeatValue"]
-        payload5     = wave["lastDoneDateTime"]
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
+    # Waves::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # Waves::waves()
-    def self.waves()
-        CatalystDatabase::getItemsByCatalystType("wave").map{|item|
-            Waves::databaseItemToWave(item)
-        }
+    # Waves::items()
+    def self.items()
+        LucilleCore::locationsAtFolder(Waves::repositoryFolderPath())
+            .select{|location| location[-5, 5] == ".json" }
+            .map{|location| JSON.parse(IO.read(location)) }
     end
 
-    # ------------------------------------------
+    # Waves::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
+        filename = "#{uuid}.json"
+        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Waves::destroy(item)
+    def self.destroy(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # --------------------------------------------------
+    # Making
 
     # Waves::makeScheduleParametersInteractivelyOrNull() # [type, value]
     def self.makeScheduleParametersInteractivelyOrNull()
@@ -154,26 +162,45 @@ class Waves
         
         catalystType = "wave"
 
+        description    = nil
+        contentType    = nil
+        contentPayload = nil
+
         if contents[0] == "line" then
-            description  = contents[1]
-            payload1     = nil
-            payload2     = nil
+            description    = contents[1]
+            contentType    = nil
+            contentPayload = nil
         end
 
         if contents[0] == "url" then
-            description  = contents[1]
-            payload1     = "url"
-            payload2     = contents[1]
+            description    = contents[1]
+            contentType    = "url"
+            contentPayload = contents[1]
         end
 
-        payload3     = schedule[0]
-        payload4     = schedule[1]
-        payload5     = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+        repeatType   = schedule[0]
+        repeatValue  = schedule[1]
+        lastDoneDateTime = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
+        wave = {
+          "uuid"             => uuid,
+          "unixtime"         => unixtime,
+          "description"      => description,
+          "catalystType"     => "wave",
+          "contentType"      => contentType,
+          "contentPayload"   => contentPayload,
+          "repeatType"       => repeatType,
+          "repeatValue"      => repeatValue,
+          "lastDoneDateTime" => lastDoneDateTime
+        }
+
+        Waves::commitItemToDisk(wave)
+
+        wave
     end
 
     # -------------------------------------------------------------------------
+    # Operations
 
     # Waves::toString(wave)
     def self.toString(wave)
@@ -183,14 +210,14 @@ class Waves
 
     # Waves::selectWaveOrNull()
     def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::waves().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::items().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
     end
 
     # Waves::performDone(wave)
     def self.performDone(wave)
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitWaveToDisk(wave)
+        Waves::commitItemToDisk(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -282,7 +309,7 @@ class Waves
                     wave["contentType"]    = contents[0]
                     wave["contentPayload"] = contents[1]
                 end
-                Waves::commitWaveToDisk(wave)
+                Waves::commitItemToDisk(wave)
                 next
             end
 
@@ -291,7 +318,7 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                Waves::commitWaveToDisk(wave)
+                Waves::commitItemToDisk(wave)
                 next
             end
 
@@ -339,7 +366,7 @@ class Waves
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    CatalystDatabase::delete(wave["uuid"])
+                    Waves::destroy(wave)
                     break
                 end
             end
@@ -351,6 +378,7 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
+    # NS16
 
     # Waves::run(wave)
     def self.run(wave)
@@ -395,7 +423,7 @@ class Waves
             return []
         end
 
-        Waves::waves()
+        Waves::items()
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -403,7 +431,7 @@ class Waves
 
     # Waves::nx19s()
     def self.nx19s()
-        Waves::waves().map{|item|
+        Waves::items().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => Waves::toString(item),
