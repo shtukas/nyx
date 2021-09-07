@@ -100,37 +100,23 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::databaseRecordToAnniversary(record)
-    def self.databaseRecordToAnniversary(record)
-        return nil if record.nil?
-        anniversary = record.clone
-        anniversary["startdate"]           = record["payload1"]
-        anniversary["repeatType"]          = record["payload2"]
-        anniversary["lastCelebrationDate"] = record["payload3"]
-        anniversary.delete("payload1")
-        anniversary.delete("payload2")
-        anniversary.delete("payload3")
-        anniversary
+    # Anniversaries::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/anniversaries"
     end
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        CatalystDatabase::getItemsByCatalystType("anniversary").map{|record| Anniversaries::databaseRecordToAnniversary(record) }
+        LucilleCore::locationsAtFolder(Anniversaries::repositoryFolderPath())
+            .select{|location| location[-4, 4] == ".json" }
+            .map{|location| JSON.parse(IO.read(location)) }
     end
 
     # Anniversaries::commitAnniversaryToDisk(anniversary)
     def self.commitAnniversaryToDisk(anniversary)
-        CatalystDatabase::insertItem(
-            anniversary["uuid"], 
-            anniversary["unixtime"], 
-            anniversary["description"], 
-            "anniversary", 
-            anniversary["startdate"], 
-            anniversary["repeatType"], 
-            anniversary["lastCelebrationDate"],
-            nil,
-            nil
-        )
+        filename = "#{anniversary["uuid"]}.json"
+        filepath = "#{Anniversaries::repositoryFolderPath()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(anniversary)) }
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -166,10 +152,19 @@ class Anniversaries
         payload2 = repeatType
         payload3 = lastCelebrationDate
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        anniversary = {
+              "uuid"         => uuid,
+              "unixtime"     => Time.new.to_i,
+              "description"  => description,
+              "catalystType" => "anniversary",
+              "startdate"    => startdate,
+              "repeatType"   => repeatType,
+              "lastCelebrationDate" => lastCelebrationDate
+            }
 
-        record = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        Anniversaries::databaseRecordToAnniversary(record)
+        Anniversaries::commitAnniversaryToDisk(anniversary)
+
+        anniversary
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
