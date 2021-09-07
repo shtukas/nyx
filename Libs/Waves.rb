@@ -195,6 +195,8 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+
+        Bank::put("WAVE-DONE-INCREMENTS-9429C0B15E51", 1)
     end
 
     # Waves::main()
@@ -389,6 +391,10 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
+        if Work::isPriorityWork() and Bank::valueOverTimespan("WAVE-DONE-INCREMENTS-9429C0B15E51", 3600) >= 3 then
+            return []
+        end
+
         Waves::waves()
             .map{|wave| Waves::toNS16(wave) }
             .compact
