@@ -117,7 +117,7 @@ class AxionBinaryBlobsService
 
     # AxionBinaryBlobsService::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Axion/DataBlobs2"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/DataBlobs2"
     end
 
     # AxionBinaryBlobsService::filepathToContentHash(filepath)
