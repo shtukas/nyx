@@ -12,6 +12,8 @@
 
 [6] repeatType                       repeatValue
 
+    "sticky"                         Integer
+
     'every-n-hours'                  Float
 
     'every-n-days'                   Float

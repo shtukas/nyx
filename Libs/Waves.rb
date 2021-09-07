@@ -417,6 +417,18 @@ class Waves
         }
     end
 
+    # Waves::ns16ToOrderingWeight(ns16)
+    def self.ns16ToOrderingWeight(ns16)
+        mapping = {
+            "sticky"                      => 5,
+            "every-this-day-of-the-month" => 4,
+            "every-this-day-of-the-week"  => 3,
+            "every-n-hours"               => 2,
+            "every-n-days"                => 1
+        }
+        mapping[ns16["wave"]["repeatType"]]
+    end
+
     # Waves::ns16s()
     def self.ns16s()
         if Work::isPriorityWork() and Bank::valueOverTimespan("WAVE-DONE-INCREMENTS-9429C0B15E51", 3600) >= 3 then
@@ -427,6 +439,10 @@ class Waves
             .map{|wave| Waves::toNS16(wave) }
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .sort{|n1, n2|
+                Waves::ns16ToOrderingWeight(n1) <=> Waves::ns16ToOrderingWeight(n2)
+            }
+            .reverse
     end
 
     # Waves::nx19s()
