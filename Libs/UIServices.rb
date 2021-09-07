@@ -151,6 +151,11 @@ class UIServices
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
 
+        if command == ".." and store.getDefault() then
+            store.getDefault()["run"].call()
+            return
+        end
+
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
