@@ -417,6 +417,7 @@ class Nx50s
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
+        return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return nil if rt > 1
         note = StructuredTodoTexts::getNoteOrNull(uuid)

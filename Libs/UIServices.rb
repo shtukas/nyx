@@ -39,6 +39,7 @@ class NS16sOperator
             .flatten
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 end
 
