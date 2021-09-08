@@ -1,42 +1,42 @@
 # encoding: UTF-8
 
-class NxFloats
+class NxAfterWorks
 
     # --------------------------------------------------
     # IO
 
-    # NxFloats::repositoryFolderPath()
+    # NxAfterWorks::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxAfterWorks"
     end
 
-    # NxFloats::commitFloatToDisk(float)
+    # NxAfterWorks::commitFloatToDisk(float)
     def self.commitFloatToDisk(float)
         filename = "#{float["uuid"]}.json"
-        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(float)) }
     end
 
-    # NxFloats::nxfloats()
-    def self.nxfloats()
-        LucilleCore::locationsAtFolder(NxFloats::repositoryFolderPath())
+    # NxAfterWorks::items()
+    def self.items()
+        LucilleCore::locationsAtFolder(NxAfterWorks::repositoryFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
     end
 
-    # NxFloats::getNxFloatByUUIDOrNull(uuid)
-    def self.getNxFloatByUUIDOrNull(uuid)
+    # NxAfterWorks::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxFloats::destroy(item)
+    # NxAfterWorks::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxFloats::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -44,7 +44,7 @@ class NxFloats
     # --------------------------------------------------
     # Making
 
-    # NxFloats::interactivelyCreateNewOrNull()
+    # NxAfterWorks::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = SecureRandom.uuid
 
@@ -64,12 +64,12 @@ class NxFloats
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "catalystType"   => "NxFloat",
+          "catalystType"   => "NxAfterWork",
           "contentType"    => contentType,
           "contentPayload" => contentPayload
         }
 
-        NxFloats::commitFloatToDisk(float)
+        NxAfterWorks::commitFloatToDisk(float)
 
         float
     end
@@ -77,24 +77,24 @@ class NxFloats
     # --------------------------------------------------
     # Operations
 
-    # NxFloats::toString(nxfloat)
+    # NxAfterWorks::toString(nxfloat)
     def self.toString(nxfloat)
         contentType = nxfloat["contentType"]
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[float] #{nxfloat["description"]}#{str1}"
+        "[aftw] #{nxfloat["description"]}#{str1}"
     end
 
-    # NxFloats::accessContent(nxfloat)
+    # NxAfterWorks::accessContent(nxfloat)
     def self.accessContent(nxfloat)
         update = lambda {|contentType, contentPayload|
             nxfloat["contentType"] = contentType
             nxfloat["contentPayload"] = contentPayload
-            NxFloats::commitFloatToDisk(nxfloat)
+            NxAfterWorks::commitFloatToDisk(nxfloat)
         }
         Axion::access(nxfloat["contentType"], nxfloat["contentPayload"], update)
     end
 
-    # NxFloats::landing(nxfloat)
+    # NxAfterWorks::landing(nxfloat)
     def self.landing(nxfloat)
 
         uuid = nxfloat["uuid"]
@@ -110,7 +110,7 @@ class NxFloats
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "NxFloat item running for more than an hour")
+                    Utils::onScreenNotification("Catalyst", "NxAfterWork item running for more than an hour")
                 end
             }
         }
@@ -119,7 +119,7 @@ class NxFloats
 
         loop {
 
-            nxfloat = NxFloats::getNxFloatByUUIDOrNull(uuid)
+            nxfloat = NxAfterWorks::getItemByUUIDOrNull(uuid)
 
             return if nxfloat.nil?
 
@@ -127,7 +127,7 @@ class NxFloats
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: (#{"%.3f" % rt}) #{NxFloats::toString(nxfloat)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: (#{"%.3f" % rt}) #{NxAfterWorks::toString(nxfloat)} (#{BankExtended::runningTimeString(nxball)})".green
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
@@ -176,7 +176,7 @@ class NxFloats
             end
 
             if Interpreting::match("access", command) then
-                NxFloats::accessContent(nxfloat)
+                NxAfterWorks::accessContent(nxfloat)
                 next
             end
 
@@ -189,12 +189,12 @@ class NxFloats
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(NxFloats::toString(nxfloat), Time.new.to_i, [uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+                DetachedRunning::issueNew2(NxAfterWorks::toString(nxfloat), Time.new.to_i, [uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
                 break
             end
 
             if Interpreting::match("completed", command) then
-                NxFloats::destroy(nxfloat)
+                NxAfterWorks::destroy(nxfloat)
                 break
             end
 
@@ -202,7 +202,7 @@ class NxFloats
                 description = Utils::editTextSynchronously(nxfloat["description"])
                 next if description.size == 0
                 nxfloat["description"] = description
-                NxFloats::commitFloatToDisk(nxfloat)
+                NxAfterWorks::commitFloatToDisk(nxfloat)
                 next
             end
 
@@ -213,7 +213,7 @@ class NxFloats
             end
 
             if Interpreting::match("destroy", command) then
-                NxFloats::destroy(nxfloat)
+                NxAfterWorks::destroy(nxfloat)
                 break
             end
 
@@ -230,12 +230,12 @@ class NxFloats
     # --------------------------------------------------
     # nx16s
 
-    # NxFloats::run(nxfloat)
+    # NxAfterWorks::run(nxfloat)
     def self.run(nxfloat)
         uuid = nxfloat["uuid"]
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
-        NxFloats::accessContent(nxfloat)
+        NxAfterWorks::accessContent(nxfloat)
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         if note then
@@ -267,12 +267,12 @@ class NxFloats
                 next
             end
             if option == "landing" then
-                NxFloats::landing(nxfloat)
+                NxAfterWorks::landing(nxfloat)
                 next
             end
             if option == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
-                    NxFloats::destroy(nxfloat)
+                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{NxAfterWorks::toString(nxfloat)}' ? ", true) then
+                    NxAfterWorks::destroy(nxfloat)
                     break
                 end
                 next
@@ -280,55 +280,56 @@ class NxFloats
         }
     end
 
-    # NxFloats::ns16OrNull(nxfloat)
+    # NxAfterWorks::ns16OrNull(nxfloat)
     def self.ns16OrNull(nxfloat)
         uuid = nxfloat["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "(#{"%4.2f" % rt}) #{NxFloats::toString(nxfloat)}#{noteStr}".gsub("(0.00)", "      ")
+        announce = "(#{"%4.2f" % rt}) #{NxAfterWorks::toString(nxfloat)}#{noteStr}".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce.green,
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxFloats::run(nxfloat)
+                    NxAfterWorks::run(nxfloat)
                 end
                 if command == "landing" then
-                    NxFloats::landing(nxfloat)
+                    NxAfterWorks::landing(nxfloat)
                 end
                 if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
-                        NxFloats::destroy(nxfloat)
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxAfterWorks::toString(nxfloat)}' ? ", true) then
+                        NxAfterWorks::destroy(nxfloat)
                     end
                 end
             },
             "run" => lambda {
-                NxFloats::run(nxfloat)
+                NxAfterWorks::run(nxfloat)
             },
             "rt" => rt
         }
     end
 
-    # NxFloats::ns16s()
+    # NxAfterWorks::ns16s()
     def self.ns16s()
-        NxFloats::nxfloats()
-            .map{|nxfloat| NxFloats::ns16OrNull(nxfloat) }
+        return [] if Work::shouldDisplayWorkItems()
+        NxAfterWorks::items()
+            .map{|nxfloat| NxAfterWorks::ns16OrNull(nxfloat) }
             .compact
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # --------------------------------------------------
 
-    # NxFloats::nx19s()
+    # NxAfterWorks::nx19s()
     def self.nx19s()
-        NxFloats::nxfloats().map{|item|
+        NxAfterWorks::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => NxFloats::toString(item),
-                "lambda"   => lambda { NxFloats::landing(item) }
+                "announce" => NxAfterWorks::toString(item),
+                "lambda"   => lambda { NxAfterWorks::landing(item) }
             }
         }
     end

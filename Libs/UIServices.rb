@@ -33,6 +33,7 @@ class NS16sOperator
             Waves::ns16s(),
             DrivesBackups::ns16s(),
             Nx51s::ns16s(),
+            NxAfterWorks::ns16s(),
             Nx50s::ns16s()
         ]
             .flatten
@@ -59,6 +60,26 @@ class ItemStore
     end
     def getDefault()
         @defaultItem.clone
+    end
+end
+
+class PriorityDJ
+
+    # PriorityDJ::getCurrentFilePath()
+    def self.getCurrentFilePath()
+        if Work::shouldDisplayWorkItems() then
+            "/Users/pascal/Desktop/Work.txt"
+        else
+            "/Users/pascal/Desktop/Eva.txt"
+        end
+    end
+
+    # PriorityDJ::applyNextTransformation(filepath)
+    def self.applyNextTransformation(filepath)
+        contents = IO.read(filepath)
+        return if contents.strip == ""
+        contents = SectionsType0141::applyNextTransformationToText(contents)
+        File.open(filepath, "w"){|f| f.puts(contents)}
     end
 end
 
@@ -126,7 +147,17 @@ class UIServices
 
         store = ItemStore.new()
 
-        vspaceleft = Utils::screenHeight()-11
+        vspaceleft = Utils::screenHeight()-10
+
+        commandLines = [
+            "[info   ]",
+            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
+            "(misc: rt: #{BankExtended::stdRecoveredDailyTimeInHours("MISC-BE92-4874-85F1-54F140E3B243").round(2)})",
+            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
+            "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
+        ].join(" ").yellow
+
+        vspaceleft = vspaceleft - Utils::verticalSize(commandLines)
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -150,8 +181,9 @@ class UIServices
             vspaceleft = vspaceleft - 1
         end
 
-        priority = IO.read("/Users/pascal/Desktop/Priority.txt").strip
-        priorityFileHash = Digest::SHA1.file("/Users/pascal/Desktop/Priority.txt").hexdigest
+        filepath = PriorityDJ::getCurrentFilePath()
+        priority = IO.read(filepath).strip
+        priorityFileHash = Digest::SHA1.file(filepath).hexdigest
         if priority.size > 0 then
             puts ""
             priority = priority.lines.first(10).join()
@@ -192,12 +224,7 @@ class UIServices
 
         puts ""
 
-        puts [
-            "[info   ]",
-            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
-            "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
-        ].join(" ").yellow
+        puts commandLines
 
         puts ""
 

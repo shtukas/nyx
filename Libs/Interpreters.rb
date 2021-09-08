@@ -17,8 +17,9 @@ class Interpreters
         }
 
         if Interpreting::match("[]", command) then
-            return if (priorityFileHash != Digest::SHA1.file("/Users/pascal/Desktop/Priority.txt").hexdigest)
-            PriorityFile::applyNextTransformation("/Users/pascal/Desktop/Priority.txt")
+            filepath = PriorityDJ::getCurrentFilePath()
+            return if (priorityFileHash != Digest::SHA1.file(filepath).hexdigest)
+            PriorityDJ::applyNextTransformation(filepath)
         end
 
         if Interpreting::match("expose", command) then
@@ -54,7 +55,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] inbox: <line> | inbox text | float | wave | after work | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -81,6 +82,10 @@ class Interpreters
 
         if Interpreting::match("wave", command) then
             Waves::issueNewWaveInteractivelyOrNull()
+        end
+
+        if Interpreting::match("after work", command) then
+            NxAfterWorks::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondate", command) then

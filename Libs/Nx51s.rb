@@ -422,7 +422,7 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        return [] if !Work::isPriorityWork()
+        return [] if !Work::shouldDisplayWorkItems()
         Nx51s::nx51sPerOrdinal()
             .map{|nx51| Nx51s::ns16OrNull(nx51) }
             .compact

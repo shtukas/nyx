@@ -431,7 +431,7 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
-        if Work::isPriorityWork() and Bank::valueOverTimespan("WAVE-DONE-INCREMENTS-9429C0B15E51", 3600) >= 3 then
+        if Work::shouldDisplayWorkItems() and Bank::valueOverTimespan("WAVE-DONE-INCREMENTS-9429C0B15E51", 3600) >= 3 then
             return []
         end
 

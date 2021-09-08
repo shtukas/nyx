@@ -12,8 +12,8 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::isPriorityWork()
-    def self.isPriorityWork()
+    # Work::shouldDisplayWorkItems()
+    def self.shouldDisplayWorkItems()
         # First check whether there is an explicit Yes override.
         doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
         return true if Time.new.to_i < doWorkUntilUnixtime
