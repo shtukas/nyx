@@ -186,7 +186,7 @@ class UIServices
         priorityFileHash = Digest::SHA1.file(filepath).hexdigest
         if priority.size > 0 then
             puts ""
-            priority = priority.lines.first(10).join()
+            priority = priority.lines.first(10).join().strip
             puts priority.green
             vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
         end
