@@ -435,6 +435,10 @@ class Waves
             return []
         end
 
+        if !Work::shouldDisplayWorkItems() and Bank::valueOverTimespan("WAVE-DONE-INCREMENTS-9429C0B15E51", 3600) >= 7 then
+            return []
+        end
+
         Waves::items()
             .map{|wave| Waves::toNS16(wave) }
             .compact
