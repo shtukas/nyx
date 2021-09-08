@@ -126,7 +126,7 @@ class UIServices
 
         store = ItemStore.new()
 
-        vspaceleft = Utils::screenHeight()-12
+        vspaceleft = Utils::screenHeight()-11
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -181,10 +181,6 @@ class UIServices
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
-                if isDefaultItem then
-                    puts ""
-                    vspaceleft = vspaceleft - 1
-                end
             }
 
         puts ""
