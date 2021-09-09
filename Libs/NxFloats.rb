@@ -99,7 +99,7 @@ class NxFloats
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::viewWithOptionToEdit(NxFloats::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxFloats::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxFloats::landing(nxfloat)

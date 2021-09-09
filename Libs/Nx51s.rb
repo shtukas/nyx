@@ -176,7 +176,7 @@ class Nx51s
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::viewWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"])
     end
 
     # Nx51s::landing(nx51)

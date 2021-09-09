@@ -221,13 +221,13 @@ class Nx50s
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::viewWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
     end
 
     # Nx50s::accessContentsIfContents(nx50)
     def self.accessContentsIfContents(nx50)
         return if nx50["axiomId"].nil?
-        NxAxioms::viewWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
     end
 
     # Nx50s::landing(nx50)

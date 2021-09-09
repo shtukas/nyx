@@ -255,7 +255,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["axiomId"].nil?
-        NxAxioms::viewWithOptionToEdit(Waves::axiomsRepositoryFolderPath(), wave["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Waves::axiomsRepositoryFolderPath(), wave["axiomId"])
     end
 
     # Waves::landing(wave)

@@ -106,7 +106,7 @@ class NxAfterWorks
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::viewWithOptionToEdit(NxAfterWorks::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxAfterWorks::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxAfterWorks::landing(item)

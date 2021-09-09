@@ -119,13 +119,13 @@ class NxOnDate # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::viewWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxOnDate::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        NxAxioms::viewWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxOnDate::landing(nx31)
