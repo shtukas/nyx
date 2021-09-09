@@ -6,50 +6,38 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] [] | next | <datecode> | <n> | select <n> | hide <n> <datecode> | expose"
+        "[listing] .. | <n> | [] | <datecode> | hide <n> <datecode> | expose"
     end
 
-    # Interpreters::listingInterpreter(ns16s, command, priorityFileHash): Boolean # Indicate if was captured
-    def self.listingInterpreter(ns16s, command, priorityFileHash)
-        selected = lambda { |ns16| 
-            return if ns16.nil?
-            ns16["run"].call()
-        }
+    # Interpreters::listingInterpreter(store, command, priorityFileHash): Boolean # Indicate if was captured
+    def self.listingInterpreter(store, command, priorityFileHash)
 
-        if Interpreting::match("[]", command) then
-            filepath = PriorityDJ::getCurrentFilePath()
-            return if (priorityFileHash != Digest::SHA1.file(filepath).hexdigest)
-            PriorityDJ::applyNextTransformation(filepath)
-        end
+        # The case <n> should hve already been captured by UIServices
 
-        if Interpreting::match("expose", command) then
-            ns16 = ns16s[0]
-            return if ns16.nil? 
-            puts JSON.pretty_generate(ns16)
-            LucilleCore::pressEnterToContinue()
-        end
+        # The case [] should have already been caputred by UIServices
 
         if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-            ns16 = ns16s[0]
+            ns16 = store.getDefault()
             return if ns16.nil? 
             DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
             puts "Hidden until: #{Time.at(unixtime).to_s}"
         end
 
-        if Interpreting::match("select *", command) then
-            _, ordinal = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            selected.call(ns16s[ordinal])
-        end
-
         if Interpreting::match("hide * *", command) then
             _, ordinal, datecode = Interpreting::tokenizer(command)
             ordinal = ordinal.to_i
-            ns16 = ns16s[ordinal]
+            ns16 = store.get(ordinal)
             return if ns16.nil?
             unixtime = Utils::codeToUnixtimeOrNull(datecode)
             return if unixtime.nil?
             DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
+        end
+
+        if Interpreting::match("expose", command) then
+            ns16 = store.getDefault()
+            return if ns16.nil? 
+            puts JSON.pretty_generate(ns16)
+            LucilleCore::pressEnterToContinue()
         end
     end
 

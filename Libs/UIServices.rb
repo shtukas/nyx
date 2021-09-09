@@ -121,8 +121,8 @@ class InternetStatus
         "[internt] set internet on | set internet off | requires internet"
     end
 
-    # InternetStatus::interpreter(command, ns16s)
-    def self.interpreter(command, ns16s)
+    # InternetStatus::interpreter(command, store)
+    def self.interpreter(command, store)
 
         if Interpreting::match("set internet on", command) then
             InternetStatus::setInternetOn()
@@ -133,7 +133,7 @@ class InternetStatus
         end
 
         if Interpreting::match("requires internet", command) then
-            ns16 = ns16s.first
+            ns16 = store.getDefault()
             return if ns16.nil?
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
         end
@@ -242,12 +242,23 @@ class UIServices
             return
         end
 
+        if command == "[]" then
+            filepath = PriorityDJ::getCurrentFilePath()
+            return if (priorityFileHash != Digest::SHA1.file(filepath).hexdigest)
+            PriorityDJ::applyNextTransformation(filepath)
+        end
+
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
             item["run"].call()
             return
         end
+
+        Interpreters::listingInterpreter(store, command, priorityFileHash)
+        Interpreters::mainMenuInterpreter(command)
+        Work::workMenuInterpreter(command)
+        InternetStatus::interpreter(command, store)
 
         if store.getDefault() then
             item = store.getDefault()
@@ -256,9 +267,5 @@ class UIServices
             end
         end
 
-        Interpreters::listingInterpreter(ns16s, command, priorityFileHash)
-        Interpreters::mainMenuInterpreter(command)
-        Work::workMenuInterpreter(command)
-        InternetStatus::interpreter(command, ns16s)
     end
 end
