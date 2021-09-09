@@ -19,21 +19,12 @@ Item {
 -----------------------------------------------------------------------------
 CatalystType     PayLoad1                Payload2                  Payload3                Payload4           Payload5
 "NxOnDate"       date      [1]           contentType    | null     contentPayload | null
-"Nx50"  [4]      contentType | null      contentPayload | nulllastDoneDateTime
-"Nx51"  [4]      contentType | null      contentPayload | null     ordinal: Float
+"Nx50"  [4]                                                        axiomId
+"Nx51"  [4]                                                        ordinal: Float          axiomId
 
 [1] "YYYY-MM-DD"
 
 [3] If null / empty it means that the entire payload was the catalyst description
-
-[4] Nx25, Nx50 and Nx51 (work) uses the Axion contentType / contentPayload pairs
-    contentType        contentPayload
-    "line"             String # !! This pair is not used, we just use the description
-    "url"              String
-    "text"             String
-    "aion-point"       String # Root Named Hash
-    "unique-string"    String
-    "clickable"        String # <nhash>|<dottedExtension>
 
 [5] wave uses a subset of the Axion contentType / contentPayload pairs
     contentType        contentPayload
