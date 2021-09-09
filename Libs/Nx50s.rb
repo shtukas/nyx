@@ -41,6 +41,20 @@ class Nx50s
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-axioms"
     end
 
+    # Nx50s::fsckNxAxiomes()
+    def self.fsckNxAxiomes()
+        Nx50s::nx50s().each{|nx50|
+            puts Nx50s::toString(nx50)
+            next if KeyValueStore::flagIsTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
+            status = NxAxioms::fsck(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
+            if status then 
+                KeyValueStore::setFlagTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
+            else
+                puts "[problem]".red
+            end
+        }
+    end
+
     # --------------------------------------------------
     # Next Gen
 
@@ -271,6 +285,7 @@ class Nx50s
 
             puts "uuid: #{uuid}".yellow
             puts "axiomId: #{nx50["axiomId"]}".yellow
+            puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])}"
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
             puts ""
