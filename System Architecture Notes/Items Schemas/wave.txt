@@ -3,27 +3,26 @@
   "unixtime"        : Float,
   "description"     : String,
   "catalystType"    : "wave",
-  "contentType"     : AxionContentType,
-  "contentPayload"  : AxionContentPayload,
+  "axiomId"         : String,
   "repeatType"      : repeatType,
   "repeatValue"     : repeatValue,
   "lastDoneDateTime": DateTime Iso 8601 UTC Zulu
 }
 
-[6] repeatType                       repeatValue
+repeatType                       repeatValue
 
-    "sticky"                         Integer
+"sticky"                         Integer
 
-    'every-n-hours'                  Float
+'every-n-hours'                  Float
 
-    'every-n-days'                   Float
+'every-n-days'                   Float
 
-    'every-this-day-of-the-week'     'sunday'    |
-                                     'monday'    |
-                                     'tuesday'   |
-                                     'wednesday' |
-                                     'thursday'  |
-                                     'friday'    |
-                                     'saturday'
+'every-this-day-of-the-week'     'sunday'    |
+                                 'monday'    |
+                                 'tuesday'   |
+                                 'wednesday' |
+                                 'thursday'  |
+                                 'friday'    |
+                                 'saturday'
 
-    'every-this-day-of-the-month'    String, length 2, Day Number
+'every-this-day-of-the-month'    String, length 2, Day Number

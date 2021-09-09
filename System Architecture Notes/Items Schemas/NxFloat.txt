@@ -1,8 +1,7 @@
 {
-  "uuid"          : String,
-  "unixtime"      : Float,
-  "description"   : String,
-  "catalystType"  : "NxFloat",
-  "contentType"   : AxionContentType,
-  "contentPayload": AxionPayload
+  "uuid"         : String,
+  "unixtime"     : Float,
+  "description"  : String,
+  "catalystType" : "NxFloat",
+  "axiomId"      : String
 }

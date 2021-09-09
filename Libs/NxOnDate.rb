@@ -19,11 +19,16 @@
 
 class NxOnDate # OnDate
 
-    # NxOnDate::databaseItemToNxOnDate(item)
-    def self.databaseItemToNxOnDate(item)
-        item["date"]           = item["payload1"]
-        item["axiomId"]        = item["payload4"]
-        item
+    # NxOnDate::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates"
+    end
+
+    # NxOnDate::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # NxOnDate::axiomsRepositoryFolderPath()
@@ -33,16 +38,18 @@ class NxOnDate # OnDate
 
     # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     def self.getNxOnDateByUUIDOrNull(uuid)
-        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        return nil if item.nil?
-        NxOnDate::databaseItemToNxOnDate(item)
+        filename = "#{uuid}.json"
+        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # NxOnDate::nx31s()
     def self.nx31s()
-        CatalystDatabase::getItemsByCatalystType("NxOnDate").map{|item|
-            NxOnDate::databaseItemToNxOnDate(item)
-        }
+        LucilleCore::locationsAtFolder(NxOnDate::repositoryFolderPath())
+            .select{|location| location[-5, 5] == ".json" }
+            .map{|location| JSON.parse(IO.read(location)) }
+            .sort{|x1, x2|  x1["date"] <=> x2["date"]}
     end
 
     # NxOnDate::interactivelySelectADateOrNull()
@@ -51,20 +58,6 @@ class NxOnDate # OnDate
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
         return nil if unixtime.nil?
         Time.at(unixtime).to_s[0, 10]
-    end
-
-    # NxOnDate::commitNxOnDateToDisk(nx31)
-    def self.commitNxOnDateToDisk(nx31)
-        uuid         = nx31["uuid"]
-        unixtime     = nx31["unixtime"]
-        description  = nx31["description"]
-        catalystType = "NxOnDate"
-        payload1     = nx31["date"]
-        payload2     = nil
-        payload3     = nil
-        payload4     = nx31["axiomId"]
-        payload5     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
     end
 
     # NxOnDate::interactivelyIssueNewOrNull()
@@ -86,14 +79,18 @@ class NxOnDate # OnDate
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        payload1 = date
-        payload2 = nil
-        payload3 = nil
-        payload4 = axiomId
+        item = {
+              "uuid"         => uuid,
+              "unixtime"     => unixtime,
+              "description"  => description,
+              "date"         => date,
+              "axiomId"      => axiomId
+            }
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, nil)
+        NxOnDate::commitItemToDisk(item)
 
-        NxOnDate::getNxOnDateByUUIDOrNull(uuid)
+        item
+
     end
 
     # -------------------------------------
@@ -181,7 +178,7 @@ class NxOnDate # OnDate
                 date = NxOnDate::interactivelySelectADateOrNull()
                 next if date.nil?
                 nx31["date"] = date
-                NxOnDate::commitNxOnDateToDisk(nx31)
+                NxOnDate::commitItemToDisk(nx31)
                 next
             end
 

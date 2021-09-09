@@ -67,8 +67,7 @@ class NxFloats
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "axiomId"        => axiomId,
-          "contentPayload" => contentPayload
+          "axiomId"        => axiomId
         }
 
         NxFloats::commitFloatToDisk(float)
