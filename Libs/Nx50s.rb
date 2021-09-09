@@ -172,10 +172,13 @@ class Nx50s
         uuid         = SecureRandom.uuid
         unixtime     = Nx50s::getNextGenUnixtime()
         description  = File.basename(location) 
+        axiomId      = LucilleCore::timeStringL22()
+        NxA003::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, location)
+
         catalystType = "Nx50"
-        payload1     = "aion-point"
-        payload2     = AionCore::commitLocationReturnHash(AxionElizaBeth.new(), location)
-        payload3     = nil
+        payload1     = nil
+        payload2     = nil
+        payload3     = axiomId
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)

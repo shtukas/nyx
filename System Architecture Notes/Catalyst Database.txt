@@ -8,7 +8,7 @@ Item {
     "uuid"         : String
     "unixtime"     : Float
     "description"  : String
-    "catalystType" : "anniversary" | "inbox" | "NxOnDate" | "Nx50" | "Nx51"
+    "catalystType" : "NxOnDate" | "Nx50" | "Nx51"
     "payload1"     : String
     "payload2"     : String
     "payload3"     : String
@@ -18,15 +18,8 @@ Item {
 
 -----------------------------------------------------------------------------
 CatalystType     PayLoad1                Payload2                  Payload3                Payload4           Payload5
-"NxOnDate"       date      [1]           contentType    | null     contentPayload | null
-"Nx50"  [4]                                                        axiomId
-"Nx51"  [4]                                                        ordinal: Float          axiomId
+"NxOnDate"       date [1]                                                                  axiomId
+"Nx50" [4]                                                         axiomId
+"Nx51" [4]                                                         ordinal: Float          axiomId
 
 [1] "YYYY-MM-DD"
-
-[3] If null / empty it means that the entire payload was the catalyst description
-
-[5] wave uses a subset of the Axion contentType / contentPayload pairs
-    contentType        contentPayload
-    "line"             String # !! This pair is not used, we just use the description
-    "url"              String

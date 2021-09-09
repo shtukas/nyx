@@ -83,11 +83,11 @@ class NxFloats
         "unknown content type"
     end
 
-    # NxFloats::toString(nxfloat)
-    def self.toString(nxfloat)
+    # NxFloats::toString(item)
+    def self.toString(item)
         contentType = NxFloats::contentType(item)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[float] #{nxfloat["description"]}#{str1}"
+        "[float] #{item["description"]}#{str1}"
     end
 
     # NxFloats::accessContent(item)
