@@ -167,16 +167,14 @@ class Nx51s
         LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}" })
     end
 
-    # Nx51s::accessContent(nx51)
-    def self.accessContent(nx51)
-        # The NxAxioms function handles null id, but we specify here that the call is useless
-        if nx51["axiomId"].nil? then
-            puts JSON.pretty_generate(nx51)
-            puts "The Axiom Id for this object is null"
+    # Nx51s::accessContent(item)
+    def self.accessContent(item)
+        if item["axiomId"].nil? then
+            puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::accessWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # Nx51s::landing(nx51)

@@ -241,16 +241,14 @@ class Nx50s
         CatalystDatabase::delete(nx50["uuid"])
     end
 
-    # Nx50s::accessContent(nx50)
-    def self.accessContent(nx50)
-        # The NxAxioms function handles null id, but we specify here that the call is useless
-        if nx50["axiomId"].nil? then
-            puts JSON.pretty_generate(nx50)
-            puts "The Axiom Id for this object is null"
+    # Nx50s::accessContent(item)
+    def self.accessContent(item)
+        if item["axiomId"].nil? then
+            puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::accessWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # Nx50s::accessContentsIfContents(nx50)

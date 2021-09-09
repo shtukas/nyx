@@ -92,10 +92,8 @@ class NxFloats
 
     # NxFloats::accessContent(item)
     def self.accessContent(item)
-        # The NxAxioms function handles null id, but we specify here that the call is useless
         if item["axiomId"].nil? then
-            puts JSON.pretty_generate(item)
-            puts "The Axiom Id for this object is null"
+            puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
