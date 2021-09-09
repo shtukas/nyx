@@ -43,26 +43,11 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] inbox: <line> | inbox text | float | wave | after work | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] float | wave | after work | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
-
-        if command.start_with?("inbox: ") then
-            line = command[6, command.size].strip
-            nx50 = Nx50s::issueNx50UsingLineInteractively(line)
-            puts JSON.pretty_generate(nx50)
-            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
-        end
-
-        if command == "inbox text" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            text = Utils::editTextSynchronously("")
-            nx50 = Nx50s::issueNx50UsingDescriptionAndTextInteractively(description, text)
-            puts JSON.pretty_generate(nx50)
-            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
-        end
 
         if Interpreting::match("float", command) then
             NxFloats::interactivelyCreateNewOrNull()

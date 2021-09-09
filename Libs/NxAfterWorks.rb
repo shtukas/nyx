@@ -62,16 +62,45 @@ class NxAfterWorks
 
         axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxAfterWorks::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
     
-        float = {
+        item = {
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
           "axiomId"        => axiomId
         }
 
-        NxAfterWorks::commitFloatToDisk(float)
+        NxAfterWorks::commitFloatToDisk(item)
 
-        float
+        item
+    end
+
+    # NxAfterWorks::issueNx50UsingURL(url)
+    def self.issueNx50UsingURL(url)
+        uuid         = LucilleCore::timeStringL22()
+        description  = url
+        axiomId      = NxA002::make(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22(), url)
+        NxAfterWorks::commitFloatToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        NxAfterWorks::getItemByUUIDOrNull(uuid)
+    end
+
+    # NxAfterWorks::issueNx50UsingLocation(location)
+    def self.issueNx50UsingLocation(location)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Time.new.to_f
+        description = File.basename(location)
+        axiomId     = NxA003::make(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22(), location)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        NxAfterWorks::getItemByUUIDOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -324,6 +353,11 @@ class NxAfterWorks
 
     # NxAfterWorks::ns16s()
     def self.ns16s()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/After-Work-Inbox").each{|location|
+            NxAfterWorks::issueNx50UsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+
         return [] if Work::shouldDisplayWorkItems()
         NxAfterWorks::items()
             .map{|item| NxAfterWorks::ns16OrNull(item) }
