@@ -41,6 +41,11 @@ class Waves
         FileUtils.rm(filepath)
     end
 
+    # Waves::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves-axioms"
+    end
+
     # --------------------------------------------------
     # Making
 
@@ -162,20 +167,18 @@ class Waves
         
         catalystType = "wave"
 
-        description    = nil
-        contentType    = nil
-        contentPayload = nil
+        description  = nil
+        axiomId      = nil
 
         if contents[0] == "line" then
-            description    = contents[1]
-            contentType    = nil
-            contentPayload = nil
+            description    = LucilleCore::askQuestionAnswerAsString("description: ")
         end
 
         if contents[0] == "url" then
-            description    = contents[1]
-            contentType    = "url"
-            contentPayload = contents[1]
+            url            = LucilleCore::askQuestionAnswerAsString("url: ")
+            axiomId        = SecureRandom.uuid
+            description    = url
+            NxA002::make(Waves::axiomsRepositoryFolderPath(), axiomId, url)
         end
 
         repeatType   = schedule[0]
@@ -187,8 +190,7 @@ class Waves
           "unixtime"         => unixtime,
           "description"      => description,
           "catalystType"     => "wave",
-          "contentType"      => contentType,
-          "contentPayload"   => contentPayload,
+          "axiomId"          => axiomId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
           "lastDoneDateTime" => lastDoneDateTime
@@ -252,12 +254,8 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        if wave["contentType"] == "line" then
-
-        end
-        if wave["contentType"] == "url" then
-            Utils::openUrlUsingSafari(wave["contentPayload"])
-        end
+        return if wave["axiomId"].nil?
+        NxAxioms::viewWithOptionToEdit(Waves::axiomsRepositoryFolderPath(), wave["axiomId"])
     end
 
     # Waves::landing(wave)
@@ -282,7 +280,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | note | [] | done | <datecode> | detach running | exit | update description | recast contents | recast schedule | destroy".yellow
+            puts "[item   ] access | note | [] | done | <datecode> | detach running | exit | update description | update contents | recast schedule | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -296,20 +294,9 @@ class Waves
                 next
             end
 
-            if Interpreting::match("recast contents", command) then
-                contents = Waves::interactivelyMakeContentsOrNull()
-                next if contents.nil?
-                if contents[0] == "line" then
-                    wave["description"]  = contents[1]
-                    wave["contentType"]    = nil
-                    wave["contentPayload"] = nil
-                end
-                if contents[0] == "url" then
-                    wave["description"] = contents[1]
-                    wave["contentType"]    = contents[0]
-                    wave["contentPayload"] = contents[1]
-                end
-                Waves::commitItemToDisk(wave)
+            if Interpreting::match("update contents", command) then
+                puts "update contents against NxAxiom library has not been implemented yet"
+                LucilleCore::pressEnterToContinue()
                 next
             end
 
