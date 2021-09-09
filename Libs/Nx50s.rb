@@ -122,7 +122,7 @@ class Nx50s
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid = SecureRandom.uuid
+        uuid = LucilleCore::timeStringL22()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
@@ -136,7 +136,10 @@ class Nx50s
         payload2     = nil
 
         axiomId      = LucilleCore::timeStringL22()
-        NxAxioms::interactivelyCreateNewAxiom(Nx50s::axiomsRepositoryFolderPath(), axiomId)
+        status = NxAxioms::interactivelyCreateNewAxiom(Nx50s::axiomsRepositoryFolderPath(), axiomId)
+        if !status then
+            axiomId = nil
+        end
         payload3     = axiomId
 
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)

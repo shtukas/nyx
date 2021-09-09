@@ -62,7 +62,7 @@ class NxOnDate # OnDate
 
     # NxOnDate::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
-        uuid = SecureRandom.uuid
+        uuid = LucilleCore::timeStringL22()
 
         unixtime     = Time.new.to_f
 
@@ -74,7 +74,10 @@ class NxOnDate # OnDate
         catalystType = "NxOnDate"
 
         axiomId  = LucilleCore::timeStringL22()
-        NxAxioms::interactivelyCreateNewAxiom(NxOnDate::axiomsRepositoryFolderPath(), axiomId)
+        status = NxAxioms::interactivelyCreateNewAxiom(NxOnDate::axiomsRepositoryFolderPath(), axiomId)
+        if !status then
+            axiomId = nil
+        end
 
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
@@ -91,6 +94,14 @@ class NxOnDate # OnDate
 
         item
 
+    end
+
+    # NxOnDate::destroy(item)
+    def self.destroy(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # -------------------------------------
@@ -200,7 +211,7 @@ class NxOnDate # OnDate
 
             if Interpreting::match("done", command) then
                 NxAxioms::destroy(NxOnDate::axiomsRepositoryFolderPath(), nx31["axiomId"])
-                CatalystDatabase::delete(nx31["uuid"])
+                NxOnDate::destroy(nx31)
                 break
             end
 
@@ -230,7 +241,7 @@ class NxOnDate # OnDate
         NxOnDate::accessContentsIfContents(item)
 
         if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
-            CatalystDatabase::delete(nx31["uuid"])
+            NxOnDate::destroy(nx31)
         end
 
         NxBalls::closeNxBall(nxball, true)
@@ -251,7 +262,7 @@ class NxOnDate # OnDate
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
-                        CatalystDatabase::delete(nx31["uuid"])
+                        NxOnDate::destroy(nx31)
                     end
                 end
             },

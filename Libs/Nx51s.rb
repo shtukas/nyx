@@ -2,23 +2,36 @@
 
 class Nx51s
 
-    # Nx51s::databaseItemToNx51(item)
-    def self.databaseItemToNx51(item)
-        item["ordinal"]        = item["payload3"].to_f # 😬
-        item["axiomId"]        = item["payload4"]
-        item
+    # Nx51s::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx51s"
+    end
+
+    # Nx51s::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # Nx51s::nx51s()
+    def self.nx51s()
+        LucilleCore::locationsAtFolder(Nx51s::repositoryFolderPath())
+            .select{|location| location[-5, 5] == ".json" }
+            .map{|location| JSON.parse(IO.read(location)) }
+    end
+
+    # Nx51s::getNx51ByUUIDOrNull(uuid)
+    def self.getNx51ByUUIDOrNull(uuid)
+        filename = "#{uuid}.json"
+        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # Nx51s::axiomsRepositoryFolderPath()
     def self.axiomsRepositoryFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx51s-axioms"
-    end
-
-    # Nx51s::nx51s()
-    def self.nx51s()
-        CatalystDatabase::getItemsByCatalystType("Nx51").map{|item|
-            Nx51s::databaseItemToNx51(item)
-        }
     end
 
     # Nx51s::nx51sPerOrdinal()
@@ -27,30 +40,9 @@ class Nx51s
             .sort{|n1, n2| n1["ordinal"]<=>n2["ordinal"] }
     end
 
-    # Nx51s::commitNx51ToDisk(nx51)
-    def self.commitNx51ToDisk(nx51)
-        uuid         = nx51["uuid"]
-        unixtime     = nx51["unixtime"]
-        description  = nx51["description"]
-        catalystType = "Nx51"
-        payload1     = nil
-        payload2     = nil
-        payload3     = nx51["ordinal"]
-        payload4     = nx51["axiomId"]
-        payload5     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
-    end
-
-    # Nx51s::getNx51ByUUIDOrNull(uuid)
-    def self.getNx51ByUUIDOrNull(uuid)
-        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        return nil if item.nil?
-        Nx51s::databaseItemToNx51(item)
-    end
-
     # Nx51s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid = SecureRandom.uuid
+        uuid = LucilleCore::timeStringL22()
 
         unixtime     = Time.new.to_f
 
@@ -60,18 +52,24 @@ class Nx51s
         end
 
         axiomId  = LucilleCore::timeStringL22()
-        NxAxioms::interactivelyCreateNewAxiom(Nx51s::axiomsRepositoryFolderPath(), axiomId)
+        status = NxAxioms::interactivelyCreateNewAxiom(Nx51s::axiomsRepositoryFolderPath(), axiomId)
+        if !status then
+            axiomId = nil
+        end
 
-        ordinal      = Nx51s::decideOrdinal(description)
+        ordinal = Nx51s::decideOrdinal(description)
 
-        catalystType = "Nx51"
-        payload1     = nil
-        payload2     = nil
-        payload3     = ordinal
-        payload4     = axiomId
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, nil)
+        item = {
+              "uuid"         => uuid,
+              "unixtime"     => Time.new.to_i,
+              "description"  => description,
+              "ordinal"      => ordinal,
+              "axiomId"      => axiomId
+            }
 
-        Nx51s::getNx51ByUUIDOrNull(uuid)
+        Nx51s::commitItemToDisk(item)
+
+        item
     end
 
     # Nx51s::minusOneUnixtime()
@@ -90,6 +88,14 @@ class Nx51s
             puts "- #{Nx51s::toString(item)}"
         }
         LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+    end
+
+    # Nx51s::destroy(item)
+    def self.destroy(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -111,7 +117,7 @@ class Nx51s
     # Nx51s::complete(nx51)
     def self.complete(nx51)
         NxAxioms::destroy(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"]) # function accepts null ids
-        CatalystDatabase::delete(nx51["uuid"])
+        Nx51s::destroy(nx51)
     end
 
     # Nx51s::getNextOrdinal()
@@ -261,7 +267,8 @@ class Nx51s
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx51["description"])
                 if description.size > 0 then
-                    CatalystDatabase::updateDescription(nx51["uuid"], description)
+                    nx51["description"] = description
+                    Nx51s::commitItemToDisk(nx51)
                 end
                 next
             end
@@ -275,7 +282,7 @@ class Nx51s
             if Interpreting::match("update ordinal", command) then
                 ordinal = Nx51s::decideOrdinal(Nx51s::toString(nx51))
                 nx51["ordinal"] = ordinal
-                Nx51s::commitNx51ToDisk(nx51)
+                Nx51s::commitItemToDisk(nx51)
                 break
             end
 

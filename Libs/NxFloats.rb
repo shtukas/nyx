@@ -51,7 +51,7 @@ class NxFloats
 
     # NxFloats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid = SecureRandom.uuid
+        uuid = LucilleCore::timeStringL22()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
@@ -61,7 +61,10 @@ class NxFloats
         unixtime     = Time.new.to_f
 
         axiomId  = LucilleCore::timeStringL22()
-        NxAxioms::interactivelyCreateNewAxiom(NxFloats::axiomsRepositoryFolderPath(), axiomId)
+        status = NxAxioms::interactivelyCreateNewAxiom(NxFloats::axiomsRepositoryFolderPath(), axiomId)
+        if !status then
+            axiomId = nil
+        end
 
         float = {
           "uuid"           => uuid,

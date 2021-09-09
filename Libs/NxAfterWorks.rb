@@ -51,7 +51,7 @@ class NxAfterWorks
 
     # NxAfterWorks::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid = SecureRandom.uuid
+        uuid = LucilleCore::timeStringL22()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
@@ -61,7 +61,10 @@ class NxAfterWorks
         unixtime = Time.new.to_f
 
         axiomId  = LucilleCore::timeStringL22()
-        NxAxioms::interactivelyCreateNewAxiom(NxAfterWorks::axiomsRepositoryFolderPath(), axiomId)
+        status = NxAxioms::interactivelyCreateNewAxiom(NxAfterWorks::axiomsRepositoryFolderPath(), axiomId)
+        if !status then
+            axiomId = nil
+        end
 
         float = {
           "uuid"           => uuid,

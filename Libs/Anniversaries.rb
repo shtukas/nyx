@@ -152,7 +152,7 @@ class Anniversaries
         payload2 = repeatType
         payload3 = lastCelebrationDate
 
-        anniversary = {
+        item = {
               "uuid"         => uuid,
               "unixtime"     => Time.new.to_i,
               "description"  => description,
@@ -162,9 +162,9 @@ class Anniversaries
               "lastCelebrationDate" => lastCelebrationDate
             }
 
-        Anniversaries::commitAnniversaryToDisk(anniversary)
+        Anniversaries::commitAnniversaryToDisk(item)
 
-        anniversary
+        item
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]

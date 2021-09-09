@@ -51,7 +51,7 @@ class Work
                 break if nx51.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 nx51["ordinal"] = ordinal
-                Nx51s::commitNx51ToDisk(nx51)
+                Nx51s::commitItemToDisk(nx51)
             }
             return
         end
