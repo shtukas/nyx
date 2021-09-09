@@ -41,6 +41,11 @@ class NxFloats
         FileUtils.rm(filepath)
     end
 
+    # NxFloats::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats-axioms"
+    end
+
     # --------------------------------------------------
     # Making
 
@@ -53,19 +58,15 @@ class NxFloats
             return nil
         end
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
-
         unixtime     = Time.new.to_f
 
-        contentType     = coordinates ? coordinates["contentType"] : nil
-        contentPayload  = coordinates ? coordinates["contentPayload"] : nil
+        axiomId = nil
 
         float = {
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "catalystType"   => "NxFloat",
-          "contentType"    => contentType,
+          "axiomId"        => axiomId,
           "contentPayload" => contentPayload
         }
 
@@ -77,21 +78,28 @@ class NxFloats
     # --------------------------------------------------
     # Operations
 
+    # NxFloats::contentType(item)
+    def self.contentType(item)
+        "unknown content type"
+    end
+
     # NxFloats::toString(nxfloat)
     def self.toString(nxfloat)
-        contentType = nxfloat["contentType"]
+        contentType = NxFloats::contentType(item)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[float] #{nxfloat["description"]}#{str1}"
     end
 
-    # NxFloats::accessContent(nxfloat)
-    def self.accessContent(nxfloat)
-        update = lambda {|contentType, contentPayload|
-            nxfloat["contentType"] = contentType
-            nxfloat["contentPayload"] = contentPayload
-            NxFloats::commitFloatToDisk(nxfloat)
-        }
-        Axion::access(nxfloat["contentType"], nxfloat["contentPayload"], update)
+    # NxFloats::accessContent(item)
+    def self.accessContent(item)
+        # The NxAxioms function handles null id, but we specify here that the call is useless
+        if item["axiomId"].nil? then
+            puts JSON.pretty_generate(item)
+            puts "The Axiom Id for this object is null"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NxAxioms::viewWithOptionToEdit(NxFloats::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxFloats::landing(nxfloat)
@@ -134,7 +142,7 @@ class NxFloats
             puts ""
 
             puts "uuid: #{uuid}".yellow
-            puts "coordinates: #{nxfloat["contentType"]}, #{nxfloat["contentPayload"]}".yellow
+            puts "axiom id: #{nxfloat["axiomId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nxfloat["uuid"])}".yellow
 
             puts ""
@@ -223,8 +231,6 @@ class NxFloats
         thr.exit
 
         NxBalls::closeNxBall(nxball, true)
-
-        Axion::postAccessCleanUp(nxfloat["contentType"], nxfloat["contentPayload"])
     end
 
     # --------------------------------------------------
