@@ -80,7 +80,8 @@ class NxOnDate # OnDate
 
         catalystType = "NxOnDate"
 
-        axiomId = nil
+        axiomId  = LucilleCore::timeStringL22()
+        NxAxioms::interactivelyCreateNewAxiom(NxOnDate::axiomsRepositoryFolderPath(), axiomId)
 
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?

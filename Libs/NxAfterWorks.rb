@@ -58,16 +58,16 @@ class NxAfterWorks
             return nil
         end
 
-        unixtime     = Time.new.to_f
+        unixtime = Time.new.to_f
 
-        axiomId = nil
+        axiomId  = LucilleCore::timeStringL22()
+        NxAxioms::interactivelyCreateNewAxiom(NxAfterWorks::axiomsRepositoryFolderPath(), axiomId)
 
         float = {
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "axiomId"        => axiomId,
-          "contentPayload" => contentPayload
+          "axiomId"        => axiomId
         }
 
         NxAfterWorks::commitFloatToDisk(float)
