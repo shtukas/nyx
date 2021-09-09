@@ -41,6 +41,11 @@ class NxAfterWorks
         FileUtils.rm(filepath)
     end
 
+    # NxAfterWorks::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxAfterWorks-axioms"
+    end
+
     # --------------------------------------------------
     # Making
 
@@ -53,19 +58,15 @@ class NxAfterWorks
             return nil
         end
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
-
         unixtime     = Time.new.to_f
 
-        contentType     = coordinates ? coordinates["contentType"] : nil
-        contentPayload  = coordinates ? coordinates["contentPayload"] : nil
+        axiomId = nil
 
         float = {
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "catalystType"   => "NxAfterWork",
-          "contentType"    => contentType,
+          "axiomId"        => axiomId,
           "contentPayload" => contentPayload
         }
 
@@ -77,28 +78,35 @@ class NxAfterWorks
     # --------------------------------------------------
     # Operations
 
+    # NxAfterWorks::contentType(item)
+    def self.contentType(item)
+        "unknown content type"
+    end
+
     # NxAfterWorks::toString(item)
     def self.toString(item)
-        contentType = item["contentType"]
+        contentType = NxAfterWorks::contentType(item)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[aftw] #{item["description"]}#{str1}"
     end
 
     # NxAfterWorks::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        contentType = item["contentType"]
+        contentType = NxAfterWorks::contentType(item)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[aftw] (#{"%4.2f" % rt}) #{item["description"]}#{str1}"
     end
 
     # NxAfterWorks::accessContent(item)
     def self.accessContent(item)
-        update = lambda {|contentType, contentPayload|
-            item["contentType"] = contentType
-            item["contentPayload"] = contentPayload
-            NxAfterWorks::commitFloatToDisk(item)
-        }
-        Axion::access(item["contentType"], item["contentPayload"], update)
+        # The NxAxioms function handles null id, but we specify here that the call is useless
+        if item["axiomId"].nil? then
+            puts JSON.pretty_generate(item)
+            puts "The Axiom Id for this object is null"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NxAxioms::viewWithOptionToEdit(NxAfterWorks::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxAfterWorks::landing(item)
@@ -141,7 +149,7 @@ class NxAfterWorks
             puts ""
 
             puts "uuid: #{uuid}".yellow
-            puts "coordinates: #{item["contentType"]}, #{item["contentPayload"]}".yellow
+            puts "axiomId: #{item["axiomId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             puts ""
@@ -230,8 +238,6 @@ class NxAfterWorks
         thr.exit
 
         NxBalls::closeNxBall(nxball, true)
-
-        Axion::postAccessCleanUp(item["contentType"], item["contentPayload"])
     end
 
     # --------------------------------------------------
