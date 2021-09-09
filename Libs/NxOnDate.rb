@@ -22,9 +22,13 @@ class NxOnDate # OnDate
     # NxOnDate::databaseItemToNxOnDate(item)
     def self.databaseItemToNxOnDate(item)
         item["date"]           = item["payload1"]
-        item["contentType"]    = item["payload2"]
-        item["contentPayload"] = item["payload3"]
+        item["axiomId"]        = item["payload4"]
         item
+    end
+
+    # NxOnDate::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates-axioms"
     end
 
     # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
@@ -56,9 +60,9 @@ class NxOnDate # OnDate
         description  = nx31["description"]
         catalystType = "NxOnDate"
         payload1     = nx31["date"]
-        payload2     = nx31["contentType"]
-        payload3     = nx31["contentPayload"]
-        payload4     = nil 
+        payload2     = nil
+        payload3     = nil
+        payload4     = nx31["axiomId"]
         payload5     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
     end
@@ -76,26 +80,52 @@ class NxOnDate # OnDate
 
         catalystType = "NxOnDate"
 
+        axiomId = nil
+
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        payload1     = date
+        payload1 = date
+        payload2 = nil
+        payload3 = nil
+        payload4 = axiomId
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
-
-        payload2     = coordinates ? coordinates["contentType"] : nil
-        payload3     = coordinates ? coordinates["contentPayload"] : nil
-        
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, nil)
 
         NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     end
 
-    # NxOnDate::toString(nx31)
-    def self.toString(nx31)
-        contentType = nx31["contentType"]
+    # -------------------------------------
+    # Operations
+
+    # NxOnDate::contentType(item)
+    def self.contentType(item)
+        "unknown content type"
+    end
+
+    # NxOnDate::toString(item)
+    def self.toString(item)
+        contentType = NxOnDate::contentType(item)
         tr1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[ondt] (#{nx31["date"]}) #{nx31["description"]}#{tr1}"
+        "[ondt] (#{item["date"]}) #{item["description"]}#{tr1}"
+    end
+
+    # NxOnDate::accessContent(item)
+    def self.accessContent(item)
+        # The NxAxioms function handles null id, but we specify here that the call is useless
+        if item["axiomId"].nil? then
+            puts JSON.pretty_generate(item)
+            puts "The Axiom Id for this object is null"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NxAxioms::viewWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
+    end
+
+    # NxOnDate::accessContentsIfContents(item)
+    def self.accessContentsIfContents(item)
+        return if item["axiomId"].nil?
+        NxAxioms::viewWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
     end
 
     # NxOnDate::landing(nx31)
@@ -117,7 +147,7 @@ class NxOnDate # OnDate
         system("clear")
         
         puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "coordinates: #{nx31["contentType"]}, #{nx31["contentPayload"]}".yellow
+        puts "axiomId: #{nx31["axiomId"]}".yellow
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
         loop {
@@ -144,7 +174,7 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("access", command) then
-                Axion::access(nx31["contentType"], nx31["contentPayload"], nil)
+                NxOnDate::accessContent(nx31)
                 next
             end
 
@@ -173,7 +203,7 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("done", command) then
-                Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
+                NxAxioms::destroy(NxOnDate::axiomsRepositoryFolderPath(), nx31["axiomId"])
                 CatalystDatabase::delete(nx31["uuid"])
                 break
             end
@@ -182,8 +212,6 @@ class NxOnDate # OnDate
         }
 
         thr.exit
-
-        Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
 
         NxBalls::closeNxBall(nxball, true)
     end
@@ -203,15 +231,12 @@ class NxOnDate # OnDate
             }
         }
 
-        Axion::access(nx31["contentType"], nx31["contentPayload"], nil)
-
-        LucilleCore::pressEnterToContinue()
+        NxOnDate::accessContentsIfContents(item)
 
         if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
             CatalystDatabase::delete(nx31["uuid"])
         end
 
-        Axion::postAccessCleanUp(nx31["contentType"], nx31["contentPayload"])
         NxBalls::closeNxBall(nxball, true)
     end
 
