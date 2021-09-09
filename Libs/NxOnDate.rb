@@ -84,16 +84,9 @@ class NxOnDate # OnDate
     # -------------------------------------
     # Operations
 
-    # NxOnDate::contentType(item)
-    def self.contentType(item)
-        "unknown content type"
-    end
-
     # NxOnDate::toString(item)
     def self.toString(item)
-        contentType = NxOnDate::contentType(item)
-        tr1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[ondt] (#{item["date"]}) #{item["description"]}#{tr1}"
+        "[ondt] (#{item["date"]}) #{item["description"]}"
     end
 
     # NxOnDate::accessContent(item)

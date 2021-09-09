@@ -106,23 +106,14 @@ class NxAfterWorks
     # --------------------------------------------------
     # Operations
 
-    # NxAfterWorks::contentType(item)
-    def self.contentType(item)
-        "unknown content type"
-    end
-
     # NxAfterWorks::toString(item)
     def self.toString(item)
-        contentType = NxAfterWorks::contentType(item)
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[aftw] #{item["description"]}#{str1}"
+        "[aftw] #{item["description"]}"
     end
 
     # NxAfterWorks::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        contentType = NxAfterWorks::contentType(item)
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[aftw] (#{"%4.2f" % rt}) #{item["description"]}#{str1}"
+        "[aftw] (#{"%4.2f" % rt}) #{item["description"]}"
     end
 
     # NxAfterWorks::accessContent(item)

@@ -97,17 +97,9 @@ class Nx51s
     # --------------------------------------------------
     # Operations
 
-    # Nx51s::contentType(nx51)
-    def self.contentType(nx51)
-        "unknown content type"
-    end
-
     # Nx51s::toString(nx51)
     def self.toString(nx51)
-        uuid = nx51["uuid"]
-        contentType = Nx51s::contentType(nx51)
-        str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
-        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}#{str1}"
+        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}"
     end
 
     # Nx51s::complete(nx51)

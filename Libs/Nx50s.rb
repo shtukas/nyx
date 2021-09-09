@@ -185,23 +185,14 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::contentType(nx50)
-    def self.contentType(nx50)
-        "unknown content type"
-    end
-
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        contentType = Nx50s::contentType(nx50)
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[nx50] #{nx50["description"]}#{str1}"
+        "[nx50] #{nx50["description"]}"
     end
 
     # Nx50s::toStringForNS16(nx50, rt, timeReq)
     def self.toStringForNS16(nx50, rt, timeReq)
-        contentType = Nx50s::contentType(nx50)
-        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
-        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}#{str1}"
+        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}"
     end
 
     # Nx50s::complete(nx50)
