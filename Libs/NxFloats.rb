@@ -60,11 +60,7 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        axiomId  = LucilleCore::timeStringL22()
-        status = NxAxioms::interactivelyCreateNewAxiom(NxFloats::axiomsRepositoryFolderPath(), axiomId)
-        if !status then
-            axiomId = nil
-        end
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
 
         float = {
           "uuid"           => uuid,

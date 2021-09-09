@@ -54,14 +54,10 @@ class NxOnDate # OnDate
             return nil
         end
 
-        axiomId  = LucilleCore::timeStringL22()
-        status = NxAxioms::interactivelyCreateNewAxiom(NxOnDate::axiomsRepositoryFolderPath(), axiomId)
-        if !status then
-            axiomId = nil
-        end
-
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
+
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxOnDate::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
 
         item = {
               "uuid"         => uuid,

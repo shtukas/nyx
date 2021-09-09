@@ -51,11 +51,7 @@ class Nx51s
             return nil
         end
 
-        axiomId  = LucilleCore::timeStringL22()
-        status = NxAxioms::interactivelyCreateNewAxiom(Nx51s::axiomsRepositoryFolderPath(), axiomId)
-        if !status then
-            axiomId = nil
-        end
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(Nx51s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
 
         ordinal = Nx51s::decideOrdinal(description)
 
