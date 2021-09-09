@@ -2,38 +2,70 @@
 
 class Nx50s
 
-    # Nx50s::databaseItemToNx50(item)
-    def self.databaseItemToNx50(item)
-        item["axiomId"] = item["payload3"]
-        item
+    # Nx50s::databaseFilepath2()
+    def self.databaseFilepath2()
+        "#{Utils::catalystDataCenterFolderpath()}/items/Nx50s.sqlite3"
     end
 
     # Nx50s::nx50s()
     def self.nx50s()
-        CatalystDatabase::getItemsByCatalystType("Nx50").map{|item|
-            Nx50s::databaseItemToNx50(item)
-        }
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _items_ order by _unixtime_") do |row|
+            answer << {
+                "uuid"         => row["_uuid_"],
+                "unixtime"     => row["_unixtime_"],
+                "description"  => row["_description_"],
+                "axiomId"      => row["_axiomId_"],
+            }
+        end
+        db.close
+        answer
     end
 
-    # Nx50s::commitNx50ToDisk(nx50)
-    def self.commitNx50ToDisk(nx50)
-        uuid         = nx50["uuid"]
-        unixtime     = nx50["unixtime"]
-        description  = nx50["description"]
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-        payload3     = nx50["axiomId"]
-        payload4     = nil 
-        payload5     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
+    # Nx50s::commitNx50ToDatabase(item)
+    def self.commitNx50ToDatabase(item)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
+        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _axiomId_) values (?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["axiomId"]]
+        db.commit 
+        db.close
     end
 
     # Nx50s::getNx50ByUUIDOrNull(uuid)
     def self.getNx50ByUUIDOrNull(uuid)
-        item = CatalystDatabase::getItemByUUIDOrNull(uuid)
-        return nil if item.nil?
-        Nx50s::databaseItemToNx50(item)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        item = nil
+        db.execute( "select * from _items_ where _uuid_=?" , [uuid] ) do |row|
+            item = {
+                "uuid"         => row["_uuid_"],
+                "unixtime"     => row["_unixtime_"],
+                "description"  => row["_description_"],
+                "axiomId"      => row["_axiomId_"],
+            }
+        end
+        db.close
+        item
+    end
+
+    # Nx50s::delete(uuid)
+    def self.delete(uuid)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _items_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
     end
 
     # Nx50s::axiomsRepositoryFolderPath()
@@ -123,101 +155,106 @@ class Nx50s
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = LucilleCore::timeStringL22()
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
             return nil
         end
-
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
-
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-
         axiomId      = LucilleCore::timeStringL22()
         status = NxAxioms::interactivelyCreateNewAxiom(Nx50s::axiomsRepositoryFolderPath(), axiomId)
         if !status then
             axiomId = nil
         end
-        payload3     = axiomId
-
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
-
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
         Nx50s::addToNextGenUUIDs(uuid)
-
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingLineInteractively(line)
     def self.issueNx50UsingLineInteractively(line)
-        uuid         = SecureRandom.uuid
+        uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
         description  = line
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-        payload3     = nil
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => nil,
+        })
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingDescriptionAndTextInteractively(description, text)
     def self.issueNx50UsingDescriptionAndTextInteractively(description, text)
-        uuid         = SecureRandom.uuid
+        uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-
         axiomId      = LucilleCore::timeStringL22()
         NxA001::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, text)
-        payload3     = axiomId
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingURL(url)
     def self.issueNx50UsingURL(url)
-        uuid         = SecureRandom.uuid
+        uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::getNextGenUnixtime()
         description  = url
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-
         axiomId      = LucilleCore::timeStringL22()
         NxA002::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, url)
-        payload3     = axiomId
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
 
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueNx50UsingLocation(location)
     def self.issueNx50UsingLocation(location)
-        uuid         = SecureRandom.uuid
+        uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::getNextGenUnixtime()
-        description  = File.basename(location) 
-        catalystType = "Nx50"
-        payload1     = nil
-        payload2     = nil
-
+        description  = File.basename(location)
         axiomId      = LucilleCore::timeStringL22()
         NxA003::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, location)
-        payload3     = axiomId
-
-        CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # --------------------------------------------------
     # Operations
+
+    # Nx50s::updateDescription(uuid, description)
+    def self.updateDescription(uuid, description)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "update _items_ set _description_=? where _uuid_=?", [description, uuid]
+        db.commit 
+        db.close
+    end
 
     # Nx50s::contentType(nx50)
     def self.contentType(nx50)
@@ -241,7 +278,7 @@ class Nx50s
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         NxAxioms::destroy(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"]) # function accepts null ids
-        CatalystDatabase::delete(nx50["uuid"])
+        Nx50s::delete(nx50["uuid"])
     end
 
     # Nx50s::accessContent(item)
@@ -368,7 +405,7 @@ class Nx50s
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx50["description"])
                 if description.size > 0 then
-                    CatalystDatabase::updateDescription(nx50["uuid"], description)
+                    Nx50s::updateDescription(nx50["uuid"], description)
                 end
                 next
             end
@@ -381,7 +418,7 @@ class Nx50s
 
             if Interpreting::match("update unixtime", command) then
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
-                Nx50s::commitNx50ToDisk(nx50)
+                Nx50s::commitNx50ToDatabase(nx50)
                 next
             end
 

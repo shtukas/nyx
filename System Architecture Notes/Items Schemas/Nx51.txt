@@ -1,0 +1,7 @@
+{
+    "uuid"       : String
+    "unixtime"   : Float
+    "description": String
+    "ordinal"    : Float
+    "axiomId"    : String
+}

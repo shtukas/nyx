@@ -3,7 +3,6 @@
   "uuid"        : String,
   "unixtime"    : Float,
   "description" : String,
-  "catalystType": "anniversary",
   "startdate"   : Date # YYYY-MM-DD,
   "repeatType"  : "weekly" | "monthly" | "yearly",
   "lastCelebrationDate": Date

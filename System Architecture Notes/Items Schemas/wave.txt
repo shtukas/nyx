@@ -2,7 +2,6 @@
   "uuid"            : String,
   "unixtime"        : Float,
   "description"     : String,
-  "catalystType"    : "wave",
   "axiomId"         : String,
   "repeatType"      : repeatType,
   "repeatValue"     : repeatValue,

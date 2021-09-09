@@ -1,23 +1,4 @@
 
-=begin
-
-{
-    "uuid"         => String
-    "unixtime"     => Float
-    "description"  => String
-    "catalystType" => "anniversary"
-
-    "payload1" : "YYYY-MM-DD"                     # startdate
-    "payload2" : "weekly" | "monthly" | "yearly"  # repeatType
-    "payload3" : "YYYY-MM-DD"                     # lastCelebrationDate
-
-    "startdate"           : payload1
-    "repeatType"          : payload2
-    "lastCelebrationDate" : payload3
-}
-
-=end
-
 class Anniversaries
 
     # Anniversaries::dateIsCorrect(date)
@@ -131,8 +112,6 @@ class Anniversaries
             return nil
         end
 
-        catalystType = "anniversary"
-
         startdate = LucilleCore::askQuestionAnswerAsString("startdate (empty to abort): ")
         if startdate == "" then
             return nil
@@ -148,15 +127,10 @@ class Anniversaries
             lastCelebrationDate = Utils::today()
         end
 
-        payload1 = startdate
-        payload2 = repeatType
-        payload3 = lastCelebrationDate
-
         item = {
               "uuid"         => uuid,
               "unixtime"     => Time.new.to_i,
               "description"  => description,
-              "catalystType" => "anniversary",
               "startdate"    => startdate,
               "repeatType"   => repeatType,
               "lastCelebrationDate" => lastCelebrationDate

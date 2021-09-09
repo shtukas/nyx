@@ -1,22 +1,5 @@
 # encoding: UTF-8
 
-=begin
-
-{
-    "uuid"         => String
-    "unixtime"     => Float
-    "description"  => String
-    "catalystType" => "NxOnDate"
-
-    "payload1" : "YYYY-MM-DD"
-    "payload2" :
-    "payload3" :
-
-    "date" : payload1
-}
-
-=end
-
 class NxOnDate # OnDate
 
     # NxOnDate::repositoryFolderPath()
@@ -70,8 +53,6 @@ class NxOnDate # OnDate
         if description == "" then
             return nil
         end
-
-        catalystType = "NxOnDate"
 
         axiomId  = LucilleCore::timeStringL22()
         status = NxAxioms::interactivelyCreateNewAxiom(NxOnDate::axiomsRepositoryFolderPath(), axiomId)

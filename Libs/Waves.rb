@@ -136,23 +136,6 @@ class Waves
         "#{wave["repeatType"]}: #{wave["repeatValue"]}"
     end
 
-    # Waves::interactivelyMakeContentsOrNull() : [type, payload] 
-    def self.interactivelyMakeContentsOrNull()
-        types = ['line', 'url']
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("types", types)
-        return nil if type.nil?
-        if type == "line" then
-            line  = LucilleCore::askQuestionAnswerAsString("line (empty to abort) : ")
-            return nil if line == ""
-            return ["line", line]
-        end
-        if type == "url" then
-            url  = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
-            return nil if url == ""
-            return ["url", url]
-        end
-    end
-
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
@@ -187,7 +170,6 @@ class Waves
           "uuid"             => uuid,
           "unixtime"         => unixtime,
           "description"      => description,
-          "catalystType"     => "wave",
           "axiomId"          => axiomId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
