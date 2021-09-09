@@ -125,9 +125,11 @@ class Interpreters
             if LucilleCore::askQuestionAnswerAsBoolean("limit to 100 ? ", true) then
                 nx50s = nx50s.first(100)
             end
-            nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
-            return if nx50.nil?
-            Nx50s::landing(nx50)
+            loop {
+                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
+                return if nx50.nil?
+                Nx50s::landing(nx50)
+            }
         end
 
         if Interpreting::match("Nx51s", command) then
