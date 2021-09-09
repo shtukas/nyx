@@ -222,22 +222,6 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
-                end
-            }
-        }
-
         system("clear")
 
         loop {
@@ -250,7 +234,7 @@ class Nx50s
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
@@ -263,7 +247,7 @@ class Nx50s
 
             puts ""
 
-            puts "[item   ] access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | show json | destroy".yellow
+            puts "[item   ] access | note | [] | <datecode> | update description | update contents | update unixtime | show json | exit | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -292,32 +276,12 @@ class Nx50s
                 next
             end
 
-            if command == "pursue" then
-                # We close the ball and issue a new one
-                NxBalls::closeNxBall(nxball, true)
-                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
-                next
-            end
-
             if Interpreting::match("access", command) then
                 Nx50s::accessContent(nx50)
                 next
             end
 
-            if Interpreting::match("pause", command) then
-                NxBalls::closeNxBall(nxball, true)
-                puts "Starting pause at #{Time.new.to_s}"
-                LucilleCore::pressEnterToContinue()
-                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
-                next
-            end
-
-            if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
-                break
-            end
-
-            if Interpreting::match("completed", command) then
+            if Interpreting::match("destroy", command) then
                 Nx50s::complete(nx50)
                 break
             end
@@ -348,17 +312,8 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("destroy", command) then
-                Nx50s::complete(nx50)
-                break
-            end
-
             Interpreters::mainMenuInterpreter(command)
         }
-
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
     end
 
     # --------------------------------------------------
@@ -367,13 +322,26 @@ class Nx50s
     # Nx50s::run(nx50)
     def self.run(nx50)
 
-        puts Nx50s::toString(nx50)
-
         uuid = nx50["uuid"]
+        puts "#{Nx50s::toString(nx50)}".green
+
         puts "Starting at #{Time.new.to_s}"
+
         nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
 
-        Nx50s::accessContentsIfContents(nx50)
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
+                end
+            }
+        }
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         if note then
@@ -382,15 +350,34 @@ class Nx50s
             puts "--------------------------"
         end
 
+        Nx50s::accessContentsIfContents(nx50)
+
         loop {
 
-            puts "exit (default) | [] | landing | destroy"
+            system("clear")
+
+            puts "#{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+
+            note = StructuredTodoTexts::getNoteOrNull(uuid)
+            if note then
+                puts "Note ---------------------"
+                puts note.green
+                puts "--------------------------"
+            end
+
+            puts "exit (default) | note | [] | detach running | pause | pursue | landing | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
 
             break if command == "exit"
+
+            if command == "note" then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
+                StructuredTodoTexts::setNote(uuid, note)
+                next
+            end
 
             if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
@@ -400,6 +387,26 @@ class Nx50s
                     puts note.green
                     puts "--------------------------"
                 end
+                next
+            end
+
+            if Interpreting::match("detach running", command) then
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                break
+            end
+
+            if Interpreting::match("pause", command) then
+                NxBalls::closeNxBall(nxball, true)
+                puts "Starting pause at #{Time.new.to_s}"
+                LucilleCore::pressEnterToContinue()
+                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                next
+            end
+
+            if command == "pursue" then
+                # We close the ball and issue a new one
+                NxBalls::closeNxBall(nxball, true)
+                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
                 next
             end
 
@@ -416,6 +423,8 @@ class Nx50s
                 next
             end
         }
+
+        thr.exit
 
         NxBalls::closeNxBall(nxball, true)
     end

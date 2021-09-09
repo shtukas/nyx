@@ -110,17 +110,6 @@ class NxOnDate # OnDate
 
         uuid = nx31["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-            }
-        }
-
         system("clear")
         
         puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
@@ -138,29 +127,21 @@ class NxOnDate # OnDate
             puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "[item   ] access | note | [] | <datecode> | update date | detach running | done | exit".yellow
+            puts "[item   ] access | <datecode> | note | [] | update date | exit | destroy".yellow
             puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
-                break
-            end
-
             if Interpreting::match("access", command) then
                 NxOnDate::accessContent(nx31)
                 next
             end
 
-            if Interpreting::match("update date", command) then
-                date = NxOnDate::interactivelySelectADateOrNull()
-                next if date.nil?
-                nx31["date"] = date
-                NxOnDate::commitItemToDisk(nx31)
-                next
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
+                break
             end
 
             if Interpreting::match("note", command) then
@@ -174,12 +155,15 @@ class NxOnDate # OnDate
                 next
             end
 
-            if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(NxOnDate::toString(nx31), Time.new.to_i, [uuid])
-                break
+            if Interpreting::match("update date", command) then
+                date = NxOnDate::interactivelySelectADateOrNull()
+                next if date.nil?
+                nx31["date"] = date
+                NxOnDate::commitItemToDisk(nx31)
+                next
             end
 
-            if Interpreting::match("done", command) then
+            if Interpreting::match("destroy", command) then
                 NxAxioms::destroy(NxOnDate::axiomsRepositoryFolderPath(), nx31["axiomId"])
                 NxOnDate::destroy(nx31)
                 break
@@ -187,15 +171,14 @@ class NxOnDate # OnDate
 
             Interpreters::mainMenuInterpreter(command)
         }
-
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
     end
 
     # NxOnDate::run(nx31)
     def self.run(nx31)
         uuid = nx31["uuid"]
+
+        puts "running #{NxOnDate::toString(nx31)}".green
+        puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid])
 
@@ -213,6 +196,8 @@ class NxOnDate # OnDate
         if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
             NxOnDate::destroy(nx31)
         end
+
+        thr.exit
 
         NxBalls::closeNxBall(nxball, true)
     end

@@ -153,22 +153,6 @@ class Nx51s
     def self.landing(nx51)
         uuid = nx51["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx51 item running for more than an hour")
-                end
-            }
-        }
-
         system("clear")
 
         loop {
@@ -193,7 +177,7 @@ class Nx51s
 
             puts ""
 
-            puts "[item   ] access | note | [] | <datecode> | detach running | pause | pursue | exit | completed | update description | update contents | update ordinal | destroy".yellow
+            puts "access | <datecode> | note | [] | update description | update contents | update ordinal | exit | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -201,9 +185,9 @@ class Nx51s
 
             break if command == "exit"
 
-            if command == "++" then
-                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                break
+            if Interpreting::match("access", command) then
+                Nx51s::accessContent(nx51)
+                next
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
@@ -220,36 +204,6 @@ class Nx51s
             if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
                 next
-            end
-
-            if Interpreting::match("access", command) then
-                Nx51s::accessContent(nx51)
-                next
-            end
-
-            if Interpreting::match("pause", command) then
-                NxBalls::closeNxBall(nxball, true)
-                puts "Starting pause at #{Time.new.to_s}"
-                LucilleCore::pressEnterToContinue()
-                nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
-                next
-            end
-
-            if command == "pursue" then
-                # We close the ball and issue a new one
-                NxBalls::closeNxBall(nxball, true)
-                nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
-                next
-            end
-
-            if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx51s::toString(nx51), Time.new.to_i, [uuid, Work::bankaccount()])
-                break
-            end
-
-            if Interpreting::match("completed", command) then
-                Nx51s::complete(nx51)
-                break
             end
 
             if Interpreting::match("update description", command) then
@@ -281,10 +235,6 @@ class Nx51s
 
             Interpreters::mainMenuInterpreter(command)
         }
-
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
     end
 
     # --------------------------------------------------
@@ -295,12 +245,24 @@ class Nx51s
 
         uuid = nx51["uuid"]
 
-        puts Nx51s::toString(nx51)
-
+        puts "#{Nx51s::toString(nx51)}".green
         puts "Starting at #{Time.new.to_s}"
+
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
 
-        Nx51s::accessContent(nx51)
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Nx51 item running for more than an hour")
+                end
+            }
+        }
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         if note then
@@ -309,17 +271,34 @@ class Nx51s
             puts "--------------------------"
         end
 
-        LucilleCore::pressEnterToContinue()
+        Nx51s::accessContent(nx51)
         
         loop {
 
-            puts "[] | detach running | pursue |  exit (default) | landing | destroy"
+            system("clear")
+
+            puts "#{Nx51s::toString(nx51)} (#{BankExtended::runningTimeString(nxball)})".green
+
+            note = StructuredTodoTexts::getNoteOrNull(uuid)
+            if note then
+                puts "Note ---------------------"
+                puts note.green
+                puts "--------------------------"
+            end
+
+            puts "exit (default) | note | [] | detach running | pause | pursue | landing | destroy"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
 
             break if command == "exit"
+
+            if Interpreting::match("note", command) then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx51["uuid"]) || "")
+                StructuredTodoTexts::setNote(uuid, note)
+                next
+            end
 
             if command == "[]" then
                 StructuredTodoTexts::applyT(uuid)
@@ -331,9 +310,17 @@ class Nx51s
                 end
             end
 
-            if "detach running" == command then
+            if command == "detach running" then
                 DetachedRunning::issueNew2(Nx51s::toString(nx51), Time.new.to_i, [uuid, Work::bankaccount()])
                 break
+            end
+
+            if command == "pause" then
+                NxBalls::closeNxBall(nxball, true)
+                puts "Starting pause at #{Time.new.to_s}"
+                LucilleCore::pressEnterToContinue()
+                nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
+                next
             end
 
             if command == "pursue" then
@@ -355,6 +342,8 @@ class Nx51s
                 end
             end
         }
+
+        thr.exit
 
         NxBalls::closeNxBall(nxball, true)
     end

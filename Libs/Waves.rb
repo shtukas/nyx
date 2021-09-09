@@ -247,7 +247,7 @@ class Waves
         loop {
             system("clear")
 
-            puts "#{Waves::toString(wave)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "#{Waves::toString(wave)}".green
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
@@ -260,13 +260,39 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | note | [] | done | <datecode> | detach running | exit | update description | update contents | recast schedule | destroy".yellow
+            puts "[item   ] access | done | <datecode> | note | [] | update description | update contents | recast schedule | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
+
+            if command == "access" then
+                Waves::accessContent(wave)
+                next
+            end
+
+            if command == "done" then
+                Waves::performDone(wave)
+                break
+            end
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
+            if command == "note" then
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
+                StructuredTodoTexts::setNote(wave["uuid"], note)
+                next
+            end
+
+            if command == "[]" then
+                StructuredTodoTexts::applyT(wave["uuid"])
+                next
+            end
 
             if Interpreting::match("update description", command) then
                 wave["description"] = Utils::editTextSynchronously(wave["description"])
@@ -289,56 +315,12 @@ class Waves
                 next
             end
 
-            if command == "++" then
-                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                break
-            end
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("done", command) then
-                Waves::performDone(wave)
-                break
-            end
-
-            if command == "access" then
-                Waves::accessContent(wave)
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
-                StructuredTodoTexts::setNote(wave["uuid"], note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(wave["uuid"])
-                next
-            end
-
-            if command == "done" then
-                Waves::performDone(wave)
-                break
-            end
-
-            if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_f, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
-                Waves::performDone(wave)
-                break
-            end
-
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
                     Waves::destroy(wave)
                     break
                 end
             end
-
-            Interpreters::mainMenuInterpreter(command)
         }
         
         NxBalls::closeNxBall(nxball, true)
@@ -349,8 +331,8 @@ class Waves
 
     # Waves::run(wave)
     def self.run(wave)
-        puts Waves::toString(wave)
         uuid = wave["uuid"]
+        puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
         Waves::accessContent(wave)
