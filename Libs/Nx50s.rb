@@ -36,6 +36,11 @@ class Nx50s
         Nx50s::databaseItemToNx50(item)
     end
 
+    # Nx50s::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-axioms"
+    end
+
     # --------------------------------------------------
     # Next Gen
 
@@ -196,11 +201,6 @@ class Nx50s
         contentType = Nx50s::contentType(nx50)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}#{str1}"
-    end
-
-    # Nx50s::axiomsRepositoryFolderPath()
-    def self.axiomsRepositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-axioms"
     end
 
     # Nx50s::complete(nx50)

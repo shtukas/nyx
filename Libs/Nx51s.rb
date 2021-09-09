@@ -4,10 +4,14 @@ class Nx51s
 
     # Nx51s::databaseItemToNx51(item)
     def self.databaseItemToNx51(item)
-        item["contentType"]    = item["payload1"]
-        item["contentPayload"] = item["payload2"]
         item["ordinal"]        = item["payload3"].to_f # 😬
+        item["axiomId"]        = item["payload4"]
         item
+    end
+
+    # Nx51s::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx51s-axioms"
     end
 
     # Nx51s::nx51s()
@@ -29,10 +33,10 @@ class Nx51s
         unixtime     = nx51["unixtime"]
         description  = nx51["description"]
         catalystType = "Nx51"
-        payload1     = nx51["contentType"]
-        payload2     = nx51["contentPayload"]
+        payload1     = nil
+        payload2     = nil
         payload3     = nx51["ordinal"]
-        payload4     = nil 
+        payload4     = nx51["axiomId"]
         payload5     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
     end
@@ -55,13 +59,11 @@ class Nx51s
             return nil
         end
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
-
         ordinal      = Nx51s::decideOrdinal(description)
 
         catalystType = "Nx51"
-        payload1     = coordinates ? coordinates["contentType"] : nil
-        payload2     = coordinates ? coordinates["contentPayload"] : nil
+        payload1     = nil
+        payload2     = nil
         payload3     = ordinal
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
@@ -115,17 +117,22 @@ class Nx51s
     # --------------------------------------------------
     # Operations
 
+    # Nx51s::contentType(nx51)
+    def self.contentType(nx51)
+        "unknown content type"
+    end
+
     # Nx51s::toString(nx51)
     def self.toString(nx51)
         uuid = nx51["uuid"]
-        contentType = nx51["contentType"]
+        contentType = Nx51s::contentType(nx51)
         str1 = (contentType and contentType.size > 0) ? " (#{nx51["contentType"]})" : ""
         "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}#{str1}"
     end
 
     # Nx51s::complete(nx51)
     def self.complete(nx51)
-        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
+        NxAxioms::destroy(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"]) # function accepts null ids
         CatalystDatabase::delete(nx51["uuid"])
     end
 
@@ -162,12 +169,14 @@ class Nx51s
 
     # Nx51s::accessContent(nx51)
     def self.accessContent(nx51)
-        update = lambda {|contentType, contentPayload|
-            nx51["contentType"] = contentType
-            nx51["contentPayload"] = contentPayload
-            Nx51s::commitNx51ToDisk(nx51)
-        }
-        Axion::access(nx51["contentType"], nx51["contentPayload"], update)
+        # The NxAxioms function handles null id, but we specify here that the call is useless
+        if nx51["axiomId"].nil? then
+            puts JSON.pretty_generate(nx51)
+            puts "The Axiom Id for this object is null"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NxAxioms::viewWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"])
     end
 
     # Nx51s::landing(nx51)
@@ -209,7 +218,7 @@ class Nx51s
             puts ""
 
             puts "uuid: #{uuid}".yellow
-            puts "coordinates: #{nx51["contentType"]}, #{nx51["contentPayload"]}".yellow
+            puts "axiom id: #{nx51["axiomId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
 
             puts ""
@@ -282,12 +291,8 @@ class Nx51s
             end
 
             if Interpreting::match("update contents", command) then
-                update = lambda {|contentType, contentPayload|
-                    nx51["contentType"] =  contentType
-                    nx51["contentPayload"] = contentPayload
-                    Nx51s::commitNx51ToDisk(nx51)
-                }
-                Axion::edit(nx51["contentType"], nx51["contentPayload"], update)
+                puts "update contents against the new NxAxiom library is not implemented yet"
+                LucilleCore::pressEnterToContinue()
                 next
             end
 
@@ -309,8 +314,6 @@ class Nx51s
         thr.exit
 
         NxBalls::closeNxBall(nxball, true)
-
-        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
     end
 
     # --------------------------------------------------
@@ -381,8 +384,6 @@ class Nx51s
                 end
             end
         }
-
-        Axion::postAccessCleanUp(nx51["contentType"], nx51["contentPayload"])
 
         NxBalls::closeNxBall(nxball, true)
     end
