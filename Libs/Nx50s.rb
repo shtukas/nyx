@@ -132,7 +132,13 @@ class Nx50s
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
 
         catalystType = "Nx50"
-        payload3     = nil
+        payload1     = nil
+        payload2     = nil
+
+        axiomId      = LucilleCore::timeStringL22()
+        NxAxioms::interactivelyCreateNewAxiom(Nx50s::axiomsRepositoryFolderPath(), axiomId)
+        payload3     = axiomId
+
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
         Nx50s::addToNextGenUUIDs(uuid)
@@ -159,9 +165,13 @@ class Nx50s
         uuid         = SecureRandom.uuid
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
         catalystType = "Nx50"
-        payload1     = "text"
-        payload2     = AxionBinaryBlobsService::putBlob(text)
-        payload3     = nil
+        payload1     = nil
+        payload2     = nil
+
+        axiomId      = LucilleCore::timeStringL22()
+        NxA001::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, text)
+        payload3     = axiomId
+
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
@@ -173,9 +183,13 @@ class Nx50s
         unixtime     = Nx50s::getNextGenUnixtime()
         description  = url
         catalystType = "Nx50"
-        payload1     = "url"
-        payload2     = url
-        payload3     = nil
+        payload1     = nil
+        payload2     = nil
+
+        axiomId      = LucilleCore::timeStringL22()
+        NxA002::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, url)
+        payload3     = axiomId
+
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)
@@ -186,13 +200,14 @@ class Nx50s
         uuid         = SecureRandom.uuid
         unixtime     = Nx50s::getNextGenUnixtime()
         description  = File.basename(location) 
-        axiomId      = LucilleCore::timeStringL22()
-        NxA003::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, location)
-
         catalystType = "Nx50"
         payload1     = nil
         payload2     = nil
+
+        axiomId      = LucilleCore::timeStringL22()
+        NxA003::make(Nx50s::axiomsRepositoryFolderPath(), axiomId, location)
         payload3     = axiomId
+
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
         Nx50s::addToNextGenUUIDs(uuid)
         Nx50s::getNx50ByUUIDOrNull(uuid)

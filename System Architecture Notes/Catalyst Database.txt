@@ -17,7 +17,7 @@ Item {
 }
 
 -----------------------------------------------------------------------------
-CatalystType     PayLoad1                Payload2                  Payload3                Payload4           Payload5
+CatalystType     PayLoad1                Payload2                  Payload3                Payload4
 "NxOnDate"       date [1]                                                                  axiomId
 "Nx50" [4]                                                         axiomId
 "Nx51" [4]                                                         ordinal: Float          axiomId

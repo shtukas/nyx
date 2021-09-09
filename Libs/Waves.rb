@@ -156,30 +156,28 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        contents = Waves::interactivelyMakeContentsOrNull()
-        return nil if contents.nil?
-
-        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
-        return nil if schedule.nil?
-
         uuid         = SecureRandom.uuid
         unixtime     = Time.new.to_i
-        
-        catalystType = "wave"
+
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", ["line", "url"])
+        return nil if type.nil?
 
         description  = nil
         axiomId      = nil
 
-        if contents[0] == "line" then
-            description    = LucilleCore::askQuestionAnswerAsString("description: ")
+        if type == "line" then
+            description    = LucilleCore::askQuestionAnswerAsString("line: ")
         end
 
-        if contents[0] == "url" then
+        if type == "url" then
             url            = LucilleCore::askQuestionAnswerAsString("url: ")
             axiomId        = SecureRandom.uuid
             description    = url
             NxA002::make(Waves::axiomsRepositoryFolderPath(), axiomId, url)
         end
+
+        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+        return nil if schedule.nil?
 
         repeatType   = schedule[0]
         repeatValue  = schedule[1]
