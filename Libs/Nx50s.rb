@@ -4,8 +4,7 @@ class Nx50s
 
     # Nx50s::databaseItemToNx50(item)
     def self.databaseItemToNx50(item)
-        item["contentType"]    = item["payload1"]
-        item["contentPayload"] = item["payload2"]
+        item["axiomId"] = item["payload3"]
         item
     end
 
@@ -22,9 +21,9 @@ class Nx50s
         unixtime     = nx50["unixtime"]
         description  = nx50["description"]
         catalystType = "Nx50"
-        payload1     = nx50["contentType"]
-        payload2     = nx50["contentPayload"]
-        payload3     = nil
+        payload1     = nil
+        payload2     = nil
+        payload3     = nx50["axiomId"]
         payload4     = nil 
         payload5     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, payload4, payload5)
@@ -111,13 +110,9 @@ class Nx50s
             return nil
         end
 
-        coordinates  = Axion::interactivelyIssueNewCoordinatesOrNull()
-
         unixtime     = Nx50s::interactivelyDetermineNewItemUnixtime()
 
         catalystType = "Nx50"
-        payload1     = coordinates ? coordinates["contentType"] : nil
-        payload2     = coordinates ? coordinates["contentPayload"] : nil
         payload3     = nil
         CatalystDatabase::insertItem(uuid, unixtime, description, catalystType, payload1, payload2, payload3, nil, nil)
 
@@ -184,34 +179,52 @@ class Nx50s
     # --------------------------------------------------
     # Operations
 
+    # Nx50s::contentType(nx50)
+    def self.contentType(nx50)
+        "unknown content type"
+    end
+
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        contentType = nx50["contentType"]
+        contentType = Nx50s::contentType(nx50)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[nx50] #{nx50["description"]}#{str1}"
     end
 
     # Nx50s::toStringForNS16(nx50, rt, timeReq)
     def self.toStringForNS16(nx50, rt, timeReq)
-        contentType = nx50["contentType"]
+        contentType = Nx50s::contentType(nx50)
         str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
         "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}#{str1}"
     end
 
+    # Nx50s::axiomsRepositoryFolderPath()
+    def self.axiomsRepositoryFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-axioms"
+    end
+
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
+        NxAxioms::destroy(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"]) # function accepts null ids
         CatalystDatabase::delete(nx50["uuid"])
     end
 
     # Nx50s::accessContent(nx50)
     def self.accessContent(nx50)
-        update = lambda {|contentType, contentPayload|
-            nx50["contentType"] = contentType
-            nx50["contentPayload"] = contentPayload
-            Nx50s::commitNx50ToDisk(nx50)
-        }
-        Axion::access(nx50["contentType"], nx50["contentPayload"], update)
+        # The NxAxioms function handles null id, but we specify here that the call is useless
+        if nx50["axiomId"].nil? then
+            puts JSON.pretty_generate(nx50)
+            puts "The Axiom Id for this object is null"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        NxAxioms::viewWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
+    end
+
+    # Nx50s::accessContentsIfContents(nx50)
+    def self.accessContentsIfContents(nx50)
+        return if nx50["axiomId"].nil?
+        NxAxioms::viewWithOptionToEdit(Nx50s::axiomsRepositoryFolderPath(), nx50["axiomId"])
     end
 
     # Nx50s::landing(nx50)
@@ -254,12 +267,12 @@ class Nx50s
             puts ""
 
             puts "uuid: #{uuid}".yellow
-            puts "coordinates: #{nx50["contentType"]}, #{nx50["contentPayload"]}".yellow
+            puts "axiomId: #{nx50["axiomId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
             puts ""
 
-            puts "[item   ] access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | destroy".yellow
+            puts "[item   ] access | note | [] | <datecode> | detach running | pause | exit | pursue | completed | update description | update contents | update unixtime | show json | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -327,12 +340,8 @@ class Nx50s
             end
 
             if Interpreting::match("update contents", command) then
-                update = lambda {|contentType, contentPayload|
-                    nx50["contentType"] =  contentType
-                    nx50["contentPayload"] = contentPayload
-                    Nx50s::commitNx50ToDisk(nx50)
-                }
-                Axion::edit(nx50["contentType"], nx50["contentPayload"], update)
+                puts "update contents against the new NxAxiom library is not implemented yet"
+                LucilleCore::pressEnterToContinue()
                 next
             end
 
@@ -340,6 +349,12 @@ class Nx50s
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
                 Nx50s::commitNx50ToDisk(nx50)
                 next
+            end
+
+            if Interpreting::match("show json", command) then
+                puts JSON.pretty_generate(nx50)
+                LucilleCore::pressEnterToContinue()
+                break
             end
 
             if Interpreting::match("destroy", command) then
@@ -353,8 +368,6 @@ class Nx50s
         thr.exit
 
         NxBalls::closeNxBall(nxball, true)
-
-        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
     end
 
     # --------------------------------------------------
@@ -369,7 +382,7 @@ class Nx50s
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
 
-        Nx50s::accessContent(nx50)
+        Nx50s::accessContentsIfContents(nx50)
 
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         if note then
@@ -377,8 +390,6 @@ class Nx50s
             puts note.green
             puts "--------------------------"
         end
-
-        LucilleCore::pressEnterToContinue()
 
         loop {
 
@@ -414,8 +425,6 @@ class Nx50s
                 next
             end
         }
-
-        Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
 
         NxBalls::closeNxBall(nxball, true)
     end
