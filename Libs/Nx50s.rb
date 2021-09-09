@@ -191,6 +191,13 @@ class Nx50s
         "[nx50] #{nx50["description"]}#{str1}"
     end
 
+    # Nx50s::toStringForNS16(nx50, rt, timeReq)
+    def self.toStringForNS16(nx50, rt, timeReq)
+        contentType = nx50["contentType"]
+        str1 = (contentType and contentType.size > 0) ? " (#{contentType})" : ""
+        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}#{str1}"
+    end
+
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         Axion::postAccessCleanUp(nx50["contentType"], nx50["contentPayload"])
@@ -413,16 +420,17 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::ns16OrNull(nx50)
-    def self.ns16OrNull(nx50)
+    # Nx50s::ns16OrNull(nx50, integersEnumerator)
+    def self.ns16OrNull(nx50, integersEnumerator)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return nil if rt > 1
+        timeRequirementInHours = 1.5/(2 ** integersEnumerator.next()) # first value is 1.5/(2 ** 0) = 1.5 
+        return nil if rt > timeRequirementInHours
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx50s::toString(nx50)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
+        announce = "#{Nx50s::toStringForNS16(nx50, rt, timeRequirementInHours)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -454,17 +462,18 @@ class Nx50s
             LucilleCore::removeFileSystemLocation(location)
         }
 
+        integersEnumerator = LucilleCore::integerEnumerator()
+
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
                 if ns16s.size < 5 then
-                    ns16 = Nx50s::ns16OrNull(nx50)
+                    ns16 = Nx50s::ns16OrNull(nx50, integersEnumerator)
                     if ns16 then
                         ns16s << ns16
                     end
                 end
                 ns16s
             }
-            .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
     end
 
     # --------------------------------------------------
