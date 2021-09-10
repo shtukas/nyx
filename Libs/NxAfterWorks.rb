@@ -357,12 +357,11 @@ class NxAfterWorks
             NxAfterWorks::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-
         return [] if Work::shouldDisplayWorkItems()
         NxAfterWorks::items()
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
             .map{|item| NxAfterWorks::ns16OrNull(item) }
             .compact
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
     end
 
     # --------------------------------------------------
