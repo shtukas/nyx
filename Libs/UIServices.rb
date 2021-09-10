@@ -266,6 +266,5 @@ class UIServices
                 item["interpreter"].call(command)
             end
         end
-
     end
 end

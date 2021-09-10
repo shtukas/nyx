@@ -159,8 +159,8 @@ class Nx50s
         if description == "" then
             return nil
         end
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
         axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
