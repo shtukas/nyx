@@ -6,21 +6,21 @@ class Waves
     # --------------------------------------------------
     # IO
 
-    # Waves::repositoryFolderPath()
-    def self.repositoryFolderPath()
+    # Waves::itemsFolderPath()
+    def self.itemsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves"
     end
 
     # Waves::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # Waves::items()
     def self.items()
-        LucilleCore::locationsAtFolder(Waves::repositoryFolderPath())
+        LucilleCore::locationsAtFolder(Waves::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
     end
@@ -28,7 +28,7 @@ class Waves
     # Waves::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
@@ -36,13 +36,13 @@ class Waves
     # Waves::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # Waves::axiomsRepositoryFolderPath()
-    def self.axiomsRepositoryFolderPath()
+    # Waves::axiomsFolderPath()
+    def self.axiomsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves-axioms"
     end
 
@@ -156,7 +156,7 @@ class Waves
             url            = LucilleCore::askQuestionAnswerAsString("url: ")
             axiomId        = SecureRandom.uuid
             description    = url
-            NxA002::make(Waves::axiomsRepositoryFolderPath(), axiomId, url)
+            NxA002::make(Waves::axiomsFolderPath(), axiomId, url)
         end
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -235,7 +235,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["axiomId"].nil?
-        NxAxioms::accessWithOptionToEdit(Waves::axiomsRepositoryFolderPath(), wave["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Waves::axiomsFolderPath(), wave["axiomId"])
     end
 
     # Waves::landing(wave)

@@ -81,14 +81,14 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::repositoryFolderPath()
-    def self.repositoryFolderPath()
+    # Anniversaries::itemsFolderPath()
+    def self.itemsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/anniversaries"
     end
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        LucilleCore::locationsAtFolder(Anniversaries::repositoryFolderPath())
+        LucilleCore::locationsAtFolder(Anniversaries::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
     end
@@ -96,7 +96,7 @@ class Anniversaries
     # Anniversaries::commitAnniversaryToDisk(anniversary)
     def self.commitAnniversaryToDisk(anniversary)
         filename = "#{anniversary["uuid"]}.json"
-        filepath = "#{Anniversaries::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Anniversaries::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(anniversary)) }
     end
 
@@ -220,7 +220,7 @@ class Anniversaries
 
             if Interpreting::match("destroy", command) then
                 filename = "#{anniversary["uuid"]}.json"
-                filepath = "#{Anniversaries::repositoryFolderPath()}/#{filename}"
+                filepath = "#{Anniversaries::itemsFolderPath()}/#{filename}"
                 break if !File.exists?(filepath)
                 FileUtils.rm(filepath)
                 break

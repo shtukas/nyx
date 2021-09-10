@@ -2,21 +2,21 @@
 
 class Nx51s
 
-    # Nx51s::repositoryFolderPath()
-    def self.repositoryFolderPath()
+    # Nx51s::itemsFolderPath()
+    def self.itemsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx51s"
     end
 
     # Nx51s::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Nx51s::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # Nx51s::nx51s()
     def self.nx51s()
-        LucilleCore::locationsAtFolder(Nx51s::repositoryFolderPath())
+        LucilleCore::locationsAtFolder(Nx51s::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
     end
@@ -24,13 +24,13 @@ class Nx51s
     # Nx51s::getNx51ByUUIDOrNull(uuid)
     def self.getNx51ByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Nx51s::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Nx51s::axiomsRepositoryFolderPath()
-    def self.axiomsRepositoryFolderPath()
+    # Nx51s::axiomsFolderPath()
+    def self.axiomsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx51s-axioms"
     end
 
@@ -51,7 +51,7 @@ class Nx51s
             return nil
         end
 
-        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(Nx51s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(Nx51s::axiomsFolderPath(), LucilleCore::timeStringL22())
 
         ordinal = Nx51s::decideOrdinal(description)
 
@@ -89,7 +89,7 @@ class Nx51s
     # Nx51s::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx51s::repositoryFolderPath()}/#{filename}"
+        filepath = "#{Nx51s::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -104,7 +104,7 @@ class Nx51s
 
     # Nx51s::complete(nx51)
     def self.complete(nx51)
-        NxAxioms::destroy(Nx51s::axiomsRepositoryFolderPath(), nx51["axiomId"]) # function accepts null ids
+        NxAxioms::destroy(Nx51s::axiomsFolderPath(), nx51["axiomId"]) # function accepts null ids
         Nx51s::destroy(nx51)
     end
 
@@ -146,7 +146,7 @@ class Nx51s
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::accessWithOptionToEdit(Nx51s::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(Nx51s::axiomsFolderPath(), item["axiomId"])
     end
 
     # Nx51s::landing(nx51)

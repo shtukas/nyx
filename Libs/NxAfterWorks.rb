@@ -5,21 +5,21 @@ class NxAfterWorks
     # --------------------------------------------------
     # IO
 
-    # NxAfterWorks::repositoryFolderPath()
-    def self.repositoryFolderPath()
+    # NxAfterWorks::itemsFolderPath()
+    def self.itemsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxAfterWorks"
     end
 
     # NxAfterWorks::commitFloatToDisk(float)
     def self.commitFloatToDisk(float)
         filename = "#{float["uuid"]}.json"
-        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(float)) }
     end
 
     # NxAfterWorks::items()
     def self.items()
-        LucilleCore::locationsAtFolder(NxAfterWorks::repositoryFolderPath())
+        LucilleCore::locationsAtFolder(NxAfterWorks::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
@@ -28,21 +28,23 @@ class NxAfterWorks
     # NxAfterWorks::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxAfterWorks::destroy(item)
     def self.destroy(item)
+        NxAxioms::destroy(NxAfterWorks::axiomsFolderPath(), item["axiomId"])
+
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxAfterWorks::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxAfterWorks::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # NxAfterWorks::axiomsRepositoryFolderPath()
-    def self.axiomsRepositoryFolderPath()
+    # NxAfterWorks::axiomsFolderPath()
+    def self.axiomsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxAfterWorks-axioms"
     end
 
@@ -60,7 +62,7 @@ class NxAfterWorks
 
         unixtime = Time.new.to_f
 
-        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxAfterWorks::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxAfterWorks::axiomsFolderPath(), LucilleCore::timeStringL22())
     
         item = {
           "uuid"           => uuid,
@@ -78,7 +80,7 @@ class NxAfterWorks
     def self.issueNx50UsingURL(url)
         uuid         = LucilleCore::timeStringL22()
         description  = url
-        axiomId      = NxA002::make(NxAfterWorks::repositoryFolderPath(), LucilleCore::timeStringL22(), url)
+        axiomId      = NxA002::make(NxAfterWorks::itemsFolderPath(), LucilleCore::timeStringL22(), url)
         NxAfterWorks::commitFloatToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
@@ -93,7 +95,7 @@ class NxAfterWorks
         uuid        = LucilleCore::timeStringL22()
         unixtime    = Time.new.to_f
         description = File.basename(location)
-        axiomId     = NxA003::make(NxAfterWorks::repositoryFolderPath(), LucilleCore::timeStringL22(), location)
+        axiomId     = NxA003::make(NxAfterWorks::axiomsFolderPath(), LucilleCore::timeStringL22(), location)
         NxAfterWorks::commitFloatToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -118,7 +120,7 @@ class NxAfterWorks
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::accessWithOptionToEdit(NxAfterWorks::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxAfterWorks::axiomsFolderPath(), item["axiomId"])
     end
 
     # NxAfterWorks::landing(item)

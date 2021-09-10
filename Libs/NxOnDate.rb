@@ -2,34 +2,34 @@
 
 class NxOnDate # OnDate
 
-    # NxOnDate::repositoryFolderPath()
-    def self.repositoryFolderPath()
+    # NxOnDate::itemsFolderPath()
+    def self.itemsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates"
     end
 
     # NxOnDate::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxOnDate::axiomsRepositoryFolderPath()
-    def self.axiomsRepositoryFolderPath()
+    # NxOnDate::axiomsFolderPath()
+    def self.axiomsFolderPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates-axioms"
     end
 
     # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     def self.getNxOnDateByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # NxOnDate::nx31s()
     def self.nx31s()
-        LucilleCore::locationsAtFolder(NxOnDate::repositoryFolderPath())
+        LucilleCore::locationsAtFolder(NxOnDate::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|x1, x2|  x1["date"] <=> x2["date"]}
@@ -57,7 +57,7 @@ class NxOnDate # OnDate
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxOnDate::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22())
+        axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(NxOnDate::axiomsFolderPath(), LucilleCore::timeStringL22())
 
         item = {
               "uuid"         => uuid,
@@ -76,7 +76,7 @@ class NxOnDate # OnDate
     # NxOnDate::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::repositoryFolderPath()}/#{filename}"
+        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -96,13 +96,13 @@ class NxOnDate # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsFolderPath(), item["axiomId"])
     end
 
     # NxOnDate::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsRepositoryFolderPath(), item["axiomId"])
+        NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsFolderPath(), item["axiomId"])
     end
 
     # NxOnDate::landing(nx31)
@@ -164,7 +164,7 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("destroy", command) then
-                NxAxioms::destroy(NxOnDate::axiomsRepositoryFolderPath(), nx31["axiomId"])
+                NxAxioms::destroy(NxOnDate::axiomsFolderPath(), nx31["axiomId"])
                 NxOnDate::destroy(nx31)
                 break
             end
