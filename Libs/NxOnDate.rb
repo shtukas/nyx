@@ -193,7 +193,7 @@ class NxOnDate # OnDate
 
         NxOnDate::accessContentsIfContents(item)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
+        if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ") then
             NxOnDate::destroy(nx31)
         end
 
