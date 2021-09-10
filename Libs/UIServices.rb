@@ -171,7 +171,7 @@ class UIServices
             puts ""
             nxfloats
             .map{|float|
-                float["run"] = lambda { NxFloats::landing(float)}
+                float["run"] = lambda { NxFloats::run(float)}
                 float
             }
             .each{|nxfloat|

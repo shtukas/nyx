@@ -93,7 +93,6 @@ class NxFloats
     end
 
     # --------------------------------------------------
-    # nx16s
 
     # NxFloats::run(nxfloat)
     def self.run(nxfloat)
@@ -102,50 +101,11 @@ class NxFloats
         puts "Starting at #{Time.new.to_s}"
         nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
         NxFloats::accessContent(nxfloat)
-        if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
+        if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ") then
             NxFloats::destroy(nxfloat)
         end
         NxBalls::closeNxBall(nxball, true)
     end
-
-    # NxFloats::ns16OrNull(nxfloat)
-    def self.ns16OrNull(nxfloat)
-        uuid = nxfloat["uuid"]
-        return nil if !DoNotShowUntil::isVisible(uuid)
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        note = StructuredTodoTexts::getNoteOrNull(uuid)
-        noteStr = note ? " [note]" : ""
-        announce = "(#{"%4.2f" % rt}) #{NxFloats::toString(nxfloat)}#{noteStr}".gsub("(0.00)", "      ")
-        {
-            "uuid"     => uuid,
-            "announce" => announce.green,
-            "commands"    => ["..", "done"],
-            "interpreter" => lambda {|command|
-                if command == ".." then
-                    NxFloats::run(nxfloat)
-                end
-                if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ", true) then
-                        NxFloats::destroy(nxfloat)
-                    end
-                end
-            },
-            "run" => lambda {
-                NxFloats::run(nxfloat)
-            },
-            "rt" => rt
-        }
-    end
-
-    # NxFloats::ns16s()
-    def self.ns16s()
-        NxFloats::nxfloats()
-            .map{|nxfloat| NxFloats::ns16OrNull(nxfloat) }
-            .compact
-            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
-    end
-
-    # --------------------------------------------------
 
     # NxFloats::nx19s()
     def self.nx19s()
