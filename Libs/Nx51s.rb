@@ -165,7 +165,7 @@ class Nx51s
 
             rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
-            puts "running: #{Nx51s::toString(nx51)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: #{Nx51s::toString(nx51)}".green
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
 
