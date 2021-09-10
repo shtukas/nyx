@@ -111,11 +111,6 @@ class NxAfterWorks
         "[aftw] #{item["description"]}"
     end
 
-    # NxAfterWorks::toStringForNS16(item, rt)
-    def self.toStringForNS16(item, rt)
-        "[aftw] (#{"%4.2f" % rt}) #{item["description"]}"
-    end
-
     # NxAfterWorks::accessContent(item)
     def self.accessContent(item)
         if item["axiomId"].nil? then
@@ -140,8 +135,6 @@ class NxAfterWorks
             return if item.nil?
 
             system("clear")
-
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
 
             puts NxAfterWorks::toString(item)
 
@@ -250,7 +243,7 @@ class NxAfterWorks
 
         loop {
 
-            puts "running: (#{"%.3f" % rt}) #{NxAfterWorks::toString(item)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "running: #{NxAfterWorks::toString(item)} (#{BankExtended::runningTimeString(nxball)})".green
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
@@ -307,12 +300,12 @@ class NxAfterWorks
                 next
             end
 
-            if option == "landing" then
+            if command == "landing" then
                 NxAfterWorks::landing(item)
                 next
             end
 
-            if option == "destroy" then
+            if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{NxAfterWorks::toString(item)}' ? ", true) then
                     NxAfterWorks::destroy(item)
                     break
@@ -330,10 +323,9 @@ class NxAfterWorks
     def self.ns16OrNull(item)
         uuid = item["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{NxAfterWorks::toStringForNS16(item, rt)}#{noteStr}"
+        announce = "#{NxAfterWorks::toString(item)}#{noteStr}"
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -353,8 +345,7 @@ class NxAfterWorks
             },
             "run" => lambda {
                 NxAfterWorks::run(item)
-            },
-            "rt" => rt
+            }
         }
     end
 
