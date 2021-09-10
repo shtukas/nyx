@@ -171,6 +171,21 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
+    # Nx50s::issueNx50UsingLocation(location)
+    def self.issueNx50UsingLocation(location)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Nx50s::getNextGenUnixtime()
+        description = File.basename(location)
+        axiomId     = NxA003::make(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22(), location)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -466,6 +481,11 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s (Inbox)").each{|location|
+            Nx50s::issueNx50UsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+
         integersEnumerator = LucilleCore::integerEnumerator()
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|

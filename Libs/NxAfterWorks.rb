@@ -78,7 +78,7 @@ class NxAfterWorks
     def self.issueNx50UsingURL(url)
         uuid         = LucilleCore::timeStringL22()
         description  = url
-        axiomId      = NxA002::make(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22(), url)
+        axiomId      = NxA002::make(NxAfterWorks::repositoryFolderPath(), LucilleCore::timeStringL22(), url)
         NxAfterWorks::commitFloatToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
@@ -93,8 +93,8 @@ class NxAfterWorks
         uuid        = LucilleCore::timeStringL22()
         unixtime    = Time.new.to_f
         description = File.basename(location)
-        axiomId     = NxA003::make(Nx50s::axiomsRepositoryFolderPath(), LucilleCore::timeStringL22(), location)
-        Nx50s::commitNx50ToDatabase({
+        axiomId     = NxA003::make(NxAfterWorks::repositoryFolderPath(), LucilleCore::timeStringL22(), location)
+        NxAfterWorks::commitFloatToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
@@ -360,7 +360,7 @@ class NxAfterWorks
 
     # NxAfterWorks::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/After-Work-Inbox").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxAfterWork (Inbox)").each{|location|
             NxAfterWorks::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
