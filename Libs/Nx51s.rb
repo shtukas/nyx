@@ -102,6 +102,11 @@ class Nx51s
         "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]}"
     end
 
+    # Nx51s::toStringWithTimeRequirement(nx51, rt, timeReq)
+    def self.toStringWithTimeRequirement(nx51, rt, timeReq)
+        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx51["description"]}"
+    end
+
     # Nx51s::complete(nx51)
     def self.complete(nx51)
         NxAxioms::destroy(Nx51s::axiomsFolderPath(), nx51["axiomId"]) # function accepts null ids
@@ -136,7 +141,7 @@ class Nx51s
     # Nx51s::selectOneNx51OrNull()
     def self.selectOneNx51OrNull()
         nx51s = Nx51s::nx51sPerOrdinal()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| "(#{"%7.3f" % nx51["ordinal"]}) #{Nx51s::toString(nx51)}" })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx51", nx51s, lambda{|nx51| Nx51s::toString(nx51) })
     end
 
     # Nx51s::accessContent(item)
@@ -200,14 +205,10 @@ class Nx51s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update ordinal | destroy | exit (default)".yellow
+            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update ordinal | destroy | exit".yellow
             puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            break if command == "exit"
 
             if Interpreting::match("access", command) then
                 Nx51s::accessContent(nx51)
@@ -287,18 +288,41 @@ class Nx51s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx51s::ns16(nx51)
-    def self.ns16(nx51)
+    # Nx51s::runRequirementAttributions()
+    def self.runRequirementAttributions()
+        Nx51s::nx51sPerOrdinal()
+        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        .first(5)
+            .each{|nx51|
+                value = LucilleCore::askQuestionAnswerAsString("#{Nx51s::toString(nx51)} ; today time requirement in hours: ").to_f
+                KeyValueStore::set(nil, "4ec1d8ca-1aaf-4f0b-aec4-0fcb87784752:#{nx51["uuid"]}", value)
+            }
+    end
+
+    # Nx51s::timeRequirement(nx51)
+    def self.timeRequirement(nx51)
+        value = KeyValueStore::getOrNull(nil, "4ec1d8ca-1aaf-4f0b-aec4-0fcb87784752:#{nx51["uuid"]}")
+        if value then
+            return value.to_f
+        end
+        1
+    end
+
+    # Nx51s::ns16OrNull(nx51)
+    def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        timeReq = Nx51s::timeRequirement(nx51)
+        return nil if rt > timeReq
+        announce1 = Nx51s::toStringWithTimeRequirement(nx51, rt, timeReq)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx51s::toString(nx51)}#{noteStr} (rt: #{rt.round(2)})"
+        announce2 = "#{announce1}#{noteStr}"
             .gsub("( 0.00)", "       ")
             .gsub("( 1.00)", "       ")
         {
             "uuid"     => uuid,
-            "announce" => announce,
+            "announce" => announce2,
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
@@ -320,8 +344,15 @@ class Nx51s
     # Nx51s::ns16s()
     def self.ns16s()
         return [] if !Work::shouldDisplayWorkItems()
+
+        if !KeyValueStore::flagIsTrue(nil, "6504651b-764d-4d5b-b88c-e60c626b3b20:#{Utils::today()}") then
+            Nx51s::runRequirementAttributions()
+            KeyValueStore::setFlagTrue(nil, "6504651b-764d-4d5b-b88c-e60c626b3b20:#{Utils::today()}")
+        end
+
         Nx51s::nx51sPerOrdinal()
-            .map{|nx51| Nx51s::ns16(nx51) }
+            .map{|nx51| Nx51s::ns16OrNull(nx51) }
+            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
