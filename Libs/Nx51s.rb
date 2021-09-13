@@ -158,6 +158,7 @@ class Nx51s
         uuid = nx51["uuid"]
 
         puts "#{Nx51s::toString(nx51)}".green
+        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid, Work::bankaccount()])
@@ -190,6 +191,7 @@ class Nx51s
             system("clear")
 
             puts "#{Nx51s::toString(nx51)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
@@ -198,7 +200,8 @@ class Nx51s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update ordinal | destroy | exit (default)"
+            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update ordinal | destroy | exit (default)".yellow
+            puts Interpreters::mainMenuCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -275,6 +278,8 @@ class Nx51s
                     break
                 end
             end
+
+            Interpreters::mainMenuInterpreter(command)
         }
 
         thr.exit
@@ -282,8 +287,8 @@ class Nx51s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx51s::ns16OrNull(nx51)
-    def self.ns16OrNull(nx51)
+    # Nx51s::ns16(nx51)
+    def self.ns16(nx51)
         uuid = nx51["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -316,8 +321,7 @@ class Nx51s
     def self.ns16s()
         return [] if !Work::shouldDisplayWorkItems()
         Nx51s::nx51sPerOrdinal()
-            .map{|nx51| Nx51s::ns16OrNull(nx51) }
-            .compact
+            .map{|nx51| Nx51s::ns16(nx51) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 

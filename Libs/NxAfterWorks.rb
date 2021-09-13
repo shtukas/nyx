@@ -132,6 +132,7 @@ class NxAfterWorks
         uuid = item["uuid"]
 
         puts "Running #{NxAfterWorks::toString(item)}".green
+        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
@@ -162,6 +163,7 @@ class NxAfterWorks
         loop {
 
             puts "running: #{NxAfterWorks::toString(item)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then

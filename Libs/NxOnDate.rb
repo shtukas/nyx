@@ -110,6 +110,7 @@ class NxOnDate # OnDate
         uuid = item["uuid"]
 
         puts "running #{NxOnDate::toString(item)}".green
+        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
@@ -130,6 +131,9 @@ class NxOnDate # OnDate
         loop {
 
             system("clear")
+
+            puts "running #{NxOnDate::toString(item)}".green
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 

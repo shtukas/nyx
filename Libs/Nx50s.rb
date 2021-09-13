@@ -286,7 +286,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)"
+            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
