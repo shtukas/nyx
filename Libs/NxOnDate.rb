@@ -27,8 +27,8 @@ class NxOnDate # OnDate
         JSON.parse(IO.read(filepath))
     end
 
-    # NxOnDate::nx31s()
-    def self.nx31s()
+    # NxOnDate::items()
+    def self.items()
         LucilleCore::locationsAtFolder(NxOnDate::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
@@ -105,11 +105,11 @@ class NxOnDate # OnDate
         NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsFolderPath(), item["axiomId"])
     end
 
-    # NxOnDate::run(nx31)
-    def self.run(nx31)
-        uuid = nx31["uuid"]
+    # NxOnDate::run(item)
+    def self.run(item)
+        uuid = item["uuid"]
 
-        puts "running #{NxOnDate::toString(nx31)}".green
+        puts "running #{NxOnDate::toString(item)}".green
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
@@ -123,7 +123,7 @@ class NxOnDate # OnDate
             }
         }
 
-        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
         NxOnDate::accessContentsIfContents(item)
 
@@ -131,38 +131,38 @@ class NxOnDate # OnDate
 
             system("clear")
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
             puts "access | <datecode> | note | [] | update date | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if Interpreting::match("access", command) then
-                NxOnDate::accessContent(nx31)
+                NxOnDate::accessContent(item)
                 next
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(nx31["uuid"], unixtime)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 break
             end
 
             if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx31["uuid"]) || "")
-                StructuredTodoTexts::setNote(nx31["uuid"], note)
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(item["uuid"]) || "")
+                StructuredTodoTexts::setNote(item["uuid"], note)
                 next
             end
 
             if command == "[]" then
-                StructuredTodoTexts::applyT(nx31["uuid"])
+                StructuredTodoTexts::applyT(item["uuid"])
                 next
             end
 
             if Interpreting::match("update date", command) then
                 date = NxOnDate::interactivelySelectADateOrNull()
                 next if date.nil?
-                nx31["date"] = date
-                NxOnDate::commitItemToDisk(nx31)
+                item["date"] = date
+                NxOnDate::commitItemToDisk(item)
                 next
             end
 
@@ -171,8 +171,8 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("destroy", command) then
-                NxAxioms::destroy(NxOnDate::axiomsFolderPath(), nx31["axiomId"])
-                NxOnDate::destroy(nx31)
+                NxAxioms::destroy(NxOnDate::axiomsFolderPath(), item["axiomId"])
+                NxOnDate::destroy(item)
                 break
             end
         }
@@ -182,35 +182,35 @@ class NxOnDate # OnDate
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # NxOnDate::nx31ToNS16(nx31)
-    def self.nx31ToNS16(nx31)
+    # NxOnDate::itemToNS16(item)
+    def self.itemToNS16(item)
         {
-            "uuid"        => nx31["uuid"],
-            "announce"    => NxOnDate::toString(nx31),
+            "uuid"        => item["uuid"],
+            "announce"    => NxOnDate::toString(item),
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxOnDate::run(nx31)
+                    NxOnDate::run(item)
                 end
                 if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
-                        NxOnDate::destroy(nx31)
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(item)}' ? ", true) then
+                        NxOnDate::destroy(item)
                     end
                 end
             },
             "run" => lambda {
-                NxOnDate::run(nx31)
+                NxOnDate::run(item)
             }
         }
     end
 
     # NxOnDate::ns16s()
     def self.ns16s()
-        NxOnDate::nx31s()
+        NxOnDate::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
-            .map{|nx31| NxOnDate::nx31ToNS16(nx31) }
+            .map{|item| NxOnDate::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
@@ -220,11 +220,11 @@ class NxOnDate # OnDate
         loop {
             system("clear")
 
-            nx31s = NxOnDate::nx31s()
+            items = NxOnDate::items()
                         .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
-            nx31s.each_with_index{|nx31, indx| 
-                puts "[#{indx}] #{NxOnDate::toString(nx31)}"
+            items.each_with_index{|item, indx| 
+                puts "[#{indx}] #{NxOnDate::toString(item)}"
             }
 
             puts "<item index> | (empty) # exit".yellow
@@ -235,9 +235,9 @@ class NxOnDate # OnDate
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                nx31 = nx31s[indx]
-                next if nx31.nil?
-                NxOnDate::run(nx31)
+                item = items[indx]
+                next if item.nil?
+                NxOnDate::run(item)
             end
 
             Interpreters::mainMenuInterpreter(command)
@@ -246,7 +246,7 @@ class NxOnDate # OnDate
 
     # NxOnDate::nx19s()
     def self.nx19s()
-        NxOnDate::nx31s().map{|item|
+        NxOnDate::items().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => NxOnDate::toString(item),
