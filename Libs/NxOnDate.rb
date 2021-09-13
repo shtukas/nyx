@@ -105,34 +105,37 @@ class NxOnDate # OnDate
         NxAxioms::accessWithOptionToEdit(NxOnDate::axiomsFolderPath(), item["axiomId"])
     end
 
-    # NxOnDate::landing(nx31)
-    def self.landing(nx31)
-
+    # NxOnDate::run(nx31)
+    def self.run(nx31)
         uuid = nx31["uuid"]
 
-        system("clear")
-        
-        puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
-        puts "axiomId: #{nx31["axiomId"]}".yellow
+        puts "running #{NxOnDate::toString(nx31)}".green
+        puts "Starting at #{Time.new.to_s}"
+
+        nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
+
+        NxOnDate::accessContentsIfContents(item)
 
         loop {
 
-            nx31 = NxOnDate::getNxOnDateByUUIDOrNull(nx31["uuid"])
-
-            return if nx31.nil?
-
             system("clear")
 
-            puts "running: #{NxOnDate::toString(nx31)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(nx31["uuid"])}".green
 
-            puts "[item   ] access | <datecode> | note | [] | update date | exit | destroy".yellow
-            puts Interpreters::mainMenuCommands().yellow
+            puts "access | <datecode> | note | [] | update date | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == "exit"
 
             if Interpreting::match("access", command) then
                 NxOnDate::accessContent(nx31)
@@ -163,39 +166,16 @@ class NxOnDate # OnDate
                 next
             end
 
+            if Interpreting::match("exit", command) then
+                return
+            end
+
             if Interpreting::match("destroy", command) then
                 NxAxioms::destroy(NxOnDate::axiomsFolderPath(), nx31["axiomId"])
                 NxOnDate::destroy(nx31)
                 break
             end
-
-            Interpreters::mainMenuInterpreter(command)
         }
-    end
-
-    # NxOnDate::run(nx31)
-    def self.run(nx31)
-        uuid = nx31["uuid"]
-
-        puts "running #{NxOnDate::toString(nx31)}".green
-        puts "Starting at #{Time.new.to_s}"
-
-        nxball = NxBalls::makeNxBall([uuid])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-            }
-        }
-
-        NxOnDate::accessContentsIfContents(item)
-
-        if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ") then
-            NxOnDate::destroy(nx31)
-        end
 
         thr.exit
 
@@ -207,13 +187,10 @@ class NxOnDate # OnDate
         {
             "uuid"        => nx31["uuid"],
             "announce"    => NxOnDate::toString(nx31),
-            "commands"    => ["..", "landing", "done"],
+            "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     NxOnDate::run(nx31)
-                end
-                if command == "landing" then
-                    NxOnDate::landing(nx31)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(nx31)}' ? ", true) then
@@ -222,7 +199,7 @@ class NxOnDate # OnDate
                 end
             },
             "run" => lambda {
-                NxOnDate::landing(nx31)
+                NxOnDate::run(nx31)
             }
         }
     end
@@ -260,7 +237,7 @@ class NxOnDate # OnDate
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 nx31 = nx31s[indx]
                 next if nx31.nil?
-                NxOnDate::landing(nx31)
+                NxOnDate::run(nx31)
             end
 
             Interpreters::mainMenuInterpreter(command)
@@ -273,7 +250,7 @@ class NxOnDate # OnDate
             {
                 "uuid"     => item["uuid"],
                 "announce" => NxOnDate::toString(item),
-                "lambda"   => lambda { NxOnDate::landing(item) }
+                "lambda"   => lambda { NxOnDate::run(item) }
             }
         }
     end

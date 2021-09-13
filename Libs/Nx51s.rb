@@ -149,94 +149,6 @@ class Nx51s
         NxAxioms::accessWithOptionToEdit(Nx51s::axiomsFolderPath(), item["axiomId"])
     end
 
-    # Nx51s::landing(nx51)
-    def self.landing(nx51)
-        uuid = nx51["uuid"]
-
-        system("clear")
-
-        loop {
-
-            nx51 = Nx51s::getNx51ByUUIDOrNull(uuid)
-
-            return if nx51.nil?
-
-            system("clear")
-
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-
-            puts "running: #{Nx51s::toString(nx51)}".green
-
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
-
-            puts ""
-
-            puts "uuid: #{uuid}".yellow
-            puts "axiom id: #{nx51["axiomId"]}".yellow
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
-
-            puts ""
-
-            puts "access | <datecode> | note | [] | update description | update contents | update ordinal | exit | destroy".yellow
-
-            puts Interpreters::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == "exit"
-
-            if Interpreting::match("access", command) then
-                Nx51s::accessContent(nx51)
-                next
-            end
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx51["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(uuid)
-                next
-            end
-
-            if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(nx51["description"])
-                if description.size > 0 then
-                    nx51["description"] = description
-                    Nx51s::commitItemToDisk(nx51)
-                end
-                next
-            end
-
-            if Interpreting::match("update contents", command) then
-                puts "update contents against the new NxAxiom library is not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("update ordinal", command) then
-                ordinal = Nx51s::decideOrdinal(Nx51s::toString(nx51))
-                nx51["ordinal"] = ordinal
-                Nx51s::commitItemToDisk(nx51)
-                break
-            end
-
-            if Interpreting::match("destroy", command) then
-                Nx51s::complete(nx51)
-                break
-            end
-
-            Interpreters::mainMenuInterpreter(command)
-        }
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -286,13 +198,18 @@ class Nx51s
                 puts "--------------------------"
             end
 
-            puts "exit (default) | note | [] | detach running | pause | pursue | landing | destroy"
+            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update ordinal | destroy | exit (default)"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
 
             break if command == "exit"
+
+            if Interpreting::match("access", command) then
+                Nx51s::accessContent(nx51)
+                next
+            end
 
             if Interpreting::match("note", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx51["uuid"]) || "")
@@ -330,9 +247,26 @@ class Nx51s
                 next
             end
 
-            if command == "landing" then
-                Nx51s::landing(nx51)
-                break if Nx51s::getNx51ByUUIDOrNull(nx51["uuid"]).nil? # Could hve been destroyed
+            if Interpreting::match("update description", command) then
+                description = Utils::editTextSynchronously(nx51["description"])
+                if description.size > 0 then
+                    nx51["description"] = description
+                    Nx51s::commitItemToDisk(nx51)
+                end
+                next
+            end
+
+            if Interpreting::match("update contents", command) then
+                puts "update contents against the new NxAxiom library is not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if Interpreting::match("update ordinal", command) then
+                ordinal = Nx51s::decideOrdinal(Nx51s::toString(nx51))
+                nx51["ordinal"] = ordinal
+                Nx51s::commitItemToDisk(nx51)
+                break
             end
 
             if command == "destroy" then
@@ -360,13 +294,10 @@ class Nx51s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => ["..", "landing", "done"],
+            "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     Nx51s::run(nx51)
-                end
-                if command == "landing" then
-                    Nx51s::landing(nx51)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx51s::toString(nx51)}' ? ", true) then
@@ -398,7 +329,7 @@ class Nx51s
             {
                 "uuid"     => item["uuid"],
                 "announce" => Nx51s::toString(item),
-                "lambda"   => lambda { Nx51s::landing(item) }
+                "lambda"   => lambda { Nx51s::run(item) }
             }
         }
     end

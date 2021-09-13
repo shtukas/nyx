@@ -232,105 +232,6 @@ class Nx50s
         NxAxioms::accessWithOptionToEdit(Nx50s::axiomsFolderPath(), nx50["axiomId"])
     end
 
-    # Nx50s::landing(nx50)
-    def self.landing(nx50)
-
-        uuid = nx50["uuid"]
-
-        system("clear")
-
-        loop {
-
-            nx50 = Nx50s::getNx50ByUUIDOrNull(uuid)
-
-            return if nx50.nil?
-
-            system("clear")
-
-            rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-
-            puts "running: (#{"%.3f" % rt}) #{Nx50s::toString(nx50)}".green
-
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
-
-            puts ""
-
-            puts "uuid: #{uuid}".yellow
-            puts "axiomId: #{nx50["axiomId"]}".yellow
-            puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}"
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-
-            puts ""
-
-            puts "[item   ] access | note | [] | <datecode> | update description | update contents | update unixtime | show json | exit | destroy".yellow
-
-            puts Interpreters::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == "exit"
-
-            if command == "++" then
-                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                break
-            end
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(uuid)
-                next
-            end
-
-            if Interpreting::match("access", command) then
-                Nx50s::accessContent(nx50)
-                next
-            end
-
-            if Interpreting::match("destroy", command) then
-                Nx50s::complete(nx50)
-                break
-            end
-
-            if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(nx50["description"])
-                if description.size > 0 then
-                    Nx50s::updateDescription(nx50["uuid"], description)
-                end
-                next
-            end
-
-            if Interpreting::match("update contents", command) then
-                puts "update contents against the new NxAxiom library is not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("update unixtime", command) then
-                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
-                Nx50s::commitNx50ToDatabase(nx50)
-                next
-            end
-
-            if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(nx50)
-                LucilleCore::pressEnterToContinue()
-                break
-            end
-
-            Interpreters::mainMenuInterpreter(command)
-        }
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -339,6 +240,11 @@ class Nx50s
 
         uuid = nx50["uuid"]
         puts "#{Nx50s::toString(nx50)}".green
+        puts "uuid: #{uuid}".yellow
+        puts "axiomId: #{nx50["axiomId"]}".yellow
+        puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}"
+        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
+        puts ""
 
         puts "Starting at #{Time.new.to_s}"
 
@@ -380,13 +286,18 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "exit (default) | note | [] | detach running | pause | pursue | landing | destroy"
+            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)"
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
 
             break if command == "exit"
+
+            if Interpreting::match("access", command) then
+                Nx50s::accessContent(nx50)
+                next
+            end
 
             if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
@@ -425,9 +336,30 @@ class Nx50s
                 next
             end
 
-            if command == "landing" then
-                Nx50s::landing(nx50)
-                break if Nx50s::getNx50ByUUIDOrNull(nx50["uuid"]).nil? # Could have been destroyed
+            if Interpreting::match("update description", command) then
+                description = Utils::editTextSynchronously(nx50["description"])
+                if description.size > 0 then
+                    Nx50s::updateDescription(nx50["uuid"], description)
+                end
+                next
+            end
+
+            if Interpreting::match("update contents", command) then
+                puts "update contents against the new NxAxiom library is not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if Interpreting::match("update unixtime", command) then
+                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
+                Nx50s::commitNx50ToDatabase(nx50)
+                next
+            end
+
+            if Interpreting::match("show json", command) then
+                puts JSON.pretty_generate(nx50)
+                LucilleCore::pressEnterToContinue()
+                break
             end
 
             if command == "destroy" then
@@ -458,13 +390,10 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => ["..", "landing", "done"],
+            "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     Nx50s::run(nx50)
-                end
-                if command == "landing" then
-                    Nx50s::landing(nx50)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
@@ -507,7 +436,7 @@ class Nx50s
             {
                 "uuid"     => item["uuid"],
                 "announce" => Nx50s::toString(item),
-                "lambda"   => lambda { Nx50s::landing(item) }
+                "lambda"   => lambda { Nx50s::run(item) }
             }
         }
     end

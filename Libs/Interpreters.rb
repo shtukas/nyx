@@ -113,7 +113,7 @@ class Interpreters
             loop {
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
                 return if nx50.nil?
-                Nx50s::landing(nx50)
+                Nx50s::run(nx50)
             }
         end
 
@@ -122,7 +122,7 @@ class Interpreters
                 system("clear")
                 nx51 = Nx51s::selectOneNx51OrNull()
                 break if nx51.nil?
-                Nx51s::landing(nx51)
+                Nx51s::run(nx51)
             }
         end
 

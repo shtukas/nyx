@@ -99,7 +99,7 @@ class NxFloats
         uuid = nxfloat["uuid"]
         puts NxFloats::toString(nxfloat)
         puts "Starting at #{Time.new.to_s}"
-        nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
         NxFloats::accessContent(nxfloat)
         if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ") then
             NxFloats::destroy(nxfloat)
@@ -113,7 +113,7 @@ class NxFloats
             {
                 "uuid"     => item["uuid"],
                 "announce" => NxFloats::toString(item),
-                "lambda"   => lambda { NxFloats::landing(item) }
+                "lambda"   => lambda { NxFloats::run(item) }
             }
         }
     end

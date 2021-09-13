@@ -123,90 +123,6 @@ class NxAfterWorks
         NxAxioms::accessWithOptionToEdit(NxAfterWorks::axiomsFolderPath(), item["axiomId"])
     end
 
-    # NxAfterWorks::landing(item)
-    def self.landing(item)
-
-        uuid = item["uuid"]
-
-        system("clear")
-
-        loop {
-
-            item = NxAfterWorks::getItemByUUIDOrNull(uuid)
-
-            return if item.nil?
-
-            system("clear")
-
-            puts NxAfterWorks::toString(item)
-
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(uuid)}".green
-
-            puts ""
-
-            puts "uuid: #{uuid}".yellow
-            puts "axiomId: #{item["axiomId"]}".yellow
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-
-            puts ""
-
-            puts "[item   ] access | note | [] | <datecode> | update description | update contents | exit | destroy".yellow
-
-            puts Interpreters::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == "exit"
-
-            if command == "++" then
-                DoNotShowUntil::setUnixtime(uuid, Time.new.to_i+3600)
-                break
-            end
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(item["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(uuid)
-                next
-            end
-
-            if Interpreting::match("access", command) then
-                NxAfterWorks::accessContent(item)
-                next
-            end
-
-            if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(item["description"])
-                next if description.size == 0
-                item["description"] = description
-                NxAfterWorks::commitFloatToDisk(item)
-                next
-            end
-
-            if Interpreting::match("update contents", command) then
-                puts "Not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("destroy", command) then
-                NxAfterWorks::destroy(item)
-                break
-            end
-
-            Interpreters::mainMenuInterpreter(command)
-        }
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -218,7 +134,7 @@ class NxAfterWorks
         puts "Running #{NxAfterWorks::toString(item)}".green
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
 
         thr = Thread.new {
             loop {
@@ -254,7 +170,7 @@ class NxAfterWorks
                 puts "--------------------------"
             end
 
-            puts "exit (default) | note | [] | detach running | pause | pursue | landing | destroy".yellow
+            puts "exit (default) | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | destroy".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
             
             if command == "" then
@@ -282,8 +198,13 @@ class NxAfterWorks
                 next
             end
 
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
+
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(NxAfterWorks::toString(item), Time.new.to_i, [uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+                DetachedRunning::issueNew2(NxAfterWorks::toString(item), Time.new.to_i, [uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
                 break
             end
 
@@ -291,19 +212,28 @@ class NxAfterWorks
                 NxBalls::closeNxBall(nxball, true)
                 puts "Starting pause at #{Time.new.to_s}"
                 LucilleCore::pressEnterToContinue()
-                nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+                nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
                 next
             end
 
             if command == "pursue" then
                 # We close the ball and issue a new one
                 NxBalls::closeNxBall(nxball, true)
-                nxball = NxBalls::makeNxBall([uuid, "MISC-BE92-4874-85F1-54F140E3B243"])
+                nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
                 next
             end
 
-            if command == "landing" then
-                NxAfterWorks::landing(item)
+            if Interpreting::match("update description", command) then
+                description = Utils::editTextSynchronously(item["description"])
+                next if description.size == 0
+                item["description"] = description
+                NxAfterWorks::commitFloatToDisk(item)
+                next
+            end
+
+            if Interpreting::match("update contents", command) then
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
                 next
             end
 
@@ -331,13 +261,10 @@ class NxAfterWorks
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => ["..", "landing", "done"],
+            "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     NxAfterWorks::run(item)
-                end
-                if command == "landing" then
-                    NxAfterWorks::landing(item)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxAfterWorks::toString(item)}' ? ", true) then
@@ -372,7 +299,7 @@ class NxAfterWorks
             {
                 "uuid"     => item["uuid"],
                 "announce" => NxAfterWorks::toString(item),
-                "lambda"   => lambda { NxAfterWorks::landing(item) }
+                "lambda"   => lambda { NxAfterWorks::run(item) }
             }
         }
     end
