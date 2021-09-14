@@ -210,6 +210,10 @@ class Nx51s
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
+            if Interpreting::match("exit", command) then
+                break
+            end
+
             if Interpreting::match("access", command) then
                 Nx51s::accessContent(nx51)
                 next
