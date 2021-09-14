@@ -414,7 +414,7 @@ class Nx50s
             Nx50s::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-
+        return [] if Work::shouldDisplayWorkItems()
         integersEnumerator = LucilleCore::integerEnumerator()
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|

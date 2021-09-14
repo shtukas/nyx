@@ -151,7 +151,7 @@ require_relative "Interpreting.rb"
 require_relative "Interpreters.rb"
 
 require_relative "NxFloats.rb"
-require_relative "NxAfterWorks.rb"
+require_relative "NxAfterHours.rb"
 require_relative "Nx50s.rb"
 require_relative "Nx51s.rb"
 require_relative "NxOnDate.rb"

@@ -43,7 +43,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] float | wave | after work | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] float | wave | after hours | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -57,8 +57,8 @@ class Interpreters
             Waves::issueNewWaveInteractivelyOrNull()
         end
 
-        if Interpreting::match("after work", command) then
-            NxAfterWorks::interactivelyCreateNewOrNull()
+        if Interpreting::match("after hours", command) then
+            NxAfterHours::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondate", command) then

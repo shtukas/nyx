@@ -24,6 +24,7 @@ end
 class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
+        b1 = BankExtended::stdRecoveredDailyTimeInHours("ELEMENTS-BE92-4874-85F1-54F140E3B243") > BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
         [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -33,8 +34,7 @@ class NS16sOperator
             Waves::ns16s(),
             DrivesBackups::ns16s(),
             Nx51s::ns16s(),
-            NxAfterWorks::ns16s(),
-            Nx50s::ns16s()
+            b1 ? [Nx50s::ns16s(), NxAfterHours::ns16s()] : [NxAfterHours::ns16s(), Nx50s::ns16s()],
         ]
             .flatten
             .compact
@@ -153,7 +153,7 @@ class UIServices
         commandLines = [
             "[info   ]",
             "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-            "(elements: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ELEMENTS-BE92-4874-85F1-54F140E3B243").round(2)})",
+            "(floats, ondates, after hours: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ELEMENTS-BE92-4874-85F1-54F140E3B243").round(2)})",
             "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
             "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
         ].join(" ").yellow
