@@ -110,12 +110,12 @@ class NxAfterHours
 
     # NxAfterHours::toString(item)
     def self.toString(item)
-        "[aftw] #{item["description"]}"
+        "[afth] #{item["description"]}"
     end
 
     # NxAfterHours::toStringForNS16(item, rt, timeReq)
     def self.toStringForNS16(item, rt, timeReq)
-        "[aftw] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{item["description"]}"
+        "[afth] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{item["description"]}"
     end
 
     # NxAfterHours::accessContent(item)
@@ -134,11 +134,16 @@ class NxAfterHours
     # NxAfterHours::run(item)
     def self.run(item)
 
+        system("clear")
+
         uuid = item["uuid"]
 
         puts "Running #{NxAfterHours::toString(item)}".green
+        puts "uuid: #{item["uuid"]}".yellow
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
+        puts "Axiom Id: #{item["axiomId"]}".yellow
         puts "Starting at #{Time.new.to_s}"
+        puts ""
 
         nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
 
@@ -167,6 +172,8 @@ class NxAfterHours
 
         loop {
 
+            system("clear")
+
             puts "running: #{NxAfterHours::toString(item)} (#{BankExtended::runningTimeString(nxball)})".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
@@ -177,12 +184,8 @@ class NxAfterHours
                 puts "--------------------------"
             end
 
-            puts "exit (default) | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | destroy".yellow
+            puts "note | [] | <datecode> | detach running | pause | pursue | update description | update contents | destroy | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
-            
-            if command == "" then
-                break
-            end
 
             if command == "exit" then
                 break
