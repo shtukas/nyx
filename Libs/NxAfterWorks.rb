@@ -263,6 +263,7 @@ class NxAfterWorks
         uuid = item["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        return nil if rt > 0.4
         announce = NxAfterWorks::toStringForNS16(item, rt)
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
@@ -297,9 +298,10 @@ class NxAfterWorks
         return [] if Work::shouldDisplayWorkItems()
         return [] if Bank::valueAtDate("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Utils::today()) < 3600*2
         NxAfterWorks::items()
+            .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
             .map{|item| NxAfterWorks::ns16OrNull(item) }
             .compact
-            .sort{|n1, n2| n1["rt"] <=> n2["rt"] }
+
     end
 
     # --------------------------------------------------
