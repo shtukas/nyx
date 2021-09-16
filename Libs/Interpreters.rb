@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] .. | <n> | [] | <datecode> | hide <n> <datecode> | expose"
+        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(store, command, priorityFileHash): Boolean # Indicate if was captured

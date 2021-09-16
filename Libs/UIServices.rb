@@ -21,6 +21,108 @@ class Fitness
     end
 end
 
+class PriorityFiles
+
+    # PriorityFiles::applyNextTransformation(filepath)
+    def self.applyNextTransformation(filepath)
+        contents = IO.read(filepath)
+        return if contents.strip == ""
+        contents = SectionsType0141::applyNextTransformationToText(contents)
+        File.open(filepath, "w"){|f| f.puts(contents)}
+    end
+
+    # PriorityFiles::filepathToBankAccount(filepath)
+    def self.filepathToBankAccount(filepath)
+        map = {
+            "/Users/pascal/Desktop/Eva.txt"  => "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7",
+            "/Users/pascal/Desktop/Work.txt" => Work::bankaccount()
+        }
+        raise "9f7add46-eda3-4cfc-92b8-aa057a9e790e: filepath: #{filepath}" if map[filepath].nil?
+        map[filepath]
+    end
+
+    # PriorityFiles::run(filepath)
+    def self.run(filepath)
+
+        nxball = NxBalls::makeNxBall([PriorityFiles::filepathToBankAccount(filepath)])
+
+        thr = Thread.new {
+            loop {
+                sleep 60
+
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+
+                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Priority file running for more than an hour")
+                end
+            }
+        }
+
+        loop {
+            
+            system("clear")
+
+            text = IO.read(filepath).strip
+            puts ""
+            text = text.lines.first(10).join().strip
+            puts text.green
+            puts ""
+            puts "[] | exit (default)".yellow
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            if command == "" then
+                break
+            end
+
+            if command == "exit" then
+                break
+            end
+
+            if Interpreting::match("[]", command) then
+                PriorityFiles::applyNextTransformation(filepath)
+                next
+            end
+        }
+
+        thr.exit
+
+        NxBalls::closeNxBall(nxball, true)
+    end
+
+    # PriorityFiles::filepathToNS16(filepath)
+    def self.filepathToNS16(filepath)
+        {
+            "uuid"        => "25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}",
+            "announce"    => "[prio] #{File.basename(filepath)}".green,
+            "commands"    => [".."],
+            "interpreter" => lambda{|command|
+                if command == ".." then
+                    PriorityFiles::run(filepath)
+                end
+            },
+            "run" => lambda {
+                PriorityFiles::run(filepath)
+            }
+        }
+    end
+
+    # PriorityFiles::ns16s()
+    def self.ns16s()
+        [
+            "/Users/pascal/Desktop/Eva.txt",
+            "/Users/pascal/Desktop/Work.txt"
+        ]
+        .select{|filepath|
+            IO.read(filepath).strip.size > 0
+        }
+        .map{|filepath|
+            PriorityFiles::filepathToNS16(filepath)
+        }
+    end
+end
+
 class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
@@ -32,6 +134,7 @@ class NS16sOperator
             Fitness::ns16s(),
             Waves::ns16s(),
             DrivesBackups::ns16s(),
+            PriorityFiles::ns16s(),
             Nx51s::ns16s(),
             Nx50s::ns16s()
         ]
@@ -60,26 +163,6 @@ class ItemStore
     end
     def getDefault()
         @defaultItem.clone
-    end
-end
-
-class PriorityDJ
-
-    # PriorityDJ::getCurrentFilePath()
-    def self.getCurrentFilePath()
-        if Work::shouldDisplayWorkItems() then
-            "/Users/pascal/Desktop/Work.txt"
-        else
-            "/Users/pascal/Desktop/Eva.txt"
-        end
-    end
-
-    # PriorityDJ::applyNextTransformation(filepath)
-    def self.applyNextTransformation(filepath)
-        contents = IO.read(filepath)
-        return if contents.strip == ""
-        contents = SectionsType0141::applyNextTransformationToText(contents)
-        File.open(filepath, "w"){|f| f.puts(contents)}
     end
 end
 
@@ -181,16 +264,6 @@ class UIServices
             vspaceleft = vspaceleft - 1
         end
 
-        filepath = PriorityDJ::getCurrentFilePath()
-        priority = IO.read(filepath).strip
-        priorityFileHash = Digest::SHA1.file(filepath).hexdigest
-        if priority.size > 0 then
-            puts ""
-            priority = priority.lines.first(10).join().strip
-            puts priority.green
-            vspaceleft = vspaceleft - Utils::verticalSize(priority) - 1
-        end
-
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
             return "" if ns16["commands"].nil?
@@ -239,12 +312,6 @@ class UIServices
         if command == ".." and store.getDefault() then
             store.getDefault()["run"].call()
             return
-        end
-
-        if command == "[]" then
-            filepath = PriorityDJ::getCurrentFilePath()
-            return if (priorityFileHash != Digest::SHA1.file(filepath).hexdigest)
-            PriorityDJ::applyNextTransformation(filepath)
         end
 
         if (i = Interpreting::readAsIntegerOrNull(command)) then
