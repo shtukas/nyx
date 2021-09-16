@@ -299,7 +299,7 @@ class NxAfterHours
             NxAfterHours::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-        return [] if Work::shouldDisplayWorkItems()
+        return [] if (Bank::valueOverTimespan("ELEMENTS-BE92-4874-85F1-54F140E3B243", 3600*2) > (Work::shouldDisplayWorkItems() ? 3600*0.5 : 3600))
         integersEnumerator = LucilleCore::integerEnumerator()
         NxAfterHours::items()
             .sort{|n1, n2| n1["unixtime"] <=> n2["unixtime"] }
