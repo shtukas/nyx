@@ -113,7 +113,7 @@ class NxOnDate # OnDate
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
+        nxball = NxBalls::makeNxBall([uuid, "ONDATES-BE92-5874-85F2-64F140E3B243"])
 
         thr = Thread.new {
             loop {

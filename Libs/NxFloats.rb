@@ -96,15 +96,11 @@ class NxFloats
 
     # NxFloats::run(nxfloat)
     def self.run(nxfloat)
-        uuid = nxfloat["uuid"]
         puts NxFloats::toString(nxfloat)
-        puts "Starting at #{Time.new.to_s}"
-        nxball = NxBalls::makeNxBall([uuid, "ELEMENTS-BE92-4874-85F1-54F140E3B243"])
         NxFloats::accessContent(nxfloat)
         if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ") then
             NxFloats::destroy(nxfloat)
         end
-        NxBalls::closeNxBall(nxball, true)
     end
 
     # NxFloats::nx19s()

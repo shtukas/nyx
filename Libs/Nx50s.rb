@@ -92,14 +92,14 @@ class Nx50s
 
     # Nx50s::getNextGenUUIDS()
     def self.getNextGenUUIDS()
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77113", "[]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77114", "[]"))
     end
 
     # Nx50s::addToNextGenUUIDs(uuid)
     def self.addToNextGenUUIDs(uuid)
-        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77113", "[]")) + [uuid]
+        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77114", "[]")) + [uuid]
         uuids = uuids & Nx50s::nx50s().map{|i| i["uuid"] }
-        KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77113", JSON.generate(uuids))
+        KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77114", JSON.generate(uuids))
     end
 
     # Nx50s::getNextGenUnixtime()
@@ -180,6 +180,20 @@ class Nx50s
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingURL(url)
+    def self.issueNx50UsingURL(url)
+        uuid         = LucilleCore::timeStringL22()
+        description  = url
+        axiomId      = NxA002::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), url)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
             "description" => description,
             "axiomId"     => axiomId,
         })
@@ -286,13 +300,18 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
 
             break if command == "exit"
+
+            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                DoNotShowUntil::setUnixtime(uuid, unixtime)
+                break
+            end
 
             if Interpreting::match("access", command) then
                 Nx50s::accessContent(nx50)
