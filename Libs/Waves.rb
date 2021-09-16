@@ -376,9 +376,14 @@ class Waves
         mapping[ns16["wave"]["repeatType"]]
     end
 
+    # Waves::targetHourlyTimeInHours()
+    def self.targetHourlyTimeInHours()
+        Work::shouldDisplayWorkItems() ? 0.25 : 0.5
+    end
+
     # Waves::ns16s()
     def self.ns16s()
-        return [] if (Bank::valueOverTimespan("WAVES-A81E-4726-9F17-B71CAD66D793", 3600*2) > (Work::shouldDisplayWorkItems() ? 3600*0.5 : 3600))
+        return [] if (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793") > Waves::targetHourlyTimeInHours())
         Waves::items()
             .map{|wave| Waves::toNS16(wave) }
             .compact

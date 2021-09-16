@@ -151,9 +151,9 @@ class UIServices
 
         commandLines = [
             "[info   ]",
-            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
             "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
-            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
+            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}, cb: #{(100*Beatrice::stdRecoveredHourlyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").to_f/Waves::targetHourlyTimeInHours()).round(2)} %)",
+            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)}, cb: #{ (100*BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).to_f/Work::targetDailyRecoveryTimeInHours()).round(2) } %)",
             "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
         ].join(" ").yellow
 

@@ -95,11 +95,6 @@ end
 
 class BankExtended
 
-    # BankExtended::runningTimeString(nxball)
-    def self.runningTimeString(nxball)
-        "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
-    end
-
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))
@@ -120,6 +115,23 @@ class BankExtended
     end
 end
 
+class Beatrice
+
+    # Beatrice::timeRatioOverHoursCount(setuuid, hoursCount)
+    def self.timeRatioOverHoursCount(setuuid, hoursCount)
+        Bank::valueOverTimespan(setuuid, 3600*hoursCount).to_f/(3600*hoursCount)
+    end
+
+    # Beatrice::bestTimeRatioWithinHoursCount(setuuid, hoursCount)
+    def self.bestTimeRatioWithinHoursCount(setuuid, hoursCount)
+        (1..hoursCount).map{|i| Beatrice::timeRatioOverHoursCount(setuuid, i) }.max
+    end
+
+    # Beatrice::stdRecoveredHourlyTimeInHours(setuuid)
+    def self.stdRecoveredHourlyTimeInHours(setuuid)
+        Beatrice::bestTimeRatioWithinHoursCount(setuuid, 6)
+    end
+end
 
 class NxBalls
 
@@ -166,5 +178,10 @@ class NxBalls
             Bank::put(account, timespan)
         }
         nil
+    end
+
+    # NxBalls::runningTimeString(nxball)
+    def self.runningTimeString(nxball)
+        "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
     end
 end

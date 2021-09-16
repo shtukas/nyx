@@ -12,23 +12,26 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
+    # Work::targetDailyRecoveryTimeInHours()
+    def self.targetDailyRecoveryTimeInHours()
+        5
+    end
+
     # Work::shouldDisplayWorkItems()
     def self.shouldDisplayWorkItems()
-        # First check whether there is an explicit Yes override.
+        # First check whether there is an explicit Yes (timed) override.
         doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
         return true if Time.new.to_i < doWorkUntilUnixtime
 
-        # Check whether there is a timed No override
+        # Check whether there is an explicit No (timed) override
         noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
         return false if Time.new.to_i < noWorkUntilUnixtime
 
-        return false if Time.new.hour < 8
-
         return false if ![1, 2, 3, 4, 5].include?(Time.new.wday)
 
-        return true if (Bank::valueAtDate(Work::bankaccount(), Utils::today()) < 3600*4)
+        return false if Time.new.hour < 9
 
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 6
+        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < Work::targetDailyRecoveryTimeInHours()
     end
 
     # Work::workMenuCommands()

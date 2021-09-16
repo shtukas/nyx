@@ -195,7 +195,7 @@ class Nx51s
 
             system("clear")
 
-            puts "#{Nx51s::toString(nx51)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "#{Nx51s::toString(nx51)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)

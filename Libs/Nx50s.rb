@@ -291,7 +291,7 @@ class Nx50s
 
             system("clear")
 
-            puts "#{Nx50s::toString(nx50)} (#{BankExtended::runningTimeString(nxball)})".green
+            puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
