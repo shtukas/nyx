@@ -28,7 +28,7 @@ class Work
 
         return true if (Bank::valueAtDate(Work::bankaccount(), Utils::today()) < 3600*4)
 
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 7
+        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 6
     end
 
     # Work::workMenuCommands()
