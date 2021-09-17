@@ -216,12 +216,14 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{nx50["description"]}"
+        type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
+        "[nx50] #{nx50["description"]} (#{type})"
     end
 
     # Nx50s::toStringForNS16(nx50, rt, timeReq)
     def self.toStringForNS16(nx50, rt, timeReq)
-        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]}"
+        type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
+        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]} (#{type})"
     end
 
     # Nx50s::complete(nx50)
