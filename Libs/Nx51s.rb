@@ -97,10 +97,10 @@ class Nx51s
     # --------------------------------------------------
     # Operations
 
-    # Nx51s::toString(nx51)
-    def self.toString(nx51)
+    # Nx51s::toString(item)
+    def self.toString(item)
         type = NxAxioms::contentTypeOrNull(Nx51s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx51] (#{"%6.3f" % nx51["ordinal"]}) #{nx51["description"]} (#{type})"
+        "[nx51] (#{"%6.3f" % item["ordinal"]}) #{item["description"]} (#{type})"
     end
 
     # Nx51s::toStringWithTimeRequirement(item, rt, timeReq)
