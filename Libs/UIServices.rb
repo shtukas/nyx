@@ -321,7 +321,7 @@ class UIServices
             return
         end
 
-        Interpreters::listingInterpreter(store, command, priorityFileHash)
+        Interpreters::listingInterpreter(store, command)
         Interpreters::mainMenuInterpreter(command)
         Work::workMenuInterpreter(command)
         InternetStatus::interpreter(command, store)

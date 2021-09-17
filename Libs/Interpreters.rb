@@ -9,8 +9,8 @@ class Interpreters
         "[listing] .. | <n> | <datecode> | hide <n> <datecode> | expose"
     end
 
-    # Interpreters::listingInterpreter(store, command, priorityFileHash): Boolean # Indicate if was captured
-    def self.listingInterpreter(store, command, priorityFileHash)
+    # Interpreters::listingInterpreter(store, command)
+    def self.listingInterpreter(store, command)
 
         # The case <n> should hve already been captured by UIServices
 
