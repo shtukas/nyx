@@ -94,7 +94,7 @@ class PriorityFiles
     # PriorityFiles::filepathToNS16(filepath)
     def self.filepathToNS16(filepath)
         {
-            "uuid"        => "25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}",
+            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{IO.read(filepath)}"),
             "announce"    => "[prio] #{File.basename(filepath)}".green,
             "commands"    => [".."],
             "interpreter" => lambda{|command|
