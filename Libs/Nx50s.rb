@@ -300,11 +300,9 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit (default)".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
 
             break if command == "exit"
 
