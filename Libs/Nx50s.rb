@@ -174,10 +174,10 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingLocation(location)
-    def self.issueNx50UsingLocation(location)
+    # Nx50s::issueNx50UsingLocation(location, useNextGenTime)
+    def self.issueNx50UsingLocation(location, useNextGenTime)
         uuid        = LucilleCore::timeStringL22()
-        unixtime    = Nx50s::getNextGenUnixtime()
+        unixtime    = useNextGenTime ? Nx50s::getNextGenUnixtime() : Time.new.to_i
         description = File.basename(location)
         axiomId     = NxA003::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), location)
         Nx50s::commitNx50ToDatabase({
@@ -189,17 +189,19 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingURL(url)
-    def self.issueNx50UsingURL(url)
+    # Nx50s::issueNx50UsingURL(url, useNextGenTime, domain)
+    def self.issueNx50UsingURL(url, useNextGenTime, domain)
         uuid         = LucilleCore::timeStringL22()
+        unixtime     = useNextGenTime ? Nx50s::getNextGenUnixtime() : Time.new.to_i
         description  = url
         axiomId      = NxA002::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), url)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "unixtime"    => unixtime,
             "description" => description,
             "axiomId"     => axiomId,
         })
+        Domains::setDomainForItem(uuid, domain)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -223,10 +225,10 @@ class Nx50s
         "[nx50] #{nx50["description"]} (#{type})"
     end
 
-    # Nx50s::toStringForNS16(item, rt, timeReq)
-    def self.toStringForNS16(item, rt, timeReq)
+    # Nx50s::toStringForNS16(item, rt)
+    def self.toStringForNS16(item, rt)
         type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{item["description"]} (#{type})"
+        "[nx50] (#{"%4.2f" % rt}) #{item["description"]} (#{type})"
     end
 
     # Nx50s::complete(nx50)
@@ -399,19 +401,18 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::ns16OrNull(nx50, integersEnumerator, domain)
-    def self.ns16OrNull(nx50, integersEnumerator, domain)
+    # Nx50s::ns16OrNull(nx50, showAboveRTOne, domain)
+    def self.ns16OrNull(nx50, showAboveRTOne, domain)
         uuid = nx50["uuid"]
         itemDomain = Domains::getDomainForItemOrNull(uuid)
         return nil if (itemDomain and (itemDomain != domain))
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        timeRequirementInHours = 1.5/(2 ** integersEnumerator.next()) # first value is 1.5/(2 ** 0) = 1.5 
-        return nil if rt > timeRequirementInHours
+        return nil if (!showAboveRTOne and (rt > 1))
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx50s::toStringForNS16(nx50, rt, timeRequirementInHours)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
+        announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "domain"   => Domains::getDomainForItemOrNull(uuid),
@@ -437,16 +438,15 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s (Inbox)").each{|location|
-            Nx50s::issueNx50UsingLocation(location)
+            Nx50s::issueNx50UsingLocation(location, false)
             LucilleCore::removeFileSystemLocation(location)
         }
-        integersEnumerator = LucilleCore::integerEnumerator()
         domain = Domains::getCurrentActiveDomain()
-        cardinal = (domain == "eva" ? 5 : 99)
+        cardinal = (domain == "eva" ? 5 : nil)
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
-                if ns16s.size < cardinal then
-                    ns16 = Nx50s::ns16OrNull(nx50, integersEnumerator, domain)
+                if cardinal.nil? or ns16s.size < cardinal then
+                    ns16 = Nx50s::ns16OrNull(nx50, domain == "work", domain)
                     if ns16 then
                         ns16s << ns16
                     end
