@@ -23,7 +23,8 @@ class DrivesBackups
             .map{|instruction|
                 {
                     "uuid"        => instruction["uuid"],
-                    "announce"    => instruction["description"],
+                    "domain"      => "eva",
+                    "announce"    => "[bckp] #{instruction["description"]}",
                     "commands"    => nil,
                     "interpreter" => nil
                 }

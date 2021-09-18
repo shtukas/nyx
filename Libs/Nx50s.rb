@@ -168,6 +168,9 @@ class Nx50s
             "axiomId"     => axiomId,
         })
         Nx50s::addToNextGenUUIDs(uuid)
+
+        Domains::setDomainForItem(uuid, Domains::interactivelySelectDomainOrNull())
+
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -220,10 +223,10 @@ class Nx50s
         "[nx50] #{nx50["description"]} (#{type})"
     end
 
-    # Nx50s::toStringForNS16(nx50, rt, timeReq)
-    def self.toStringForNS16(nx50, rt, timeReq)
+    # Nx50s::toStringForNS16(item, rt, timeReq)
+    def self.toStringForNS16(item, rt, timeReq)
         type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{nx50["description"]} (#{type})"
+        "[nx50] (#{"%4.2f" % rt} of #{"%4.2f" % timeReq}) #{item["description"]} (#{type})"
     end
 
     # Nx50s::complete(nx50)
@@ -264,7 +267,8 @@ class Nx50s
 
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx50s::toString(nx50))
+        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Domains::domainBankAccountOrNull(domain)].compact)
 
         thr = Thread.new {
             loop {
@@ -395,9 +399,11 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::ns16OrNull(nx50, integersEnumerator)
-    def self.ns16OrNull(nx50, integersEnumerator)
+    # Nx50s::ns16OrNull(nx50, integersEnumerator, domain)
+    def self.ns16OrNull(nx50, integersEnumerator, domain)
         uuid = nx50["uuid"]
+        itemDomain = Domains::getDomainForItemOrNull(uuid)
+        return nil if (itemDomain and (itemDomain != domain))
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
@@ -408,6 +414,7 @@ class Nx50s
         announce = "#{Nx50s::toStringForNS16(nx50, rt, timeRequirementInHours)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
+            "domain"   => Domains::getDomainForItemOrNull(uuid),
             "announce" => announce,
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
@@ -433,12 +440,13 @@ class Nx50s
             Nx50s::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-        return [] if Work::shouldDisplayWorkItems()
         integersEnumerator = LucilleCore::integerEnumerator()
+        domain = Domains::getCurrentActiveDomain()
+        cardinal = (domain == "eva" ? 5 : 99)
         Nx50s::nx50s()
             .reduce([]){|ns16s, nx50|
-                if ns16s.size < 5 then
-                    ns16 = Nx50s::ns16OrNull(nx50, integersEnumerator)
+                if ns16s.size < cardinal then
+                    ns16 = Nx50s::ns16OrNull(nx50, integersEnumerator, domain)
                     if ns16 then
                         ns16s << ns16
                     end

@@ -113,7 +113,8 @@ class NxOnDate # OnDate
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, "ONDATES-BE92-5874-85F2-64F140E3B243"])
+        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, NxOnDate::toString(item))
+        nxball = NxBalls::makeNxBall([uuid, "ONDATES-BE92-5874-85F2-64F140E3B243", Domains::domainBankAccountOrNull(domain)].compact)
 
         thr = Thread.new {
             loop {

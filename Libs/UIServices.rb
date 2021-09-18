@@ -21,111 +21,10 @@ class Fitness
     end
 end
 
-class PriorityFiles
-
-    # PriorityFiles::applyNextTransformation(filepath)
-    def self.applyNextTransformation(filepath)
-        contents = IO.read(filepath)
-        return if contents.strip == ""
-        contents = SectionsType0141::applyNextTransformationToText(contents)
-        File.open(filepath, "w"){|f| f.puts(contents)}
-    end
-
-    # PriorityFiles::filepathToBankAccount(filepath)
-    def self.filepathToBankAccount(filepath)
-        map = {
-            "/Users/pascal/Desktop/Eva.txt"  => "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7",
-            "/Users/pascal/Desktop/Work.txt" => Work::bankaccount()
-        }
-        raise "9f7add46-eda3-4cfc-92b8-aa057a9e790e: filepath: #{filepath}" if map[filepath].nil?
-        map[filepath]
-    end
-
-    # PriorityFiles::run(filepath)
-    def self.run(filepath)
-
-        nxball = NxBalls::makeNxBall([PriorityFiles::filepathToBankAccount(filepath)])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Priority file running for more than an hour")
-                end
-            }
-        }
-
-        loop {
-            
-            system("clear")
-
-            text = IO.read(filepath).strip
-            puts ""
-            text = text.lines.first(10).join().strip
-            puts text.green
-            puts ""
-            puts "[] | exit (default)".yellow
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            if command == "" then
-                break
-            end
-
-            if command == "exit" then
-                break
-            end
-
-            if Interpreting::match("[]", command) then
-                PriorityFiles::applyNextTransformation(filepath)
-                next
-            end
-        }
-
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
-    end
-
-    # PriorityFiles::filepathToNS16(filepath)
-    def self.filepathToNS16(filepath)
-        {
-            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{IO.read(filepath)}"),
-            "announce"    => "[prio] #{File.basename(filepath)}".green,
-            "commands"    => [".."],
-            "interpreter" => lambda{|command|
-                if command == ".." then
-                    PriorityFiles::run(filepath)
-                end
-            },
-            "run" => lambda {
-                PriorityFiles::run(filepath)
-            }
-        }
-    end
-
-    # PriorityFiles::ns16s()
-    def self.ns16s()
-        [
-            "/Users/pascal/Desktop/Eva.txt",
-            "/Users/pascal/Desktop/Work.txt"
-        ]
-        .select{|filepath|
-            IO.read(filepath).strip.size > 0
-        }
-        .map{|filepath|
-            PriorityFiles::filepathToNS16(filepath)
-        }
-    end
-end
-
 class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
+        domain = Domains::getCurrentActiveDomain()
         [
             DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
@@ -134,12 +33,14 @@ class NS16sOperator
             Fitness::ns16s(),
             Waves::ns16s(),
             DrivesBackups::ns16s(),
-            PriorityFiles::ns16s(),
-            Nx51s::ns16s(),
+            DomainPriorityFile::ns16s(),
             Nx50s::ns16s()
         ]
             .flatten
             .compact
+            .select{|ns16|
+                ns16["domain"].nil? or (ns16["domain"] == domain)
+            }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
@@ -235,12 +136,16 @@ class UIServices
         commandLines = [
             "[info   ]",
             "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
-            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)}, cb: #{(100*Beatrice::stdRecoveredHourlyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").to_f/Waves::targetHourlyTimeInHours()).round(2)} %)",
-            "(Nx51s: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)}, cb: #{ (100*BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).to_f/Work::targetDailyRecoveryTimeInHours()).round(2) } %)",
+            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
             "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
         ].join(" ").yellow
 
         vspaceleft = vspaceleft - Utils::verticalSize(commandLines)
+
+        puts ""
+        puts "Domain: #{Domains::getCurrentActiveDomain().upcase}".green
+        vspaceleft = vspaceleft - 2
+
 
         if !InternetStatus::internetIsActive() then
             puts ""

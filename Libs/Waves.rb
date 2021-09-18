@@ -178,6 +178,8 @@ class Waves
 
         Waves::commitItemToDisk(wave)
 
+        Domains::setDomainForItem(uuid, Domains::interactivelySelectDomainOrNull())
+
         wave
     end
 
@@ -332,7 +334,8 @@ class Waves
         uuid = wave["uuid"]
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Waves::toString(wave))
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::domainBankAccountOrNull(domain)].compact)
         Waves::accessContent(wave)
         LucilleCore::pressEnterToContinue()
         Waves::performDone(wave)
@@ -344,6 +347,7 @@ class Waves
         uuid = wave["uuid"]
         {
             "uuid"        => uuid,
+            "domain"      => Domains::getDomainForItemOrNull(uuid),
             "announce"    => Waves::toString(wave),
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda{|command|
@@ -376,22 +380,22 @@ class Waves
         mapping[ns16["wave"]["repeatType"]]
     end
 
-    # Waves::targetHourlyTimeInHours()
-    def self.targetHourlyTimeInHours()
-        Work::shouldDisplayWorkItems() ? 0.25 : 0.5
-    end
-
     # Waves::ns16s()
     def self.ns16s()
-        return [] if (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793") > Waves::targetHourlyTimeInHours())
+        compare = lambda {|n1, n2|
+            if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
+                return -1
+            end
+            if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
+                return 1
+            end
+            n1["uuid"] <=> n2["uuid"]
+        }
         Waves::items()
-            .map{|wave| Waves::toNS16(wave) }
-            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .sort{|n1, n2|
-                Waves::ns16ToOrderingWeight(n1) <=> Waves::ns16ToOrderingWeight(n2)
-            }
+            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
+            .map{|wave| Waves::toNS16(wave) }
+            .sort{|n1, n2| compare.call(n1, n2) }
             .reverse
     end
 

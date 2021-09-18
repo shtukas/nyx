@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | expose"
+        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | set domain |expose"
     end
 
     # Interpreters::listingInterpreter(store, command)
@@ -39,11 +39,19 @@ class Interpreters
             puts JSON.pretty_generate(ns16)
             LucilleCore::pressEnterToContinue()
         end
+
+        if Interpreting::match("set domain", command) then
+            ns16 = store.getDefault()
+            return if ns16.nil? 
+            domain = Domains::interactivelySelectDomainOrNull()
+            return if domain.nil?
+            Domains::setDomainForItem(ns16["uuid"], domain)
+        end
     end
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | Nx51s | anniversaries | search | nyx"
+        "[general] float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -79,12 +87,6 @@ class Interpreters
             puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
         end
 
-        if Interpreting::match("Nx51", command) then
-            nx51 = Nx51s::interactivelyCreateNewOrNull()
-            return if nx51.nil? 
-            puts JSON.pretty_generate(nx51)
-        end
-
         if Interpreting::match("anniversary", command) then
             Anniversaries::issueNewAnniversaryOrNullInteractively()
         end
@@ -114,15 +116,6 @@ class Interpreters
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
                 return if nx50.nil?
                 Nx50s::run(nx50)
-            }
-        end
-
-        if Interpreting::match("Nx51s", command) then
-            loop {
-                system("clear")
-                nx51 = Nx51s::selectOneNx51OrNull()
-                break if nx51.nil?
-                Nx51s::run(nx51)
             }
         end
 

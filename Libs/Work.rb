@@ -12,11 +12,6 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::targetDailyRecoveryTimeInHours()
-    def self.targetDailyRecoveryTimeInHours()
-        5
-    end
-
     # Work::shouldDisplayWorkItems()
     def self.shouldDisplayWorkItems()
         # First check whether there is an explicit Yes (timed) override.
@@ -31,12 +26,12 @@ class Work
 
         return false if Time.new.hour < 9
 
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < Work::targetDailyRecoveryTimeInHours()
+        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 5
     end
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] start work item | work on until | work off until | set ordinals"
+        "[work   ] start work item | work on until | work off until"
     end
 
     # Work::workMenuInterpreter(command)
@@ -46,16 +41,6 @@ class Work
             startUnixtime = Time.new.to_i
             bankAccounts = [Work::bankaccount()]
             DetachedRunning::issueNew2(description, startUnixtime, bankAccounts)
-            return
-        end
-        if Interpreting::match("set ordinals", command) then
-            loop {
-                nx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx51", Nx51s::nx51sPerOrdinal(), lambda{|nx51| Nx51s::toString(nx51) })
-                break if nx51.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                nx51["ordinal"] = ordinal
-                Nx51s::commitItemToDisk(nx51)
-            }
             return
         end
         if command == "work on until" then
