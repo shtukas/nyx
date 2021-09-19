@@ -64,7 +64,7 @@ class DomainPriorityFile
 
     # DomainPriorityFile::itemToNS16OrNull(item, domain)
     def self.itemToNS16OrNull(item, domain)
-        return nil if (item["domain"] == domain)
+        return nil if (item["domain"] != domain)
         filepath = item["filepath"]
         return nil if IO.read(item["filepath"]).strip.size == 0
         {
