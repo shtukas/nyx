@@ -219,10 +219,10 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::toString(nx50)
-    def self.toString(nx50)
+    # Nx50s::toString(item)
+    def self.toString(item)
         type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx50] #{nx50["description"]} (#{type})"
+        "[nx50] #{item["description"]} (#{type})"
     end
 
     # Nx50s::toStringForNS16(item, rt)
