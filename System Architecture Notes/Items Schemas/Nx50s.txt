@@ -1,8 +1,9 @@
-CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _axiomId_ text);
+CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _axiomId_ text, _domain_ text);
 
 {
     "uuid"        : String,
     "unixtime"    : Float,
     "description" : String,
     "axiomId"     : String | null,
+    "domain"      : String # We use Domains, but it's also written here
 }

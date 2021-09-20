@@ -45,6 +45,7 @@ class Domains
     def self.setDomainForItem(id, domain)
         return if domain.nil?
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Domains/KV-Store", id, domain)
+        Nx50s::setItemDomain(id, domain) # We write the domain alongside the Nx50s for faster ns16 generation (we have a large dataset at the moment)
     end
 
     # Domains::getDomainForItemOrNull(id)

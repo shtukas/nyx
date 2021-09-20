@@ -20,6 +20,7 @@ class Nx50s
                 "unixtime"     => row["_unixtime_"],
                 "description"  => row["_description_"],
                 "axiomId"      => row["_axiomId_"],
+                "domain"       => row["_domain_"],
             }
         end
         db.close
@@ -33,7 +34,7 @@ class Nx50s
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _axiomId_) values (?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["axiomId"]]
+        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _axiomId_, _domain_) values (?,?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["axiomId"], item["domain"]]
         db.commit 
         db.close
     end
@@ -51,6 +52,7 @@ class Nx50s
                 "unixtime"     => row["_unixtime_"],
                 "description"  => row["_description_"],
                 "axiomId"      => row["_axiomId_"],
+                "domain"       => row["_domain_"],
             }
         end
         db.close
@@ -85,6 +87,17 @@ class Nx50s
                 puts "[problem]".red
             end
         }
+    end
+
+    # Nx50s::setItemDomain(uuid, domain)
+    def self.setItemDomain(uuid, domain)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "update _items_ set _domain_=? where _uuid_=?", [domain, uuid]
+        db.commit 
+        db.close
     end
 
     # --------------------------------------------------
@@ -389,8 +402,6 @@ class Nx50s
     # Nx50s::ns16OrNull(nx50, showAboveRTOne, domain)
     def self.ns16OrNull(nx50, showAboveRTOne, domain)
         uuid = nx50["uuid"]
-        itemDomain = Domains::getDomainForItemOrNull(uuid)
-        return nil if (itemDomain and (itemDomain != domain))
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
@@ -400,7 +411,7 @@ class Nx50s
         announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
-            "domain"   => Domains::getDomainForItemOrNull(uuid),
+            "domain"   => domain,
             "announce" => announce,
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
@@ -423,11 +434,15 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         domain = Domains::getCurrentActiveDomain()
+        showAboveRTOne = domain == "work"
         cardinal = (domain == "eva" ? 5 : nil)
         Nx50s::nx50s()
+            .select{|nx50|
+                (nx50["domain"].nil? or nx50["domain"] == "") or (nx50["domain"] == domain)
+            }
             .reduce([]){|ns16s, nx50|
                 if cardinal.nil? or ns16s.size < cardinal then
-                    ns16 = Nx50s::ns16OrNull(nx50, domain == "work", domain)
+                    ns16 = Nx50s::ns16OrNull(nx50, showAboveRTOne, domain)
                     if ns16 then
                         ns16s << ns16
                     end
