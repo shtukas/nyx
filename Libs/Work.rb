@@ -93,7 +93,7 @@ class Work
     def self.updateNxBallOrNothing()
         nxball = Work::getNxBallOrNull()
         return if nxball.nil?
-        nxball = NxBalls::upgradeNxBall(nxball, true)
+        nxball = NxBalls::upgradeNxBall(nxball, false)
         KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
     end
 end
@@ -102,5 +102,6 @@ Thread.new {
     sleep 300
     loop {
         Work::updateNxBallOrNothing()
+        sleep 300
     }
 }
