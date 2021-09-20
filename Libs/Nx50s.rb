@@ -379,11 +379,6 @@ class Nx50s
                 end
                 next
             end
-
-            if command == "gg" then
-                Nx50s::complete(nx50)
-                break
-            end
         }
 
         thr.exit

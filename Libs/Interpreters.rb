@@ -51,7 +51,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries |search | nyx"
+        "[general] float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | gg | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -116,6 +116,38 @@ class Interpreters
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
                 return if nx50.nil?
                 Nx50s::run(nx50)
+            }
+        end
+
+        if Interpreting::match(">>", command) then
+            key = "4b23af4b-4536-44f6-a85a-d4e8cb320b30"
+            Nx50s::nx50s().each{|nx50|
+
+                domain = Domains::getDomainForItemOrNull(nx50["uuid"])
+                nxball = NxBalls::makeNxBall([nx50["uuid"], "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Domains::domainBankAccountOrNull(domain)].compact)
+
+                next if !(nx50["domain"].nil? or nx50["domain"] == "eva")
+                next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
+
+                Nx50s::accessContent(nx50)
+
+                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (done, landing, exit) : ")
+
+                if command == "gg" then
+                    Nx50s::complete(nx50)
+                end
+
+                if command == "landing" then
+                    Nx50s::run(nx50)
+                end
+
+                if command == "exit" then
+                    break
+                end
+
+                NxBalls::closeNxBall(nxball, false)
+
+                KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
             }
         end
 
