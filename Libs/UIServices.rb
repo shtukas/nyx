@@ -133,14 +133,16 @@ class UIServices
 
         vspaceleft = Utils::screenHeight()-10
 
-        commandLines = [
+        infoLines1 = [
             "[info   ]",
             "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
             "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
             "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
+            "(eva: rt: #{BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D").round(2)})",
+            "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
         ].join(" ").yellow
 
-        vspaceleft = vspaceleft - Utils::verticalSize(commandLines)
+        vspaceleft = vspaceleft - Utils::verticalSize(infoLines1)
 
         puts ""
         puts "Domain: #{Domains::getCurrentActiveDomain().upcase}".green
@@ -202,7 +204,7 @@ class UIServices
 
         puts ""
 
-        puts commandLines
+        puts infoLines1
 
         puts ""
 

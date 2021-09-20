@@ -26,7 +26,7 @@ class Work
 
         return false if Time.new.hour < 9
 
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 5
+        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 6
     end
 
     # Work::workMenuCommands()
