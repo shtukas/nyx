@@ -13,7 +13,7 @@ class Domains
             {
                 "filepath"    => "/Users/pascal/Desktop/Work.txt",
                 "domain"      => "work",
-                "bankaccount" => Work::bankaccount(),
+                "bankaccount" => nil, # The entire domain is managed by one NxBall, unlike Eva, where elements create their own NxBalls
             }
         ]
     end

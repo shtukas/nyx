@@ -15,7 +15,7 @@ class DomainPriorityFile
 
         filepath = item["filepath"]
 
-        nxball = NxBalls::makeNxBall([item["bankaccount"]])
+        nxball = NxBalls::makeNxBall([item["bankaccount"]].compact)
 
         thr = Thread.new {
             loop {
