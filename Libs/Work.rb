@@ -12,8 +12,8 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::shouldDisplayWorkItems()
-    def self.shouldDisplayWorkItems()
+    # Work::shouldBeActiveDomain()
+    def self.shouldBeActiveDomain()
         # First check whether there is an explicit Yes (timed) override.
         doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
         return true if Time.new.to_i < doWorkUntilUnixtime
@@ -31,29 +31,76 @@ class Work
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] start work item | work on until | work off until"
+        "[work   ] work on | work off"
     end
 
     # Work::workMenuInterpreter(command)
     def self.workMenuInterpreter(command)
-        if command == "start work item" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            startUnixtime = Time.new.to_i
-            bankAccounts = [Work::bankaccount()]
-            DetachedRunning::issueNew2(description, startUnixtime, bankAccounts)
-            return
+        if command == "work on" then
+            Work::issueNxBallIfNotOne()
         end
-        if command == "work on until" then
-            n = LucilleCore::askQuestionAnswerAsString("duration in hours: ").to_f
-            KeyValueStore::set(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", Time.new.to_i + n*3600)
-            KeyValueStore::destroy(nil, "workoff-feaf-44f6-8093-800d921ab6a7")
-            return
-        end
-        if command == "work off until" then
-            n = LucilleCore::askQuestionAnswerAsString("pause in hours: ").to_f
-            KeyValueStore::set(nil, "workoff-feaf-44f6-8093-800d921ab6a7", Time.new.to_i + n*3600)
-            KeyValueStore::destroy(nil, "workon-f3d1-4bdc-9605-cda59eee09cd")
-            return
+        if command == "work off" then
+            Work::close()
         end
     end
+
+    # Work::getNxBallOrNull()
+    def self.getNxBallOrNull()
+        nxball = KeyValueStore::getOrNull(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8")
+        return nil if nxball.nil?
+        JSON.parse(nxball)
+    end
+
+    # Work::issueNxBallIfNotOne()
+    def self.issueNxBallIfNotOne()
+        return if Work::getNxBallOrNull()
+        nxball = NxBalls::makeNxBall([Work::bankaccount()])
+        KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
+    end
+
+    # Work::close()
+    def self.close()
+        nxball = Work::getNxBallOrNull()
+        return if nxball.nil?
+        NxBalls::closeNxBall(nxball, true)
+        KeyValueStore::destroy(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8")
+    end
+
+    # Work::isActiveDomain()
+    def self.isActiveDomain()
+        !Work::getNxBallOrNull().nil?
+    end
+
+    # Work::ns16s()
+    def self.ns16s()
+        if Work::shouldBeActiveDomain() and !Work::isActiveDomain() then
+            [
+                {
+                    "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
+                    "domain"      => nil,
+                    "announce"    => "[work] run to activate".green,
+                    "commands"    => [],
+                    "run"         => lambda{ Work::issueNxBallIfNotOne() },
+                    "interpreter" => nil
+                }
+            ]
+        else
+            []
+        end
+    end
+
+    # Work::updateNxBallOrNothing()
+    def self.updateNxBallOrNothing()
+        nxball = Work::getNxBallOrNull()
+        return if nxball.nil?
+        nxball = NxBalls::upgradeNxBall(nxball, true)
+        KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
+    end
 end
+
+Thread.new {
+    sleep 300
+    loop {
+        Work::updateNxBallOrNothing()
+    }
+}

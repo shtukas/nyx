@@ -115,31 +115,18 @@ class Nx50s
         KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77114", JSON.generate(uuids))
     end
 
-    # Nx50s::getNextGenUnixtime()
-    def self.getNextGenUnixtime()
-        nexGenUUIDs = Nx50s::getNextGenUUIDS()
-        nx50s = Nx50s::nx50s()
-        while nx50s.any?{|nx50| nexGenUUIDs.include?(nx50["uuid"]) } do
-            nx50s = nx50s.drop(1)
-        end
-        if nx50s.size < 2 then
-            return Time.new.to_f
-        end
-        (nx50s[0]["unixtime"] + nx50s[1]["unixtime"]).to_f/2
-    end
-
     # Nx50s::interactivelyDetermineNewItemUnixtime()
     def self.interactivelyDetermineNewItemUnixtime()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "natural (default)"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "next (default)"])
         if type.nil? then
-            return Nx50s::getNextGenUnixtime()
+            return Time.new.to_f
         end
-        if type == "natural (default)" then
-            return Nx50s::getNextGenUnixtime()
+        if type == "next (default)" then
+            return Time.new.to_f
         end
         if type == "select" then
             items = Nx50s::nx50s().first(50)
-            return Nx50s::getNextGenUnixtime() if items.size < 2
+            return Time.new.to_f if items.size < 2
             system('clear')
             puts "Select the before item:"
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
@@ -187,10 +174,10 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingURL(url, useNextGenTime, domain)
-    def self.issueNx50UsingURL(url, useNextGenTime, domain)
+    # Nx50s::issueNx50UsingURL(url, domain)
+    def self.issueNx50UsingURL(url, domain)
         uuid         = LucilleCore::timeStringL22()
-        unixtime     = useNextGenTime ? Nx50s::getNextGenUnixtime() : Time.new.to_i
+        unixtime     = Time.new.to_f
         description  = url
         axiomId      = NxA002::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), url)
         Nx50s::commitNx50ToDatabase({

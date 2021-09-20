@@ -20,7 +20,7 @@ class Domains
 
     # Domains::getCurrentActiveDomain()
     def self.getCurrentActiveDomain()
-        Work::shouldDisplayWorkItems() ? "work" : "eva"
+        Work::isActiveDomain() ? "work" : "eva"
     end
 
     # Domains::domains()
