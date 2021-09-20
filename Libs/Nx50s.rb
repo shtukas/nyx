@@ -382,7 +382,7 @@ class Nx50s
 
             if command == "gg" then
                 Nx50s::complete(nx50)
-                next
+                break
             end
         }
 
