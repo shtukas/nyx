@@ -68,7 +68,7 @@ class DomainPriorityFile
         filepath = item["filepath"]
         return nil if IO.read(item["filepath"]).strip.size == 0
         {
-            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{IO.read(filepath)}"),
+            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{IO.read(filepath)}:#{Utils::today()}"),
             "domain"      => item["domain"],
             "announce"    => "[prio] #{File.basename(filepath)}".green,
             "commands"    => [".."],
