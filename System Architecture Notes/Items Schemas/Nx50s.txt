@@ -5,5 +5,7 @@ CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _axiomId
     "unixtime"    : Float,
     "description" : String,
     "axiomId"     : String | null,
-    "domain"      : String # We use Domains, but it's also written here
+    "domain"      : String 
+                        # We use Domains, but it's also written here
+                        # Also note that unlike the case of other elements, the "domain" attribute of a Nx50 is mandatory
 }

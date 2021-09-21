@@ -27,8 +27,31 @@ class Nx50s
         answer
     end
 
+    # Nx50s::nx50sForDomain(domain)
+    def self.nx50sForDomain(domain)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _items_ where _domain_=? order by _unixtime_", [domain]) do |row|
+            answer << {
+                "uuid"         => row["_uuid_"],
+                "unixtime"     => row["_unixtime_"],
+                "description"  => row["_description_"],
+                "axiomId"      => row["_axiomId_"],
+                "domain"       => row["_domain_"],
+            }
+        end
+        db.close
+        answer
+    end
+
     # Nx50s::commitNx50ToDatabase(item)
     def self.commitNx50ToDatabase(item)
+        if !Domains::domains().include?(item["domain"]) then
+            item["domain"] = "eva"
+        end
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -239,8 +262,7 @@ class Nx50s
 
     # Nx50s::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx50] (#{"%4.2f" % rt}) #{item["description"]} (#{type})"
+        "[nx50] (#{"%4.2f" % rt}) #{item["description"]} (#{Nx50s::getItemType(item)})"
     end
 
     # Nx50s::complete(nx50)
@@ -413,8 +435,8 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::ns16OrNull(nx50, showAboveRTOne, domain)
-    def self.ns16OrNull(nx50, showAboveRTOne, domain)
+    # Nx50s::ns16OrNull(nx50, showAboveRTOne)
+    def self.ns16OrNull(nx50, showAboveRTOne)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
@@ -425,7 +447,7 @@ class Nx50s
         announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
-            "domain"   => domain,
+            "domain"   => nx50["domain"],
             "announce" => announce,
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
@@ -450,13 +472,10 @@ class Nx50s
         domain = Domains::getCurrentActiveDomain()
         showAboveRTOne = domain == "work"
         cardinal = (domain == "eva" ? 5 : nil)
-        Nx50s::nx50s()
-            .select{|nx50|
-                (nx50["domain"].nil? or nx50["domain"] == "") or (nx50["domain"] == domain)
-            }
+        Nx50s::nx50sForDomain(domain)
             .reduce([]){|ns16s, nx50|
                 if cardinal.nil? or ns16s.size < cardinal then
-                    ns16 = Nx50s::ns16OrNull(nx50, showAboveRTOne, domain)
+                    ns16 = Nx50s::ns16OrNull(nx50, showAboveRTOne)
                     if ns16 then
                         ns16s << ns16
                     end
