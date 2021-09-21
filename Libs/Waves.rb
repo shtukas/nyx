@@ -321,8 +321,10 @@ class Waves
                     break
                 end
             end
+
+            Interpreters::mainMenuInterpreter(command)
         }
-        
+
         NxBalls::closeNxBall(nxball, true)
     end
 

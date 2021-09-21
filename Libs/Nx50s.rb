@@ -117,36 +117,49 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime()
     def self.interactivelyDetermineNewItemUnixtime()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["select", "next (default)"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "end of queue (default)"])
         if type.nil? then
             return Time.new.to_f
         end
-        if type == "next (default)" then
+        if type == "end of queue (default)" then
             return Time.new.to_f
         end
-        if type == "select" then
-            items = Nx50s::nx50s().first(50)
-            return Time.new.to_f if items.size < 2
+        if type == "manually position" then
+            domain = Domains::interactivelySelectDomainOrNull()
+            if domain.nil? then
+                return Time.new.to_f
+            end
+            items = Nx50s::nx50s()
+                        .select{|item|
+                            (item["domain"].nil? or item["domain"] == "") or (item["domain"] == domain)
+                        }
+                        .first(50)
+            return Time.new.to_f if items.size == 0
+            items.each_with_index{|item, i|
+                puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
+            }
+            puts "new first | <n> # index of previous item".yellow
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+            if command == "new first" then
+                return items[0]["unixtime"]-1 
+            else
+                # Here we interpret as index of an element
+                i = command.to_i
+                items = items.drop(i)
+                if items.size == 0 then
+                    return Time.new.to_f
+                end
+                if items.size == 1 then
+                    return items[0]["unixtime"]+1 
+                end
+                if items.size >= 2 then
+                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+                end
+                raise "fa7e03a4-ce26-40c4-82d5-151f98908dca"
+            end
             system('clear')
-            puts "Select the before item:"
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Nx50s::toString(item) })
-            if item.nil? then
-                return Time.new.to_f
-            end
-            while items.any?{|i| i["uuid"] == item["uuid"] } do
-                items = items.drop(1)
-            end
-            if items.size < 2 then
-                return Time.new.to_f
-            end
-            return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
-    end
-
-    # Nx50s::determineItemPositionOrNull(nx50)
-    def self.determineItemPositionOrNull(nx50)
-        Nx50s::nx50s().map{|i| i["uuid"] }.index(nx50["uuid"])
     end
 
     # --------------------------------------------------

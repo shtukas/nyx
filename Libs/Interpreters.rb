@@ -84,7 +84,6 @@ class Interpreters
             nx50 = Nx50s::interactivelyCreateNewOrNull()
             return if nx50.nil?
             puts JSON.pretty_generate(nx50)
-            puts "Position: #{Nx50s::determineItemPositionOrNull(nx50)}"
         end
 
         if Interpreting::match("anniversary", command) then
