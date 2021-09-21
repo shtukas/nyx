@@ -217,10 +217,24 @@ class Nx50s
         db.close
     end
 
+    # Nx50s::getItemType(item)
+    def self.getItemType(item)
+        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}")
+        return type if type
+        type1 = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"])
+        type2 = type1 || "line"
+        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}", type2)
+        type2
+    end
+
     # Nx50s::toString(item)
     def self.toString(item)
-        type = NxAxioms::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"]) || "line"
-        "[nx50] #{item["description"]} (#{type})"
+        "[nx50] #{item["description"]} (#{Nx50s::getItemType(item)})"
+    end
+
+    # Nx50s::toStringForNS19(item)
+    def self.toStringForNS19(item)
+        "[nx50] #{item["description"]}"
     end
 
     # Nx50s::toStringForNS16(item, rt)
@@ -458,7 +472,7 @@ class Nx50s
         Nx50s::nx50s().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Nx50s::toString(item),
+                "announce" => Nx50s::toStringForNS19(item),
                 "lambda"   => lambda { Nx50s::run(item) }
             }
         }
