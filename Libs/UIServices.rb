@@ -102,17 +102,17 @@ class InternetStatus
 
     # InternetStatus::putsInternetCommands()
     def self.putsInternetCommands()
-        "[internt] set internet on | set internet off | requires internet"
+        "[internt] internet on | internet off | requires internet"
     end
 
     # InternetStatus::interpreter(command, store)
     def self.interpreter(command, store)
 
-        if Interpreting::match("set internet on", command) then
+        if Interpreting::match("internet on", command) then
             InternetStatus::setInternetOn()
         end
 
-        if Interpreting::match("set internet off", command) then
+        if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
         end
 
