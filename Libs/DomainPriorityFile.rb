@@ -35,7 +35,10 @@ class DomainPriorityFile
             
             system("clear")
 
-            text = IO.read(filepath).strip
+            filecontent = IO.read(filepath)
+            filehash = Digest::SHA1.hexdigest(filecontent)
+
+            text = filecontent.strip
             puts ""
             text = text.lines.first(10).join().strip
             puts text.green
@@ -52,6 +55,8 @@ class DomainPriorityFile
             end
 
             if Interpreting::match("[]", command) then
+                filecontent = IO.read(filepath)
+                next if filehash != Digest::SHA1.hexdigest(filecontent) # We prevent applying the procedure to 
                 DomainPriorityFile::applyNextTransformation(filepath)
                 next
             end
@@ -67,8 +72,9 @@ class DomainPriorityFile
         return nil if (item["domain"] != domain)
         filepath = item["filepath"]
         return nil if IO.read(item["filepath"]).strip.size == 0
+        filecontent = IO.read(filepath)
         {
-            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{IO.read(filepath)}:#{Utils::today()}"),
+            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{filecontent}:#{Utils::today()}"),
             "domain"      => item["domain"],
             "announce"    => "[prio] #{File.basename(filepath)}".green,
             "commands"    => [".."],
