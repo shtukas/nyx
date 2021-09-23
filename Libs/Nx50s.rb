@@ -138,25 +138,28 @@ class Nx50s
         KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77114", JSON.generate(uuids))
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtime()
-    def self.interactivelyDetermineNewItemUnixtime()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "end of queue (default)"])
-        if type.nil? then
+    # Nx50s::getUnixtimeInRange(domain, index1, index2)
+    def self.getUnixtimeInRange(domain, index1, index2)
+        items = Nx50s::nx50sForDomain(domain).drop(index1).take(index2-index1)
+        if items.size == 0 then
             return Time.new.to_f
         end
-        if type == "end of queue (default)" then
-            return Time.new.to_f
+        if items.size == 1 then
+            return items[0]["unixtime"]
+        end
+        unixtime1 = items.first["unixtime"]
+        unixtime2 = items.last["unixtime"]
+        return unixtime1 + rand*(unixtime2-unixtime1)
+    end
+
+    # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+    def self.interactivelyDetermineNewItemUnixtime(domain)
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
+        if type.nil? then
+            return Nx50s::getUnixtimeInRange(domain, 20, 50)
         end
         if type == "manually position" then
-            domain = Domains::interactivelySelectDomainOrNull()
-            if domain.nil? then
-                return Time.new.to_f
-            end
-            items = Nx50s::nx50s()
-                        .select{|item|
-                            (item["domain"].nil? or item["domain"] == "") or (item["domain"] == domain)
-                        }
-                        .first(50)
+            items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
             return Time.new.to_f if items.size == 0
             items.each_with_index{|item, i|
                 puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
@@ -182,11 +185,19 @@ class Nx50s
             end
             system('clear')
         end
+        if type == "in 20-50 range (default)" then
+            return Nx50s::getUnixtimeInRange(domain, 20, 50)
+        end
+        if type == "last" then
+            return Time.new.to_f
+        end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
 
     # --------------------------------------------------
     # Makers
+
+
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
@@ -195,8 +206,9 @@ class Nx50s
         if description == "" then
             return nil
         end
+        domain = Domains::interactivelySelectDomainOrNull() || "eva"
         axiomId = NxAxioms::interactivelyCreateNewAxiom_EchoIdOrNull(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22())
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -205,15 +217,15 @@ class Nx50s
         })
         Nx50s::addToNextGenUUIDs(uuid)
 
-        Domains::setDomainForItem(uuid, Domains::interactivelySelectDomainOrNull())
+        Domains::setDomainForItem(uuid, domain)
 
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingURL(url, domain)
-    def self.issueNx50UsingURL(url, domain)
+    # Nx50s::issueNx50UsingURL(url)
+    def self.issueNx50UsingURL(url)
         uuid         = LucilleCore::timeStringL22()
-        unixtime     = Time.new.to_f
+        unixtime     = Nx50s::getUnixtimeInRange("eva", 10, 20)
         description  = url
         axiomId      = NxA002::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), url)
         Nx50s::commitNx50ToDatabase({
@@ -222,7 +234,23 @@ class Nx50s
             "description" => description,
             "axiomId"     => axiomId,
         })
-        Domains::setDomainForItem(uuid, domain)
+        Domains::setDomainForItem(uuid, "eva")
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueNx50UsingLocation(location)
+    def self.issueNx50UsingLocation(location)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Nx50s::getUnixtimeInRange("eva", 20, 50)
+        description = File.basename(location)
+        axiomId     = NxA003::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), location)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Domains::setDomainForItem(uuid, "eva")
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -410,7 +438,7 @@ class Nx50s
             end
 
             if Interpreting::match("update unixtime", command) then
-                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
+                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(nx50["domain"])
                 Nx50s::commitNx50ToDatabase(nx50)
                 next
             end
@@ -469,6 +497,11 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s (Eva Inbox)").each{|location|
+            Nx50s::issueNx50UsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+
         domain = Domains::getCurrentActiveDomain()
         showAboveRTOne = domain == "work"
         cardinal = (domain == "eva" ? 5 : nil)
