@@ -124,19 +124,7 @@ class Nx50s
     end
 
     # --------------------------------------------------
-    # Next Gen
-
-    # Nx50s::getNextGenUUIDS()
-    def self.getNextGenUUIDS()
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77114", "[]"))
-    end
-
-    # Nx50s::addToNextGenUUIDs(uuid)
-    def self.addToNextGenUUIDs(uuid)
-        uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "3a249511-086b-4160-b33d-28550eb77114", "[]")) + [uuid]
-        uuids = uuids & Nx50s::nx50s().map{|i| i["uuid"] }
-        KeyValueStore::set(nil, "3a249511-086b-4160-b33d-28550eb77114", JSON.generate(uuids))
-    end
+    # Makers
 
     # Nx50s::getUnixtimeInRange(domain, index1, index2)
     def self.getUnixtimeInRange(domain, index1, index2)
@@ -154,8 +142,11 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
     def self.interactivelyDetermineNewItemUnixtime(domain)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["in 20-50 range (default)", "manually position", "last"])
         if type.nil? then
+            return Nx50s::getUnixtimeInRange(domain, 20, 50)
+        end
+        if type == "in 20-50 range (default)" then
             return Nx50s::getUnixtimeInRange(domain, 20, 50)
         end
         if type == "manually position" then
@@ -185,19 +176,11 @@ class Nx50s
             end
             system('clear')
         end
-        if type == "in 20-50 range (default)" then
-            return Nx50s::getUnixtimeInRange(domain, 20, 50)
-        end
         if type == "last" then
             return Time.new.to_f
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
-
-    # --------------------------------------------------
-    # Makers
-
-
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
@@ -215,7 +198,6 @@ class Nx50s
             "description" => description,
             "axiomId"     => axiomId,
         })
-        Nx50s::addToNextGenUUIDs(uuid)
 
         Domains::setDomainForItem(uuid, domain)
 
@@ -498,8 +480,10 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s (Eva Inbox)").each{|location|
+            puts "[inbox] #{location}"
             Nx50s::issueNx50UsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
+            sleep 1
         }
 
         domain = Domains::getCurrentActiveDomain()
