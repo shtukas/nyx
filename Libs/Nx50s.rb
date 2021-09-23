@@ -142,14 +142,12 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
     def self.interactivelyDetermineNewItemUnixtime(domain)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["in 20-50 range (default)", "manually position", "last"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
         if type.nil? then
             return Nx50s::getUnixtimeInRange(domain, 20, 50)
         end
-        if type == "in 20-50 range (default)" then
-            return Nx50s::getUnixtimeInRange(domain, 20, 50)
-        end
         if type == "manually position" then
+            system("clear")
             items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
             return Time.new.to_f if items.size == 0
             items.each_with_index{|item, i|
@@ -175,6 +173,9 @@ class Nx50s
                 raise "fa7e03a4-ce26-40c4-82d5-151f98908dca"
             end
             system('clear')
+        end
+        if type == "in 20-50 range (default)" then
+            return Nx50s::getUnixtimeInRange(domain, 20, 50)
         end
         if type == "last" then
             return Time.new.to_f
