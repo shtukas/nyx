@@ -34,7 +34,7 @@ class NS16sOperator
             Waves::ns16s(),
             DrivesBackups::ns16s(),
             Work::ns16s(),
-            DomainPriorityFile::ns16s(),
+            DomainPriorityFile::ns16s2(),
             Nx50s::ns16s()
         ]
             .flatten

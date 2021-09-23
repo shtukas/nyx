@@ -10,8 +10,8 @@ class DomainPriorityFile
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
-    # DomainPriorityFile::run(item)
-    def self.run(item)
+    # DomainPriorityFile::run(item, section)
+    def self.run(item, section)
 
         filepath = item["filepath"]
 
@@ -26,38 +26,51 @@ class DomainPriorityFile
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Priority file running for more than an hour")
+                    Utils::onScreenNotification("Catalyst", "Priority file section running for more than an hour")
                 end
             }
         }
 
         loop {
             
+            accessedit = lambda{|filepath, section|
+                section2 = Utils::editTextSynchronously(section)
+                if section2 != section then
+                    File.open(filepath, "w"){|f| f.puts(filecontent.gsub(section, section2)) }
+                end
+                section2
+            }
+
             system("clear")
 
-            filecontent = IO.read(filepath)
-            filehash = Digest::SHA1.hexdigest(filecontent)
+            break if section.strip.size == 0
 
-            text = filecontent.strip
             puts ""
-            text = text.lines.first(10).join().strip
-            puts text.green
+            puts section.green
             puts ""
-            puts "[] | exit (default)".yellow
+            puts "access (default) | [] | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
-                break
+                section = accessedit.call(filepath, section)
+                next
             end
 
             if command == "exit" then
                 break
             end
 
-            if Interpreting::match("[]", command) then
-                filecontent = IO.read(filepath)
-                next if filehash != Digest::SHA1.hexdigest(filecontent) # We prevent applying the procedure to 
-                DomainPriorityFile::applyNextTransformation(filepath)
+            if command == "[]" then
+                section2 = SectionsType0141::applyNextTransformationToText(section) + "\n"
+                text = IO.read(filepath)
+                text = text.gsub(section, section2)
+                File.open(filepath, "w"){|f| f.puts(text) }
+                section = section2
+                next
+            end
+
+            if Interpreting::match("access", command) then
+                section = accessedit.call(filepath, section)
                 next
             end
         }
@@ -67,33 +80,43 @@ class DomainPriorityFile
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # DomainPriorityFile::itemToNS16OrNull(item, domain)
-    def self.itemToNS16OrNull(item, domain)
-        return nil if (item["domain"] != domain)
+    # DomainPriorityFile::itemToNS16s(item)
+    def self.itemToNS16s(item)
         filepath = item["filepath"]
-        return nil if IO.read(item["filepath"]).strip.size == 0
-        filecontent = IO.read(filepath)
-        {
-            "uuid"        => Digest::SHA1.hexdigest("25533ad6-50ff-463c-908f-ba3ba8858b7e:#{filepath}:#{filecontent}:#{Utils::today()}"),
-            "domain"      => item["domain"],
-            "announce"    => "[prio] #{File.basename(filepath)}".green,
-            "commands"    => [".."],
-            "interpreter" => lambda{|command|
-                if command == ".." then
-                    DomainPriorityFile::run(item)
-                end
-            },
-            "run" => lambda {
-                DomainPriorityFile::run(item)
+        text = IO.read(filepath)
+        sections = SectionsType0141::contentToSections(text)
+
+        shiftText = lambda{|text|
+            line = text.lines.first
+            lines = text.lines.drop(1)
+            line + lines.map{|line| "      #{line}" }.join()
+        }
+
+        sections.map{|section|
+            sectionSmall = section.strip
+            {
+                "uuid"        => Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section}:#{Utils::today()}"),
+                "domain"      => item["domain"],
+                "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
+                "commands"    => [".."],
+                "interpreter" => lambda{|command|
+                    if command == ".." then
+                        DomainPriorityFile::run(item, section)
+                    end
+                },
+                "run" => lambda {
+                    DomainPriorityFile::run(item, section)
+                }
             }
         }
     end
 
-    # DomainPriorityFile::ns16s()
-    def self.ns16s()
+    # DomainPriorityFile::ns16s2()
+    def self.ns16s2()
         domain = Domains::getCurrentActiveDomain()
         Domains::items()
-            .map{|item| DomainPriorityFile::itemToNS16OrNull(item, domain) }
-            .compact
+            .select{|item| item["domain"] == domain }
+            .map{|item| DomainPriorityFile::itemToNS16s(item) }
+            .flatten
     end
 end
