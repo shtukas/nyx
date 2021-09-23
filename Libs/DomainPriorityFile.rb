@@ -33,7 +33,12 @@ class DomainPriorityFile
 
         loop {
             
+            catalystSafe = lambda{|filepath|
+                FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
+            }
+
             accessedit = lambda{|filepath, section|
+                catalystSafe.call(filepath)
                 section2 = Utils::editTextSynchronously(section)
                 if section2 != section then
                     File.open(filepath, "w"){|f| f.puts(filecontent.gsub(section, section2)) }
@@ -61,6 +66,7 @@ class DomainPriorityFile
             end
 
             if command == "[]" then
+                catalystSafe.call(filepath)
                 section2 = SectionsType0141::applyNextTransformationToText(section) + "\n"
                 text = IO.read(filepath)
                 text = text.gsub(section, section2)
