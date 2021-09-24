@@ -41,7 +41,7 @@ class DomainPriorityFile
                 catalystSafe.call(filepath)
                 section2 = Utils::editTextSynchronously(section)
                 if section2 != section then
-                    File.open(filepath, "w"){|f| f.puts(filecontent.gsub(section, section2)) }
+                    File.open(filepath, "w"){|f| f.puts(IO.read(filepath).gsub(section, section2)) }
                 end
                 section2
             }
