@@ -84,9 +84,19 @@ class NxOnDate # OnDate
     # -------------------------------------
     # Operations
 
+    # NxOnDate::getItemType(item)
+    def self.getItemType(item)
+        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
+        return type if type
+        type1 = NxAxioms::contentTypeOrNull(NxOnDate::axiomsFolderPath(), item["axiomId"])
+        type2 = type1 || "line"
+        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}", type2)
+        type2
+    end
+
     # NxOnDate::toString(item)
     def self.toString(item)
-        "[ondt] (#{item["date"]}) #{item["description"]}"
+        "[ondt] (#{item["date"]}) #{item["description"]} (#{NxOnDate::getItemType(item)})"
     end
 
     # NxOnDate::accessContent(item)

@@ -130,9 +130,9 @@ class Interpreters
 
                 Nx50s::accessContent(nx50)
 
-                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (done, landing, exit) : ")
+                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (>> (done), landing, exit) : ")
 
-                if command == "gg" then
+                if command == ">>" then
                     Nx50s::complete(nx50)
                 end
 
