@@ -10,6 +10,11 @@ class DomainPriorityFile
         File.open(filepath, "w"){|f| f.puts(contents)}
     end
 
+    # DomainPriorityFile::catalystSafe(filepath)
+    def self.catalystSafe(filepath)
+        FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
+    end
+
     # DomainPriorityFile::run(item, section)
     def self.run(item, section)
 
@@ -32,13 +37,8 @@ class DomainPriorityFile
         }
 
         loop {
-            
-            catalystSafe = lambda{|filepath|
-                FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
-            }
-
             accessedit = lambda{|filepath, section|
-                catalystSafe.call(filepath)
+                DomainPriorityFile::catalystSafe(filepath)
                 section2 = Utils::editTextSynchronously(section)
                 if section2 != section then
                     File.open(filepath, "w"){|f| f.puts(IO.read(filepath).gsub(section, section2)) }
@@ -66,7 +66,7 @@ class DomainPriorityFile
             end
 
             if command == "[]" then
-                catalystSafe.call(filepath)
+                DomainPriorityFile::catalystSafe(filepath)
                 section2 = SectionsType0141::applyNextTransformationToText(section) + "\n"
                 text = IO.read(filepath)
                 text = text.gsub(section, section2)
@@ -104,10 +104,17 @@ class DomainPriorityFile
                 "uuid"        => Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section}:#{Utils::today()}"),
                 "domain"      => item["domain"],
                 "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
-                "commands"    => [".."],
+                "commands"    => ["..", "[]"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         DomainPriorityFile::run(item, section)
+                    end
+                    if command == "[]" then
+                        DomainPriorityFile::catalystSafe(filepath)
+                        section2 = SectionsType0141::applyNextTransformationToText(section) + "\n"
+                        text = IO.read(filepath)
+                        text = text.gsub(section, section2)
+                        File.open(filepath, "w"){|f| f.puts(text) }
                     end
                 },
                 "run" => lambda {
