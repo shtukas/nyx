@@ -120,12 +120,10 @@ class Interpreters
 
         if Interpreting::match(">>", command) then
             key = "4b23af4b-4536-44f6-a85a-d4e8cb320b30"
-            Nx50s::nx50s().each{|nx50|
+            Nx50s::nx50sForDomain("eva").each{|nx50|
 
-                domain = Domains::getDomainForItemOrNull(nx50["uuid"])
-                nxball = NxBalls::makeNxBall([nx50["uuid"], "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Domains::domainBankAccountOrNull(domain)].compact)
+                nxball = NxBalls::makeNxBall([nx50["uuid"], "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", "EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D"])
 
-                next if !(nx50["domain"].nil? or nx50["domain"] == "eva")
                 next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
 
                 Nx50s::accessContent(nx50)
