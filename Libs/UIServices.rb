@@ -10,11 +10,11 @@ class Fitness
             ns16["commands"] = [".."]
             ns16["interpreter"] = lambda {|command|
                 if command == ".." then
-                    system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
+                    system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
                 end
             }
             ns16["run"] = lambda {
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["domain"]}") 
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
             }
             ns16
         }
