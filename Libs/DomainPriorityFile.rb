@@ -15,8 +15,8 @@ class DomainPriorityFile
         FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
     end
 
-    # DomainPriorityFile::run(item, section)
-    def self.run(item, section)
+    # DomainPriorityFile::run(item, section, domain)
+    def self.run(item, section, domain)
 
         filepath = item["filepath"]
 
@@ -53,7 +53,7 @@ class DomainPriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access (default) | [] | exit".yellow
+            puts "access (default) | [] | >Nx50 | exit".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -75,6 +75,16 @@ class DomainPriorityFile
                 next
             end
 
+            if command == ">Nx50" then
+                DomainPriorityFile::catalystSafe(filepath)
+                item = Nx50s::issueNx50UsingText(section.strip, domain)
+                puts JSON.pretty_generate(item)
+                text = IO.read(filepath)
+                text = text.gsub(section, "")
+                File.open(filepath, "w"){|f| f.puts(text) }
+                break
+            end
+
             if Interpreting::match("access", command) then
                 section = accessedit.call(filepath, section)
                 next
@@ -86,8 +96,8 @@ class DomainPriorityFile
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # DomainPriorityFile::itemToNS16s(item)
-    def self.itemToNS16s(item)
+    # DomainPriorityFile::itemToNS16s(item, domain)
+    def self.itemToNS16s(item, domain)
         filepath = item["filepath"]
         text = IO.read(filepath)
         sections = SectionsType0141::contentToSections(text)
@@ -104,10 +114,10 @@ class DomainPriorityFile
                 "uuid"        => Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section}:#{Utils::today()}"),
                 "domain"      => item["domain"],
                 "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
-                "commands"    => ["..", "[]"],
+                "commands"    => ["..", "[]", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
-                        DomainPriorityFile::run(item, section)
+                        DomainPriorityFile::run(item, section, domain)
                     end
                     if command == "[]" then
                         DomainPriorityFile::catalystSafe(filepath)
@@ -116,9 +126,17 @@ class DomainPriorityFile
                         text = text.gsub(section, section2)
                         File.open(filepath, "w"){|f| f.puts(text) }
                     end
+                    if command == ">Nx50" then
+                        DomainPriorityFile::catalystSafe(filepath)
+                        item = Nx50s::issueNx50UsingText(section.strip, domain)
+                        puts JSON.pretty_generate(item)
+                        text = IO.read(filepath)
+                        text = text.gsub(section, "")
+                        File.open(filepath, "w"){|f| f.puts(text) }
+                    end
                 },
                 "run" => lambda {
-                    DomainPriorityFile::run(item, section)
+                    DomainPriorityFile::run(item, section, domain)
                 }
             }
         }
@@ -129,7 +147,7 @@ class DomainPriorityFile
         domain = Domains::getCurrentActiveDomain()
         Domains::items()
             .select{|item| item["domain"] == domain }
-            .map{|item| DomainPriorityFile::itemToNS16s(item) }
+            .map{|item| DomainPriorityFile::itemToNS16s(item, domain) }
             .flatten
     end
 end

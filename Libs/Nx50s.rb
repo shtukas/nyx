@@ -205,6 +205,22 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
+    # Nx50s::issueNx50UsingText(text, domain)
+    def self.issueNx50UsingText(text, domain)
+        uuid         = LucilleCore::timeStringL22()
+        unixtime     = Nx50s::getUnixtimeInRange(domain, 10, 20)
+        description  = text.strip.lines.first || "todo text @ #{Time.new.to_s}" 
+        axiomId      = NxA001::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), text)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Domains::setDomainForItem(uuid, "eva")
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
     # Nx50s::issueNx50UsingURL(url)
     def self.issueNx50UsingURL(url)
         uuid         = LucilleCore::timeStringL22()
