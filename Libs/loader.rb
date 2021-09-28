@@ -128,8 +128,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/NxAxioms.rb"
-
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
@@ -150,6 +148,8 @@ require_relative "GalaxyFinder.rb"
 
 require_relative "Interpreting.rb"
 require_relative "Interpreters.rb"
+
+require_relative "NxAxioms.rb"
 
 require_relative "NxFloats.rb"
 require_relative "Nx50s.rb"

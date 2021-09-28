@@ -205,10 +205,9 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueNx50UsingText(text, domain)
-    def self.issueNx50UsingText(text, domain)
+    # Nx50s::issueNx50UsingText(text, unixtime, domain)
+    def self.issueNx50UsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
-        unixtime     = Nx50s::getUnixtimeInRange(domain, 10, 20)
         description  = text.strip.lines.first || "todo text @ #{Time.new.to_s}" 
         axiomId      = NxA001::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), text)
         Nx50s::commitNx50ToDatabase({
@@ -217,7 +216,7 @@ class Nx50s
             "description" => description,
             "axiomId"     => axiomId,
         })
-        Domains::setDomainForItem(uuid, "eva")
+        Domains::setDomainForItem(uuid, domain)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -324,7 +323,8 @@ class Nx50s
         puts "#{Nx50s::toString(nx50)}".green
         puts "uuid: #{uuid}".yellow
         puts "axiomId: #{nx50["axiomId"]}".yellow
-        puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}"
+        puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}".yellow
+        puts "domain: #{nx50["domain"]}".yellow
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
         puts ""
 
@@ -423,9 +423,10 @@ class Nx50s
             end
 
             if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(nx50["description"])
+                description = Utils::editTextSynchronously(nx50["description"]).strip
                 if description.size > 0 then
                     Nx50s::updateDescription(nx50["uuid"], description)
+                    nx50 = Nx50s::getNx50ByUUIDOrNull(nx50["uuid"])
                 end
                 next
             end
