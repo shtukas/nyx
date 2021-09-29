@@ -134,16 +134,35 @@ class UIServices
 
         vspaceleft = Utils::screenHeight()-10
 
-        infoLines1 = [
-            "[info   ]",
-            "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
-            "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-            "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
-            "(eva: rt: #{BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D").round(2)})",
-            "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
-        ].join(" ").yellow
+        info = [
+            {
+                "line"  => "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
+                "value" => BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243")
+            },
+            {
+                "line"  => "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
+                "value" => BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
+            },
+            {
+                "line"  => "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
+                "value" => BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+            },
+            {
+                "line"  => "(eva: rt: #{BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D").round(2)})",
+                "value" => BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D")
+            },
+            {
+                "line"  => "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
+                "value" => BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
+            }
+        ].sort{|p1, p2| p1["value"] <=> p2["value"] }
 
-        vspaceleft = vspaceleft - Utils::verticalSize(infoLines1)
+        infoLine = [
+            "[info   ]",
+            info.map{|i| i["line"] },
+        ].flatten.join(" ").yellow
+
+        vspaceleft = vspaceleft - Utils::verticalSize(infoLine)
 
         puts ""
         puts "Domain: #{Domains::getCurrentActiveDomain().upcase}".green
@@ -205,7 +224,7 @@ class UIServices
 
         puts ""
 
-        puts infoLines1
+        puts infoLine
 
         puts ""
 
