@@ -205,6 +205,22 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
+    # Nx50s::issueNx50MidRangeUsingLine(line, domain)
+    def self.issueNx50MidRangeUsingLine(line, domain)
+        uuid         = LucilleCore::timeStringL22()
+        unixtime     = Nx50s::getUnixtimeInRange(domain, 10, 20)
+        description  = line
+        axiomId      = nil
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Domains::setDomainForItem(uuid, domain)
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
     # Nx50s::issueNx50UsingText(text, unixtime, domain)
     def self.issueNx50UsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
@@ -369,7 +385,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | set domain | show json | destroy | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -439,6 +455,15 @@ class Nx50s
 
             if Interpreting::match("update unixtime", command) then
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(nx50["domain"])
+                Nx50s::commitNx50ToDatabase(nx50)
+                next
+            end
+
+            if Interpreting::match("set domain", command) then
+                domain = Domains::interactivelySelectDomainOrNull()
+                return if domain.nil?
+                Domains::setDomainForItem(nx50["uuid"], domain)
+                nx50["domain"] = domain
                 Nx50s::commitNx50ToDatabase(nx50)
                 next
             end

@@ -70,7 +70,20 @@ class NxOnDate # OnDate
         NxOnDate::commitItemToDisk(item)
 
         item
+    end
 
+    # NxOnDate::issueNewItemFromLineAtDate(line, date)
+    def self.issueNewItemFromLineAtDate(line, date)
+        uuid = LucilleCore::timeStringL22()
+        item = {
+          "uuid"        => uuid,
+          "unixtime"    => Time.new.to_f,
+          "description" => line,
+          "date"        => date,
+          "axiomId"     => nil
+        }
+        NxOnDate::commitItemToDisk(item)
+        NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     end
 
     # NxOnDate::destroy(item)

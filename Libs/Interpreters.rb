@@ -51,11 +51,26 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
+        "[general] today: <line> | todo: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
+
+        if command.start_with?("today:") then
+            line = command[6, command.size].strip
+            item = NxOnDate::issueNewItemFromLineAtDate(line, Utils::today())
+            puts JSON.pretty_generate(item)
+        end
+
+        if command.start_with?("todo:") then
+            line = command[5, command.size].strip
+            domain = Domains::getCurrentActiveDomain()
+            item = Nx50s::issueNx50MidRangeUsingLine(line, domain)
+            Domains::setDomainForItem(item["uuid"], domain)
+            puts JSON.pretty_generate(item)
+        end
+
 
         if Interpreting::match("float", command) then
             NxFloats::interactivelyCreateNewOrNull()
