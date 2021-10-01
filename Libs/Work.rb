@@ -96,6 +96,35 @@ class Work
         nxball = NxBalls::upgradeNxBall(nxball, false)
         KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
     end
+
+    # Work::interestNS16s()
+    def self.interestNS16s()
+
+        getFolderUnixtime = lambda{|folderpath|
+            filepath = "#{folderpath}/.unixtime-784971ed"
+            if !File.exists?(filepath) then
+                File.open(filepath, "w") {|f| f.puts(Time.new.to_f)}
+            end
+            IO.read(filepath).strip.to_f
+        }
+
+        rootfolderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
+        return [] if rootfolderpath.nil?
+        LucilleCore::locationsAtFolder(rootfolderpath)
+            .map{|folderpath|
+                {
+                    "uuid"        => "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}",
+                    "domain"      => "work",
+                    "announce"    => "[work] (fldr) #{File.basename(folderpath)}",
+                    "commands"    => [],
+                    "run"         => lambda{ 
+                        system("open '#{folderpath}'")
+                    },
+                    "interpreter"  => nil,
+                    "unixtime-bd06fbf9" => getFolderUnixtime.call(folderpath)
+                }
+            }
+    end
 end
 
 Thread.new {

@@ -140,39 +140,63 @@ class Nx50s
         return unixtime1 + rand*(unixtime2-unixtime1)
     end
 
+    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
+    def self.interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
+        system("clear")
+        items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
+        return Time.new.to_f if items.size == 0
+        items.each_with_index{|item, i|
+            puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
+        }
+        puts "new first | <n> # index of previous item".yellow
+        command = LucilleCore::askQuestionAnswerAsString("> ")
+        if command == "new first" then
+            return items[0]["unixtime"]-1 
+        else
+            # Here we interpret as index of an element
+            i = command.to_i
+            items = items.drop(i)
+            if items.size == 0 then
+                return Time.new.to_f
+            end
+            if items.size == 1 then
+                return items[0]["unixtime"]+1 
+            end
+            if items.size >= 2 then
+                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
+            end
+            raise "fa7e03a4-ce26-40c4-82d5-151f98908dca"
+        end
+        system('clear')
+    end
+
+    # Nx50s::interactivelyDetermineNewItemUnixtimeAtWork()
+    def self.interactivelyDetermineNewItemUnixtimeAtWork()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "last (default)"])
+        if type.nil? then
+            return Time.new.to_f
+        end
+        if type == "manually position" then
+            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain("work")
+        end
+        if type == "last" then
+            return Time.new.to_f
+        end
+        raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
+    end
+
     # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
     def self.interactivelyDetermineNewItemUnixtime(domain)
+        if domain == "work" then
+            return Nx50s::interactivelyDetermineNewItemUnixtimeAtWork()
+        end
+
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
         if type.nil? then
             return Nx50s::getUnixtimeInRange(domain, 20, 50)
         end
         if type == "manually position" then
-            system("clear")
-            items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
-            return Time.new.to_f if items.size == 0
-            items.each_with_index{|item, i|
-                puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
-            }
-            puts "new first | <n> # index of previous item".yellow
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            if command == "new first" then
-                return items[0]["unixtime"]-1 
-            else
-                # Here we interpret as index of an element
-                i = command.to_i
-                items = items.drop(i)
-                if items.size == 0 then
-                    return Time.new.to_f
-                end
-                if items.size == 1 then
-                    return items[0]["unixtime"]+1 
-                end
-                if items.size >= 2 then
-                    return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-                end
-                raise "fa7e03a4-ce26-40c4-82d5-151f98908dca"
-            end
-            system('clear')
+            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
         end
         if type == "in 20-50 range (default)" then
             return Nx50s::getUnixtimeInRange(domain, 20, 50)
@@ -516,7 +540,8 @@ class Nx50s
             "run" => lambda {
                 Nx50s::run(nx50)
             },
-            "rt" => rt
+            "rt" => rt,
+            "unixtime-bd06fbf9" => nx50["unixtime"]
         }
     end
 
@@ -532,16 +557,23 @@ class Nx50s
         domain = Domains::getCurrentActiveDomain()
         showAboveRTOne = domain == "work"
         cardinal = (domain == "eva" ? 5 : nil)
-        Nx50s::nx50sForDomain(domain)
-            .reduce([]){|ns16s, nx50|
-                if cardinal.nil? or ns16s.size < cardinal then
+        
+        ns16s = Nx50s::nx50sForDomain(domain)
+            .reduce([]){|object, nx50|
+                if cardinal.nil? or object.size < cardinal then
                     ns16 = Nx50s::ns16OrNull(nx50, showAboveRTOne)
                     if ns16 then
-                        ns16s << ns16
+                        object << ns16
                     end
                 end
-                ns16s
+                object
             }
+
+        if domain == "work" then
+            ns16s = (ns16s + Work::interestNS16s()).sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
+        end
+
+        ns16s
     end
 
     # --------------------------------------------------
