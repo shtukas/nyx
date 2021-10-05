@@ -77,8 +77,9 @@ class DomainPriorityFile
 
             if command == ">Nx50" then
                 DomainPriorityFile::catalystSafe(filepath)
-                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                item = Nx50s::issueNx50UsingText(section.strip, unixtime, domain)
+                dx = Domains::interactivelySelectDomainOrNull() || domain
+                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(dx)
+                item = Nx50s::issueNx50UsingText(section.strip, unixtime, dx)
                 puts JSON.pretty_generate(item)
                 text = IO.read(filepath)
                 text = text.gsub(section, "")
