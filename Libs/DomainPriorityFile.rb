@@ -15,6 +15,18 @@ class DomainPriorityFile
         FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
     end
 
+    # DomainPriorityFile::moveRecastSectionAsNx50(filepath, section, domain)
+    def self.moveRecastSectionAsNx50(filepath, section, domain)
+        DomainPriorityFile::catalystSafe(filepath)
+        dx = Domains::interactivelySelectDomainOrNull() || domain
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(dx)
+        item = Nx50s::issueNx50UsingText(section.strip, unixtime, dx)
+        puts JSON.pretty_generate(item)
+        text = IO.read(filepath)
+        text = text.gsub(section, "")
+        File.open(filepath, "w"){|f| f.puts(text) }
+    end
+
     # DomainPriorityFile::run(item, section, domain)
     def self.run(item, section, domain)
 
@@ -76,14 +88,7 @@ class DomainPriorityFile
             end
 
             if command == ">Nx50" then
-                DomainPriorityFile::catalystSafe(filepath)
-                dx = Domains::interactivelySelectDomainOrNull() || domain
-                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(dx)
-                item = Nx50s::issueNx50UsingText(section.strip, unixtime, dx)
-                puts JSON.pretty_generate(item)
-                text = IO.read(filepath)
-                text = text.gsub(section, "")
-                File.open(filepath, "w"){|f| f.puts(text) }
+                DomainPriorityFile::moveRecastSectionAsNx50(filepath, section, domain)
                 break
             end
 
@@ -129,13 +134,7 @@ class DomainPriorityFile
                         File.open(filepath, "w"){|f| f.puts(text) }
                     end
                     if command == ">Nx50" then
-                        DomainPriorityFile::catalystSafe(filepath)
-                        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                        item = Nx50s::issueNx50UsingText(section.strip, unixtime, domain)
-                        puts JSON.pretty_generate(item)
-                        text = IO.read(filepath)
-                        text = text.gsub(section, "")
-                        File.open(filepath, "w"){|f| f.puts(text) }
+                        DomainPriorityFile::moveRecastSectionAsNx50(filepath, section, domain)
                     end
                 },
                 "run" => lambda {
