@@ -59,13 +59,15 @@ class Interpreters
 
         if command.start_with?("today:") then
             line = command[6, command.size].strip
+            domain = Domains::interactivelySelectDomainOrNull() || "eva"
             item = NxOnDate::issueNewItemFromLineAtDate(line, Utils::today())
+            Domains::setDomainForItem(item["uuid"], domain)
             puts JSON.pretty_generate(item)
         end
 
         if command.start_with?("todo:") then
             line = command[5, command.size].strip
-            domain = Domains::getCurrentActiveDomain()
+            domain = Domains::interactivelySelectDomainOrNull() || "eva"
             item = Nx50s::issueNx50MidRangeUsingLine(line, domain)
             Domains::setDomainForItem(item["uuid"], domain)
             puts JSON.pretty_generate(item)

@@ -121,6 +121,9 @@ class Nx50s
         db.execute "update _items_ set _domain_=? where _uuid_=?", [domain, uuid]
         db.commit 
         db.close
+
+        # In case this had not been done, we also need to update the map in the primary domain store
+        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Domains/KV-Store", uuid, domain)
     end
 
     # --------------------------------------------------

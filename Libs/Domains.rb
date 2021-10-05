@@ -45,7 +45,15 @@ class Domains
     def self.setDomainForItem(id, domain)
         return if domain.nil?
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Domains/KV-Store", id, domain)
-        Nx50s::setItemDomain(id, domain) # We write the domain alongside the Nx50s for faster ns16 generation (we have a large dataset at the moment)
+        
+        # We write the domain alongside the Nx50s for faster ns16 generation (we have a large dataset at the moment)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "update _items_ set _domain_=? where _uuid_=?", [domain, id]
+        db.commit 
+        db.close
     end
 
     # Domains::getDomainForItemOrNull(id)
