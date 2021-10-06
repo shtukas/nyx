@@ -251,7 +251,7 @@ class Nx50s
     # Nx50s::issueNx50UsingText(text, unixtime, domain)
     def self.issueNx50UsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
-        description  = text.strip.lines.first || "todo text @ #{Time.new.to_s}" 
+        description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         axiomId      = NxA001::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), text)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
@@ -361,6 +361,8 @@ class Nx50s
 
     # Nx50s::run(nx50)
     def self.run(nx50)
+
+        system("clear")
 
         uuid = nx50["uuid"]
         puts "#{Nx50s::toString(nx50)}".green

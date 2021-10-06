@@ -184,21 +184,19 @@ class NxA001
         id
     end
 
-    # NxA001::accessWithOptionToEdit(repositoryRoot: String, id: String, exportFolder)
-    def self.accessWithOptionToEdit(repositoryRoot, id, exportFolder)
+    # NxA001::accessWithOptionToEdit(repositoryRoot: String, id: String)
+    def self.accessWithOptionToEdit(repositoryRoot, id)
         filepath = NxAsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
         return if filepath.nil?
         db = Daybreak::DB.new filepath
         text = db["text-4e1e-aef4-58165e46651c"]
         db.close
-        if exportFolder.nil? then
-            NxAsUtils::editTextSynchronously(text)
-        else
-            filepath = "#{exportFolder}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.txt"
-            File.open(filepath, "w"){|f| f.puts(text) }
+        text2 = NxAsUtils::editTextSynchronously(text)
+        if text2 != text then
+            db = Daybreak::DB.new filepath
+            db["text-4e1e-aef4-58165e46651c"] = text2
+            db.close
         end
-        
-        # TODO: implement the option to edit
     end
 
     # NxA001::destroy(repositoryRoot: String, id: String): Boolean
@@ -219,25 +217,14 @@ class NxA002
         id
     end
 
-    # NxA002::accessWithOptionToEdit(repositoryRoot: String, id: String, exportFolder)
-    def self.accessWithOptionToEdit(repositoryRoot, id, exportFolder)
+    # NxA002::accessWithOptionToEdit(repositoryRoot: String, id: String)
+    def self.accessWithOptionToEdit(repositoryRoot, id)
         filepath = NxAsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
         return if filepath.nil?
         db = Daybreak::DB.new filepath
         url = db["url-45ed-960e-c23d39bb64ce"]
         db.close
-        if exportFolder.nil? then
-            system("open -a Safari '#{url}'")
-        else
-            filepath = "#{exportFolder}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.url"
-            filecontents = [
-                "[InternetShortcut]",
-                "URL=#{url}",
-                ""
-            ].join("\n")
-            File.open(filepath, "w"){|f| f.puts(filecontents) }
-        end
-        # TODO: implement the option to edit
+        system("open -a Safari '#{url}'")
     end
 
     # NxA002::destroy(repositoryRoot: String, id: String): Boolean
@@ -260,17 +247,14 @@ class NxA003
         id
     end
 
-    # NxA003::accessWithOptionToEdit(repositoryRoot: String, id: String, exportFolder)
-    def self.accessWithOptionToEdit(repositoryRoot, id, exportFolder)
-        if exportFolder.nil? then
-            exportFolder = "/Users/pascal/Desktop"
-        end
+    # NxA003::accessWithOptionToEdit(repositoryRoot: String, id: String)
+    def self.accessWithOptionToEdit(repositoryRoot, id)
         filepath = NxAsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
         return if filepath.nil?
         db = Daybreak::DB.new filepath
         operator = NxAxiomsElizabeth.new(db)
         nhash = db["nhash-c4ae0383-8a1f"]
-        AionCore::exportHashAtFolder(operator, nhash, exportFolder)
+        AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
         db.close
         # TODO: implement the option to edit
     end
@@ -326,21 +310,21 @@ class NxAxioms
         raise "2af3e337-eddd-4203-9a28-21ea06655c83: non standard variant for (repositoryRoot: #{repositoryRoot}, id: #{id}, filepath: #{filepath})"
     end
 
-    # NxAxioms::accessWithOptionToEdit(repositoryRoot: String, id: String, exportFolder = nil)
-    def self.accessWithOptionToEdit(repositoryRoot, id, exportFolder = nil)
+    # NxAxioms::accessWithOptionToEdit(repositoryRoot: String, id: String)
+    def self.accessWithOptionToEdit(repositoryRoot, id)
         return if id.nil?
         filepath = NxAsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
         return if filepath.nil?
         if filepath[-3, 3] == "001" then
-            NxA001::accessWithOptionToEdit(repositoryRoot, id, exportFolder)
+            NxA001::accessWithOptionToEdit(repositoryRoot, id) # text
             return
         end
         if filepath[-3, 3] == "002" then
-            NxA002::accessWithOptionToEdit(repositoryRoot, id, exportFolder)
+            NxA002::accessWithOptionToEdit(repositoryRoot, id) # url
             return
         end
         if filepath[-3, 3] == "003" then
-            NxA003::accessWithOptionToEdit(repositoryRoot, id, exportFolder)
+            NxA003::accessWithOptionToEdit(repositoryRoot, id) # aion-point
             return
         end
         raise "2201ddcd-cb33-4faf-9388-e4ebb6e7f28f: non standard variant for (repositoryRoot: #{repositoryRoot}, id: #{id}, filepath: #{filepath})"
