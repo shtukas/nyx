@@ -25,16 +25,36 @@ class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
         domain = Domains::getCurrentActiveDomain()
+
+        timeManagedNS16s = [
+            {
+                "ns16s" => Waves::ns16s(),
+                "rt"    => BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
+            },
+            {
+                "ns16s" => DomainPriorityFile::ns16s2(),
+                "rt"    => BankExtended::stdRecoveredDailyTimeInHours(Domains::domainBankAccountOrNull(domain))
+            },
+            {
+                "ns16s" => Nx50s::ns16s(),
+                "rt"    => BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
+            }
+        ].sort{|p1, p2|
+            p1["rt"] <=> p2["rt"]
+        }.map{|packet| packet["ns16s"] }
+
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NxOnDate::ns16s(),
             Fitness::ns16s(),
-            Waves::ns16s(),
+            Waves::highPriorityNs16s(),
             DrivesBackups::ns16s(),
             Work::ns16s(),
-            DomainPriorityFile::ns16s2(),
-            Nx50s::ns16s()
+            #Waves::ns16s(),
+            #DomainPriorityFile::ns16s2(),
+            #Nx50s::ns16s()
+            timeManagedNS16s
         ]
             .flatten
             .compact

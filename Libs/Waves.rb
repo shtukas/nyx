@@ -424,6 +424,25 @@ class Waves
             .reverse
     end
 
+    # Waves::highPriorityNs16s()
+    def self.highPriorityNs16s()
+        compare = lambda {|n1, n2|
+            if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
+                return -1
+            end
+            if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
+                return 1
+            end
+            n1["uuid"] <=> n2["uuid"]
+        }
+        Waves::items()
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
+            .map{|wave| Waves::toNS16(wave) }
+            .sort{|n1, n2| compare.call(n1, n2) }
+            .reverse
+    end
+
     # Waves::nx19s()
     def self.nx19s()
         Waves::items().map{|item|
