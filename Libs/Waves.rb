@@ -260,7 +260,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | [] | update description | update contents | recast schedule | destroy".yellow
+            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -292,6 +292,11 @@ class Waves
             if command == "[]" then
                 StructuredTodoTexts::applyT(wave["uuid"])
                 next
+            end
+
+            if command == "detach running" then
+                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+                break
             end
 
             if Interpreting::match("update description", command) then
@@ -339,9 +344,27 @@ class Waves
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Waves::toString(wave))
         nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::domainBankAccountOrNull(domain)].compact)
         Waves::accessContent(wave)
-        LucilleCore::pressEnterToContinue()
-        Waves::performDone(wave)
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
+
         NxBalls::closeNxBall(nxball, true)
+
+        if operation.nil? then
+            operation = "done (default)"
+        end
+
+        if operation == "done (default)" then
+            Waves::performDone(wave)
+            
+        end
+
+        if operation == "detach running; will done" then
+            Waves::performDone(wave)
+            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        end
+
+        if operation == "exit" then
+
+        end
     end
 
     # Waves::toNS16(wave)

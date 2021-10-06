@@ -26,7 +26,6 @@ class NS16sOperator
     def self.ns16s()
         domain = Domains::getCurrentActiveDomain()
         [
-            DetachedRunning::ns16s(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NxOnDate::ns16s(),
@@ -178,6 +177,7 @@ class UIServices
         nxfloats = NxFloats::nxfloats()
         if nxfloats.size > 0 then
             puts ""
+            vspaceleft = vspaceleft - 1
             nxfloats
             .map{|float|
                 float["run"] = lambda { NxFloats::run(float)}
@@ -188,7 +188,18 @@ class UIServices
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
+            
+        end
+
+        detachedRunnings = DetachedRunning::ns16s()
+        if detachedRunnings.size > 0 then
+            puts ""
             vspaceleft = vspaceleft - 1
+            detachedRunnings.each{|item|
+                line = "(#{store.register(item).to_s.rjust(3, " ")}) #{item["announce"].green}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
         end
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
@@ -208,7 +219,7 @@ class UIServices
             .each_with_index{|ns16|
                 indx = store.register(ns16)
                 isDefaultItem = ns16["uuid"] == (store.getDefault() ? store.getDefault()["uuid"] : "")
-                posStr = "(#{"%3d" % indx})"
+                posStr = isDefaultItem ? "(-->)" : "(#{"%3d" % indx})"
                 announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
